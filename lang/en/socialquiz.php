@@ -14,19 +14,26 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
 /**
- * Provides code to be executed during the module uninstallation
+ * English strings for socialquiz
  *
- * @see uninstall_plugin()
+ * You can have a rather longer description of the file as well,
+ * if you like, and it can span multiple lines.
  *
  * @package    mod_socialquiz
- * @copyright  2015 Your Name <your@email.adress>
+ * @copyright  2015 Your Name
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-/**
- * Custom uninstallation procedure
- */
-function xmldb_socialquiz_uninstall() {
-    return true;
-}
+defined('MOODLE_INTERNAL') || die();
+
+$string['modulename'] = 'socialquiz';
+$string['modulenameplural'] = 'socialquizs';
+$string['modulename_help'] = 'Use the socialquiz module for... | The socialquiz module allows...';
+$string['socialquizfieldset'] = 'Custom example fieldset';
+$string['socialquizname'] = 'socialquiz name';
+$string['socialquizname_help'] = 'This is the content of the help tooltip associated with the socialquizname field. Markdown syntax is supported.';
+$string['socialquiz'] = 'socialquiz';
+$string['pluginadministration'] = 'socialquiz administration';
+$string['pluginname'] = 'socialquiz';

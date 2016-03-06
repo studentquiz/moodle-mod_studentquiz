@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,9 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   local_communityQuiz
- * @copyright 2016, HSR (http://www.hsr.ch)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * The mod_socialquiz instance list viewed event.
+ *
+ * @package    mod_socialquiz
+ * @copyright  2015 Your Name <your@email.adress>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace mod_socialquiz\event;
+
 defined('MOODLE_INTERNAL') || die();
+
+/**
+ * The mod_socialquiz instance list viewed event class.
+ *
+ * @package    mod_socialquiz
+ * @copyright  2015 Your Name <your@email.adress>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class course_module_instance_list_viewed extends \core\event\course_module_instance_list_viewed {
+}

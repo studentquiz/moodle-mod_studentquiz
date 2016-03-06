@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,23 +15,22 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   local_communityQuiz
- * @copyright 2016, HSR (http://www.hsr.ch)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Defines the version and other meta-info about the plugin
+ *
+ * Setting the $plugin->version to 0 prevents the plugin from being installed.
+ * See https://docs.moodle.org/dev/version.php for more info.
+ *
+ * @package    mod_socialquiz
+ * @copyright  2015 Your Name <your@email.address>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2016030400;
-$plugin->requires  = 2015111600; // requires 3.0 https://docs.moodle.org/dev/Releases
-$plugin->cron      = 0;
-$plugin->component = 'local_communityQuiz';
-$plugin->maturity  = MATURITY_ALPHA; //MATURITY_ALPHA, MATURITY_BETA, MATURITY_RC or MATURITY_STABLE
-$plugin->release   = 'v0.1.0';
+$plugin->component    = 'mod_socialquiz';
+$plugin->version      = 2016030600;
+$plugin->release      = 'v0.0.0';
+$plugin->requires     = 2014051200;
+$plugin->maturity     = MATURITY_ALPHA;
+$plugin->cron         = 0;
 $plugin->dependencies = array();
-/*
-$plugin->dependencies = array(
-    'mod_forum' => ANY_VERSION,
-    'mod_data'  => TODO
-);
-*/

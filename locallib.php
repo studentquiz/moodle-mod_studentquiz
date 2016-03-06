@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,9 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package   local_communityQuiz
- * @copyright 2016, HSR (http://www.hsr.ch)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * Internal library of functions for module socialquiz
+ *
+ * All the socialquiz specific functions, needed to implement the module
+ * logic, should go here. Never include this file from your lib.php!
+ *
+ * @package    mod_socialquiz
+ * @copyright  2015 Your Name
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+/*
+ * Does something really useful with the passed things
+ *
+ * @param array $things
+ * @return object
+ *function socialquiz_do_something_useful(array $things) {
+ *    return new stdClass();
+ *}
+ */
