@@ -20,3 +20,10 @@
  * @copyright 2016, HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+/**
+ * Custom uninstallation procedure
+ */
+function xmldb_communityquiz_uninstall() {
+    return true;
+}
