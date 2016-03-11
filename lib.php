@@ -433,6 +433,9 @@ function socialquiz_pluginfile($course, $cm, $context, $filearea, array $args, $
  */
 function socialquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // TODO Delete this function and its docblock, or implement it.
+    $navref->add('SocialQuiz Acitivity Link');
+    $nodeCQ = $navref->add('Community-Quiz');
+    $newQuestion = $nodeCQ->add('Add new Question', new moodle_url('/mod/socialquiz/specialview.php?courseid=2'));
 }
 
 /**
