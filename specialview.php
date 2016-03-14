@@ -33,23 +33,15 @@ class TextCustomView extends \core_question\bank\view {
 }
 
 
-//add new capabilities to question bank
-$tmp = array('socialquiz/question:add',
-        'socialquiz/question:editmine',
-        'socialquiz/question:editall',
-        'socialquiz/question:viewmine',
-        'socialquiz/question:viewall',
-        'socialquiz/question:usemine',
-        'socialquiz/question:useall',
-        'socialquiz/question:movemine',
-        'socialquiz/question:moveall');
+array_push(question_edit_contexts::$caps['questions'], 'mod/socialquiz:qbview');
+array_push(question_edit_contexts::$caps['categories'], 'mod/socialquiz:qbview');
+array_push(question_edit_contexts::$caps['import'], 'mod/socialquiz:qbview');
+array_push(question_edit_contexts::$caps['export'], 'mod/socialquiz:qbview');
 
-array_push(question_edit_contexts::$caps, "dudul", $tmp);
-
-var_dump(question_edit_contexts::$caps);
 
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
-    question_edit_setup('questions', '/question/edit.php');
+    question_edit_setup('questions', '/question/edit.php', true, false);
+
 
 $url = new moodle_url($thispageurl);
 if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {

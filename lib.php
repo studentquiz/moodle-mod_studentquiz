@@ -435,7 +435,7 @@ function socialquiz_extend_navigation(navigation_node $navref, stdClass $course,
     // TODO Delete this function and its docblock, or implement it.
     $navref->add('SocialQuiz Acitivity Link');
     $nodeCQ = $navref->add('Community-Quiz');
-    $newQuestion = $nodeCQ->add('Add new Question', new moodle_url('/mod/socialquiz/specialview.php?courseid=2'));
+    $newQuestion = $nodeCQ->add('Add new Question', new moodle_url('/mod/socialquiz/specialview.php?cmid=' . $cm->id));
 }
 
 /**
