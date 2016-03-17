@@ -48,12 +48,6 @@ function mod_socialquiz_get_question_bank_search_conditions() {
     return array();
 }
 
-/*array_push(question_edit_contexts::$caps['questions'], 'mod/socialquiz:qbview');
-array_push(question_edit_contexts::$caps['categories'], 'mod/socialquiz:qbview');
-array_push(question_edit_contexts::$caps['import'], 'mod/socialquiz:qbview');
-array_push(question_edit_contexts::$caps['export'], 'mod/socialquiz:qbview');
-array_push(question_edit_contexts::$caps['editq'], 'mod/socialquiz:qbview');*/
-
 $_POST['cat'] = '10,61';
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
     question_edit_setup('questions', '/question/edit.php', true, false);
