@@ -44,11 +44,12 @@ class TextCustomView extends \core_question\bank\view {
 }
 
 function mod_socialquiz_get_question_bank_search_conditions() {
-    echo "ahoiii get extendsion";
+    echo "get extendsion";
     return array();
 }
-
-$_POST['cat'] = '10,61';
+$context = context_module::instance(required_param('cmid', PARAM_INT));
+$category = question_get_default_category($context->id);
+$_POST['cat'] = $category->id . ',' . $context->id;
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
     question_edit_setup('questions', '/question/edit.php', true, false);
 
