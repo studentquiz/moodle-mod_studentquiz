@@ -1,4 +1,6 @@
 <?php
+define('CACHE_DISABLE_ALL', true);
+define('CACHE_DISABLE_STORES', true);
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
@@ -30,17 +32,32 @@ class TextCustomView extends \core_question\bank\view {
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
     }
+
+    protected function init_search_conditions() {
+        $searchplugins = get_plugin_list_with_function('mod', 'get_question_bank_search_conditions');
+        foreach ($searchplugins as $component => $function) {
+            foreach ($function($this) as $searchobject) {
+                $this->add_searchcondition($searchobject);
+            }
+        }
+    }
 }
 
+function mod_socialquiz_get_question_bank_search_conditions() {
+    echo "ahoiii get extendsion";
+    return array();
+}
 
-array_push(question_edit_contexts::$caps['questions'], 'mod/socialquiz:qbview');
+/*array_push(question_edit_contexts::$caps['questions'], 'mod/socialquiz:qbview');
 array_push(question_edit_contexts::$caps['categories'], 'mod/socialquiz:qbview');
 array_push(question_edit_contexts::$caps['import'], 'mod/socialquiz:qbview');
 array_push(question_edit_contexts::$caps['export'], 'mod/socialquiz:qbview');
+array_push(question_edit_contexts::$caps['editq'], 'mod/socialquiz:qbview');*/
 
-
+$_POST['cat'] = '10,61';
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
     question_edit_setup('questions', '/question/edit.php', true, false);
+
 
 
 $url = new moodle_url($thispageurl);
@@ -59,7 +76,11 @@ $context = $contexts->lowest();
 $streditingquestions = get_string('editquestions', 'question');
 $PAGE->set_title($streditingquestions);
 $PAGE->set_heading($COURSE->fullname);
+
+var_dump($pagevars['cat']);
 echo $OUTPUT->header();
+
+
 
 echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
 $questionbank->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
