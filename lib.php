@@ -437,7 +437,9 @@ function socialquiz_extend_navigation(navigation_node $navref, stdClass $course,
     $nodeCQ = $navref->add('Community-Quiz');
     echo $course->category;
     $newQuestion = $nodeCQ->add('Add new Question', new moodle_url('/mod/socialquiz/specialview.php?cmid=' . $cm->id));
+    $nodeCQ->add('Add new Random Quiz', new moodle_url('/mod/socialquiz/addrandom.php?cmid=' . $cm->id));
 }
+
 
 /**
  * Extends the settings navigation with the socialquiz settings

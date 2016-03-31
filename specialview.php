@@ -33,14 +33,14 @@ class TextCustomView extends \core_question\bank\view {
             $this->contexts->having_cap('moodle/question:add'));
     }
 
-    protected function init_search_conditions() {
+    /*protected function init_search_conditions() {
         $searchplugins = get_plugin_list_with_function('mod', 'get_question_bank_search_conditions');
         foreach ($searchplugins as $component => $function) {
             foreach ($function($this) as $searchobject) {
                 $this->add_searchcondition($searchobject);
             }
         }
-    }
+    }*/
 }
 
 function mod_socialquiz_get_question_bank_search_conditions() {
