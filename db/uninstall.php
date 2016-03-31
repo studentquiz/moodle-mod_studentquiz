@@ -19,7 +19,7 @@
  *
  * @see uninstall_plugin()
  *
- * @package    mod_socialquiz
+ * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch) <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,6 +27,6 @@
 /**
  * Custom uninstallation procedure
  */
-function xmldb_socialquiz_uninstall() {
+function xmldb_studentquiz_uninstall() {
     return true;
 }

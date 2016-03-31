@@ -16,24 +16,24 @@
 
 
 /**
- * English strings for socialquiz
+ * English strings for studentquiz
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_socialquiz
+ * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'socialquiz';
-$string['modulenameplural'] = 'socialquizs';
-$string['modulename_help'] = 'Use the socialquiz module for... | The socialquiz module allows...';
-$string['socialquizfieldset'] = 'Custom example fieldset';
-$string['socialquizname'] = 'socialquiz name';
-$string['socialquizname_help'] = 'This is the content of the help tooltip associated with the socialquizname field. Markdown syntax is supported.';
-$string['socialquiz'] = 'socialquiz';
-$string['pluginadministration'] = 'socialquiz administration';
-$string['pluginname'] = 'socialquiz';
+$string['modulename'] = 'studentquiz';
+$string['modulenameplural'] = 'studentquizs';
+$string['modulename_help'] = 'Use the studentquiz module for... | The studentquiz module allows...';
+$string['studentquizfieldset'] = 'Custom example fieldset';
+$string['studentquizname'] = 'studentquiz name';
+$string['studentquizname_help'] = 'This is the content of the help tooltip associated with the studentquizname field. Markdown syntax is supported.';
+$string['studentquiz'] = 'studentquiz';
+$string['pluginadministration'] = 'studentquiz administration';
+$string['pluginname'] = 'studentquiz';
