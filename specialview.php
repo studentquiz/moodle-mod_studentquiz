@@ -43,7 +43,7 @@ class TextCustomView extends \core_question\bank\view {
     }*/
 }
 
-function mod_socialquiz_get_question_bank_search_conditions() {
+function mod_studentquiz_get_question_bank_search_conditions() {
     echo "get extendsion";
     return array();
 }

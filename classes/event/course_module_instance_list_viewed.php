@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_socialquiz instance list viewed event.
+ * The mod_studentquiz instance list viewed event.
  *
- * @package    mod_socialquiz
+ * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch) <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_socialquiz\event;
+namespace mod_studentquiz\event;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * The mod_socialquiz instance list viewed event class.
+ * The mod_studentquiz instance list viewed event class.
  *
- * @package    mod_socialquiz
+ * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch) <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

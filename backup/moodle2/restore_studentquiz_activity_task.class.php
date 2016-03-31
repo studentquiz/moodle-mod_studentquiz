@@ -17,7 +17,7 @@
 /**
  * Provides the restore activity task class
  *
- * @package   mod_socialquiz
+ * @package   mod_studentquiz
  * @category  backup
  * @copyright 2015 Your Name <your@email.adress>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,19 +25,19 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/socialquiz/backup/moodle2/restore_socialquiz_stepslib.php');
+require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/restore_studentquiz_stepslib.php');
 
 /**
- * Restore task for the socialquiz activity module
+ * Restore task for the studentquiz activity module
  *
  * Provides all the settings and steps to perform complete restore of the activity.
  *
- * @package   mod_socialquiz
+ * @package   mod_studentquiz
  * @category  backup
  * @copyright 2015 Your Name <your@email.adress>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_socialquiz_activity_task extends restore_activity_task {
+class restore_studentquiz_activity_task extends restore_activity_task {
 
     /**
      * Define (add) particular settings this activity can have
@@ -51,7 +51,7 @@ class restore_socialquiz_activity_task extends restore_activity_task {
      */
     protected function define_my_steps() {
         // We have just one structure step here.
-        $this->add_step(new restore_socialquiz_activity_structure_step('socialquiz_structure', 'socialquiz.xml'));
+        $this->add_step(new restore_studentquiz_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
     }
 
     /**
@@ -61,7 +61,7 @@ class restore_socialquiz_activity_task extends restore_activity_task {
     static public function define_decode_contents() {
         $contents = array();
 
-        $contents[] = new restore_decode_content('socialquiz', array('intro'), 'socialquiz');
+        $contents[] = new restore_decode_content('studentquiz', array('intro'), 'studentquiz');
 
         return $contents;
     }
@@ -73,8 +73,8 @@ class restore_socialquiz_activity_task extends restore_activity_task {
     static public function define_decode_rules() {
         $rules = array();
 
-        $rules[] = new restore_decode_rule('SOCIALQUIZVIEWBYID', '/mod/socialquiz/view.php?id=$1', 'course_module');
-        $rules[] = new restore_decode_rule('SOCIALQUIZINDEX', '/mod/socialquiz/index.php?id=$1', 'course');
+        $rules[] = new restore_decode_rule('STUDENTQUIZVIEWBYID', '/mod/studentquiz/view.php?id=$1', 'course_module');
+        $rules[] = new restore_decode_rule('STUDENTQUIZINDEX', '/mod/studentquiz/index.php?id=$1', 'course');
 
         return $rules;
 
@@ -83,15 +83,15 @@ class restore_socialquiz_activity_task extends restore_activity_task {
     /**
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring
-     * socialquiz logs. It must return one array
+     * studentquiz logs. It must return one array
      * of {@link restore_log_rule} objects
      */
     static public function define_restore_log_rules() {
         $rules = array();
 
-        $rules[] = new restore_log_rule('socialquiz', 'add', 'view.php?id={course_module}', '{socialquiz}');
-        $rules[] = new restore_log_rule('socialquiz', 'update', 'view.php?id={course_module}', '{socialquiz}');
-        $rules[] = new restore_log_rule('socialquiz', 'view', 'view.php?id={course_module}', '{socialquiz}');
+        $rules[] = new restore_log_rule('studentquiz', 'add', 'view.php?id={course_module}', '{studentquiz}');
+        $rules[] = new restore_log_rule('studentquiz', 'update', 'view.php?id={course_module}', '{studentquiz}');
+        $rules[] = new restore_log_rule('studentquiz', 'view', 'view.php?id={course_module}', '{studentquiz}');
 
         return $rules;
     }
@@ -109,7 +109,7 @@ class restore_socialquiz_activity_task extends restore_activity_task {
     static public function define_restore_log_rules_for_course() {
         $rules = array();
 
-        $rules[] = new restore_log_rule('socialquiz', 'view all', 'index.php?id={course}', null);
+        $rules[] = new restore_log_rule('studentquiz', 'view all', 'index.php?id={course}', null);
 
         return $rules;
     }

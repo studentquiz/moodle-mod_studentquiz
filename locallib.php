@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module socialquiz
+ * Internal library of functions for module studentquiz
  *
- * All the socialquiz specific functions, needed to implement the module
+ * All the studentquiz specific functions, needed to implement the module
  * logic, should go here. Never include this file from your lib.php!
  *
- * @package    mod_socialquiz
+ * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  *
  * @param array $things
  * @return object
- *function socialquiz_do_something_useful(array $things) {
+ *function studentquiz_do_something_useful(array $things) {
  *    return new stdClass();
  *}
  */
