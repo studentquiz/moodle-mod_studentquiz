@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines backup_studentquiz_activity_task class
+ * Defines backup_socialquiz_activity_task class
  *
- * @package   mod_studentquiz
+ * @package   mod_socialquiz
  * @category  backup
  * @copyright 2015 Your Name <your@email.adress>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -25,17 +25,17 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/backup_studentquiz_stepslib.php');
+require_once($CFG->dirroot . '/mod/socialquiz/backup/moodle2/backup_socialquiz_stepslib.php');
 
 /**
- * Provides the steps to perform one complete backup of the studentquiz instance
+ * Provides the steps to perform one complete backup of the socialquiz instance
  *
- * @package   mod_studentquiz
+ * @package   mod_socialquiz
  * @category  backup
  * @copyright 2015 Your Name <your@email.adress>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_studentquiz_activity_task extends backup_activity_task {
+class backup_socialquiz_activity_task extends backup_activity_task {
 
     /**
      * No specific settings for this activity
@@ -44,10 +44,10 @@ class backup_studentquiz_activity_task extends backup_activity_task {
     }
 
     /**
-     * Defines a backup step to store the instance data in the studentquiz.xml file
+     * Defines a backup step to store the instance data in the socialquiz.xml file
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_studentquiz_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
+        $this->add_step(new backup_socialquiz_activity_structure_step('socialquiz_structure', 'socialquiz.xml'));
     }
 
     /**
@@ -61,13 +61,13 @@ class backup_studentquiz_activity_task extends backup_activity_task {
 
         $base = preg_quote($CFG->wwwroot, '/');
 
-        // Link to the list of studentquizs.
-        $search = '/('.$base.'\/mod\/studentquiz\/index.php\?id\=)([0-9]+)/';
-        $content = preg_replace($search, '$@STUDENTQUIZINDEX*$2@$', $content);
+        // Link to the list of socialquizs.
+        $search = '/('.$base.'\/mod\/socialquiz\/index.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@SOCIALQUIZINDEX*$2@$', $content);
 
-        // Link to studentquiz view by moduleid.
-        $search = '/('.$base.'\/mod\/studentquiz\/view.php\?id\=)([0-9]+)/';
-        $content = preg_replace($search, '$@STUDENTQUIZVIEWBYID*$2@$', $content);
+        // Link to socialquiz view by moduleid.
+        $search = '/('.$base.'\/mod\/socialquiz\/view.php\?id\=)([0-9]+)/';
+        $content = preg_replace($search, '$@SOCIALQUIZVIEWBYID*$2@$', $content);
 
         return $content;
     }

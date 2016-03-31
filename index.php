@@ -20,12 +20,12 @@
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
  *
- * @package    mod_studentquiz
+ * @package    mod_socialquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-// Replace studentquiz with the name of your module and remove this line.
+// Replace socialquiz with the name of your module and remove this line.
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/lib.php');
@@ -39,12 +39,12 @@ require_course_login($course);
 $params = array(
     'context' => context_course::instance($course->id)
 );
-$event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
+$event = \mod_socialquiz\event\course_module_instance_list_viewed::create($params);
 $event->add_record_snapshot('course', $course);
 $event->trigger();
 
-$strname = get_string('modulenameplural', 'mod_studentquiz');
-$PAGE->set_url('/mod/studentquiz/index.php', array('id' => $id));
+$strname = get_string('modulenameplural', 'mod_socialquiz');
+$PAGE->set_url('/mod/socialquiz/index.php', array('id' => $id));
 $PAGE->navbar->add($strname);
 $PAGE->set_title("$course->shortname: $strname");
 $PAGE->set_heading($course->fullname);
@@ -53,8 +53,8 @@ $PAGE->set_pagelayout('incourse');
 echo $OUTPUT->header();
 echo $OUTPUT->heading($strname);
 
-if (! $studentquizs = get_all_instances_in_course('studentquiz', $course)) {
-    notice(get_string('nostudentquizs', 'studentquiz'), new moodle_url('/course/view.php', array('id' => $course->id)));
+if (! $socialquizs = get_all_instances_in_course('socialquiz', $course)) {
+    notice(get_string('nosocialquizs', 'socialquiz'), new moodle_url('/course/view.php', array('id' => $course->id)));
 }
 
 $usesections = course_format_uses_sections($course->format);
@@ -73,7 +73,7 @@ if ($usesections) {
 
 $modinfo = get_fast_modinfo($course);
 $currentsection = '';
-foreach ($modinfo->instances['studentquiz'] as $cm) {
+foreach ($modinfo->instances['socialquiz'] as $cm) {
     $row = array();
     if ($usesections) {
         if ($cm->sectionnum !== $currentsection) {

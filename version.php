@@ -20,14 +20,14 @@
  * Setting the $plugin->version to 0 prevents the plugin from being installed.
  * See https://docs.moodle.org/dev/version.php for more info.
  *
- * @package    mod_studentquiz
+ * @package    mod_socialquiz
  * @copyright  2016 HSR (http://www.hsr.ch) <your@email.address>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'mod_studentquiz';
+$plugin->component    = 'mod_socialquiz';
 $plugin->version      = 2016031703;
 $plugin->release      = 'v0.0.0';
 $plugin->requires     = 2014051200;

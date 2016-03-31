@@ -15,16 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of interface functions and constants for module studentquiz
+ * Library of interface functions and constants for module socialquiz
  *
  * All the core Moodle functions, neeeded to allow the module to work
  * integrated in Moodle should be placed here.
  *
- * All the studentquiz specific functions, needed to implement all the module
+ * All the socialquiz specific functions, needed to implement all the module
  * logic, should go to locallib.php. This will help to save some memory when
  * Moodle is performing actions across all modules.
  *
- * @package    mod_studentquiz
+ * @package    mod_socialquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * Example constant, you probably want to remove this :-)
  */
-define('STUDENTQUIZ_ULTIMATE_ANSWER', 42);
+define('SOCIALQUIZ_ULTIMATE_ANSWER', 42);
 
 /* Moodle core API */
 
@@ -46,7 +46,7 @@ define('STUDENTQUIZ_ULTIMATE_ANSWER', 42);
  * @param string $feature FEATURE_xx constant for requested feature
  * @return mixed true if the feature is supported, null if unknown
  */
-function studentquiz_supports($feature) {
+function socialquiz_supports($feature) {
 
     switch($feature) {
         case FEATURE_MOD_INTRO:
@@ -63,59 +63,59 @@ function studentquiz_supports($feature) {
 }
 
 /**
- * Saves a new instance of the studentquiz into the database
+ * Saves a new instance of the socialquiz into the database
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will create a new instance and return the id number
  * of the new instance.
  *
- * @param stdClass $studentquiz Submitted data from the form in mod_form.php
- * @param mod_studentquiz_mod_form $mform The form instance itself (if needed)
- * @return int The id of the newly inserted studentquiz record
+ * @param stdClass $socialquiz Submitted data from the form in mod_form.php
+ * @param mod_socialquiz_mod_form $mform The form instance itself (if needed)
+ * @return int The id of the newly inserted socialquiz record
  */
-function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
+function socialquiz_add_instance(stdClass $socialquiz, mod_socialquiz_mod_form $mform = null) {
     global $DB;
 
-    $studentquiz->timecreated = time();
+    $socialquiz->timecreated = time();
 
     // You may have to add extra stuff in here.
 
-    $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
+    $socialquiz->id = $DB->insert_record('socialquiz', $socialquiz);
 
-    studentquiz_grade_item_update($studentquiz);
+    socialquiz_grade_item_update($socialquiz);
 
-    return $studentquiz->id;
+    return $socialquiz->id;
 }
 
 /**
- * Updates an instance of the studentquiz in the database
+ * Updates an instance of the socialquiz in the database
  *
  * Given an object containing all the necessary data,
  * (defined by the form in mod_form.php) this function
  * will update an existing instance with new data.
  *
- * @param stdClass $studentquiz An object from the form in mod_form.php
- * @param mod_studentquiz_mod_form $mform The form instance itself (if needed)
+ * @param stdClass $socialquiz An object from the form in mod_form.php
+ * @param mod_socialquiz_mod_form $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
+function socialquiz_update_instance(stdClass $socialquiz, mod_socialquiz_mod_form $mform = null) {
     global $DB;
 
-    $studentquiz->timemodified = time();
-    $studentquiz->id = $studentquiz->instance;
+    $socialquiz->timemodified = time();
+    $socialquiz->id = $socialquiz->instance;
 
     // You may have to add extra stuff in here.
 
-    $result = $DB->update_record('studentquiz', $studentquiz);
+    $result = $DB->update_record('socialquiz', $socialquiz);
 
-    studentquiz_grade_item_update($studentquiz);
+    socialquiz_grade_item_update($socialquiz);
 
     return $result;
 }
 
 /**
- * Removes an instance of the studentquiz from the database
+ * Removes an instance of the socialquiz from the database
  *
  * Given an ID of an instance of this module,
  * this function will permanently delete the instance
@@ -124,18 +124,18 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
  * @param int $id Id of the module instance
  * @return boolean Success/Failure
  */
-function studentquiz_delete_instance($id) {
+function socialquiz_delete_instance($id) {
     global $DB;
 
-    if (! $studentquiz = $DB->get_record('studentquiz', array('id' => $id))) {
+    if (! $socialquiz = $DB->get_record('socialquiz', array('id' => $id))) {
         return false;
     }
 
     // Delete any dependent records here.
 
-    $DB->delete_records('studentquiz', array('id' => $studentquiz->id));
+    $DB->delete_records('socialquiz', array('id' => $socialquiz->id));
 
-    studentquiz_grade_item_delete($studentquiz);
+    socialquiz_grade_item_delete($socialquiz);
 
     return true;
 }
@@ -151,10 +151,10 @@ function studentquiz_delete_instance($id) {
  * @param stdClass $course The course record
  * @param stdClass $user The user record
  * @param cm_info|stdClass $mod The course module info object or record
- * @param stdClass $studentquiz The studentquiz instance record
+ * @param stdClass $socialquiz The socialquiz instance record
  * @return stdClass|null
  */
-function studentquiz_user_outline($course, $user, $mod, $studentquiz) {
+function socialquiz_user_outline($course, $user, $mod, $socialquiz) {
 
     $return = new stdClass();
     $return->time = 0;
@@ -171,21 +171,21 @@ function studentquiz_user_outline($course, $user, $mod, $studentquiz) {
  * @param stdClass $course the current course record
  * @param stdClass $user the record of the user we are generating report for
  * @param cm_info $mod course module info
- * @param stdClass $studentquiz the module instance record
+ * @param stdClass $socialquiz the module instance record
  */
-function studentquiz_user_complete($course, $user, $mod, $studentquiz) {
+function socialquiz_user_complete($course, $user, $mod, $socialquiz) {
 }
 
 /**
  * Given a course and a time, this module should find recent activity
- * that has occurred in studentquiz activities and print it out.
+ * that has occurred in socialquiz activities and print it out.
  *
  * @param stdClass $course The course record
  * @param bool $viewfullnames Should we display full names
  * @param int $timestart Print activity since this timestamp
  * @return boolean True if anything was printed, otherwise false
  */
-function studentquiz_print_recent_activity($course, $viewfullnames, $timestart) {
+function socialquiz_print_recent_activity($course, $viewfullnames, $timestart) {
     return false;
 }
 
@@ -194,7 +194,7 @@ function studentquiz_print_recent_activity($course, $viewfullnames, $timestart) 
  *
  * This callback function is supposed to populate the passed array with
  * custom activity records. These records are then rendered into HTML via
- * {@link studentquiz_print_recent_mod_activity()}.
+ * {@link socialquiz_print_recent_mod_activity()}.
  *
  * Returns void, it adds items into $activities and increases $index.
  *
@@ -206,11 +206,11 @@ function studentquiz_print_recent_activity($course, $viewfullnames, $timestart) 
  * @param int $userid check for a particular user's activity only, defaults to 0 (all users)
  * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups)
  */
-function studentquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+function socialquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
 }
 
 /**
- * Prints single activity item prepared by {@link studentquiz_get_recent_mod_activity()}
+ * Prints single activity item prepared by {@link socialquiz_get_recent_mod_activity()}
  *
  * @param stdClass $activity activity record with added 'cmid' property
  * @param int $courseid the id of the course we produce the report for
@@ -218,7 +218,7 @@ function studentquiz_get_recent_mod_activity(&$activities, &$index, $timestart, 
  * @param array $modnames as returned by {@link get_module_types_names()}
  * @param bool $viewfullnames display users' full names
  */
-function studentquiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
+function socialquiz_print_recent_mod_activity($activity, $courseid, $detail, $modnames, $viewfullnames) {
 }
 
 /**
@@ -231,7 +231,7 @@ function studentquiz_print_recent_mod_activity($activity, $courseid, $detail, $m
  *
  * @return boolean
  */
-function studentquiz_cron () {
+function socialquiz_cron () {
     return true;
 }
 
@@ -243,26 +243,26 @@ function studentquiz_cron () {
  *
  * @return array
  */
-function studentquiz_get_extra_capabilities() {
+function socialquiz_get_extra_capabilities() {
     return array();
 }
 
 /* Gradebook API */
 
 /**
- * Is a given scale used by the instance of studentquiz?
+ * Is a given scale used by the instance of socialquiz?
  *
- * This function returns if a scale is being used by one studentquiz
+ * This function returns if a scale is being used by one socialquiz
  * if it has support for grading and scales.
  *
- * @param int $studentquizid ID of an instance of this module
+ * @param int $socialquizid ID of an instance of this module
  * @param int $scaleid ID of the scale
- * @return bool true if the scale is used by the given studentquiz instance
+ * @return bool true if the scale is used by the given socialquiz instance
  */
-function studentquiz_scale_used($studentquizid, $scaleid) {
+function socialquiz_scale_used($socialquizid, $scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('studentquiz', array('id' => $studentquizid, 'grade' => -$scaleid))) {
+    if ($scaleid and $DB->record_exists('socialquiz', array('id' => $socialquizid, 'grade' => -$scaleid))) {
         return true;
     } else {
         return false;
@@ -270,17 +270,17 @@ function studentquiz_scale_used($studentquizid, $scaleid) {
 }
 
 /**
- * Checks if scale is being used by any instance of studentquiz.
+ * Checks if scale is being used by any instance of socialquiz.
  *
  * This is used to find out if scale used anywhere.
  *
  * @param int $scaleid ID of the scale
- * @return boolean true if the scale is used by any studentquiz instance
+ * @return boolean true if the scale is used by any socialquiz instance
  */
-function studentquiz_scale_used_anywhere($scaleid) {
+function socialquiz_scale_used_anywhere($scaleid) {
     global $DB;
 
-    if ($scaleid and $DB->record_exists('studentquiz', array('grade' => -$scaleid))) {
+    if ($scaleid and $DB->record_exists('socialquiz', array('grade' => -$scaleid))) {
         return true;
     } else {
         return false;
@@ -288,29 +288,29 @@ function studentquiz_scale_used_anywhere($scaleid) {
 }
 
 /**
- * Creates or updates grade item for the given studentquiz instance
+ * Creates or updates grade item for the given socialquiz instance
  *
  * Needed by {@link grade_update_mod_grades()}.
  *
- * @param stdClass $studentquiz instance object with extra cmidnumber and modname property
+ * @param stdClass $socialquiz instance object with extra cmidnumber and modname property
  * @param bool $reset reset grades in the gradebook
  * @return void
  */
-function studentquiz_grade_item_update(stdClass $studentquiz, $reset=false) {
+function socialquiz_grade_item_update(stdClass $socialquiz, $reset=false) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
     $item = array();
-    $item['itemname'] = clean_param($studentquiz->name, PARAM_NOTAGS);
+    $item['itemname'] = clean_param($socialquiz->name, PARAM_NOTAGS);
     $item['gradetype'] = GRADE_TYPE_VALUE;
 
-    if ($studentquiz->grade > 0) {
+    if ($socialquiz->grade > 0) {
         $item['gradetype'] = GRADE_TYPE_VALUE;
-        $item['grademax']  = $studentquiz->grade;
+        $item['grademax']  = $socialquiz->grade;
         $item['grademin']  = 0;
-    } else if ($studentquiz->grade < 0) {
+    } else if ($socialquiz->grade < 0) {
         $item['gradetype'] = GRADE_TYPE_SCALE;
-        $item['scaleid']   = -$studentquiz->grade;
+        $item['scaleid']   = -$socialquiz->grade;
     } else {
         $item['gradetype'] = GRADE_TYPE_NONE;
     }
@@ -319,40 +319,40 @@ function studentquiz_grade_item_update(stdClass $studentquiz, $reset=false) {
         $item['reset'] = true;
     }
 
-    grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz',
-            $studentquiz->id, 0, null, $item);
+    grade_update('mod/socialquiz', $socialquiz->course, 'mod', 'socialquiz',
+            $socialquiz->id, 0, null, $item);
 }
 
 /**
- * Delete grade item for given studentquiz instance
+ * Delete grade item for given socialquiz instance
  *
- * @param stdClass $studentquiz instance object
+ * @param stdClass $socialquiz instance object
  * @return grade_item
  */
-function studentquiz_grade_item_delete($studentquiz) {
+function socialquiz_grade_item_delete($socialquiz) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
-    return grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz',
-            $studentquiz->id, 0, null, array('deleted' => 1));
+    return grade_update('mod/socialquiz', $socialquiz->course, 'mod', 'socialquiz',
+            $socialquiz->id, 0, null, array('deleted' => 1));
 }
 
 /**
- * Update studentquiz grades in the gradebook
+ * Update socialquiz grades in the gradebook
  *
  * Needed by {@link grade_update_mod_grades()}.
  *
- * @param stdClass $studentquiz instance object with extra cmidnumber and modname property
+ * @param stdClass $socialquiz instance object with extra cmidnumber and modname property
  * @param int $userid update grade of specific user only, 0 means all participants
  */
-function studentquiz_update_grades(stdClass $studentquiz, $userid = 0) {
+function socialquiz_update_grades(stdClass $socialquiz, $userid = 0) {
     global $CFG, $DB;
     require_once($CFG->libdir.'/gradelib.php');
 
     // Populate array of grade objects indexed by userid.
     $grades = array();
 
-    grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz', $studentquiz->id, 0, $grades);
+    grade_update('mod/socialquiz', $socialquiz->course, 'mod', 'socialquiz', $socialquiz->id, 0, $grades);
 }
 
 /* File API */
@@ -368,14 +368,14 @@ function studentquiz_update_grades(stdClass $studentquiz, $userid = 0) {
  * @param stdClass $context
  * @return array of [(string)filearea] => (string)description
  */
-function studentquiz_get_file_areas($course, $cm, $context) {
+function socialquiz_get_file_areas($course, $cm, $context) {
     return array();
 }
 
 /**
- * File browsing support for studentquiz file areas
+ * File browsing support for socialquiz file areas
  *
- * @package mod_studentquiz
+ * @package mod_socialquiz
  * @category files
  *
  * @param file_browser $browser
@@ -389,25 +389,25 @@ function studentquiz_get_file_areas($course, $cm, $context) {
  * @param string $filename
  * @return file_info instance or null if not found
  */
-function studentquiz_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
+function socialquiz_get_file_info($browser, $areas, $course, $cm, $context, $filearea, $itemid, $filepath, $filename) {
     return null;
 }
 
 /**
- * Serves the files from the studentquiz file areas
+ * Serves the files from the socialquiz file areas
  *
- * @package mod_studentquiz
+ * @package mod_socialquiz
  * @category files
  *
  * @param stdClass $course the course object
  * @param stdClass $cm the course module object
- * @param stdClass $context the studentquiz's context
+ * @param stdClass $context the socialquiz's context
  * @param string $filearea the name of the file area
  * @param array $args extra arguments (itemid, path)
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
+function socialquiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
     global $DB, $CFG;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -422,32 +422,32 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding studentquiz nodes if there is a relevant content
+ * Extends the global navigation tree by adding socialquiz nodes if there is a relevant content
  *
  * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
  *
- * @param navigation_node $navref An object representing the navigation tree node of the studentquiz module instance
+ * @param navigation_node $navref An object representing the navigation tree node of the socialquiz module instance
  * @param stdClass $course current course record
- * @param stdClass $module current studentquiz instance record
+ * @param stdClass $module current socialquiz instance record
  * @param cm_info $cm course module information
  */
-function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
+function socialquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // TODO Delete this function and its docblock, or implement it.
     $navref->add('SocialQuiz Acitivity Link');
     $nodeCQ = $navref->add('Community-Quiz');
     echo $course->category;
-    $newQuestion = $nodeCQ->add('Add new Question', new moodle_url('/mod/studentquiz/specialview.php?cmid=' . $cm->id));
+    $newQuestion = $nodeCQ->add('Add new Question', new moodle_url('/mod/socialquiz/specialview.php?cmid=' . $cm->id));
 }
 
 /**
- * Extends the settings navigation with the studentquiz settings
+ * Extends the settings navigation with the socialquiz settings
  *
- * This function is called when the context for the page is a studentquiz module. This is not called by AJAX
+ * This function is called when the context for the page is a socialquiz module. This is not called by AJAX
  * so it is safe to rely on the $PAGE.
  *
  * @param settings_navigation $settingsnav complete settings navigation tree
- * @param navigation_node $studentquiznode studentquiz administration node
+ * @param navigation_node $socialquiznode socialquiz administration node
  */
-function studentquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $studentquiznode=null) {
+function socialquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $socialquiznode=null) {
     // TODO Delete this function and its docblock, or implement it.
 }
