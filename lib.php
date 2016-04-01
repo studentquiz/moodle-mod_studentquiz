@@ -80,17 +80,16 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     $studentquiz->timecreated = time();
 
     // You may have to add extra stuff in here.
-
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
 
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
     $capabilities = array(
-        'moodle/question:viewmine',
-        'moodle/question:viewall',
-        'moodle/question:usemine',
-        'moodle/question:useall',
-        'moodle/question:editmine',
+        //'moodle/question:viewmine',
+        //'moodle/question:viewall',
+        //'moodle/question:usemine',
+        //'moodle/question:useall',
+        //'moodle/question:editmine',
         'moodle/question:add'
     );
 
@@ -153,6 +152,11 @@ function studentquiz_delete_instance($id) {
     if (! $studentquiz = $DB->get_record('studentquiz', array('id' => $id))) {
         return false;
     }
+
+    $role = $DB->get_record('role', array('shortname' => 'student'));
+    $context = context_module::instance($studentquiz->coursemodule);
+    $records = $DB->get_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
+    var_dump($records); die();
 
     // Delete any dependent records here.
 
