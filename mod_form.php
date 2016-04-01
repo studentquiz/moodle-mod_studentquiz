@@ -69,10 +69,10 @@ class mod_studentquiz_mod_form extends moodleform_mod {
 
         // Adding the rest of studentquiz settings, spreading all them into this fieldset
         // ... or adding more fieldsets ('header' elements) if needed for better logic.
-        $mform->addElement('static', 'label1', 'studentquizsetting1', 'Your studentquiz fields go here. Replace me!');
+        //$mform->addElement('static', 'label1', 'studentquizsetting1', 'Your studentquiz fields go here. Replace me!');
 
-        $mform->addElement('header', 'studentquizfieldset', get_string('studentquizfieldset', 'studentquiz'));
-        $mform->addElement('static', 'label2', 'studentquizsetting2', 'Your studentquiz fields go here. Replace me!');
+        //$mform->addElement('header', 'studentquizfieldset', get_string('studentquizfieldset', 'studentquiz'));
+        //$mform->addElement('static', 'label2', 'studentquizsetting2', 'Your studentquiz fields go here. Replace me!');
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();
