@@ -83,6 +83,29 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
 
+    $role = $DB->get_record('role', array('shortname' => 'student'));
+    $context = context_module::instance($studentquiz->coursemodule);
+    $capabilities = array(
+        'moodle/question:viewmine',
+        'moodle/question:viewall',
+        'moodle/question:usemine',
+        'moodle/question:useall',
+        'moodle/question:editmine',
+        'moodle/question:add'
+    );
+
+    foreach ($capabilities as $capability) {
+        $obj = new stdClass();
+        $obj->contextid = $context->id;
+        $obj->roleid = $role->id;
+        $obj->capability = $capability;
+        $obj->permission = 1;
+        $obj->timemodified = time();
+        $obj->modifierid = 0;
+
+        $DB->insert_record('role_capabilities', $obj, false);
+    }
+
     studentquiz_grade_item_update($studentquiz);
 
     return $studentquiz->id;
