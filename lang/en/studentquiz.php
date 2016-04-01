@@ -28,12 +28,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['modulename'] = 'studentquiz';
-$string['modulenameplural'] = 'studentquizs';
-$string['modulename_help'] = 'Use the studentquiz module for... | The studentquiz module allows...';
+$string['modulename'] = 'Student Quiz';
+$string['modulenameplural'] = 'Student Quizzes';
+$string['modulename_help'] = 'Use the Student Quiz Module for... | The Student Quiz module allows...';
 $string['studentquizfieldset'] = 'Custom example fieldset';
-$string['studentquizname'] = 'studentquiz name';
-$string['studentquizname_help'] = 'This is the content of the help tooltip associated with the studentquizname field. Markdown syntax is supported.';
+$string['studentquizname'] = 'Student Quiz Name';
+$string['studentquizname_help'] = 'This is the content of the help tooltip associated with the Student Quiz name field. Markdown syntax is supported.';
 $string['studentquiz'] = 'studentquiz';
-$string['pluginadministration'] = 'studentquiz administration';
-$string['pluginname'] = 'studentquiz';
+$string['pluginadministration'] = 'Student Quiz Administration';
+$string['pluginname'] = 'Student Quiz';
