@@ -155,8 +155,7 @@ function studentquiz_delete_instance($id) {
 
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
-    $records = $DB->get_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
-    var_dump($records); die();
+    $DB->delete_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
 
     // Delete any dependent records here.
 
