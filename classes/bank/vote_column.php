@@ -13,21 +13,23 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->creatorfirstname) && !empty($question->creatorlastname)) {
-            $u = new \stdClass();
-            $u = username_load_fields_from_object($u, $question, 'creator');
-            $date = userdate($question->timecreated, get_string('strftimedatetime', 'langconfig'));
-            echo fullname($u) . '<br>' . \html_writer::tag('span', $date, array('class' => 'date'));
+        if (!empty($question->studentquiz_vote_point)) {
+            echo $question->studentquiz_vote_point;
+        } else {
+            echo "no votes";
         }
     }
 
     public function get_extra_joins() {
-        return array('vo' => 'JOIN {vote} vo ON vo.question_id = q.id');
+        return array('vo' => 'LEFT JOIN ('
+        .'SELECT SUM(studentquiz_vote_point)/COUNT(studentquiz_vote_point) as studentquiz_vote_point'
+        .', question_id FROM {studentquiz_vote}) vo ON vo.question_id = q.id');
     }
 
+    public function get_required_fields() {
+        return array('vo.studentquiz_vote_point');
+    }
     public function is_sortable() {
-        return array(
-            'vote_points' => array('field' => 'vo.vote_points', 'title' => get_string('vote_points', 'studentquiz')),
-        );
+        return 'vo.studentquiz_vote_point';
     }
 }
