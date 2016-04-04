@@ -129,13 +129,17 @@ function mod_studentquiz_get_question_bank_search_conditions() {
     return array();
 }
 
-$coursemodule = required_param('id', PARAM_INT);
-$context = context_module::instance($coursemodule);
+$cmid = optional_param('id', 0, PARAM_INT);
+if(!$cmid){
+    $cmid = required_param('cmid', PARAM_INT);
+}
+
+$context = context_module::instance($cmid);
 $category = question_get_default_category($context->id);
-$_GET['cmid'] = $coursemodule;
+$_GET['cmid'] = $cmid;
 $_POST['cat'] = $category->id . ',' . $context->id;
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
-    question_edit_setup('questions', '/question/edit.php', true, false);
+    question_edit_setup('questions', '/mod/studentquiz/view.php', true, false);
 
 
 

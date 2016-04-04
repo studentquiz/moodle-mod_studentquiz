@@ -29,13 +29,14 @@
 namespace mod_studentquiz\condition;
 defined('MOODLE_INTERNAL') || die();
 
+
 /**
  *  This class controls from which category questions are listed.
  *
  * @copyright 2013 Ray Morris
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_quiz_condition extends condition {
+class student_quiz_condition extends \core_question\bank\search\condition {
     /** @var \stdClass The course record. */
     protected $course;
 
