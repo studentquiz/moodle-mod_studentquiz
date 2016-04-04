@@ -459,14 +459,6 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
  */
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // TODO Delete this function and its docblock, or implement it.
-    //$navref->add('SocialQuiz Acitivity Link');
-    //$nodeCQ = $navref->add('Community-Quiz');
-
-    $context = context_module::instance($module->coursemodule);
-    $category = question_get_default_category($context->id);
-    $urladd = '?cmid=' . $module->coursemodule . '&category=' . $category->id . '&cat=' . $category->id . ',' . $context->id;
-    $navref->add('Add new Question', new moodle_url('/question/addquestion.php' . $urladd));
-    $navref->add('Add new Random Quiz', new moodle_url('/mod/studentquiz/addrandom.php?cmid=' . $cm->id));
 }
 
 
