@@ -24,5 +24,18 @@
         <INDEX NAME="coursemodule" UNIQUE="false" FIELDS="coursemodule"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="studentquiz_vote" COMMENT="Default comment for studentquiz, please edit me">
+        <FIELDS>
+            <FIELD NAME="studentquiz_vote_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="studentquiz_vote_point" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
+            <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_vote_id"/>
+            <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
+            <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
+        </KEYS>
+    </TABLE>
   </TABLES>
 </XMLDB>
