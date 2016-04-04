@@ -37,3 +37,6 @@ $string['studentquizname_help'] = 'This is the content of the help tooltip assoc
 $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'Student Quiz Administration';
 $string['pluginname'] = 'Student Quiz';
+$string['vote'] = 'Votes';
+$string['vote_points'] = 'Points';
+

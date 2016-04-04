@@ -4,6 +4,7 @@ define('CACHE_DISABLE_STORES', true);
 
 require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
+require_once(dirname(__FILE__).'/classes/bank/vote_column.php');
 
 class TextCustomView extends \core_question\bank\view {
     public function __construct($contexts, $pageurl, $course, $cm) {
@@ -121,6 +122,14 @@ class TextCustomView extends \core_question\bank\view {
 
         echo '</fieldset>';
         echo "</form>\n";
+    }
+    protected function wanted_columns() {
+        global $CFG;
+        $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
+        . ',question_name_column,edit_action_column,copy_action_column,'
+        . 'preview_action_column,delete_action_column,mod_studentquiz\\bank\\vote_column';
+
+        return parent::wanted_columns();
     }
 }
 
