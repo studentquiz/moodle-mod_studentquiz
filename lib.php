@@ -31,6 +31,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/lib/questionlib.php');
+
 /**
  * Example constant, you probably want to remove this :-)
  */
@@ -104,6 +106,9 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
         $DB->insert_record('role_capabilities', $obj, false);
     }
+
+    // add default category
+    question_make_default_categories(array($context));
 
     studentquiz_grade_item_update($studentquiz);
 
