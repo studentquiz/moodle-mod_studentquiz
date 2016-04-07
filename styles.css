@@ -1,0 +1,9 @@
+#page-mod-studentquiz-view #filterform div,
+#page-mod-studentquiz-view #filterform fieldset {display:inline;float:none;clear:none;width:auto;margin:0;line-height:2;}
+#page-mod-studentquiz-view #filterform .fitem {white-space:nowrap;}
+#page-mod-studentquiz-view #filterform fieldset > div {display:block;float:left;background:#f2f2f2;padding:2px;}
+#page-mod-studentquiz-view #filterform select,
+#page-mod-studentquiz-view #filterform .ftext input {width:8em;}
+#page-mod-studentquiz-view #filterform #fitem_id_role,
+#page-mod-studentquiz-view #filterform #fitem_id_ifilter,
+#page-mod-studentquiz-view #filterform #fgroup_id_buttons {margin-left:0.5em;}

@@ -44,8 +44,6 @@ $PAGE->set_heading($COURSE->fullname);
 
 echo $OUTPUT->header();
 
-
-
 echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
 
 $questionbank->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
