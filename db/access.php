@@ -48,7 +48,6 @@ defined('MOODLE_INTERNAL') || die();
 
 // Modify capabilities as needed and remove this comment.
 $capabilities = array(
-    /*
     'mod/studentquiz:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
@@ -59,7 +58,6 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/course:manageactivities'
     ),
-
     'mod/studentquiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -79,17 +77,4 @@ $capabilities = array(
             'student' => CAP_ALLOW
         )
     ),
-
-    'mod/studentquiz:addquestion' => array(
-        'riskbitmask' => RISK_XSS,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        )
-    )
-*/
 );
