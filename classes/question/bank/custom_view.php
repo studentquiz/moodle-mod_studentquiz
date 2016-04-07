@@ -39,6 +39,9 @@ class custom_view extends \core_question\bank\view {
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
         // Category selection form.
         echo $OUTPUT->heading(get_string('modulename', 'studentquiz'), 2);
+
+        $this->create_new_question_form_ext($cat);
+
         array_unshift($this->searchconditions, new \mod_studentquiz\condition\student_quiz_condition(
             $cat, $recurse, $editcontexts, $this->baseurl, $this->course));
         // Continues with list of questions.
@@ -49,6 +52,15 @@ class custom_view extends \core_question\bank\view {
             $this->contexts->having_cap('moodle/question:add'));
     }
 
+    function create_new_question_form_ext($cat){
+        $category = $this->get_current_category($cat);
+        list($categoryid, $contextid) = explode(',', $cat);
+
+        $catcontext = \context::instance_by_id($contextid);
+
+        $canadd = has_capability('moodle/question:add', $catcontext);
+        $this->create_new_question_form($category, $canadd);
+    }
 
     /**
      * Prints the table of questions in a category with interactions
@@ -81,10 +93,6 @@ class custom_view extends \core_question\bank\view {
 
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
-
-        $canadd = has_capability('moodle/question:add', $catcontext);
-
-        $this->create_new_question_form($category, $canadd);
 
         $this->build_query();
 
