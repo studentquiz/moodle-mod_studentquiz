@@ -1,3 +1,17 @@
+#page-mod-studentquiz-view .createnewquestion {
+    float:right;
+}
+
+#page-mod-studentquiz-view .createnewquestion .singlebutton {
+    display:inline;
+}
+
+#page-mod-studentquiz-view .createnewquestion .singlebutton div,
+#page-mod-studentquiz-view .createnewquestion .singlebutton form {
+    display:inline;
+    margin-right:0;
+}
+
 #page-mod-studentquiz-view #filterform {
     min-height:20px;
     padding:19px;
@@ -15,30 +29,30 @@
     -webkit-border-radius:3px;
     -moz-border-radius:3px;
     border-radius:3px;
-    display:inline-block
+    display:inline-block;
 }
 
 #page-mod-studentquiz-view #filterform blockquote {
     border-color:#ddd;
-    border-color:rgba(0,0,0,0.15)
+    border-color:rgba(0,0,0,0.15);
 }
 
 #page-mod-studentquiz-view #filterform .fitem{
     display:inline-block;
     line-height:40px;
     margin-right:.3em;
-    white-space:nowrap
+    white-space:nowrap;
 }
 
 #page-mod-studentquiz-view #filterform .fitem label {
     display:inline;
     line-height:20px;
-    padding-right:.3em
+    padding-right:.3em;
 }
 
 #page-mod-studentquiz-view #filterform .fitem :before,
 #page-mod-studentquiz-view #filterform .fitem :after {
-    display:inline
+    display:inline;
 }
 
 #page-mod-studentquiz-view #filterform div,
@@ -47,15 +61,15 @@
     float:none;
     clear:none;
     width:auto;
-    margin:0
+    margin:0;
 }
 
 #page-mod-studentquiz-view #filterform select,
 #page-mod-studentquiz-view #filterform .ftext input {
-    width:7em
+    width:7em;
 }
 
 #page-mod-studentquiz-view #filterform input,
 #page-mod-studentquiz-view #filterform select {
-     margin-bottom:0
+     margin-bottom:0;
  }
