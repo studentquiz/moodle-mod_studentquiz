@@ -87,11 +87,9 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
     $capabilities = array(
-        //'moodle/question:viewmine',
-        //'moodle/question:viewall',
-        //'moodle/question:usemine',
-        //'moodle/question:useall',
-        //'moodle/question:editmine',
+        'moodle/question:usemine',
+        'moodle/question:useall',
+        'moodle/question:editmine',
         'moodle/question:add'
     );
 
