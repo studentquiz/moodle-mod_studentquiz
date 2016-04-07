@@ -9,7 +9,7 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     protected function get_title() {
-        return get_string('vote', 'studentquiz');
+        return get_string('vote_column_name', 'studentquiz');
     }
 
     protected function display_content($question, $rowclasses) {
