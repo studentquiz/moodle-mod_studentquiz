@@ -25,7 +25,7 @@ class custom_view extends \core_question\bank\view {
 
     public function initFilterForm() {
         $this->filterform = new question_view_form('view.php', array('cmid' => $this->cm->id),
-            'get', '', array('search' => $this->search));
+            'get', '', array('id' => 'filterform'));
         $this->filterform->set_data(array('search' => $this->search));
     }
 
