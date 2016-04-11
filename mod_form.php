@@ -69,6 +69,8 @@ class mod_studentquiz_mod_form extends moodleform_mod {
 
         $mform->addElement('header', 'studentranking', 'Student Ranking');
         $mform->addElement('checkbox', 'anonymrank', 'Anonymize Student Ranking');
+        $mform->setType('anonymrank', PARAM_INT);
+        $mform->setDefault('anonymrank', 1);
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();

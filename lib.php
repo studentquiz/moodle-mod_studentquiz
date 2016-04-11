@@ -80,6 +80,7 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     global $DB;
 
     $studentquiz->timecreated = time();
+    $studentquiz->anonymrank = update_anonymrank($mform->get_data());
 
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
@@ -129,6 +130,7 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
 
     $studentquiz->timemodified = time();
     $studentquiz->id = $studentquiz->instance;
+    $studentquiz->anonymrank = update_anonymrank($mform->get_data());
 
     // You may have to add extra stuff in here.
 
@@ -476,4 +478,13 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
  */
 function studentquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $studentquiznode=null) {
     // TODO Delete this function and its docblock, or implement it.
+}
+
+function update_anonymrank($data) {
+    $anonymrank = 0;
+    if (isset($data->anonymrank)) {
+        $anonymrank = 1;
+    }
+
+    return $anonymrank;
 }
