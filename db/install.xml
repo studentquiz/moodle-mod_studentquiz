@@ -15,6 +15,7 @@
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="The maximum grade. Can be negative to indicate the use of a scale."/>
+        <FIELD NAME="anonymrank" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Setting to show ranking anonym or not."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -24,7 +25,7 @@
         <INDEX NAME="coursemodule" UNIQUE="false" FIELDS="coursemodule"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="studentquiz_vote" COMMENT="Default comment for studentquiz, please edit me">
+    <TABLE NAME="studentquiz_vote" COMMENT="Store votes for questions">
         <FIELDS>
             <FIELD NAME="studentquiz_vote_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
             <FIELD NAME="studentquiz_vote_point" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -36,6 +37,27 @@
             <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
             <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
         </KEYS>
+        <INDEXES>
+            <INDEX NAME="user_userid" UNIQUE="false" FIELDS="user_userid"/>
+            <INDEX NAME="question_id" UNIQUE="false" FIELDS="question_id"/>
+        </INDEXES>
+    </TABLE>
+    <TABLE NAME="studentquiz_comment" COMMENT="Store comments for questions">
+        <FIELDS>
+            <FIELD NAME="studentquiz_comment_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="studentquiz_comment_text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
+            <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_comment_id"/>
+            <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
+            <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="user_userid" UNIQUE="false" FIELDS="user_userid"/>
+            <INDEX NAME="question_id" UNIQUE="false" FIELDS="question_id"/>
+        </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>
