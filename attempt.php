@@ -27,10 +27,7 @@ $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessi
 $stopurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $sessionid));
 
 if (data_submitted()) {
-    if(optional_param('startquiz', null, PARAM_BOOL)){
-        quiz_add_selected_questions((array) data_submitted(), $quba);
-    }
-    else if (optional_param('next', null, PARAM_BOOL)) {
+    if (optional_param('next', null, PARAM_BOOL)) {
         // There is submitted data. Process it.
         $transaction = $DB->start_delegated_transaction();
         $slots = $quba->get_slots();

@@ -120,3 +120,42 @@ function quiz_add_selected_questions($rawdata, $quba){
         quiz_add_quiz_question($id, $quba);
     }
 }
+
+function quiz_practice_session_create($data, $context) {
+    global $DB, $USER;
+
+    $quiz_practice = new stdClass();
+    $quiz_practice->time = null;
+    $quiz_practice->goalpercentage = null;
+    $quiz_practice->noofquestions = null;
+
+    $quba = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
+
+    $quiz_practice->timecreated = time();
+    $quiz_practice->practicedate = time();
+
+    $quiz_practice->categoryid = $data->categoryid;
+    $behaviour = $data->behaviour;
+    $quiz_practice->userid = $USER->id;
+    $quba->set_preferred_behaviour($behaviour);
+    $quiz_practice->studentquiz_id = $quiz_practice->instanceid;
+
+    question_engine::save_questions_usage_by_activity($quba);
+    /* The next block of code replaces
+     * question_engine::save_questions_usage_by_activity($quba);
+     * which was throwing an exception due to the array_merge
+     * call that was added since qpractice was first created.
+     */
+   /* $record = new stdClass();
+    $record->contextid = $quba->get_owning_context()->id;
+    $record->component = $quba->get_owning_component();
+    $record->preferredbehaviour = $quba->get_preferred_behaviour();
+    global $DB;
+    $newid = $DB->insert_record('question_usages', $record);
+    $quba->set_id_from_database($newid);*/
+
+    $quiz_practice->questionusageid = $quba->get_id();
+    $sessionid = $DB->insert_record('studentquiz_practice_session', $quiz_practice);
+
+    return $sessionid;
+}
