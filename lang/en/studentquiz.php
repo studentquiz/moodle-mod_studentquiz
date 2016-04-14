@@ -40,4 +40,5 @@ $string['pluginname'] = 'Student Quiz';
 $string['vote_column_name'] = 'Votes';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
+$string['start_quiz_button'] = 'Start Quiz';
 
