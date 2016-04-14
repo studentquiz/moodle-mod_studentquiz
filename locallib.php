@@ -36,3 +36,87 @@ defined('MOODLE_INTERNAL') || die();
  *    return new stdClass();
  *}
  */
+function get_options_behaviour($cm) {
+    global $DB, $CFG;
+    $behaviour = $DB->get_record('studentquiz', array('id' => $cm->instance), 'behaviour');
+    $comma = explode(",", $behaviour->behaviour);
+    $currentbehaviour = '';
+    $behaviours = question_engine::get_behaviour_options($currentbehaviour);
+    $showbehaviour = array();
+    foreach ($comma as $id => $values) {
+
+        foreach ($behaviours as $key => $langstring) {
+            if ($values == $key) {
+                $showbehaviour[$key] = $langstring;
+            }
+        }
+    }
+    return $showbehaviour;
+}
+
+function get_next_question($sessionid, $quba) {
+    global $DB;
+
+    $session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
+    $categoryid = $session->category_id;
+    $results = $DB->get_records_menu('question_attempts', array('questionusageid' => $session->question_usage_id),
+        'id', 'id, questionid');
+    $questionid = choose_other_question($categoryid, $results);
+
+    if ($questionid == null) {
+        $viewurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $sessionid));
+        redirect($viewurl, get_string('practice_no_more_questions', 'studentquiz'));
+    }
+
+    $question = question_bank::load_question($questionid->id, false);
+    $slot = $quba->add_question($question);
+    $quba->start_question($slot);
+    question_engine::save_questions_usage_by_activity($quba);
+    $DB->set_field('studentquiz_practice_session', 'total_no_of_questions', $slot, array('id' => $sessionid));
+    return $slot;
+}
+
+function choose_other_question($categoryid, $excludedquestions, $allowshuffle = true) {
+    $available = get_available_questions_from_category($categoryid);
+    shuffle($available);
+
+    foreach ($available as $questionid) {
+        if (in_array($questionid, $excludedquestions)) {
+            continue;
+        }
+        $question = question_bank::load_question($questionid, $allowshuffle);
+        return $question;
+    }
+
+    return null;
+}
+
+function get_available_questions_from_category($categoryid) {
+
+    if (question_categorylist($categoryid)) {
+        $categoryids = question_categorylist($categoryid);
+    } else {
+        $categoryids = array($categoryid);
+    }
+    $excludedqtypes = null;
+    $questionids = question_bank::get_finder()->get_questions_from_categories($categoryids, $excludedqtypes);
+
+    return $questionids;
+}
+
+function get_quiz_ids($rawdata) {
+    $ids = array();
+    foreach ($rawdata as $key => $value) { // Parse input for question ids.
+        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+            $ids[] = $matches[1];
+        }
+    }
+    return $ids;
+}
+function quiz_add_selected_questions($rawdata, $quba){
+    $ids = get_quiz_ids($rawdata);
+    foreach($ids as $id){
+        quiz_require_question_use($id);
+        quiz_add_quiz_question($id, $quba);
+    }
+}

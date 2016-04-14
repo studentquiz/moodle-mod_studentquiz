@@ -42,3 +42,10 @@ $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
 $string['start_quiz_button'] = 'Start Quiz';
 
+//quiz practice
+$string['practice_question_behaviour'] = 'Question Behaviour';
+$string['practice_behaviour'] = 'Behaviour';
+$string['practice_start'] = 'Start Practice';
+$string['practice_session'] = 'Practice Session';
+$string['practice_no_more_questions'] = 'Sorry.No more questions to display. Try a different category';
+
