@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Manuel
- * Date: 07.04.16
- * Time: 11:45
- */
 
 namespace mod_studentquiz\question\bank;
 
@@ -79,7 +73,7 @@ class custom_view extends \core_question\bank\view {
     protected function display_question_list($contexts, $pageurl, $categoryandcontext,
                                              $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false,
                                              $showquestiontext = false, $addcontexts = array()) {
-        global $CFG, $DB, $OUTPUT;
+        global $CFG, $DB, $OUTPUT, $USER;
 
         // This function can be moderately slow with large question counts and may time out.
         // We probably do not want to raise it to unlimited, so randomly picking 5 minutes.
@@ -115,16 +109,18 @@ class custom_view extends \core_question\bank\view {
             if(empty($this->search)) {
                 $newQuestion[] = $question;
             } else {
-                $text = strtolower($question->name
-                    . $question->creatorfirstnamephonetic
-                    . $question->creatorlastnamephonetic
-                    . $question->creatormiddlename
-                    . $question->creatoralternatename
-                    . $question->creatorfirstname
-                    . $question->creatorlastname
-                    . str_replace(',', '', $question->tag_name));
-                if($this->property_contains_filter($text, strtolower($this->search))) {
-                    $newQuestion[] = $question;
+                if (!user_has_role_assignment($USER->id,5)) {
+                    $text = strtolower($question->name
+                        . $question->creatorfirstnamephonetic
+                        . $question->creatorlastnamephonetic
+                        . $question->creatormiddlename
+                        . $question->creatoralternatename
+                        . $question->creatorfirstname
+                        . $question->creatorlastname
+                        . str_replace(',', '', $question->tag_name));
+                    if($this->property_contains_filter($text, strtolower($this->search))) {
+                        $newQuestion[] = $question;
+                    }
                 }
             }
         }
@@ -215,10 +211,16 @@ class custom_view extends \core_question\bank\view {
     }
 
     protected function wanted_columns() {
-        global $CFG;
+        global $CFG, $USER, $COURSE;
+
+        $showcreator = '';
+        if (!user_has_role_assignment($USER->id,5)) {
+            $showcreator = 'creator_name_column,';
+        }
+
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,edit_action_column,copy_action_column,'
-            . 'preview_action_column,delete_action_column,creator_name_column,mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column';
+            . 'preview_action_column,delete_action_column,' . $showcreator . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column';
 
         return parent::wanted_columns();
     }
