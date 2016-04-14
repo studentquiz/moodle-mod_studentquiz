@@ -22,7 +22,7 @@ class vote_column extends \core_question\bank\column_base {
 
     public function get_extra_joins() {
         return array('vo' => 'LEFT JOIN ('
-        .'SELECT SUM(studentquiz_vote_point)/COUNT(studentquiz_vote_point) as studentquiz_vote_point'
+        .'SELECT ROUND(SUM(studentquiz_vote_point)/COUNT(studentquiz_vote_point), 2) as studentquiz_vote_point'
         .', question_id FROM {studentquiz_vote}) vo ON vo.question_id = q.id');
     }
 
