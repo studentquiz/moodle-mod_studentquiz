@@ -34,6 +34,8 @@ class custom_view extends \core_question\bank\view {
         // Category selection form.
         echo $OUTPUT->heading(get_string('modulename', 'studentquiz'), 2);
 
+
+        $this->create_new_quiz_form();
         $this->create_new_question_form_ext($cat);
 
         array_unshift($this->searchconditions, new \mod_studentquiz\condition\student_quiz_condition(
@@ -44,6 +46,21 @@ class custom_view extends \core_question\bank\view {
             $this->baseurl, $cat, $this->cm,
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
+    }
+
+    function create_new_quiz_form() {
+        echo '<div class="createnewquiz">';
+        echo '<div class="singlebutton">';
+
+
+        echo '<form method="get" action="atempt">';
+        echo '<div>';
+        echo '<input type="submit" value="Start new quiz ..." />';
+        echo '</div>';
+        echo '</form>';
+
+        echo '</div>';
+        echo '</div>';
     }
 
     function create_new_question_form_ext($cat){
