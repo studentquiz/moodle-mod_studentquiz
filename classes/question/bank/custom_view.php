@@ -73,7 +73,7 @@ class custom_view extends \core_question\bank\view {
     protected function display_question_list($contexts, $pageurl, $categoryandcontext,
                                              $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false,
                                              $showquestiontext = false, $addcontexts = array()) {
-        global $CFG, $DB, $OUTPUT, $USER;
+        global $CFG, $DB, $OUTPUT;
 
         // This function can be moderately slow with large question counts and may time out.
         // We probably do not want to raise it to unlimited, so randomly picking 5 minutes.
@@ -109,7 +109,7 @@ class custom_view extends \core_question\bank\view {
             if(empty($this->search)) {
                 $newQuestion[] = $question;
             } else {
-                if (!user_has_role_assignment($USER->id,5)) {
+                if ($this->check_created_permission()) {
                     $text = strtolower($question->name
                         . $question->creatorfirstnamephonetic
                         . $question->creatorlastnamephonetic
@@ -211,10 +211,10 @@ class custom_view extends \core_question\bank\view {
     }
 
     protected function wanted_columns() {
-        global $CFG, $USER, $COURSE;
+        global $CFG;
 
         $showcreator = '';
-        if (!user_has_role_assignment($USER->id,5)) {
+        if ($this->check_created_permission()) {
             $showcreator = 'creator_name_column,';
         }
 
@@ -223,5 +223,22 @@ class custom_view extends \core_question\bank\view {
             . 'preview_action_column,delete_action_column,' . $showcreator . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column';
 
         return parent::wanted_columns();
+    }
+
+    protected function check_created_permission() {
+        global $USER;
+
+        $admins = get_admins();
+        foreach ($admins as $admin) {
+            if ($USER->id == $admin->id) {
+                return true;
+            }
+        }
+
+        if (!user_has_role_assignment($USER->id,5)) {
+            return true;
+        }
+
+        return false;
     }
 }
