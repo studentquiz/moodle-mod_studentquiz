@@ -6,10 +6,25 @@ require_once(dirname(__FILE__) . '/../../config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
+
 $cmid = optional_param('id', 0, PARAM_INT);
 if(!$cmid){
     $cmid = required_param('cmid', PARAM_INT);
 }
+
+if($cmid){
+    if (!$cm = get_coursemodule_from_id('studentquiz', $cmid)) {
+        print_error('invalidcoursemodule');
+    }
+    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+        print_error('coursemisconf');
+    }
+}
+
+
+require_login($course, true, $cm);
+$context = context_module::instance($cm->id);
+
 $search  = optional_param('search', '', PARAM_RAW);
 
 $context = context_module::instance($cmid);
@@ -18,14 +33,11 @@ $category = question_get_default_category($context->id);
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
         $data = new stdClass();
-        $data->behaviour = "voteforit";
-        $data->instanceid = $cmid;
+        $data->behaviour = "voteit";
+        $data->instanceid = $cm->instance;
         $data->categoryid = $category->id;
-        $sessionid = quiz_practice_session_create($formData, $context);
-        $session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
-        $quba = question_engine::load_questions_usage_by_activity($session->question_usage_id);
-        quiz_add_selected_questions((array) data_submitted(), $quba);
-        $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('sessionid' => $sessionid, 'startquiz' => 1));
+        $sessionid = quiz_practice_create_quiz($data, $context, (array) data_submitted());
+        $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
         redirect($nexturl);
     }
 }
