@@ -27,6 +27,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->libdir . '/questionlib.php');
+
 /*
  * Does something really useful with the passed things
  *
@@ -58,7 +60,7 @@ function get_next_question($sessionid, $quba) {
     global $DB;
 
     $session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
-    $categoryid = $session->category_id;
+    $categoryid = $session->question_category_id;
     $results = $DB->get_records_menu('question_attempts', array('questionusageid' => $session->question_usage_id),
         'id', 'id, questionid');
     $questionid = choose_other_question($categoryid, $results);
@@ -114,48 +116,57 @@ function get_quiz_ids($rawdata) {
     return $ids;
 }
 function quiz_add_selected_questions($rawdata, $quba){
-    $ids = get_quiz_ids($rawdata);
-    foreach($ids as $id){
-        quiz_require_question_use($id);
-        quiz_add_quiz_question($id, $quba);
+    $questionids = get_quiz_ids($rawdata);
+    $questions = question_preload_questions($questionids);
+
+    $questionstoprocess = array();
+    foreach ($questionids as $id) {
+        if (array_key_exists($id, $questions)) {
+            $questionstoprocess[$id] = $questions[$id];
+        }
     }
+    get_question_options($questionstoprocess);
+
+    foreach($questionids as $id){
+        $question = question_bank::make_question($questionstoprocess[$id]);
+        $slot = $quba->add_question($question);
+        $quba->get_question_attempt($slot);
+    }
+    return count($questionids);
 }
 
-function quiz_practice_session_create($data, $context) {
+function quiz_practice_create_session($data, $quba_id) {
     global $DB, $USER;
 
     $quiz_practice = new stdClass();
-    $quiz_practice->time = null;
-    $quiz_practice->goalpercentage = null;
-    $quiz_practice->noofquestions = null;
+    $quiz_practice->practice_date = time();
+    $quiz_practice->question_category_id = $data->categoryid;
+    $quiz_practice->user_id = $USER->id;
+    $quiz_practice->studentquiz_id = $data->instanceid;
+
+    $quiz_practice->question_usage_id = $quba_id;
+    return $DB->insert_record('studentquiz_practice_session', $quiz_practice);
+}
+function quiz_practice_create_quiz($data, $context, $rawdata) {
+    global $DB;
 
     $quba = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
+    $quba->set_preferred_behaviour($data->behaviour);
 
-    $quiz_practice->timecreated = time();
-    $quiz_practice->practicedate = time();
+    $rec = new stdClass();
+    $rec->contextid = $quba->get_owning_context()->id;
+    $rec->component = $quba->get_owning_component();
+    $rec->preferredbehaviour = $quba->get_preferred_behaviour();
+    $quid = $DB->insert_record('question_usages', $rec);
+    $quba->set_id_from_database($quid);
 
-    $quiz_practice->categoryid = $data->categoryid;
-    $behaviour = $data->behaviour;
-    $quiz_practice->userid = $USER->id;
-    $quba->set_preferred_behaviour($behaviour);
-    $quiz_practice->studentquiz_id = $quiz_practice->instanceid;
+    $sessionid = quiz_practice_create_session($data, $quba->get_id());
+    $count = quiz_add_selected_questions($rawdata, $quba);
+    $DB->set_field('studentquiz_practice_session', 'total_no_of_questions', $count, array('id' => $sessionid));
 
+    $quba->process_all_actions();
+    $quba->start_all_questions();
     question_engine::save_questions_usage_by_activity($quba);
-    /* The next block of code replaces
-     * question_engine::save_questions_usage_by_activity($quba);
-     * which was throwing an exception due to the array_merge
-     * call that was added since qpractice was first created.
-     */
-   /* $record = new stdClass();
-    $record->contextid = $quba->get_owning_context()->id;
-    $record->component = $quba->get_owning_component();
-    $record->preferredbehaviour = $quba->get_preferred_behaviour();
-    global $DB;
-    $newid = $DB->insert_record('question_usages', $record);
-    $quba->set_id_from_database($newid);*/
-
-    $quiz_practice->questionusageid = $quba->get_id();
-    $sessionid = $DB->insert_record('studentquiz_practice_session', $quiz_practice);
 
     return $sessionid;
 }
