@@ -29,31 +29,29 @@ $stopurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $session
 
 if (data_submitted()) {
     if (optional_param('next', null, PARAM_BOOL)) {
-        // There is submitted data. Process it.
-        $transaction = $DB->start_delegated_transaction();
-        $slots = $quba->get_slots();
-        $slot = end($slots);
+        $slot = optional_param('slots', 0, PARAM_INT);
+        $quba->process_all_actions($slot, $_POST);
         $quba->finish_question($slot);
-        $fraction = $quba->get_question_fraction($slot);
-        $maxmarks = $quba->get_question_max_mark($slot);
-        $obtainedmarks = $fraction * $maxmarks;
-        $updatesql = "UPDATE {studentquiz_practice_session}
-                          SET marks_obtained = marks_obtained + ?, total_marks = total_marks + ?
-                        WHERE id=?";
-        $DB->execute($updatesql, array($obtainedmarks, $maxmarks, $sessionid));
+        $slot += 1;
 
-        if ($fraction > 0) {
-            $updatesql1 = "UPDATE {studentquiz_practice_session}
-                          SET total_no_of_questions_right = total_no_of_questions_right + '1'
-                        WHERE id=?";
-            $DB->execute($updatesql1, array($sessionid));
+        $slots = $quba->get_slots();
+        if($slot > end($slots)){
+            question_engine::save_questions_usage_by_activity($quba);
+            quiz_practice_update_points($quba, $sessionid);
+            $params = array(
+                'objectid' => $cm->id,
+                'context' => $context
+            );
+            $event = \mod_studentquiz\event\studentquiz_practice_finished::create($params);
+            $event->trigger();
+            redirect($stopurl);
         }
-        $slot = get_next_question($sessionid, $quba);
-        $question = $quba->get_question($slot);
-        $transaction->allow_commit();
-        redirect($actionurl);
-    } else if (optional_param('finish', null, PARAM_BOOL)) {
         question_engine::save_questions_usage_by_activity($quba);
+        $question = $quba->get_question($slot);
+
+    } else if (optional_param('finish', null, PARAM_BOOL)){
+        question_engine::save_questions_usage_by_activity($quba);
+        quiz_practice_update_points($quba, $sessionid);
         $params = array(
             'objectid' => $cm->id,
             'context' => $context
@@ -62,24 +60,13 @@ if (data_submitted()) {
         $event->trigger();
         redirect($stopurl);
     } else {
-        $quba->process_all_actions();
-        $slots = $quba->get_slots();
-        $slot = end($slots);
-        question_engine::save_questions_usage_by_activity($quba);
-        redirect($actionurl);
+        echo "todo - redirect back to question view";
+        die();
     }
 } else {
-    // We are just viewing the page again. Is there a currently active question?
     $slots = $quba->get_slots();
-    $slot = end($slots);
-    if (!$slot) {
-
-        $slot = get_next_question($sessionid, $quba);
-        $question = $quba->get_question($slot);
-    } else {
-        // The current question is still in progress. Continue with it.
-        $question = $quba->get_question($slot);
-    }
+    $slot = reset($slots);
+    $question = $quba->get_question($slot);
 }
 
 $options = new question_display_options();
@@ -102,6 +89,7 @@ $html .= html_writer::start_tag('div');
 $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
 $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $slot));
 $html .= html_writer::end_tag('div');
+
 
 // Output the question.
 $html .= $quba->render_question($slot, $options, $slot);

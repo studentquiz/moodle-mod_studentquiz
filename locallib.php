@@ -56,56 +56,6 @@ function get_options_behaviour($cm) {
     return $showbehaviour;
 }
 
-function get_next_question($sessionid, $quba) {
-    global $DB;
-
-    $session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
-    $categoryid = $session->question_category_id;
-    $results = $DB->get_records_menu('question_attempts', array('questionusageid' => $session->question_usage_id),
-        'id', 'id, questionid');
-    $questionid = choose_other_question($categoryid, $results);
-
-    if ($questionid == null) {
-        $viewurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $sessionid));
-        redirect($viewurl, get_string('practice_no_more_questions', 'studentquiz'));
-    }
-
-    $question = question_bank::load_question($questionid->id, false);
-    $slot = $quba->add_question($question);
-    $quba->start_question($slot);
-    question_engine::save_questions_usage_by_activity($quba);
-    $DB->set_field('studentquiz_practice_session', 'total_no_of_questions', $slot, array('id' => $sessionid));
-    return $slot;
-}
-
-function choose_other_question($categoryid, $excludedquestions, $allowshuffle = true) {
-    $available = get_available_questions_from_category($categoryid);
-    shuffle($available);
-
-    foreach ($available as $questionid) {
-        if (in_array($questionid, $excludedquestions)) {
-            continue;
-        }
-        $question = question_bank::load_question($questionid, $allowshuffle);
-        return $question;
-    }
-
-    return null;
-}
-
-function get_available_questions_from_category($categoryid) {
-
-    if (question_categorylist($categoryid)) {
-        $categoryids = question_categorylist($categoryid);
-    } else {
-        $categoryids = array($categoryid);
-    }
-    $excludedqtypes = null;
-    $questionids = question_bank::get_finder()->get_questions_from_categories($categoryids, $excludedqtypes);
-
-    return $questionids;
-}
-
 function get_quiz_ids($rawdata) {
     $ids = array();
     foreach ($rawdata as $key => $value) { // Parse input for question ids.
@@ -119,20 +69,14 @@ function quiz_add_selected_questions($rawdata, $quba){
     $questionids = get_quiz_ids($rawdata);
     $questions = question_preload_questions($questionids);
 
-    $questionstoprocess = array();
+    get_question_options($questions);
     foreach ($questionids as $id) {
-        if (array_key_exists($id, $questions)) {
-            $questionstoprocess[$id] = $questions[$id];
-        }
-    }
-    get_question_options($questionstoprocess);
+        $questionstoprocess = question_bank::make_question($questions[$id]);
 
-    foreach($questionids as $id){
-        $question = question_bank::make_question($questionstoprocess[$id]);
-        $slot = $quba->add_question($question);
-        $quba->get_question_attempt($slot);
+        $quba->add_question($questionstoprocess);
     }
-    return count($questionids);
+
+    return count($questions);
 }
 
 function quiz_practice_create_session($data, $quba_id) {
@@ -143,30 +87,53 @@ function quiz_practice_create_session($data, $quba_id) {
     $quiz_practice->question_category_id = $data->categoryid;
     $quiz_practice->user_id = $USER->id;
     $quiz_practice->studentquiz_id = $data->instanceid;
-
+    $quiz_practice->total_marks = $data->total_marks;
+    $quiz_practice->total_no_of_questions = $data->total_no_of_questions;
     $quiz_practice->question_usage_id = $quba_id;
     return $DB->insert_record('studentquiz_practice_session', $quiz_practice);
 }
 function quiz_practice_create_quiz($data, $context, $rawdata) {
-    global $DB;
-
     $quba = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
     $quba->set_preferred_behaviour($data->behaviour);
 
-    $rec = new stdClass();
-    $rec->contextid = $quba->get_owning_context()->id;
-    $rec->component = $quba->get_owning_component();
-    $rec->preferredbehaviour = $quba->get_preferred_behaviour();
-    $quid = $DB->insert_record('question_usages', $rec);
-    $quba->set_id_from_database($quid);
-
-    $sessionid = quiz_practice_create_session($data, $quba->get_id());
     $count = quiz_add_selected_questions($rawdata, $quba);
-    $DB->set_field('studentquiz_practice_session', 'total_no_of_questions', $count, array('id' => $sessionid));
-
-    $quba->process_all_actions();
     $quba->start_all_questions();
+
     question_engine::save_questions_usage_by_activity($quba);
 
+
+    $data->total_marks = quiz_practice_get_max_marks($quba);
+    $data->total_no_of_questions = $count;
+
+    $sessionid = quiz_practice_create_session($data, $quba->get_id());
+
     return $sessionid;
+}
+
+function quiz_practice_update_points($quba, $sessionid) {
+    global $DB;
+    $totalnoofquestionsright = 0;
+    $marks_obtained = 0;
+    foreach($quba->get_slots() as $slot) {
+        $fraction = $quba->get_question_fraction($slot);
+        $maxmarks = $quba->get_question_max_mark($slot);
+        $marks_obtained += $fraction * $maxmarks;
+
+        if ($fraction > 0) {
+            $totalnoofquestionsright += 1;
+        }
+    }
+
+    $updatesql = "UPDATE {studentquiz_practice_session}
+                          SET marks_obtained = ?, total_no_of_questions_right = ?
+                        WHERE id=?";
+    $DB->execute($updatesql, array($marks_obtained, $totalnoofquestionsright, $sessionid));
+}
+
+function quiz_practice_get_max_marks($quba) {
+    $max_marks = 0;
+    foreach($quba->get_slots() as $slot) {
+        $max_marks += $quba->get_question_max_mark($slot);
+    }
+    return $max_marks;
 }
