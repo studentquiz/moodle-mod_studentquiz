@@ -49,6 +49,7 @@
             <FIELD NAME="studentquiz_comment_text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
             <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
             <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+            <FIELD NAME="studentquiz_created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         </FIELDS>
         <KEYS>
             <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_comment_id"/>
