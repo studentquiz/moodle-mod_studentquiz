@@ -87,6 +87,8 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
+    $parent = $context->get_parent_context();
+
     $capabilities = array(
         'moodle/question:usemine',
         'moodle/question:useall',
@@ -107,7 +109,10 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     }
 
     // add default category
-    question_make_default_categories(array($context));
+    $question_category = question_make_default_categories(array($context));
+    $question_category->name .= $studentquiz->name;
+    $question_category->parent = $parent->id;
+    $DB->update_record('question_categories', $question_category);
 
     studentquiz_grade_item_update($studentquiz);
 
