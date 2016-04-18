@@ -15,7 +15,7 @@ $course = $DB->get_record('course', array('id' => $cm->course));
 $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
 
 $quba = question_engine::load_questions_usage_by_activity($session->question_usage_id);
-$DB->set_field('studentquiz_p_session', 'status', 'finished', array('studentquiz_p_session_id' => $sessionid));
+$DB->set_field('studentquiz_p_session', 'state', 'finished', array('studentquiz_p_session_id' => $sessionid));
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);

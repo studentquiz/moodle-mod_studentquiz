@@ -33,7 +33,7 @@ $category = question_get_default_category($context->id);
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
         $data = new stdClass();
-        $data->behaviour = "voteit";
+        $data->behaviour = "studentquiz";
         $data->instanceid = $cm->instance;
         $data->categoryid = $category->id;
         $sessionid = quiz_practice_create_quiz_helper($data, $context, (array) data_submitted());
@@ -44,7 +44,7 @@ if (data_submitted()) {
         $ids = required_param('filtered_question_ids', PARAM_RAW);
         $ids = explode(',', $ids);
         $data = new stdClass();
-        $data->behaviour = "voteit";
+        $data->behaviour = "studentquiz";
         $data->instanceid = $cm->instance;
         $data->categoryid = $category->id;
         $sessionid = quiz_practice_create_quiz_helper($data, $context, $ids, false);
@@ -58,7 +58,7 @@ if(optional_param('retryquiz', null, PARAM_BOOL)) {
         print_error('sessionmissconf');
     }
     $data = new stdClass();
-    $data->behaviour = "voteit";
+    $data->behaviour = "studentquiz";
     $data->instanceid = $cm->instance;
     $data->categoryid = $category->id;
     $sessionid = quiz_practice_retry_quiz($data, $context, $session);
