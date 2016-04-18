@@ -80,7 +80,7 @@
               <FIELD NAME="studentquiz_p_session_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
               <FIELD NAME="studentquiz_p_overview_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
               <FIELD NAME="question_usage_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-              <FIELD NAME="status" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="inprogress" SEQUENCE="false"/>
+              <FIELD NAME="state" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="inprogress" SEQUENCE="false"/>
               <FIELD NAME="total_no_of_questions" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
               <FIELD NAME="total_no_of_questions_right" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
               <FIELD NAME="marks_obtained" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
