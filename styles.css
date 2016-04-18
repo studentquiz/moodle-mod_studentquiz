@@ -74,3 +74,7 @@
 #page-mod-studentquiz-view #filterform select {
      margin-bottom: 0;
  }
+
+.mod-studentquiz-summary-highlight {
+    background-color: #d9edf7 !important;
+}
