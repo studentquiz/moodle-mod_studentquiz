@@ -9,6 +9,9 @@ require_once(dirname(__FILE__).'/question_view_form.php');
 class custom_view extends \core_question\bank\view {
     private $filterform;
     private $search;
+    private $questions;
+    private $totalnumber;
+
     public function __construct($contexts, $pageurl, $course, $cm, $search) {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->search = $search;
@@ -27,10 +30,22 @@ class custom_view extends \core_question\bank\view {
                             $recurse, $showhidden, $showquestiontext){
         global $PAGE, $OUTPUT;
 
+        $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
+        array_unshift($this->searchconditions, new \mod_studentquiz\condition\student_quiz_condition(
+            $cat, $recurse, $editcontexts, $this->baseurl, $this->course));
+        // This function can be moderately slow with large question counts and may time out.
+        // We probably do not want to raise it to unlimited, so randomly picking 5 minutes.
+        // Note: We do not call this in the loop because quiz ob_ captures this function (see raise() PHP doc).
+        \core_php_time_limit::raise(300);
+        $this->build_query();
+
+        $this->questions = $this->filterQuestions($this->load_questions());
+        $this->totalnumber = count($this->questions);
+
         if ($this->process_actions_needing_ui()) {
             return;
         }
-        $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
+
         // Category selection form.
         echo $OUTPUT->heading(get_string('modulename', 'studentquiz'), 2);
 
@@ -38,8 +53,7 @@ class custom_view extends \core_question\bank\view {
         $this->create_new_quiz_form();
         $this->create_new_question_form_ext($cat);
 
-        array_unshift($this->searchconditions, new \mod_studentquiz\condition\student_quiz_condition(
-            $cat, $recurse, $editcontexts, $this->baseurl, $this->course));
+
         // Continues with list of questions.
         echo $this->filterform->render();
         $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
@@ -53,9 +67,12 @@ class custom_view extends \core_question\bank\view {
         echo '<div class="singlebutton">';
 
 
-        echo '<form method="get" action="atempt">';
+        echo '<form method="post" action="">';
         echo '<div>';
-        echo '<input type="submit" value="Start new quiz ..." />';
+        echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
+        echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
+        echo '<input name="startrandomquiz" type="submit" value="Start new quiz ..." />';
+
         echo '</div>';
         echo '</form>';
 
@@ -125,12 +142,6 @@ class custom_view extends \core_question\bank\view {
                                              $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false,
                                              $showquestiontext = false, $addcontexts = array()) {
         global $CFG, $DB, $OUTPUT;
-
-        // This function can be moderately slow with large question counts and may time out.
-        // We probably do not want to raise it to unlimited, so randomly picking 5 minutes.
-        // Note: We do not call this in the loop because quiz ob_ captures this function (see raise() PHP doc).
-        \core_php_time_limit::raise(300);
-
         $category = $this->get_current_category($categoryandcontext);
 
         $strselectall = get_string('selectall');
@@ -139,52 +150,16 @@ class custom_view extends \core_question\bank\view {
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
 
-        $this->build_query();
-
-        $totalnumber = $this->get_question_count();
-        if ($totalnumber == 0) {
+        if ($this->totalnumber == 0) {
             return;
         }
 
-        $questions = $this->load_questions();
-
-        $newQuestion = array();
-        foreach($questions as $question) {
-            $question->tag_name = '';
-            foreach($this->get_question_tag($question->id) as $tag) {
-                $question->tag_name .= ', '.$tag->name;
-            }
-            $question->tag_name = substr($question->tag_name, 2);
-
-
-            if(empty($this->search)) {
-                $newQuestion[] = $question;
-            } else {
-                if ($this->check_created_permission()) {
-                    $text = strtolower($question->name
-                        . $question->creatorfirstnamephonetic
-                        . $question->creatorlastnamephonetic
-                        . $question->creatormiddlename
-                        . $question->creatoralternatename
-                        . $question->creatorfirstname
-                        . $question->creatorlastname
-                        . str_replace(',', '', $question->tag_name));
-                    if($this->property_contains_filter($text, strtolower($this->search))) {
-                        $newQuestion[] = $question;
-                    }
-                }
-            }
-        }
-
-        $totalnumber = count($newQuestion);
-
-        $questions = $this->load_page_questions_array($newQuestion, $page, $perpage);
-
+        $questions = $this->load_page_questions_array($this->questions, $page, $perpage);
 
         echo '<div class="categorypagingbarcontainer">';
         $pageingurl = new \moodle_url('view.php');
         $r = $pageingurl->params($pageurl->params());
-        $pagingbar = new \paging_bar($totalnumber, $page, $perpage, $pageingurl);
+        $pagingbar = new \paging_bar($this->totalnumber, $page, $perpage, $pageingurl);
         $pagingbar->pagevar = 'qpage';
         echo $OUTPUT->render($pagingbar);
         echo '</div>';
@@ -206,14 +181,14 @@ class custom_view extends \core_question\bank\view {
 
         echo '<div class="categorypagingbarcontainer pagingbottom">';
         echo $OUTPUT->render($pagingbar);
-        if ($totalnumber > DEFAULT_QUESTIONS_PER_PAGE) {
+        if ($this->totalnumber  > DEFAULT_QUESTIONS_PER_PAGE) {
             if ($perpage == DEFAULT_QUESTIONS_PER_PAGE) {
                 $url = new \moodle_url('view.php', array_merge($pageurl->params(),
                     array('qperpage' => MAXIMUM_QUESTIONS_PER_PAGE)));
-                if ($totalnumber > MAXIMUM_QUESTIONS_PER_PAGE) {
+                if ($this->totalnumber  > MAXIMUM_QUESTIONS_PER_PAGE) {
                     $showall = '<a href="'.$url.'">'.get_string('showperpage', 'moodle', MAXIMUM_QUESTIONS_PER_PAGE).'</a>';
                 } else {
-                    $showall = '<a href="'.$url.'">'.get_string('showall', 'moodle', $totalnumber).'</a>';
+                    $showall = '<a href="'.$url.'">'.get_string('showall', 'moodle', $this->totalnumber ).'</a>';
                 }
             } else {
                 $url = new \moodle_url('view.php', array_merge($pageurl->params(),
@@ -224,10 +199,52 @@ class custom_view extends \core_question\bank\view {
         }
         echo '</div>';
 
-        $this->display_bottom_controls($totalnumber, $recurse, $category, $catcontext, $addcontexts);
+        $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
         echo '</fieldset>';
         echo "</form>\n";
+    }
+
+    protected function getFilteredQuestionIds(){
+        $questionIds = array();
+        foreach($this->questions as $question) {
+            $questionIds[] = $question->id;
+        }
+        return $questionIds;
+    }
+
+    protected function filterQuestions($questions) {
+        $filteredQuestions = array();
+        foreach($questions as $question) {
+            $question->tag_name = '';
+            foreach($this->get_question_tag($question->id) as $tag) {
+                $question->tag_name .= ', '.$tag->name;
+            }
+            $question->tag_name = substr($question->tag_name, 2);
+
+
+            if(empty($this->search)) {
+                $filteredQuestions[] = $question;
+            } else {
+                $text = '';
+                if ($this->check_created_permission()) {
+                    $text = strtolower($question->creatorfirstnamephonetic
+                        . $question->creatorlastnamephonetic
+                        . $question->creatormiddlename
+                        . $question->creatoralternatename
+                        . $question->creatorfirstname
+                        . $question->creatorlastname
+                        );
+                }
+                $text = $text . strtolower($question->name
+                        .$question->studentquiz_vote_point
+                        . str_replace(',', '', $question->tag_name));
+                if($this->property_contains_filter($text, strtolower($this->search))) {
+                    $filteredQuestions[] = $question;
+                }
+            }
+        }
+        return $filteredQuestions;
     }
 
     protected function property_contains_filter($property, $filter) {
@@ -281,15 +298,11 @@ class custom_view extends \core_question\bank\view {
 
         $admins = get_admins();
         foreach ($admins as $admin) {
-            if ($USER->id == $admin->id) {
+            if($USER->id == $admin->id) {
                 return true;
             }
         }
 
-        if (!user_has_role_assignment($USER->id,5)) {
-            return true;
-        }
-
-        return false;
+        return !user_has_role_assignment($USER->id,5);
     }
 }
