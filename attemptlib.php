@@ -138,13 +138,14 @@ class studentquiz_practice_attempt {
 
     public function processFinish() {
         question_engine::save_questions_usage_by_activity($this->questionUsageByActivity);
-        $this->quiz_practice_update_points();
+        $this->updateAttemptPoints();
     }
 
     public function reviewQuestion($slot, $submitData) {
         $this->slot = $slot;
         $this->questionUsageByActivity->process_all_actions(time(), $submitData);
         question_engine::save_questions_usage_by_activity($this->questionUsageByActivity);
+        $this->question = $this->questionUsageByActivity->get_question($this->slot);
     }
 
     public function processFirstQuestion() {

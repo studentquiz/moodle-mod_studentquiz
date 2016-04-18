@@ -113,17 +113,18 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         $html = html_writer::start_tag('form', array('method' => 'post', 'action' => $attempt->getViewUrl(),
             'enctype' => 'multipart/form-data', 'id' => 'responseform'));
-        $html .= html_writer::start_tag('div');
-        $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $attempt->getSlot()));
-        $html .= html_writer::end_tag('div');
 
         $html .= $attempt->renderQuestion();
-
         $html .= html_writer::start_tag('div');
+
         $html .= html_writer::empty_tag('input', array('type' => 'submit',
             'name' => 'next', 'value' => get_string('practice_nextquestion', 'studentquiz')));
+
         $html .= html_writer::empty_tag('input', array('type' => 'submit',
             'name' => 'finish', 'value' => get_string('practice_stoppractice', 'studentquiz')));
+
+        $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $attempt->getSlot()));
+
         $html .= html_writer::end_tag('div');
         $html .= html_writer::end_tag('form');
 

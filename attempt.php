@@ -52,7 +52,6 @@ if (data_submitted()) {
         redirect($attempt->getAbandonUrl());
     } else {
         $attempt->reviewQuestion(required_param('slots', PARAM_INT), $_POST);
-        redirect($attempt->getViewUrl());
     }
 } else {
     $attempt->processFirstQuestion();
