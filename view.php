@@ -40,10 +40,21 @@ if (data_submitted()) {
         $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
         redirect($nexturl);
     }
+    if(optional_param('startrandomquiz', null, PARAM_RAW)){
+        $ids = required_param('filtered_question_ids', PARAM_RAW);
+        $ids = explode(',', $ids);
+        $data = new stdClass();
+        $data->behaviour = "voteit";
+        $data->instanceid = $cm->instance;
+        $data->categoryid = $category->id;
+        $sessionid = quiz_practice_create_quiz_helper($data, $context, $ids, false);
+        $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
+        redirect($nexturl);
+    }
 }
 if(optional_param('retryquiz', null, PARAM_BOOL)) {
     $sessionid = required_param('sessionid' , PARAM_INT);
-    if (!$session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid), 'question_usage_id')) {
+    if (!$session = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionid), 'question_usage_id, studentquiz_p_overview_id')) {
         print_error('sessionmissconf');
     }
     $data = new stdClass();
