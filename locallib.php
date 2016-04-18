@@ -65,8 +65,7 @@ function get_quiz_ids($rawdata) {
     }
     return $ids;
 }
-function quiz_add_selected_questions($rawdata, $quba){
-    $questionids = get_quiz_ids($rawdata);
+function quiz_add_selected_questions($questionids, $quba){
     $questions = question_preload_questions($questionids);
 
     get_question_options($questions);
@@ -92,11 +91,15 @@ function quiz_practice_create_session($data, $quba_id) {
     $quiz_practice->question_usage_id = $quba_id;
     return $DB->insert_record('studentquiz_practice_session', $quiz_practice);
 }
-function quiz_practice_create_quiz($data, $context, $rawdata) {
+function quiz_practice_create_quiz_helper($data, $context, $rawdata) {
+   return quiz_practice_create_quiz($data, $context, get_quiz_ids($rawdata));
+}
+
+function quiz_practice_create_quiz($data, $context, $questionids) {
     $quba = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
     $quba->set_preferred_behaviour($data->behaviour);
 
-    $count = quiz_add_selected_questions($rawdata, $quba);
+    $count = quiz_add_selected_questions($questionids, $quba);
     $quba->start_all_questions();
 
     question_engine::save_questions_usage_by_activity($quba);
@@ -108,6 +111,22 @@ function quiz_practice_create_quiz($data, $context, $rawdata) {
     $sessionid = quiz_practice_create_session($data, $quba->get_id());
 
     return $sessionid;
+}
+
+function quiz_practice_retry_quiz($data, $context, $session) {
+    return quiz_practice_create_quiz($data, $context, quiz_practice_get_used_question($session));
+}
+
+function quiz_practice_get_used_question($session) {
+    global $DB;
+
+    $records = $DB->get_record('question_attempts', array('questionusageid' => $session->question_usage_id), 'questionid');
+
+    $ids = array();
+    foreach($records as $id){
+        $ids[] = $id;
+    }
+    return $ids;
 }
 
 function quiz_practice_update_points($quba, $sessionid) {

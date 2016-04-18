@@ -14,7 +14,6 @@ $course = $DB->get_record('course', array('id' => $cm->course));
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-//require_capability('mod/studentquiz:attempt', $context);
 $params = array(
     'objectid' => $cm->id,
     'context' => $context
@@ -60,8 +59,10 @@ if (data_submitted()) {
         $event->trigger();
         redirect($stopurl);
     } else {
-        echo "todo - redirect back to question view";
-        die();
+        $quba->process_all_actions($slot, $_POST);
+        $slot = optional_param('slots', 0, PARAM_INT);
+        question_engine::save_questions_usage_by_activity($quba);
+        redirect($actionurl);
     }
 } else {
     $slots = $quba->get_slots();

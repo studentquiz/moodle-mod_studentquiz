@@ -27,11 +27,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             'enctype' => 'multipart/form-data', 'id' => 'responseform'));
         $output .= html_writer::start_tag('div', array('align' => 'center'));
         $output .= html_writer::empty_tag('input', array('type' => 'submit',
-            'name' => 'back', 'value' => get_string('practice_resume', 'studentquiz')));
+            'name' => 'retry', 'value' => get_string('practice_retry', 'studentquiz')));
         $output .= html_writer::empty_tag('br');
         $output .= html_writer::empty_tag('br');
         $output .= html_writer::empty_tag('input', array('type' => 'submit',
-            'name' => 'finish', 'value' => get_string('practice_submit_finish', 'studentquiz')));
+            'name' => 'finish', 'value' => get_string('practice_finish', 'studentquiz')));
         $output .= html_writer::end_tag('div');
         $output .= html_writer::end_tag('form');
 
