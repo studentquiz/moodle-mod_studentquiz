@@ -1,111 +1,70 @@
 <?php
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . '/questionlib.php');
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once(dirname(__FILE__) . '/attemptlib.php');
 require_once($CFG->libdir . '/filelib.php');
 
-$sessionid = required_param('id', PARAM_INT);
-$session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
+$sessionId = required_param('id', PARAM_INT);
+$attempt = studentquiz_practice_attempt::create($sessionId);
+$PAGE->set_url($attempt->getAttemptUrl());
 
-$cm = get_coursemodule_from_instance('studentquiz', $session->studentquiz_id);
+require_login($attempt->getCourse(), true, $attempt->getCourseModule());
 
-$course = $DB->get_record('course', array('id' => $cm->course));
-
-require_login($course, true, $cm);
-$context = context_module::instance($cm->id);
+if ($attempt->getUserId() != $USER->id) {
+    throw new moodle_studentquiz_practice_exception($attempt, 'notyourattempt');
+}
+if ($attempt->isFinished()) {
+    redirect($attempt->getSummaryUrl());
+}
+$output = $PAGE->get_renderer('mod_studentquiz');
 
 $params = array(
-    'objectid' => $cm->id,
-    'context' => $context
+    'objectid' => $attempt->getCMId(),
+    'context' => $attempt->getContext()
 );
 $event = \mod_studentquiz\event\studentquiz_practice_attempted::create($params);
 $event->trigger();
 
-$quba = question_engine::load_questions_usage_by_activity($session->question_usage_id);
-
-$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid));
-$stopurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $sessionid));
 
 if (data_submitted()) {
     if (optional_param('next', null, PARAM_BOOL)) {
-        $slot = optional_param('slots', 0, PARAM_INT);
-        $quba->process_all_actions($slot, $_POST);
-        $quba->finish_question($slot);
-        $slot += 1;
+        $attempt->processQuestion(required_param('slots', PARAM_INT), $_POST);
 
-        $slots = $quba->get_slots();
-        if($slot > end($slots)){
-            question_engine::save_questions_usage_by_activity($quba);
-            quiz_practice_update_points($quba, $sessionid);
+        if($attempt->isLastQuestion()){
             $params = array(
-                'objectid' => $cm->id,
-                'context' => $context
+                'objectid' => $attempt->getCMId(),
+                'context' => $attempt->getContext()
             );
             $event = \mod_studentquiz\event\studentquiz_practice_finished::create($params);
             $event->trigger();
-            redirect($stopurl);
+            redirect($attempt->getSummaryUrl());
         }
-        question_engine::save_questions_usage_by_activity($quba);
-        $question = $quba->get_question($slot);
-
     } else if (optional_param('finish', null, PARAM_BOOL)){
-        question_engine::save_questions_usage_by_activity($quba);
-        quiz_practice_update_points($quba, $sessionid);
+        $attempt->processFinish();
+
         $params = array(
-            'objectid' => $cm->id,
-            'context' => $context
+            'objectid' => $attempt->getCMId(),
+            'context' => $attempt->getContext()
         );
         $event = \mod_studentquiz\event\studentquiz_practice_finished::create($params);
         $event->trigger();
-        redirect($stopurl);
+
+        redirect($attempt->getAbandonUrl());
     } else {
-        $quba->process_all_actions($slot, $_POST);
-        $slot = optional_param('slots', 0, PARAM_INT);
-        question_engine::save_questions_usage_by_activity($quba);
-        redirect($actionurl);
+        $attempt->reviewQuestion(required_param('slots', PARAM_INT), $_POST);
+        redirect($attempt->getViewUrl());
     }
 } else {
-    $slots = $quba->get_slots();
-    $slot = reset($slots);
-    $question = $quba->get_question($slot);
+    $attempt->processFirstQuestion();
+
 }
 
-$options = new question_display_options();
-$headtags = '';
-$headtags .= $quba->render_question_head_html($slot);
-$headtags .= question_engine::initialise_js();
-// Start output.
-$PAGE->set_url('/mod/studentquiz/attempt.php', array('id' => $sessionid));
-$title = get_string('practice_session', 'studentquiz', format_string($question->name));
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_context($context);
+$headtags = $attempt->getHTMLHeadTags();
+
+$PAGE->set_title($attempt->getTitle());
+$PAGE->set_heading($attempt->getHeading());
+$PAGE->set_context($attempt->getContext());
+
 echo $OUTPUT->header();
-
-// Start the question form.
-
-$html = html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
-    'enctype' => 'multipart/form-data', 'id' => 'responseform'));
-$html .= html_writer::start_tag('div');
-$html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()));
-$html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $slot));
-$html .= html_writer::end_tag('div');
-
-
-// Output the question.
-$html .= $quba->render_question($slot, $options, $slot);
-
-// Finish the question form.
-$html .= html_writer::start_tag('div');
-$html .= html_writer::empty_tag('input', array('type' => 'submit',
-    'name' => 'next', 'value' => get_string('practice_nextquestion', 'studentquiz')));
-$html .= html_writer::empty_tag('input', array('type' => 'submit',
-    'name' => 'finish', 'value' => get_string('practice_stoppractice', 'studentquiz')));
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('form');
-
-echo $html;
-// Display the settings form.
-
+echo $output->attemptPage($attempt);
 echo $OUTPUT->footer();
-

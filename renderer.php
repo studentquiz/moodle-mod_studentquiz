@@ -7,7 +7,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function summary_table($sessionid) {
         global $DB;
 
-        $session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
+        $actualSession = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionid));
+        $allSession = $DB->get_records('studentquiz_p_session', array('studentquiz_p_overview_id' => $actualSession->studentquiz_p_overview_id));
+
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
         $table->caption = get_string('practice_past_sessions', 'studentquiz');
@@ -15,7 +17,29 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->align = array('left', 'left');
         $table->size = array('', '');
         $table->data = array();
-        $table->data[] = array($session->total_no_of_questions, $session-> 	marks_obtained . '/' . $session->total_marks);
+
+        $rows = array();
+        foreach($allSession as $session){
+            $cellTotalQuestions = new html_table_cell();
+            $cellTotalQuestions->text = $session->total_no_of_questions;
+
+            $cellMarks = new html_table_cell();
+            $cellMarks->text = $session->marks_obtained . '/' . $session->total_marks;
+
+
+            $row = new html_table_row();
+            if($session->studentquiz_p_session_id == $actualSession->studentquiz_p_session_id){
+                $style = array('class' => 'mod-studentquiz-summary-highlight');
+
+                $cellTotalQuestions->attributes = $style;
+                $cellMarks->attributes = $style;
+                $row->attributes = $style;
+            }
+
+            $row->cells = array($cellTotalQuestions, $cellMarks);
+            $rows[] = $row;
+        }
+        $table->data = $rows;
         echo html_writer::table($table);
     }
 
@@ -45,9 +69,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $canviewmyreports = true; //has_capability('mod/studentquiz:viewmyreport', $context);
 
         if ($canviewmyreports) {
-            $session = $DB->get_records('studentquiz_practice_session', array('studentquiz_id' => $cm->instance, 'user_id' => $USER->id));
+            $overview = $DB->get_records('studentquiz_p_overview', array('question_category_id' => $cm->instance, 'user_id' => $USER->id));
+            $session = $DB->get_records('studentquiz_p_session', array('studentquiz_p_overview_id' => $overview->studentquiz_overview_id));
         } if ($canviewallreports) {
-            $session = $DB->get_records('studentquiz_practice_session', array('studentquiz_id' => $cm->instance));
+            $overview = $DB->get_records('studentquiz_p_overview', array('question_category_id' => $cm->instance));
+            $session = $DB->get_records('studentquiz_p_session', array('studentquiz_p_overview_id' => $overview->studentquiz_overview_id));
         }
 
         if ($session != null) {
@@ -80,6 +106,28 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $viewtext = get_string('practice_no_records_viewurl', 'studentquiz');
             redirect($viewurl, $viewtext);
         }
+    }
+
+    public function attemptPage($attempt){
+        $html = '';
+
+        $html = html_writer::start_tag('form', array('method' => 'post', 'action' => $attempt->getViewUrl(),
+            'enctype' => 'multipart/form-data', 'id' => 'responseform'));
+        $html .= html_writer::start_tag('div');
+        $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $attempt->getSlot()));
+        $html .= html_writer::end_tag('div');
+
+        $html .= $attempt->renderQuestion();
+
+        $html .= html_writer::start_tag('div');
+        $html .= html_writer::empty_tag('input', array('type' => 'submit',
+            'name' => 'next', 'value' => get_string('practice_nextquestion', 'studentquiz')));
+        $html .= html_writer::empty_tag('input', array('type' => 'submit',
+            'name' => 'finish', 'value' => get_string('practice_stoppractice', 'studentquiz')));
+        $html .= html_writer::end_tag('div');
+        $html .= html_writer::end_tag('form');
+
+        echo $html;
     }
 
 }

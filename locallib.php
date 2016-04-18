@@ -78,21 +78,41 @@ function quiz_add_selected_questions($questionids, $quba){
     return count($questions);
 }
 
-function quiz_practice_create_session($data, $quba_id) {
+function quiz_practice_create_overview($data) {
     global $DB, $USER;
 
-    $quiz_practice = new stdClass();
-    $quiz_practice->practice_date = time();
-    $quiz_practice->question_category_id = $data->categoryid;
-    $quiz_practice->user_id = $USER->id;
-    $quiz_practice->studentquiz_id = $data->instanceid;
-    $quiz_practice->total_marks = $data->total_marks;
-    $quiz_practice->total_no_of_questions = $data->total_no_of_questions;
-    $quiz_practice->question_usage_id = $quba_id;
-    return $DB->insert_record('studentquiz_practice_session', $quiz_practice);
+    $overview = new stdClass();
+
+    $overview->question_category_id = $data->categoryid;
+    $overview->user_id = $USER->id;
+    $overview->studentquiz_id = $data->instanceid;
+
+
+
+    return $DB->insert_record('studentquiz_p_overview', $overview);
 }
-function quiz_practice_create_quiz_helper($data, $context, $rawdata) {
-   return quiz_practice_create_quiz($data, $context, get_quiz_ids($rawdata));
+function quiz_practice_create_session($overviewid, $data, $qubaId) {
+    global $DB;
+    $session = new stdClass();
+    $session->studentquiz_p_overview_id = $overviewid;
+    $session->question_usage_id = $qubaId;
+    $session->total_no_of_questions = $data->total_no_of_questions;
+    $session->total_marks = $data->total_marks;
+    $session->practice_date = time();
+    return $DB->insert_record('studentquiz_p_session', $session);
+}
+
+function quiz_practice_create_quiz_helper($data, $context, $rawdata, $isRawDataFormat = true) {
+    $ids = $rawdata;
+    if($isRawDataFormat) {
+        $ids = get_quiz_ids($rawdata);
+    }
+    $qubaId = quiz_practice_create_quiz($data, $context, $ids);
+    return quiz_practice_create_session(
+       quiz_practice_create_overview($data)
+        ,$data
+        ,$qubaId
+     );
 }
 
 function quiz_practice_create_quiz($data, $context, $questionids) {
@@ -108,45 +128,27 @@ function quiz_practice_create_quiz($data, $context, $questionids) {
     $data->total_marks = quiz_practice_get_max_marks($quba);
     $data->total_no_of_questions = $count;
 
-    $sessionid = quiz_practice_create_session($data, $quba->get_id());
-
-    return $sessionid;
+    return $quba->get_id();
 }
 
 function quiz_practice_retry_quiz($data, $context, $session) {
-    return quiz_practice_create_quiz($data, $context, quiz_practice_get_used_question($session));
+    return quiz_practice_create_session(
+        $session->studentquiz_p_overview_id
+        ,$data
+        ,quiz_practice_create_quiz($data, $context, quiz_practice_get_used_question($session))
+    );
 }
 
 function quiz_practice_get_used_question($session) {
     global $DB;
 
-    $records = $DB->get_record('question_attempts', array('questionusageid' => $session->question_usage_id), 'questionid');
+    $records = $DB->get_records('question_attempts', array('questionusageid' => $session->question_usage_id), 'questionid');
 
     $ids = array();
     foreach($records as $id){
-        $ids[] = $id;
+        $ids[] = $id->questionid;;
     }
     return $ids;
-}
-
-function quiz_practice_update_points($quba, $sessionid) {
-    global $DB;
-    $totalnoofquestionsright = 0;
-    $marks_obtained = 0;
-    foreach($quba->get_slots() as $slot) {
-        $fraction = $quba->get_question_fraction($slot);
-        $maxmarks = $quba->get_question_max_mark($slot);
-        $marks_obtained += $fraction * $maxmarks;
-
-        if ($fraction > 0) {
-            $totalnoofquestionsright += 1;
-        }
-    }
-
-    $updatesql = "UPDATE {studentquiz_practice_session}
-                          SET marks_obtained = ?, total_no_of_questions_right = ?
-                        WHERE id=?";
-    $DB->execute($updatesql, array($marks_obtained, $totalnoofquestionsright, $sessionid));
 }
 
 function quiz_practice_get_max_marks($quba) {

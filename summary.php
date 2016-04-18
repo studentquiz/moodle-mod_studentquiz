@@ -5,16 +5,17 @@ require_once(dirname(__FILE__) . '/renderer.php');
 require_once("$CFG->libdir/formslib.php");
 
 $sessionid = required_param('id', PARAM_INT);
-$session = $DB->get_record('studentquiz_practice_session', array('id' => $sessionid));
+$session = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionid));
+$overview = $DB->get_record('studentquiz_p_overview', array('studentquiz_p_overview_id' => $session->studentquiz_p_overview_id));
 
-if (!$cm = get_coursemodule_from_instance('studentquiz', $session->studentquiz_id)) {
+if (!$cm = get_coursemodule_from_instance('studentquiz', $overview->studentquiz_id)) {
     print_error('invalidquizid', 'studentquiz');
 }
 $course = $DB->get_record('course', array('id' => $cm->course));
 $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
 
 $quba = question_engine::load_questions_usage_by_activity($session->question_usage_id);
-$DB->set_field('studentquiz_practice_session', 'status', 'finished', array('id' => $sessionid));
+$DB->set_field('studentquiz_p_session', 'status', 'finished', array('studentquiz_p_session_id' => $sessionid));
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
@@ -33,6 +34,9 @@ if(optional_param('retry', null, PARAM_BOOL)){
     redirect($retryurl);
 }
 
+if(optional_param('finish', null, PARAM_BOOL)){
+    redirect($finishurl);
+}
 
 $PAGE->set_title($studentquiz->name);
 $PAGE->set_heading($course->fullname);
