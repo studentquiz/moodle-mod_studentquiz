@@ -15,9 +15,6 @@ class custom_view extends \core_question\bank\view {
     public function __construct($contexts, $pageurl, $course, $cm, $search) {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->search = $search;
-
-        $this->initFilterForm();
-
     }
 
     public function initFilterForm() {
@@ -50,16 +47,27 @@ class custom_view extends \core_question\bank\view {
         echo $OUTPUT->heading(get_string('modulename', 'studentquiz'), 2);
 
 
-        $this->create_new_quiz_form();
+        if($this->hasQuestionsInCategory()) {
+            $this->create_new_quiz_form();
+        }
+
         $this->create_new_question_form_ext($cat);
 
 
+        if($this->hasQuestionsInCategory()) {
+            $this->initFilterForm();
+            echo $this->filterform->render();
+        }
+
         // Continues with list of questions.
-        echo $this->filterform->render();
         $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
             $this->baseurl, $cat, $this->cm,
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
+    }
+
+    function hasQuestionsInCategory() {
+        return $this->totalnumber > 0;
     }
 
     function create_new_quiz_form() {
@@ -88,6 +96,23 @@ class custom_view extends \core_question\bank\view {
 
         $canadd = has_capability('moodle/question:add', $catcontext);
         $this->create_new_question_form($category, $canadd);
+    }
+
+    protected function create_new_question_form($category, $canadd) {
+        global $CFG;
+
+        if($this->hasQuestionsInCategory()) {
+            echo '<div class="createnewquestion">';
+        } else {
+            echo '<div class="createnewquestion_wo_question">';
+        }
+        if ($canadd) {
+            create_new_question_button($category->id, $this->editquestionurl->params(),
+                get_string('createnewquestion', 'question'));
+        } else {
+            print_string('nopermissionadd', 'question');
+        }
+        echo '</div>';
     }
 
 
