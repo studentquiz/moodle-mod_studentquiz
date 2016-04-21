@@ -37,8 +37,11 @@ if (data_submitted()) {
         $data->instanceid = $cm->instance;
         $data->categoryid = $category->id;
         $sessionid = quiz_practice_create_quiz_helper($data, $context, (array) data_submitted());
-        $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
-        redirect($nexturl);
+        if($sessionid){
+
+            $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
+            redirect($nexturl);
+        }
     }
     if(optional_param('startrandomquiz', null, PARAM_RAW)){
         $ids = required_param('filtered_question_ids', PARAM_RAW);
@@ -47,9 +50,13 @@ if (data_submitted()) {
         $data->behaviour = "studentquiz";
         $data->instanceid = $cm->instance;
         $data->categoryid = $category->id;
+
         $sessionid = quiz_practice_create_quiz_helper($data, $context, $ids, false);
+        if(!$sessionid) {
+
         $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
         redirect($nexturl);
+        }
     }
 }
 if(optional_param('retryquiz', null, PARAM_BOOL)) {
@@ -62,6 +69,8 @@ if(optional_param('retryquiz', null, PARAM_BOOL)) {
     $data->instanceid = $cm->instance;
     $data->categoryid = $category->id;
     $sessionid = quiz_practice_retry_quiz($data, $context, $session);
+    if(!$sessionid) die();
+
     $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
     redirect($nexturl);
 

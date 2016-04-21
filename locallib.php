@@ -103,10 +103,18 @@ function quiz_practice_create_session($overviewid, $data, $qubaId) {
 }
 
 function quiz_practice_create_quiz_helper($data, $context, $rawdata, $isRawDataFormat = true) {
+    if(implode('', $rawdata) == '') return false;
+
     $ids = $rawdata;
+
     if($isRawDataFormat) {
         $ids = get_quiz_ids($rawdata);
     }
+
+    if(!count($ids)) {
+        return false;
+    }
+
     $qubaId = quiz_practice_create_quiz($data, $context, $ids);
     return quiz_practice_create_session(
        quiz_practice_create_overview($data)
