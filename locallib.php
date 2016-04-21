@@ -87,8 +87,6 @@ function quiz_practice_create_overview($data) {
     $overview->user_id = $USER->id;
     $overview->studentquiz_id = $data->instanceid;
 
-
-
     return $DB->insert_record('studentquiz_p_overview', $overview);
 }
 function quiz_practice_create_session($overviewid, $data, $qubaId) {
@@ -102,19 +100,19 @@ function quiz_practice_create_session($overviewid, $data, $qubaId) {
     return $DB->insert_record('studentquiz_p_session', $session);
 }
 
-function quiz_practice_create_quiz_helper($data, $context, $rawdata, $isRawDataFormat = true) {
-    if(implode('', $rawdata) == '') return false;
+function quiz_practice_get_question_ids($rawdata) {
+    if(!isset($rawdata)&& empty($rawdata)) return false;
 
-    $ids = $rawdata;
-
-    if($isRawDataFormat) {
-        $ids = get_quiz_ids($rawdata);
-    }
+    $ids = get_quiz_ids($rawdata);
 
     if(!count($ids)) {
         return false;
     }
 
+    return $ids;
+}
+
+function quiz_practice_create_quiz_helper($data, $context, $ids) {
     $qubaId = quiz_practice_create_quiz($data, $context, $ids);
     return quiz_practice_create_session(
        quiz_practice_create_overview($data)
@@ -132,7 +130,6 @@ function quiz_practice_create_quiz($data, $context, $questionids) {
 
     question_engine::save_questions_usage_by_activity($quba);
 
-
     $data->total_marks = quiz_practice_get_max_marks($quba);
     $data->total_no_of_questions = $count;
 
@@ -140,6 +137,7 @@ function quiz_practice_create_quiz($data, $context, $questionids) {
 }
 
 function quiz_practice_retry_quiz($data, $context, $session) {
+
     return quiz_practice_create_session(
         $session->studentquiz_p_overview_id
         ,$data

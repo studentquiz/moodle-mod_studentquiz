@@ -79,7 +79,7 @@ class custom_view extends \core_question\bank\view {
         echo '<div>';
         echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
         echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
-        echo '<input name="startrandomquiz" type="submit" value="Start new quiz ..." />';
+        echo '<input name="startfilteredquiz" type="submit" value="Start new quiz ..." />';
 
         echo '</div>';
         echo '</form>';
@@ -233,7 +233,7 @@ class custom_view extends \core_question\bank\view {
     protected function getFilteredQuestionIds(){
         $questionIds = array();
         foreach($this->questions as $question) {
-            $questionIds[] = $question->id;
+            $questionIds[] = 'q' . $question->id;
         }
         return $questionIds;
     }

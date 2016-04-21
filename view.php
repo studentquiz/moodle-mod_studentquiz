@@ -29,111 +29,53 @@ define('CACHE_DISABLE_STORES', true);
  */
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
-require_once($CFG->dirroot . '/question/editlib.php');
-require_once(dirname(__FILE__) . '/locallib.php');
-
+require_once(dirname(__FILE__) . '/viewlib.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
 if(!$cmid){
     $cmid = required_param('cmid', PARAM_INT);
 }
 
-if($cmid){
-    if (!$cm = get_coursemodule_from_id('studentquiz', $cmid)) {
-        print_error('invalidcoursemodule');
-    }
-    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-        print_error('coursemisconf');
-    }
-}
+$view = new studentquiz_view($cmid);
+require_login($view->getCourse(), true, $view->getCourseModule());
 
-
-require_login($course, true, $cm);
-$context = context_module::instance($cm->id);
-
-$search  = optional_param('search', '', PARAM_RAW);
-
-$context = context_module::instance($cmid);
-$category = question_get_default_category($context->id);
+$view->setSearchParameter(optional_param('search', '', PARAM_RAW));
 
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
-        $data = new stdClass();
-        $data->behaviour = "studentquiz";
-        $data->instanceid = $cm->instance;
-        $data->categoryid = $category->id;
-        $sessionid = quiz_practice_create_quiz_helper($data, $context, (array) data_submitted());
-        if($sessionid){
-
-            $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
-            redirect($nexturl);
+        $view->startQuiz((array) data_submitted());
+        if($view->hasQuestionIds()){
+            redirect($view->getAttemptUrl());
         }
     }
-    if(optional_param('startrandomquiz', null, PARAM_RAW)){
+    if(optional_param('startfilteredquiz', null, PARAM_RAW)){
         $ids = required_param('filtered_question_ids', PARAM_RAW);
-        $ids = explode(',', $ids);
-        $data = new stdClass();
-        $data->behaviour = "studentquiz";
-        $data->instanceid = $cm->instance;
-        $data->categoryid = $category->id;
-
-        $sessionid = quiz_practice_create_quiz_helper($data, $context, $ids, false);
-        if(!$sessionid) {
-
-        $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
-        redirect($nexturl);
+        $view->startFilteredQuiz($ids);
+        if($view->hasQuestionIds()){
+            redirect($view->getAttemptUrl());
         }
     }
 }
 if(optional_param('retryquiz', null, PARAM_BOOL)) {
-    $sessionid = required_param('sessionid' , PARAM_INT);
-    if (!$session = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionid), 'question_usage_id, studentquiz_p_overview_id')) {
-        print_error('sessionmissconf');
+    $sessionId = required_param('sessionid' , PARAM_INT);
+    $view->retryQuiz($sessionId);
+
+    if($view->hasQuestionIds()){
+        redirect($view->getAttemptUrl());
     }
-    $data = new stdClass();
-    $data->behaviour = "studentquiz";
-    $data->instanceid = $cm->instance;
-    $data->categoryid = $category->id;
-    $sessionid = quiz_practice_retry_quiz($data, $context, $session);
-    if(!$sessionid) die();
-
-    $nexturl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $sessionid, 'startquiz' => 1));
-    redirect($nexturl);
-
 }
 
 
-$_GET['cmid'] = $cmid;
-$_POST['cat'] = $category->id . ',' . $context->id;
-list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
-    question_edit_setup('questions', '/mod/studentquiz/view.php', true, false);
+$output = $PAGE->get_renderer('mod_studentquiz');
 
-
-
-$url = new moodle_url($thispageurl);
-if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
-    $url->param('lastchanged', $lastchanged);
-}
-$thispageurl->param('search', $search);
-$PAGE->set_url($url);
-
-$questionbank = new \mod_studentquiz\question\bank\custom_view($contexts, $thispageurl, $COURSE, $cm, $search);
-$questionbank->process_actions();
-
+$view->createQuestionBank();
+$PAGE->set_url($view->getPageUrl());
 // TODO log this page view.
-
-$context = $contexts->lowest();
-$streditingquestions = get_string('editquestions', 'question');
-$PAGE->set_title($streditingquestions);
+$PAGE->set_title($view->getTitle());
 $PAGE->set_heading($COURSE->fullname);
 
 echo $OUTPUT->header();
 
-echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
-
-$questionbank->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
-    $pagevars['cat'], $pagevars['recurse'], $pagevars['showhidden'],
-    $pagevars['qbshowtext']);
-echo "</div>\n";
+$output->displayQuestionBank($view);
 
 echo $OUTPUT->footer();
