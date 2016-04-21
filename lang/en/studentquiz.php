@@ -41,6 +41,10 @@ $string['vote_column_name'] = 'Votes';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
 $string['start_quiz_button'] = 'Start Quiz';
+$string['nav_question_and_quiz'] = 'Question and Quiz';
+$string['nav_report'] = 'Report';
+$string['nav_report_question'] = 'Question';
+$string['nav_report_rank'] = 'Rank';
 
 //quiz practice
 $string['practice_question_behaviour'] = 'Question Behaviour';
