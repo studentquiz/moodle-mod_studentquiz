@@ -51,6 +51,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
 
         // Adding the standard "name" field.
         $mform->addElement('text', 'name', get_string('studentquizname', 'studentquiz'), array('size' => '64'));
+        $mform->addHelpButton('name', 'studentquizname', 'studentquiz');
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
         } else {
@@ -58,7 +59,6 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         }
         $mform->addRule('name', null, 'required', null, 'client');
         $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-        $mform->addHelpButton('name', 'studentquizname', 'studentquiz');
 
         // Adding the standard "intro" and "introformat" fields.
         if ($CFG->branch >= 29) {
@@ -70,6 +70,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addElement('header', 'studentranking', 'Student Ranking');
         $mform->addElement('checkbox', 'anonymrank', 'Anonymize Student Ranking');
         $mform->setType('anonymrank', PARAM_INT);
+        $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
 
         // Add standard grading elements.

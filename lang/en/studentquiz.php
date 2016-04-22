@@ -46,6 +46,8 @@ $string['nav_question_and_quiz'] = 'Question and Quiz';
 $string['nav_report'] = 'Report';
 $string['nav_report_question'] = 'Question';
 $string['nav_report_rank'] = 'Rank';
+$string['anonymrankhelp'] = 'Anonym Question Creator and Raning';
+$string['anonymrankhelp_help'] = 'Defines if the question creators and ranking should be anonym for the students.';
 
 //quiz practice
 $string['practice_question_behaviour'] = 'Question Behaviour';
