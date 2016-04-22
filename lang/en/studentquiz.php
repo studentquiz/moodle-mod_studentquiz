@@ -38,6 +38,7 @@ $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'Student Quiz Administration';
 $string['pluginname'] = 'Student Quiz';
 $string['vote_column_name'] = 'Votes';
+$string['difficulty_level_column_name'] = 'Difficulty Level';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
 $string['start_quiz_button'] = 'Start Quiz';

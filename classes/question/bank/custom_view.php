@@ -3,6 +3,7 @@
 namespace mod_studentquiz\question\bank;
 
 require_once(dirname(__FILE__).'/vote_column.php');
+require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/question_view_form.php');
 
@@ -263,6 +264,7 @@ class custom_view extends \core_question\bank\view {
                 }
                 $text = $text . strtolower($question->name
                         .$question->studentquiz_vote_point
+                        .$question->studentquiz_difficulty_level
                         . str_replace(',', '', $question->tag_name));
                 if($this->property_contains_filter($text, strtolower($this->search))) {
                     $filteredQuestions[] = $question;
@@ -313,7 +315,8 @@ class custom_view extends \core_question\bank\view {
 
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,edit_action_column,copy_action_column,'
-            . 'preview_action_column,delete_action_column,' . $showcreator . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column';
+            . 'preview_action_column,delete_action_column,' . $showcreator 
+            . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,mod_studentquiz\\bank\\difficulty_level_column';
 
         return parent::wanted_columns();
     }
