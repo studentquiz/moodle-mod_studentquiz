@@ -131,8 +131,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     continue;
                 }
 
-                $tn = $field->_name != 'studentquiz_vote_point' ? 'q.' : 'vo.';
-                $sqldata[0] = str_replace ( $field->_name , $tn.$field->_name , $sqldata[0] );
+                $sqldata[0] = str_replace ( $field->_name , $this->get_sql_table_prefix($field->_name).$field->_name , $sqldata[0] );
                 $tests[]= '((' . $sqldata[0]  .'))';
                 $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
             }
@@ -143,6 +142,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $this->countsql = 'SELECT count(1)' . $sql;
         $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
+    }
+
+    function get_sql_table_prefix($name) {
+        switch($name){
+            case 'studentquiz_difficulty_level':
+                return 'dl.';
+            case 'studentquiz_vote_point':
+                return 'vo.';
+            default;
+                return 'q.';
+        }
     }
 
     function hasQuestionsInCategory() {
