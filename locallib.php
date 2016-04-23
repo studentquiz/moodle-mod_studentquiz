@@ -78,7 +78,6 @@ function quiz_add_selected_questions($questionids, $quba){
     get_question_options($questions);
     foreach ($questionids as $id) {
         $questionstoprocess = question_bank::make_question($questions[$id]);
-
         $quba->add_question($questionstoprocess);
     }
 
@@ -89,21 +88,20 @@ function quiz_practice_create_overview($data) {
     global $DB, $USER;
 
     $overview = new stdClass();
+    $overview->questioncategoryid = $data->categoryid;
+    $overview->userid = $USER->id;
+    $overview->studentquizid = $data->instanceid;
 
-    $overview->question_category_id = $data->categoryid;
-    $overview->user_id = $USER->id;
-    $overview->studentquiz_id = $data->instanceid;
-
-    return $DB->insert_record('studentquiz_p_overview', $overview);
+    return $DB->insert_record('studentquiz_poverview', $overview);
 }
-function quiz_practice_create_session($overviewid, $data, $qubaId) {
+function quiz_practice_create_session($overviewid, $data, $qubaid) {
     global $DB;
     $session = new stdClass();
-    $session->studentquiz_p_overview_id = $overviewid;
-    $session->question_usage_id = $qubaId;
-    $session->total_no_of_questions = $data->total_no_of_questions;
-    $session->total_marks = $data->total_marks;
-    $session->practice_date = time();
+    $session->studentquizpoverviewid = $overviewid;
+    $session->questionusageid = $qubaid;
+    $session->totalnoofquestions = $data->totalnoofquestions;
+    $session->totalmarks = $data->totalmarks;
+    $session->practicedate = time();
     return $DB->insert_record('studentquiz_p_session', $session);
 }
 
@@ -120,11 +118,11 @@ function quiz_practice_get_question_ids($rawdata) {
 }
 
 function quiz_practice_create_quiz_helper($data, $context, $ids) {
-    $qubaId = quiz_practice_create_quiz($data, $context, $ids);
+    $qubaid = quiz_practice_create_quiz($data, $context, $ids);
     return quiz_practice_create_session(
        quiz_practice_create_overview($data)
         ,$data
-        ,$qubaId
+        ,$qubaid
      );
 }
 
@@ -137,8 +135,8 @@ function quiz_practice_create_quiz($data, $context, $questionids) {
 
     question_engine::save_questions_usage_by_activity($quba);
 
-    $data->total_marks = quiz_practice_get_max_marks($quba);
-    $data->total_no_of_questions = $count;
+    $data->totalmarks = quiz_practice_get_max_marks($quba);
+    $data->totalnoofquestions = $count;
 
     return $quba->get_id();
 }
@@ -164,9 +162,9 @@ function quiz_practice_get_used_question($session) {
 }
 
 function quiz_practice_get_max_marks($quba) {
-    $max_marks = 0;
+    $maxmarks = 0;
     foreach($quba->get_slots() as $slot) {
-        $max_marks += $quba->get_question_max_mark($slot);
+        $maxmarks += $quba->get_question_max_mark($slot);
     }
-    return $max_marks;
+    return $maxmarks;
 }

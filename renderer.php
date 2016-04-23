@@ -4,11 +4,11 @@ defined('MOODLE_INTERNAL') || die();
 
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
-    public function summary_table($sessionid) {
+    public function summary_table($psessionid) {
         global $DB;
 
-        $actualSession = $DB->get_record('studentquiz_p_session', array('id' => $sessionid));
-        $allSession = $DB->get_records('studentquiz_p_session', array('id' => $actualSession->studentquiz_p_overview_id));
+        $actualSession = $DB->get_record('studentquiz_psession', array('id' => $psessionid));
+        $allSession = $DB->get_records('studentquiz_psession', array('id' => $actualSession->studentquizpoverviewid));
 
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
@@ -21,14 +21,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $rows = array();
         foreach($allSession as $session){
             $cellTotalQuestions = new html_table_cell();
-            $cellTotalQuestions->text = $session->total_no_of_questions;
+            $cellTotalQuestions->text = $session->totalnoofquestions;
 
             $cellMarks = new html_table_cell();
-            $cellMarks->text = $session->marks_obtained . '/' . $session->total_marks;
+            $cellMarks->text = $session->marksobtained . '/' . $session->totalmarks;
 
 
             $row = new html_table_row();
-            if($session->studentquiz_p_session_id == $actualSession->studentquiz_p_session_id){
+            if($session->id == $actualSession->id){
                 $style = array('class' => 'mod-studentquiz-summary-highlight');
 
                 $cellTotalQuestions->attributes = $style;
@@ -69,11 +69,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $canviewmyreports = true; //has_capability('mod/studentquiz:viewmyreport', $context);
 
         if ($canviewmyreports) {
-            $overview = $DB->get_records('studentquiz_p_overview', array('question_category_id' => $cm->instance, 'user_id' => $USER->id));
-            $session = $DB->get_records('studentquiz_p_session', array('studentquiz_p_overview_id' => $overview->studentquiz_overview_id));
+            $overview = $DB->get_records('studentquiz_poverview', array('questioncategoryid' => $cm->instance, 'userid' => $USER->id));
+            $session = $DB->get_records('studentquiz_p_session', array('studentquizpoverviewid' => $overview->id));
         } if ($canviewallreports) {
-            $overview = $DB->get_records('studentquiz_p_overview', array('question_category_id' => $cm->instance));
-            $session = $DB->get_records('studentquiz_p_session', array('studentquiz_p_overview_id' => $overview->studentquiz_overview_id));
+            $overview = $DB->get_records('studentquiz_poverview', array('questioncategoryid' => $cm->instance));
+            $session = $DB->get_records('studentquiz_psession', array('studentquizpoverviewid' => $overview->id));
         }
 
         if ($session != null) {
@@ -88,8 +88,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $table->size = array('', '', '', '', '', '', '', '');
             $table->data = array();
             foreach ($session as $practice) {
-                $date = $practice->practice_date;
-                $categoryid = $practice->category_category_id;
+                $date = $practice->practicedate;
+                $categoryid = $practice->categorycategoryid;
 
                 $category = $DB->get_records_menu('question_categories', array('id' => $categoryid), 'name');
                 /* If the category has been deleted, jump to the next session */
@@ -97,8 +97,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                     continue;
                 }
                 $table->data[] = array(userdate($date), $category[$categoryid],
-                    $practice->marks_obtained . '/' . $practice->total_marks,
-                    $practice->total_no_of_questions, $practice->total_no_of_questions_right);
+                    $practice->marksobtained . '/' . $practice->totalmarks,
+                    $practice->totalnoofquestions, $practice->totalnoofquestionsright);
             }
             echo html_writer::table($table);
         } else {
@@ -108,13 +108,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         }
     }
 
-    public function attemptPage($attempt){
+    public function attempt_page($attempt){
         $html = '';
 
         $html = html_writer::start_tag('form', array('method' => 'post', 'action' => $attempt->getViewUrl(),
             'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 
-        $html .= $attempt->renderQuestion();
+        $html .= $attempt->render_question();
         $html .= html_writer::start_tag('div');
 
         $html .= html_writer::empty_tag('input', array('type' => 'submit',
@@ -131,10 +131,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         echo $html;
     }
 
-    public function displayQuestionBank($view) {
+    public function display_questionbank($view) {
         echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
-        $pagevars = $view->getQbPageVar();
-        $view->getQuestionBank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
+        $pagevars = $view->get_qb_pagevar();
+        $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
             $pagevars['cat'], $pagevars['recurse'], $pagevars['showhidden'],
             $pagevars['qbshowtext']);
         echo "</div>\n";

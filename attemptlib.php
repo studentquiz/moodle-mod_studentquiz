@@ -12,11 +12,11 @@ class studentquiz_practice_attempt {
     /** @var  overview object containing the overview session. */
     protected $overview;
     /** @var question_usage_by_activity the question usage for this quiz attempt. */
-    protected $questionUsageByActivity;
+    protected $questionusagebyactivity;
     /** @var array of slot information. */
     protected $slots;
     /** @var array slot => page number for this slot. */
-    protected $questionPage;
+    protected $questionpage;
     /** @var int actual question slot */
     protected $slot;
     /** @var object actual question to display */
@@ -26,64 +26,64 @@ class studentquiz_practice_attempt {
     public function __construct($session, $overview, $cm, $course) {
         $this->session = new studentquiz_practice_session($session);
         $this->overview = new studentquiz_practice_overview($overview, $cm, $course);
-        $this->questionUsageByActivity = question_engine::load_questions_usage_by_activity($this->session->getQuestionUsageId());
+        $this->questionusagebyactivity = question_engine::load_questions_usage_by_activity($this->session->get_question_usage_id());
     }
 
-    public static function create($sessionId) {
+    public static function create($psessionid) {
         global $DB;
-        $session = $DB->get_record('studentquiz_p_session', array('id' => $sessionId));
-        $overview = $DB->get_record('studentquiz_p_overview', array('id' => $session->studentquiz_p_overview_id));
-        $cm = get_coursemodule_from_instance('studentquiz', $overview->studentquiz_id);
+        $session = $DB->get_record('studentquiz_psession', array('id' => $psessionid));
+        $overview = $DB->get_record('studentquiz_poverview', array('id' => $session->studentquizpoverviewid));
+        $cm = get_coursemodule_from_instance('studentquiz', $overview->studentquizid);
         $course = $DB->get_record('course', array('id' => $cm->course));
 
         return new studentquiz_practice_attempt($session, $overview, $cm, $course);
     }
 
-    public function getAttemptUrl() {
-        return new moodle_url('/mod/studentquiz/attempt.php', $this->getUrlSessionData());
+    public function get_attempturl() {
+        return new moodle_url('/mod/studentquiz/attempt.php', $this->get_url_sessiondata());
     }
-    public function getViewUrl() {
-        return $this->getAttemptUrl();
-    }
-
-    public function getAbandonUrl() {
-        $urlData = $this->getUrlSessionData();
-        $urlData['hasAbandoned'] = 1;
-        return new moodle_url('/mod/studentquiz/summary.php', $urlData);
+    public function get_viewurl() {
+        return $this->get_attempturl();
     }
 
-    public function getSummaryUrl() {
-        return new moodle_url('/mod/studentquiz/summary.php', $this->getUrlSessionData());
+    public function get_abandonurl() {
+        $urldata = $this->get_url_sessiondata();
+        $urldata['hasAbandoned'] = 1;
+        return new moodle_url('/mod/studentquiz/summary.php', $urldata);
+    }
+
+    public function get_summaryurl() {
+        return new moodle_url('/mod/studentquiz/summary.php', $this->get_url_sessiondata());
     }
 
 
-    private  function getUrlSessionData() {
-        return array('id' => $this->session->getId());
+    private  function get_url_sessiondata() {
+        return array('id' => $this->session->get_id());
     }
 
     /** @return the course*/
-    public function getCourse() {
-        return $this->overview->getCourse();
+    public function get_course() {
+        return $this->overview->get_course();
     }
 
     /** @return the course module*/
-    public function getCourseModule() {
-        return $this->overview->getCourseModule();
+    public function get_coursemodule() {
+        return $this->overview->get_coursemodule();
     }
 
     /** @return the context*/
-    public function getContext() {
-        return $this->overview->getContext();
+    public function get_context() {
+        return $this->overview->get_context();
     }
 
     /** @return the course module id*/
-    public function getCMId() {
-        return $this->overview->getCourseModule()->id;
+    public function get_cm_id() {
+        return $this->overview->get_coursemodule()->id;
     }
 
     /** @return int the id of the user this attempt belongs to. */
-    public function getUserId() {
-        return $this->overview->getUserId();
+    public function get_user_id() {
+        return $this->overview->get_user_id();
     }
 
     /**
@@ -91,92 +91,92 @@ class studentquiz_practice_attempt {
      *     in progress (false). Be warned that this is not just state == self::FINISHED,
      *     it also includes self::ABANDONED.
      */
-    public function isFinished() {
-        return $this->session->getState() == self::FINISHED || $this->session->getState() == self::ABANDONED;
+    public function is_finished() {
+        return $this->session->get_state() == self::FINISHED || $this->session->get_state() == self::ABANDONED;
     }
 
-    public function processQuestion($slot, $submitData) {
+    public function process_question($slot, $submitdata) {
         $this->slot = $slot;
-        $this->questionUsageByActivity->process_all_actions(time(), $submitData);
-        $this->questionUsageByActivity->finish_question($slot);
-        $this->nextSlot();
-        question_engine::save_questions_usage_by_activity($this->questionUsageByActivity);
+        $this->questionusagebyactivity->process_all_actions(time(), $submitdata);
+        $this->questionusagebyactivity->finish_question($slot);
+        $this->next_slot();
+        question_engine::save_questions_usage_by_activity($this->questionusagebyactivity);
 
-        if($this->isLastQuestion()) {
-            $this->updateAttemptPoints();
+        if($this->is_last_question()) {
+            $this->update_attempt_points();
         } else {
-            $this->question = $this->questionUsageByActivity->get_question($this->slot);
+            $this->question = $this->questionusagebyactivity->get_question($this->slot);
         }
     }
 
-    private function nextSlot() {
+    private function next_slot() {
         $this->slot += 1;
     }
 
-    public function isLastQuestion() {
-        $slots = $this->questionUsageByActivity->get_slots();
+    public function is_last_question() {
+        $slots = $this->questionusagebyactivity->get_slots();
         return $this->slot > end($slots);
     }
 
-    public function updateAttemptPoints() {
+    public function update_attempt_points() {
         global $DB;
-        $totalNumberOfQuestionsRight = 0;
-        $marksObtained = 0;
-        foreach($this->questionUsageByActivity->get_slots() as $slot) {
-            $fraction = $this->questionUsageByActivity->get_question_fraction($slot);
-            $maxMarks = $this->questionUsageByActivity->get_question_max_mark($slot);
-            $marksObtained += $fraction * $maxMarks;
+        $totalnumberofquestionsright = 0;
+        $marksobtained = 0;
+        foreach($this->questionusagebyactivity->get_slots() as $slot) {
+            $fraction = $this->questionusagebyactivity->get_question_fraction($slot);
+            $maxMarks = $this->questionusagebyactivity->get_question_max_mark($slot);
+            $marksobtained += $fraction * $maxMarks;
 
-            if ($fraction > 0) $totalNumberOfQuestionsRight += 1;
+            if ($fraction > 0) $totalnumberofquestionsright += 1;
         }
 
         $stdClass = new stdClass();
-        $stdClass->id = $this->session->getId();
-        $stdClass->marks_obtained = $marksObtained;
-        $stdClass->total_no_of_questions_right = $totalNumberOfQuestionsRight;
+        $stdClass->id = $this->session->get_id();
+        $stdClass->marksobtained = $marksobtained;
+        $stdClass->totalnoofquestionsright = $totalnumberofquestionsright;
 
-        $DB->update_record('studentquiz_p_session', $stdClass);
+        $DB->update_record('studentquiz_psession', $stdClass);
     }
 
-    public function processFinish() {
-        question_engine::save_questions_usage_by_activity($this->questionUsageByActivity);
-        $this->updateAttemptPoints();
+    public function process_finish() {
+        question_engine::save_questions_usage_by_activity($this->questionusagebyactivity);
+        $this->update_attempt_points();
     }
 
-    public function reviewQuestion($slot, $submitData) {
+    public function review_question($slot, $submitdata) {
         $this->slot = $slot;
-        $this->questionUsageByActivity->process_all_actions(time(), $submitData);
-        question_engine::save_questions_usage_by_activity($this->questionUsageByActivity);
-        $this->question = $this->questionUsageByActivity->get_question($this->slot);
+        $this->questionusagebyactivity->process_all_actions(time(), $submitdata);
+        question_engine::save_questions_usage_by_activity($this->questionusagebyactivity);
+        $this->question = $this->questionusagebyactivity->get_question($this->slot);
     }
 
-    public function processFirstQuestion() {
-        $slots = $this->questionUsageByActivity->get_slots();
+    public function process_first_question() {
+        $slots = $this->questionusagebyactivity->get_slots();
         $this->slot = reset($slots);
-        $this->question = $this->questionUsageByActivity->get_question($this->slot);
+        $this->question = $this->questionusagebyactivity->get_question($this->slot);
     }
 
-    public function getSlot() {
+    public function get_slot() {
         return $this->slot;
     }
 
-    public function getHtmlHeadTags() {
+    public function get_html_head_tags() {
         $headtags = '';
-        $headtags .= $this->questionUsageByActivity->render_question_head_html($this->slot);
+        $headtags .= $this->questionusagebyactivity->render_question_head_html($this->slot);
         $headtags .= question_engine::initialise_js();
         return $headtags;
     }
 
-    public function getTitle() {
+    public function get_title() {
         return get_string('practice_session', 'studentquiz', format_string($this->question->name));
     }
 
-    public function getHeading() {
-        return $this->overview->getCourseFullName();
+    public function get_heading() {
+        return $this->overview->get_course_fullname();
     }
 
-    public function renderQuestion() {
-        return $this->questionUsageByActivity->render_question($this->slot, new question_display_options(), $this->slot);
+    public function render_question() {
+        return $this->questionusagebyactivity->render_question($this->slot, new question_display_options(), $this->slot);
     }
 }
 
@@ -189,17 +189,17 @@ class studentquiz_practice_session {
     }
 
     /** @return the practice session id*/
-    public function getId() {
+    public function get_id() {
         return $this->session->id;
     }
 
     /** @return the practice session state*/
-    public function getState() {
+    public function get_state() {
         return $this->session->state;
     }
 
-    public function getQuestionUsageId() {
-        return $this->session->question_usage_id;
+    public function get_question_usage_id() {
+        return $this->session->questionusageid;
     }
 }
 
@@ -225,26 +225,26 @@ class studentquiz_practice_overview {
     }
 
     /** @return the course*/
-    public function getCourse() {
+    public function get_course() {
         return $this->course;
     }
 
     /** @return the course module*/
-    public function getCourseModule() {
+    public function get_coursemodule() {
         return $this->cm;
     }
 
     /** @return the context*/
-    public function getContext() {
+    public function get_context() {
         return $this->context;
     }
 
     /** @return int the id of the user this attempt belongs to. */
-    public function getUserId() {
-        return $this->overview->user_id;
+    public function get_user_id() {
+        return $this->overview->userid;
     }
 
-    public function getCourseFullName() {
+    public function get_course_fullname() {
         return $this->course->fullname;
     }
 }
@@ -252,7 +252,7 @@ class studentquiz_practice_overview {
 class moodle_studentquiz_practice_exception extends moodle_exception {
     public function __construct($attempt, $errorCode, $a = null, $link = '', $debuginfo = null) {
         if (!$link) {
-            $link = $attempt->getViewUrl();
+            $link = $attempt->get_viewurl();
         }
         parent::__construct($errorCode, 'studentquiz', $link, $a, $debuginfo);
     }

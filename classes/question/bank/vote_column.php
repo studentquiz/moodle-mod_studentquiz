@@ -13,8 +13,8 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->studentquiz_vote_point)) {
-            echo $question->studentquiz_vote_point;
+        if (!empty($question->vote)) {
+            echo $question->vote;
         } else {
             echo "no votes";
         }
@@ -22,14 +22,14 @@ class vote_column extends \core_question\bank\column_base {
 
     public function get_extra_joins() {
         return array('vo' => 'LEFT JOIN ('
-        .'SELECT ROUND(SUM(studentquiz_vote_point)/COUNT(studentquiz_vote_point), 2) as studentquiz_vote_point'
-        .', question_id FROM {studentquiz_vote} GROUP BY question_id) vo ON vo.question_id = q.id');
+        .'SELECT ROUND(SUM(vote)/COUNT(vote), 2) as vote'
+        .', questionid FROM {studentquiz_vote} GROUP BY questionid) vo ON vo.questionid = q.id');
     }
 
     public function get_required_fields() {
-        return array('vo.studentquiz_vote_point');
+        return array('vo.vote');
     }
     public function is_sortable() {
-        return 'vo.studentquiz_vote_point';
+        return 'vo.vote';
     }
 }

@@ -56,9 +56,9 @@ class question_bank_filter_form extends moodleform {
         }
 
         $this->_fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
-        $this->_fields[] = new \user_filter_text('tag_name', get_string('filter_label_tags', 'studentquiz'), true, 'tag_name');
-        $this->_fields[] = new \user_filter_vote('studentquiz_vote_point', get_string('filter_label_votes', 'studentquiz'), true, 'studentquiz_vote_point');
-        $this->_fields[] = new \user_filter_vote('studentquiz_difficulty_level', get_string('filter_label_difficulty_level', 'studentquiz'), true, 'studentquiz_difficulty_level');
+        $this->_fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), true, 'tagname');
+        $this->_fields[] = new \user_filter_vote('vote', get_string('filter_label_votes', 'studentquiz'), true, 'vote');
+        $this->_fields[] = new \user_filter_vote('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), true, 'difficultylevel');
 
     }
 

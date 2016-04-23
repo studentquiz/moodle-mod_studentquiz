@@ -77,9 +77,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addElement('header', 'studentranking', get_string('quiz_practice_header', 'studentquiz'));
 
         $behaviours = get_behaviour_options();
-        $mform->addElement('select', 'quizpracitcebehaviour', get_string('quizpracitcebehaviour', 'studentquiz'), $behaviours);
-        $mform->addHelpButton('quizpracitcebehaviour', 'quizpracitcebehaviourhelp', 'studentquiz');
-        $mform->setDefault('quizpracitcebehaviour', get_current_behaviour());
+        $mform->addElement('select', 'quizpracticebehaviour', get_string('quizpracticebehaviour', 'studentquiz'), $behaviours);
+        $mform->addHelpButton('quizpracticebehaviour', 'quizpracticebehaviourhelp', 'studentquiz');
+        $mform->setDefault('quizpracticebehaviour', get_current_behaviour());
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();

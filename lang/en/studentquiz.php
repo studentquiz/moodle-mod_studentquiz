@@ -37,9 +37,9 @@ $string['studentquizname_help'] = 'This is the content of the help tooltip assoc
 $string['ranking_header'] = 'Student Ranking';
 $string['anonymous_checkbox_label'] = 'Anonymize Student Ranking';
 $string['quiz_practice_header'] = 'Quiz Practice Settings';
-$string['quizpracitcebehaviour'] = 'Behaviour';
-$string['quizpracitcebehaviourhelp'] = 'Student quiz practice question behaviour';
-$string['quizpracitcebehaviourhelp_help'] = 'Defines the quiz behaviour in the quiz practices.';
+$string['quizpracticebehaviour'] = 'Behaviour';
+$string['quizpracticebehaviourhelp'] = 'Student quiz practice question behaviour';
+$string['quizpracticebehaviourhelp_help'] = 'Defines the quiz behaviour in the quiz practices.';
 
 
 $string['studentquiz'] = 'studentquiz';

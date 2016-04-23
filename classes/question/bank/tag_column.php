@@ -13,8 +13,8 @@ class tag_column extends \core_question\bank\column_base {
     }
 
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->tag_name)) {
-            echo $question->tag_name;
+        if (!empty($question->tagname)) {
+            echo $question->tagname;
         } else {
             echo "no tags";
         }

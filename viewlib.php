@@ -15,16 +15,16 @@ class studentquiz_view {
     protected $context;
     /** @var category the default category */
     protected $category;
-    /** @var  int the quiz session id */
-    protected $quizSessionId;
+    /** @var  int the quiz practice session id */
+    protected $psessionid;
     /** @var  bool has question ids found */
-    protected $hasQuestionIds;
+    protected $hasquestionids;
     /** @var string page url */
-    protected $pageUrl;
+    protected $pageurl;
     /** @var questionbank class */
-    protected $questionBank;
+    protected $questionbank;
     /** @var array pagevars questionbank */
-    protected $qBpageVar;
+    protected $qbpagevar;
 
 
     public function __construct($cmid) {
@@ -40,112 +40,112 @@ class studentquiz_view {
         $this->category = question_get_default_category($this->context->id);
     }
 
-    public function startQuiz($submitData) {
-        $ids = quiz_practice_get_question_ids($submitData);
+    public function start_quiz($submitdata) {
+        $ids = quiz_practice_get_question_ids($submitdata);
 
         if($ids) {
-            $this->hasQuestionIds = true;
-            $this->quizSessionId = quiz_practice_create_quiz_helper($this->getQuizPracticeSessionObject(), $this->context, $ids);
+            $this->hasquestionids = true;
+            $this->psessionid = quiz_practice_create_quiz_helper($this->get_quiz_practice_session(), $this->context, $ids);
         } else {
-            $this->hasQuestionIds = false;
+            $this->hasquestionids = false;
         }
     }
 
-    public function startFilteredQuiz($ids) {
+    public function start_filtered_quiz($ids) {
         $tmp = explode(',', $ids);
         $ids = array();
         foreach($tmp as $id) {
             $ids[$id] = 1;
         }
-        $this->startQuiz($ids);
+        $this->start_quiz($ids);
     }
 
-    public function retryQuiz($sessionId) {
+    public function retry_quiz($sessionid) {
         global $DB;
-        if (!$session = $DB->get_record('studentquiz_p_session', array('id' => $sessionId), 'question_usage_id, studentquiz_p_overview_id')) {
+        if (!$session = $DB->get_record('studentquiz_psession', array('id' => $sessionid), 'questionusageid, studentquizpoverviewid')) {
             throw new moodle_studentquiz_view_exception($this, 'sessionmissconf');
         }
-        $this->quizSessionId = quiz_practice_retry_quiz($this->getQuizPracticeSessionObject(), $this->context, $session);
-        $this->hasQuestionIds = true;
+        $this->psessionid = quiz_practice_retry_quiz($this->get_quiz_practice_session(), $this->context, $session);
+        $this->hasquestionids = true;
     }
 
-    private function getQuizPracticeSessionObject() {
+    private function get_quiz_practice_session() {
         $data = new stdClass();
-        $data->behaviour = STUDENTQUIZ_BEHAVIOUR;
+        $data->behaviour = get_current_behaviour($this->get_coursemodule());
         $data->instanceid = $this->cm->instance;
         $data->categoryid = $this->category->id;
         return $data;
     }
 
-    public function createQuestionBank() {
-        $_GET['cmid'] = $this->getCMId();
-        $_POST['cat'] = $this->getCategoryId() . ',' . $this->getContextId();
+    public function create_questionbank() {
+        $_GET['cmid'] = $this->get_cm_id();
+        $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
 
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
             question_edit_setup('questions', '/mod/studentquiz/view.php', true, false);
 
-        $this->pageUrl = new moodle_url($thispageurl);
+        $this->pageurl = new moodle_url($thispageurl);
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
-            $this->pageUrl->param('lastchanged', $lastchanged);
+            $this->pageurl->param('lastchanged', $lastchanged);
         }
-        $this->qBpageVar = $pagevars;
+        $this->qbpagevar = $pagevars;
 
-        $this->questionBank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl, $this->course, $this->cm);
-        $this->questionBank->process_actions();
+        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl, $this->course, $this->cm);
+        $this->questionbank->process_actions();
     }
 
-    public function hasQuestionIds(){
-        return $this->hasQuestionIds;
+    public function has_questiond_ids(){
+        return $this->hasquestionids;
     }
 
-    public function getQbPageVar() {
-        return $this->qBpageVar;
+    public function get_qb_pagevar() {
+        return $this->qbpagevar;
     }
 
-    public function getPageUrl() {
-        return new moodle_url($this->pageUrl, $this->getUrlViewData());
+    public function get_pageurl() {
+        return new moodle_url($this->pageurl, $this->get_urlview_data());
     }
 
-    public function getViewUrl() {
-        return new moodle_url('/mod/studentquiz/view.php', $this->getUrlViewData());
+    public function get_viewurl() {
+        return new moodle_url('/mod/studentquiz/view.php', $this->get_urlview_data());
     }
-    public function getAttemptUrl() {
-        return new moodle_url(new moodle_url('/mod/studentquiz/attempt.php', array('id' => $this->quizSessionId, studentquiz_view::STUDENTQUIZ_STARTQUIZ => 1)));
+    public function get_attempturl() {
+        return new moodle_url(new moodle_url('/mod/studentquiz/attempt.php', array('id' => $this->psessionid, studentquiz_view::STUDENTQUIZ_STARTQUIZ => 1)));
     }
 
-    public function getUrlViewData() {
+    public function get_urlview_data() {
         return array('cmid' => $this->cm->id);
     }
 
-    public function getCourse() {
+    public function get_course() {
         return $this->course;
     }
 
-    public function getCourseModule() {
+    public function get_coursemodule() {
         return $this->cm;
     }
 
-    public function getCMId() {
+    public function get_cm_id() {
         return $this->cm->id;
     }
-    public function getQuizSessionId() {
-        return $this->quizSessionId;
+    public function get_psession_id() {
+        return $this->psessionid;
     }
 
-    public function getCategoryId() {
+    public function get_category_id() {
         return $this->category->id;
     }
 
-    public function getContextId() {
+    public function get_context_id() {
         return $this->context->id;
     }
 
-    public function getTitle() {
+    public function get_title() {
         return get_string('editquestions', 'question');
     }
 
-    public function getQuestionBank() {
-        return $this->questionBank;
+    public function get_questionbank() {
+        return $this->questionbank;
     }
 }
 

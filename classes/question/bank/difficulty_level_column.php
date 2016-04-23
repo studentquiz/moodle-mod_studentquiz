@@ -5,7 +5,7 @@ namespace mod_studentquiz\bank;
 
 class difficulty_level_column extends \core_question\bank\column_base {
     public function get_name() {
-        return 'difficulty_level';
+        return 'difficultylevel';
     }
 
     protected function get_title() {
@@ -13,8 +13,8 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->studentquiz_difficulty_level)) {
-            echo $question->studentquiz_difficulty_level;
+        if (!empty($question->difficultylevel)) {
+            echo $question->difficultylevel;
         } else {
             echo "no difficulty level";
         }
@@ -22,7 +22,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
 
     public function get_extra_joins() {
 		return array('dl' => 'LEFT JOIN (' 
-			. 'SELECT IF(total = 0, 0, ROUND(1 - (correct / total), 2)) AS studentquiz_difficulty_level,'
+			. 'SELECT IF(total = 0, 0, ROUND(1 - (correct / total), 2)) AS difficultylevel,'
 			. 'questionid'
 			. ' FROM ('
 			. 'SELECT' 
@@ -35,9 +35,9 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     public function get_required_fields() {
-        return array('dl.studentquiz_difficulty_level');
+        return array('dl.difficultylevel');
     }
     public function is_sortable() {
-        return 'dl.studentquiz_difficulty_level';
+        return 'dl.difficultylevel';
     }
 }

@@ -37,43 +37,43 @@ if(!$cmid){
 }
 
 $view = new studentquiz_view($cmid);
-require_login($view->getCourse(), true, $view->getCourseModule());
+require_login($view->get_course(), true, $view->get_coursemodule());
 
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
-        $view->startQuiz((array) data_submitted());
-        if($view->hasQuestionIds()){
-            redirect($view->getAttemptUrl());
+        $view->start_quiz((array) data_submitted());
+        if($view->has_questiond_ids()){
+            redirect($view->get_attempturl());
         }
     }
     if(optional_param('startfilteredquiz', null, PARAM_RAW)){
         $ids = required_param('filtered_question_ids', PARAM_RAW);
-        $view->startFilteredQuiz($ids);
-        if($view->hasQuestionIds()){
-            redirect($view->getAttemptUrl());
+        $view->start_filtered_quiz($ids);
+        if($view->has_questiond_ids()){
+            redirect($view->get_attempturl());
         }
     }
 }
 if(optional_param('retryquiz', null, PARAM_BOOL)) {
     $sessionId = required_param('sessionid' , PARAM_INT);
-    $view->retryQuiz($sessionId);
+    $view->retry_quiz($sessionId);
 
-    if($view->hasQuestionIds()){
-        redirect($view->getAttemptUrl());
+    if($view->has_questiond_ids()){
+        redirect($view->get_attempturl());
     }
 }
 
 
 $output = $PAGE->get_renderer('mod_studentquiz');
 
-$view->createQuestionBank();
-$PAGE->set_url($view->getPageUrl());
+$view->create_questionbank();
+$PAGE->set_url($view->get_pageurl());
 // TODO log this page view.
-$PAGE->set_title($view->getTitle());
+$PAGE->set_title($view->get_title());
 $PAGE->set_heading($COURSE->fullname);
 
 echo $OUTPUT->header();
 
-$output->displayQuestionBank($view);
+$output->display_questionbank($view);
 
 echo $OUTPUT->footer();

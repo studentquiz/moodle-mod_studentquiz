@@ -126,7 +126,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $this->isfilteractive = true;
                 $sqldata = $field->get_sql_filter($data);
 
-                if($field->_name == 'tag_name') {
+                if($field->_name == 'tagname') {
                     $this->tagnamefield = $sqldata;
                     continue;
                 }
@@ -146,9 +146,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     function get_sql_table_prefix($name) {
         switch($name){
-            case 'studentquiz_difficulty_level':
+            case 'difficultylevel':
                 return 'dl.';
-            case 'studentquiz_vote_point':
+            case 'vote':
                 return 'vo.';
             default;
                 return 'q.';
@@ -331,22 +331,21 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $filteredQuestions = array();
 
         foreach($questions as $question) {
-            $question->tag_name = '';
+            $question->tagname = '';
 
             $count = $this->get_question_tag_count($question->id);
             if($count){
                 foreach($this->get_question_tag($question->id) as $tag) {
-                    $question->tag_name .= ', '.$tag->name;
+                    $question->tagname .= ', '.$tag->name;
                 }
-                $question->tag_name = substr($question->tag_name, 2);
+                $question->tagname = substr($question->tagname, 2);
             }
 
             if(!$this->isfilteractive) {
                 $filteredQuestions[] = $question;
             } else {
                 if(isset($this->tagnamefield)) {
-                    if(!empty($question->tag_name) || $count == 0) {
-                        echo "penis";
+                    if(!empty($question->tagname) || $count == 0) {
                         $filteredQuestions[] = $question;
                     }
                 } else {
@@ -377,7 +376,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $sqlext = '';
         if(isset($this->tagnamefield)) {
-            $sqlext = str_replace ( 'tag_name' , 't.name' , $this->tagnamefield[0]);
+            $sqlext = str_replace ( 'tagname' , 't.name' , $this->tagnamefield[0]);
             $sqlparams = $this->tagnamefield[1];
 
             $sqlext = ' AND '. '((' . $sqlext  .'))';
