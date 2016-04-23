@@ -16,7 +16,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" UNSIGNED="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="The maximum grade. Can be negative to indicate the use of a scale."/>
         <FIELD NAME="anonymrank" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Setting to show ranking anonym or not."/>
-        <FIELD NAME="quiz_practice_behaviour" TYPE="char" LENGTH="400" NOTNULL="true" SEQUENCE="false" COMMENT="Displays the question behaviour selected by teachers"/>
+        <FIELD NAME="quizpracticebehaviour" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Displays the question behaviour selected by teachers"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -29,69 +29,78 @@
     <TABLE NAME="studentquiz_vote" COMMENT="Store votes for questions">
         <FIELDS>
             <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-            <FIELD NAME="studentquiz_vote_point" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
-            <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+            <FIELD NAME="vote" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
+            <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
         </FIELDS>
         <KEYS>
             <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
-            <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
+            <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+            <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
         </KEYS>
         <INDEXES>
-            <INDEX NAME="user_userid" UNIQUE="false" FIELDS="user_userid"/>
-            <INDEX NAME="question_id" UNIQUE="false" FIELDS="question_id"/>
+            <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+            <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
         </INDEXES>
     </TABLE>
     <TABLE NAME="studentquiz_comment" COMMENT="Store comments for questions">
         <FIELDS>
             <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-            <FIELD NAME="studentquiz_comment_text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
-            <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
-            <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
-            <FIELD NAME="studentquiz_comment_created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="comment" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
+            <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+            <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         </FIELDS>
         <KEYS>
             <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
-            <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
+            <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+            <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
         </KEYS>
         <INDEXES>
-            <INDEX NAME="user_userid" UNIQUE="false" FIELDS="user_userid"/>
-            <INDEX NAME="question_id" UNIQUE="false" FIELDS="question_id"/>
+            <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+            <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
         </INDEXES>
     </TABLE>
-    <TABLE NAME="studentquiz_p_overview" COMMENT="Store studentquiz practice overview">
+    <TABLE NAME="studentquiz_practice_overview" COMMENT="Store studentquiz practice overview">
       <FIELDS>
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-          <FIELD NAME="studentquiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-          <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
-          <FIELD NAME="question_category_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+          <FIELD NAME="studentquizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+          <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+          <FIELD NAME="questioncategoryid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
           <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-          <KEY NAME="user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
-          <KEY NAME="studentquiz_id" TYPE="foreign" FIELDS="studentquiz_id" REFTABLE="studentquiz" REFFIELDS="id"/>
-          <KEY NAME="question_category_id" TYPE="foreign" FIELDS="question_category_id" REFTABLE="question_categories" REFFIELDS="id"/>
+          <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+          <KEY NAME="studentquizid" TYPE="foreign" FIELDS="studentquizid" REFTABLE="studentquiz" REFFIELDS="id"/>
+          <KEY NAME="questioncategoryid" TYPE="foreign" FIELDS="questioncategoryid" REFTABLE="question_categories" REFFIELDS="id"/>
       </KEYS>
+	  <INDEXES>
+            <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+            <INDEX NAME="questioncategoryid" UNIQUE="false" FIELDS="questioncategoryid"/>
+			<INDEX NAME="studentquizid" UNIQUE="false" FIELDS="studentquizid"/>
+      </INDEXES>
     </TABLE>
-      <TABLE NAME="studentquiz_p_session" COMMENT="Store studentquiz practice session">
+      <TABLE NAME="studentquiz_practice_session" COMMENT="Store studentquiz practice session">
           <FIELDS>
               <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-              <FIELD NAME="studentquiz_p_overview_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-              <FIELD NAME="question_usage_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+              <FIELD NAME="studentquizpracticeoverviewid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+              <FIELD NAME="questionusageid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
               <FIELD NAME="state" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="inprogress" SEQUENCE="false"/>
-              <FIELD NAME="total_no_of_questions" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="total_no_of_questions_right" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="marks_obtained" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
-              <FIELD NAME="total_marks" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
-              <FIELD NAME="practice_date" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+              <FIELD NAME="totalnoofquestions" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+              <FIELD NAME="totalnoofquestionsright" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+              <FIELD NAME="marksobtained" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+              <FIELD NAME="totalmarks" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2"/>
+              <FIELD NAME="practicedate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
           </FIELDS>
           <KEYS>
               <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-              <KEY NAME="question_usage_id" TYPE="foreign" FIELDS="question_usage_id" REFTABLE="question_usages" REFFIELDS="id"/>
-              <KEY NAME="studentquiz_p_overview_id" TYPE="foreign" FIELDS="studentquiz_p_overview_id" REFTABLE="studentquiz_p_overview" REFFIELDS="id"/>
+              <KEY NAME="questionusageid" TYPE="foreign" FIELDS="questionusageid" REFTABLE="question_usages" REFFIELDS="id"/>
+              <KEY NAME="studentquizpracticeoverviewid" TYPE="foreign" FIELDS="studentquizpracticeoverviewid" REFTABLE="studentquiz_practice_overview" REFFIELDS="id"/>
           </KEYS>
+		<INDEXES>
+            <INDEX NAME="questionusageid" UNIQUE="false" FIELDS="questionusageid"/>
+            <INDEX NAME="studentquizpracticeoverviewid" UNIQUE="false" FIELDS="studentquizpracticeoverviewid"/>
+        </INDEXES>
       </TABLE>
   </TABLES>
 </XMLDB>
