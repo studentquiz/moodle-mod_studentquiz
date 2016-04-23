@@ -58,6 +58,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         echo $OUTPUT->heading($this->cm->name, 2);
 
+        $this->create_new_question_form_ext($cat);
         if($this->hasQuestionsInCategory()) {
             $this->create_new_quiz_form();
         }
@@ -65,8 +66,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if($this->hasQuestionsInCategory() || $this->isfilteractive) {
             echo $this->_filterform->render();
         }
-
-        $this->create_new_question_form_ext($cat);
 
         // Continues with list of questions.
         $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
@@ -168,7 +167,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo '<div>';
         echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
         echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
-        echo '<input name="startfilteredquiz" type="submit" value="Start new quiz ..." />';
+        echo '<input name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
 
         echo '</div>';
         echo '</form>';

@@ -1,6 +1,5 @@
-#page-mod-studentquiz-view .createnewquestion,
-#page-mod-studentquiz-view .createnewquiz {
-    float: right;
+#page-mod-studentquiz-view .createnewquestion {
+    float: left;
 }
 
 #page-mod-studentquiz-view .createnewquestion_wo_question {
