@@ -61,7 +61,7 @@
             <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
         </INDEXES>
     </TABLE>
-    <TABLE NAME="studentquiz_practice_overview" COMMENT="Store studentquiz practice overview">
+    <TABLE NAME="studentquiz_poverview" COMMENT="Store studentquiz practice overview">
       <FIELDS>
           <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
           <FIELD NAME="studentquizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
@@ -80,10 +80,10 @@
 			<INDEX NAME="studentquizid" UNIQUE="false" FIELDS="studentquizid"/>
       </INDEXES>
     </TABLE>
-      <TABLE NAME="studentquiz_practice_session" COMMENT="Store studentquiz practice session">
+      <TABLE NAME="studentquiz_psession" COMMENT="Store studentquiz practice session">
           <FIELDS>
               <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-              <FIELD NAME="studentquizpracticeoverviewid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+              <FIELD NAME="studentquizpoverviewid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
               <FIELD NAME="questionusageid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
               <FIELD NAME="state" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="inprogress" SEQUENCE="false"/>
               <FIELD NAME="totalnoofquestions" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -95,11 +95,11 @@
           <KEYS>
               <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
               <KEY NAME="questionusageid" TYPE="foreign" FIELDS="questionusageid" REFTABLE="question_usages" REFFIELDS="id"/>
-              <KEY NAME="studentquizpracticeoverviewid" TYPE="foreign" FIELDS="studentquizpracticeoverviewid" REFTABLE="studentquiz_practice_overview" REFFIELDS="id"/>
+              <KEY NAME="studentquizpoverviewid" TYPE="foreign" FIELDS="studentquizpoverviewid" REFTABLE="studentquiz_poverview" REFFIELDS="id"/>
           </KEYS>
 		<INDEXES>
             <INDEX NAME="questionusageid" UNIQUE="false" FIELDS="questionusageid"/>
-            <INDEX NAME="studentquizpracticeoverviewid" UNIQUE="false" FIELDS="studentquizpracticeoverviewid"/>
+            <INDEX NAME="studentquizpoverviewid" UNIQUE="false" FIELDS="studentquizpoverviewid"/>
         </INDEXES>
       </TABLE>
   </TABLES>
