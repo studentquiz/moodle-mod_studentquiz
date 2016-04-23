@@ -189,15 +189,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     protected function create_new_question_form($category, $canadd) {
         global $CFG;
-
+        $caption = get_string('createnewquestion', 'question');
         if($this->hasQuestionsInCategory()) {
             echo '<div class="createnewquestion">';
         } else {
             echo '<div class="createnewquestion_wo_question">';
+            $caption = get_string('createnewquestionfirst', 'studentquiz');
         }
         if ($canadd) {
             create_new_question_button($category->id, $this->editquestionurl->params(),
-                get_string('createnewquestion', 'question'));
+                $caption);
         } else {
             print_string('nopermissionadd', 'question');
         }

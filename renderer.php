@@ -17,7 +17,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->align = array('left', 'left');
         $table->size = array('', '');
         $table->data = array();
-      
+
         $rows = array();
         foreach($allSession as $session){
             $cellTotalQuestions = new html_table_cell();
