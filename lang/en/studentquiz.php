@@ -92,5 +92,8 @@ $string['filter_label_difficulty_level'] = 'Difficulty level';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
 
+//admin settings
+$string['settings_remove_attempts'] = 'Remove question attemptions';
+$string['settings_remove_attempts_description'] = 'Caution! This Setting removes question attemptions with the questionbehaviour studentquiz to uninstall the questionbehaviour studentquiz.';
 
 
