@@ -65,5 +65,5 @@ $PAGE->set_heading($attempt->get_heading());
 $PAGE->set_context($attempt->get_context());
 
 echo $OUTPUT->header();
-echo $output->attemptPage($attempt);
+echo $output->attempt_page($attempt);
 echo $OUTPUT->footer();

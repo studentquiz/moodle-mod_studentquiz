@@ -55,7 +55,11 @@ function get_current_behaviour($cm=null) {
     global $DB;
 
     if(isset($cm)){
-        return $DB->get_record('studentquiz', array('id' => $cm->instance), 'quizpracticebehaviour');
+        $rec = $DB->get_record('studentquiz', array('id' => $cm->instance), 'quizpracticebehaviour');
+
+        if(!$rec) return STUDENTQUIZ_BEHAVIOUR;
+
+        return $rec->quizpracticebehaviour;
     } else {
         return STUDENTQUIZ_BEHAVIOUR;
     }
@@ -102,7 +106,7 @@ function quiz_practice_create_session($overviewid, $data, $qubaid) {
     $session->totalnoofquestions = $data->totalnoofquestions;
     $session->totalmarks = $data->totalmarks;
     $session->practicedate = time();
-    return $DB->insert_record('studentquiz_p_session', $session);
+    return $DB->insert_record('studentquiz_psession', $session);
 }
 
 function quiz_practice_get_question_ids($rawdata) {
@@ -143,7 +147,7 @@ function quiz_practice_create_quiz($data, $context, $questionids) {
 
 function quiz_practice_retry_quiz($data, $context, $session) {
     return quiz_practice_create_session(
-        $session->studentquiz_p_overview_id
+        $session->studentquizpoverviewid
         ,$data
         ,quiz_practice_create_quiz($data, $context, quiz_practice_get_used_question($session))
     );
@@ -152,7 +156,7 @@ function quiz_practice_retry_quiz($data, $context, $session) {
 function quiz_practice_get_used_question($session) {
     global $DB;
 
-    $records = $DB->get_records('question_attempts', array('questionusageid' => $session->question_usage_id), 'questionid');
+    $records = $DB->get_records('question_attempts', array('questionusageid' => $session->questionusageid), 'questionid');
 
     $ids = array();
     foreach($records as $id){

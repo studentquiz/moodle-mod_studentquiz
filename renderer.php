@@ -8,7 +8,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         global $DB;
 
         $actualSession = $DB->get_record('studentquiz_psession', array('id' => $psessionid));
-        $allSession = $DB->get_records('studentquiz_psession', array('id' => $actualSession->studentquizpoverviewid));
+        $allSession = $DB->get_records('studentquiz_psession', array('studentquizpoverviewid' => $actualSession->studentquizpoverviewid));
 
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
@@ -17,7 +17,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->align = array('left', 'left');
         $table->size = array('', '');
         $table->data = array();
-
+      
         $rows = array();
         foreach($allSession as $session){
             $cellTotalQuestions = new html_table_cell();
@@ -111,7 +111,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function attempt_page($attempt){
         $html = '';
 
-        $html = html_writer::start_tag('form', array('method' => 'post', 'action' => $attempt->getViewUrl(),
+        $html = html_writer::start_tag('form', array('method' => 'post', 'action' => $attempt->get_viewurl(),
             'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 
         $html .= $attempt->render_question();
@@ -123,7 +123,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $html .= html_writer::empty_tag('input', array('type' => 'submit',
             'name' => 'finish', 'value' => get_string('practice_stoppractice', 'studentquiz')));
 
-        $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $attempt->getSlot()));
+        $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'slots', 'value' => $attempt->get_slot()));
 
         $html .= html_writer::end_tag('div');
         $html .= html_writer::end_tag('form');

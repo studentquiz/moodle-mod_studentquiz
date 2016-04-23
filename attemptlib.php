@@ -48,7 +48,7 @@ class studentquiz_practice_attempt {
 
     public function get_abandonurl() {
         $urldata = $this->get_url_sessiondata();
-        $urldata['hasAbandoned'] = 1;
+        $urldata['hasabandoned'] = 1;
         return new moodle_url('/mod/studentquiz/summary.php', $urldata);
     }
 
