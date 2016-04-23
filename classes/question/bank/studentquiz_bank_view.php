@@ -2,26 +2,37 @@
 
 namespace mod_studentquiz\question\bank;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once(dirname(__FILE__).'/vote_column.php');
 require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/question_view_form.php');
+require_once(dirname(__FILE__).'/question_bank_filter.php');
 
-class custom_view extends \core_question\bank\view {
-    private $filterform;
-    private $search;
+
+class studentquiz_bank_view extends \core_question\bank\view {
     private $questions;
     private $totalnumber;
+    private $tagnamefield;
+    private $isfilteractive;
+    private $_filterform;
 
-    public function __construct($contexts, $pageurl, $course, $cm, $search) {
+
+    public function __construct($contexts, $pageurl, $course, $cm) {
         parent::__construct($contexts, $pageurl, $course, $cm);
-        $this->search = $search;
+        $this->init($pageurl);
     }
 
-    public function initFilterForm() {
-        $this->filterform = new question_view_form('view.php', array('cmid' => $this->cm->id),
-            'get', '', array('id' => 'filterform'));
-        $this->filterform->set_data(array('search' => $this->search));
+    public function init($pageurl) {
+        $this->isfilteractive = false;
+
+        $this->_filterform = new \question_bank_filter_form(
+            $pageurl->out()
+            , array(
+                'cmid' => $this->cm->id
+                ,'isadmin' => $this->check_created_permission()
+            ));
     }
 
     public function display($tabname, $page, $perpage, $cat,
@@ -31,6 +42,7 @@ class custom_view extends \core_question\bank\view {
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
         array_unshift($this->searchconditions, new \mod_studentquiz\condition\student_quiz_condition(
             $cat, $recurse, $editcontexts, $this->baseurl, $this->course));
+
         // This function can be moderately slow with large question counts and may time out.
         // We probably do not want to raise it to unlimited, so randomly picking 5 minutes.
         // Note: We do not call this in the loop because quiz ob_ captures this function (see raise() PHP doc).
@@ -44,27 +56,93 @@ class custom_view extends \core_question\bank\view {
             return;
         }
 
-        // Category selection form.
-        echo $OUTPUT->heading(get_string('modulename', 'studentquiz'), 2);
-
+        echo $OUTPUT->heading($this->cm->name, 2);
 
         if($this->hasQuestionsInCategory()) {
             $this->create_new_quiz_form();
         }
 
-        $this->create_new_question_form_ext($cat);
-
-
-        if($this->hasQuestionsInCategory()) {
-            $this->initFilterForm();
-            echo $this->filterform->render();
+        if($this->hasQuestionsInCategory() || $this->isfilteractive) {
+            echo $this->_filterform->render();
         }
+
+        $this->create_new_question_form_ext($cat);
 
         // Continues with list of questions.
         $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
             $this->baseurl, $cat, $this->cm,
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
+    }
+
+    /**
+     * Create the SQL query to retrieve the indicated questions, based on
+     * \core_question\bank\search\condition filters.
+     */
+    protected function build_query() {
+        global $DB;
+
+        // Get the required tables and fields.
+        $joins = array();
+        $fields = array('q.hidden', 'q.category');
+        foreach ($this->requiredcolumns as $column) {
+            $extrajoins = $column->get_extra_joins();
+            foreach ($extrajoins as $prefix => $join) {
+                if (isset($joins[$prefix]) && $joins[$prefix] != $join) {
+                    throw new \coding_exception('Join ' . $join . ' conflicts with previous join ' . $joins[$prefix]);
+                }
+                $joins[$prefix] = $join;
+            }
+            $fields = array_merge($fields, $column->get_required_fields());
+        }
+        $fields = array_unique($fields);
+
+        // Build the order by clause.
+        $sorts = array();
+        foreach ($this->sort as $sort => $order) {
+            list($colname, $subsort) = $this->parse_subsort($sort);
+            $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
+        }
+
+        // Build the where clause.
+        $tests = array('q.parent = 0');
+        $this->sqlparams = array();
+        foreach ($this->searchconditions as $searchcondition) {
+            if ($searchcondition->where()) {
+                $tests[] = '((' . $searchcondition->where() .'))';
+            }
+            if ($searchcondition->params()) {
+                $this->sqlparams = array_merge($this->sqlparams, $searchcondition->params());
+            }
+        }
+        $this->sqlparams['filter'] = '';
+
+        if ($adddata = $this->_filterform->get_data()){
+            foreach ($this->_filterform->getFields() as $field) {
+                $data = $field->check_data($adddata);
+
+                if ($data === false) continue;
+
+                $this->isfilteractive = true;
+                $sqldata = $field->get_sql_filter($data);
+
+                if($field->_name == 'tag_name') {
+                    $this->tagnamefield = $sqldata;
+                    continue;
+                }
+
+                $tn = $field->_name != 'studentquiz_vote_point' ? 'q.' : 'vo.';
+                $sqldata[0] = str_replace ( $field->_name , $tn.$field->_name , $sqldata[0] );
+                $tests[]= '((' . $sqldata[0]  .'))';
+                $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
+            }
+        }
+        // Build the SQL.
+        $sql = ' FROM {question} q ' . implode(' ', $joins);
+        $sql .= ' WHERE ' . implode(' AND ', $tests);
+
+        $this->countsql = 'SELECT count(1)' . $sql;
+        $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
     }
 
     function hasQuestionsInCategory() {
@@ -241,41 +319,32 @@ class custom_view extends \core_question\bank\view {
 
     protected function filterQuestions($questions) {
         $filteredQuestions = array();
+
         foreach($questions as $question) {
             $question->tag_name = '';
-            foreach($this->get_question_tag($question->id) as $tag) {
-                $question->tag_name .= ', '.$tag->name;
+
+            $count = $this->get_question_tag_count($question->id);
+            if($count){
+                foreach($this->get_question_tag($question->id) as $tag) {
+                    $question->tag_name .= ', '.$tag->name;
+                }
+                $question->tag_name = substr($question->tag_name, 2);
             }
-            $question->tag_name = substr($question->tag_name, 2);
 
-
-            if(empty($this->search)) {
+            if(!$this->isfilteractive) {
                 $filteredQuestions[] = $question;
             } else {
-                $text = '';
-                if ($this->check_created_permission()) {
-                    $text = strtolower($question->creatorfirstnamephonetic
-                        . $question->creatorlastnamephonetic
-                        . $question->creatormiddlename
-                        . $question->creatoralternatename
-                        . $question->creatorfirstname
-                        . $question->creatorlastname
-                        );
-                }
-                $text = $text . strtolower($question->name
-                        .$question->studentquiz_vote_point
-                        .$question->studentquiz_difficulty_level
-                        . str_replace(',', '', $question->tag_name));
-                if($this->property_contains_filter($text, strtolower($this->search))) {
+                if(isset($this->tagnamefield)) {
+                    if(!empty($question->tag_name) || $count == 0) {
+                        echo "penis";
+                        $filteredQuestions[] = $question;
+                    }
+                } else {
                     $filteredQuestions[] = $question;
                 }
             }
         }
         return $filteredQuestions;
-    }
-
-    protected function property_contains_filter($property, $filter) {
-        return strrpos($property, $filter) !== false;
     }
 
     protected function load_page_questions_array($question, $page, $perpage) {
@@ -295,14 +364,41 @@ class custom_view extends \core_question\bank\view {
     protected function get_question_tag($id) {
         global $DB;
         $sqlparams = array();
+
+        $sqlext = '';
+        if(isset($this->tagnamefield)) {
+            $sqlext = str_replace ( 'tag_name' , 't.name' , $this->tagnamefield[0]);
+            $sqlparams = $this->tagnamefield[1];
+
+            $sqlext = ' AND '. '((' . $sqlext  .'))';
+        }
+
         $sql = 'SELECT t.name, ti.itemid'
+            .' FROM mdl_tag t'
+            .' JOIN mdl_tag_instance ti'
+            .' ON t.id = ti.tagid'
+            .' WHERE ti.itemtype = "question" AND ti.itemid = :qid' . $sqlext;
+
+        $sqlparams['qid'] = $id;
+
+        return $DB->get_recordset_sql($sql, $sqlparams);
+    }
+
+    protected function get_question_tag_count($id) {
+        global $DB;
+        $sqlparams = array();
+
+        $sqlext = '';
+
+        $sql = 'SELECT count(1)'
             .' FROM mdl_tag t'
             .' JOIN mdl_tag_instance ti'
             .' ON t.id = ti.tagid'
             .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
 
         $sqlparams['qid'] = $id;
-        return $DB->get_recordset_sql($sql, $sqlparams);
+
+        return $DB->count_records_sql($sql, $sqlparams);
     }
 
     protected function wanted_columns() {

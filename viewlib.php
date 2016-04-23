@@ -23,8 +23,6 @@ class studentquiz_view {
     protected $hasQuestionIds;
     /** @var string page url */
     protected $pageUrl;
-    /** @var string search params */
-    protected $search;
     /** @var questionbank class */
     protected $questionBank;
     /** @var array pagevars questionbank */
@@ -92,9 +90,9 @@ class studentquiz_view {
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageUrl->param('lastchanged', $lastchanged);
         }
-        $thispageurl->param('search', $this->search);
         $this->qBpageVar = $pagevars;
-        $this->questionBank = new \mod_studentquiz\question\bank\custom_view($contexts, $thispageurl, $this->course, $this->cm, $this->search);
+
+        $this->questionBank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl, $this->course, $this->cm);
         $this->questionBank->process_actions();
     }
 
@@ -107,7 +105,7 @@ class studentquiz_view {
     }
 
     public function getPageUrl() {
-        return new moodle_url($this->pageUrl);
+        return new moodle_url($this->pageUrl, $this->getUrlViewData());
     }
 
     public function getViewUrl() {
@@ -142,10 +140,6 @@ class studentquiz_view {
 
     public function getContextId() {
         return $this->context->id;
-    }
-
-    public function setSearchParameter($search) {
-        $this->search = $search;
     }
 
     public function getTitle() {

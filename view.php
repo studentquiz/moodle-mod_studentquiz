@@ -39,8 +39,6 @@ if(!$cmid){
 $view = new studentquiz_view($cmid);
 require_login($view->getCourse(), true, $view->getCourseModule());
 
-$view->setSearchParameter(optional_param('search', '', PARAM_RAW));
-
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
         $view->startQuiz((array) data_submitted());

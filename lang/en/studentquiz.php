@@ -69,3 +69,16 @@ $string['pracitce_no_of_questions_viewed'] = 'No. of Questions viewed';
 $string['practice_no_of_questions_right'] = 'No. of questions right';
 $string['practice_no_records_viewurl'] = 'No Records exist';
 
+
+//filters
+$string['filter_label_search'] = 'Search';
+$string['filter_label_question'] = 'Question name';
+$string['filter_label_firstname'] = 'Firstname';
+$string['filter_label_surname'] = 'Surname';
+$string['filter_label_createdate'] = 'Creation date';
+$string['filter_label_tags'] = 'Tag';
+$string['filter_label_votes'] = 'Vote';
+$string['filter_ishigher'] = 'Is higher';
+$string['filter_islower'] = 'Is lower';
+
+
