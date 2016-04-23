@@ -28,13 +28,13 @@
     </TABLE>
     <TABLE NAME="studentquiz_vote" COMMENT="Store votes for questions">
         <FIELDS>
-            <FIELD NAME="studentquiz_vote_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
             <FIELD NAME="studentquiz_vote_point" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
             <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
             <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
         </FIELDS>
         <KEYS>
-            <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_vote_id"/>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
             <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
         </KEYS>
@@ -45,14 +45,14 @@
     </TABLE>
     <TABLE NAME="studentquiz_comment" COMMENT="Store comments for questions">
         <FIELDS>
-            <FIELD NAME="studentquiz_comment_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
             <FIELD NAME="studentquiz_comment_text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
             <FIELD NAME="question_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
             <FIELD NAME="user_userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
             <FIELD NAME="studentquiz_comment_created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         </FIELDS>
         <KEYS>
-            <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_comment_id"/>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
             <KEY NAME="user_userid" TYPE="foreign" FIELDS="user_userid" REFTABLE="user" REFFIELDS="id"/>
             <KEY NAME="question_id" TYPE="foreign" FIELDS="question_id" REFTABLE="question" REFFIELDS="id"/>
         </KEYS>
@@ -63,13 +63,13 @@
     </TABLE>
     <TABLE NAME="studentquiz_p_overview" COMMENT="Store studentquiz practice overview">
       <FIELDS>
-          <FIELD NAME="studentquiz_p_overview_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+          <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
           <FIELD NAME="studentquiz_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
           <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
           <FIELD NAME="question_category_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
-          <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_p_overview_id"/>
+          <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
           <KEY NAME="user_id" TYPE="foreign" FIELDS="user_id" REFTABLE="user" REFFIELDS="id"/>
           <KEY NAME="studentquiz_id" TYPE="foreign" FIELDS="studentquiz_id" REFTABLE="studentquiz" REFFIELDS="id"/>
           <KEY NAME="question_category_id" TYPE="foreign" FIELDS="question_category_id" REFTABLE="question_categories" REFFIELDS="id"/>
@@ -77,7 +77,7 @@
     </TABLE>
       <TABLE NAME="studentquiz_p_session" COMMENT="Store studentquiz practice session">
           <FIELDS>
-              <FIELD NAME="studentquiz_p_session_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+              <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
               <FIELD NAME="studentquiz_p_overview_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
               <FIELD NAME="question_usage_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
               <FIELD NAME="state" TYPE="char" LENGTH="20" NOTNULL="true" DEFAULT="inprogress" SEQUENCE="false"/>
@@ -88,9 +88,9 @@
               <FIELD NAME="practice_date" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
           </FIELDS>
           <KEYS>
-              <KEY NAME="primary" TYPE="primary" FIELDS="studentquiz_p_session_id"/>
+              <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
               <KEY NAME="question_usage_id" TYPE="foreign" FIELDS="question_usage_id" REFTABLE="question_usages" REFFIELDS="id"/>
-              <KEY NAME="studentquiz_p_overview_id" TYPE="foreign" FIELDS="studentquiz_p_overview_id" REFTABLE="studentquiz_p_overview" REFFIELDS="studentquiz_p_overview_id"/>
+              <KEY NAME="studentquiz_p_overview_id" TYPE="foreign" FIELDS="studentquiz_p_overview_id" REFTABLE="studentquiz_p_overview" REFFIELDS="id"/>
           </KEYS>
       </TABLE>
   </TABLES>
