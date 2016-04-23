@@ -31,7 +31,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $pageurl->out()
             , array(
                 'cmid' => $this->cm->id
-                ,'isadmin' => $this->check_created_permission()
             ));
     }
 
@@ -149,6 +148,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 return 'dl.';
             case 'vote':
                 return 'vo.';
+            case 'firstname':
+            case 'lastname':
+                return 'uc.';
             default;
                 return 'q.';
         }
@@ -328,10 +330,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     protected function filterQuestions($questions) {
-        $filteredQuestions = array();
+        global $USER;
 
+        $filteredQuestions = array();
         foreach($questions as $question) {
             $question->tagname = '';
+             
+            if (
+                $this->is_anonym() && 
+                !$this->check_created_permission() &&
+                $question->createdby != $USER->id
+            ) {
+                $question->creatorfirstname = 'anonym';
+                $question->creatorlastname = 'anonym';
+            }
 
             $count = $this->get_question_tag_count($question->id);
             if($count){
@@ -413,17 +425,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
     protected function wanted_columns() {
         global $CFG;
 
-        $showcreator = '';
-        if ($this->check_created_permission()) {
-            $showcreator = 'creator_name_column,';
-        }
-
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,edit_action_column,copy_action_column,'
-            . 'preview_action_column,delete_action_column,' . $showcreator 
+            . 'preview_action_column,delete_action_column,creator_name_column,' 
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,mod_studentquiz\\bank\\difficulty_level_column';
 
         return parent::wanted_columns();
+    }
+
+    protected function is_anonym() {
+        global $DB;
+
+        $result = $DB->get_record('studentquiz', array('coursemodule' => $this->cm->id));
+        if ($result !== false) {
+            return intval($result->anonymrank);
+        }
+        // if the dont found an entry better set is anonym
+        return 1;
     }
 
     protected function check_created_permission() {

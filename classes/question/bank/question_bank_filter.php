@@ -50,10 +50,8 @@ class question_bank_filter_form extends moodleform {
 
         $this->_fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), false, 'name');
 
-        if($this->_customdata['isadmin']) {
-            $this->_fields[] = new \user_filter_text('creatorfirstname', get_string('filter_label_firstname', 'studentquiz'), true, 'creatorfirstname');
-            $this->_fields[] = new \user_filter_text('creatorlastname', get_string('filter_label_surname', 'studentquiz'), true, 'creatorlastname');
-        }
+        $this->_fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
+        $this->_fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
 
         $this->_fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
         $this->_fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), true, 'tagname');
