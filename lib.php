@@ -166,7 +166,13 @@ function studentquiz_delete_instance($id) {
     $context = context_module::instance($studentquiz->coursemodule);
     $DB->delete_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
 
-    $DB->delete_records('question_categories', array('contextid' => $studentquiz->coursemodule));
+    $row = $DB->get_record('question_categories', array('contextid' => $studentquiz->coursemodule));
+    $questions = $DB->get_records('question', array('category' => $row->id));
+    foreach ($questions as $question) {
+        $question->category = $row->parent;
+        $DB->update_record('question', $question);
+    }
+    $DB->delete_records('question_categories', array('id' => $row->id));
     $DB->delete_records('studentquiz', array('id' => $studentquiz->id));
 
     studentquiz_grade_item_delete($studentquiz);
