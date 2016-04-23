@@ -77,7 +77,7 @@ function studentquiz_supports($feature) {
  * @return int The id of the newly inserted studentquiz record
  */
 function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
-    global $DB;
+    global $DB, $COURSE;
 
     $studentquiz->timecreated = time();
     $studentquiz->anonymrank = update_anonymrank($mform->get_data());
@@ -87,7 +87,6 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
-    $parent = $context->get_parent_context();
 
     $capabilities = array(
         'moodle/question:usemine',
@@ -111,7 +110,7 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     // add default category
     $question_category = question_make_default_categories(array($context));
     $question_category->name .= $studentquiz->name;
-    $question_category->parent = $parent->id;
+    $question_category->parent = $COURSE->category;
     $DB->update_record('question_categories', $question_category);
 
     studentquiz_grade_item_update($studentquiz);
