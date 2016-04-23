@@ -64,7 +64,7 @@ class studentquiz_view {
 
     public function retryQuiz($sessionId) {
         global $DB;
-        if (!$session = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionId), 'question_usage_id, studentquiz_p_overview_id')) {
+        if (!$session = $DB->get_record('studentquiz_p_session', array('id' => $sessionId), 'question_usage_id, studentquiz_p_overview_id')) {
             throw new moodle_studentquiz_view_exception($this, 'sessionmissconf');
         }
         $this->quizSessionId = quiz_practice_retry_quiz($this->getQuizPracticeSessionObject(), $this->context, $session);

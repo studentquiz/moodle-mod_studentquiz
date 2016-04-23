@@ -5,8 +5,8 @@ require_once(dirname(__FILE__) . '/renderer.php');
 require_once("$CFG->libdir/formslib.php");
 
 $sessionid = required_param('id', PARAM_INT);
-$session = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionid));
-$overview = $DB->get_record('studentquiz_p_overview', array('studentquiz_p_overview_id' => $session->studentquiz_p_overview_id));
+$session = $DB->get_record('studentquiz_p_session', array('id' => $sessionid));
+$overview = $DB->get_record('studentquiz_p_overview', array('id' => $session->studentquiz_p_overview_id));
 
 if (!$cm = get_coursemodule_from_instance('studentquiz', $overview->studentquiz_id)) {
     print_error('invalidquizid', 'studentquiz');

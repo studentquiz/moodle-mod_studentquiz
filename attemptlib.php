@@ -31,8 +31,8 @@ class studentquiz_practice_attempt {
 
     public static function create($sessionId) {
         global $DB;
-        $session = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionId));
-        $overview = $DB->get_record('studentquiz_p_overview', array('studentquiz_p_overview_id' => $session->studentquiz_p_overview_id));
+        $session = $DB->get_record('studentquiz_p_session', array('id' => $sessionId));
+        $overview = $DB->get_record('studentquiz_p_overview', array('id' => $session->studentquiz_p_overview_id));
         $cm = get_coursemodule_from_instance('studentquiz', $overview->studentquiz_id);
         $course = $DB->get_record('course', array('id' => $cm->course));
 
@@ -130,10 +130,12 @@ class studentquiz_practice_attempt {
             if ($fraction > 0) $totalNumberOfQuestionsRight += 1;
         }
 
-        $updateSql = "UPDATE {studentquiz_p_session}
-                      SET marks_obtained = ?, total_no_of_questions_right = ?
-                    WHERE studentquiz_p_session_id = ?";
-        $DB->execute($updateSql, array($marksObtained, $totalNumberOfQuestionsRight, $this->session->getId()));
+        $stdClass = new stdClass();
+        $stdClass->id = $this->session->getId();
+        $stdClass->marks_obtained = $marksObtained;
+        $stdClass->total_no_of_questions_right = $totalNumberOfQuestionsRight;
+
+        $DB->update_record('studentquiz_p_session', $stdClass);
     }
 
     public function processFinish() {
@@ -188,7 +190,7 @@ class studentquiz_practice_session {
 
     /** @return the practice session id*/
     public function getId() {
-        return $this->session->studentquiz_p_session_id;
+        return $this->session->id;
     }
 
     /** @return the practice session state*/

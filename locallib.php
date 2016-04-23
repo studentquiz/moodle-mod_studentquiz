@@ -137,7 +137,6 @@ function quiz_practice_create_quiz($data, $context, $questionids) {
 }
 
 function quiz_practice_retry_quiz($data, $context, $session) {
-
     return quiz_practice_create_session(
         $session->studentquiz_p_overview_id
         ,$data

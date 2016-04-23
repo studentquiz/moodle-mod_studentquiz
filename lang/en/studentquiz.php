@@ -78,7 +78,9 @@ $string['filter_label_surname'] = 'Surname';
 $string['filter_label_createdate'] = 'Creation date';
 $string['filter_label_tags'] = 'Tag';
 $string['filter_label_votes'] = 'Vote';
+$string['filter_label_difficulty_level'] = 'Difficulty level';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
+
 
 

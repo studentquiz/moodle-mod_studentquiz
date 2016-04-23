@@ -7,8 +7,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function summary_table($sessionid) {
         global $DB;
 
-        $actualSession = $DB->get_record('studentquiz_p_session', array('studentquiz_p_session_id' => $sessionid));
-        $allSession = $DB->get_records('studentquiz_p_session', array('studentquiz_p_overview_id' => $actualSession->studentquiz_p_overview_id));
+        $actualSession = $DB->get_record('studentquiz_p_session', array('id' => $sessionid));
+        $allSession = $DB->get_records('studentquiz_p_session', array('id' => $actualSession->studentquiz_p_overview_id));
 
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
