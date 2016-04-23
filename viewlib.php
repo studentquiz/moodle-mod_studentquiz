@@ -4,8 +4,6 @@ require_once($CFG->dirroot . '/question/editlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
 class studentquiz_view {
-    /** @var string default quiz behaviour */
-    const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
     /** @var string submit data for question attempt */
     const STUDENTQUIZ_STARTQUIZ = 'startquiz';
 
@@ -73,7 +71,7 @@ class studentquiz_view {
 
     private function getQuizPracticeSessionObject() {
         $data = new stdClass();
-        $data->behaviour = studentquiz_view::STUDENTQUIZ_BEHAVIOUR;
+        $data->behaviour = STUDENTQUIZ_BEHAVIOUR;
         $data->instanceid = $this->cm->instance;
         $data->categoryid = $this->category->id;
         return $data;

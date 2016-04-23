@@ -34,6 +34,14 @@ $string['modulename_help'] = 'Use the Student Quiz Module for... | The Student Q
 $string['studentquizfieldset'] = 'Custom example fieldset';
 $string['studentquizname'] = 'Student Quiz Name';
 $string['studentquizname_help'] = 'This is the content of the help tooltip associated with the Student Quiz name field. Markdown syntax is supported.';
+$string['ranking_header'] = 'Student Ranking';
+$string['anonymous_checkbox_label'] = 'Anonymize Student Ranking';
+$string['quiz_practice_header'] = 'Quiz Practice Settings';
+$string['quizpracitcebehaviour'] = 'Behaviour';
+$string['quizpracitcebehaviourhelp'] = 'Student quiz practice question behaviour';
+$string['quizpracitcebehaviourhelp_help'] = 'Defines the quiz behaviour in the quiz practices.';
+
+
 $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'Student Quiz Administration';
 $string['pluginname'] = 'Student Quiz';

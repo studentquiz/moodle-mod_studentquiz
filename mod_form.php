@@ -28,6 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 /**
  * Module instance settings form
@@ -67,11 +68,18 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        $mform->addElement('header', 'studentranking', 'Student Ranking');
-        $mform->addElement('checkbox', 'anonymrank', 'Anonymize Student Ranking');
+        $mform->addElement('header', 'studentranking', get_string('ranking_header', 'studentquiz'));
+        $mform->addElement('checkbox', 'anonymrank', get_string('anonymous_checkbox_label', 'studentquiz'));
         $mform->setType('anonymrank', PARAM_INT);
         $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
+
+        $mform->addElement('header', 'studentranking', get_string('quiz_practice_header', 'studentquiz'));
+
+        $behaviours = get_behaviour_options();
+        $mform->addElement('select', 'quizpracitcebehaviour', get_string('quizpracitcebehaviour', 'studentquiz'), $behaviours);
+        $mform->addHelpButton('quizpracitcebehaviour', 'quizpracitcebehaviourhelp', 'studentquiz');
+        $mform->setDefault('quizpracitcebehaviour', get_current_behaviour());
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();

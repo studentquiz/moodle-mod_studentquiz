@@ -29,6 +29,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
 
+/** @var string default quiz behaviour */
+const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
 /*
  * Does something really useful with the passed things
  *
@@ -38,23 +40,28 @@ require_once($CFG->libdir . '/questionlib.php');
  *    return new stdClass();
  *}
  */
-function get_options_behaviour($cm) {
-    global $DB, $CFG;
-    $behaviour = $DB->get_record('studentquiz', array('id' => $cm->instance), 'behaviour');
-    $comma = explode(",", $behaviour->behaviour);
-    $currentbehaviour = '';
-    $behaviours = question_engine::get_behaviour_options($currentbehaviour);
-    $showbehaviour = array();
-    foreach ($comma as $id => $values) {
+function get_behaviour_options() {
+    $behaviours = array('immediatefeedback' => 'Immediate feedback');
+    $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
-        foreach ($behaviours as $key => $langstring) {
-            if ($values == $key) {
-                $showbehaviour[$key] = $langstring;
-            }
-        }
+    if(array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
+        $behaviours[STUDENTQUIZ_BEHAVIOUR] = $archetypalbehaviours[STUDENTQUIZ_BEHAVIOUR];
     }
-    return $showbehaviour;
+
+    return $behaviours;
 }
+
+function get_current_behaviour($cm=null) {
+    global $DB;
+
+    if(isset($cm)){
+        return $DB->get_record('studentquiz', array('id' => $cm->instance), 'quizpracticebehaviour');
+    } else {
+        return STUDENTQUIZ_BEHAVIOUR;
+    }
+}
+
+
 
 function get_quiz_ids($rawdata) {
     $ids = array();
