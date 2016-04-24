@@ -152,7 +152,7 @@ class studentquiz_view {
 class moodle_studentquiz_view_exception extends moodle_exception {
     public function __construct($view, $errorCode, $a = null, $link = '', $debuginfo = null) {
         if (!$link) {
-            $link = $view->getViewUrl();
+            $link = $view->get_viewurl();
         }
         parent::__construct($errorCode, 'studentquiz', $link, $a, $debuginfo);
     }
