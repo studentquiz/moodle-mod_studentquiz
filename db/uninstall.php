@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
+require_once($CFG->dirroot.'/course/lib.php');
 require_once(dirname(__FILE__) . '/../lib.php');
 
 /**
@@ -35,6 +35,7 @@ function xmldb_studentquiz_uninstall() {
 
     $studentquizzes = $DB->get_records('studentquiz');
     foreach ($studentquizzes as $studentquiz) {
+    	course_delete_module($studentquiz->coursemodule);
     	studentquiz_delete_instance($studentquiz->id);
     }
 }
