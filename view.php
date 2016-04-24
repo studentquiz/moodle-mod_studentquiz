@@ -1,6 +1,4 @@
 <?php
-define('CACHE_DISABLE_ALL', true);
-define('CACHE_DISABLE_STORES', true);
 
 // This file is part of Moodle - http://moodle.org/
 //
