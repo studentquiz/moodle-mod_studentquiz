@@ -27,6 +27,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
     public function init($pageurl) {
         $this->isfilteractive = false;
 
+        if (isset($_POST['resetbutton'])) {
+           $this->resetfilter(); 
+        }
+
         $this->_filterform = new \question_bank_filter_form(
             $pageurl->out()
             , array(
@@ -455,5 +459,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         return !user_has_role_assignment($USER->id,5);
+    }
+
+    protected function resetfilter() {
+        $_POST['name_op'] = '0';
+        $_POST['name'] = '';
+        $_POST['firstname_op'] = '0';
+        $_POST['firstname'] = '';
+        $_POST['lastname_op'] = '0';
+        $_POST['lastname'] = '';
+        $_POST['tagname_op'] = '0';
+        $_POST['tagname'] = '';
+        $_POST['vote_op'] = '0';
+        $_POST['vote'] = '';
+        $_POST['difficultylevel_op'] = '0';
+        $_POST['difficultylevel'] = '';
     }
 }
