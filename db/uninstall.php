@@ -20,13 +20,21 @@
  * @see uninstall_plugin()
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch) <your@email.adress>
+ * @copyright  2016 HSR (http://www.hsr.ch) 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+
+require_once(dirname(__FILE__) . '/../lib.php');
 
 /**
  * Custom uninstallation procedure
  */
 function xmldb_studentquiz_uninstall() {
-    return true;
+    global $DB;
+
+    $studentquizzes = $DB->get_records('studentquiz');
+    foreach ($studentquizzes as $studentquiz) {
+    	studentquiz_delete_instance($studentquiz->id);
+    }
 }
