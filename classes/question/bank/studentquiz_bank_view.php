@@ -31,10 +31,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
            $this->resetfilter(); 
         }
 
+        if (isset($_POST['createdby'])) {
+            $this->setshowmineuserid();
+        }
+
         $this->_filterform = new \question_bank_filter_form(
             $pageurl->out()
             , array(
-                'cmid' => $this->cm->id
+                'cmid' => $this->cm->id,
+                'isanonym' => (
+                    $this->is_anonym() && 
+                    !$this->check_created_permission()
+                )
             ));
     }
 
@@ -125,6 +133,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
                 if ($data === false) continue;
 
+
                 $this->isfilteractive = true;
                 $sqldata = $field->get_sql_filter($data);
 
@@ -133,7 +142,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     continue;
                 }
 
-                $sqldata[0] = str_replace ( $field->_name , $this->get_sql_table_prefix($field->_name).$field->_name , $sqldata[0] );
+                // user_filter_checkbox class has a buggy get_sql_filter function
+                if ($field->_name == 'createdby') {
+                    $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
+                }
+
+                $sqldata[0] = str_replace ( $field->_name, $this->get_sql_table_prefix($field->_name).$field->_name, $sqldata[0] );
                 $tests[]= '((' . $sqldata[0]  .'))';
                 $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
             }
@@ -141,7 +155,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Build the SQL.
         $sql = ' FROM {question} q ' . implode(' ', $joins);
         $sql .= ' WHERE ' . implode(' AND ', $tests);
-
         $this->countsql = 'SELECT count(1)' . $sql;
         $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
     }
@@ -444,7 +457,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if ($result !== false) {
             return intval($result->anonymrank);
         }
-        // if the dont found an entry better set is anonym
+        // if the dont found an entry better set it anonym
         return 1;
     }
 
@@ -461,9 +474,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return !user_has_role_assignment($USER->id,5);
     }
 
+    protected function setshowmineuserid() {
+        global $USER;
+
+        $_POST['createdby'] = $USER->id;
+    }
+
     protected function resetfilter() {
         $_POST['name_op'] = '0';
         $_POST['name'] = '';
+        $_POST['createdby'] = null;
         $_POST['firstname_op'] = '0';
         $_POST['firstname'] = '';
         $_POST['lastname_op'] = '0';

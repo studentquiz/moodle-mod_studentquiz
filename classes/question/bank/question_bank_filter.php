@@ -41,6 +41,7 @@ class question_bank_filter_form extends moodleform {
     private $_fields;
 
     public function __construct($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
+        $this->_customdata = $customdata;
         $this->set_fields();
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
     }
@@ -49,10 +50,12 @@ class question_bank_filter_form extends moodleform {
         $this->_fields = array();
 
         $this->_fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), false, 'name');
-
-        $this->_fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
-        $this->_fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
-
+        if ($this->_customdata['isanonym']) {
+            $this->_fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
+        } else {
+            $this->_fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
+            $this->_fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
+        }
         $this->_fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
         $this->_fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), true, 'tagname');
         $this->_fields[] = new \user_filter_vote('vote', get_string('filter_label_votes', 'studentquiz'), true, 'vote');

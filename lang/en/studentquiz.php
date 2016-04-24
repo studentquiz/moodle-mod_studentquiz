@@ -91,6 +91,7 @@ $string['filter_label_votes'] = 'Vote';
 $string['filter_label_difficulty_level'] = 'Difficulty level';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
+$string['filter_label_show_mine'] = 'Show my questions';
 
 //admin settings
 $string['settings_remove_attempts'] = 'Remove question attemptions';
