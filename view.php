@@ -39,28 +39,32 @@ require_login($view->get_course(), true, $view->get_coursemodule());
 
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
-        $view->start_quiz((array) data_submitted());
-        if($view->has_questiond_ids()){
-            redirect($view->get_attempturl());
+        $quizmid = $view->start_selected_quiz((array) data_submitted());
+        if($quizmid){
+            if($view->has_questiond_ids()){
+                redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
+                //redirect($view->get_attempturl());
+            } else {
+                //todo no question selected
+            }
+        }else {
+            //todo
         }
     }
     if(optional_param('startfilteredquiz', null, PARAM_RAW)){
         $ids = required_param('filtered_question_ids', PARAM_RAW);
-        $view->start_filtered_quiz($ids);
-        if($view->has_questiond_ids()){
-            redirect($view->get_attempturl());
+        $quizmid = $view->start_filtered_quiz($ids);
+        if($quizmid){
+            if($view->has_questiond_ids()){
+                redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
+            } else {
+                //todo no question selected
+            }
+        }else {
+            //todo
         }
     }
 }
-if(optional_param('retryquiz', null, PARAM_BOOL)) {
-    $sessionId = required_param('sessionid' , PARAM_INT);
-    $view->retry_quiz($sessionId);
-
-    if($view->has_questiond_ids()){
-        redirect($view->get_attempturl());
-    }
-}
-
 
 $output = $PAGE->get_renderer('mod_studentquiz');
 

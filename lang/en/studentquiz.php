@@ -59,27 +59,6 @@ $string['anonymrankhelp_help'] = 'Defines if the question creators and ranking s
 $string['createnewquestionfirst'] = 'Create first question ...';
 $string['createnewquizfromfilter'] = 'Start new quiz from search filters ...';
 
-//quiz practice
-$string['practice_question_behaviour'] = 'Question Behaviour';
-$string['practice_behaviour'] = 'Behaviour';
-$string['practice_start'] = 'Start Practice';
-$string['practice_session'] = 'Practice Session';
-$string['practice_no_more_questions'] = 'Sorry.No more questions to display. Try a different category';
-$string['practice_nextquestion'] = 'View next question';
-$string['practice_stoppractice'] = 'Stop practice';
-$string['practice_total_questions'] = 'Total questions attempted';
-$string['practice_total_marks'] = 'Total marks obtained';
-$string['practice_retry'] = 'Retry Practice';
-$string['practice_finish'] = 'Finish Practice';
-$string['practice_past_sessions'] = 'Past Sessions';
-$string['practice_date'] = 'Practice Date';
-$string['practice_category'] = 'Topic Selected';
-$string['practice_score'] = 'Marks Obtained';
-$string['pracitce_no_of_questions_viewed'] = 'No. of Questions viewed';
-$string['practice_no_of_questions_right'] = 'No. of questions right';
-$string['practice_no_records_viewurl'] = 'No Records exist';
-
-
 //filters
 $string['filter_label_search'] = 'Search';
 $string['filter_label_question'] = 'Question name';
