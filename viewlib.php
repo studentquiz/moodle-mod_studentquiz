@@ -117,18 +117,13 @@ class studentquiz_view {
 
     private function create_quiz_course_module($courseid){
         global $DB;
-        $moduleid = $this->get_quiz_module_id();
+        $moduleid = get_quiz_module_id();
         $qcm = new stdClass();
         $qcm->course = $courseid;
         $qcm->module = $moduleid;
         $qcm->instance = 0;
 
         return $DB->insert_record('course_modules',$qcm);
-    }
-
-    private function get_quiz_module_id() {
-        global $DB;
-        return $DB->get_field('modules', 'id', array('name'=>'quiz'));
     }
 
     private function get_standard_quiz_setup() {

@@ -50,8 +50,8 @@ $PAGE->set_title($report->get_title());
 $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());
 $PAGE->set_url($report->get_quizreporturl());
-$output = $PAGE->get_renderer('mod_studentquiz');
+
 
 echo $OUTPUT->header();
-echo $output->report_quiz_table($psessionid);
+echo $report->get_quiz_tables();
 echo $OUTPUT->footer();

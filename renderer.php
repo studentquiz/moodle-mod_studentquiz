@@ -2,40 +2,37 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
-    public function report_quiz_table($report) {
-        $table = new html_table();
-        $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
-        $table->caption = get_string('practice_past_sessions', 'studentquiz');
-        $table->head = array(get_string('practice_total_questions', 'studentquiz'), get_string('practice_total_marks', 'studentquiz'));
-        $table->align = array('left', 'left');
-        $table->size = array('', '');
-        $table->data = array();
+    public function view_quizreport_total($total) {
+        $output = '';
+        $output = $this->heading(get_string('reportquiz_total_title', 'studentquiz'), 2);
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_attempt', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($total->numattempts)
+        );
 
-        $rows = array();
-        foreach($report->get_studentquiz_sessions() as $session){
-            $cellTotalQuestions = new html_table_cell();
-            $cellTotalQuestions->text = $session->totalnoofquestions;
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_questions_answered', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($total->questionsanswered)
+        );
 
-            $cellMarks = new html_table_cell();
-            $cellMarks->text = $session->marksobtained . '/' . $session->totalmarks;
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_questions_right', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($total->questionsright)
+        );
 
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_questions_wrong', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span(($total->questionsanswered - $total->questionsright))
+        );
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_obtained_marks', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($total->obtainedmarks)
+        );
 
-            $row = new html_table_row();
-            if($session->id == "actual user....."){
-                $style = array('class' => 'mod-studentquiz-summary-highlight');
-
-                $cellTotalQuestions->attributes = $style;
-                $cellMarks->attributes = $style;
-                $row->attributes = $style;
-            }
-
-            $row->cells = array($cellTotalQuestions, $cellMarks);
-            $rows[] = $row;
-        }
-        $table->data = $rows;
-        echo html_writer::table($table);
+        return $output;
     }
 
     public function display_questionbank($view) {

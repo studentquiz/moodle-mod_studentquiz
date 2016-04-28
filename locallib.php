@@ -64,3 +64,8 @@ function get_current_behaviour($cm=null) {
         return STUDENTQUIZ_BEHAVIOUR;
     }
 }
+
+function get_quiz_module_id() {
+    global $DB;
+    return $DB->get_field('modules', 'id', array('name'=>'quiz'));
+}

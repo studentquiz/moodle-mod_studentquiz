@@ -7,7 +7,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once(dirname(__FILE__).'/vote_column.php');
 require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
-require_once(dirname(__FILE__).'/question_view_form.php');
 require_once(dirname(__FILE__).'/question_bank_filter.php');
 
 
