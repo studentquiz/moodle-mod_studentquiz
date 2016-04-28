@@ -529,6 +529,14 @@ class studentquiz_view {
     }
 
     /**
+     * get activity context
+     * @return int
+     */
+    public function get_context() {
+        return $this->context;
+    }
+
+    /**
      * get the view title
      * @return string
      */

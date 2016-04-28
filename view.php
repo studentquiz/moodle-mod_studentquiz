@@ -26,6 +26,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__) . '/viewlib.php');
+require_once(dirname(__FILE__).'/classes/event/studentquiz_questionbank_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
 if(!$cmid){
@@ -34,6 +35,13 @@ if(!$cmid){
 
 $view = new studentquiz_view($cmid);
 require_login($view->get_course(), true, $view->get_coursemodule());
+
+$params = array(
+    'objectid' => $view->get_cm_id(),
+    'context' => $view->get_context()
+);
+$event = \mod_studentquiz\event\studentquiz_questionbank_viewed::create($params);
+$event->trigger();
 
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
