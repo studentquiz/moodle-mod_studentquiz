@@ -175,3 +175,6 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 .error {
     color: #ff0000;
 }
+.mod-studentquiz-summary-highlight {
+    background-color: #d9edf7 !important;
++}
