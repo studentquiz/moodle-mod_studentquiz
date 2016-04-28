@@ -36,17 +36,29 @@ require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_view {
-    /** @var stdClass the course_module settings from the database. */
+    /**
+     * @var stdClass the course_module settings from the database.
+     */
     protected $cm;
-    /** @var stdClass the course settings from the database. */
+    /**
+     * @var stdClass the course settings from the database.
+     */
     protected $course;
-    /** @var context the quiz context. */
+    /**
+     * @var context the quiz context.
+     */
     protected $context;
-    /** @var category the default category */
+    /**
+     * @var category the default category
+     */
     protected $category;
-    /** @var  bool has question ids found */
+    /**
+     * @var  bool has question ids found
+     */
     protected $hasquestionids;
-    /** @var object pagevars */
+    /**
+     * @var object pagevars
+     */
     protected $qbpagevar;
 
 
