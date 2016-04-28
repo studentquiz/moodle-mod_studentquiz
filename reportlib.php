@@ -30,3 +30,91 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
+
+class studentquiz_report {
+    /** @var stdClass the course_module settings from the database. */
+    protected $cm;
+    /** @var stdClass the course settings from the database. */
+    protected $course;
+    /** @var context the quiz context. */
+    protected $context;
+
+
+    public function __construct($cmid) {
+        global $DB;
+        if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
+            throw new moodle_studentquiz_view_exception($this, 'invalidcoursemodule');
+        }
+        if (!$this->course = $DB->get_record('course', array('id' => $this->cm->course))) {
+            throw new moodle_studentquiz_view_exception($this, 'coursemisconf');
+        }
+
+        $this->context = context_module::instance($this->cm->id);
+    }
+
+    /**
+     * get quiz report url
+     * @return moodle_url
+     */
+    public function get_quizreporturl() {
+        return new moodle_url('/mod/studentquiz/view.php', $this->get_urlview_data());
+    }
+
+    /**
+     * get the urlview data (includes cmid)
+     * @return array
+     */
+    public function get_urlview_data() {
+        return array('cmid' => $this->cm->id);
+    }
+
+    /**
+     * get activity course module
+     * @return stdClass
+     */
+    public function get_coursemodule() {
+        return $this->cm;
+    }
+
+    /**
+     * get activity course module id
+     * @return mixed
+     */
+    public function get_cm_id() {
+        return $this->cm->id;
+    }
+
+
+    /**
+     * get activity context id
+     * @return int
+     */
+    public function get_context_id() {
+        return $this->context->id;
+    }
+
+    /**
+     * get activity context
+     * @return int
+     */
+    public function get_context() {
+        return $this->context;
+    }
+
+    /**
+     * get heading
+     * @return int
+     */
+    public function get_heading() {
+        return $this->course->fullname;
+    }
+
+    /**
+     * get the view title
+     * @return string
+     */
+    public function get_title() {
+        return get_string('editquestions', 'question');
+    }
+
+}

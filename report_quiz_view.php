@@ -30,20 +30,26 @@ require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/reportlib.php');
 require_once(dirname(__FILE__) . '/renderer.php');
 
-$report = new studentquiz_report();
-require_login($report->getCourse(), true, $report->getCM());
+
+$cmid = optional_param('id', 0, PARAM_INT);
+if(!$cmid){
+    $cmid = required_param('cmid', PARAM_INT);
+}
+
+$report = new studentquiz_report($cmid);
+require_login($report->get_course(), true, $report->get_coursemodule());
 
 $params = array(
-    'objectid' => $report->getCMid(),
-    'context' => $report->getContext()
+    'objectid' => $report->get_cm_id(),
+    'context' => $report->get_context()
 );
 //$event = \mod_studentquiz\event\studentquiz_practice_summary::create($params);
 //$event->trigger();
 
-$PAGE->set_title($report->getTitle());
-$PAGE->set_heading($report->getHeading());
-$PAGE->set_context($report->getContext());
-$PAGE->set_url($report->get_viewurl());
+$PAGE->set_title($report->get_title());
+$PAGE->set_heading($report->get_heading());
+$PAGE->set_context($report->get_context());
+$PAGE->set_url($report->get_quizreporturl());
 $output = $PAGE->get_renderer('mod_studentquiz');
 
 echo $OUTPUT->header();
