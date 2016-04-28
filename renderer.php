@@ -41,7 +41,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function view_rankreport_table($report) {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
-        $table->caption = $report->get_coursemodule()->name . get_string('reportrank_table_title', 'studentquiz');
+        $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportrank_table_title', 'studentquiz');
         $table->head = array(get_string('reportrank_table_column_rank', 'studentquiz')
             ,get_string('reportrank_table_column_fullname', 'studentquiz')
             ,get_string('reportrank_table_column_points', 'studentquiz'));

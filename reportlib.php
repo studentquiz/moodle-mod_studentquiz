@@ -398,8 +398,6 @@ class studentquiz_report {
      */
     public function get_user_ranking() {
         global $DB;
-
-        //get_config('studentquiz', ...)
         $sql = 'SELECT'
             . '    u.id AS userid, u.firstname, u.lastname,'
             . '    c.id AS courseid, c.fullname, c.shortname,'
@@ -407,12 +405,12 @@ class studentquiz_report {
             . '    countq.countquestions,'
             . '    votes.meanvotes,'
             . '    COALESCE('
-            . '        countquestions * 100 +'
+            . '        countquestions * :questionquantifier +'
             . '        ROUND('
             . '          SUM(votes.meanvotes) / countquestions'
-            . '        ) * 50 +'
-            . '        correctanswers.countanswer * 75 +'
-            . '        incorrectanswers.countanswer * 10'
+            . '        ) * :votequantifier +'
+            . '        correctanswers.countanswer * :correctanswerquantifier +'
+            . '        incorrectanswers.countanswer * :incorrectanswerquantifier'
             . '    ,0) AS points'
             . '     FROM mdl_studentquiz sq'
             . '     JOIN mdl_course c ON( sq.course = c.id )'
@@ -471,7 +469,13 @@ class studentquiz_report {
             . '     GROUP BY u.id'
             . '     ORDER BY points DESC';
 
-        return $DB->get_records_sql($sql, array('cmid' => $this->cm->id));
+        return $DB->get_records_sql($sql, array(
+            'cmid' => $this->cm->id
+            ,'questionquantifier' => get_config('moodle', 'studentquiz_add_question_quantifier')
+            ,'votequantifier' => get_config('moodle', 'studentquiz_vote_quantifier')
+            ,'correctanswerquantifier' => get_config('moodle', 'studentquiz_correct_answered_question_quantifier')
+            ,'incorrectanswerquantifier' => get_config('moodle', 'studentquiz_incorrect_answered_question_quantifier')
+        ));
     }
 
     /**
