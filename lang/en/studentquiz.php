@@ -103,4 +103,9 @@ $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';
 
+//view
+$string['viewlib_please_select_question'] = 'Please select a question.';
+$string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
+
+
 

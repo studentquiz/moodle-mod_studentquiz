@@ -37,28 +37,14 @@ require_login($view->get_course(), true, $view->get_coursemodule());
 
 if (data_submitted()) {
     if(optional_param('startquiz', null, PARAM_BOOL)){
-        $quizmid = $view->generate_quiz_with_selected_ids((array) data_submitted());
-        if($quizmid){
-            if($view->has_questiond_ids()){
-                redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
-            } else {
-                //todo no question selected
-            }
-        }else {
-            //todo
+        if($quizmid = $view->generate_quiz_with_selected_ids((array) data_submitted())){
+            redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
         }
     }
     if(optional_param('startfilteredquiz', null, PARAM_RAW)){
         $ids = required_param('filtered_question_ids', PARAM_RAW);
-        $quizmid = $view->generate_quiz_with_filtered_ids($ids);
-        if($quizmid){
-            if($view->has_questiond_ids()){
-                redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
-            } else {
-                //todo no question selected
-            }
-        }else {
-            //todo
+        if($quizmid = $view->generate_quiz_with_filtered_ids($ids)){
+            redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
         }
     }
 }
@@ -67,7 +53,7 @@ $output = $PAGE->get_renderer('mod_studentquiz');
 
 $view->show_questionbank();
 $PAGE->set_url($view->get_pageurl());
-// TODO log this page view.
+
 $PAGE->set_title($view->get_title());
 $PAGE->set_heading($COURSE->fullname);
 

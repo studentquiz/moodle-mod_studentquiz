@@ -171,3 +171,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #page-mod-studentquiz-reportquiz .reportquiz_total_label {
     font-weight: bold;
 }
+
+.error {
+    color: #ff0000;
+}

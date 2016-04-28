@@ -60,6 +60,14 @@ class studentquiz_view {
      * @var object pagevars
      */
     protected $qbpagevar;
+    /**
+     * @var bool has errors
+     */
+    protected $hasprintableerror;
+    /**
+     * @var string error message
+     */
+    protected $errormessage;
 
 
     /**
@@ -87,9 +95,17 @@ class studentquiz_view {
     private function generate_quiz($ids) {
         if($ids) {
             $this->hasquestionids = true;
-            return $this->generate_quiz_activity($ids);
+            if(!$qcmid = $this->generate_quiz_activity($ids)) {
+                $this->hasprintableerror = true;
+                $this->errormessage = get_string('viewlib_please_contact_the_admin', 'studentquiz');
+                return false;
+            }
+            return $qcmid;
         } else {
             $this->hasquestionids = false;
+            $this->hasprintableerror = true;
+            $this->errormessage = get_string('viewlib_please_select_question', 'studentquiz');
+            return false;
         }
     }
 
@@ -464,6 +480,21 @@ class studentquiz_view {
         return $this->course;
     }
 
+    /**
+     * has printable error
+     * @return bool
+     */
+    public function has_printableerror() {
+        return $this->hasprintableerror;
+    }
+
+    /**
+     * get error message
+     * @return string error message
+     */
+    public function get_errormessage() {
+        return $this->errormessage;
+    }
 
     /**
      * get activity course module

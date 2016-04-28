@@ -128,6 +128,19 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
             $pagevars['cat'], $pagevars['recurse'], $pagevars['showhidden'],
             $pagevars['qbshowtext']);
+
+        if($view->has_printableerror()){
+            echo $this->show_error($view->get_errormessage());
+        }
+
         echo "</div>\n";
+    }
+
+    /**
+     * prints the error message
+     * @param $errormessage string error message
+     */
+    public function show_error($errormessage) {
+        return html_writer::div($errormessage, 'error');
     }
 }
