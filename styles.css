@@ -168,3 +168,6 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     margin-left: 0;
     margin-right: 0;
 }
+#page-mod-studentquiz-reportquiz .reportquiz_total_label {
+    font-weight: bold;
+}
