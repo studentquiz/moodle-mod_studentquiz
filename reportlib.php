@@ -398,6 +398,7 @@ class studentquiz_report {
      */
     public function get_user_ranking() {
         global $DB;
+
         //get_config('studentquiz', ...)
         $sql = 'SELECT'
             . '    u.id AS userid, u.firstname, u.lastname,'

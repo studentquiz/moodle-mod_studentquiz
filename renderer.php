@@ -57,7 +57,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
             $tmp = $ur->firstname . ' ' . $ur->lastname;
             if($report->is_anonym()) {
-                if(!$report->is_active_user($ur)){
+                if(!$report->is_loggedin_user($ur)){
                     $tmp = 'anonymous';
                 }
             }
@@ -68,7 +68,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
             $row = new html_table_row();
 
-            if($report->is_active_user($ur)){
+            if($report->is_loggedin_user($ur)){
                 $style = array('class' => 'mod-studentquiz-summary-highlight');
                 $cellrank->attributes = $style;
                 $cellfullname->attributes = $style;
