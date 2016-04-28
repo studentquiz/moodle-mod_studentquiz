@@ -33,6 +33,10 @@ require_once($CFG->libdir.'/gradelib.php');
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz)
  * It collects all information together.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_report {
     /** @var stdClass the course_module settings from the database. */

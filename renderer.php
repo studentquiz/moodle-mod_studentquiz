@@ -1,10 +1,43 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Defines the renderer for the studentquiz module.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 defined('MOODLE_INTERNAL') || die();
 
-
+/**
+ * Defines the renderer for the studentquiz module.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
+    /**
+     * builds the rank report table
+     * @param $report studentquiz_report class with necessary information
+     * @return string rank report table
+     */
     public function view_rankreport_table($report) {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
@@ -50,6 +83,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return  html_writer::table($table);
     }
 
+    /**
+     * builds the quiz report section
+     * @param $total
+     * @return string quiz report data
+     */
     public function view_quizreport_total($total) {
         $output = '';
         $output = $this->heading(get_string('reportquiz_total_title', 'studentquiz'), 2);
@@ -80,6 +118,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $output;
     }
 
+    /**
+     * builds the studentquiz_bank_view
+     * @param $view studentquiz_view class with the necessary information
+     */
     public function display_questionbank($view) {
         echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
         $pagevars = $view->get_qb_pagevar();
