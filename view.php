@@ -16,10 +16,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a one-line short description of the file
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
+ * This page is the entry page into the studentquiz UI. Displays information about the
+ * questions to students and teachers, and lets students to generate new quizzes or add questions.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)

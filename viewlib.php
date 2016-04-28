@@ -36,22 +36,6 @@ require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_view {
-    /** @var string generated student quiz placeholder */
-    const GENERATE_QUIZ_PLACEHOLDER = 'quiz';
-    /** @var string generated student quiz intro */
-    const GENERATE_QUIZ_INTRO = 'Studentquiz';
-    /** @var string generated student quiz overduehandling */
-    const GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
-    /** @var int default course section id for the orphaned activities */
-    const COURSE_SECTION_ID = 999;
-    /** @var string default course section name for the orphaned activities */
-    const COURSE_SECTION_NAME = 'studentquiz quizzes';
-    /** @var string default course section summary for the orphaned activities */
-    const COURSE_SECTION_SUMMARY = 'all student quizzes';
-    /** @var string default course section summaryformat for the orphaned activities */
-    const COURSE_SECTION_SUMMARYFORMAT = 1;
-    /** @var string default course section visible for the orphaned activities */
-    const COURSE_SECTION_VISIBLE = false;
     /** @var stdClass the course_module settings from the database. */
     protected $cm;
     /** @var stdClass the course settings from the database. */
@@ -154,11 +138,11 @@ class studentquiz_view {
         global $DB;
         $coursesection = new stdClass();
         $coursesection->course = $courseid;
-        $coursesection->section = studentquiz_view::COURSE_SECTION_ID;
-        $coursesection->name = studentquiz_view::COURSE_SECTION_NAME;
-        $coursesection->summary = studentquiz_view::COURSE_SECTION_SUMMARY;
-        $coursesection->summaryformat = studentquiz_view::COURSE_SECTION_SUMMARYFORMAT;
-        $coursesection->visible = studentquiz_view::COURSE_SECTION_VISIBLE;
+        $coursesection->section = COURSE_SECTION_ID;
+        $coursesection->name = COURSE_SECTION_NAME;
+        $coursesection->summary = COURSE_SECTION_SUMMARY;
+        $coursesection->summaryformat = COURSE_SECTION_SUMMARYFORMAT;
+        $coursesection->visible = COURSE_SECTION_VISIBLE;
 
         return $DB->insert_record('course_sections',$coursesection);
     }
@@ -197,13 +181,13 @@ class studentquiz_view {
         global $USER;
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
-        $quiz->name = $this->cm->name . ' - ' . $USER->username . ' '. studentquiz_view::GENERATE_QUIZ_PLACEHOLDER;
-        $quiz->intro = studentquiz_view::GENERATE_QUIZ_INTRO;
+        $quiz->name = $this->cm->name . ' - ' . $USER->username . ' '. GENERATE_QUIZ_PLACEHOLDER;
+        $quiz->intro = GENERATE_QUIZ_INTRO;
         $quiz->introformat = 1;
         $quiz->timeopen = 0;
         $quiz->timeclose = 0;
         $quiz->timelimit = 0;
-        $quiz->overduehandling = studentquiz_view::GENERATE_QUIZ_OVERDUEHANDLING;
+        $quiz->overduehandling = GENERATE_QUIZ_OVERDUEHANDLING;
         $quiz->graceperiod = 0;
         $quiz->preferredbehaviour = get_current_behaviour($this->cm);
         $quiz->canredoquestions = 0;

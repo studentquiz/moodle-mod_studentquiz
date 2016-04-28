@@ -31,6 +31,23 @@ require_once($CFG->libdir . '/questionlib.php');
 
 /** @var string default quiz behaviour */
 const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
+/** @var int default course section id for the orphaned activities */
+const COURSE_SECTION_ID = 999;
+/** @var string generated student quiz placeholder */
+const GENERATE_QUIZ_PLACEHOLDER = 'quiz';
+/** @var string generated student quiz intro */
+const GENERATE_QUIZ_INTRO = 'Studentquiz';
+/** @var string generated student quiz overduehandling */
+const GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
+/** @var string default course section name for the orphaned activities */
+const COURSE_SECTION_NAME = 'studentquiz quizzes';
+/** @var string default course section summary for the orphaned activities */
+const COURSE_SECTION_SUMMARY = 'all student quizzes';
+/** @var string default course section summaryformat for the orphaned activities */
+const COURSE_SECTION_SUMMARYFORMAT = 1;
+/** @var string default course section visible for the orphaned activities */
+const COURSE_SECTION_VISIBLE = false;
+
 /*
  * Does something really useful with the passed things
  *

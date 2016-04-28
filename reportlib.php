@@ -15,14 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Library of interface functions and constants for module studentquiz
- *
- * All the core Moodle functions, neeeded to allow the module to work
- * integrated in Moodle should be placed here.
- *
- * All the studentquiz specific functions, needed to implement all the module
- * logic, should go to locallib.php. This will help to save some memory when
- * Moodle is performing actions across all modules.
+ * Back-end code for handling data - for the reporting site (rank and quiz)
+ * It collects all information together.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -36,6 +30,10 @@ require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
 require_once($CFG->libdir.'/gradelib.php');
 
+/**
+ * Back-end code for handling data - for the reporting site (rank and quiz)
+ * It collects all information together.
+ */
 class studentquiz_report {
     /** @var stdClass the course_module settings from the database. */
     protected $cm;
@@ -44,6 +42,10 @@ class studentquiz_report {
     /** @var context the quiz context. */
     protected $context;
 
+    /**
+     * Constructor assuming we already have the necessary data loaded.
+     * @param $cmid course_module id
+     */
     public function __construct($cmid) {
         global $DB;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
@@ -71,9 +73,6 @@ class studentquiz_report {
     public function get_rankreporturl() {
         return new moodle_url('/mod/studentquiz/reportrank.php', $this->get_urlview_data());
     }
-
-
-
 
     /**
      * get the urlview data (includes cmid)
@@ -125,7 +124,7 @@ class studentquiz_report {
     }
 
     /**
-     * get heading
+     * get heading course fullname heading
      * @return int
      */
     public function get_heading() {
@@ -133,23 +132,36 @@ class studentquiz_report {
     }
 
     /**
-     * get the view title
+     * get the title
      * @return string
      */
     public function get_title() {
-        return get_string('editquestions', 'question');
+        return get_string('reportrank_title', 'studentquiz');
     }
 
+    /**
+     * get's the course_section id from the orphan section
+     * @return mixed course_section id
+     */
     private function get_quiz_course_section_id() {
         global $DB;
-        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id, 'section' => 999));
+        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id, 'section' => COURSE_SECTION_ID));
     }
 
+    /**
+     * get all course_modules from quiz and coursection
+     * @param $quizmoduleid
+     * @param $coursesectionid
+     * @return array stdClass course_modules
+     */
     private function get_quiz_course_modules($quizmoduleid, $coursesectionid) {
         global $DB;
         return $DB->get_records('course_modules', array('course' => $this->course->id, 'module' => $quizmoduleid, 'section' => $coursesectionid));
     }
 
+    /**
+     * @return string pre rendered /mod/quiz/view tables
+     */
     public function get_quiz_tables(){
         global $PAGE, $DB, $USER;
         $output_summaries = '';
@@ -260,7 +272,8 @@ class studentquiz_report {
             $viewobj->mygradeoverridden = $mygradeoverridden;
             $viewobj->gradebookfeedback = $gradebookfeedback;
             $viewobj->lastfinishedattempt = $lastfinishedattempt;
-            $viewobj->canedit = false;
+            $viewobj->canedit = false; //modified to false
+            //changed url's
             $viewobj->editurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
             $viewobj->backtocourseurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
             $viewobj->startattempturl = $quizobj->start_attempt_url();
@@ -317,7 +330,8 @@ class studentquiz_report {
                 course_get_format($this->course)->has_view_page());
 
             /*
-            *  ==============================================================
+             *  ==============================================================
+             *  custom code
             */
 
             $output_summaries .= $quiz_renderer->view_table($quiz, $context, $viewobj);
@@ -336,6 +350,12 @@ class studentquiz_report {
         return $output;
     }
 
+    /**
+     * get the obtainedmarks, questionright, questionanswered total from the attempt
+     * @param $quizid
+     * @param $attempt_uniqueid
+     * @param $total attempt question calculated
+     */
     private function get_attempt_statistic($quizid, $attempt_uniqueid, &$total) {
         $quba = question_engine::load_questions_usage_by_activity($attempt_uniqueid);
 
@@ -350,6 +370,11 @@ class studentquiz_report {
         }
     }
 
+    /**
+     * get the quiz slots
+     * @param $quizid
+     * @return array stdClass slot array
+     */
     private function get_quiz_slots($quizid) {
         global $DB;
         return $DB->get_records('quiz_slots',
@@ -357,6 +382,10 @@ class studentquiz_report {
             'slot, requireprevious, questionid');
     }
 
+    /**
+     * get the calculcated user ranking from the database
+     * @return array user ranking data
+     */
     public function get_user_ranking() {
         global $DB;
         //get_config('studentquiz', ...)
@@ -434,12 +463,21 @@ class studentquiz_report {
         return $DB->get_records_sql($sql, array('cmid' => $this->cm->id));
     }
 
-    public function is_active_user($ur) {
+    /**
+     * is the logged in user
+     * @param $ur stdClass user ranking object
+     * @return bool is loggedin user
+     */
+    public function is_loggedin_user($ur) {
         global $USER;
 
         return $USER->id == $ur->userid;
     }
 
+    /**
+     * is anonym active
+     * @return bool
+     */
     public function is_anonym() {
         return is_anonym($this->cm->id);
     }
