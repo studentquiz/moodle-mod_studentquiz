@@ -16,10 +16,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This is a one-line short description of the file
- *
- * You can have a rather longer description of the file as well,
- * if you like, and it can span multiple lines.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -28,7 +24,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/reportlib.php');
-
+require_once(dirname(__FILE__).'/classes/event/studentquiz_report_rank_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
 if(!$cmid){
@@ -42,8 +38,8 @@ $params = array(
     'objectid' => $report->get_cm_id(),
     'context' => $report->get_context()
 );
-//$event = \mod_studentquiz\event\studentquiz_practice_summary::create($params);
-//$event->trigger();
+$event = \mod_studentquiz\event\studentquiz_report_rank_viewed::create($params);
+$event->trigger();
 
 $PAGE->set_title($report->get_title());
 $PAGE->set_heading($report->get_heading());

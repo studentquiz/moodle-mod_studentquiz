@@ -43,7 +43,6 @@ if (data_submitted()) {
         if($quizmid){
             if($view->has_questiond_ids()){
                 redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
-                //redirect($view->get_attempturl());
             } else {
                 //todo no question selected
             }

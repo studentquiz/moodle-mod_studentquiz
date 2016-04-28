@@ -28,7 +28,7 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/reportlib.php');
-
+require_once(dirname(__FILE__).'/classes/event/studentquiz_report_quiz_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
 if(!$cmid){
@@ -42,8 +42,9 @@ $params = array(
     'objectid' => $report->get_cm_id(),
     'context' => $report->get_context()
 );
-//$event = \mod_studentquiz\event\studentquiz_practice_summary::create($params);
-//$event->trigger();
+
+$event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
+$event->trigger();
 
 $PAGE->set_title($report->get_title());
 $PAGE->set_heading($report->get_heading());
