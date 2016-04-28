@@ -28,5 +28,24 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/reportlib.php');
+require_once(dirname(__FILE__) . '/renderer.php');
 
-echo 'Report Question';
+$report = new studentquiz_report();
+require_login($report->getCourse(), true, $report->getCM());
+
+$params = array(
+    'objectid' => $report->getCMid(),
+    'context' => $report->getContext()
+);
+//$event = \mod_studentquiz\event\studentquiz_practice_summary::create($params);
+//$event->trigger();
+
+$PAGE->set_title($report->getTitle());
+$PAGE->set_heading($report->getHeading());
+$PAGE->set_context($report->getContext());
+$PAGE->set_url($report->get_viewurl());
+$output = $PAGE->get_renderer('mod_studentquiz');
+
+echo $OUTPUT->header();
+echo $output->report-quiz_table($psessionid);
+echo $OUTPUT->footer();
