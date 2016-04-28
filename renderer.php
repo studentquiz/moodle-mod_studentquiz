@@ -84,7 +84,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * builds the quiz report section
+     * build the quiz report summary section
+     * @return string quiz report summary title
+     */
+    public function view_quizreport_summary() {
+        return $this->heading(get_string('reportquiz_summary_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+    }
+
+    /**
+     * builds the quiz report total section
      * @param $total
      * @return string quiz report data
      */

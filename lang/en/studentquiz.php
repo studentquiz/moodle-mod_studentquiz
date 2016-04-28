@@ -94,6 +94,8 @@ $string['reportquiz_total_questions_answered'] = 'Answered questions';
 $string['reportquiz_total_questions_right'] = 'Questions right';
 $string['reportquiz_total_questions_wrong'] = 'Questions wrong';
 $string['reportquiz_total_obtained_marks'] = 'Obtained marks';
+$string['reportquiz_summary_title'] = 'Quiz summaries';
+
 
 
 //report rank
