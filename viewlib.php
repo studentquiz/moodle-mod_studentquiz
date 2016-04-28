@@ -1,11 +1,40 @@
 <?php
 
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * Back-end code for handling data about selected / created questions and
+ * call /mod/quiz to generate quizzes
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
 require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 
+/**
+ * This class  holds data about the selected state and generate quizzes
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class studentquiz_view {
     /** @var string generated student quiz placeholder */
     const GENERATE_QUIZ_PLACEHOLDER = 'quiz';
@@ -37,6 +66,10 @@ class studentquiz_view {
     protected $qbpagevar;
 
 
+    /**
+     * Constructor assuming we already have the necessary data loaded.
+     * @param $cmid the course_module id for this studentquiz
+     */
     public function __construct($cmid) {
         global $DB;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
@@ -50,7 +83,12 @@ class studentquiz_view {
         $this->category = question_get_default_category($this->context->id);
     }
 
-    private function start_quiz($ids) {
+    /**
+     * generate a quiz if id's are submitted
+     * @param $ids array of question id's
+     * @return bool|int generated quiz course_module id or false on error
+     */
+    private function generate_quiz($ids) {
         if($ids) {
             $this->hasquestionids = true;
             return $this->generate_quiz_activity($ids);
@@ -59,6 +97,11 @@ class studentquiz_view {
         }
     }
 
+    /**
+     * setup all quiz information and generate it
+     * @param $ids array of question id's
+     * @return bool|int generated quiz course_module id or false on error
+     */
     private function generate_quiz_activity($ids) {
         $quiz = $this->get_standard_quiz_setup();
         $quiz->coursemodule = $this->create_quiz_course_module($quiz->course);
@@ -77,6 +120,11 @@ class studentquiz_view {
         return $quiz->coursemodule;
     }
 
+    /**
+     * set the course_section information
+     * @param $courseid destination course id
+     * @param $coursemoudleid quiz course_module id
+     */
     private function set_course_section_information($courseid, $coursemoudleid){
         global $DB;
         $coursesection = $this->get_course_section();
@@ -97,6 +145,11 @@ class studentquiz_view {
         $DB->set_field('course_sections', 'sequence', implode(',', $sequence), array('id' => $coursesectionid));
     }
 
+    /**
+     * create a new course section with default parameters
+     * @param $courseid destination course id
+     * @return bool|int course_sectionds id or false on error
+     */
     private function create_course_section($courseid) {
         global $DB;
         $coursesection = new stdClass();
@@ -110,11 +163,20 @@ class studentquiz_view {
         return $DB->insert_record('course_sections',$coursesection);
     }
 
+    /**
+     * get the course_section with the defined default parameter
+     * @return mixed course_section rows
+     */
     private function get_course_section() {
         global $DB;
-        return $DB->get_record('course_sections', array('section' => 999));
+        return $DB->get_record('course_sections', array('section' => COURSE_SECTION_ID));
     }
 
+    /**
+     * create a quiz course_module entry with the destination courseid
+     * @param $courseid destination course id
+     * @return bool|int course_modules id or false on error
+     */
     private function create_quiz_course_module($courseid){
         global $DB;
         $moduleid = get_quiz_module_id();
@@ -126,6 +188,11 @@ class studentquiz_view {
         return $DB->insert_record('course_modules',$qcm);
     }
 
+    /**
+     * get the standard quiz setup - default database parameters mdl_quiz
+     * with question behaviour setup in activity module
+     * @return stdClass quiz object
+     */
     private function get_standard_quiz_setup() {
         global $USER;
         $quiz = new stdClass();
@@ -208,7 +275,7 @@ class studentquiz_view {
     /***
      * Override quiz_add_instance method from quiz lib to call custom quiz_after_add_or_update method,
      * because the user has no permission to call this method.
-     * @param $quiz
+     * @param $quiz object
      */
     private function  quiz_add_instance($quiz) {
         global $DB;
@@ -237,7 +304,7 @@ class studentquiz_view {
     /***
      * Override quiz_after_add_or_update method from quiz lib to prevent quiz_update_events,
      * because the user has no permission to do this.
-     * @param $quiz
+     * @param $quiz object
      */
     private function quiz_after_add_or_update($quiz) {
         global $DB;
@@ -277,33 +344,33 @@ class studentquiz_view {
     }
 
     /**
-     * start the quiz activity with the filtered quiz ids
-     * @param $submitdata
-     * @return bool|int
+     * generate the quiz activity with the filtered quiz ids
+     * @param $ids filtered question ids
+     * @return bool|int course_module id from generate quiz or false on error
      */
-    public function start_filtered_quiz($ids) {
+    public function generate_quiz_with_filtered_ids($ids) {
         $tmp = explode(',', $ids);
         $ids = array();
         foreach($tmp as $id) {
             $ids[$id] = 1;
         }
 
-        return $this->start_quiz($this->quiz_practice_get_question_ids($ids));
+        return $this->generate_quiz($this->get_question_ids($ids));
     }
 
     /**
-     * start the quiz activity with the selected quiz ids
+     * generate the quiz activity with the selected quiz ids
      * @param $submitdata
-     * @return bool|int
+     * @return bool|int course_module id from generate quiz or false on error
      */
-    public function start_selected_quiz($submitdata) {
-        return $this->start_quiz($this->quiz_practice_get_question_ids($submitdata));
+    public function generate_quiz_with_selected_ids($submitdata) {
+        return $this->generate_quiz($this->get_question_ids($submitdata));
     }
 
     /**
-     * create the questio bank view
+     * shows the question custom bank view
      */
-    public function create_questionbank() {
+    public function show_questionbank() {
         $_GET['cmid'] = $this->get_cm_id();
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
 
@@ -322,10 +389,10 @@ class studentquiz_view {
 
     /**
      * get the quiz ids from the submit data
-     * @param $rawdata
-     * @return array
+     * @param $rawdata array with prefix q and the id
+     * @return array without the prefix q
      */
-    private function get_quiz_ids($rawdata) {
+    private function get_prefixed_question_ids($rawdata) {
         $ids = array();
         foreach ($rawdata as $key => $value) { // Parse input for question ids.
             if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
@@ -338,12 +405,12 @@ class studentquiz_view {
     /**
      * get the question ids
      * @param $rawdata
-     * @return array|bool
+     * @return array|bool ids or false on empty array
      */
-    private function quiz_practice_get_question_ids($rawdata) {
+    private function get_question_ids($rawdata) {
         if(!isset($rawdata)&& empty($rawdata)) return false;
 
-        $ids = $this->get_quiz_ids($rawdata);
+        $ids = $this->get_prefixed_question_ids($rawdata);
 
         if(!count($ids)) {
             return false;
@@ -451,6 +518,14 @@ class studentquiz_view {
     }
 }
 
+/**
+ * Class for studentquiz view exceptions. Just saves a couple of arguments on the
+ * constructor for a moodle_exception.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class moodle_studentquiz_view_exception extends moodle_exception {
     public function __construct($view, $errorCode, $a = null, $link = '', $debuginfo = null) {
         if (!$link) {
