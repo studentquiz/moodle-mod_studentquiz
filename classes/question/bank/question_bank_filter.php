@@ -38,7 +38,12 @@ require_once($CFG->dirroot.'/user/filters/date.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_bank_filter_form extends moodleform {
-    private $_fields;
+
+    /**
+     * filter fields of question bank
+     * @var array 
+     */
+    private $fields;
 
     public function __construct($action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
         $this->_customdata = $customdata;
@@ -46,26 +51,34 @@ class question_bank_filter_form extends moodleform {
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
     }
 
+    /**
+     * set fields
+     */
     public function set_fields() {
-        $this->_fields = array();
+        $this->fields = array();
 
-        $this->_fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), false, 'name');
+        $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), false, 'name');
         if ($this->_customdata['isanonym']) {
-            $this->_fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
+            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
         } else {
-            $this->_fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
-            $this->_fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
+            $this->fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
+            $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
         }
-        $this->_fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
-        $this->_fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), true, 'tagname');
-        $this->_fields[] = new \user_filter_vote('vote', get_string('filter_label_votes', 'studentquiz'), true, 'vote');
-        $this->_fields[] = new \user_filter_vote('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), true, 'difficultylevel');
+        $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
+        $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), true, 'tagname');
+        $this->fields[] = new \user_filter_vote('vote', get_string('filter_label_votes', 'studentquiz'), true, 'vote');
+        $this->fields[] = new \user_filter_vote('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), true, 'difficultylevel');
 
     }
 
+    /**
+     * get fields
+     * @return array fields filter 
+     */
     public function getFields() {
-        return $this->_fields;
+        return $this->fields;
     }
+
     /**
      * Defines forms elements
      */
@@ -73,13 +86,11 @@ class question_bank_filter_form extends moodleform {
         global $CFG;
 
         $mform = $this->_form;
-
         $mform->addElement('header', 'looking for freedom', get_string('newfilter', 'filters'));
 
-        foreach($this->_fields as $field) {
+        foreach($this->fields as $field) {
             $field->setupForm($mform);
         }
-
 
         $group = array();
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
@@ -91,7 +102,16 @@ class question_bank_filter_form extends moodleform {
     }
 }
 
+
+/**
+ * vote filter
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class user_filter_vote extends user_filter_text {
+    
     /**
      * Returns an array of comparison operators
      * @return array of comparison operators
@@ -113,7 +133,7 @@ class user_filter_vote extends user_filter_text {
 
         $operator = $data['operator'];
         $value    = $data['value'];
-        $field    = $this->_field;
+        $field    = $this->field;
 
         $params = array();
 

@@ -59,6 +59,8 @@ $string['anonymrankhelp_help'] = 'Defines if the question creators and ranking s
 $string['createnewquestionfirst'] = 'Create first question ...';
 $string['createnewquizfromfilter'] = 'Start new quiz from search filters ...';
 $string['no_difficulty_level'] = 'no difficulty level';
+$string['no_tags'] = 'no tags';
+$string['no_votes'] = 'no votes';
 
 //filters
 $string['filter_label_search'] = 'Search';

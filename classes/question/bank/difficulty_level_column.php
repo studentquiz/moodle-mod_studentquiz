@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * The mod_studentquiz instance list viewed event.
+ * Representing difficulty level column 
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -43,7 +43,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
 
     /**
      * get sql query join for this column
-     * @return string sql query join additional 
+     * @return array sql query join additional 
      */
     public function get_extra_joins() {
 		return array('dl' => 'LEFT JOIN (' 
