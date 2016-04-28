@@ -1,4 +1,28 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * The question bank view
+ *
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 
 namespace mod_studentquiz\question\bank;
 
@@ -9,20 +33,56 @@ require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/question_bank_filter.php');
 
-
+/**
+ * Module instance settings form
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class studentquiz_bank_view extends \core_question\bank\view {
+    /**
+     * @var stdClass filtered questions from database
+     */
     private $questions;
+    /**
+     * @var int totalnumber from filtered questions
+     */
     private $totalnumber;
+
+    /**
+     * @var string sql tag name field
+     */
     private $tagnamefield;
+
+    /**
+     * @var bool is filter active
+     */
     private $isfilteractive;
-    private $_filterform;
+
+    /**
+     * @var question_bank_filter_form class
+     */
+    private $filterform;
 
 
+    /**
+     * Constructor assuming we already have the necessary data loaded.
+     *
+     * @param \core_question\bank\question_edit_contexts $contexts
+     * @param \core_question\bank\moodle_url $pageurl
+     * @param object $course
+     * @param null|object $cm
+     */
     public function __construct($contexts, $pageurl, $course, $cm) {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->init($pageurl);
     }
 
+    /**
+     * initialize filter
+     * @param $pageurl moodle_url
+     */
     public function init($pageurl) {
         $this->isfilteractive = false;
 
@@ -34,7 +94,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->setshowmineuserid();
         }
 
-        $this->_filterform = new \question_bank_filter_form(
+        $this->filterform = new \question_bank_filter_form(
             $pageurl->out()
             , array(
                 'cmid' => $this->cm->id,
@@ -45,6 +105,27 @@ class studentquiz_bank_view extends \core_question\bank\view {
             ));
     }
 
+    /**
+     * (copy from parent class - modified several code snippets)
+     * Shows the question bank editing interface.
+     *
+     * The function also processes a number of actions:
+     *
+     * Actions affecting the question pool:
+     * move           Moves a question to a different category
+     * deleteselected Deletes the selected questions from the category
+     * Other actions:
+     * category      Chooses the category
+     * displayoptions Sets display options
+     *
+     * @param $tabname
+     * @param $page
+     * @param $perpage
+     * @param $cat
+     * @param $recurse
+     * @param $showhidden
+     * @param $showquestiontext
+     */
     public function display($tabname, $page, $perpage, $cat,
                             $recurse, $showhidden, $showquestiontext){
         global $PAGE, $OUTPUT;
@@ -74,7 +155,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         if($this->hasQuestionsInCategory() || $this->isfilteractive) {
-            echo $this->_filterform->render();
+            echo $this->filterform->render();
         }
 
         // Continues with list of questions.
@@ -85,6 +166,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * (copy from parent class - modified several code snippets)
      * Create the SQL query to retrieve the indicated questions, based on
      * \core_question\bank\search\condition filters.
      */
@@ -126,8 +208,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
         $this->sqlparams['filter'] = '';
 
-        if ($adddata = $this->_filterform->get_data()){
-            foreach ($this->_filterform->getFields() as $field) {
+        if ($adddata = $this->filterform->get_data()){
+            foreach ($this->filterform->getFields() as $field) {
                 $data = $field->check_data($adddata);
 
                 if ($data === false) continue;
@@ -158,6 +240,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
     }
 
+    /**
+     * get the sql table prefix
+     * @param $name
+     * @return string return sql prefix
+     */
     function get_sql_table_prefix($name) {
         switch($name){
             case 'difficultylevel':
@@ -172,10 +259,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
     }
 
+    /**
+     * has questions in category
+     * @return bool
+     */
     function hasQuestionsInCategory() {
         return $this->totalnumber > 0;
     }
 
+    /**
+     * create new quiz form
+     */
     function create_new_quiz_form() {
         echo '<div class="createnewquiz">';
         echo '<div class="singlebutton">';
@@ -194,6 +288,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo '</div>';
     }
 
+    /**
+     * extends the question form with custom add question button
+     * @param $cat question category
+     */
     function create_new_question_form_ext($cat){
         $category = $this->get_current_category($cat);
         list($categoryid, $contextid) = explode(',', $cat);
@@ -204,6 +302,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->create_new_question_form($category, $canadd);
     }
 
+    /**
+     * create new default question form
+     * @param $category question category
+     * @param $canadd capability state
+     */
     protected function create_new_question_form($category, $canadd) {
         global $CFG;
         $caption = get_string('createnewquestion', 'question');
@@ -224,6 +327,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
 
     /**
+     * (copy from parent class - modified several code snippets)
      * Display the controls at the bottom of the list of questions.
      * @param int      $totalnumber Total number of questions that might be shown (if it was not for paging).
      * @param bool     $recurse     Whether to include subcategories.
@@ -257,6 +361,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * (copy from parent class - modified several code snippets)
      * Prints the table of questions in a category with interactions
      *
      * @param array      $contexts    Not used!
@@ -337,6 +442,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo "</form>\n";
     }
 
+    /**
+     * get all filtered question ids qith q prefix
+     * @return array question ids with q prefix
+     */
     protected function getFilteredQuestionIds(){
         $questionIds = array();
         foreach($this->questions as $question) {
@@ -345,6 +454,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $questionIds;
     }
 
+    /**
+     * filter question with the filter option
+     * @param $questions
+     * @return array questions
+     */
     protected function filterQuestions($questions) {
         global $USER;
 
@@ -384,6 +498,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $filteredQuestions;
     }
 
+    /**
+     * (copy from parent class - modified several code snippets)
+     * @param $question
+     * @param $page
+     * @param $perpage
+     * @return array questions
+     */
     protected function load_page_questions_array($question, $page, $perpage) {
         if($page * $perpage > count($question)) {
             $questions =  array_slice ($question , 0, $perpage, true);
@@ -394,10 +515,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $questions;
     }
 
+    /**
+     * load question from database
+     * @return \moodle_recordset
+     */
     protected function load_questions() {
         global $DB;
         return $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
     }
+
+    /**
+     * get all question tags
+     * @param $id
+     * @return \moodle_recordset all tags connected with the question
+     */
     protected function get_question_tag($id) {
         global $DB;
         $sqlparams = array();
@@ -421,6 +552,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $DB->get_recordset_sql($sql, $sqlparams);
     }
 
+    /**
+     * get the count of the connected tags with the question
+     * @param $id
+     * @return int count of connected tags with question
+     */
     protected function get_question_tag_count($id) {
         global $DB;
         $sqlparams = array();
@@ -438,6 +574,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $DB->count_records_sql($sql, $sqlparams);
     }
 
+    /**
+     * (copy from parent class - modified several code snippets)
+     * @return mixed
+     */
     protected function wanted_columns() {
         global $CFG;
 
@@ -449,6 +589,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return parent::wanted_columns();
     }
 
+    /**
+     * check if user has permission to see creator
+     * @return bool
+     */
     protected function check_created_permission() {
         global $USER;
 
@@ -462,12 +606,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return !user_has_role_assignment($USER->id,5);
     }
 
+    /**
+     * set createby POST data
+     */
     protected function setshowmineuserid() {
         global $USER;
 
         $_POST['createdby'] = $USER->id;
     }
 
+    /**
+     * reset the filter
+     */
     protected function resetfilter() {
         $_POST['name_op'] = '0';
         $_POST['name'] = '';

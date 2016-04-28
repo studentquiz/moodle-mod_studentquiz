@@ -31,7 +31,7 @@ require_once($CFG->dirroot.'/user/filters/text.php');
 require_once($CFG->dirroot.'/user/filters/date.php');
 
 /**
- * Module instance settings form
+ * question bank filter form intance
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
