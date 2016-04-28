@@ -39,11 +39,17 @@ require_once($CFG->libdir.'/gradelib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_report {
-    /** @var stdClass the course_module settings from the database. */
+    /**
+     * @var stdClass the course_module settings from the database.
+     */
     protected $cm;
-    /** @var stdClass the course settings from the database. */
+    /**
+     * @var stdClass the course settings from the database.
+     */
     protected $course;
-    /** @var context the quiz context. */
+    /**
+     * @var context the quiz context.
+     */
     protected $context;
 
     /**
