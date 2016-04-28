@@ -95,7 +95,7 @@ $string['reportquiz_total_obtained_marks'] = 'Obtained marks';
 
 
 //report rank
-$string['reportrank_table_title'] = 'Title';
+$string['reportrank_table_title'] = '- Ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';
