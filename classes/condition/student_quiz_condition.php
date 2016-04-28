@@ -22,7 +22,7 @@
  * override methods get_url() and get_legacy_log_data(), too.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch) <your@email.adress>
+ * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,140 +33,34 @@ defined('MOODLE_INTERNAL') || die();
 /**
  *  This class controls from which category questions are listed.
  *
- * @copyright 2013 Ray Morris
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_quiz_condition extends \core_question\bank\search\condition {
-    /** @var \stdClass The course record. */
-    protected $course;
-
-    /** @var \stdClass The category record. */
-    protected $category;
-
-    /** @var array of contexts. */
-    protected $contexts;
-
-    /** @var bool Whether to include questions from sub-categories. */
-    protected $recurse;
-
-    /** @var string SQL fragment to add to the where clause. */
-    protected $where;
-
-    /** @var array query param used in where. */
-    protected $params;
-
-    /** @var string categoryID,contextID as used with question_bank_view->display(). */
-    protected $cat;
-
-    /** @var int The maximum displayed length of the category info. */
-    protected $maxinfolength;
-
-    /**
-     * Constructor
-     * @param string     $cat           categoryID,contextID as used with question_bank_view->display()
-     * @param bool       $recurse       Whether to include questions from sub-categories
-     * @param array      $contexts      Context objects as used by question_category_options()
-     * @param \moodle_url $baseurl       The URL the form is submitted to
-     * @param \stdClass   $course        Course record
-     * @param integer    $maxinfolength The maximum displayed length of the category info.
-     */
-    public function __construct($cat = null, $recurse = false, $contexts, $baseurl, $course, $maxinfolength = null) {
-        $this->cat = $cat;
-        $this->recurse = $recurse;
-        $this->contexts = $contexts;
-        $this->baseurl = $baseurl;
-        $this->course = $course;
-        $this->init();
-        $this->maxinfolength = $maxinfolength;
-    }
-
-    /**
-     * Initialize the object so it will be ready to return where() and params()
-     */
-    private function init() {
-        global $DB;
-        if (!$this->category = $this->get_current_category($this->cat)) {
-            return;
-        }
-        if ($this->recurse) {
-            $categoryids = question_categorylist($this->category->id);
-        } else {
-            $categoryids = array($this->category->id);
-        }
-        list($catidtest, $this->params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'cat');
-        $this->where = 'q.category ' . $catidtest;
-    }
-
-    public function where() {
-        return  $this->where;
-    }
-
-    public function params() {
-        return $this->params;
-    }
+class student_quiz_condition extends \core_question\bank\search\category_condition {
 
     /**
      * Called by question_bank_view to display the GUI for selecting a category
+     *
+     * @override Not needed this output
      */
-    public function display_options() {
-    }
+    public function display_options() { }
 
     /**
      * Displays the recursion checkbox GUI.
      * question_bank_view places this within the section that is hidden by default
+     *
+     * @override Not needed this output
      */
-    public function display_options_adv() {
-    }
+    public function display_options_adv() { }
 
     /**
      * Display the drop down to select the category.
+     *
+     * @override Not needed this output
      *
      * @param array $contexts of contexts that can be accessed from here.
      * @param \moodle_url $pageurl the URL of this page.
      * @param string $current 'categoryID,contextID'.
      */
-    protected function display_category_form($contexts, $pageurl, $current) {
-    }
-
-    /**
-     * Look up the category record based on cateogry ID and context
-     * @param string $categoryandcontext categoryID,contextID as used with question_bank_view->display()
-     * @return \stdClass The category record
-     */
-    protected function get_current_category($categoryandcontext) {
-        global $DB, $OUTPUT;
-        list($categoryid, $contextid) = explode(',', $categoryandcontext);
-        if (!$categoryid) {
-            $this->print_choose_category_message($categoryandcontext);
-            return false;
-        }
-
-        if (!$category = $DB->get_record('question_categories',
-            array('id' => $categoryid, 'contextid' => $contextid))) {
-            echo $OUTPUT->box_start('generalbox questionbank');
-            echo $OUTPUT->notification('Category not found!');
-            echo $OUTPUT->box_end();
-            return false;
-        }
-
-        return $category;
-    }
-
-    /**
-     * Print the category description
-     * @param stdClass $category the category information form the database.
-     */
-    protected function print_category_info($category) {
-        $formatoptions = new \stdClass();
-        $formatoptions->noclean = true;
-        $formatoptions->overflowdiv = true;
-        echo \html_writer::start_div('boxaligncenter categoryinfo');
-        if (isset($this->maxinfolength)) {
-            echo shorten_text(format_text($category->info, $category->infoformat, $formatoptions, $this->course->id),
-                $this->maxinfolength);
-        } else {
-            echo format_text($category->info, $category->infoformat, $formatoptions, $this->course->id);
-        }
-        echo \html_writer::end_div() . "\n";
-    }
+    protected function display_category_form($contexts, $pageurl, $current) { }
 }
