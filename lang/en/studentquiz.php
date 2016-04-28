@@ -73,7 +73,14 @@ $string['filter_islower'] = 'Is lower';
 $string['filter_label_show_mine'] = 'Show my questions';
 
 //admin settings
-$string['settings_remove_attempts'] = 'Remove question attemptions';
-$string['settings_remove_attempts_description'] = 'Caution! This Setting removes question attemptions with the questionbehaviour studentquiz to uninstall the questionbehaviour studentquiz.';
+$string['rankingsettingsheader'] = 'Ranking settings';
+$string['settings_add_q_quantifier'] = 'Add question quantifier';
+$string['config_add_q_quantifier'] = 'Quantifier multiplies with the number of questions added.';
+$string['settings_vote_quantifier'] = 'Vote quantifier';
+$string['config_vote_quantifier'] = 'Quantifier multiplies with the number of the average of all received votes.';
+$string['settings_correct_answered_q_quantifier'] = 'Correct answered question quantifier';
+$string['config_correct_answered_q_quantifier'] = 'Quantifier multiplies with the number of all correct answered questions.';
+$string['settings_incorrect_answered_q_quantifier'] = 'Incorrect answered question quantifier';
+$string['config_incorrect_answered_q_quantifier'] = 'Quantifier multiplies with the number of all incorrect answered questions.';
 
 
