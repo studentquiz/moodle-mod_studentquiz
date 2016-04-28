@@ -355,6 +355,7 @@ class studentquiz_report {
         }
 
         $output = $report_renderer->view_quizreport_total($total);
+        $output = $report_renderer->view_quizreport_summary($output_summaries);
         $output .= $output_summaries;
 
         return $output;

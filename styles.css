@@ -177,4 +177,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 }
 .mod-studentquiz-summary-highlight {
     background-color: #d9edf7 !important;
-+}
+}
+.reportquiz_total_heading {
+    border-bottom: 1px solid #e5e5e5;
+}
