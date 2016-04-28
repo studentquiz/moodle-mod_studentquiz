@@ -14,10 +14,17 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The mod_studentquiz settings.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    // Default display settings.
     $settings->add(new admin_setting_heading(
         'studentquiz/ratingsettings', 
         get_string('rankingsettingsheader', 'studentquiz'), '')
