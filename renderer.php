@@ -4,12 +4,7 @@ defined('MOODLE_INTERNAL') || die();
 
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
-    public function summary_table($psessionid) {
-        global $DB;
-
-        $actualSession = $DB->get_record('studentquiz_psession', array('id' => $psessionid));
-        $allSession = $DB->get_records('studentquiz_psession', array('studentquizpoverviewid' => $actualSession->studentquizpoverviewid));
-
+    public function report_quiz_table($report) {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
         $table->caption = get_string('practice_past_sessions', 'studentquiz');
@@ -19,7 +14,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->data = array();
 
         $rows = array();
-        foreach($allSession as $session){
+        foreach($report->get_studentquiz_sessions() as $session){
             $cellTotalQuestions = new html_table_cell();
             $cellTotalQuestions->text = $session->totalnoofquestions;
 
@@ -28,7 +23,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
 
             $row = new html_table_row();
-            if($session->id == $actualSession->id){
+            if($session->id == "actual user....."){
                 $style = array('class' => 'mod-studentquiz-summary-highlight');
 
                 $cellTotalQuestions->attributes = $style;
@@ -42,7 +37,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->data = $rows;
         echo html_writer::table($table);
     }
-
 
     public function display_questionbank($view) {
         echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';

@@ -53,5 +53,5 @@ $PAGE->set_url($report->get_quizreporturl());
 $output = $PAGE->get_renderer('mod_studentquiz');
 
 echo $OUTPUT->header();
-echo $output->report-quiz_table($psessionid);
+echo $output->report_quiz_table($psessionid);
 echo $OUTPUT->footer();

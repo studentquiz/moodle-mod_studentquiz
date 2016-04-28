@@ -39,7 +39,6 @@ class studentquiz_report {
     /** @var context the quiz context. */
     protected $context;
 
-
     public function __construct($cmid) {
         global $DB;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
@@ -99,6 +98,14 @@ class studentquiz_report {
      */
     public function get_context() {
         return $this->context;
+    }
+
+    /**
+     * get activity course
+     * @return int
+     */
+    public function get_course() {
+        return $this->course;
     }
 
     /**
