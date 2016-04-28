@@ -99,3 +99,72 @@ table.quizattemptsummary .noreviewmessage {
     display: block;
     font-size: 0.7em;
 }
+
+/** report rank view **/
+#page-mod-studentquiz-reportquiz .quizinfo,
+#page-mod-studentquiz-reportquiz #page .quizgradefeedback,
+#ppage-mod-studentquiz-reportquiz #page .quizattempt {
+    text-align: center;
+}
+#page-mod-studentquiz-reportquiz #page .quizattemptsummary td p {
+    margin-top: 0;
+}
+#page-mod-studentquiz-reportquiz .quizattemptsummary tr.bestrow td {
+    border-color: #bce8f1;
+    background-color: #d9edf7;
+}
+table.quizattemptsummary .noreviewmessage {
+    color: gray;
+}
+#page-mod-studentquiz-reportquiz .generaltable.quizattemptsummary {
+    margin-left: auto;
+    margin-right: auto;
+}
+#page-mod-studentquiz-reportquiz .generalbox#feedback {
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-bottom: 15px;
+}
+#page-mod-studentquiz-reportquiz .generalbox#feedback h2 {
+    margin: 0;
+}
+#page-mod-studentquiz-reportquiz .generalbox#feedback h3 {
+    text-align: left;
+}
+#page-mod-studentquiz-reportquiz.dir-rtl .generalbox#feedback h3 {
+    text-align: center;
+}
+#page-mod-studentquiz-reportquiz .generalbox#feedback .overriddennotice {
+    text-align: center;
+    font-size: 0.7em;
+}
+.quizstartbuttondiv.quizsecuremoderequired input {
+    display: none;
+}
+.jsenabled .quizstartbuttondiv.quizsecuremoderequired input {
+    display: inline;
+}
+
+body.page-mod-studentquiz-reportquiz .gradedattempt,
+body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
+    border-color: #bce8f1;
+    background-color: #d9edf7;
+}
+
+.quizattemptcounts {
+    clear: left;
+    text-align: center;
+    display:inline;
+    margin-left:20%;
+}
+.dir-rtl .quizattemptcounts {
+    margin-left:0;
+    margin-right: 20%;
+}
+#page-mod-studentquiz-reportquiz .quizattemptcounts,
+.dir-rtl #page-mod-studentquiz-reportquiz.quizattemptcounts {
+    display: block;
+    margin-left: 0;
+    margin-right: 0;
+}
