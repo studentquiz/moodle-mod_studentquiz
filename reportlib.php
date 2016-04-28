@@ -61,8 +61,19 @@ class studentquiz_report {
      * @return moodle_url
      */
     public function get_quizreporturl() {
-        return new moodle_url('/mod/studentquiz/view.php', $this->get_urlview_data());
+        return new moodle_url('/mod/studentquiz/reportquiz.php', $this->get_urlview_data());
     }
+
+    /**
+     * get quiz report url
+     * @return moodle_url
+     */
+    public function get_rankreporturl() {
+        return new moodle_url('/mod/studentquiz/reportrank.php', $this->get_urlview_data());
+    }
+
+
+
 
     /**
      * get the urlview data (includes cmid)
@@ -344,5 +355,92 @@ class studentquiz_report {
         return $DB->get_records('quiz_slots',
             array('quizid' => $quizid), 'slot',
             'slot, requireprevious, questionid');
+    }
+
+    public function get_user_ranking() {
+        global $DB;
+        //get_config('studentquiz', ...)
+        $sql = 'SELECT'
+            . '    u.id AS userid, u.firstname, u.lastname,'
+            . '    c.id AS courseid, c.fullname, c.shortname,'
+            . '    r.archetype AS rolename,'
+            . '    countq.countquestions,'
+            . '    votes.meanvotes,'
+            . '    COALESCE('
+            . '        countquestions * 100 +'
+            . '        ROUND('
+            . '          SUM(votes.meanvotes) / countquestions'
+            . '        ) * 50 +'
+            . '        correctanswers.countanswer * 75 +'
+            . '        incorrectanswers.countanswer * 10'
+            . '    ,0) AS points'
+            . '     FROM mdl_studentquiz sq'
+            . '     JOIN mdl_course c ON( sq.course = c.id )'
+            . '     JOIN mdl_enrol e ON( c.id = e.courseid )'
+            . '     JOIN mdl_role r ON( r.id = e.roleid )'
+            . '     JOIN mdl_user_enrolments ue ON( ue.enrolid = e.id )'
+            . '     JOIN mdl_user u ON( u.id = ue.userid )'
+            . '     LEFT JOIN mdl_question q ON( q.createdby = u.id )'
+            // -- answered questions
+            // -- correct answers
+            . '    LEFT JOIN'
+            . '    ('
+            . '       SELECT'
+            . '          COUNT(qna.id) AS countanswer,'
+            . '          qza.userid'
+            . '       FROM mdl_quiz_attempts qza'
+            . '       LEFT JOIN mdl_quiz_slots qs ON ( qs.quizid = qza.quiz )'
+            . '       LEFT JOIN mdl_question_attempts qna ON ('
+            . '            qza.uniqueid = qna.questionusageid'
+            . '            AND qna.questionid = qs.questionid'
+            . '            AND qna.rightanswer = qna.responsesummary'
+            . '       )'
+            . '       GROUP BY qza.userid'
+            . '    ) correctanswers ON ( correctanswers.userid = u.id )'
+            // -- incorrect answers
+            . '    LEFT JOIN'
+            . '    ('
+            . '         SELECT'
+            . '            COUNT(qna.id) AS countanswer,'
+            . '            qza.userid'
+            . '         FROM mdl_quiz_attempts qza'
+            . '         LEFT JOIN mdl_quiz_slots qs ON ( qs.quizid = qza.quiz )'
+            . '         LEFT JOIN mdl_question_attempts qna ON ('
+            . '              qza.uniqueid = qna.questionusageid'
+            . '              AND qna.questionid = qs.questionid'
+            . '              AND qna.rightanswer <> qna.responsesummary'
+            . '              AND qna.responsesummary IS NOT NULL'
+            . '         )'
+            . '         GROUP BY qza.userid'
+            . '    ) incorrectanswers ON ( incorrectanswers.userid = u.id )'
+            //-- questions created
+            . '    LEFT JOIN'
+            . '    ('
+            . '         SELECT COUNT(*) AS countquestions, createdby FROM mdl_question GROUP BY createdby'
+            . '    ) countq ON( countq.createdby = u.id )'
+            //-- question votes
+            . '    LEFT JOIN'
+            . '    ('
+            . '         SELECT'
+            . '            ROUND(SUM(sqvote.vote) / COUNT(sqvote.vote),2) AS meanvotes,'
+            . '            questionid'
+            . '         FROM mdl_studentquiz_vote sqvote'
+            . '         GROUP BY sqvote.questionid'
+            . '     ) votes ON( votes.questionid = q.id )'
+            . '     WHERE sq.coursemodule = :cmid'
+            . '     GROUP BY u.id'
+            . '     ORDER BY points DESC';
+
+        return $DB->get_records_sql($sql, array('cmid' => $this->cm->id));
+    }
+
+    public function is_active_user($ur) {
+        global $USER;
+
+        return $USER->id == $ur->userid;
+    }
+
+    public function is_anonym() {
+        return is_anonym($this->cm->id);
     }
 }

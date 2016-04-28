@@ -39,7 +39,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             , array(
                 'cmid' => $this->cm->id,
                 'isanonym' => (
-                    $this->is_anonym() && 
+                        is_anonym($this->cm->id) &&
                     !$this->check_created_permission()
                 )
             ));
@@ -353,7 +353,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $question->tagname = '';
              
             if (
-                $this->is_anonym() && 
+                is_anonym($this->cm->id) &&
                 !$this->check_created_permission() &&
                 $question->createdby != $USER->id
             ) {
@@ -447,17 +447,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,mod_studentquiz\\bank\\difficulty_level_column';
 
         return parent::wanted_columns();
-    }
-
-    protected function is_anonym() {
-        global $DB;
-
-        $result = $DB->get_record('studentquiz', array('coursemodule' => $this->cm->id));
-        if ($result !== false) {
-            return intval($result->anonymrank);
-        }
-        // if the dont found an entry better set it anonym
-        return 1;
     }
 
     protected function check_created_permission() {

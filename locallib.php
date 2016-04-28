@@ -69,3 +69,14 @@ function get_quiz_module_id() {
     global $DB;
     return $DB->get_field('modules', 'id', array('name'=>'quiz'));
 }
+
+function is_anonym($cmid) {
+    global $DB;
+
+    $field = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $cmid));
+    if ($field !== false) {
+        return intval($field);
+    }
+    // if the dont found an entry better set it anonym
+    return 1;
+}

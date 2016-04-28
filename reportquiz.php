@@ -28,7 +28,6 @@
 
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once(dirname(__FILE__).'/reportlib.php');
-require_once(dirname(__FILE__) . '/renderer.php');
 
 
 $cmid = optional_param('id', 0, PARAM_INT);

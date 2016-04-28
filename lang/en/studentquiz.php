@@ -85,12 +85,18 @@ $string['config_incorrect_answered_q_quantifier'] = 'Quantifier multiplies with 
 
 
 //report quiz
-
 $string['reportquiz_total_title'] = 'Title';
 $string['reportquiz_total_attempt'] = 'Number of attempts';
 $string['reportquiz_total_questions_answered'] = 'Answered questions';
 $string['reportquiz_total_questions_right'] = 'Questions right';
 $string['reportquiz_total_questions_wrong'] = 'Questions wrong';
 $string['reportquiz_total_obtained_marks'] = 'Obtained marks';
+
+
+//report rank
+$string['reportrank_table_title'] = 'Title';
+$string['reportrank_table_column_rank'] = 'Rank';
+$string['reportrank_table_column_fullname'] = 'Fullname';
+$string['reportrank_table_column_points'] = 'Points';
 
 
