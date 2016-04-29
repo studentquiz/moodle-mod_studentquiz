@@ -201,7 +201,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the standard quiz setup - default database parameters mdl_quiz
+     * get the standard quiz setup - default database parameters quiz table
      * with question behaviour setup in activity module
      * @return stdClass quiz object
      */

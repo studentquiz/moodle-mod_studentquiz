@@ -542,8 +542,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         $sql = 'SELECT t.name, ti.itemid'
-            .' FROM mdl_tag t'
-            .' JOIN mdl_tag_instance ti'
+            .' FROM {tag} t'
+            .' JOIN {tag_instance} ti'
             .' ON t.id = ti.tagid'
             .' WHERE ti.itemtype = "question" AND ti.itemid = :qid' . $sqlext;
 
@@ -564,8 +564,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $sqlext = '';
 
         $sql = 'SELECT count(1)'
-            .' FROM mdl_tag t'
-            .' JOIN mdl_tag_instance ti'
+            .' FROM {tag} t'
+            .' JOIN {tag_instance} ti'
             .' ON t.id = ti.tagid'
             .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
 
