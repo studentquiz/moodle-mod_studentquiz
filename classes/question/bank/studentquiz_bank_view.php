@@ -28,6 +28,7 @@ namespace mod_studentquiz\question\bank;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once(dirname(__FILE__).'/../../../locallib.php');
 require_once(dirname(__FILE__).'/vote_column.php');
 require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
@@ -100,7 +101,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 'cmid' => $this->cm->id,
                 'isanonym' => (
                         is_anonym($this->cm->id) &&
-                    !$this->check_created_permission()
+                    !check_created_permission()
                 )
             ));
     }
@@ -587,23 +588,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,mod_studentquiz\\bank\\difficulty_level_column';
 
         return parent::wanted_columns();
-    }
-
-    /**
-     * check if user has permission to see creator
-     * @return bool
-     */
-    protected function check_created_permission() {
-        global $USER;
-
-        $admins = get_admins();
-        foreach ($admins as $admin) {
-            if($USER->id == $admin->id) {
-                return true;
-            }
-        }
-
-        return !user_has_role_assignment($USER->id,5);
     }
 
     /**

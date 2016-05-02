@@ -87,6 +87,23 @@ function get_quiz_module_id() {
     return $DB->get_field('modules', 'id', array('name'=>'quiz'));
 }
 
+/**
+ * check if user has permission to see creator
+ * @return bool
+ */
+function mod_check_created_permission() {
+    global $USER;
+
+    $admins = get_admins();
+    foreach ($admins as $admin) {
+        if($USER->id == $admin->id) {
+            return true;
+        }
+    }
+
+    return !user_has_role_assignment($USER->id,5);
+}
+
 function is_anonym($cmid) {
     global $DB;
 

@@ -32,6 +32,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/questionlib.php');
+require_once(dirname(__FILE__) . '/locallib.php');
 
 /**
  * Example constant, you probably want to remove this :-)
@@ -471,6 +472,14 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
     $report_node->add(get_string('nav_report_rank', 'studentquiz'), new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
     $report_node->add(get_string('nav_report_quiz', 'studentquiz'), new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
 
+    if (mod_check_created_permission()) {
+        $context = context_module::instance($cm->id);
+        $category = question_get_default_category($context->id);
+        $cat = 'cat=' . $category->id . ',' . $context->id;
+
+        $navref->add(get_string('nav_export','studentquiz'), new moodle_url('/question/export.php?' . $cat . '&cmid=' . $cm->id));
+        $navref->add(get_string('nav_import','studentquiz'), new moodle_url('/question/import.php?' . $cat . '&cmid=' . $cm->id));
+    }
 }
 
 
