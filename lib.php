@@ -468,7 +468,7 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // TODO Delete this function and its docblock, or implement it.
     $navref->add(get_string('nav_question_and_quiz', 'studentquiz'), new moodle_url('/mod/studentquiz/view.php?id=' . $cm->id));
-    $report_node = $navref->add(get_string('nav_report', 'studentquiz'), new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
+    $report_node = $navref->add(get_string('nav_report', 'studentquiz'));
     $report_node->add(get_string('nav_report_rank', 'studentquiz'), new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
     $report_node->add(get_string('nav_report_quiz', 'studentquiz'), new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
 
