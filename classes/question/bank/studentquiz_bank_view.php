@@ -469,7 +469,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
              
             if (
                 is_anonym($this->cm->id) &&
-                !$this->check_created_permission() &&
                 $question->createdby != $USER->id
             ) {
                 $question->creatorfirstname = 'anonym';

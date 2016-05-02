@@ -107,6 +107,8 @@ function mod_check_created_permission() {
 function is_anonym($cmid) {
     global $DB;
 
+    if (mod_check_created_permission()) return 0;
+
     $field = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $cmid));
     if ($field !== false) {
         return intval($field);
