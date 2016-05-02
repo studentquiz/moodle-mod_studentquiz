@@ -49,13 +49,9 @@ const COURSE_SECTION_SUMMARYFORMAT = 1;
 const COURSE_SECTION_VISIBLE = false;
 
 /*
- * Does something really useful with the passed things
+ * Get all possible behaviour options back
  *
- * @param array $things
- * @return object
- *function studentquiz_do_something_useful(array $things) {
- *    return new stdClass();
- *}
+ * @return array
  */
 function get_behaviour_options() {
     $behaviours = array('immediatefeedback' => 'Immediate feedback');
@@ -68,20 +64,38 @@ function get_behaviour_options() {
     return $behaviours;
 }
 
+/**
+ * Returns behaviour option from the course module with fallback
+ * 
+ * 
+ * @param  stdClass $cm 
+ * @return string quiz behaviour
+ */
 function get_current_behaviour($cm=null) {
     global $DB;
+
+    $default = 'immediatefeedback';
+    $archetypalbehaviours = question_engine::get_archetypal_behaviours();
+
+    if(array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
+        $default = STUDENTQUIZ_BEHAVIOUR;
+    }
 
     if(isset($cm)){
         $rec = $DB->get_record('studentquiz', array('id' => $cm->instance), 'quizpracticebehaviour');
 
-        if(!$rec) return STUDENTQUIZ_BEHAVIOUR;
+        if(!$rec) return $default;
 
         return $rec->quizpracticebehaviour;
     } else {
-        return STUDENTQUIZ_BEHAVIOUR;
+        return $default;
     }
 }
 
+/**
+ * returns quiz module id
+ * @return int 
+ */
 function get_quiz_module_id() {
     global $DB;
     return $DB->get_field('modules', 'id', array('name'=>'quiz'));
@@ -104,6 +118,11 @@ function mod_check_created_permission() {
     return !user_has_role_assignment($USER->id,5);
 }
 
+/**
+ * checks if activity is anonym or not
+ * @param  int  $cmid course module id
+ * @return boolean       
+ */
 function is_anonym($cmid) {
     global $DB;
 
