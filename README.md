@@ -18,7 +18,7 @@ questions but not others.
 
 In this setting you can choice which question behaviour have for the students practice quizzes.
 
-![Screenshot](pix/create_activity.png "Screenshot" =250x)
+<img src="pix/create_activity.png" alt="screenshot create options" width="250">
 
 ### Overview
 
