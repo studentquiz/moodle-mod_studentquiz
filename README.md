@@ -48,6 +48,8 @@ The reporting offers a ranking.
 The ranking awars points to students add questions, votes and answering questions. The idea is 
 to spur students. The ranking table can anonymized too with the anonymize option. 
 
+![Screenshot ranking](pix/ranking.png "Screenshot ranking")
+
 ## Studentquiz question behaviour plugin
 
 For the best work and for the ranking use [Studentquiz Question Behaviour](https://github.com/frankkoch/moodle-qbehaviour_studentquiz).
