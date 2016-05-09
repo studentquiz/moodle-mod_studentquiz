@@ -18,7 +18,7 @@ questions but not others.
 
 In this setting you can choice which question behaviour have for the students practice quizzes.
 
-<img src="pix/create_activity.png" alt="screenshot create options" width="250">
+<img src="pix/create_activity.png" alt="screenshot create options" width="50%">
 
 ### Overview
 
@@ -29,6 +29,8 @@ has the option to anonymize the table.
 The question table has the common sort and filter functionality. User can filter by question, creator (if is not anonymized), tags, votes, difficulty level.
 
 The user has the option to select questions or start a question from all filtered question and start a quiz to practice those.  
+
+![Screenshot overview](pix/overview.png "Screenshot overview")
 
 ### Question
 
