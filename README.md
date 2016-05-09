@@ -21,11 +21,13 @@ Questions are used from question bank and are all supported where are supported 
 
 ### Quiz
 
-Studentquiz using the quiz engine.
+Studentquiz using the quiz activity engine.
 
 ### Report
 
-Activity users can see all the quiz reports they have done. The reporting offers a ranking.
+Activity users can see all the quiz reports they have done.
+
+The reporting offers a ranking.
 The ranking awars points to students add questions, votes and answering questions. The idea is 
 to spur students. The ranking table can anonymized too with the anonymize option. 
 
