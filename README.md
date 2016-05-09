@@ -5,6 +5,21 @@ Students can add question to the studentquiz and see only those questions. They 
 opportunity to add questions, search or filter them and start a quiz from the questions
 to practice.
 
+### Create new studentquiz
+
+In the create activity screen it has two specific options:
+
+#### Anonymize creator and ranking for students
+
+This is the option to anonymize table and ranking for students. If is active the students can only filter his own 
+questions but not others.
+
+#### Quiz Practice Settings
+
+In this setting you can choice which question behaviour have for the students practice quizzes.
+
+![Screenshot](pix/illustration.png "Screenshot")
+
 ### Overview
 
 The activity entrypoint and main view shows all questions of the activity. The view is similar to the question bank overview.
