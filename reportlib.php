@@ -170,7 +170,7 @@ class studentquiz_report {
             . '    cm.*'
             . '   FROM {studentquiz_practice} sq'
             . '   JOIN {course_modules} cm'
-            . '     ON sq.studentquizcoursemodule = cm.id'
+            . '     ON sq.quizcoursemodule = cm.id'
             . '   WHERE sq.userid = :userid'
             . '   AND sq.studentquizcoursemodule = :studentquizcoursemodule'
             . '   ORDER BY cm.id DESC';
@@ -197,6 +197,7 @@ class studentquiz_report {
         $total->questionsanswered = 0;
 
         foreach($course_modules as $cm){
+            echo $cm->id;
             $quizobj = quiz::create($cm->instance, $USER->id);
             $quiz = $quizobj->get_quiz();
             $context = context_module::instance($cm->id);
@@ -233,7 +234,6 @@ class studentquiz_report {
                 $unfinishedattempt = null;
             }
             $numattempts = count($attempts);
-
             $viewobj->attempts = $attempts;
             $viewobj->attemptobjs = array();
             $total->numattempts += $numattempts;
