@@ -159,25 +159,36 @@ class studentquiz_report {
     }
 
     /**
-     * get all course_modules from quiz and coursection
-     * @param $quizmoduleid
-     * @param $coursesectionid
-     * @return array stdClass course_modules
+     * get all quiz course_modules from the active studentquiz
+     * @param $userid userid
+     * @return array stdClass course modules
      */
-    private function get_quiz_course_modules($quizmoduleid, $coursesectionid) {
+    private function get_quiz_course_modules($userid) {
         global $DB;
-        return $DB->get_records('course_modules', array('course' => $this->course->id, 'module' => $quizmoduleid, 'section' => $coursesectionid));
+
+        $sql = 'SELECT'
+            . '    cm.*'
+            . '   FROM {studentquiz_practice} sq'
+            . '   JOIN {course_modules} cm'
+            . '     ON sq.studentquizcoursemodule = cm.id'
+            . '   WHERE sq.userid = :userid'
+            . '   AND sq.studentquizcoursemodule = :studentquizcoursemodule'
+            . '   ORDER BY cm.id DESC';
+
+        return $DB->get_records_sql($sql, array(
+            'userid' => $userid
+        ,'studentquizcoursemodule' => $this->cm->id));
     }
 
     /**
      * @return string pre rendered /mod/quiz/view tables
      */
     public function get_quiz_tables(){
-        global $PAGE, $DB, $USER;
+        global $PAGE, $USER;
         $output_summaries = '';
         $report_renderer= $PAGE->get_renderer('mod_studentquiz');
         $quiz_renderer = $PAGE->get_renderer('mod_quiz');
-        $course_modules = $this->get_quiz_course_modules(get_quiz_module_id() ,$this->get_quiz_course_section_id());
+        $course_modules = $this->get_quiz_course_modules($USER->id);
 
         $total = new stdClass();
         $total->numattempts = 0;

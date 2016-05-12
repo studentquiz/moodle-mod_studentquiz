@@ -129,7 +129,23 @@ class studentquiz_view {
         }
 
         rebuild_course_cache($quiz->course, true);
+
+        $this->save_quiz_practice($quiz->coursemodule);
         return $quiz->coursemodule;
+    }
+
+    /**
+     * create a new studentquiz practice entry in the database
+     * @param $quizcmid quiz course module id
+     */
+    private function save_quiz_practice($quizcmid) {
+        global $USER, $DB;
+        $quizpractice = new stdClass();
+        $quizpractice->quizcoursemodule = $quizcmid;
+        $quizpractice->studentquizcoursemodule = $this->get_cm_id();
+        $quizpractice->userid = $USER->id;
+
+        $DB->insert_record('studentquiz_practice',$quizpractice);
     }
 
     /**
