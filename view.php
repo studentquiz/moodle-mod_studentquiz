@@ -69,4 +69,5 @@ echo $OUTPUT->header();
 
 $output->display_questionbank($view);
 
+echo '<div class="container-fluid" id="page">';
 echo $OUTPUT->footer();
