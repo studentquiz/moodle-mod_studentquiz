@@ -68,18 +68,24 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        $mform->addElement('header', 'studentranking', get_string('ranking_header', 'studentquiz'));
+        $mform->addElement('header', 'studentranking', get_string('quiz_advanced_settings_header', 'studentquiz'));
         $mform->addElement('checkbox', 'anonymrank', get_string('anonymous_checkbox_label', 'studentquiz'));
         $mform->setType('anonymrank', PARAM_INT);
         $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
 
-        $mform->addElement('header', 'studentranking', get_string('quiz_practice_header', 'studentquiz'));
+        if(has_studentquiz_behaviour()){
+            $mform->addElement('advcheckbox', 'quizpracticebehaviour',get_string('quizpracticebehaviour', 'studentquiz')
+                , null, null, array(DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
+            $mform->setType('quizpracticebehaviour', PARAM_RAW);
+            $mform->addHelpButton('quizpracticebehaviour', 'quizpracticebehaviourhelp', 'studentquiz');
 
-        $behaviours = get_behaviour_options();
-        $mform->addElement('select', 'quizpracticebehaviour', get_string('quizpracticebehaviour', 'studentquiz'), $behaviours);
-        $mform->addHelpButton('quizpracticebehaviour', 'quizpracticebehaviourhelp', 'studentquiz');
-        $mform->setDefault('quizpracticebehaviour', get_current_behaviour());
+            $mform->setDefault('quizpracticebehaviour', STUDENTQUIZ_BEHAVIOUR);
+        } else {
+            $mform->addElement('hidden', 'quizpracticebehaviour', DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR);
+            $mform->setType('quizpracticebehaviour', PARAM_RAW);
+        }
+
 
         // Add standard grading elements.
         $this->standard_grading_coursemodule_elements();

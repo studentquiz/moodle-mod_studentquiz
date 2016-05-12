@@ -47,22 +47,20 @@ const COURSE_SECTION_SUMMARY = 'all student quizzes';
 const COURSE_SECTION_SUMMARYFORMAT = 1;
 /** @var string default course section visible for the orphaned activities */
 const COURSE_SECTION_VISIBLE = false;
+/** @var string default studentquiz quiz practice behaviour */
+const DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
-/*
- * Get all possible behaviour options back
- *
- * @return array
+/**
+ * checks whether the studentquiz behaviour exists
+ * 
+ * @return bool
  */
-function get_behaviour_options() {
-    $behaviours = array('immediatefeedback' => 'Immediate feedback');
+function has_studentquiz_behaviour(){
     $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
-    if(array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
-        $behaviours[STUDENTQUIZ_BEHAVIOUR] = $archetypalbehaviours[STUDENTQUIZ_BEHAVIOUR];
-    }
-
-    return $behaviours;
+    return array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours);
 }
+
 
 /**
  * Returns behaviour option from the course module with fallback
@@ -74,7 +72,7 @@ function get_behaviour_options() {
 function get_current_behaviour($cm=null) {
     global $DB;
 
-    $default = 'immediatefeedback';
+    $default = DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR;
     $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
     if(array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
