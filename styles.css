@@ -2,10 +2,6 @@
     float: left;
 }
 
-#page-mod-studentquiz-view .createnewquestion_wo_question {
-    float: none;
-}
-
 #page-mod-studentquiz-view .createnewquestion .singlebutton {
     display: inline;
 }
