@@ -61,5 +61,21 @@
             <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
         </INDEXES>
     </TABLE>
+    <TABLE NAME="studentquiz_practice" COMMENT="Store quiz practices">
+        <FIELDS>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="quizcoursemodule" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="studentquizcoursemodule" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+        </KEYS>
+        <INDEXES>
+            <INDEX NAME="quizcoursemodule" UNIQUE="false" FIELDS="quizcoursemodule"/>
+            <INDEX NAME="studentquizcoursemodule" UNIQUE="false" FIELDS="studentquizcoursemodule"/>
+        </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>
