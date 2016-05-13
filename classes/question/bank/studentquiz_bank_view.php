@@ -469,8 +469,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 is_anonym($this->cm->id) &&
                 $question->createdby != $USER->id
             ) {
-                $question->creatorfirstname = 'anonym';
-                $question->creatorlastname = 'anonym';
+                $question->creatorfirstname = get_string('creater_anonym_firstname', 'studentquiz');
+                $question->creatorlastname = get_string('creator_anonym_lastname', 'studentquiz');
             }
 
             $count = $this->get_question_tag_count($question->id);
@@ -613,5 +613,127 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $_POST['vote'] = '';
         $_POST['difficultylevel_op'] = '0';
         $_POST['difficultylevel'] = '';
+    }
+
+    /**
+     * (copy from parent class - modified several code snippets)
+     * process action buttons
+     */
+    public function process_actions() {
+        global $CFG, $DB;
+        // Now, check for commands on this page and modify variables as necessary.
+        if (optional_param('move', false, PARAM_BOOL) and confirm_sesskey()) {
+            // Move selected questions to new category.
+            $category = required_param('category', PARAM_SEQUENCE);
+            list($tocategoryid, $contextid) = explode(',', $category);
+            if (! $tocategory = $DB->get_record('question_categories', array('id' => $tocategoryid, 'contextid' => $contextid))) {
+                print_error('cannotfindcate', 'question');
+            }
+            $tocontext = \context::instance_by_id($contextid);
+            require_capability('moodle/question:add', $tocontext);
+            $rawdata = (array) data_submitted();
+            $questionids = array();
+            foreach ($rawdata as $key => $value) {  // Parse input for question ids.
+                if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+                    $key = $matches[1];
+                    $questionids[] = $key;
+                }
+            }
+            if ($questionids) {
+                list($usql, $params) = $DB->get_in_or_equal($questionids);
+                $sql = "";
+                $questions = $DB->get_records_sql("
+                        SELECT q.*, c.contextid
+                        FROM {question} q
+                        JOIN {question_categories} c ON c.id = q.category
+                        WHERE q.id {$usql}", $params);
+                foreach ($questions as $question) {
+                    question_require_capability_on($question, 'move');
+                }
+                question_move_questions_to_category($questionids, $tocategory->id);
+                redirect($this->baseurl->out(false));
+            }
+        }
+
+        if (optional_param('deleteselected', false, PARAM_BOOL)) { // Delete selected questions from the category.
+            // If teacher has already confirmed the action.
+            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
+                $deleteselected = required_param('deleteselected', PARAM_RAW);
+                if ($confirm == md5($deleteselected)) {
+                    if ($questionlist = explode(',', $deleteselected)) {
+                        // For each question either hide it if it is in use or delete it.
+                        foreach ($questionlist as $questionid) {
+                            $questionid = (int)$questionid;
+                            question_require_capability_on($questionid, 'edit');
+                            if (questions_in_use(array($questionid))) {
+                                $DB->set_field('question', 'hidden', 1, array('id' => $questionid));
+                            } else {
+                                question_delete_question($questionid);
+                            }
+                        }
+                    }
+                    redirect($this->baseurl);
+                } else {
+                    print_error('invalidconfirm', 'question');
+                }
+            }
+        }
+
+        // Unhide a question.
+        if (($unhide = optional_param('unhide', '', PARAM_INT)) and confirm_sesskey()) {
+            question_require_capability_on($unhide, 'edit');
+            $DB->set_field('question', 'hidden', 0, array('id' => $unhide));
+
+            // Purge these questions from the cache.
+            \question_bank::notify_question_edited($unhide);
+
+            redirect($this->baseurl);
+        }
+    }
+
+    /**
+     * (copy from parent class - modified several code snippets)
+     * confirmation on process action if needed
+     * @return boolean 
+     */
+    public function process_actions_needing_ui() {
+        global $DB, $OUTPUT;
+        if (optional_param('deleteselected', false, PARAM_BOOL)) {
+            // Make a list of all the questions that are selected.
+            $rawquestions = $_REQUEST; // This code is called by both POST forms and GET links, so cannot use data_submitted.
+            $questionlist = '';  // comma separated list of ids of questions to be deleted
+            $questionnames = ''; // string with names of questions separated by <br /> with
+                                 // an asterix in front of those that are in use
+            $inuse = false;      // set to true if at least one of the questions is in use
+            foreach ($rawquestions as $key => $value) {    // Parse input for question ids.
+                if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+                    $key = $matches[1];
+                    $questionlist .= $key.',';
+                    question_require_capability_on($key, 'edit');
+                    if (questions_in_use(array($key))) {
+                        $questionnames .= '* ';
+                        $inuse = true;
+                    }
+                    $questionnames .= $DB->get_field('question', 'name', array('id' => $key)) . '<br />';
+                }
+            }
+            if (!$questionlist) { // No questions were selected.
+                redirect($this->baseurl);
+            }
+            $questionlist = rtrim($questionlist, ',');
+
+            // Add an explanation about questions in use.
+            if ($inuse) {
+                $questionnames .= '<br />'.get_string('questionsinuse', 'question');
+            }
+            $baseurl = new \moodle_url('view.php', $this->baseurl->params());
+            $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
+                                                 'sesskey' => sesskey()));
+
+            $continue = new \single_button($deleteurl, get_string('delete'), 'post');
+            echo $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
+
+            return true;
+        }
     }
 }
