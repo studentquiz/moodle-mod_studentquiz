@@ -34,27 +34,27 @@ if ($ADMIN->fulltree) {
         'studentquiz_add_question_quantifier', 
         get_string('settings_add_q_quantifier', 'studentquiz'),
         get_string('config_add_q_quantifier', 'studentquiz'), 
-        100, PARAM_INT
+        10, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz_vote_quantifier', 
         get_string('settings_vote_quantifier', 'studentquiz'),
         get_string('config_vote_quantifier', 'studentquiz'), 
-        50, PARAM_INT
+        2, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz_correct_answered_question_quantifier', 
         get_string('settings_correct_answered_q_quantifier', 'studentquiz'),
         get_string('config_correct_answered_q_quantifier', 'studentquiz'), 
-        75, PARAM_INT
+        2, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz_incorrect_answered_question_quantifier', 
         get_string('settings_incorrect_answered_q_quantifier', 'studentquiz'),
         get_string('config_incorrect_answered_q_quantifier', 'studentquiz'), 
-        10, PARAM_INT
+        0, PARAM_INT
     ));
 }

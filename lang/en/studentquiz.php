@@ -80,14 +80,14 @@ $string['filter_label_show_mine'] = 'Show my questions';
 
 //admin settings
 $string['rankingsettingsheader'] = 'Ranking settings';
-$string['settings_add_q_quantifier'] = 'Add question quantifier';
-$string['config_add_q_quantifier'] = 'Quantifier multiplies with the number of questions added.';
-$string['settings_vote_quantifier'] = 'Vote quantifier';
-$string['config_vote_quantifier'] = 'Quantifier multiplies with the number of the average of all received votes.';
-$string['settings_correct_answered_q_quantifier'] = 'Correct answered question quantifier';
-$string['config_correct_answered_q_quantifier'] = 'Quantifier multiplies with the number of all correct answered questions.';
-$string['settings_incorrect_answered_q_quantifier'] = 'Incorrect answered question quantifier';
-$string['config_incorrect_answered_q_quantifier'] = 'Quantifier multiplies with the number of all incorrect answered questions.';
+$string['settings_add_q_quantifier'] = 'Points for each question created';
+$string['config_add_q_quantifier'] = 'Points received for the creation of a new question.';
+$string['settings_vote_quantifier'] = 'Multiplier for the average of stars received for a question';
+$string['config_vote_quantifier'] = 'E.g. if the multiplier is 2 and a question is rated with an average of 4.3 stars, the author of the question will receive 9 points (= ROUND(2 * 4.3; 1)).';
+$string['settings_correct_answered_q_quantifier'] = 'Points for each correct answer';
+$string['config_correct_answered_q_quantifier'] = 'Points received for answering a question correctly.';
+$string['settings_incorrect_answered_q_quantifier'] = 'Points for each wrong answer';
+$string['config_incorrect_answered_q_quantifier'] = 'Points received for answering a question wrongly.';
 
 
 //report quiz
