@@ -51,7 +51,7 @@ to motivate students. The ranking table can be anonymized too with the anonymize
 
 ![Screenshot ranking](pix/ranking.png "Screenshot ranking")
 
-#### Ranking Settings 
+#### Ranking settings 
 
 Ranking settings is in the plugin settings and only an admin can change it. The raking settings allow to configurate the points multiplier.
 
