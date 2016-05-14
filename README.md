@@ -51,6 +51,12 @@ to motivate students. The ranking table can be anonymized too with the anonymize
 
 ![Screenshot ranking](pix/ranking.png "Screenshot ranking")
 
+#### Ranking Settings 
+
+Ranking settings is in the plugin settings and only an admin can change it. The raking settings allow to configurate the points multiplier.
+
+![Screenshot ranking settings](pix/ranking_settings.png "Screenshot ranking settings")
+
 ## Studentquiz question behaviour plugin
 
 For the best work and for the ranking use [Studentquiz Question Behaviour](https://github.com/frankkoch/moodle-qbehaviour_studentquiz).
