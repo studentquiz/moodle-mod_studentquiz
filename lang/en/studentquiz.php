@@ -112,5 +112,8 @@ $string['reportrank_table_column_points'] = 'Points';
 $string['viewlib_please_select_question'] = 'Please select a question.';
 $string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
 
+//permission
+$string['studentquiz:submit'] = 'Submit';
+$string['studentquiz:view'] = 'View';
 
 
