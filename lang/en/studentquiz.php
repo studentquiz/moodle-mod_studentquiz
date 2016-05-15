@@ -113,7 +113,7 @@ $string['viewlib_please_select_question'] = 'Please select a question.';
 $string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
 
 //permission
-$string['studentquiz:submit'] = 'Submit';
-$string['studentquiz:view'] = 'View';
+$string['studentquiz:submit'] = 'Submit on studentquiz';
+$string['studentquiz:view'] = 'View studentquiz';
 
 
