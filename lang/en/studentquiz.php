@@ -30,15 +30,16 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Student Quiz';
 $string['modulenameplural'] = 'Student Quizzes';
-$string['modulename_help'] = 'Use the Student Quiz Module for... | The Student Quiz module allows...';
+$string['modulename_help'] = 'The student quiz activity allows students to add and filter questions in the scope of the activity. All students in the course can see and use those questions in quizzes to practice and prof them selfs. The teacher can anonymize those questions for other students.<br><br>The student quiz activity awards the students with points to add and practice and they are a ranking table, that the teacher also can anonymize.
+';
 $string['studentquizfieldset'] = 'Custom example fieldset';
 $string['studentquizname'] = 'Student Quiz Name';
 $string['studentquizname_help'] = 'This is the content of the help tooltip associated with the Student Quiz name field. Markdown syntax is supported.';
-$string['anonymous_checkbox_label'] = 'Anonymize creator and ranking for student';
+$string['anonymous_checkbox_label'] = 'Student anonymizer';
 $string['quiz_advanced_settings_header'] = 'Advanced Settings';
 $string['quizpracticebehaviour'] = 'Voting and Comment';
-$string['quizpracticebehaviourhelp'] = 'Student quiz practice question behaviour';
-$string['quizpracticebehaviourhelp_help'] = 'Defines the quiz behaviour in the quiz practices.';
+$string['quizpracticebehaviourhelp'] = 'Voting and Commenting Questions in Quizzes';
+$string['quizpracticebehaviourhelp_help'] = 'This adds a voting and commenting field to the questions when the students pratice quizzes.';
 
 
 $string['studentquiz'] = 'studentquiz';
@@ -55,8 +56,8 @@ $string['nav_report_quiz'] = 'Quiz';
 $string['nav_report_rank'] = 'Rank';
 $string['nav_export'] = 'Export';
 $string['nav_import'] = 'Import';
-$string['anonymrankhelp'] = 'Anonym Question Creator and Raning';
-$string['anonymrankhelp_help'] = 'Defines if the question creators and ranking should be anonym for the students.';
+$string['anonymrankhelp'] = 'Anonymize question creator and ranking table';
+$string['anonymrankhelp_help'] = 'This anonymize the creator column in the question view and ranking table in the rank view for students.';
 $string['createnewquestionfirst'] = 'Create first question ...';
 $string['createnewquizfromfilter'] = 'Start new quiz from search filters ...';
 $string['no_difficulty_level'] = 'no difficulty';
