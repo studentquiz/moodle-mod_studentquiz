@@ -151,9 +151,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo $OUTPUT->heading($this->cm->name, 2);
 
         $this->create_new_question_form_ext($cat);
+        /*
         if($this->hasQuestionsInCategory()) {
             $this->create_new_quiz_form();
         }
+        */
 
         if($this->hasQuestionsInCategory() || $this->isfilteractive) {
             echo $this->filterform->render();
