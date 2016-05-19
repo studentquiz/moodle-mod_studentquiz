@@ -57,7 +57,7 @@ Ranking settings is in the plugin settings and only an admin can change it. The 
 
 ![Screenshot ranking settings](pix/ranking_settings.png "Screenshot ranking settings")
 
-## Studentquiz question behaviour plugin
+## Studentquiz question plugin
 
 For the best work and for the ranking use [Studentquiz Question Behaviour](https://github.com/frankkoch/moodle-qbehaviour_studentquiz).
 This plugin adds the ability to vote for questions.
@@ -71,7 +71,7 @@ Download the zip file from github. Unzip the downloaded file *moodle-mod_student
 rename it to *studentquiz* and move it to your *moodle_installation_path/mod/*. Login as 
 an Admin and follow installation instructions. 
 
-An other way to install the studentquiz behaviour is by going to the *Site administration -> Plugins -> Install plugins* page. 
+An other way to install the studentquiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
 Note that the folder name and the zip have to be named *studentquiz*.
 
 ## License
