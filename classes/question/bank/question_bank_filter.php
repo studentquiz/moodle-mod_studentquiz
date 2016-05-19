@@ -129,11 +129,11 @@ class user_filter_vote extends user_filter_text {
      */
     public function get_sql_filter($data) {
         global $DB;
-        $name = 'ex_text_vote';
+        $name = 'ex_text_vo';
 
         $operator = $data['operator'];
         $value    = $data['value'];
-        $field    = $this->field;
+        $field    = $this->_field;
 
         $params = array();
 
