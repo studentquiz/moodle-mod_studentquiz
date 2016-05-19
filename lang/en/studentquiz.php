@@ -37,15 +37,15 @@ $string['studentquizname'] = 'Student Quiz Name';
 $string['studentquizname_help'] = 'This is the content of the help tooltip associated with the Student Quiz name field. Markdown syntax is supported.';
 $string['anonymous_checkbox_label'] = 'Student anonymizer';
 $string['quiz_advanced_settings_header'] = 'Advanced Settings';
-$string['quizpracticebehaviour'] = 'Voting and Comment';
-$string['quizpracticebehaviourhelp'] = 'Voting and Commenting Questions in Quizzes';
-$string['quizpracticebehaviourhelp_help'] = 'This adds a voting and commenting field to the questions when the students pratice quizzes.';
+$string['quizpracticebehaviour'] = 'Rating and Comment';
+$string['quizpracticebehaviourhelp'] = 'Rating and comment questions in quizzes';
+$string['quizpracticebehaviourhelp_help'] = 'This adds a rating and comment field to the questions when the students pratice quizzes.';
 
 
 $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'Student Quiz Administration';
 $string['pluginname'] = 'Student Quiz';
-$string['vote_column_name'] = 'Votes';
+$string['vote_column_name'] = 'Ratings';
 $string['difficulty_level_column_name'] = 'Difficulty';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
@@ -62,7 +62,7 @@ $string['createnewquestionfirst'] = 'Create first question ...';
 $string['createnewquizfromfilter'] = 'Start new quiz from search filters ...';
 $string['no_difficulty_level'] = 'no difficulty';
 $string['no_tags'] = 'no tags';
-$string['no_votes'] = 'no votes';
+$string['no_votes'] = 'no ratings';
 $string['creater_anonym_firstname'] = 'anonym';
 $string['creater_anonym_lastname'] = 'anonym';
 
@@ -73,7 +73,7 @@ $string['filter_label_firstname'] = 'Firstname';
 $string['filter_label_surname'] = 'Surname';
 $string['filter_label_createdate'] = 'Creation';
 $string['filter_label_tags'] = 'Tag';
-$string['filter_label_votes'] = 'Vote';
+$string['filter_label_votes'] = 'Rating';
 $string['filter_label_difficulty_level'] = 'Difficulty';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
