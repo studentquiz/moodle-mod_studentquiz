@@ -476,18 +476,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
 
             $count = $this->get_question_tag_count($question->id);
-            if($count){
+            if($count) {
                 foreach($this->get_question_tag($question->id) as $tag) {
                     $question->tagname .= ', '.$tag->name;
                 }
                 $question->tagname = substr($question->tagname, 2);
             }
-
             if(!$this->isfilteractive) {
                 $filteredQuestions[] = $question;
             } else {
                 if(isset($this->tagnamefield)) {
-                    if(!empty($question->tagname) || $count == 0) {
+                    if($this->show_question($question->id, $count)) {
                         $filteredQuestions[] = $question;
                     }
                 } else {
@@ -533,6 +532,49 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $DB;
         $sqlparams = array();
 
+        $sql = 'SELECT t.name, ti.itemid'
+            .' FROM {tag} t'
+            .' JOIN {tag_instance} ti'
+            .' ON t.id = ti.tagid'
+            .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
+
+        $sqlparams['qid'] = $id;
+
+        return $DB->get_recordset_sql($sql, $sqlparams);
+    }
+
+    protected function show_question($id, $count) {
+
+        $countfiltered = $count;
+        $count = $this->get_question_tag_count($id, false);
+
+        if (strpos($this->tagnamefield[0], 'NOT LIKE') !== false) {
+            if ($count == $countfiltered) return true;
+            return false;
+        }
+
+        if (strpos($this->tagnamefield[0], 'LIKE') !== false) {
+            if ($countfiltered > 0) return true;
+            return false;
+        }
+
+        if (strpos($this->tagnamefield[0], '=' && $this->tagnamefield[1]['ex_text0']) == '') {
+            if ($count == 0) return true;
+            return false;
+        }
+
+        return false;
+    }
+
+    /**
+     * get the count of the connected tags with the question
+     * @param $id
+     * @return int count of connected tags with question
+     */
+    protected function get_question_tag_count($id, $withfilter = true) {
+        global $DB;
+        $sqlparams = array();
+
         $sqlext = '';
         if(isset($this->tagnamefield)) {
             $sqlext = str_replace ( 'tagname' , 't.name' , $this->tagnamefield[0]);
@@ -541,33 +583,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $sqlext = ' AND '. '((' . $sqlext  .'))';
         }
 
-        $sql = 'SELECT t.name, ti.itemid'
-            .' FROM {tag} t'
-            .' JOIN {tag_instance} ti'
-            .' ON t.id = ti.tagid'
-            .' WHERE ti.itemtype = "question" AND ti.itemid = :qid' . $sqlext;
-
-        $sqlparams['qid'] = $id;
-
-        return $DB->get_recordset_sql($sql, $sqlparams);
-    }
-
-    /**
-     * get the count of the connected tags with the question
-     * @param $id
-     * @return int count of connected tags with question
-     */
-    protected function get_question_tag_count($id) {
-        global $DB;
-        $sqlparams = array();
-
-        $sqlext = '';
-
         $sql = 'SELECT count(1)'
             .' FROM {tag} t'
             .' JOIN {tag_instance} ti'
             .' ON t.id = ti.tagid'
             .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
+
+        if ($withfilter) $sql .= $sqlext;
 
         $sqlparams['qid'] = $id;
 
