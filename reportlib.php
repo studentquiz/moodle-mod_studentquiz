@@ -197,7 +197,6 @@ class studentquiz_report {
         $total->questionsanswered = 0;
 
         foreach($course_modules as $cm){
-            echo $cm->id;
             $quizobj = quiz::create($cm->instance, $USER->id);
             $quiz = $quizobj->get_quiz();
             $context = context_module::instance($cm->id);
