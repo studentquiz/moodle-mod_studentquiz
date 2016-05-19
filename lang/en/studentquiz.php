@@ -63,8 +63,8 @@ $string['createnewquizfromfilter'] = 'Start new quiz from search filters ...';
 $string['no_difficulty_level'] = 'no difficulty';
 $string['no_tags'] = 'no tags';
 $string['no_votes'] = 'no ratings';
-$string['creater_anonym_firstname'] = 'anonym';
-$string['creater_anonym_lastname'] = 'anonym';
+$string['creator_anonym_firstname'] = 'anonym';
+$string['creator_anonym_lastname'] = 'anonym';
 
 //filters
 $string['filter_label_search'] = 'Search';
