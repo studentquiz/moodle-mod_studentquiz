@@ -189,7 +189,6 @@ function studentquiz_delete_instance($id) {
  * @return stdClass|null
  */
 function studentquiz_user_outline($course, $user, $mod, $studentquiz) {
-
     $return = new stdClass();
     $return->time = 0;
     $return->info = '';
