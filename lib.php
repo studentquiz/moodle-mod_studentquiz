@@ -466,7 +466,6 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
  * @param cm_info $cm course module information
  */
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // TODO Delete this function and its docblock, or implement it.
     $navref->add(get_string('nav_question_and_quiz', 'studentquiz'), new moodle_url('/mod/studentquiz/view.php?id=' . $cm->id));
     $report_node = $navref->add(get_string('nav_report', 'studentquiz'));
     $report_node->add(get_string('nav_report_rank', 'studentquiz'), new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
@@ -493,7 +492,6 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
  * @param navigation_node $studentquiznode studentquiz administration node
  */
 function studentquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $studentquiznode=null) {
-    // TODO Delete this function and its docblock, or implement it.
 }
 
 function update_anonymrank($data) {
