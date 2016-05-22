@@ -37,6 +37,8 @@ class mod_studentquiz_generator extends testing_module_generator {
      * @var int keep track of how many studentquiz have been created.
      */
     protected $studentquizcount = 0;
+    protected $commentcount = 0;
+    protected $votecount = 0;
 
 
     /**
@@ -46,6 +48,8 @@ class mod_studentquiz_generator extends testing_module_generator {
      */
     public function reset() {
         $this->studentquizcount = 0;
+        $this->commentcount = 0;
+        $this->votecount = 0;
         parent::reset();
     }
 
@@ -55,7 +59,32 @@ class mod_studentquiz_generator extends testing_module_generator {
 
         $record = (object)(array)$record;
         $record->name = 'studentquiz ' . $this->studentquizcount;
+        $record->grade = 1;
 
         return parent::create_instance($record, (array)$options);
+    }
+
+    public function create_comment($record = null) {
+        global $DB;
+
+        $this->commentcount++;
+
+        $defaults = array(
+            'comment' => 'Test comment ' . $this->commentcount,
+            'created' => time()
+        );
+
+        $record = $this->datagenerator->combine_defaults_and_record($defaults, $record);
+        $record['id'] = $DB->insert_record('studentquiz_comment', $record);
+        return (object) $record;
+    }
+
+    public function create_vote($record = null) {
+        global $DB;
+
+        $this->votecount++;
+
+        $record['id'] = $DB->insert_record('studentquiz_comment', $record);
+        return (object) $record;
     }
 }
