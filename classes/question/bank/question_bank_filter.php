@@ -49,6 +49,8 @@ class question_bank_filter_form extends moodleform {
         $this->_customdata = $customdata;
         $this->fields = $fields;
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
+        $this->_definition_finalized =true;
+        $this->_form->_flagSubmitted = true;
     }
 
     /**
@@ -109,7 +111,8 @@ class user_filter_number extends user_filter_text {
      */
     public function get_sql_filter($data) {
         global $DB;
-        $name = 'ex_text_vo';
+        static $counter = 0;
+        $name = 'ex_text_vo'.$counter++;    
 
         $operator = $data['operator'];
         $value    = $data['value'];
