@@ -66,6 +66,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private $filterform;
 
+    /**
+     * @var array of user_filter_*
+     */
+    private $fields;
+
 
     /**
      * Constructor assuming we already have the necessary data loaded.
@@ -77,7 +82,28 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function __construct($contexts, $pageurl, $course, $cm) {
         parent::__construct($contexts, $pageurl, $course, $cm);
+        $this->set_fields();
         $this->init($pageurl);
+    }
+
+    /**
+     * set fields
+     */
+    public function set_fields() {
+        $this->fields = array();
+
+        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'), false, 'vote');
+        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), false, 'difficultylevel');
+        $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
+
+        $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
+        if (is_anonym($this->cm->id) && !check_created_permission()) {
+            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
+        } else {
+            $this->fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
+            $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
+        }
+        $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
     }
 
     /**
@@ -96,14 +122,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         $this->filterform = new \question_bank_filter_form(
-            $pageurl->out()
-            , array(
-                'cmid' => $this->cm->id,
-                'isanonym' => (
-                        is_anonym($this->cm->id) &&
-                    !check_created_permission()
-                )
-            ));
+            $this->fields,
+            $pageurl->out(),
+            array('cmid' => $this->cm->id)
+        );
     }
 
     /**
@@ -624,19 +646,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * reset the filter
      */
     protected function resetfilter() {
-        $_POST['name_op'] = '0';
-        $_POST['name'] = '';
+        foreach ($this->fields as $field) {
+            $_POST[$field->_field] = '';
+            $_POST[$field->_field . '_op'] = '0';
+        }
+
         $_POST['createdby'] = null;
-        $_POST['firstname_op'] = '0';
-        $_POST['firstname'] = '';
-        $_POST['lastname_op'] = '0';
-        $_POST['lastname'] = '';
-        $_POST['tagname_op'] = '0';
-        $_POST['tagname'] = '';
-        $_POST['vote_op'] = '0';
-        $_POST['vote'] = '';
-        $_POST['difficultylevel_op'] = '0';
-        $_POST['difficultylevel'] = '';
     }
 
     /**
