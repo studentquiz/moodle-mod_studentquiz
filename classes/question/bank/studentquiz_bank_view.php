@@ -113,11 +113,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
     public function init($pageurl) {
         $this->isfilteractive = false;
 
-        if (isset($_POST['resetbutton'])) {
+        $reset = optional_param('resetbutton', false, PARAM_ALPHA);
+        $createdby = optional_param('createdby', false, PARAM_INT);
+
+        if ($reset) {
            $this->resetfilter(); 
         }
 
-        if (isset($_POST['createdby'])) {
+        if ($createdby) {
             $this->setshowmineuserid();
         }
 
@@ -231,7 +234,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
         }
         $this->sqlparams['filter'] = '';
-
         if ($adddata = $this->filterform->get_data()){
             foreach ($this->filterform->getFields() as $field) {
                 $data = $field->check_data($adddata);
@@ -651,6 +653,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $_POST[$field->_field . '_op'] = '0';
         }
 
+        $_POST['timecreated_sdt'] = null;
+        $_POST['timecreated_edt'] = null;
         $_POST['createdby'] = null;
     }
 
