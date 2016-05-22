@@ -274,14 +274,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     function create_new_quiz_form() {
         echo '<div class="createnewquiz">';
-        echo '<div class="singlebutton">';
+        echo '<div class="form-buttons">';
 
 
         echo '<form method="post" action="">';
         echo '<div>';
         echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
         echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
-        echo '<input name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
+        echo '<input class="form-submit" name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
 
         echo '</div>';
         echo '</form>';
