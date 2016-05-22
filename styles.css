@@ -173,3 +173,6 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 .reportquiz_total_heading {
     border-bottom: 1px solid #e5e5e5;
 }
+#page-mod-studentquiz-view .mod_quiz_edit_forms  {
+    display:none
+}
