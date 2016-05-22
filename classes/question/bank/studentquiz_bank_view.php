@@ -155,7 +155,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * set get field data to post field for ordering and pageing
+     * set data for filter recognition
      */
     public function set_order_page_data() {
         foreach($this->fields as $field){
