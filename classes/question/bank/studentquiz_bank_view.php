@@ -112,23 +112,38 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function init($pageurl) {
         $this->isfilteractive = false;
-
+        $_POST = array_merge($_POST, $_GET); // after ordering or pageing
+        
         $reset = optional_param('resetbutton', false, PARAM_ALPHA);
         $createdby = optional_param('createdby', false, PARAM_INT);
 
         if ($reset) {
-           $this->resetfilter(); 
+            $this->resetfilter();
         }
 
         if ($createdby) {
             $this->setshowmineuserid();
         }
 
+        $this->modify_base_url();
+
+
         $this->filterform = new \question_bank_filter_form(
             $this->fields,
             $pageurl->out(),
             array('cmid' => $this->cm->id)
         );
+    }
+
+    public function modify_base_url() {
+        foreach($this->fields as $field){
+            if(isset($_POST[$field->_field]))
+                $this->baseurl->param($field->_field, $_POST[$field->_field]);
+
+            if(isset($_POST[$field->_field . '_op']))
+                $this->baseurl->param($field->_field . '_op', $_POST[$field->_field . '_op']);
+        }
+        $this->baseurl->param('submitbutton', 'Filter');
     }
 
     /**
