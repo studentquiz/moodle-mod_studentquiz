@@ -49,8 +49,6 @@ class question_bank_filter_form extends moodleform {
         $this->_customdata = $customdata;
         $this->fields = $fields;
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
-        $this->_definition_finalized =true;
-        $this->_form->_flagSubmitted = true;
     }
 
     /**
@@ -81,6 +79,25 @@ class question_bank_filter_form extends moodleform {
 
         $mform->addElement('hidden', 'cmid', $this->_customdata['cmid']);
         $mform->setType('cmid', PARAM_RAW);
+    }
+
+    /**
+     * set form defaults
+     */
+    public function set_defaults() {
+        foreach ($this->fields as $field) {
+            if(isset($_POST[$field->_field]))
+                $this->_form->setDefault($field->_field, $_POST[$field->_field]);
+
+            if(isset($_POST[$field->_field . '_op']))
+                $this->_form->setDefault($field->_field . '_op', $_POST[$field->_field . '_op']);
+        }
+        if(isset($_POST['timecreated_sdt']))
+            $this->_form->setDefault('timecreated_sdt', $_POST['timecreated_sdt']);
+        if(isset($_POST['timecreated_edt']))
+            $this->_form->setDefault('timecreated_edt', $_POST['timecreated_edt']);
+        if(isset($_POST['createdby']))
+            $this->_form->setDefault('createdby', $_POST['createdby']);
     }
 }
 

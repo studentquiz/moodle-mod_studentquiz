@@ -112,8 +112,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function init($pageurl) {
         $this->isfilteractive = false;
-        $_POST = array_merge($_POST, $_GET); // after ordering or pageing
-        
+        $this->set_order_page_data();
+
         $reset = optional_param('resetbutton', false, PARAM_ALPHA);
         $createdby = optional_param('createdby', false, PARAM_INT);
 
@@ -124,7 +124,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if ($createdby) {
             $this->setshowmineuserid();
         }
-
         $this->modify_base_url();
 
 
@@ -133,8 +132,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $pageurl->out(),
             array('cmid' => $this->cm->id)
         );
+        $this->filterform->set_defaults();
     }
 
+    /**
+     * modify base url for ordering
+     */
     public function modify_base_url() {
         foreach($this->fields as $field){
             if(isset($_POST[$field->_field]))
@@ -143,7 +146,31 @@ class studentquiz_bank_view extends \core_question\bank\view {
             if(isset($_POST[$field->_field . '_op']))
                 $this->baseurl->param($field->_field . '_op', $_POST[$field->_field . '_op']);
         }
-        $this->baseurl->param('submitbutton', 'Filter');
+        if(isset($_POST['timecreated_sdt']))
+            $this->baseurl->param('timecreated_sdt', $_POST['timecreated_sdt']);
+        if(isset($_POST['timecreated_edt']))
+            $this->baseurl->param('timecreated_edt', $_POST['timecreated_edt']);
+        if(isset($_POST['createdby']))
+            $this->baseurl->param('createdby', $_POST['createdby']);
+    }
+
+    /**
+     * set get field data to post field for ordering and pageing
+     */
+    public function set_order_page_data() {
+        foreach($this->fields as $field){
+            if(isset($_GET[$field->_field]))
+                $_POST[$field->_field] = $_GET[$field->_field];
+
+            if(isset($_GET[$field->_field . '_op']))
+                $_POST[$field->_field . '_op'] = $_GET[$field->_field . '_op'];
+        }
+        if(isset($_GET['timecreated_sdt']))
+            $_POST['timecreated_sdt'] = $_GET['timecreated_sdt'];
+        if(isset($_GET['timecreated_edt']))
+            $_POST['timecreated_edt'] = $_GET['timecreated_edt'];
+        if(isset($_GET['createdby']))
+            $_POST['createdby'] = $_GET['createdby'];
     }
 
     /**
