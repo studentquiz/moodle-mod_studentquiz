@@ -194,8 +194,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if(isset($_GET['timecreated_edt_year']))
             $_POST['timecreated_edt']['year'] = $_GET['timecreated_edt_year'];
 
+        if (isset($_POST['timecreated_sdt'])) $_POST['timecreated_sdt']['enabled'] = '1';
+        if (isset($_POST['timecreated_edt'])) $_POST['timecreated_edt']['enabled'] = '1';
+
         if(isset($_GET['createdby']))
-            $_POST['createdby'] = $_GET['createdby'];
+            $_POST['createdby'] = '1';
     }
 
     /**

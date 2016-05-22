@@ -49,8 +49,6 @@ class question_bank_filter_form extends moodleform {
         $this->_customdata = $customdata;
         $this->fields = $fields;
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
-        $this->_definition_finalized =true;
-        $this->_form->_flagSubmitted = true;
     }
 
     /**
@@ -87,19 +85,31 @@ class question_bank_filter_form extends moodleform {
      * set form defaults
      */
     public function set_defaults() {
+        $submission = array();
         foreach ($this->fields as $field) {
-            if(isset($_POST[$field->_name]))
-                $this->_form->setDefault($field->_name, $_POST[$field->_name]);
+            if(isset($_POST[$field->_name])) {
+                $submission[$field->_name] = $_POST[$field->_name];
+            }
 
-            if(isset($_POST[$field->_name . '_op']))
-                $this->_form->setDefault($field->_name . '_op', $_POST[$field->_name . '_op']);
+
+            if(isset($_POST[$field->_name . '_op'])) {
+                $submission[$field->_name . '_op'] = $_POST[$field->_name . '_op'];
+            }
         }
-        if(isset($_POST['timecreated_sdt']))
-            $this->_form->setDefault('timecreated_sdt', $_POST['timecreated_sdt']);
-        if(isset($_POST['timecreated_edt']))
-            $this->_form->setDefault('timecreated_edt', $_POST['timecreated_edt']);
-        if(isset($_POST['createdby']))
-            $this->_form->setDefault('createdby', $_POST['createdby']);
+        
+        if(isset($_POST['timecreated_sdt'])) {
+            $submission['timecreated_sdt'] = $_POST['timecreated_sdt'];
+        }
+
+        if(isset($_POST['timecreated_edt'])) {
+            $submission['timecreated_edt'] = $_POST['timecreated_edt'];
+        }
+        
+        if(isset($_POST['createdby'])) {
+            $submission['createdby'] = $_POST['createdby'];
+        }
+
+        $this->_form->updateSubmission($submission, array());
     }
 }
 
