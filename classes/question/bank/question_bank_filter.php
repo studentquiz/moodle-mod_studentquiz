@@ -88,11 +88,11 @@ class question_bank_filter_form extends moodleform {
      */
     public function set_defaults() {
         foreach ($this->fields as $field) {
-            if(isset($_POST[$field->_field]))
-                $this->_form->setDefault($field->_field, $_POST[$field->_field]);
+            if(isset($_POST[$field->_name]))
+                $this->_form->setDefault($field->_name, $_POST[$field->_name]);
 
-            if(isset($_POST[$field->_field . '_op']))
-                $this->_form->setDefault($field->_field . '_op', $_POST[$field->_field . '_op']);
+            if(isset($_POST[$field->_name . '_op']))
+                $this->_form->setDefault($field->_name . '_op', $_POST[$field->_name . '_op']);
         }
         if(isset($_POST['timecreated_sdt']))
             $this->_form->setDefault('timecreated_sdt', $_POST['timecreated_sdt']);
@@ -135,7 +135,7 @@ class user_filter_number extends user_filter_text {
 
         $operator = $data['operator'];
         $value    = $data['value'];
-        $field    = $this->_field;
+        $field    = $this->_name;
 
         $params = array();
 

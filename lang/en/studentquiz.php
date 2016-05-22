@@ -65,7 +65,7 @@ $string['no_tags'] = 'no tags';
 $string['no_votes'] = 'no ratings';
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
-
+         
 //filters
 $string['filter_label_search'] = 'Search';
 $string['filter_label_question'] = 'Question name';

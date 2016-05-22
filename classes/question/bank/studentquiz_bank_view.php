@@ -115,11 +115,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->set_order_page_data();
 
         $reset = optional_param('resetbutton', false, PARAM_ALPHA);
-        $createdby = optional_param('createdby', false, PARAM_INT);
 
         if ($reset) {
             $this->resetfilter();
         }
+
+        $createdby = optional_param('createdby', false, PARAM_INT);
 
         if ($createdby) {
             $this->setshowmineuserid();
@@ -140,16 +141,26 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function modify_base_url() {
         foreach($this->fields as $field){
-            if(isset($_POST[$field->_field]))
-                $this->baseurl->param($field->_field, $_POST[$field->_field]);
+            if(isset($_POST[$field->_name]))
+                $this->baseurl->param($field->_name, $_POST[$field->_name]);
 
-            if(isset($_POST[$field->_field . '_op']))
-                $this->baseurl->param($field->_field . '_op', $_POST[$field->_field . '_op']);
+            if(isset($_POST[$field->_name . '_op']))
+                $this->baseurl->param($field->_name . '_op', $_POST[$field->_name . '_op']);
         }
-        if(isset($_POST['timecreated_sdt']))
-            $this->baseurl->param('timecreated_sdt', $_POST['timecreated_sdt']);
-        if(isset($_POST['timecreated_edt']))
-            $this->baseurl->param('timecreated_edt', $_POST['timecreated_edt']);
+
+        if(isset($_POST['timecreated_sdt'])) {
+            $this->baseurl->param('timecreated_sdt_day', $_POST['timecreated_sdt']['day']);
+            $this->baseurl->param('timecreated_sdt_month', $_POST['timecreated_sdt']['month']);
+            $this->baseurl->param('timecreated_sdt_year', $_POST['timecreated_sdt']['year']);
+        }
+
+
+        if(isset($_POST['timecreated_edt'])) {
+            $this->baseurl->param('timecreated_edt_day', $_POST['timecreated_edt']['day']);
+            $this->baseurl->param('timecreated_edt_month', $_POST['timecreated_edt']['month']);
+            $this->baseurl->param('timecreated_edt_year', $_POST['timecreated_edt']['year']);
+        }
+        
         if(isset($_POST['createdby']))
             $this->baseurl->param('createdby', $_POST['createdby']);
     }
@@ -159,16 +170,30 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function set_order_page_data() {
         foreach($this->fields as $field){
-            if(isset($_GET[$field->_field]))
-                $_POST[$field->_field] = $_GET[$field->_field];
+            if(isset($_GET[$field->_name]))
+                $_POST[$field->_name] = $_GET[$field->_name];
 
-            if(isset($_GET[$field->_field . '_op']))
-                $_POST[$field->_field . '_op'] = $_GET[$field->_field . '_op'];
+            if(isset($_GET[$field->_name . '_op']))
+                $_POST[$field->_name . '_op'] = $_GET[$field->_name . '_op'];
         }
-        if(isset($_GET['timecreated_sdt']))
-            $_POST['timecreated_sdt'] = $_GET['timecreated_sdt'];
-        if(isset($_GET['timecreated_edt']))
-            $_POST['timecreated_edt'] = $_GET['timecreated_edt'];
+        if(isset($_GET['timecreated_sdt_day']))
+            $_POST['timecreated_sdt']['day'] = $_GET['timecreated_sdt_day'];
+
+        if(isset($_GET['timecreated_sdt_month']))
+            $_POST['timecreated_sdt']['month'] = $_GET['timecreated_sdt_month'];
+        
+        if(isset($_GET['timecreated_sdt_year']))
+            $_POST['timecreated_sdt']['year'] = $_GET['timecreated_sdt_year'];
+        
+        if(isset($_GET['timecreated_edt_day']))
+            $_POST['timecreated_edt']['day'] = $_GET['timecreated_edt_day'];
+        
+        if(isset($_GET['timecreated_edt_month']))
+            $_POST['timecreated_edt']['month'] = $_GET['timecreated_edt_month'];
+
+        if(isset($_GET['timecreated_edt_year']))
+            $_POST['timecreated_edt']['year'] = $_GET['timecreated_edt_year'];
+
         if(isset($_GET['createdby']))
             $_POST['createdby'] = $_GET['createdby'];
     }
@@ -537,7 +562,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 is_anonym($this->cm->id) &&
                 $question->createdby != $USER->id
             ) {
-                $question->creatorfirstname = get_string('creater_anonym_firstname', 'studentquiz');
+                $question->creatorfirstname = get_string('creator_anonym_firstname', 'studentquiz');
                 $question->creatorlastname = get_string('creator_anonym_lastname', 'studentquiz');
             }
 
@@ -691,13 +716,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function resetfilter() {
         foreach ($this->fields as $field) {
-            $_POST[$field->_field] = '';
-            $_POST[$field->_field . '_op'] = '0';
+            $_POST[$field->_name] = '';
+            $_POST[$field->_name . '_op'] = '0';
         }
 
-        $_POST['timecreated_sdt'] = null;
-        $_POST['timecreated_edt'] = null;
-        $_POST['createdby'] = null;
+        unset($_POST['timecreated_sdt']);
+        unset($_POST['timecreated_edt']);
+        unset($_POST['createdby']);
+
     }
 
     /**
