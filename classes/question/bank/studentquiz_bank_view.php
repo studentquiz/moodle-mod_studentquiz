@@ -281,7 +281,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo '<div>';
         echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
         echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
-        echo '<input class="form-submit" name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
+        echo '<input name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
 
         echo '</div>';
         echo '</form>';
