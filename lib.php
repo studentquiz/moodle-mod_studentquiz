@@ -480,7 +480,7 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
         $cat = 'cat=' . $category->id . ',' . $context->id;
 
         $navref->add(get_string('nav_export','studentquiz'), new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
-        $navref->add(get_string('nav_import','studentquiz'), new moodle_url('/question/import.php?' . $cat . '&cmid=' . $cm->id));
+        $navref->add(get_string('nav_import','studentquiz'), new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
     }
 }
 
