@@ -57,8 +57,8 @@ class question_bank_filter_form extends moodleform {
     public function set_fields() {
         $this->fields = array();
 
-        $this->fields[] = new \user_filter_vote('vote', get_string('filter_label_votes', 'studentquiz'), false, 'vote');
-        $this->fields[] = new \user_filter_vote('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), false, 'difficultylevel');
+        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'), false, 'vote');
+        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
 
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
@@ -104,13 +104,13 @@ class question_bank_filter_form extends moodleform {
 
 
 /**
- * vote filter
+ * number filter
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class user_filter_vote extends user_filter_text {
+class user_filter_number extends user_filter_text {
     
     /**
      * Returns an array of comparison operators
