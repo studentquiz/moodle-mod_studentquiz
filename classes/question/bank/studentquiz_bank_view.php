@@ -498,6 +498,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo '<div class="categorypagingbarcontainer">';
         $pageingurl = new \moodle_url('view.php');
         $r = $pageingurl->params($pageurl->params());
+        $pageingurl->params($this->baseurl->params());
 
         $pagingbar = new \paging_bar($this->totalnumber, $page, $perpage, $pageingurl);
         $pagingbar->pagevar = 'qpage';
