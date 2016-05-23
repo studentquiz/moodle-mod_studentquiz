@@ -185,10 +185,7 @@ class studentquiz_report {
      */
     public function get_quiz_tables(){
         global $PAGE, $USER;
-        $output_summaries = '';
         $report_renderer= $PAGE->get_renderer('mod_studentquiz');
-        $quiz_renderer = $PAGE->get_renderer('mod_quiz');
-        $course_modules = $this->get_quiz_course_modules($USER->id);
 
         $total = new stdClass();
         $total->numattempts = 0;
@@ -196,8 +193,97 @@ class studentquiz_report {
         $total->questionsright = 0;
         $total->questionsanswered = 0;
 
+        $output_summaries = $this->get_user_summary_table($USER->id, $total);
+
+        $output = $report_renderer->view_quizreport_total($total);
+        $output .= $report_renderer->view_quizreport_summary();
+        $output .= $output_summaries;
+
+        return $output;
+    }
+
+    /**
+     * get all users in a course
+     * @param $courseid course id
+     * @return array stdClass userid, courseid, firstname, lastname
+     */
+    private function get_all_users_in_course($courseid) {
+        global $DB;
+
+        $sql = 'SELECT u.id as userid, c.id as courseid, u.firstname, u.lastname'
+            . '     FROM mdl_user u'
+            . '     INNER JOIN mdl_user_enrolments ue ON ue.userid = u.id'
+            . '     INNER JOIN mdl_enrol e ON e.id = ue.enrolid'
+            . '     INNER JOIN mdl_course c ON e.courseid = c.id'
+            . '     WHERE c.id = :courseid';
+
+        return $DB->get_records_sql($sql, array(
+            'courseid' => $courseid
+        ));
+    }
+
+    function isAdmin() {
+        return mod_check_created_permission();
+    }
+
+    /**
+     * get quiz admin statistic view
+     * @return string pre rendered /mod/stundentquiz view_quizreport_table
+     */
+    public function get_quiz_admin_statistic_view(){
+        global $PAGE;
+        $report_renderer= $PAGE->get_renderer('mod_studentquiz');
+
+
+        $overall_total = new stdClass();
+        $overall_total->numattempts = 0;
+        $overall_total->obtainedmarks = 0;
+        $overall_total->questionsright = 0;
+        $overall_total->questionsanswered = 0;
+        $usersdata = array();
+
+        $users = $this->get_all_users_in_course($this->course->id);
+        $overall_total->usercount = count($users);
+        foreach($users as $user){
+            $total = new stdClass();
+            $total->numattempts = 0;
+            $total->obtainedmarks = 0;
+            $total->questionsright = 0;
+            $total->questionsanswered = 0;
+            $this->get_user_summary_table($user->userid, $total);
+
+            $overall_total->numattempts += $total->numattempts;
+            $overall_total->obtainedmarks += $total->obtainedmarks;
+            $overall_total->questionsright += $total->questionsright;
+            $overall_total->questionsanswered += $total->questionsanswered;
+
+            $total->name = $user->firstname . ' ' . $user->lastname;
+            $total->id = $user->userid;
+            $usersdata[] = $total;
+        }
+
+
+        $output = $report_renderer->view_quizreport_total($overall_total, true);
+        $output .= $report_renderer->view_quizreport_table($this, $usersdata);
+
+        return $output;
+    }
+
+
+    /**
+     * pre render the single user summary table and get quiz stats
+     * @param $userid
+     * @param $total
+     * @return mixed|string
+     * @throws coding_exception
+     */
+    public function get_user_summary_table($userid, &$total) {
+        global $PAGE;
+        $output_summaries = '';
+        $course_modules = $this->get_quiz_course_modules($userid);
+        $quiz_renderer = $PAGE->get_renderer('mod_quiz');
         foreach($course_modules as $cm){
-            $quizobj = quiz::create($cm->instance, $USER->id);
+            $quizobj = quiz::create($cm->instance, $userid);
             $quiz = $quizobj->get_quiz();
             $context = context_module::instance($cm->id);
 
@@ -211,16 +297,16 @@ class studentquiz_report {
             $canpreview = has_capability('mod/quiz:preview', $context);
 
             $accessmanager = new quiz_access_manager($quizobj, time(),
-            has_capability('mod/quiz:ignoretimelimits', $context, null, false));
+                has_capability('mod/quiz:ignoretimelimits', $context, null, false));
 
             $viewobj = new mod_quiz_view_object();
             $viewobj->accessmanager = $accessmanager;
             $viewobj->canreviewmine = $canreviewmine;
 
-            $attempts = quiz_get_user_attempts($quiz->id, $USER->id, 'all', true);
+            $attempts = quiz_get_user_attempts($quiz->id, $userid, 'all', true);
             $lastfinishedattempt = end($attempts);
             $unfinished = false;
-            if ($unfinishedattempt = quiz_get_user_attempt_unfinished($quiz->id, $USER->id)) {
+            if ($unfinishedattempt = quiz_get_user_attempt_unfinished($quiz->id, $userid)) {
                 $attempts[] = $unfinishedattempt;
 
                 $quizobj->create_attempt_object($unfinishedattempt)->handle_if_time_expired(time(), false);
@@ -245,7 +331,7 @@ class studentquiz_report {
             }
 
             if (!$canpreview) {
-                $mygrade = quiz_get_best_grade($quiz, $USER->id);
+                $mygrade = quiz_get_best_grade($quiz, $userid);
             } else if ($lastfinishedattempt) {
                 $mygrade = quiz_rescale_grade($lastfinishedattempt->sumgrades, $quiz, false);
             } else {
@@ -255,11 +341,11 @@ class studentquiz_report {
             $mygradeoverridden = false;
             $gradebookfeedback = '';
 
-            $grading_info = grade_get_grades($this->course->id, 'mod', 'quiz', $quiz->id, $USER->id);
+            $grading_info = grade_get_grades($this->course->id, 'mod', 'quiz', $quiz->id, $userid);
             if (!empty($grading_info->items)) {
                 $item = $grading_info->items[0];
-                if (isset($item->grades[$USER->id])) {
-                    $grade = $item->grades[$USER->id];
+                if (isset($item->grades[$userid])) {
+                    $grade = $item->grades[$userid];
 
                     if ($grade->overridden) {
                         $mygrade = $grade->grade + 0; // Convert to number.
@@ -363,12 +449,7 @@ class studentquiz_report {
                 $output_summaries .= $quiz_renderer->box($quiz_renderer->view_page_buttons($viewobj), 'quizattempt');
             }
         }
-
-        $output = $report_renderer->view_quizreport_total($total);
-        $output .= $report_renderer->view_quizreport_summary();
-        $output .= $output_summaries;
-
-        return $output;
+        return $output_summaries;
     }
 
     /**
@@ -500,10 +581,10 @@ class studentquiz_report {
      * @param $ur stdClass user ranking object
      * @return bool is loggedin user
      */
-    public function is_loggedin_user($ur) {
+    public function is_loggedin_user($userid) {
         global $USER;
 
-        return $USER->id == $ur->userid;
+        return $USER->id == $userid;
     }
 
     /**

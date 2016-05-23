@@ -57,7 +57,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
             $tmp = $ur->firstname . ' ' . $ur->lastname;
             if($report->is_anonym()) {
-                if(!$report->is_loggedin_user($ur)){
+                if(!$report->is_loggedin_user($ur->userid)){
                     $tmp = 'anonymous';
                 }
             }
@@ -68,7 +68,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
             $row = new html_table_row();
 
-            if($report->is_loggedin_user($ur)){
+            if($report->is_loggedin_user($ur->userid)){
                 $style = array('class' => 'mod-studentquiz-summary-highlight');
                 $cellrank->attributes = $style;
                 $cellfullname->attributes = $style;
@@ -84,6 +84,67 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * builds the quiz report table for the admin
+     * @param $report studentquiz_report class with necessary information
+     * @return string rank report table
+     */
+    public function view_quizreport_table($report, $usersdata) {
+        $output = $this->heading(get_string('reportquiz_admin_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+        $table = new html_table();
+        $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
+        $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportquiz_table_title', 'studentquiz');
+        $table->head = array(get_string('reportrank_table_column_fullname', 'studentquiz')
+            ,get_string('reportquiz_total_attempt', 'studentquiz')
+            ,get_string('reportquiz_total_questions_answered', 'studentquiz')
+            ,get_string('reportquiz_total_questions_right', 'studentquiz')
+            ,get_string('reportquiz_total_questions_wrong', 'studentquiz')
+            ,get_string('reportquiz_total_obtained_marks', 'studentquiz'));
+        $table->align = array('left', 'left');
+        $table->size = array('', '');
+        $table->data = array();
+        $rows = array();
+        foreach($usersdata as $user){
+            $cellfullname = new html_table_cell();
+            $cellfullname->text = $user->name;
+
+            $cellnumattempts = new html_table_cell();
+            $cellnumattempts->text = $user->numattempts;
+
+            $cellobtainedmarks = new html_table_cell();
+            $cellobtainedmarks->text = $user->obtainedmarks;
+
+            $cellquestionsanswered = new html_table_cell();
+            $cellquestionsanswered->text = $user->questionsanswered;
+
+            $cellquestionsright = new html_table_cell();
+            $cellquestionsright->text = $user->questionsright;
+
+            $cellquestionswrong= new html_table_cell();
+            $cellquestionswrong->text = $user->questionsanswered - $user->questionsright;
+
+
+
+            $row = new html_table_row();
+
+            if($report->is_loggedin_user($user->id)){
+                $style = array('class' => 'mod-studentquiz-summary-highlight');
+                $cellfullname->attributes = $style;
+                $cellnumattempts->attributes = $style;
+                $cellobtainedmarks->attributes = $style;
+                $cellquestionsanswered->attributes = $style;
+                $cellquestionswrong->attributes = $style;
+                $cellquestionsright->attributes = $style;
+                $row->attributes = $style;
+            }
+            $row->cells = array($cellfullname, $cellnumattempts, $cellquestionsanswered, $cellquestionsright, $cellquestionswrong, $cellobtainedmarks);
+            $rows[] = $row;
+        }
+        $table->data = $rows;
+        $output .=  html_writer::table($table);
+        return $output;
+    }
+
+    /**
      * build the quiz report summary section
      * @return string quiz report summary title
      */
@@ -96,7 +157,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param $total
      * @return string quiz report data
      */
-    public function view_quizreport_total($total) {
+    public function view_quizreport_total($total, $isadmin = false) {
         $output = '';
 
         $output = $this->heading(get_string('reportquiz_total_title', 'studentquiz'), 2, 'reportquiz_total_heading');
@@ -123,6 +184,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             html_writer::span(get_string('reportquiz_total_obtained_marks', 'studentquiz') . ': ', 'reportquiz_total_label')
             .html_writer::span($total->obtainedmarks)
         );
+
+        if($isadmin){
+            $output .= html_writer::tag('p',
+                html_writer::span(get_string('reportquiz_total_users', 'studentquiz') . ': ', 'reportquiz_total_label')
+                .html_writer::span($total->usercount)
+            );
+        }
 
         return $output;
     }

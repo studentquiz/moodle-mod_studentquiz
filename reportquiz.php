@@ -50,5 +50,9 @@ $PAGE->set_url($report->get_quizreporturl());
 
 
 echo $OUTPUT->header();
-echo $report->get_quiz_tables();
+if($report->isAdmin()){
+    echo $report->get_quiz_admin_statistic_view();
+}else {
+    echo $report->get_quiz_tables();
+}
 echo $OUTPUT->footer();
