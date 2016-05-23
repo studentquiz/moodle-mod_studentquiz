@@ -314,6 +314,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $this->isfilteractive = true;
                 $sqldata = $field->get_sql_filter($data);
 
+                if ($field->_name == 'firstname' && !mod_check_created_permission()) {
+                    continue;
+                }
+
+                if ($field->_name == 'lastname' && !mod_check_created_permission()) {
+                    continue;
+                }
+
                 if($field->_name == 'tagname') {
                     $this->tagnamefield = $sqldata;
                     continue;
