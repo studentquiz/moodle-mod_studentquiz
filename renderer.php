@@ -160,7 +160,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function view_quizreport_total($total, $isadmin = false) {
         $output = '';
 
-        $output = $this->heading(get_string('reportquiz_total_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+        if($isadmin)
+            $output = $this->heading(get_string('reportquiz_admin_total_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+        else
+            $output = $this->heading(get_string('reportquiz_total_title', 'studentquiz'), 2, 'reportquiz_total_heading');
         $output .= html_writer::tag('p',
             html_writer::span(get_string('reportquiz_total_attempt', 'studentquiz') . ': ', 'reportquiz_total_label')
             .html_writer::span($total->numattempts)

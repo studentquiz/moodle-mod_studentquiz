@@ -102,10 +102,7 @@ $string['reportquiz_summary_title'] = 'Quiz summaries';
 $string['reportquiz_total_users'] = 'User count';
 $string['reportquiz_admin_title'] = 'Detail';
 $string['reportquiz_table_title'] = 'Statistic';
-
-
-
-
+$string['reportquiz_admin_total_title'] = 'Overall total';
 
 //report rank
 $string['reportrank_title'] = 'User ranking';
