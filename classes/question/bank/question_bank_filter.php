@@ -129,8 +129,7 @@ class user_filter_number extends user_filter_text {
      */
     public function getOperators() {
         return array(0 => get_string('filter_ishigher', 'studentquiz'),
-            1 => get_string('filter_islower', 'studentquiz'),
-            2 => get_string('isequalto', 'filters'));
+            1 => get_string('filter_islower', 'studentquiz'));
     }
 
     /**
