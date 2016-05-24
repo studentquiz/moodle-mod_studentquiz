@@ -43,9 +43,9 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
         $studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
 
-
         $cat = $questiongenerator->create_question_category();
         $question = $questiongenerator->create_question('description', null, array('category' => $cat->id));
+
         $count = $DB->count_records('studentquiz_comment');
         $user = $this->getDataGenerator()->create_user();
 
@@ -64,9 +64,9 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
         $studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
 
-
         $cat = $questiongenerator->create_question_category();
         $question = $questiongenerator->create_question('description', null, array('category' => $cat->id));
+
         $count = $DB->count_records('studentquiz_vote');
 
         $user = $this->getDataGenerator()->create_user();

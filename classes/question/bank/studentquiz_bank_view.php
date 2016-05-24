@@ -861,6 +861,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
     
     public function get_questions() {
-        return $this->questions();
+        return $this->questions;
     }
 }
