@@ -92,7 +92,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output = $this->heading(get_string('reportquiz_admin_title', 'studentquiz'), 2, 'reportquiz_total_heading');
         $table = new html_table();
         $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
-        $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportquiz_table_title', 'studentquiz');
         $table->head = array(get_string('reportrank_table_column_fullname', 'studentquiz')
             ,get_string('reportquiz_total_attempt', 'studentquiz')
             ,get_string('reportquiz_total_questions_answered', 'studentquiz')
@@ -141,6 +140,46 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         }
         $table->data = $rows;
         $output .=  html_writer::table($table);
+        return $output;
+    }
+
+    /**
+     * builds the quiz admin report view with the created quizzes
+     * @param $report studentquiz_report class with necessary information
+     * @return string rank report table
+     */
+    public function view_quizreport_admin_quizzes($report, $quizzes)
+    {
+        $output = $this->heading(get_string('reportquiz_admin_quizzes_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+        $table = new html_table();
+        $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
+        $table->head = array(get_string('reportquiz_admin_quizzes_table_column_quizname', 'studentquiz')
+        ,get_string('reportquiz_admin_quizzes_table_column_qbehaviour', 'studentquiz')
+        ,get_string('reportquiz_admin_quizzes_table_column_timecreated', 'studentquiz'));
+        $table->align = array('left', 'left');
+        $table->size = array('', '');
+        $table->data = array();
+        $rows = array();
+        foreach($quizzes as $quiz) {
+            $cellquizname = new html_table_cell();
+            $cellquizname->text = $quiz->name;
+
+            $cellqbehaviour = new html_table_cell();
+            $cellqbehaviour->text = $quiz->preferredbehaviour;
+
+            $cellcreated = new html_table_cell();
+            $cellcreated->text = userdate($quiz->timecreated);
+
+            $cellurl = new html_table_cell();
+            $cellurl->text = html_writer::link(new moodle_url('/mod/quiz/view.php', array('id' => $quiz->id)), get_string('reportquiz_admin_quizzes_table_link_to_quiz', 'studentquiz'));
+
+            $row = new html_table_row();
+            $row->cells = array($cellquizname, $cellqbehaviour, $cellcreated, $cellurl);
+            $rows[] = $row;
+        }
+        $table->data = $rows;
+        $output .=  html_writer::table($table);
+
         return $output;
     }
 

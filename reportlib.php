@@ -193,7 +193,7 @@ class studentquiz_report {
         $total->questionsright = 0;
         $total->questionsanswered = 0;
 
-        $output_summaries = $this->get_user_summary_table($USER->id, $total);
+        $output_summaries = $this->get_user_quiz_summary($USER->id, $total);
 
         $output = $report_renderer->view_quizreport_total($total);
         $output .= $report_renderer->view_quizreport_summary();
@@ -231,7 +231,7 @@ class studentquiz_report {
      * @return string pre rendered /mod/stundentquiz view_quizreport_table
      */
     public function get_quiz_admin_statistic_view(){
-        global $PAGE;
+        global $PAGE, $USER;
         $report_renderer= $PAGE->get_renderer('mod_studentquiz');
 
 
@@ -250,7 +250,7 @@ class studentquiz_report {
             $total->obtainedmarks = 0;
             $total->questionsright = 0;
             $total->questionsanswered = 0;
-            $this->get_user_summary_table($user->userid, $total);
+            $this->get_user_quiz_summary($user->userid, $total);
 
             $overall_total->numattempts += $total->numattempts;
             $overall_total->obtainedmarks += $total->obtainedmarks;
@@ -262,13 +262,23 @@ class studentquiz_report {
             $usersdata[] = $total;
         }
 
-
         $output = $report_renderer->view_quizreport_total($overall_total, true);
         $output .= $report_renderer->view_quizreport_table($this, $usersdata);
+
+        $output .= $report_renderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
 
         return $output;
     }
 
+    public function get_quiz_information($userid) {
+        $quizinfos = array();
+        foreach($this->get_quiz_course_modules($userid) as $cm){
+            $quizobj = quiz::create($cm->instance, $userid);
+            $quiz = $quizobj->get_quiz();
+            $quizinfos[] = $quiz;
+        }
+        return $quizinfos;
+    }
 
     /**
      * pre render the single user summary table and get quiz stats
@@ -277,7 +287,7 @@ class studentquiz_report {
      * @return mixed|string
      * @throws coding_exception
      */
-    public function get_user_summary_table($userid, &$total) {
+    public function get_user_quiz_summary($userid, &$total) {
         global $PAGE;
         $output_summaries = '';
         $course_modules = $this->get_quiz_course_modules($userid);

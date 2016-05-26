@@ -102,9 +102,18 @@ $string['reportquiz_total_questions_wrong'] = 'Questions wrong';
 $string['reportquiz_total_obtained_marks'] = 'Obtained marks';
 $string['reportquiz_summary_title'] = 'Quiz summaries';
 $string['reportquiz_total_users'] = 'Participant count';
-$string['reportquiz_admin_title'] = 'Detail';
-$string['reportquiz_table_title'] = 'Statistic';
+$string['reportquiz_admin_title'] = 'Detailed statistic';
+
+//report quiz admin section
 $string['reportquiz_admin_total_title'] = 'Overall total';
+$string['reportquiz_admin_quizzes_title'] = 'History - created quizzes';
+$string['reportquiz_admin_quizzes_table_column_quizname'] = 'Quiz name';
+$string['reportquiz_admin_quizzes_table_column_qbehaviour'] = 'Quiz behaviour';
+$string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Created';
+$string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link to quiz';
+
+
+
 
 //report rank
 $string['reportrank_title'] = 'User ranking';
