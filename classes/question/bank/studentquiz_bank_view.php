@@ -33,6 +33,7 @@ require_once(dirname(__FILE__).'/vote_column.php');
 require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/question_bank_filter.php');
+require_once(dirname(__FILE__).'/question_text_row.php');
 
 /**
  * Module instance settings form
@@ -97,6 +98,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
 
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
+        // question_text_row
+        $this->fields[] = new \user_filter_text('questiontext', 'Question content', true, 'questiontext');
         if (is_anonym($this->cm->id) && !check_created_permission()) {
             $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
         } else {
@@ -256,6 +259,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if($this->hasQuestionsInCategory()) {
             $this->create_new_quiz_form();
         }
+        
+        $showhidden = true;
+        $showquestiontext = false;
 
         // Continues with list of questions.
         $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
@@ -461,7 +467,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 echo '<input type="submit" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
                 question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
             }
-            
+
             echo "</div>\n";
         }
     }
@@ -709,7 +715,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $CFG;
 
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
-            . ',question_name_column,edit_action_column,copy_action_column,'
+            . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
             . 'preview_action_column,delete_action_column,creator_name_column,' 
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,mod_studentquiz\\bank\\difficulty_level_column';
 

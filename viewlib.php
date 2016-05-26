@@ -409,7 +409,7 @@ class studentquiz_view {
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
         }
-        $this->qbpagevar = $pagevars;
+        $this->qbpagevar = $pagevars;        
 
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl, $this->course, $this->cm);
         $this->questionbank->process_actions();
