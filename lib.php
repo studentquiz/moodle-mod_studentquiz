@@ -481,6 +481,7 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
 
         $navref->add(get_string('nav_export','studentquiz'), new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
         $navref->add(get_string('nav_import','studentquiz'), new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
+        $navref->add(get_string('nav_questionbank', 'studentquiz'), new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
     }
 }
 

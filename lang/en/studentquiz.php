@@ -56,6 +56,7 @@ $string['nav_report_quiz'] = 'Quiz';
 $string['nav_report_rank'] = 'Rank';
 $string['nav_export'] = 'Export';
 $string['nav_import'] = 'Import';
+$string['nav_questionbank'] = 'Question bank';
 $string['anonymrankhelp'] = 'Anonymize question creator and ranking table';
 $string['anonymrankhelp_help'] = 'This anonymize the creator column in the question view and ranking table in the rank view for students.';
 $string['createnewquestionfirst'] = 'Create first question';
