@@ -399,8 +399,12 @@ class studentquiz_view {
      * shows the question custom bank view
      */
     public function show_questionbank() {
+        //workaround to get permission to use questionbank
         $_GET['cmid'] = $this->get_cm_id();
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
+
+        //hide question text
+        $_GET["qbshowtext"] = 0;
 
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
             question_edit_setup('questions', '/mod/studentquiz/view.php', true, false);

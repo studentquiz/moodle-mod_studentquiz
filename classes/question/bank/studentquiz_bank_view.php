@@ -259,9 +259,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if($this->hasQuestionsInCategory()) {
             $this->create_new_quiz_form();
         }
-        
-        $showhidden = true;
-        $showquestiontext = false;
 
         // Continues with list of questions.
         $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
