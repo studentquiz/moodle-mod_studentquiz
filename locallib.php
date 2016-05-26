@@ -112,8 +112,10 @@ function mod_check_created_permission() {
             return true;
         }
     }
-
-    return !user_has_role_assignment($USER->id,5);
+    // 1 Manager, 2, Course creator, 3 editing Teacher
+    return user_has_role_assignment($USER->id,1) ||
+        user_has_role_assignment($USER->id,2) ||
+        user_has_role_assignment($USER->id,3);
 }
 
 /**
