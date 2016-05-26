@@ -106,7 +106,7 @@ $string['reportquiz_admin_title'] = 'Detailed statistic';
 
 //report quiz admin section
 $string['reportquiz_admin_total_title'] = 'Overall total';
-$string['reportquiz_admin_quizzes_title'] = 'History - created quizzes';
+$string['reportquiz_admin_quizzes_title'] = 'Created quizzes';
 $string['reportquiz_admin_quizzes_table_column_quizname'] = 'Quiz name';
 $string['reportquiz_admin_quizzes_table_column_qbehaviour'] = 'Quiz behaviour';
 $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Created';
