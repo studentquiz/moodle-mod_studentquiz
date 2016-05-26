@@ -250,6 +250,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if($this->hasQuestionsInCategory() || $this->isfilteractive) {
             echo $this->filterform->render();
         }
+
+        echo '<form method="post" action="view.php">';
         
         if($this->hasQuestionsInCategory()) {
             $this->create_new_quiz_form();
@@ -260,6 +262,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->baseurl, $cat, $this->cm,
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
+
+        if($this->hasQuestionsInCategory()) {
+            $this->create_new_quiz_form();
+        }
+
+        echo '</form>';
     }
 
     /**
@@ -379,14 +387,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo '<div class="form-buttons">';
 
 
-        echo '<form method="post" action="">';
         echo '<div>';
         echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
         echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
         echo '<input class="form-submit" name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
-
+        echo '<input type="submit" name="startquiz" value="' . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
         echo '</div>';
-        echo '</form>';
 
         echo '</div>';
         echo '</div>';
@@ -414,7 +420,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     protected function create_new_question_form($category, $canadd) {
         global $CFG;
         echo '<div class="createnewquestion">';
-        $caption = get_string('createnewquestion', 'question');
+        $caption = get_string('createnewquestion', 'studentquiz');
         if(!$this->hasQuestionsInCategory()) {
             $caption = get_string('createnewquestionfirst', 'studentquiz');
         } 
@@ -442,12 +448,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $canuseall = has_capability('moodle/question:useall', $catcontext);
         $canmoveall = has_capability('moodle/question:moveall', $catcontext);
 
-        echo '<div class="modulespecificbuttonscontainer">';
-        echo '<strong>&nbsp;'.get_string('withselected', 'question').':</strong><br />';
-
-        echo '<input type="submit" name="startquiz" value="' . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
-
-        if ($caneditall || $canmoveall || $canuseall) {
+        if ($caneditall || $canmoveall) {
+            echo '<div class="modulespecificbuttonscontainer">';
+            echo '<strong>&nbsp;'.get_string('withselected', 'question').':</strong><br />';
 
             // Print delete and move selected question.
             if ($caneditall) {
@@ -458,8 +461,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 echo '<input type="submit" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
                 question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
             }
+            
+            echo "</div>\n";
         }
-        echo "</div>\n";
     }
 
     /**
@@ -505,7 +509,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo $OUTPUT->render($pagingbar);
         echo '</div>';
 
-        echo '<form method="post" action="view.php">';
         echo '<fieldset class="invisiblefieldset" style="display: block;">';
         echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         echo \html_writer::input_hidden_params($this->baseurl);
@@ -543,7 +546,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
         echo '</fieldset>';
-        echo "</form>\n";
     }
 
     /**
