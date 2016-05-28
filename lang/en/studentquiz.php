@@ -80,6 +80,7 @@ $string['filter_label_difficulty_level'] = 'Difficulty';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
 $string['filter_label_show_mine'] = 'Show my questions';
+$string['filter'] = 'Filter';
 
 //admin settings
 $string['rankingsettingsheader'] = 'Ranking settings';
@@ -91,7 +92,6 @@ $string['settings_correct_answered_q_quantifier'] = 'Points for each correct ans
 $string['config_correct_answered_q_quantifier'] = 'Points received for answering a question correctly.';
 $string['settings_incorrect_answered_q_quantifier'] = 'Points for each wrong answer';
 $string['config_incorrect_answered_q_quantifier'] = 'Points received for answering a question wrongly.';
-
 
 //report quiz
 $string['reportquiz_total_title'] = 'Total';

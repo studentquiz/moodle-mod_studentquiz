@@ -66,7 +66,7 @@ class question_bank_filter_form extends moodleform {
         global $CFG;
 
         $mform = $this->_form;
-        $mform->addElement('header', 'looking for freedom', get_string('newfilter', 'filters'));
+        $mform->addElement('header', 'looking for freedom', get_string('filter', 'studentquiz'));
 
         foreach($this->fields as $field) {
             $field->setupForm($mform);
