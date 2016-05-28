@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Student Quiz';
 $string['modulenameplural'] = 'Student Quizzes';
-$string['modulename_help'] = 'The Student-Quiz activity allows students to add questions for the crowd. In the Student-Quiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The Student-Quiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.
+$string['modulename_help'] = 'The Student-Quiz activity allows students to add questions for the crowd. In the Student-Quiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The Student-Quiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.
 ';
 $string['studentquizfieldset'] = 'Custom example fieldset';
 $string['studentquizname'] = 'Student Quiz Name';

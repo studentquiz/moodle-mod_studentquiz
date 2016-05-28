@@ -1,66 +1,13 @@
 # moodle-mod_studentquiz
 
-The studentquiz activity is an activity for students to add and share questions.
-Students can add questions to the studentquiz and see only those questions. They have the 
-opportunity to add questions, search or filter them and start a quiz from the questions
-to practice.
+The Student-Quiz activity allows students to add questions for the crowd. 
+In the Student-Quiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. 
+The teacher has an option to anonymize the created by column.
 
-### Creating a new studentquiz
+The Student-Quiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.
 
-In the create activity screen there are two specific options:
+For more information read the [User-Manuel](manuals/User-Manual.pdf).
 
-#### Anonymize creator and ranking for students
-
-The anonymize option hides the creator information in the table (ranking and question) for students. If it is active the students can only filter their own 
-questions but not others.
-
-#### Quiz Practice Settings
-
-In this setting you can choose which question behaviour is active for the students practice quizzes.
-
-<img src="pix/create_activity.png" alt="screenshot create options" width="50%">
-
-### Overview
-
-The activity entrypoint and main view show all questions of the activity. The view is similar to the question bank overview.
-Everyone who has access to the course can add questions and see questions of other students of the course. The teacher or admin 
-has the option to anonymize the table.
-
-The question table has common sort and filter functionality. Users can filter by question, creator (if is not anonymized), tags, votes, or by difficulty level.
-
-The user has the option to select questions or start a question from all filtered question and start a quiz to practice those.  
-
-![Screenshot overview](pix/overview.png "Screenshot overview")
-
-### Question
-
-In this quiz activity all questions from the question bank are supported. Teachers or Admins
-can import/export questions.
-
-### Quiz
-
-Studentquiz using the quiz activity engine.
-
-### Report
-
-Activity users can see all the quiz reports they have done.
-
-The reporting offers a ranking.
-The ranking gives points to students who add and answer questions. Furthermore, the creator an upvoted question gets points as well. The idea is 
-to motivate students. The ranking table can be anonymized too with the anonymize option. 
-
-![Screenshot ranking](pix/ranking.png "Screenshot ranking")
-
-#### Ranking settings 
-
-Ranking settings is in the plugin settings and only an admin can change it. The raking settings allow to configurate the points multiplier.
-
-![Screenshot ranking settings](pix/ranking_settings.png "Screenshot ranking settings")
-
-## Studentquiz question plugin
-
-For the best work and for the ranking use [Studentquiz Question Behaviour](https://github.com/frankkoch/moodle-qbehaviour_studentquiz).
-This plugin adds the ability to vote for questions.
 
 
 ## Installation
