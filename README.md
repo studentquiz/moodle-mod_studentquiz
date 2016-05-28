@@ -12,14 +12,11 @@ For more information read the [User-Manuel](manuals/User-Manual.pdf).
 
 ## Installation
 
-The studentquiz activity depends on the quiz activity. (installed by default)
+The Student-Quiz activity depends on the Quiz activity. (installed by default)
 
-Download the zip file from github. Unzip the downloaded file *moodle-mod_studentquiz-master.zip*,
-rename it to *studentquiz* and move it to your *moodle_installation_path/mod/*. Login as 
-an Admin and follow installation instructions. 
+The simplest way to install the Student-Quiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
 
-An other way to install the studentquiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
-Note that the folder name and the zip have to be named *studentquiz*.
+**Important:** The zip and the folder name in the zip have to be named *studentquiz*.
 
 ## License
 
