@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Script for importing questions into the question bank.
+ * moodle core export object extension
  *
- * @package    moodlecore
+ * @package    mod_studentquiz
  * @subpackage questionbank
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -38,7 +38,7 @@ $strexportquestions = get_string('exportquestions', 'question');
 list($catid, $catcontext) = explode(',', $pagevars['cat']);
 $category = $DB->get_record('question_categories', array("id" => $catid, 'contextid' => $catcontext), '*', MUST_EXIST);
 
-/// Header
+// Header
 $PAGE->set_url($thispageurl);
 $PAGE->set_title($strexportquestions);
 $PAGE->set_heading($COURSE->fullname);
@@ -83,7 +83,7 @@ if ($from_form = $export_form->get_data()) {
     exit;
 }
 
-/// Display export form
+// Display export form
 echo $OUTPUT->heading_with_help($strexportquestions, 'exportquestions', 'question');
 
 $export_form->display();

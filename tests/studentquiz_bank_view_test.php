@@ -18,7 +18,6 @@
  * Unit tests for (some of) mod/studentquiz/viewlib.php.
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,36 +29,70 @@ require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/studentquiz
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
+/** @var string question name filter */
 const QUESTION_NAME_FILTER = 'name';
+/** @var string question name operation filter */
 const QUESTION_NAME_OP_FILTER = 'name_op';
+/** @var string tagname filter */
 const QUESTION_TAGNAME_FILTER = 'tagname';
+/** @var string tagname operation filter */
 const QUESTION_TAGNAME_OP_FILTER = 'tagname_op';
+/** @var string vote filter */
 const QUESTION_VOTE_FILTER = 'vote';
+/** @var string vote operation filter */
 const QUESTION_VOTE_OP_FILTER = 'vote_op';
+/** @var string difficultylevel filter */
 const QUESTION_DIFFICULTYLEVEL_FILTER = 'difficultylevel';
+/** @var string diffcultylevel operation filter */
 const QUESTION_DIFFICULTYLEVEL_OP_FILTER = 'difficultylevel_op';
+/** @var string firstname filter */
 const QUESTION_FIRSTNAME_FILTER = 'firstname';
+/** @var string firstname operation filter */
 const QUESTION_FIRSTNAME_OP_FILTER = 'firstname_op';
+/** @var string lastname filter */
 const QUESTION_LASTNAME_FILTER = 'lastname';
+/** @var string lastname operation filter */
 const QUESTION_LASTNAME_OP_FILTER = 'lastname_op';
+/** @var string question default name */
 const QUESTION_DEFAUT_NAME = 'Question';
 
 /**
  * Unit tests for (some of) mod/studentquiz/viewlib.php.
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_bank_view_test extends advanced_testcase {
+    /**
+     * @var course module
+     */
     private $cm;
+    /**
+     * @var course
+     */
     private $course;
+    /**
+     * @var context
+     */
     private $ctx;
+    /**
+     * @var category
+     */
     private $cat;
+    /**
+     * @var question generator
+     */
     private $questiongenerator;
+    /**
+     * @var stundetquiz generator
+     */
     private $studentquizgenerator;
 
+    /**
+     * setup testing
+     * @throws coding_exception
+     */
     protected function setUp() {
         global $DB;
         $user = $this->getDataGenerator()->create_user();
@@ -78,6 +111,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->createRandomQuestions(20, $user->id);
     }
 
+    /**
+     * create random questions
+     * @param $count
+     * @param $userid
+     */
     protected function createRandomQuestions($count, $userid){
         global $DB;
         for($i = 0; $i < $count; ++$i) {
@@ -90,6 +128,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         }
     }
 
+    /**
+     * create question vote
+     * @param $question
+     * @param $userid
+     */
     protected function create_vote($question, $userid) {
         $voterecord = new stdClass();
         $voterecord->vote = 5;
@@ -97,6 +140,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $voterecord->userid = $userid;
     }
 
+    /**
+     * create question comment
+     * @param $question
+     * @param $userid
+     */
     protected function create_comment($question, $userid) {
         $commentrecord = new stdClass();
         $commentrecord->questionid = $question->id;
@@ -105,7 +153,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->studentquizgenerator->create_comment($commentrecord);
     }
 
-
+    /**
+     * test questionbank empty filter
+     */
     public function test_questionbank_empty_filter() {
         global $DB;
         $this->resetAfterTest(true);
@@ -120,6 +170,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->assertEquals(20, count($questionbank->get_questions()));
     }
 
+    /**
+     * test questionbank filter question name
+     */
     public function test_questionbank_filter_question_name() {
         global $DB;
         $this->resetAfterTest(true);
@@ -138,6 +191,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
 
+    /**
+     * test questionbank filter question vote
+     */
     public function test_questionbank_filter_question_vote() {
         global $DB;
         $this->resetAfterTest(true);
@@ -155,6 +211,16 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->assertEquals(20, count($questionbank->get_questions()));
     }
 
+    /**
+     * display question bank
+     * @param $questionbank
+     * @param int $qpage
+     * @param int $qperpage
+     * @param int $recurse
+     * @param int $showhidden
+     * @param int $qbshowtext
+     * @return string
+     */
     protected function displayQb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0){
         $cat =  $this->cat->id ."," .$this->ctx->id;
         $output = '';
@@ -167,6 +233,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         return $output;
     }
 
+    /**
+     * set questionbank filter
+     * @param $which
+     * @param $value
+     */
     protected function setFilter($which, $value) {
         $_POST[$which] = $value;
         $_POST["submitbutton"] = "Filter";

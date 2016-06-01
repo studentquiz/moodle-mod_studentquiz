@@ -16,9 +16,9 @@
 
 
 /**
- * Ajax script to update the contents of the question bank dialogue.
+ * Ajax script to update the contents of the question bank dialogue. extend mod_quiz questionbankajax
  *
- * @package    mod_quiz modified by mod_studentquiz
+ * @package    mod_studentquiz
  * @copyright  2014 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

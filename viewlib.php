@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Back-end code for handling data about selected / created questions and
- * call /mod/quiz to generate quizzes
+ * Back-end code for handling data about selected / created questions and call /mod/quiz to generate quizzes
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -300,10 +298,11 @@ class studentquiz_view {
         return $quiz;
     }
 
-    /***
+    /**
      * Override quiz_add_instance method from quiz lib to call custom quiz_after_add_or_update method,
      * because the user has no permission to call this method.
-     * @param $quiz object
+     * @param $quiz
+     * @return bool|int|void
      */
     private function  quiz_add_instance($quiz) {
         global $DB;
@@ -329,10 +328,10 @@ class studentquiz_view {
         return $quiz->id;
     }
 
-    /***
+    /**
      * Override quiz_after_add_or_update method from quiz lib to prevent quiz_update_events,
      * because the user has no permission to do this.
-     * @param $quiz object
+     * @param $quiz
      */
     private function quiz_after_add_or_update($quiz) {
         global $DB;
@@ -532,9 +531,9 @@ class studentquiz_view {
         return $this->cm->id;
     }
 
-    /*
+    /**
      * get activity category id
-     * @return int
+     * @return mixed
      */
     public function get_category_id() {
         return $this->category->id;
@@ -574,14 +573,21 @@ class studentquiz_view {
 }
 
 /**
- * Class for studentquiz view exceptions. Just saves a couple of arguments on the
- * constructor for a moodle_exception.
+ * Class for studentquiz view exceptions. Just saves a couple of arguments on the constructor for a moodle_exception.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class moodle_studentquiz_view_exception extends moodle_exception {
+    /**
+     * moodle_studentquiz_view_exception constructor.
+     * @param string $view
+     * @param string $errorCode
+     * @param null $a
+     * @param string $link
+     * @param null $debuginfo
+     */
     public function __construct($view, $errorCode, $a = null, $link = '', $debuginfo = null) {
         if (!$link) {
             $link = $view->get_viewurl();

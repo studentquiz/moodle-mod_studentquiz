@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -31,20 +30,33 @@ defined('MOODLE_INTERNAL') || die();
 
 /**
  * The mod_studentquiz report quiz viewed event
- * @package mod_studentquiz\event
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_report_quiz_viewed extends \core\event\base {
 
+    /**
+     * init event
+     */
     protected function init() {
         $this->data['crud'] = 'r';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
         $this->data['objecttable'] = 'studentquiz';
     }
 
+    /**
+     * get description
+     * @return string get description
+     */
     public function get_description() {
         return "On course: {$this->courseid} studentquizid: {$this->objectid} was viewed";
     }
 
+    /**
+     * get url
+     * @return \moodle_url view.php url
+     */
     public function get_url() {
         return new \moodle_url('/mod/studentquiz/reportquiz.php', array('id' => $this->objectid));
     }

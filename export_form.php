@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the export questions form.
+ * Defines the export questions form. extended moodle_core export_form
  *
- * @package    moodlecore
+ * @package    mod_studentquiz
  * @subpackage questionbank
  * @copyright  2007 Jamie Pratt me@jamiep.org
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -37,6 +37,10 @@ require_once($CFG->libdir . '/formslib.php');
  */
 class question_export_form extends moodleform {
 
+    /**
+     * set form data
+     * @throws coding_exception
+     */
     protected function definition() {
         $mform = $this->_form;
 

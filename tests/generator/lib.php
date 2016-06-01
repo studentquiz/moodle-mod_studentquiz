@@ -18,7 +18,6 @@
  * mod_studentquiz data generator
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -28,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
  * mod_studentquiz data generator
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -37,7 +35,15 @@ class mod_studentquiz_generator extends testing_module_generator {
      * @var int keep track of how many studentquiz have been created.
      */
     protected $studentquizcount = 0;
+
+    /**
+     * @var int keep track of how many studentquiz comments have been created.
+     */
     protected $commentcount = 0;
+
+    /**
+     * @var int keep track of how many studentquiz votes have been created.
+     */
     protected $votecount = 0;
 
 
@@ -53,6 +59,12 @@ class mod_studentquiz_generator extends testing_module_generator {
         parent::reset();
     }
 
+    /**
+     * create studentquiz instance
+     * @param null $record
+     * @param array|null $options
+     * @return stdClass
+     */
     public function create_instance($record = null, array $options = null) {
         global $CFG;
         require_once("$CFG->dirroot/mod/studentquiz/locallib.php");
@@ -64,6 +76,11 @@ class mod_studentquiz_generator extends testing_module_generator {
         return parent::create_instance($record, (array)$options);
     }
 
+    /**
+     * create studentquiz comment on question
+     * @param null $record
+     * @return object
+     */
     public function create_comment($record = null) {
         global $DB;
 
@@ -79,6 +96,11 @@ class mod_studentquiz_generator extends testing_module_generator {
         return (object) $record;
     }
 
+    /**
+     * create studentquiz vote on question
+     * @param null $record
+     * @return object
+     */
     public function create_vote($record = null) {
         global $DB;
 

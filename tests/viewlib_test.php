@@ -18,7 +18,6 @@
  * Unit tests for (some of) mod/studentquiz/viewlib.php.
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -32,13 +31,19 @@ require_once($CFG->dirroot . '/mod/studentquiz/viewlib.php');
  * Unit tests for (some of) mod/studentquiz/viewlib.php.
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_viewlib_testcase extends advanced_testcase {
+    /**
+     * @var view lib
+     */
     private $viewlib;
 
+    /**
+     * setup test
+     * @throws coding_exception
+     */
     protected function setUp() {
         global $DB;
         $user = $this->getDataGenerator()->create_user();

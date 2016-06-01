@@ -18,7 +18,6 @@
  * Data generator test
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -30,12 +29,15 @@ defined('MOODLE_INTERNAL') || die();
  * Data generator test
  *
  * @package    mod_studentquiz
- * @category   phpunit
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_generator_testcase extends advanced_testcase {
 
+    /**
+     * test create comment
+     * @throws coding_exception
+     */
     public function test_create_comment() {
         global $DB;
 
@@ -57,6 +59,10 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
         $this->assertEquals($count + 1, $DB->count_records('studentquiz_comment'));
     }
 
+    /**
+     * test create vote
+     * @throws coding_exception
+     */
     public function test_create_vote() {
         global $DB;
 

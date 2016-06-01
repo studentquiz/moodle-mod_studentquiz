@@ -14,25 +14,49 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * The question bank question text row
+ *
+ *
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 namespace mod_studentquiz\bank;
 
 /**
  * A column type for the name of the question name.
  *
- * @copyright  2009 Tim Hunt
+ * @package    mod_studentquiz
+ * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_text_row extends \core_question\bank\row_base {
+    /**
+     * @var string formatoptions
+     */
     protected $formatoptions;
 
+    /**
+     * get the row name
+     * @return string questiontext
+     */
     public function get_name() {
         return 'questiontext';
     }
 
+    /**
+     * override parent function to don't show the title
+     */
     protected function get_title() {
     }
 
+    /**
+     * override parent function to don't show content
+     * @param object $question empty
+     * @param string $rowclasses empty
+     */
     protected function display_content($question, $rowclasses) {
     }
 
@@ -45,10 +69,18 @@ class question_text_row extends \core_question\bank\row_base {
     public function display($question, $rowclasses) {
     }
 
+    /**
+     * get the extra join text
+     * @return array join text
+     */
     public function get_extra_joins() {
         return array('qc' => 'JOIN {question_categories} qc ON qc.id = q.category');
     }
 
+    /**
+     * get required fields
+     * @return array get all required fields
+     */
     public function get_required_fields() {
         return array('q.id', 'q.questiontext', 'q.questiontextformat', 'qc.contextid');
     }

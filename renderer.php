@@ -37,6 +37,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * builds the rank report table
      * @param $report studentquiz_report class with necessary information
      * @return string rank report table
+     * @throws coding_exception
      */
     public function view_rankreport_table($report) {
         $table = new html_table();

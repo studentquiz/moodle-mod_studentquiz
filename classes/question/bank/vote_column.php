@@ -61,6 +61,10 @@ class vote_column extends \core_question\bank\column_base {
         }
     }
 
+    /**
+     * get the left join for voteing
+     * @return array modified select left join
+     */
     public function get_extra_joins() {
         return array('vo' => 'LEFT JOIN ('
         .'SELECT ROUND(SUM(vote)/COUNT(vote), 2) as vote'

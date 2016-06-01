@@ -15,8 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Back-end code for handling data - for the reporting site (rank and quiz)
- * It collects all information together.
+ * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -31,8 +30,7 @@ require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
 require_once($CFG->libdir.'/gradelib.php');
 
 /**
- * Back-end code for handling data - for the reporting site (rank and quiz)
- * It collects all information together.
+ * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -51,7 +49,7 @@ class studentquiz_report {
      * @var context the quiz context.
      */
     protected $context;
-
+    
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param $cmid course_module id
@@ -181,7 +179,8 @@ class studentquiz_report {
     }
 
     /**
-     * @return string pre rendered /mod/quiz/view tables
+     * get quiz tables
+     * @return string rendered /mod/quiz/view tables
      */
     public function get_quiz_tables(){
         global $PAGE, $USER;
@@ -222,6 +221,10 @@ class studentquiz_report {
         ));
     }
 
+    /**
+     * is admin check
+     * @return bool
+     */
     function isAdmin() {
         return mod_check_created_permission();
     }
@@ -270,6 +273,11 @@ class studentquiz_report {
         return $output;
     }
 
+    /**
+     * get quiz information
+     * @param $userid
+     * @return array
+     */
     public function get_quiz_information($userid) {
         $quizinfos = array();
         foreach($this->get_quiz_course_modules($userid) as $cm){

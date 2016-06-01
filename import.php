@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the import questions form.
+ * Defines the import questions form. extend moodlecore import
  *
- * @package    moodlecore
+ * @package    mod_studentquiz
  * @subpackage questionbank
  * @copyright  1999 onwards Martin Dougiamas  {@link http://moodle.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -141,6 +141,6 @@ if ($form = $import_form->get_data()) {
 
 echo $OUTPUT->heading_with_help($txt->importquestions, 'importquestions', 'question');
 
-/// Print upload form
+// Print upload form
 $import_form->display();
 echo $OUTPUT->footer();

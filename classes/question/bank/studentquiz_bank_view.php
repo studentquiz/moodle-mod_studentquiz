@@ -81,7 +81,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param object $course
      * @param null|object $cm
      */
-    public function __construct($contexts, $pageurl, $course, $cm) {
+    public function     __construct($contexts, $pageurl, $course, $cm) {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->set_fields();
         $this->init($pageurl);
@@ -112,6 +112,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     /**
      * initialize filter
      * @param $pageurl moodle_url
+     * @throws \coding_exception missing url param exception
      */
     public function init($pageurl) {
         $this->isfilteractive = false;
@@ -651,6 +652,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $DB->get_recordset_sql($sql, $sqlparams);
     }
 
+    /**
+     * check if show question or not
+     * @param $id question id
+     * @param $count count of question
+     * @return bool question show or not
+     */
     protected function show_question($id, $count) {
 
         $countfiltered = $count;
@@ -864,7 +871,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
             return true;
         }
     }
-    
+
+    /**
+     * get all questions
+     * @return stdClass array of questions
+     */
     public function get_questions() {
         return $this->questions;
     }

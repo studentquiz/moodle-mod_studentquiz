@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the import questions form.
+ * Defines the import questions form. extend moodlecore import_form
  *
- * @package    moodlecore
+ * @package    mod_studentquiz
  * @subpackage questionbank
  * @copyright  2007 Jamie Pratt me@jamiep.org
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -37,6 +37,10 @@ require_once($CFG->libdir . '/formslib.php');
  */
 class question_import_form extends moodleform {
 
+    /**
+     * set form
+     * @throws coding_exception
+     */
     protected function definition() {
         global $COURSE;
         $mform = $this->_form;
@@ -149,6 +153,13 @@ class question_import_form extends moodleform {
         return $errors;
     }
 
+    /**
+     * get error for file upload validation
+     * @param array $data
+     * @param array $files
+     * @return array
+     * @throws moodle_exception
+     */
     public function validation($data, $files) {
         $errors = parent::validation($data, $files);
         $errors = $this->validate_uploaded_file($data, $errors);

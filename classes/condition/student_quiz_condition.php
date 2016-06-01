@@ -41,7 +41,6 @@ class student_quiz_condition extends \core_question\bank\search\category_conditi
     /**
      * Called by question_bank_view to display the GUI for selecting a category
      *
-     * @override Not needed this output
      */
     public function display_options() { }
 
@@ -49,14 +48,12 @@ class student_quiz_condition extends \core_question\bank\search\category_conditi
      * Displays the recursion checkbox GUI.
      * question_bank_view places this within the section that is hidden by default
      *
-     * @override Not needed this output
      */
     public function display_options_adv() { }
 
     /**
      * Display the drop down to select the category.
      *
-     * @override Not needed this output
      *
      * @param array $contexts of contexts that can be accessed from here.
      * @param \moodle_url $pageurl the URL of this page.
