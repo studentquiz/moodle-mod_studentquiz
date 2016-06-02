@@ -27,7 +27,7 @@ require_once(dirname(__FILE__).'/reportlib.php');
 require_once(dirname(__FILE__).'/classes/event/studentquiz_report_rank_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
-if(!$cmid){
+if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 

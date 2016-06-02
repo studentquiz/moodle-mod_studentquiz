@@ -86,6 +86,4 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
         $this->assertEquals($count + 1, $DB->count_records('studentquiz_comment'));
         $this->assertEquals(5, $rec->vote);
     }
-    
-    
 }

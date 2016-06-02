@@ -82,8 +82,9 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $studentquiz->timecreated = time();
 
-    if(!isset($studentquiz->anonymrank))
+    if (!isset($studentquiz->anonymrank)) {
         $studentquiz->anonymrank = 0;
+    }
 
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
@@ -110,11 +111,11 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
         $DB->insert_record('role_capabilities', $obj, false);
     }
 
-    // add default category
-    $question_category = question_make_default_categories(array($context));
-    $question_category->name .= $studentquiz->name;
-    $question_category->parent = $COURSE->category;
-    $DB->update_record('question_categories', $question_category);
+    // Add default category.
+    $questioncategory = question_make_default_categories(array($context));
+    $questioncategory->name .= $studentquiz->name;
+    $questioncategory->parent = $COURSE->category;
+    $DB->update_record('question_categories', $questioncategory);
 
     studentquiz_grade_item_update($studentquiz);
 
@@ -138,8 +139,9 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
     $studentquiz->timemodified = time();
     $studentquiz->id = $studentquiz->instance;
 
-    if(!isset($studentquiz->anonymrank))
+    if (!isset($studentquiz->anonymrank)) {
         $studentquiz->anonymrank = 0;
+    }
 
     // You may have to add extra stuff in here.
 
@@ -469,19 +471,25 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
  * @param cm_info $cm course module information
  */
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    $navref->add(get_string('nav_question_and_quiz', 'studentquiz'), new moodle_url('/mod/studentquiz/view.php?id=' . $cm->id));
-    $report_node = $navref->add(get_string('nav_report', 'studentquiz'));
-    $report_node->add(get_string('nav_report_rank', 'studentquiz'), new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
-    $report_node->add(get_string('nav_report_quiz', 'studentquiz'), new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
+    $navref->add(get_string('nav_question_and_quiz', 'studentquiz')
+        , new moodle_url('/mod/studentquiz/view.php?id=' . $cm->id));
+    $reportnode = $navref->add(get_string('nav_report', 'studentquiz'));
+    $reportnode->add(get_string('nav_report_rank', 'studentquiz')
+        , new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
+    $reportnode->add(get_string('nav_report_quiz', 'studentquiz')
+        , new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
 
     if (mod_check_created_permission()) {
         $context = context_module::instance($cm->id);
         $category = question_get_default_category($context->id);
         $cat = 'cat=' . $category->id . ',' . $context->id;
 
-        $navref->add(get_string('nav_export','studentquiz'), new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
-        $navref->add(get_string('nav_import','studentquiz'), new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
-        $navref->add(get_string('nav_questionbank', 'studentquiz'), new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
+        $navref->add(get_string('nav_export', 'studentquiz')
+            , new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
+        $navref->add(get_string('nav_import', 'studentquiz')
+            , new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
+        $navref->add(get_string('nav_questionbank', 'studentquiz')
+            , new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
     }
 }
 

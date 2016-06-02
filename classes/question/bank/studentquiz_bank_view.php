@@ -94,19 +94,22 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields = array();
 
         $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'), false, 'vote');
-        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), false, 'difficultylevel');
+        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level'
+            , 'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
-
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
-        // question_text_row
         $this->fields[] = new \user_filter_text('questiontext', 'Question content', true, 'questiontext');
         if (is_anonym($this->cm->id) && !check_created_permission()) {
-            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
+            $this->fields[] = new \user_filter_checkbox('createdby'
+                , get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
         } else {
-            $this->fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
-            $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
+            $this->fields[] = new \user_filter_text('firstname'
+                , get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
+            $this->fields[] = new \user_filter_text('lastname'
+                , get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
         }
-        $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
+        $this->fields[] = new \user_filter_date('timecreated'
+            , get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
     }
 
     /**
@@ -130,8 +133,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->setshowmineuserid();
         }
         $this->modify_base_url();
-
-
         $this->filterform = new \question_bank_filter_form(
             $this->fields,
             $pageurl->out(),
@@ -144,65 +145,73 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * modify base url for ordering
      */
     public function modify_base_url() {
-        foreach($this->fields as $field){
-            if(isset($_POST[$field->_name]))
+        foreach ($this->fields as $field) {
+            if (isset($_POST[$field->_name])) {
                 $this->baseurl->param($field->_name, $_POST[$field->_name]);
+            }
 
-            if(isset($_POST[$field->_name . '_op']))
+            if (isset($_POST[$field->_name . '_op'])) {
                 $this->baseurl->param($field->_name . '_op', $_POST[$field->_name . '_op']);
+            }
         }
 
-        if(isset($_POST['timecreated_sdt'])) {
+        if (isset($_POST['timecreated_sdt'])) {
             $this->baseurl->param('timecreated_sdt_day', $_POST['timecreated_sdt']['day']);
             $this->baseurl->param('timecreated_sdt_month', $_POST['timecreated_sdt']['month']);
             $this->baseurl->param('timecreated_sdt_year', $_POST['timecreated_sdt']['year']);
         }
 
-
-        if(isset($_POST['timecreated_edt'])) {
+        if (isset($_POST['timecreated_edt'])) {
             $this->baseurl->param('timecreated_edt_day', $_POST['timecreated_edt']['day']);
             $this->baseurl->param('timecreated_edt_month', $_POST['timecreated_edt']['month']);
             $this->baseurl->param('timecreated_edt_year', $_POST['timecreated_edt']['year']);
         }
-        
-        if(isset($_POST['createdby']))
+
+        if (isset($_POST['createdby'])) {
             $this->baseurl->param('createdby', $_POST['createdby']);
+        }
     }
 
     /**
      * set data for filter recognition
      */
     public function set_order_page_data() {
-        foreach($this->fields as $field){
-            if(isset($_GET[$field->_name]))
+        foreach ($this->fields as $field) {
+            if (isset($_GET[$field->_name])) {
                 $_POST[$field->_name] = $_GET[$field->_name];
+            }
 
-            if(isset($_GET[$field->_name . '_op']))
+            if (isset($_GET[$field->_name . '_op'])) {
                 $_POST[$field->_name . '_op'] = $_GET[$field->_name . '_op'];
+            }
         }
-        if(isset($_GET['timecreated_sdt_day']))
+        if (isset($_GET['timecreated_sdt_day'])) {
             $_POST['timecreated_sdt']['day'] = $_GET['timecreated_sdt_day'];
-
-        if(isset($_GET['timecreated_sdt_month']))
+        }
+        if (isset($_GET['timecreated_sdt_month'])) {
             $_POST['timecreated_sdt']['month'] = $_GET['timecreated_sdt_month'];
-        
-        if(isset($_GET['timecreated_sdt_year']))
+        }
+        if (isset($_GET['timecreated_sdt_year'])) {
             $_POST['timecreated_sdt']['year'] = $_GET['timecreated_sdt_year'];
-        
-        if(isset($_GET['timecreated_edt_day']))
+        }
+        if (isset($_GET['timecreated_edt_day'])) {
             $_POST['timecreated_edt']['day'] = $_GET['timecreated_edt_day'];
-        
-        if(isset($_GET['timecreated_edt_month']))
+        }
+        if (isset($_GET['timecreated_edt_month'])) {
             $_POST['timecreated_edt']['month'] = $_GET['timecreated_edt_month'];
-
-        if(isset($_GET['timecreated_edt_year']))
+        }
+        if (isset($_GET['timecreated_edt_year'])) {
             $_POST['timecreated_edt']['year'] = $_GET['timecreated_edt_year'];
-
-        if (isset($_POST['timecreated_sdt'])) $_POST['timecreated_sdt']['enabled'] = '1';
-        if (isset($_POST['timecreated_edt'])) $_POST['timecreated_edt']['enabled'] = '1';
-
-        if(isset($_GET['createdby']))
+        }
+        if (isset($_POST['timecreated_sdt'])) {
+            $_POST['timecreated_sdt']['enabled'] = '1';
+        }
+        if (isset($_POST['timecreated_edt'])) {
+            $_POST['timecreated_edt']['enabled'] = '1';
+        }
+        if (isset($_GET['createdby'])) {
             $_POST['createdby'] = '1';
+        }
     }
 
     /**
@@ -227,7 +236,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param $showquestiontext
      */
     public function display($tabname, $page, $perpage, $cat,
-                            $recurse, $showhidden, $showquestiontext){
+                            $recurse, $showhidden, $showquestiontext) {
         global $PAGE, $OUTPUT;
 
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
@@ -240,7 +249,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         \core_php_time_limit::raise(300);
         $this->build_query();
 
-        $this->questions = $this->filterQuestions($this->load_questions());
+        $this->questions = $this->filter_questions($this->load_questions());
         $this->totalnumber = count($this->questions);
 
         if ($this->process_actions_needing_ui()) {
@@ -248,16 +257,15 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         echo $OUTPUT->heading($this->cm->name, 2);
-
         $this->create_new_question_form_ext($cat);
-        
-        if($this->hasQuestionsInCategory() || $this->isfilteractive) {
+
+        if ($this->has_questions_in_category() || $this->isfilteractive) {
             echo $this->filterform->render();
         }
 
         echo '<form method="post" action="view.php">';
-        
-        if($this->hasQuestionsInCategory()) {
+
+        if ($this->has_questions_in_category()) {
             $this->create_new_quiz_form();
         }
 
@@ -267,7 +275,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
 
-        if($this->hasQuestionsInCategory()) {
+        if ($this->has_questions_in_category()) {
             $this->create_new_quiz_form();
         }
 
@@ -316,12 +324,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
         }
         $this->sqlparams['filter'] = '';
-        if ($adddata = $this->filterform->get_data()){
-            foreach ($this->filterform->getFields() as $field) {
+        if ($adddata = $this->filterform->get_data()) {
+            foreach ($this->filterform->get_fields() as $field) {
                 $data = $field->check_data($adddata);
 
-                if ($data === false) continue;
-
+                if ($data === false) {
+                    continue;
+                }
 
                 $this->isfilteractive = true;
                 $sqldata = $field->get_sql_filter($data);
@@ -334,18 +343,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     continue;
                 }
 
-                if($field->_name == 'tagname') {
+                if ($field->_name == 'tagname') {
                     $this->tagnamefield = $sqldata;
                     continue;
                 }
 
-                // user_filter_checkbox class has a buggy get_sql_filter function
+                // The user_filter_checkbox class has a buggy get_sql_filter function.
                 if ($field->_name == 'createdby') {
                     $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
                 }
 
                 $sqldata[0] = str_replace ( $field->_name, $this->get_sql_table_prefix($field->_name).$field->_name, $sqldata[0] );
-                $tests[]= '((' . $sqldata[0]  .'))';
+                $tests[] = '((' . $sqldata[0]  .'))';
                 $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
             }
         }
@@ -361,7 +370,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param $name
      * @return string return sql prefix
      */
-    function get_sql_table_prefix($name) {
+    private function get_sql_table_prefix($name) {
         switch($name){
             case 'difficultylevel':
                 return 'dl.';
@@ -379,25 +388,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * has questions in category
      * @return bool
      */
-    function hasQuestionsInCategory() {
+    private function has_questions_in_category() {
         return $this->totalnumber > 0;
     }
 
     /**
      * create new quiz form
      */
-    function create_new_quiz_form() {
+    private function create_new_quiz_form() {
         echo '<div class="createnewquiz">';
         echo '<div class="form-buttons">';
-
-
         echo '<div>';
         echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
-        echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->getFilteredQuestionIds()) ."' />";
-        echo '<input class="form-submit" name="startfilteredquiz" type="submit" value="' . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
+        echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->get_filtered_question_ids()) ."' />";
+        echo '<input class="form-submit" name="startfilteredquiz" type="submit" value="'
+            . get_string('createnewquizfromfilter', 'studentquiz') . '" />';
         echo '<input type="submit" name="startquiz" value="' . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
         echo '</div>';
-
         echo '</div>';
         echo '</div>';
     }
@@ -406,7 +413,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * extends the question form with custom add question button
      * @param $cat question category
      */
-    function create_new_question_form_ext($cat){
+    private function create_new_question_form_ext($cat) {
         $category = $this->get_current_category($cat);
         list($categoryid, $contextid) = explode(',', $cat);
 
@@ -425,9 +432,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $CFG;
         echo '<div class="createnewquestion">';
         $caption = get_string('createnewquestion', 'studentquiz');
-        if(!$this->hasQuestionsInCategory()) {
+        if (!$this->has_questions_in_category()) {
             $caption = get_string('createnewquestionfirst', 'studentquiz');
-        } 
+        }
         if ($canadd) {
             create_new_question_button($category->id, $this->editquestionurl->params(),
                 $caption);
@@ -529,12 +536,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         echo '<div class="categorypagingbarcontainer pagingbottom">';
         echo $OUTPUT->render($pagingbar);
-        if ($this->totalnumber  > DEFAULT_QUESTIONS_PER_PAGE) {
+        if ($this->totalnumber > DEFAULT_QUESTIONS_PER_PAGE) {
             if ($perpage == DEFAULT_QUESTIONS_PER_PAGE) {
                 $url = new \moodle_url('view.php', array_merge($pageurl->params(),
                     array('qperpage' => MAXIMUM_QUESTIONS_PER_PAGE)));
-                if ($this->totalnumber  > MAXIMUM_QUESTIONS_PER_PAGE) {
-                    $showall = '<a href="'.$url.'">'.get_string('showperpage', 'moodle', MAXIMUM_QUESTIONS_PER_PAGE).'</a>';
+                if ($this->totalnumber > MAXIMUM_QUESTIONS_PER_PAGE) {
+                    $showall = '<a href="'.$url.'">'
+                        . get_string('showperpage', 'moodle', MAXIMUM_QUESTIONS_PER_PAGE).'</a>';
                 } else {
                     $showall = '<a href="'.$url.'">'.get_string('showall', 'moodle', $this->totalnumber ).'</a>';
                 }
@@ -556,12 +564,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * get all filtered question ids qith q prefix
      * @return array question ids with q prefix
      */
-    protected function getFilteredQuestionIds(){
-        $questionIds = array();
-        foreach($this->questions as $question) {
-            $questionIds[] = 'q' . $question->id;
+    protected function get_filtered_question_ids() {
+        $questionids = array();
+        foreach ($this->questions as $question) {
+            $questionids[] = 'q' . $question->id;
         }
-        return $questionIds;
+        return $questionids;
     }
 
     /**
@@ -569,13 +577,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param $questions
      * @return array questions
      */
-    protected function filterQuestions($questions) {
+    protected function filter_questions($questions) {
         global $USER;
 
-        $filteredQuestions = array();
-        foreach($questions as $question) {
+        $filteredquestions = array();
+        foreach ($questions as $question) {
             $question->tagname = '';
-             
             if (
                 is_anonym($this->cm->id) &&
                 $question->createdby != $USER->id
@@ -585,25 +592,25 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
 
             $count = $this->get_question_tag_count($question->id);
-            if($count) {
-                foreach($this->get_question_tag($question->id) as $tag) {
+            if ($count) {
+                foreach ($this->get_question_tag($question->id) as $tag) {
                     $question->tagname .= ', '.$tag->name;
                 }
                 $question->tagname = substr($question->tagname, 2);
             }
-            if(!$this->isfilteractive) {
-                $filteredQuestions[] = $question;
+            if (!$this->isfilteractive) {
+                $filteredquestions[] = $question;
             } else {
-                if(isset($this->tagnamefield)) {
-                    if($this->show_question($question->id, $count)) {
-                        $filteredQuestions[] = $question;
+                if (isset($this->tagnamefield)) {
+                    if ($this->show_question($question->id, $count)) {
+                        $filteredquestions[] = $question;
                     }
                 } else {
-                    $filteredQuestions[] = $question;
+                    $filteredquestions[] = $question;
                 }
             }
         }
-        return $filteredQuestions;
+        return $filteredquestions;
     }
 
     /**
@@ -614,10 +621,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @return array questions
      */
     protected function load_page_questions_array($question, $page, $perpage) {
-        if($page * $perpage > count($question)) {
-            $questions =  array_slice ($question , 0, $perpage, true);
+        if ($page * $perpage > count($question)) {
+            $questions = array_slice ($question , 0, $perpage, true);
         } else {
-            $questions =  array_slice ($question , $page * $perpage, $perpage, true);
+            $questions = array_slice ($question , $page * $perpage, $perpage, true);
         }
 
         return $questions;
@@ -664,17 +671,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $count = $this->get_question_tag_count($id, false);
 
         if (strpos($this->tagnamefield[0], 'NOT LIKE') !== false) {
-            if ($count == $countfiltered) return true;
+            if ($count == $countfiltered) {
+                return true;
+            }
             return false;
         }
 
         if (strpos($this->tagnamefield[0], 'LIKE') !== false) {
-            if ($countfiltered > 0) return true;
+            if ($countfiltered > 0) {
+                return true;
+            }
             return false;
         }
 
         if (strpos($this->tagnamefield[0], '=' && $this->tagnamefield[1]['ex_text0']) == '') {
-            if ($count == 0) return true;
+            if ($count == 0) {
+                return true;
+            }
             return false;
         }
 
@@ -691,7 +704,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $sqlparams = array();
 
         $sqlext = '';
-        if(isset($this->tagnamefield)) {
+        if (isset($this->tagnamefield)) {
             $sqlext = str_replace ( 'tagname' , 't.name' , $this->tagnamefield[0]);
             $sqlparams = $this->tagnamefield[1];
 
@@ -704,7 +717,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
             .' ON t.id = ti.tagid'
             .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
 
-        if ($withfilter) $sql .= $sqlext;
+        if ($withfilter) {
+            $sql .= $sqlext;
+        }
 
         $sqlparams['qid'] = $id;
 
@@ -720,8 +735,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
-            . 'preview_action_column,delete_action_column,creator_name_column,' 
-            . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,mod_studentquiz\\bank\\difficulty_level_column';
+            . 'preview_action_column,delete_action_column,creator_name_column,'
+            . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,'
+            . 'mod_studentquiz\\bank\\difficulty_level_column';
 
         return parent::wanted_columns();
     }
@@ -829,7 +845,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     /**
      * (copy from parent class - modified several code snippets)
      * confirmation on process action if needed
-     * @return boolean 
+     * @return boolean
      */
     public function process_actions_needing_ui() {
         global $DB, $OUTPUT;

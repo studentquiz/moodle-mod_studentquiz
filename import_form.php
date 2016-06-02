@@ -53,7 +53,7 @@ class question_import_form extends moodleform {
 
         $fileformatnames = get_import_export_formats('import');
         $radioarray = array();
-        $i = 0 ;
+        $i = 0;
         foreach ($fileformatnames as $shortname => $fileformatname) {
             $currentgrp1 = array();
             $currentgrp1[] = $mform->createElement('radio', 'format', '', $fileformatname, $shortname);
@@ -63,12 +63,12 @@ class question_import_form extends moodleform {
                 $mform->addHelpButton("formathelp[{$i}]", 'pluginname', 'qformat_' . $shortname);
             }
 
-            $i++ ;
+            $i++;
         }
         $mform->addRule("formathelp[0]", null, 'required', null, 'client');
 
         // Import options.
-        $mform->addElement('header','general', get_string('general', 'form'));
+        $mform->addElement('header', 'general', get_string('general', 'form'));
 
         $mform->addElement('questioncategory', 'category', get_string('importcategory', 'question'), compact('contexts'));
         $mform->setDefault('category', $defaultcategory);
@@ -93,7 +93,7 @@ class question_import_form extends moodleform {
         $mform->setDefault('stoponerror', 1);
         $mform->addHelpButton('stoponerror', 'stoponerror', 'question');
 
-        // The file to import
+        // The file to import.
         $mform->addElement('header', 'importfileupload', get_string('importquestions', 'question'));
 
         $mform->addElement('filepicker', 'newfile', get_string('import'));
@@ -102,7 +102,7 @@ class question_import_form extends moodleform {
         // Submit button.
         $mform->addElement('submit', 'submitbutton', get_string('import'));
 
-        // Set a template for the format select elements
+        // Set a template for the format select elements.
         $renderer = $mform->defaultRenderer();
         $template = "{help} {element}\n";
         $renderer->setGroupElementTemplate($template, 'format');
@@ -132,7 +132,7 @@ class question_import_form extends moodleform {
             return $errors;
         }
 
-        $formatfile = $CFG->dirroot . '/question/format/' . $data['format'] . '/format.php'; // path extension
+        $formatfile = $CFG->dirroot . '/question/format/' . $data['format'] . '/format.php'; // Path extension.
         if (!is_readable($formatfile)) {
             throw new moodle_exception('formatnotfound', 'question', '', $data['format']);
         }

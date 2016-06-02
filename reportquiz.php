@@ -27,7 +27,7 @@ require_once(dirname(__FILE__).'/reportlib.php');
 require_once(dirname(__FILE__).'/classes/event/studentquiz_report_quiz_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
-if(!$cmid){
+if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
@@ -49,9 +49,9 @@ $PAGE->set_url($report->get_quizreporturl());
 
 
 echo $OUTPUT->header();
-if($report->isAdmin()){
+if ($report->is_admin()) {
     echo $report->get_quiz_admin_statistic_view();
-}else {
+} else {
     echo $report->get_quiz_tables();
 }
 echo $OUTPUT->footer();

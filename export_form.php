@@ -51,7 +51,7 @@ class question_export_form extends moodleform {
         $mform->addElement('header', 'fileformat', get_string('fileformat', 'question'));
         $fileformatnames = get_import_export_formats('export');
         $radioarray = array();
-        $i = 0 ;
+        $i = 0;
         foreach ($fileformatnames as $shortname => $fileformatname) {
             $currentgrp1 = array();
             $currentgrp1[] = $mform->createElement('radio', 'format', '', $fileformatname, $shortname);
@@ -61,7 +61,7 @@ class question_export_form extends moodleform {
                 $mform->addHelpButton("formathelp[{$i}]", 'pluginname', 'qformat_' . $shortname);
             }
 
-            $i++ ;
+            $i++;
         }
         $mform->addRule("formathelp[0]", null, 'required', null, 'client');
 
@@ -72,7 +72,7 @@ class question_export_form extends moodleform {
         $mform->setDefault('category', $defaultcategory);
         $mform->addHelpButton('category', 'exportcategory', 'question');
 
-        // Set a template for the format select elements
+        // Set a template for the format select elements.
         $renderer = $mform->defaultRenderer();
         $template = "{help} {element}\n";
         $renderer->setGroupElementTemplate($template, 'format');

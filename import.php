@@ -31,15 +31,15 @@ require_once($CFG->dirroot . '/question/format.php');
 require_once(dirname(__FILE__).'/locallib.php');
 global $CFG;
 
-// have to check it manual because moodle does not distinguish between add and import question
+// Have to check it manual because moodle does not distinguish between add and import question.
 if (!mod_check_created_permission()) {
-   print_error('nopermissions', '', '', 'access question edit tab import'); 
+    print_error('nopermissions', '', '', 'access question edit tab import');
 }
 
-list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
-    question_edit_setup('import', '/mod/studentquiz/import.php');
+list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
+    = question_edit_setup('import', '/mod/studentquiz/import.php');
 
-// get display strings
+// Get display strings.
 $txt = new stdClass();
 $txt->importerror = get_string('importerror', 'question');
 $txt->importquestions = get_string('importquestions', 'question');
@@ -51,14 +51,14 @@ if (!$category = $DB->get_record("question_categories", array('id' => $catid))) 
 
 $categorycontext = context::instance_by_id($category->contextid);
 $category->context = $categorycontext;
-//this page can be called without courseid or cmid in which case
-//we get the context from the category object.
-if ($contexts === null) { // need to get the course from the chosen category
+// This page can be called without courseid or cmid in which case.
+// We get the context from the category object.
+if ($contexts === null) { // Need to get the course from the chosen category.
     $contexts = new question_edit_contexts($categorycontext);
     $thiscontext = $contexts->lowest();
-    if ($thiscontext->contextlevel == CONTEXT_COURSE){
+    if ($thiscontext->contextlevel == CONTEXT_COURSE) {
         require_login($thiscontext->instanceid, false);
-    } elseif ($thiscontext->contextlevel == CONTEXT_MODULE){
+    } else if ($thiscontext->contextlevel == CONTEXT_MODULE) {
         list($module, $cm) = get_module_from_cmid($thiscontext->instanceid);
         require_login($cm->course, false, $cm);
     }
@@ -67,36 +67,33 @@ if ($contexts === null) { // need to get the course from the chosen category
 
 $PAGE->set_url($thispageurl);
 
-$import_form = new question_import_form($thispageurl, array('contexts'=>$contexts->having_one_edit_tab_cap('import'),
-    'defaultcategory'=>$pagevars['cat']));
+$importform = new question_import_form($thispageurl, array('contexts' => $contexts->having_one_edit_tab_cap('import'),
+    'defaultcategory' => $pagevars['cat']));
 
-if ($import_form->is_cancelled()){
+if ($importform->is_cancelled()) {
     redirect($thispageurl);
 }
-//==========
-// PAGE HEADER
-//==========
+// PAGE HEADER.
 $PAGE->set_title($txt->importquestions);
 $PAGE->set_heading($COURSE->fullname);
 echo $OUTPUT->header();
 
-// file upload form sumitted
-if ($form = $import_form->get_data()) {
+// File upload form sumitted.
+if ($form = $importform->get_data()) {
 
-    // file checks out ok
+    // File checks out ok.
     $fileisgood = false;
 
-    // work out if this is an uploaded file
-    // or one from the filesarea.
-    $realfilename = $import_form->get_new_filename('newfile');
+    // Work out if this is an uploaded file or one from the filesarea.
+    $realfilename = $importform->get_new_filename('newfile');
 
     $importfile = "{$CFG->tempdir}/questionimport/{$realfilename}";
     make_temp_directory('questionimport');
-    if (!$result = $import_form->save_file('newfile', $importfile, true)) {
+    if (!$result = $importform->save_file('newfile', $importfile, true)) {
         throw new moodle_exception('uploadproblem');
     }
 
-    $formatfile = $CFG->dirroot . '/question/format/' . $form->format . '/format.php'; // path extension
+    $formatfile = $CFG->dirroot . '/question/format/' . $form->format . '/format.php'; // Path extension.
     if (!is_readable($formatfile)) {
         throw new moodle_exception('formatnotfound', 'question', '', $form->format);
     }
@@ -106,7 +103,7 @@ if ($form = $import_form->get_data()) {
     $classname = 'qformat_' . $form->format;
     $qformat = new $classname();
 
-    // load data into class
+    // Load data into class.
     $qformat->setCategory($category);
     $qformat->setContexts($contexts->having_one_edit_tab_cap('import'));
     $qformat->setCourse($COURSE);
@@ -117,30 +114,30 @@ if ($form = $import_form->get_data()) {
     $qformat->setContextfromfile(!empty($form->contextfromfile));
     $qformat->setStoponerror($form->stoponerror);
 
-    // Do anything before that we need to
+    // Do anything before that we need to.
     if (!$qformat->importpreprocess()) {
         print_error('cannotimport', '', $thispageurl->out());
     }
 
-    // Process the uploaded file
+    // Process the uploaded file.
     if (!$qformat->importprocess($category)) {
         print_error('cannotimport', '', $thispageurl->out());
     }
 
-    // In case anything needs to be done after
+    // In case anything needs to be done after.
     if (!$qformat->importpostprocess()) {
         print_error('cannotimport', '', $thispageurl->out());
     }
 
     $params = $thispageurl->params() + array(
             'category' => $qformat->category->id . ',' . $qformat->category->contextid);
-    echo $OUTPUT->continue_button(new moodle_url('view.php', $params)); //change url
+    echo $OUTPUT->continue_button(new moodle_url('view.php', $params)); // Change url.
     echo $OUTPUT->footer();
     exit;
 }
 
 echo $OUTPUT->heading_with_help($txt->importquestions, 'importquestions', 'question');
 
-// Print upload form
-$import_form->display();
+// Print upload form.
+$importform->display();
 echo $OUTPUT->footer();

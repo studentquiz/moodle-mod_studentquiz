@@ -26,35 +26,35 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
-        'studentquiz/ratingsettings', 
+        'studentquiz/ratingsettings',
         get_string('rankingsettingsheader', 'studentquiz'), '')
     );
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_add_question_quantifier', 
+        'studentquiz_add_question_quantifier',
         get_string('settings_add_q_quantifier', 'studentquiz'),
-        get_string('config_add_q_quantifier', 'studentquiz'), 
+        get_string('config_add_q_quantifier', 'studentquiz'),
         10, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_vote_quantifier', 
+        'studentquiz_vote_quantifier',
         get_string('settings_vote_quantifier', 'studentquiz'),
-        get_string('config_vote_quantifier', 'studentquiz'), 
+        get_string('config_vote_quantifier', 'studentquiz'),
         2, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_correct_answered_question_quantifier', 
+        'studentquiz_correct_answered_question_quantifier',
         get_string('settings_correct_answered_q_quantifier', 'studentquiz'),
-        get_string('config_correct_answered_q_quantifier', 'studentquiz'), 
+        get_string('config_correct_answered_q_quantifier', 'studentquiz'),
         2, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_incorrect_answered_question_quantifier', 
+        'studentquiz_incorrect_answered_question_quantifier',
         get_string('settings_incorrect_answered_q_quantifier', 'studentquiz'),
-        get_string('config_incorrect_answered_q_quantifier', 'studentquiz'), 
+        get_string('config_incorrect_answered_q_quantifier', 'studentquiz'),
         0, PARAM_INT
     ));
 }

@@ -41,7 +41,7 @@ class question_bank_filter_form extends moodleform {
 
     /**
      * filter fields of question bank
-     * @var array 
+     * @var array
      */
     private $fields;
 
@@ -60,7 +60,8 @@ class question_bank_filter_form extends moodleform {
      * @param mixed $attributes you can pass a string of html attributes here or an array.
      * @param bool $editable
      */
-    public function __construct($fields, $action=null, $customdata=null, $method='post', $target='', $attributes=null, $editable=true) {
+    public function __construct($fields, $action=null, $customdata=null, $method='post', $target='', $attributes=null,
+                                $editable=true) {
         $this->_customdata = $customdata;
         $this->fields = $fields;
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
@@ -68,9 +69,9 @@ class question_bank_filter_form extends moodleform {
 
     /**
      * get fields
-     * @return array fields filter 
+     * @return array fields filter
      */
-    public function getFields() {
+    public function get_fields() {
         return $this->fields;
     }
 
@@ -83,7 +84,7 @@ class question_bank_filter_form extends moodleform {
         $mform = $this->_form;
         $mform->addElement('header', 'looking for freedom', get_string('filter', 'studentquiz'));
 
-        foreach($this->fields as $field) {
+        foreach ($this->fields as $field) {
             $field->setupForm($mform);
         }
 
@@ -102,28 +103,22 @@ class question_bank_filter_form extends moodleform {
     public function set_defaults() {
         $submission = array();
         foreach ($this->fields as $field) {
-            if(isset($_POST[$field->_name])) {
+            if (isset($_POST[$field->_name])) {
                 $submission[$field->_name] = $_POST[$field->_name];
             }
-
-
-            if(isset($_POST[$field->_name . '_op'])) {
+            if (isset($_POST[$field->_name . '_op'])) {
                 $submission[$field->_name . '_op'] = $_POST[$field->_name . '_op'];
             }
         }
-        
-        if(isset($_POST['timecreated_sdt'])) {
+        if (isset($_POST['timecreated_sdt'])) {
             $submission['timecreated_sdt'] = $_POST['timecreated_sdt'];
         }
-
-        if(isset($_POST['timecreated_edt'])) {
+        if (isset($_POST['timecreated_edt'])) {
             $submission['timecreated_edt'] = $_POST['timecreated_edt'];
         }
-        
-        if(isset($_POST['createdby'])) {
+        if (isset($_POST['createdby'])) {
             $submission['createdby'] = $_POST['createdby'];
         }
-
         $this->_form->updateSubmission($submission, array());
     }
 }
@@ -137,7 +132,6 @@ class question_bank_filter_form extends moodleform {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user_filter_number extends user_filter_text {
-    
     /**
      * Returns an array of comparison operators
      * @return array of comparison operators
@@ -155,8 +149,7 @@ class user_filter_number extends user_filter_text {
     public function get_sql_filter($data) {
         global $DB;
         static $counter = 0;
-        $name = 'ex_text_vo'.$counter++;    
-
+        $name = 'ex_text_vo'.$counter++;
         $operator = $data['operator'];
         $value    = $data['value'];
         $field    = $this->_name;
@@ -168,11 +161,11 @@ class user_filter_number extends user_filter_text {
         }
 
         switch($operator) {
-            case 0: // higher.
+            case 0: // Higher.
                 $res = $field . "> :$name";
                 $params[$name] = $value;
                 break;
-            case 1: // lower.
+            case 1: // Lower.
                 $res = $field . "< :$name";
                 $params[$name] = $value;
                 break;

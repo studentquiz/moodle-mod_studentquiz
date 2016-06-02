@@ -100,7 +100,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id, $studentrole->id);
 
-        $studentquiz = $this->getDataGenerator()->create_module('studentquiz', array('course' => $this->course->id),  array('anonymrank' => true));
+        $studentquiz = $this->getDataGenerator()->create_module('studentquiz', array('course' => $this->course->id)
+            ,  array('anonymrank' => true));
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -108,7 +109,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->cat = $this->questiongenerator->create_question_category($this->ctx);
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
 
-        $this->createRandomQuestions(20, $user->id);
+        $this->create_random_questions(20, $user->id);
     }
 
     /**
@@ -116,9 +117,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * @param $count
      * @param $userid
      */
-    protected function createRandomQuestions($count, $userid){
+    protected function create_random_questions($count, $userid) {
         global $DB;
-        for($i = 0; $i < $count; ++$i) {
+        for ($i = 0; $i < $count; ++$i) {
             $question = $this->questiongenerator->create_question('description', null, array('category' => $this->cat->id));
             $question->name = QUESTION_DEFAUT_NAME . ' ' . $i;
             $DB->update_record('question', $question);
@@ -166,7 +167,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
             , $this->course
             , $this->cm);
 
-        $this->displayQb($questionbank);
+        $this->displayqb($questionbank);
         $this->assertEquals(20, count($questionbank->get_questions()));
     }
 
@@ -177,8 +178,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
 
-        $this->setFilter(QUESTION_NAME_FILTER, 'Question 1');
-        $this->setFilter(QUESTION_NAME_OP_FILTER, '0');
+        $this->set_filter(QUESTION_NAME_FILTER, 'Question 1');
+        $this->set_filter(QUESTION_NAME_OP_FILTER, '0');
 
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             new question_edit_contexts(context_module::instance($this->cm->id))
@@ -186,7 +187,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
             , $this->course
             , $this->cm);
 
-        $this->displayQb($questionbank);
+        $this->displayqb($questionbank);
         $this->assertEquals(11, count($questionbank->get_questions()));
     }
 
@@ -198,16 +199,13 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         global $DB;
         $this->resetAfterTest(true);
 
-        //$this->setFilter(QUESTION_VOTE_FILTER, '4.9');
-        //$this->setFilter(QUESTION_VOTE_OP_FILTER, '0');
-
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             new question_edit_contexts(context_module::instance($this->cm->id))
             , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
             , $this->course
             , $this->cm);
 
-        $this->displayQb($questionbank);
+        $this->displayqb($questionbank);
         $this->assertEquals(20, count($questionbank->get_questions()));
     }
 
@@ -221,8 +219,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * @param int $qbshowtext
      * @return string
      */
-    protected function displayQb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0){
-        $cat =  $this->cat->id ."," .$this->ctx->id;
+    protected function displayqb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
+        $cat = $this->cat->id . "," . $this->ctx->id;
         $output = '';
         ob_start();
         $questionbank->display('questions', $qpage, $qperpage,
@@ -238,7 +236,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * @param $which
      * @param $value
      */
-    protected function setFilter($which, $value) {
+    protected function set_filter($which, $value) {
         $_POST[$which] = $value;
         $_POST["submitbutton"] = "Filter";
     }

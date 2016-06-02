@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Representing vote column 
+ * Representing vote column
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -34,7 +34,7 @@ class vote_column extends \core_question\bank\column_base {
 
     /**
      * get column name
-     * @return string column name 
+     * @return string column name
      */
     public function get_name() {
         return 'votes';
@@ -42,7 +42,7 @@ class vote_column extends \core_question\bank\column_base {
 
     /**
      * get title
-     * @return string column title 
+     * @return string column title
      */
     protected function get_title() {
         return get_string('vote_column_name', 'studentquiz');
@@ -51,7 +51,7 @@ class vote_column extends \core_question\bank\column_base {
     /**
      * default display column content
      * @param  stdClass $question Questionbank from database
-     * @param  string $rowclasses 
+     * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->vote)) {
@@ -73,7 +73,7 @@ class vote_column extends \core_question\bank\column_base {
 
     /**
      * get sql query join for this column
-     * @return array sql query join additional 
+     * @return array sql query join additional
      */
     public function get_required_fields() {
         return array('vo.vote');
@@ -81,7 +81,7 @@ class vote_column extends \core_question\bank\column_base {
 
     /**
      * get sql sortable name
-     * @return string field name 
+     * @return string field name
      */
     public function is_sortable() {
         return 'vo.vote';

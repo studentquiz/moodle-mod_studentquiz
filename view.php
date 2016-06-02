@@ -15,7 +15,10 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page is the entry page into the studentquiz UI. Displays information about the questions to students and teachers, and lets students to generate new quizzes or add questions.
+ * This page is the entry page into the studentquiz UI.
+ *
+ * Displays information about the questions to students and teachers,
+ * and lets students to generate new quizzes or add questions.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -27,7 +30,7 @@ require_once(dirname(__FILE__) . '/viewlib.php');
 require_once(dirname(__FILE__).'/classes/event/studentquiz_questionbank_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
-if(!$cmid){
+if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
@@ -42,14 +45,14 @@ $event = \mod_studentquiz\event\studentquiz_questionbank_viewed::create($params)
 $event->trigger();
 
 if (data_submitted()) {
-    if(optional_param('startquiz', null, PARAM_BOOL)){
-        if($quizmid = $view->generate_quiz_with_selected_ids((array) data_submitted())){
+    if (optional_param('startquiz', null, PARAM_BOOL)) {
+        if ($quizmid = $view->generate_quiz_with_selected_ids((array) data_submitted())) {
             redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
         }
     }
-    if(optional_param('startfilteredquiz', null, PARAM_RAW)){
+    if (optional_param('startfilteredquiz', null, PARAM_RAW)) {
         $ids = required_param('filtered_question_ids', PARAM_RAW);
-        if($quizmid = $view->generate_quiz_with_filtered_ids($ids)){
+        if ($quizmid = $view->generate_quiz_with_filtered_ids($ids)) {
             redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
         }
     }

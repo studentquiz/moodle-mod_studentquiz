@@ -91,9 +91,9 @@ class studentquiz_view {
      * @return bool|int generated quiz course_module id or false on error
      */
     private function generate_quiz($ids) {
-        if($ids) {
+        if ($ids) {
             $this->hasquestionids = true;
-            if(!$qcmid = $this->generate_quiz_activity($ids)) {
+            if (!$qcmid = $this->generate_quiz_activity($ids)) {
                 $this->hasprintableerror = true;
                 $this->errormessage = get_string('viewlib_please_contact_the_admin', 'studentquiz');
                 return false;
@@ -118,9 +118,9 @@ class studentquiz_view {
 
         $this->set_course_section_information($quiz->course, $quiz->coursemodule);
 
-        $quiz->instance =  $this->quiz_add_instance($quiz);
+        $quiz->instance = $this->quiz_add_instance($quiz);
 
-        foreach($ids as $key){
+        foreach ($ids as $key) {
             quiz_add_quiz_question($key, $quiz, 0);
             quiz_update_sumgrades($quiz);
             quiz_set_grade($quiz->sumgrades, $quiz);
@@ -143,7 +143,7 @@ class studentquiz_view {
         $quizpractice->studentquizcoursemodule = $this->get_cm_id();
         $quizpractice->userid = $USER->id;
 
-        $DB->insert_record('studentquiz_practice',$quizpractice);
+        $DB->insert_record('studentquiz_practice', $quizpractice);
     }
 
     /**
@@ -151,11 +151,11 @@ class studentquiz_view {
      * @param $courseid destination course id
      * @param $coursemoudleid quiz course_module id
      */
-    private function set_course_section_information($courseid, $coursemoudleid){
+    private function set_course_section_information($courseid, $coursemoudleid) {
         global $DB;
         $coursesection = $this->get_course_section();
 
-        if(!$coursesection) {
+        if (!$coursesection) {
             $coursesectionid = $this->create_course_section($courseid);
             $sequence = array();
         } else {
@@ -165,7 +165,6 @@ class studentquiz_view {
 
         $sequence[] = $coursemoudleid;
         sort($sequence);
-
 
         $DB->set_field('course_modules', 'section', $coursesectionid, array('id' => $coursemoudleid));
         $DB->set_field('course_sections', 'sequence', implode(',', $sequence), array('id' => $coursesectionid));
@@ -186,7 +185,7 @@ class studentquiz_view {
         $coursesection->summaryformat = COURSE_SECTION_SUMMARYFORMAT;
         $coursesection->visible = COURSE_SECTION_VISIBLE;
 
-        return $DB->insert_record('course_sections',$coursesection);
+        return $DB->insert_record('course_sections', $coursesection);
     }
 
     /**
@@ -203,7 +202,7 @@ class studentquiz_view {
      * @param $courseid destination course id
      * @return bool|int course_modules id or false on error
      */
-    private function create_quiz_course_module($courseid){
+    private function create_quiz_course_module($courseid) {
         global $DB;
         $moduleid = get_quiz_module_id();
         $qcm = new stdClass();
@@ -211,7 +210,7 @@ class studentquiz_view {
         $qcm->module = $moduleid;
         $qcm->instance = 0;
 
-        return $DB->insert_record('course_modules',$qcm);
+        return $DB->insert_record('course_modules', $qcm);
     }
 
     /**
@@ -239,43 +238,43 @@ class studentquiz_view {
         $quiz->decimalpoints = 2;
         $quiz->questiondecimalpoints = -1;
 
-        //reviewattempt
+        // Reviewattempt.
         $quiz->attemptduring = 1;
         $quiz->attemptimmediately = 1;
         $quiz->attemptopen = 1;
-        $quiz->attemptclosed =1;
+        $quiz->attemptclosed = 1;
 
-        //reviewcorrectness
+        // Reviewcorrectness.
         $quiz->correctnessduring = 1;
         $quiz->correctnessimmediately = 1;
         $quiz->correctnessopen = 1;
         $quiz->correctnessclosed = 1;
 
-        //reviewmarks
+        // Reviewmarks.
         $quiz->marksduring = 1;
         $quiz->marksimmediately = 1;
         $quiz->marksopen = 1;
         $quiz->marksclosed = 1;
 
-        //reviewspecificfeedback
+        // Reviewspecificfeedback.
         $quiz->specificfeedbackduring = 1;
         $quiz->specificfeedbackimmediately = 1;
         $quiz->specificfeedbackopen = 1;
         $quiz->specificfeedbackclosed = 1;
 
-        //reviewgeneralfeedback
+        // Reviewgeneralfeedback.
         $quiz->generalfeedbackduring = 1;
         $quiz->generalfeedbackimmediately = 1;
         $quiz->generalfeedbackopen = 1;
         $quiz->generalfeedbackclosed = 1;
 
-        //reviewrightanswer
+        // Reviewrightanswer.
         $quiz->rightanswerduring = 1;
         $quiz->rightanswerimmediately = 1;
         $quiz->rightansweropen = 1;
-        $quiz-> rightanswerclosed = 1;
+        $quiz->rightanswerclosed = 1;
 
-        //reviewoverallfeedback
+        // Reviewoverallfeedback.
         $quiz->overallfeedbackimmediately = 1;
         $quiz->overallfeedbackopen = 1;
         $quiz->overallfeedbackclosed = 1;
@@ -338,7 +337,7 @@ class studentquiz_view {
         $cmid = $quiz->coursemodule;
 
         // We need to use context now, so we need to make sure all needed info is already in db.
-        $DB->set_field('course_modules', 'instance', $quiz->id, array('id'=>$cmid));
+        $DB->set_field('course_modules', 'instance', $quiz->id, array('id' => $cmid));
         $context = context_module::instance($cmid);
 
         // Save the feedback.
@@ -364,7 +363,7 @@ class studentquiz_view {
         quiz_access_manager::save_settings($quiz);
 
         // Update the events relating to this quiz.
-        //quiz_update_events($quiz); no permission
+        // Function quiz_update_events($quiz); no permission.
 
         // Update related grade item.
         quiz_grade_item_update($quiz);
@@ -378,7 +377,7 @@ class studentquiz_view {
     public function generate_quiz_with_filtered_ids($ids) {
         $tmp = explode(',', $ids);
         $ids = array();
-        foreach($tmp as $id) {
+        foreach ($tmp as $id) {
             $ids[$id] = 1;
         }
 
@@ -398,23 +397,24 @@ class studentquiz_view {
      * shows the question custom bank view
      */
     public function show_questionbank() {
-        //workaround to get permission to use questionbank
+        // Workaround to get permission to use questionbank.
         $_GET['cmid'] = $this->get_cm_id();
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
 
-        //hide question text
+        // Hide question text.
         $_GET["qbshowtext"] = 0;
 
-        list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars) =
-            question_edit_setup('questions', '/mod/studentquiz/view.php', true, false);
+        list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
+            = question_edit_setup('questions', '/mod/studentquiz/view.php', true, false);
 
         $this->pageurl = new moodle_url($thispageurl);
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
         }
-        $this->qbpagevar = $pagevars;        
+        $this->qbpagevar = $pagevars;
 
-        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl, $this->course, $this->cm);
+        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts
+            , $thispageurl, $this->course, $this->cm);
         $this->questionbank->process_actions();
     }
 
@@ -439,11 +439,13 @@ class studentquiz_view {
      * @return array|bool ids or false on empty array
      */
     private function get_question_ids($rawdata) {
-        if(!isset($rawdata)&& empty($rawdata)) return false;
+        if (!isset($rawdata)&& empty($rawdata)) {
+            return false;
+        }
 
         $ids = $this->get_prefixed_question_ids($rawdata);
 
-        if(!count($ids)) {
+        if (!count($ids)) {
             return false;
         }
 
@@ -454,7 +456,7 @@ class studentquiz_view {
      * has question ids set
      * @return bool
      */
-    public function has_questiond_ids(){
+    public function has_question_ids() {
         return $this->hasquestionids;
     }
 
@@ -583,15 +585,15 @@ class moodle_studentquiz_view_exception extends moodle_exception {
     /**
      * moodle_studentquiz_view_exception constructor.
      * @param string $view
-     * @param string $errorCode
+     * @param string $errorcode
      * @param null $a
      * @param string $link
      * @param null $debuginfo
      */
-    public function __construct($view, $errorCode, $a = null, $link = '', $debuginfo = null) {
+    public function __construct($view, $errorcode, $a = null, $link = '', $debuginfo = null) {
         if (!$link) {
             $link = $view->get_viewurl();
         }
-        parent::__construct($errorCode, 'studentquiz', $link, $a, $debuginfo);
+        parent::__construct($errorcode, 'studentquiz', $link, $a, $debuginfo);
     }
 }

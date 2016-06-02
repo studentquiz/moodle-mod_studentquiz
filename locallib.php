@@ -52,10 +52,10 @@ const DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
 /**
  * checks whether the studentquiz behaviour exists
- * 
+ *
  * @return bool
  */
-function has_studentquiz_behaviour(){
+function has_studentquiz_behaviour() {
     $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
     return array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours);
@@ -64,9 +64,8 @@ function has_studentquiz_behaviour(){
 
 /**
  * Returns behaviour option from the course module with fallback
- * 
- * 
- * @param  stdClass $cm 
+ *
+ * @param  stdClass $cm
  * @return string quiz behaviour
  */
 function get_current_behaviour($cm=null) {
@@ -75,14 +74,16 @@ function get_current_behaviour($cm=null) {
     $default = DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR;
     $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
-    if(array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
+    if (array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
         $default = STUDENTQUIZ_BEHAVIOUR;
     }
 
-    if(isset($cm)){
+    if (isset($cm)) {
         $rec = $DB->get_record('studentquiz', array('id' => $cm->instance), 'quizpracticebehaviour');
 
-        if(!$rec) return $default;
+        if (!$rec) {
+            return $default;
+        }
 
         return $rec->quizpracticebehaviour;
     } else {
@@ -92,11 +93,11 @@ function get_current_behaviour($cm=null) {
 
 /**
  * returns quiz module id
- * @return int 
+ * @return int
  */
 function get_quiz_module_id() {
     global $DB;
-    return $DB->get_field('modules', 'id', array('name'=>'quiz'));
+    return $DB->get_field('modules', 'id', array('name' => 'quiz'));
 }
 
 /**
@@ -108,30 +109,32 @@ function mod_check_created_permission() {
 
     $admins = get_admins();
     foreach ($admins as $admin) {
-        if($USER->id == $admin->id) {
+        if ($USER->id == $admin->id) {
             return true;
         }
     }
-    // 1 Manager, 2, Course creator, 3 editing Teacher
-    return user_has_role_assignment($USER->id,1) ||
-        user_has_role_assignment($USER->id,2) ||
-        user_has_role_assignment($USER->id,3);
+    // 1 Manager, 2, Course creator, 3 editing Teacher.
+    return user_has_role_assignment($USER->id, 1) ||
+        user_has_role_assignment($USER->id, 2) ||
+        user_has_role_assignment($USER->id, 3);
 }
 
 /**
  * checks if activity is anonym or not
  * @param  int  $cmid course module id
- * @return boolean       
+ * @return boolean
  */
 function is_anonym($cmid) {
     global $DB;
 
-    if (mod_check_created_permission()) return 0;
+    if (mod_check_created_permission()) {
+        return 0;
+    }
 
     $field = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $cmid));
     if ($field !== false) {
         return intval($field);
     }
-    // if the dont found an entry better set it anonym
+    // If the dont found an entry better set it anonym.
     return 1;
 }

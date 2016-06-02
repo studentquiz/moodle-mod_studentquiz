@@ -42,14 +42,18 @@ class student_quiz_condition extends \core_question\bank\search\category_conditi
      * Called by question_bank_view to display the GUI for selecting a category
      *
      */
-    public function display_options() { }
+    public function display_options() {
+
+    }
 
     /**
      * Displays the recursion checkbox GUI.
      * question_bank_view places this within the section that is hidden by default
      *
      */
-    public function display_options_adv() { }
+    public function display_options_adv() {
+
+    }
 
     /**
      * Display the drop down to select the category.
@@ -59,5 +63,6 @@ class student_quiz_condition extends \core_question\bank\search\category_conditi
      * @param \moodle_url $pageurl the URL of this page.
      * @param string $current 'categoryID,contextID'.
      */
-    protected function display_category_form($contexts, $pageurl, $current) { }
+    protected function display_category_form($contexts, $pageurl, $current) {
+    }
 }

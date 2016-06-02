@@ -67,8 +67,8 @@ $string['no_tags'] = 'no tags';
 $string['no_votes'] = 'no ratings';
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
-         
-//filters
+
+// Filters.
 $string['filter_label_search'] = 'Search';
 $string['filter_label_question'] = 'Question title';
 $string['filter_label_firstname'] = 'Firstname';
@@ -82,7 +82,7 @@ $string['filter_islower'] = 'Is lower';
 $string['filter_label_show_mine'] = 'Show my questions';
 $string['filter'] = 'Filter';
 
-//admin settings
+// Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';
 $string['settings_add_q_quantifier'] = 'Points for each question created';
 $string['config_add_q_quantifier'] = 'Points received for the creation of a new question.';
@@ -93,7 +93,7 @@ $string['config_correct_answered_q_quantifier'] = 'Points received for answering
 $string['settings_incorrect_answered_q_quantifier'] = 'Points for each wrong answer';
 $string['config_incorrect_answered_q_quantifier'] = 'Points received for answering a question wrongly.';
 
-//report quiz
+// Report quiz.
 $string['reportquiz_total_title'] = 'Total';
 $string['reportquiz_total_attempt'] = 'Number of attempts';
 $string['reportquiz_total_questions_answered'] = 'Answered questions';
@@ -104,7 +104,7 @@ $string['reportquiz_summary_title'] = 'Quiz summaries';
 $string['reportquiz_total_users'] = 'Participant count';
 $string['reportquiz_admin_title'] = 'Detailed statistic';
 
-//report quiz admin section
+// Report quiz admin section.
 $string['reportquiz_admin_total_title'] = 'Overall total';
 $string['reportquiz_admin_quizzes_title'] = 'Created quizzes';
 $string['reportquiz_admin_quizzes_table_column_quizname'] = 'Quiz name';
@@ -112,22 +112,17 @@ $string['reportquiz_admin_quizzes_table_column_qbehaviour'] = 'Quiz behaviour';
 $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Created';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link to quiz';
 
-
-
-
-//report rank
+// Report rank.
 $string['reportrank_title'] = 'User ranking';
 $string['reportrank_table_title'] = '- Ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';
 
-//view
+// View.
 $string['viewlib_please_select_question'] = 'Please select a question.';
 $string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
 
-//permission
+// Permission.
 $string['studentquiz:submit'] = 'Submit on studentquiz';
 $string['studentquiz:view'] = 'View studentquiz';
-
-

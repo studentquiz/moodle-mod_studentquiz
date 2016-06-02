@@ -49,7 +49,6 @@ class studentquiz_report {
      * @var context the quiz context.
      */
     protected $context;
-    
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param $cmid course_module id
@@ -175,16 +174,16 @@ class studentquiz_report {
 
         return $DB->get_records_sql($sql, array(
             'userid' => $userid
-        ,'studentquizcoursemodule' => $this->cm->id));
+            , 'studentquizcoursemodule' => $this->cm->id));
     }
 
     /**
      * get quiz tables
      * @return string rendered /mod/quiz/view tables
      */
-    public function get_quiz_tables(){
+    public function get_quiz_tables() {
         global $PAGE, $USER;
-        $report_renderer= $PAGE->get_renderer('mod_studentquiz');
+        $reportrenderer = $PAGE->get_renderer('mod_studentquiz');
 
         $total = new stdClass();
         $total->numattempts = 0;
@@ -192,11 +191,11 @@ class studentquiz_report {
         $total->questionsright = 0;
         $total->questionsanswered = 0;
 
-        $output_summaries = $this->get_user_quiz_summary($USER->id, $total);
+        $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
 
-        $output = $report_renderer->view_quizreport_total($total);
-        $output .= $report_renderer->view_quizreport_summary();
-        $output .= $output_summaries;
+        $output = $reportrenderer->view_quizreport_total($total);
+        $output .= $reportrenderer->view_quizreport_summary();
+        $output .= $outputsummaries;
 
         return $output;
     }
@@ -225,7 +224,7 @@ class studentquiz_report {
      * is admin check
      * @return bool
      */
-    function isAdmin() {
+    public function is_admin() {
         return mod_check_created_permission();
     }
 
@@ -233,21 +232,20 @@ class studentquiz_report {
      * get quiz admin statistic view
      * @return string pre rendered /mod/stundentquiz view_quizreport_table
      */
-    public function get_quiz_admin_statistic_view(){
+    public function get_quiz_admin_statistic_view() {
         global $PAGE, $USER;
-        $report_renderer= $PAGE->get_renderer('mod_studentquiz');
+        $reportrenderer = $PAGE->get_renderer('mod_studentquiz');
 
-
-        $overall_total = new stdClass();
-        $overall_total->numattempts = 0;
-        $overall_total->obtainedmarks = 0;
-        $overall_total->questionsright = 0;
-        $overall_total->questionsanswered = 0;
+        $overalltotal = new stdClass();
+        $overalltotal->numattempts = 0;
+        $overalltotal->obtainedmarks = 0;
+        $overalltotal->questionsright = 0;
+        $overalltotal->questionsanswered = 0;
         $usersdata = array();
 
         $users = $this->get_all_users_in_course($this->course->id);
-        $overall_total->usercount = count($users);
-        foreach($users as $user){
+        $overalltotal->usercount = count($users);
+        foreach ($users as $user) {
             $total = new stdClass();
             $total->numattempts = 0;
             $total->obtainedmarks = 0;
@@ -255,20 +253,20 @@ class studentquiz_report {
             $total->questionsanswered = 0;
             $this->get_user_quiz_summary($user->userid, $total);
 
-            $overall_total->numattempts += $total->numattempts;
-            $overall_total->obtainedmarks += $total->obtainedmarks;
-            $overall_total->questionsright += $total->questionsright;
-            $overall_total->questionsanswered += $total->questionsanswered;
+            $overalltotal->numattempts += $total->numattempts;
+            $overalltotal->obtainedmarks += $total->obtainedmarks;
+            $overalltotal->questionsright += $total->questionsright;
+            $overalltotal->questionsanswered += $total->questionsanswered;
 
             $total->name = $user->firstname . ' ' . $user->lastname;
             $total->id = $user->userid;
             $usersdata[] = $total;
         }
 
-        $output = $report_renderer->view_quizreport_total($overall_total, true);
-        $output .= $report_renderer->view_quizreport_table($this, $usersdata);
+        $output = $reportrenderer->view_quizreport_total($overalltotal, true);
+        $output .= $reportrenderer->view_quizreport_table($this, $usersdata);
 
-        $output .= $report_renderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
+        $output .= $reportrenderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
 
         return $output;
     }
@@ -280,7 +278,7 @@ class studentquiz_report {
      */
     public function get_quiz_information($userid) {
         $quizinfos = array();
-        foreach($this->get_quiz_course_modules($userid) as $cm){
+        foreach ($this->get_quiz_course_modules($userid) as $cm) {
             $quizobj = quiz::create($cm->instance, $userid);
             $quiz = $quizobj->get_quiz();
             $quizinfos[] = $quiz;
@@ -297,10 +295,10 @@ class studentquiz_report {
      */
     public function get_user_quiz_summary($userid, &$total) {
         global $PAGE;
-        $output_summaries = '';
-        $course_modules = $this->get_quiz_course_modules($userid);
-        $quiz_renderer = $PAGE->get_renderer('mod_quiz');
-        foreach($course_modules as $cm){
+        $outputsummaries = '';
+        $coursemodules = $this->get_quiz_course_modules($userid);
+        $quizrenderer = $PAGE->get_renderer('mod_quiz');
+        foreach ($coursemodules as $cm) {
             $quizobj = quiz::create($cm->instance, $userid);
             $quiz = $quizobj->get_quiz();
             $context = context_module::instance($cm->id);
@@ -342,10 +340,10 @@ class studentquiz_report {
             $total->numattempts += $numattempts;
 
             foreach ($attempts as $attempt) {
-                $full_attempt = new quiz_attempt($attempt, $quiz, $cm, $this->course, false);
-                $viewobj->attemptobjs[] = $full_attempt;
+                $fullattempt = new quiz_attempt($attempt, $quiz, $cm, $this->course, false);
+                $viewobj->attemptobjs[] = $fullattempt;
 
-                $this->get_attempt_statistic($full_attempt->get_quizid(), $attempt->uniqueid, $total);
+                $this->get_attempt_statistic($fullattempt->get_quizid(), $attempt->uniqueid, $total);
             }
 
             if (!$canpreview) {
@@ -359,9 +357,9 @@ class studentquiz_report {
             $mygradeoverridden = false;
             $gradebookfeedback = '';
 
-            $grading_info = grade_get_grades($this->course->id, 'mod', 'quiz', $quiz->id, $userid);
-            if (!empty($grading_info->items)) {
-                $item = $grading_info->items[0];
+            $gradinginfo = grade_get_grades($this->course->id, 'mod', 'quiz', $quiz->id, $userid);
+            if (!empty($gradinginfo->items)) {
+                $item = $gradinginfo->items[0];
                 if (isset($item->grades[$userid])) {
                     $grade = $item->grades[$userid];
 
@@ -396,8 +394,8 @@ class studentquiz_report {
             $viewobj->mygradeoverridden = $mygradeoverridden;
             $viewobj->gradebookfeedback = $gradebookfeedback;
             $viewobj->lastfinishedattempt = $lastfinishedattempt;
-            $viewobj->canedit = false; //modified to false
-            //changed url's
+            $viewobj->canedit = false; // Modified to false.
+            // Changed url's.
             $viewobj->editurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
             $viewobj->backtocourseurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
             $viewobj->startattempturl = $quizobj->start_attempt_url();
@@ -458,28 +456,28 @@ class studentquiz_report {
              *  custom code
             */
 
-            $output_summaries .= $quiz_renderer->view_table($quiz, $context, $viewobj);
-            $output_summaries = str_replace(get_string('summaryofattempts', 'quiz')
-                , $quiz_renderer->heading(userdate($quiz->timecreated), 3)
-                , $output_summaries);
+            $outputsummaries .= $quizrenderer->view_table($quiz, $context, $viewobj);
+            $outputsummaries = str_replace(get_string('summaryofattempts', 'quiz')
+                , $quizrenderer->heading(userdate($quiz->timecreated), 3)
+                , $outputsummaries);
 
-            if($attempts) {
-                $output_summaries .= $quiz_renderer->box($quiz_renderer->view_page_buttons($viewobj), 'quizattempt');
+            if ($attempts) {
+                $outputsummaries .= $quizrenderer->box($quizrenderer->view_page_buttons($viewobj), 'quizattempt');
             }
         }
-        return $output_summaries;
+        return $outputsummaries;
     }
 
     /**
      * get the obtainedmarks, questionright, questionanswered total from the attempt
      * @param $quizid
-     * @param $attempt_uniqueid
+     * @param $attemptuniqueid
      * @param $total attempt question calculated
      */
-    private function get_attempt_statistic($quizid, $attempt_uniqueid, &$total) {
-        $quba = question_engine::load_questions_usage_by_activity($attempt_uniqueid);
+    private function get_attempt_statistic($quizid, $attemptuniqueid, &$total) {
+        $quba = question_engine::load_questions_usage_by_activity($attemptuniqueid);
 
-        foreach($this->get_quiz_slots($quizid) as $slot => $value){
+        foreach ($this->get_quiz_slots($quizid) as $slot => $value) {
             $fraction = $quba->get_question_fraction($slot);
             $maxmarks = $quba->get_question_max_mark($slot);
             $total->obtainedmarks += $fraction * $maxmarks;
@@ -533,8 +531,8 @@ class studentquiz_report {
             . '     JOIN {user_enrolments} ue ON( ue.enrolid = e.id )'
             . '     JOIN {user} u ON( u.id = ue.userid )'
             . '     LEFT JOIN {question} q ON( q.createdby = u.id AND q.category = qc.id )'
-            // -- answered questions
-            // -- correct answers
+            // Answered questions.
+            // Correct answers.
             . '    LEFT JOIN'
             . '    ('
             . '       SELECT'
@@ -550,7 +548,7 @@ class studentquiz_report {
             . '       LEFT JOIN {question} q ON( q.id = qna.questionid )'
             . '       GROUP BY q.category, qza.userid'
             . '    ) correctanswers ON( correctanswers.userid = u.id AND correctanswers.category = qc.id )'
-            // -- incorrect answers
+            // Incorrect answers.
             . '    LEFT JOIN'
             . '    ('
             . '         SELECT'
@@ -567,12 +565,12 @@ class studentquiz_report {
             . '         LEFT JOIN {question} q ON( q.id = qna.questionid )'
             . '         GROUP BY q.category, qza.userid'
             . '    ) incorrectanswers ON ( incorrectanswers.userid = u.id AND incorrectanswers.category = qc.id )'
-            //-- questions created
+            // Questions created.
             . '    LEFT JOIN'
             . '    ('
             . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question} GROUP BY category, createdby'
             . '    ) countq ON( countq.createdby = u.id AND countq.category = qc.id )'
-            //-- question votes
+            // Question votes.
             . '    LEFT JOIN'
             . '    ('
             . '         SELECT'
@@ -587,10 +585,10 @@ class studentquiz_report {
 
         return $DB->get_records_sql($sql, array(
             'cmid' => $this->cm->id
-            ,'questionquantifier' => get_config('moodle', 'studentquiz_add_question_quantifier')
-            ,'votequantifier' => get_config('moodle', 'studentquiz_vote_quantifier')
-            ,'correctanswerquantifier' => get_config('moodle', 'studentquiz_correct_answered_question_quantifier')
-            ,'incorrectanswerquantifier' => get_config('moodle', 'studentquiz_incorrect_answered_question_quantifier')
+            , 'questionquantifier' => get_config('moodle', 'studentquiz_add_question_quantifier')
+            , 'votequantifier' => get_config('moodle', 'studentquiz_vote_quantifier')
+            , 'correctanswerquantifier' => get_config('moodle', 'studentquiz_correct_answered_question_quantifier')
+            , 'incorrectanswerquantifier' => get_config('moodle', 'studentquiz_incorrect_answered_question_quantifier')
         ));
     }
 

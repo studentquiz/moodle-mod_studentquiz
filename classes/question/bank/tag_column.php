@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Representing tag column 
+ * Representing tag column
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -42,7 +42,7 @@ class tag_column extends \core_question\bank\column_base {
 
     /**
      * get column title
-     * @return string translated title 
+     * @return string translated title
      */
     protected function get_title() {
         return get_string('tag_column_name', 'studentquiz');
@@ -51,7 +51,7 @@ class tag_column extends \core_question\bank\column_base {
     /**
      * default display column content
      * @param  stdClass $question Questionbank from database
-     * @param  string $rowclasses 
+     * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->tagname)) {
@@ -63,7 +63,7 @@ class tag_column extends \core_question\bank\column_base {
 
     /**
      * get sql query join for this column
-     * @return array sql query join additional 
+     * @return array sql query join additional
      */
     public function get_extra_joins() {
         return array();

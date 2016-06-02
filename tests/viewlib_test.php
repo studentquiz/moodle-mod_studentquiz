@@ -51,7 +51,8 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
-        $studentquiz = $this->getDataGenerator()->create_module('studentquiz', array('course' => $course->id),  array('anonymrank' => true));
+        $studentquiz = $this->getDataGenerator()->create_module('studentquiz'
+            , array('course' => $course->id),  array('anonymrank' => true));
         $cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
         $this->viewlib = new studentquiz_view($cm->id);
     }
