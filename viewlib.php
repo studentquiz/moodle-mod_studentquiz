@@ -70,7 +70,7 @@ class studentquiz_view {
 
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param $cmid the course_module id for this studentquiz
+     * @param int $cmid the course_module id for this studentquiz
      */
     public function __construct($cmid) {
         global $DB;
@@ -87,7 +87,7 @@ class studentquiz_view {
 
     /**
      * generate a quiz if id's are submitted
-     * @param $ids array of question id's
+     * @param array $ids question id's
      * @return bool|int generated quiz course_module id or false on error
      */
     private function generate_quiz($ids) {
@@ -109,7 +109,7 @@ class studentquiz_view {
 
     /**
      * setup all quiz information and generate it
-     * @param $ids array of question id's
+     * @param array $ids question id's
      * @return bool|int generated quiz course_module id or false on error
      */
     private function generate_quiz_activity($ids) {
@@ -134,7 +134,7 @@ class studentquiz_view {
 
     /**
      * create a new studentquiz practice entry in the database
-     * @param $quizcmid quiz course module id
+     * @param int $quizcmid quiz course module id
      */
     private function save_quiz_practice($quizcmid) {
         global $USER, $DB;
@@ -148,8 +148,8 @@ class studentquiz_view {
 
     /**
      * set the course_section information
-     * @param $courseid destination course id
-     * @param $coursemoudleid quiz course_module id
+     * @param int $courseid destination course id
+     * @param int $coursemoudleid quiz course_module id
      */
     private function set_course_section_information($courseid, $coursemoudleid) {
         global $DB;
@@ -172,7 +172,7 @@ class studentquiz_view {
 
     /**
      * create a new course section with default parameters
-     * @param $courseid destination course id
+     * @param int $courseid destination course id
      * @return bool|int course_sectionds id or false on error
      */
     private function create_course_section($courseid) {
@@ -199,7 +199,7 @@ class studentquiz_view {
 
     /**
      * create a quiz course_module entry with the destination courseid
-     * @param $courseid destination course id
+     * @param int $courseid destination course id
      * @return bool|int course_modules id or false on error
      */
     private function create_quiz_course_module($courseid) {
@@ -300,7 +300,7 @@ class studentquiz_view {
     /**
      * Override quiz_add_instance method from quiz lib to call custom quiz_after_add_or_update method,
      * because the user has no permission to call this method.
-     * @param $quiz
+     * @param stdClass $quiz
      * @return bool|int|void
      */
     private function  quiz_add_instance($quiz) {
@@ -330,7 +330,7 @@ class studentquiz_view {
     /**
      * Override quiz_after_add_or_update method from quiz lib to prevent quiz_update_events,
      * because the user has no permission to do this.
-     * @param $quiz
+     * @param stdClass $quiz
      */
     private function quiz_after_add_or_update($quiz) {
         global $DB;
@@ -371,7 +371,7 @@ class studentquiz_view {
 
     /**
      * generate the quiz activity with the filtered quiz ids
-     * @param $ids filtered question ids
+     * @param array $ids filtered question ids
      * @return bool|int course_module id from generate quiz or false on error
      */
     public function generate_quiz_with_filtered_ids($ids) {
@@ -386,7 +386,7 @@ class studentquiz_view {
 
     /**
      * generate the quiz activity with the selected quiz ids
-     * @param $submitdata
+     * @param mixed $submitdata
      * @return bool|int course_module id from generate quiz or false on error
      */
     public function generate_quiz_with_selected_ids($submitdata) {
@@ -420,7 +420,7 @@ class studentquiz_view {
 
     /**
      * get the quiz ids from the submit data
-     * @param $rawdata array with prefix q and the id
+     * @param mixed $rawdata array with prefix q and the id
      * @return array without the prefix q
      */
     private function get_prefixed_question_ids($rawdata) {
@@ -435,7 +435,7 @@ class studentquiz_view {
 
     /**
      * get the question ids
-     * @param $rawdata
+     * @param mixed $rawdata
      * @return array|bool ids or false on empty array
      */
     private function get_question_ids($rawdata) {

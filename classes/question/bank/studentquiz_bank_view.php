@@ -114,7 +114,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * initialize filter
-     * @param $pageurl moodle_url
+     * @param moodle_url $pageurl
      * @throws \coding_exception missing url param exception
      */
     public function init($pageurl) {
@@ -227,13 +227,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * category      Chooses the category
      * displayoptions Sets display options
      *
-     * @param $tabname
-     * @param $page
-     * @param $perpage
-     * @param $cat
-     * @param $recurse
-     * @param $showhidden
-     * @param $showquestiontext
+     * @param string $tabname
+     * @param int $page
+     * @param int $perpage
+     * @param bool $cat
+     * @param bool $recurse
+     * @param bool $showhidden
+     * @param bool $showquestiontext
      */
     public function display($tabname, $page, $perpage, $cat,
                             $recurse, $showhidden, $showquestiontext) {
@@ -367,7 +367,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * get the sql table prefix
-     * @param $name
+     * @param string $name
      * @return string return sql prefix
      */
     private function get_sql_table_prefix($name) {
@@ -411,7 +411,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * extends the question form with custom add question button
-     * @param $cat question category
+     * @param string $cat question category
      */
     private function create_new_question_form_ext($cat) {
         $category = $this->get_current_category($cat);
@@ -425,8 +425,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * create new default question form
-     * @param $category question category
-     * @param $canadd capability state
+     * @param string $category question category
+     * @param bool $canadd capability state
      */
     protected function create_new_question_form($category, $canadd) {
         global $CFG;
@@ -574,7 +574,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * filter question with the filter option
-     * @param $questions
+     * @param stdClass $questions
      * @return array questions
      */
     protected function filter_questions($questions) {
@@ -615,9 +615,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * (copy from parent class - modified several code snippets)
-     * @param $question
-     * @param $page
-     * @param $perpage
+     * @param stdClass $question
+     * @param int $page
+     * @param int $perpage
      * @return array questions
      */
     protected function load_page_questions_array($question, $page, $perpage) {
@@ -641,7 +641,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * get all question tags
-     * @param $id
+     * @param int $id
      * @return \moodle_recordset all tags connected with the question
      */
     protected function get_question_tag($id) {
@@ -661,12 +661,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * check if show question or not
-     * @param $id question id
-     * @param $count count of question
+     * @param int $id
+     * @param int $count
      * @return bool question show or not
      */
     protected function show_question($id, $count) {
-
         $countfiltered = $count;
         $count = $this->get_question_tag_count($id, false);
 
@@ -696,8 +695,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * get the count of the connected tags with the question
-     * @param $id
-     * @return int count of connected tags with question
+     * @param int $id
+     * @param bool $withfilter
+     * @return int
+     * @throws \coding_exception
      */
     protected function get_question_tag_count($id, $withfilter = true) {
         global $DB;

@@ -114,8 +114,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * create random questions
-     * @param $count
-     * @param $userid
+     * @param int $count
+     * @param int $userid
      */
     protected function create_random_questions($count, $userid) {
         global $DB;
@@ -131,8 +131,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * create question vote
-     * @param $question
-     * @param $userid
+     * @param stdClass $question
+     * @param int $userid
      */
     protected function create_vote($question, $userid) {
         $voterecord = new stdClass();
@@ -143,8 +143,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * create question comment
-     * @param $question
-     * @param $userid
+     * @param stdClass $question
+     * @param int $userid
      */
     protected function create_comment($question, $userid) {
         $commentrecord = new stdClass();
@@ -211,7 +211,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * display question bank
-     * @param $questionbank
+     * @param mod_studentquiz\question\bank\studentquiz_bank_view $questionbank
      * @param int $qpage
      * @param int $qperpage
      * @param int $recurse
@@ -233,8 +233,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * set questionbank filter
-     * @param $which
-     * @param $value
+     * @param string $which
+     * @param mixed $value
      */
     protected function set_filter($which, $value) {
         $_POST[$which] = $value;

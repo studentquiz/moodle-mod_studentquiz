@@ -51,7 +51,7 @@ class studentquiz_report {
     protected $context;
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param $cmid course_module id
+     * @param int $cmid course_module id
      */
     public function __construct($cmid) {
         global $DB;
@@ -157,7 +157,7 @@ class studentquiz_report {
 
     /**
      * get all quiz course_modules from the active studentquiz
-     * @param $userid userid
+     * @param int $userid
      * @return array stdClass course modules
      */
     private function get_quiz_course_modules($userid) {
@@ -202,7 +202,7 @@ class studentquiz_report {
 
     /**
      * get all users in a course
-     * @param $courseid course id
+     * @param int $courseid
      * @return array stdClass userid, courseid, firstname, lastname
      */
     private function get_all_users_in_course($courseid) {
@@ -273,7 +273,7 @@ class studentquiz_report {
 
     /**
      * get quiz information
-     * @param $userid
+     * @param int $userid
      * @return array
      */
     public function get_quiz_information($userid) {
@@ -288,8 +288,8 @@ class studentquiz_report {
 
     /**
      * pre render the single user summary table and get quiz stats
-     * @param $userid
-     * @param $total
+     * @param int $userid
+     * @param stdClass $total
      * @return mixed|string
      * @throws coding_exception
      */
@@ -470,9 +470,9 @@ class studentquiz_report {
 
     /**
      * get the obtainedmarks, questionright, questionanswered total from the attempt
-     * @param $quizid
-     * @param $attemptuniqueid
-     * @param $total attempt question calculated
+     * @param int $quizid
+     * @param int $attemptuniqueid
+     * @param stdClass $total
      */
     private function get_attempt_statistic($quizid, $attemptuniqueid, &$total) {
         $quba = question_engine::load_questions_usage_by_activity($attemptuniqueid);
@@ -490,7 +490,7 @@ class studentquiz_report {
 
     /**
      * get the quiz slots
-     * @param $quizid
+     * @param int $quizid
      * @return array stdClass slot array
      */
     private function get_quiz_slots($quizid) {
@@ -594,7 +594,7 @@ class studentquiz_report {
 
     /**
      * is the logged in user
-     * @param $ur stdClass user ranking object
+     * @param int $userid
      * @return bool is loggedin user
      */
     public function is_loggedin_user($userid) {

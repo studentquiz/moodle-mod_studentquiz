@@ -35,7 +35,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * builds the rank report table
-     * @param $report studentquiz_report class with necessary information
+     * @param studentquiz_report $report studentquiz_report class with necessary information
      * @return string rank report table
      * @throws coding_exception
      */
@@ -86,7 +86,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * builds the quiz report table for the admin
-     * @param $report studentquiz_report class with necessary information
+     * @param studentquiz_report $report studentquiz_report class with necessary information
+     * @param stdClass $usersdata
      * @return string rank report table
      */
     public function view_quizreport_table($report, $usersdata) {
@@ -145,7 +146,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * builds the quiz admin report view with the created quizzes
-     * @param $report studentquiz_report class with necessary information
+     * @param studentquiz_report $report studentquiz_report class with necessary information
+     * @param stdClass $quizzes
      * @return string rank report table
      */
     public function view_quizreport_admin_quizzes($report, $quizzes) {
@@ -193,7 +195,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * builds the quiz report total section
-     * @param $total
+     * @param stdClass $total
+     * @param bool $isadmin
      * @return string quiz report data
      */
     public function view_quizreport_total($total, $isadmin = false) {
@@ -240,7 +243,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * builds the studentquiz_bank_view
-     * @param $view studentquiz_view class with the necessary information
+     * @param mod_studentquiz\question\bank\studentquiz_bank_view $view studentquiz_view class with the necessary information
      */
     public function display_questionbank($view) {
         echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
@@ -258,7 +261,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * prints the error message
-     * @param $errormessage string error message
+     * @param string $errormessage string error message
      */
     public function show_error($errormessage) {
         return html_writer::div($errormessage, 'error');

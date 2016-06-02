@@ -61,8 +61,8 @@ class mod_studentquiz_generator extends testing_module_generator {
 
     /**
      * create studentquiz instance
-     * @param null $record
-     * @param array|null $options
+     * @param stdClass $record
+     * @param array $options
      * @return stdClass
      */
     public function create_instance($record = null, array $options = null) {
