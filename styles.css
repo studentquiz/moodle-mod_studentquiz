@@ -2,6 +2,20 @@
     display: inline;
 }
 
+#page-mod-studentquiz-view .createnewquestion input[type="submit"] {
+    color: #fff;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    background-color: #005aa8;
+    background-image: linear-gradient(to bottom, #0070a8, #0038a8);
+    background-repeat: repeat-x;
+    border-color: rgba(0,0,0,0.1) rgba(0,0,0,0.1) rgba(0,0,0,0.25);
+}
+
+#page-mod-studentquiz-view .createnewquestion input[type="submit"]:hover {
+    color:#fff;
+    background-color: #0038a8;
+}
+
 #page-mod-studentquiz-view .createnewquestion .singlebutton div,
 #page-mod-studentquiz-view .createnewquestion .singlebutton form {
     display: inline;
