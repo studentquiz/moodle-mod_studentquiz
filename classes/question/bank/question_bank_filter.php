@@ -83,7 +83,7 @@ class question_bank_filter_form extends moodleform {
 
         $mform = $this->_form;
         $mform->addElement('header', 'filtertab', get_string('filter', 'studentquiz'));
-
+        $mform->setExpanded('filtertab', false);
         foreach ($this->fields as $field) {
             $field->setupForm($mform);
         }
