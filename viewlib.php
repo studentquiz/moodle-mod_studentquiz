@@ -194,7 +194,7 @@ class studentquiz_view {
      */
     private function get_course_section() {
         global $DB;
-        return $DB->get_record('course_sections', array('section' => COURSE_SECTION_ID));
+        return $DB->get_record('course_sections', array('section' => COURSE_SECTION_ID, 'course' => $this->get_course()->id));
     }
 
     /**
