@@ -56,7 +56,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
             . ' LEFT JOIN ('
             . 'SELECT COUNT(*) AS num, questionid FROM mdl_question_attempts WHERE responsesummary IS NOT NULL GROUP BY questionid'
             . ') total ON(total.questionid = qa.questionid)'
-            . ' GROUP BY qa.questionid'
+            . ' GROUP BY qa.questionid, correct.num, total.num'
             . ') dl ON dl.questionid = q.id');
     }
 

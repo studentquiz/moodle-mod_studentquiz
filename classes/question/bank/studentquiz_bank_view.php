@@ -652,7 +652,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             .' FROM {tag} t'
             .' JOIN {tag_instance} ti'
             .' ON t.id = ti.tagid'
-            .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
+            .' WHERE ti.itemtype = \'question\' AND ti.itemid = :qid';
 
         $sqlparams['qid'] = $id;
 
@@ -716,7 +716,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             .' FROM {tag} t'
             .' JOIN {tag_instance} ti'
             .' ON t.id = ti.tagid'
-            .' WHERE ti.itemtype = "question" AND ti.itemid = :qid';
+            .' WHERE ti.itemtype = \'question\' AND ti.itemid = :qid';
 
         if ($withfilter) {
             $sql .= $sqlext;
