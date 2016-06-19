@@ -249,7 +249,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
         $pagevars = $view->get_qb_pagevar();
         $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
-            $pagevars['cat'], $pagevars['recurse'], $pagevars['showhidden'],
+            $pagevars['cat'], false, $pagevars['showhidden'],
             $pagevars['qbshowtext']);
 
         if ($view->has_printableerror()) {
