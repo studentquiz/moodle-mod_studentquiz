@@ -97,8 +97,10 @@ class studentquiz_view {
 
         $parent_questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id));
 
-        $questioncategory->parent = $parent_questioncategory->id;
-        $DB->update_record('question_categories', $questioncategory);
+        if($parent_questioncategory){
+            $questioncategory->parent = $parent_questioncategory->id;
+            $DB->update_record('question_categories', $questioncategory);
+        }
     }
     /**
      * generate a quiz if id's are submitted
