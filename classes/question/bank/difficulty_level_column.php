@@ -47,7 +47,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         return array('dl' => 'LEFT JOIN ('
-            . 'SELECT ROUND(1 - (correct.num / total.num), 2) AS difficultylevel,'
+            . 'SELECT ROUND(1 - (COALESCE(correct.num, 0) / total.num), 2) AS difficultylevel,'
             . 'qa.questionid'
             . ' FROM {question_attempts} qa'
             . ' LEFT JOIN  ('
