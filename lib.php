@@ -114,7 +114,7 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     // Add default category.
     $questioncategory = question_make_default_categories(array($context));
     $questioncategory->name .= $studentquiz->name;
-    $questioncategory->parent = $COURSE->category;
+    $questioncategory->parent = -1;
     $DB->update_record('question_categories', $questioncategory);
 
     studentquiz_grade_item_update($studentquiz);

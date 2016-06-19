@@ -73,7 +73,7 @@ class studentquiz_view {
      * @param int $cmid the course_module id for this studentquiz
      */
     public function __construct($cmid) {
-        global $DB;
+        global $DB, $COURSE;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
             throw new moodle_studentquiz_view_exception($this, 'invalidcoursemodule');
         }
@@ -83,8 +83,23 @@ class studentquiz_view {
 
         $this->context = context_module::instance($this->cm->id);
         $this->category = question_get_default_category($this->context->id);
+
+        $this->check_question_category();
     }
 
+    private function check_question_category() {
+        global $DB;
+        $questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->id));
+
+        if($questioncategory->parent != -1){
+            return;
+        }
+
+        $parent_questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id));
+
+        $questioncategory->parent = $parent_questioncategory->id;
+        $DB->update_record('question_categories', $questioncategory);
+    }
     /**
      * generate a quiz if id's are submitted
      * @param array $ids question id's
