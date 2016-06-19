@@ -584,7 +584,7 @@ class studentquiz_report {
             . '         GROUP BY sqvote.questionid'
             . '     ) votes ON( votes.questionid = q.id )'
             . '     WHERE sq.coursemodule = :cmid'
-            . '     GROUP BY u.id'
+            . '     GROUP BY u.id, c.id, r.archetype, countq.countquestions, votes.meanvotes, correctanswers.countanswer, incorrectanswers.countanswer'
             . '     ORDER BY points DESC';
 
         return $DB->get_records_sql($sql, array(
