@@ -516,15 +516,15 @@ class studentquiz_report {
         global $DB;
         $sql = 'SELECT'
             . '    u.id AS userid, u.firstname, u.lastname,'
-            . '    c.id AS courseid, c.fullname, c.shortname,'
-            . '    r.archetype AS rolename,'
-            . '    countq.countquestions,'
-            . '    votes.meanvotes,'
+            . '    MAX(c.id) AS courseid, MAX(c.fullname), MAX(c.shortname),'
+            . '    MAX(r.archetype) AS rolename,'
+            . '    MAX(countq.countquestions),'
+            . '    MAX(votes.meanvotes),'
             . '    COALESCE('
-            . '        COALESCE(countquestions * :questionquantifier,0) +'
+            . '        COALESCE(MAX(countquestions) * :questionquantifier,0) +'
             . '        COALESCE(ROUND(SUM(votes.meanvotes) * :votequantifier), 0) +'
-            . '        COALESCE(correctanswers.countanswer * :correctanswerquantifier,0) +'
-            . '        COALESCE(incorrectanswers.countanswer * :incorrectanswerquantifier,0)'
+            . '        COALESCE(MAX(correctanswers.countanswer) * :correctanswerquantifier,0) +'
+            . '        COALESCE(MAX(incorrectanswers.countanswer) * :incorrectanswerquantifier,0)'
             . '    ,0) AS points'
             . '     FROM {studentquiz} sq'
             . '     JOIN {context} con ON( con.instanceid = sq.coursemodule )'
@@ -584,7 +584,7 @@ class studentquiz_report {
             . '         GROUP BY sqvote.questionid'
             . '     ) votes ON( votes.questionid = q.id )'
             . '     WHERE sq.coursemodule = :cmid'
-            . '     GROUP BY u.id, c.id, r.archetype, countq.countquestions, votes.meanvotes, correctanswers.countanswer, incorrectanswers.countanswer'
+            . '     GROUP BY u.id'
             . '     ORDER BY points DESC';
 
         return $DB->get_records_sql($sql, array(
