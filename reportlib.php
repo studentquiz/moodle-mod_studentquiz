@@ -322,6 +322,7 @@ class studentquiz_report {
             $attempts = quiz_get_user_attempts($quiz->id, $userid, 'all', true);
             $lastfinishedattempt = end($attempts);
             $unfinished = false;
+            $unfinishedattemptid = null;
             if ($unfinishedattempt = quiz_get_user_attempt_unfinished($quiz->id, $userid)) {
                 $attempts[] = $unfinishedattempt;
 
@@ -332,7 +333,8 @@ class studentquiz_report {
                 if (!$unfinished) {
                     $lastfinishedattempt = $unfinishedattempt;
                 }
-                $unfinishedattempt = null;
+                $unfinishedattemptid = $unfinishedattempt->id;
+                $unfinishedattempt = null; // To make it clear we do not use this again.
             }
             $numattempts = count($attempts);
             $viewobj->attempts = $attempts;
@@ -399,7 +401,13 @@ class studentquiz_report {
             $viewobj->editurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
             $viewobj->backtocourseurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
             $viewobj->startattempturl = $quizobj->start_attempt_url();
-            $viewobj->startattemptwarning = $quizobj->confirm_start_attempt_message($unfinished);
+
+            if ($accessmanager->is_preflight_check_required($unfinishedattemptid)) {
+                $viewobj->preflightcheckform = $accessmanager->get_preflight_check_form(
+                    $viewobj->startattempturl, $unfinishedattemptid);
+            }
+
+
             $viewobj->popuprequired = $accessmanager->attempt_must_be_in_popup();
             $viewobj->popupoptions = $accessmanager->get_popup_options();
 
