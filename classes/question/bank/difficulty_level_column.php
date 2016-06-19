@@ -47,16 +47,17 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         return array('dl' => 'LEFT JOIN ('
-            . 'SELECT IF(total = 0, 0, ROUND(1 - (correct / total), 2)) AS difficultylevel,'
-            . 'questionid'
-            . ' FROM ('
-            . 'SELECT'
-            . ' COUNT(IF(rightanswer = responsesummary, 1, NULL)) AS correct,'
-            . 'COUNT(IF(responsesummary IS NOT NULL, 1, NULL)) AS total,'
-            . 'questionid'
-            . ' FROM {question_attempts}'
-            . ' GROUP BY questionid'
-            . ') AS T1) dl ON dl.questionid = q.id');
+            . 'SELECT ROUND(1 - (correct.num / total.num), 2) AS difficultylevel,'
+            . 'qa.questionid'
+            . ' FROM {question_attempts} qa'
+            . ' LEFT JOIN  ('
+            . ' SELECT COUNT(*) AS num, questionid FROM mdl_question_attempts WHERE rightanswer = responsesummary GROUP BY questionid'
+            . ') correct ON(correct.questionid = qa.questionid)'
+            . ' LEFT JOIN ('
+            . 'SELECT COUNT(*) AS num, questionid FROM mdl_question_attempts WHERE responsesummary IS NOT NULL GROUP BY questionid'
+            . ') total ON(total.questionid = qa.questionid)'
+            . ' GROUP BY qa.questionid'
+            . ') dl ON dl.questionid = q.id');
     }
 
     /**
