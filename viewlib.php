@@ -95,7 +95,7 @@ class studentquiz_view {
             return;
         }
 
-        $parent_questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id));
+        $parent_questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
 
         if($parent_questioncategory){
             $questioncategory->parent = $parent_questioncategory->id;
