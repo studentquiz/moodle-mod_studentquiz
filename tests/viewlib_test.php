@@ -41,7 +41,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     private $viewlib;
 
     /**
-     * setup test
+     * Setup test
      * @throws coding_exception
      */
     protected function setUp() {

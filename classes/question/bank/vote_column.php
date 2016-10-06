@@ -33,7 +33,7 @@ namespace mod_studentquiz\bank;
 class vote_column extends \core_question\bank\column_base {
 
     /**
-     * get column name
+     * Get column name
      * @return string column name
      */
     public function get_name() {
@@ -41,7 +41,7 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get title
+     * Get title
      * @return string column title
      */
     protected function get_title() {
@@ -49,7 +49,7 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     /**
-     * default display column content
+     * Default display column content
      * @param  stdClass $question Questionbank from database
      * @param  string $rowclasses
      */
@@ -62,7 +62,7 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get the left join for voteing
+     * Get the left join for voteing
      * @return array modified select left join
      */
     public function get_extra_joins() {
@@ -72,7 +72,7 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get sql query join for this column
+     * Get sql query join for this column
      * @return array sql query join additional
      */
     public function get_required_fields() {
@@ -80,7 +80,7 @@ class vote_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get sql sortable name
+     * Get sql sortable name
      * @return string field name
      */
     public function is_sortable() {

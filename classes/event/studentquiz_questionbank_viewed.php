@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace mod_studentquiz\event;
 
 defined('MOODLE_INTERNAL') || die();
@@ -46,7 +45,7 @@ class studentquiz_questionbank_viewed extends \core\event\base {
     }
 
     /**
-     * get description
+     * Get description
      * @return string get description
      */
     public function get_description() {
@@ -54,7 +53,7 @@ class studentquiz_questionbank_viewed extends \core\event\base {
     }
 
     /**
-     * get url
+     * Get url
      * @return \moodle_url view.php url
      */
     public function get_url() {

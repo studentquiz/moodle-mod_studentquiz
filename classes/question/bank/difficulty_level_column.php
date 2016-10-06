@@ -34,7 +34,7 @@ namespace mod_studentquiz\bank;
 class difficulty_level_column extends \core_question\bank\column_base {
 
     /**
-     * return name of column
+     * Return name of column
      * @return string columnname
      */
     public function get_name() {
@@ -42,7 +42,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get sql query join for this column
+     * Get sql query join for this column
      * @return array sql query join additional
      */
     public function get_extra_joins() {
@@ -61,7 +61,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get sql field name
+     * Get sql field name
      * @return array fieldname in array
      */
     public function get_required_fields() {
@@ -69,7 +69,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get sql sortable name
+     * Get sql sortable name
      * @return string field name
      */
     public function is_sortable() {
@@ -77,7 +77,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get column real title
+     * Get column real title
      * @return string translated title
      */
     protected function get_title() {
@@ -85,7 +85,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
     }
 
     /**
-     * default display column content
+     * Default display column content
      * @param  stdClass $question Questionbank from database
      * @param  string $rowclasses
      */

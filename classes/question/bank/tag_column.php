@@ -33,7 +33,7 @@ namespace mod_studentquiz\bank;
 class tag_column extends \core_question\bank\column_base {
 
     /**
-     * get column name
+     * Get column name
      * @return string
      */
     public function get_name() {
@@ -41,7 +41,7 @@ class tag_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get column title
+     * Get column title
      * @return string translated title
      */
     protected function get_title() {
@@ -49,7 +49,7 @@ class tag_column extends \core_question\bank\column_base {
     }
 
     /**
-     * default display column content
+     * Default display column content
      * @param  stdClass $question Questionbank from database
      * @param  string $rowclasses
      */
@@ -62,7 +62,7 @@ class tag_column extends \core_question\bank\column_base {
     }
 
     /**
-     * get sql query join for this column
+     * Get sql query join for this column
      * @return array sql query join additional
      */
     public function get_extra_joins() {

@@ -71,6 +71,7 @@ class studentquiz_view {
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid the course_module id for this studentquiz
+     * @throws moodle_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
         global $DB, $COURSE;
@@ -102,8 +103,9 @@ class studentquiz_view {
             $DB->update_record('question_categories', $questioncategory);
         }
     }
+
     /**
-     * generate a quiz if id's are submitted
+     * Generate a quiz if id's are submitted
      * @param array $ids question id's
      * @return bool|int generated quiz course_module id or false on error
      */
@@ -125,7 +127,7 @@ class studentquiz_view {
     }
 
     /**
-     * setup all quiz information and generate it
+     * Setup all quiz information and generate it
      * @param array $ids question id's
      * @return bool|int generated quiz course_module id or false on error
      */
@@ -150,7 +152,7 @@ class studentquiz_view {
     }
 
     /**
-     * create a new studentquiz practice entry in the database
+     * Create a new studentquiz practice entry in the database
      * @param int $quizcmid quiz course module id
      */
     private function save_quiz_practice($quizcmid) {
@@ -164,7 +166,7 @@ class studentquiz_view {
     }
 
     /**
-     * set the course_section information
+     * Set the course_section information
      * @param int $courseid destination course id
      * @param int $coursemoudleid quiz course_module id
      */
@@ -188,7 +190,7 @@ class studentquiz_view {
     }
 
     /**
-     * create a new course section with default parameters
+     * Create a new course section with default parameters
      * @param int $courseid destination course id
      * @return bool|int course_sectionds id or false on error
      */
@@ -206,7 +208,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the course_section with the defined default parameter
+     * Get the course_section with the defined default parameter
      * @return mixed course_section rows
      */
     private function get_course_section() {
@@ -215,7 +217,7 @@ class studentquiz_view {
     }
 
     /**
-     * create a quiz course_module entry with the destination courseid
+     * Create a quiz course_module entry with the destination courseid
      * @param int $courseid destination course id
      * @return bool|int course_modules id or false on error
      */
@@ -231,7 +233,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the standard quiz setup - default database parameters quiz table
+     * Get the standard quiz setup - default database parameters quiz table
      * with question behaviour setup in activity module
      * @return stdClass quiz object
      */
@@ -387,7 +389,7 @@ class studentquiz_view {
     }
 
     /**
-     * generate the quiz activity with the filtered quiz ids
+     * Generate the quiz activity with the filtered quiz ids
      * @param array $ids filtered question ids
      * @return bool|int course_module id from generate quiz or false on error
      */
@@ -402,7 +404,7 @@ class studentquiz_view {
     }
 
     /**
-     * generate the quiz activity with the selected quiz ids
+     * Generate the quiz activity with the selected quiz ids
      * @param mixed $submitdata
      * @return bool|int course_module id from generate quiz or false on error
      */
@@ -411,7 +413,7 @@ class studentquiz_view {
     }
 
     /**
-     * shows the question custom bank view
+     * Shows the question custom bank view
      */
     public function show_questionbank() {
         // Workaround to get permission to use questionbank.
@@ -436,7 +438,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the quiz ids from the submit data
+     * Get the quiz ids from the submit data
      * @param mixed $rawdata array with prefix q and the id
      * @return array without the prefix q
      */
@@ -451,7 +453,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the question ids
+     * Get the question ids
      * @param mixed $rawdata
      * @return array|bool ids or false on empty array
      */
@@ -470,7 +472,7 @@ class studentquiz_view {
     }
 
     /**
-     * has question ids set
+     * Has question ids set
      * @return bool
      */
     public function has_question_ids() {
@@ -479,7 +481,7 @@ class studentquiz_view {
 
 
     /**
-     * get the question bank page url
+     * Get the question bank page url
      * @return moodle_url
      */
     public function get_pageurl() {
@@ -487,7 +489,7 @@ class studentquiz_view {
     }
 
     /**
-     * get actual view url
+     * Get actual view url
      * @return moodle_url
      */
     public function get_viewurl() {
@@ -495,7 +497,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the question pagevar
+     * Get the question pagevar
      * @return object
      */
     public function get_qb_pagevar() {
@@ -503,7 +505,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the urlview data (includes cmid)
+     * Get the urlview data (includes cmid)
      * @return array
      */
     public function get_urlview_data() {
@@ -511,7 +513,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity course
+     * Get activity course
      * @return mixed|stdClass
      */
     public function get_course() {
@@ -519,7 +521,7 @@ class studentquiz_view {
     }
 
     /**
-     * has printable error
+     * Has printable error
      * @return bool
      */
     public function has_printableerror() {
@@ -527,7 +529,7 @@ class studentquiz_view {
     }
 
     /**
-     * get error message
+     * Get error message
      * @return string error message
      */
     public function get_errormessage() {
@@ -535,7 +537,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity course module
+     * Get activity course module
      * @return stdClass
      */
     public function get_coursemodule() {
@@ -543,7 +545,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity course module id
+     * Get activity course module id
      * @return mixed
      */
     public function get_cm_id() {
@@ -551,7 +553,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity category id
+     * Get activity category id
      * @return mixed
      */
     public function get_category_id() {
@@ -559,7 +561,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity context id
+     * Get activity context id
      * @return int
      */
     public function get_context_id() {
@@ -567,7 +569,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity context
+     * Get activity context
      * @return int
      */
     public function get_context() {
@@ -575,7 +577,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the view title
+     * Get the view title
      * @return string
      */
     public function get_title() {
@@ -583,7 +585,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the question view
+     * Get the question view
      * @return mixed
      */
     public function get_questionbank() {

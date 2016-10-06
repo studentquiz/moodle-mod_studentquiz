@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page display the student generated quizzes.
+ * This page displays the student generated quizzes.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)

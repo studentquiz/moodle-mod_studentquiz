@@ -88,7 +88,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * set fields
+     * Set fields
      */
     public function set_fields() {
         $this->fields = array();
@@ -113,7 +113,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * initialize filter
+     * Initialize filter
      * @param moodle_url $pageurl
      * @throws \coding_exception missing url param exception
      */
@@ -142,7 +142,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * modify base url for ordering
+     * Modify base url for ordering
      */
     public function modify_base_url() {
         foreach ($this->fields as $field) {
@@ -173,7 +173,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * set data for filter recognition
+     * Set data for filter recognition
      */
     public function set_order_page_data() {
         foreach ($this->fields as $field) {
@@ -215,7 +215,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * Shows the question bank editing interface.
      *
      * The function also processes a number of actions:
@@ -283,7 +283,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * Create the SQL query to retrieve the indicated questions, based on
      * \core_question\bank\search\condition filters.
      */
@@ -366,7 +366,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * get the sql table prefix
+     * Get the sql table prefix
      * @param string $name
      * @return string return sql prefix
      */
@@ -385,7 +385,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * has questions in category
+     * Has questions in category
      * @return bool
      */
     private function has_questions_in_category() {
@@ -393,7 +393,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * create new quiz form
+     * Create new quiz form
      */
     private function create_new_quiz_form() {
         echo '<div class="createnewquiz">';
@@ -410,7 +410,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * extends the question form with custom add question button
+     * Extends the question form with custom add question button
      * @param string $cat question category
      */
     private function create_new_question_form_ext($cat) {
@@ -424,7 +424,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * create new default question form
+     * Create new default question form
      * @param string $category question category
      * @param bool $canadd capability state
      */
@@ -446,7 +446,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * Display the controls at the bottom of the list of questions.
      * @param int      $totalnumber Total number of questions that might be shown (if it was not for paging).
      * @param bool     $recurse     Whether to include subcategories.
@@ -478,7 +478,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * Prints the table of questions in a category with interactions
      *
      * @param array      $contexts    Not used!
@@ -561,7 +561,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * get all filtered question ids qith q prefix
+     * Get all filtered question ids qith q prefix
      * @return array question ids with q prefix
      */
     protected function get_filtered_question_ids() {
@@ -573,7 +573,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * filter question with the filter option
+     * Filter question with the filter option
      * @param stdClass $questions
      * @return array questions
      */
@@ -614,7 +614,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * @param stdClass $question
      * @param int $page
      * @param int $perpage
@@ -631,7 +631,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * load question from database
+     * Load question from database
      * @return \moodle_recordset
      */
     protected function load_questions() {
@@ -640,7 +640,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * get all question tags
+     * Get all question tags
      * @param int $id
      * @return \moodle_recordset all tags connected with the question
      */
@@ -660,7 +660,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * check if show question or not
+     * Check if show question or not
      * @param int $id
      * @param int $count
      * @return bool question show or not
@@ -694,7 +694,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * get the count of the connected tags with the question
+     * Get the count of the connected tags with the question
      * @param int $id
      * @param bool $withfilter
      * @return int
@@ -728,7 +728,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * @return mixed
      */
     protected function wanted_columns() {
@@ -744,7 +744,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * set createby POST data
+     * Set createby POST data
      */
     protected function setshowmineuserid() {
         global $USER;
@@ -753,7 +753,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * reset the filter
+     * Reset the filter
      */
     protected function resetfilter() {
         foreach ($this->fields as $field) {
@@ -768,7 +768,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * process action buttons
      */
     public function process_actions() {
@@ -844,8 +844,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
-     * confirmation on process action if needed
+     * (Copy from parent class - modified several code snippets)
+     * Confirmation on process action if needed
      * @return boolean
      */
     public function process_actions_needing_ui() {
@@ -890,7 +890,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * get all questions
+     * Get all questions
      * @return stdClass array of questions
      */
     public function get_questions() {

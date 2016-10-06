@@ -85,7 +85,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * builds the quiz report table for the admin
+     * Builds the quiz report table for the admin
      * @param studentquiz_report $report studentquiz_report class with necessary information
      * @param stdClass $usersdata
      * @return string rank report table
@@ -145,7 +145,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * builds the quiz admin report view with the created quizzes
+     * Builds the quiz admin report view with the created quizzes
      * @param studentquiz_report $report studentquiz_report class with necessary information
      * @param stdClass $quizzes
      * @return string rank report table
@@ -186,7 +186,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * build the quiz report summary section
+     * Build the quiz report summary section
      * @return string quiz report summary title
      */
     public function view_quizreport_summary() {
@@ -194,7 +194,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * builds the quiz report total section
+     * Builds the quiz report total section
      * @param stdClass $total
      * @param bool $isadmin
      * @return string quiz report data
@@ -242,7 +242,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * builds the studentquiz_bank_view
+     * Builds the studentquiz_bank_view
      * @param mod_studentquiz\question\bank\studentquiz_bank_view $view studentquiz_view class with the necessary information
      */
     public function display_questionbank($view) {
@@ -260,8 +260,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * prints the error message
+     * Prints the error message
      * @param string $errormessage string error message
+     * @return string error as HTML
      */
     public function show_error($errormessage) {
         return html_writer::div($errormessage, 'error');

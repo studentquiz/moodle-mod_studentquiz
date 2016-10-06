@@ -90,7 +90,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     private $studentquizgenerator;
 
     /**
-     * setup testing
+     * Setup testing
      * @throws coding_exception
      */
     protected function setUp() {
@@ -113,7 +113,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * create random questions
+     * Create random questions
      * @param int $count
      * @param int $userid
      */
@@ -130,7 +130,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * create question vote
+     * Create question vote
      * @param stdClass $question
      * @param int $userid
      */
@@ -142,7 +142,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * create question comment
+     * Create question comment
      * @param stdClass $question
      * @param int $userid
      */
@@ -155,7 +155,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * test questionbank empty filter
+     * Test questionbank empty filter
      */
     public function test_questionbank_empty_filter() {
         global $DB;
@@ -172,7 +172,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * test questionbank filter question name
+     * Test questionbank filter question name
      */
     public function test_questionbank_filter_question_name() {
         global $DB;
@@ -193,7 +193,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
 
     /**
-     * test questionbank filter question vote
+     * Test questionbank filter question vote
      */
     public function test_questionbank_filter_question_vote() {
         global $DB;
@@ -210,7 +210,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * display question bank
+     * Display question bank
      * @param mod_studentquiz\question\bank\studentquiz_bank_view $questionbank
      * @param int $qpage
      * @param int $qperpage
@@ -232,7 +232,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     }
 
     /**
-     * set questionbank filter
+     * Set questionbank filter
      * @param string $which
      * @param mixed $value
      */

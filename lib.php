@@ -493,7 +493,6 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
     }
 }
 
-
 /**
  * Extends the settings navigation with the studentquiz settings
  *
