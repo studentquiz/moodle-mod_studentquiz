@@ -92,14 +92,14 @@ class studentquiz_view {
         global $DB;
         $questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->id));
 
-        if($questioncategory->parent != -1){
+        if ($questioncategory->parent != -1) {
             return;
         }
 
-        $parent_questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
+        $parentquestioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
 
-        if($parent_questioncategory){
-            $questioncategory->parent = $parent_questioncategory->id;
+        if ($parentquestioncategory) {
+            $questioncategory->parent = $parentquestioncategory->id;
             $DB->update_record('question_categories', $questioncategory);
         }
     }

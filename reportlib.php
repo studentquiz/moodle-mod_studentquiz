@@ -409,7 +409,6 @@ class studentquiz_report {
                     $viewobj->startattempturl, $unfinishedattemptid);
             }
 
-
             $viewobj->popuprequired = $accessmanager->attempt_must_be_in_popup();
             $viewobj->popupoptions = $accessmanager->get_popup_options();
 
