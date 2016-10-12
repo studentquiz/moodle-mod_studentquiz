@@ -126,3 +126,4 @@ $string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
 // Permission.
 $string['studentquiz:submit'] = 'Submit on studentquiz';
 $string['studentquiz:view'] = 'View studentquiz';
+$string['studentquiz:addinstance'] = 'Add new instance';

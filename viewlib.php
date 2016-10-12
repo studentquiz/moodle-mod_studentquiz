@@ -479,7 +479,6 @@ class studentquiz_view {
         return $this->hasquestionids;
     }
 
-
     /**
      * Get the question bank page url
      * @return moodle_url
