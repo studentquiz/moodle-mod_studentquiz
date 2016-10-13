@@ -208,13 +208,12 @@ class studentquiz_report {
      */
     private function get_all_users_in_course($courseid) {
         global $DB;
-        global $CFG;
 
         $sql = 'SELECT u.id as userid, c.id as courseid, u.firstname, u.lastname'
-            . '     FROM ' . $CFG->prefix . 'user u'
-            . '     INNER JOIN ' . $CFG->prefix . 'user_enrolments ue ON ue.userid = u.id'
-            . '     INNER JOIN ' . $CFG->prefix . 'enrol e ON e.id = ue.enrolid'
-            . '     INNER JOIN ' . $CFG->prefix . 'course c ON e.courseid = c.id'
+            . '     FROM {user} u'
+            . '     INNER JOIN {user_enrolments} ue ON ue.userid = u.id'
+            . '     INNER JOIN {enrol} e ON e.id = ue.enrolid'
+            . '     INNER JOIN {course} c ON e.courseid = c.id'
             . '     WHERE c.id = :courseid';
 
         return $DB->get_records_sql($sql, array(

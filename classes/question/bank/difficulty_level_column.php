@@ -46,17 +46,15 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        global $CFG;
-
         return array('dl' => 'LEFT JOIN ('
             . 'SELECT ROUND(1 - (COALESCE(correct.num, 0) / total.num), 2) AS difficultylevel,'
             . 'qa.questionid'
             . ' FROM {question_attempts} qa'
             . ' LEFT JOIN  ('
-            . ' SELECT COUNT(*) AS num, questionid FROM ' . $CFG->prefix . 'question_attempts WHERE rightanswer = responsesummary GROUP BY questionid'
+            . ' SELECT COUNT(*) AS num, questionid FROM {question_attempts} WHERE rightanswer = responsesummary GROUP BY questionid'
             . ') correct ON(correct.questionid = qa.questionid)'
             . ' LEFT JOIN ('
-            . 'SELECT COUNT(*) AS num, questionid FROM ' . $CFG->prefix . 'question_attempts WHERE responsesummary IS NOT NULL GROUP BY questionid'
+            . 'SELECT COUNT(*) AS num, questionid FROM {question_attempts} WHERE responsesummary IS NOT NULL GROUP BY questionid'
             . ') total ON(total.questionid = qa.questionid)'
             . ' GROUP BY qa.questionid, correct.num, total.num'
             . ') dl ON dl.questionid = q.id');
