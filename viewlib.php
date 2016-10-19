@@ -55,7 +55,7 @@ class mod_studentquiz_view {
     /**
      * @var  bool has question ids found
      */
-    protected $hasquestionids;
+    protected $hasquestionids = false;
     /**
      * @var object pagevars
      */

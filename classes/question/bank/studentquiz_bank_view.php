@@ -482,7 +482,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         if ($caneditall) {
-            echo '<input type="submit" class="btn" name="approveselected" value="' . get_string('approve', 'studentquiz') . "\" />\n";
+            echo '<input type="submit" class="btn" name="approveselected" value="'
+                    . get_string('approve', 'studentquiz') . "\" />\n";
             echo '<input type="submit" class="btn" name="deleteselected" value="' . get_string('delete') . "\" />\n";
         }
 
