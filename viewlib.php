@@ -112,7 +112,10 @@ class studentquiz_view {
     private function generate_quiz($ids) {
         if ($ids) {
             $this->hasquestionids = true;
-            if (!$qcmid = $this->generate_quiz_activity($ids)) {
+            // Check wether there allready is a Quiz for this User and exactly those questions
+            if ($qcmid = $this->get_existing_quiz($ids)) {
+
+            } else if (!$qcmid = $this->generate_quiz_activity($ids)) {
                 $this->hasprintableerror = true;
                 $this->errormessage = get_string('viewlib_please_contact_the_admin', 'studentquiz');
                 return false;
@@ -124,6 +127,30 @@ class studentquiz_view {
             $this->errormessage = get_string('viewlib_please_select_question', 'studentquiz');
             return false;
         }
+    }
+
+    /**
+     * Checks whetere there allready is the same quiz and returns its id
+     * @param array $ids question id's
+     * @return bool|int quiz-ID if any has been found
+     */
+    private function get_existing_quiz($ids) {
+        global $USER, $DB;
+        $sql = 'SELECT  quizid, COUNT(quizid) FROM mdl_quiz_slots WHERE questionid IN ('.implode(',',$ids).') '
+                .'GROUP BY quizid '
+                .'HAVING COUNT(questionid) = :nrofqs ';
+        $result = $DB->get_records_sql($sql, array(
+            'nrofqs' => count($ids)), 0, 1);
+        if ($entry = reset($result)) {
+            $qcmid = $DB->get_field('course_modules', 'id', array('instance'=>$entry->quizid));
+            if (!$DB->get_field('studentquiz_practice', 'id', array('userid'=>$USER->id, 'quizcoursemodule'=>$qcmid,
+                'studentquizcoursemodule'=>$this->get_cm_id()))) {
+                $this->save_quiz_practice($qcmid);
+            }
+            return $qcmid;
+        }
+
+        return false;
     }
 
     /**
@@ -161,7 +188,6 @@ class studentquiz_view {
         $quizpractice->quizcoursemodule = $quizcmid;
         $quizpractice->studentquizcoursemodule = $this->get_cm_id();
         $quizpractice->userid = $USER->id;
-
         $DB->insert_record('studentquiz_practice', $quizpractice);
     }
 
@@ -241,7 +267,7 @@ class studentquiz_view {
         global $USER;
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
-        $quiz->name = $this->cm->name . ' - ' . $USER->username . ' '. GENERATE_QUIZ_PLACEHOLDER;
+        $quiz->name = $this->cm->name;// . ' - ' . $USER->username . ' '. GENERATE_QUIZ_PLACEHOLDER;
         $quiz->intro = GENERATE_QUIZ_INTRO;
         $quiz->introformat = 1;
         $quiz->timeopen = 0;
