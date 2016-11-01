@@ -114,7 +114,7 @@ class studentquiz_view {
             $this->hasquestionids = true;
             // Check wether there allready is a Quiz for this User and exactly those questions
             if ($qcmid = $this->get_existing_quiz($ids)) {
-
+                return $qcmid;
             } else if (!$qcmid = $this->generate_quiz_activity($ids)) {
                 $this->hasprintableerror = true;
                 $this->errormessage = get_string('viewlib_please_contact_the_admin', 'studentquiz');
@@ -142,9 +142,9 @@ class studentquiz_view {
         $result = $DB->get_records_sql($sql, array(
             'nrofqs' => count($ids)), 0, 1);
         if ($entry = reset($result)) {
-            $qcmid = $DB->get_field('course_modules', 'id', array('instance'=>$entry->quizid));
-            if (!$DB->get_field('studentquiz_practice', 'id', array('userid'=>$USER->id, 'quizcoursemodule'=>$qcmid,
-                'studentquizcoursemodule'=>$this->get_cm_id()))) {
+            $qcmid = $DB->get_field('course_modules', 'id', array('instance' => $entry->quizid));
+            if (!$DB->get_field('studentquiz_practice', 'id', array('userid' => $USER->id, 'quizcoursemodule' => $qcmid,
+                'studentquizcoursemodule' => $this->get_cm_id()))) {
                 $this->save_quiz_practice($qcmid);
             }
             return $qcmid;
