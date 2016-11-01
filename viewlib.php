@@ -136,13 +136,17 @@ class studentquiz_view {
      */
     private function get_existing_quiz($ids) {
         global $USER, $DB;
-        $sql = 'SELECT  quizid, COUNT(quizid) FROM {quiz_slots} WHERE questionid IN ('.implode(',',$ids).') '
-                .'GROUP BY quizid '
-                .'HAVING COUNT(questionid) = :nrofqs ';
-        $result = $DB->get_records_sql($sql, array(
-            'nrofqs' => count($ids)), 0, 1);
+        $sql = 'SELECT  quizid, COUNT(quizid) FROM {quiz_slots} s1 '
+        .' WHERE questionid IN ('.implode(',', $ids).') '
+        .' AND (select count(s2.quizid) FROM {quiz_slots} s2 WHERE s1.quizid = s2.quizid) = '
+            . count($ids)
+                .' GROUP BY quizid '
+                .' HAVING COUNT(questionid) = '. count($ids) .' ';
+        $result = $DB->get_records_sql($sql, array(), 0, 1);
         if ($entry = reset($result)) {
-            $qcmid = $DB->get_field('course_modules', 'id', array('instance' => $entry->quizid));
+            $moduleid = get_quiz_module_id();
+
+            $qcmid = $DB->get_field('course_modules', 'id', array('instance' => $entry->quizid, 'module' => $moduleid));
             if (!$DB->get_field('studentquiz_practice', 'id', array('userid' => $USER->id, 'quizcoursemodule' => $qcmid,
                 'studentquizcoursemodule' => $this->get_cm_id()))) {
                 $this->save_quiz_practice($qcmid);
