@@ -136,7 +136,7 @@ class studentquiz_view {
      */
     private function get_existing_quiz($ids) {
         global $USER, $DB;
-        $sql = 'SELECT  quizid, COUNT(quizid) FROM mdl_quiz_slots WHERE questionid IN ('.implode(',',$ids).') '
+        $sql = 'SELECT  quizid, COUNT(quizid) FROM {quiz_slots} WHERE questionid IN ('.implode(',',$ids).') '
                 .'GROUP BY quizid '
                 .'HAVING COUNT(questionid) = :nrofqs ';
         $result = $DB->get_records_sql($sql, array(
