@@ -282,6 +282,7 @@ class studentquiz_report {
         foreach ($this->get_quiz_course_modules($userid) as $cm) {
             $quizobj = quiz::create($cm->instance, $userid);
             $quiz = $quizobj->get_quiz();
+            $quiz->cmid = $cm->id;
             $quizinfos[] = $quiz;
         }
         return $quizinfos;

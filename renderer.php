@@ -172,7 +172,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $cellcreated->text = userdate($quiz->timecreated);
 
             $cellurl = new html_table_cell();
-            $cellurl->text = html_writer::link(new moodle_url('/mod/quiz/view.php', array('id' => $quiz->id))
+            $cellurl->text = html_writer::link(new moodle_url('/mod/quiz/view.php', array('id' => $quiz->cmid))
                 , get_string('reportquiz_admin_quizzes_table_link_to_quiz', 'studentquiz'));
 
             $row = new html_table_row();
