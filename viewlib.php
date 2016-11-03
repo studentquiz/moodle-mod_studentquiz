@@ -71,6 +71,7 @@ class studentquiz_view {
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid the course_module id for this studentquiz
+     * @throws moodle_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
         global $DB, $COURSE;
@@ -91,26 +92,30 @@ class studentquiz_view {
         global $DB;
         $questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->id));
 
-        if($questioncategory->parent != -1){
+        if ($questioncategory->parent != -1) {
             return;
         }
 
-        $parent_questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
+        $parentquestioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
 
-        if($parent_questioncategory){
-            $questioncategory->parent = $parent_questioncategory->id;
+        if ($parentquestioncategory) {
+            $questioncategory->parent = $parentquestioncategory->id;
             $DB->update_record('question_categories', $questioncategory);
         }
     }
+
     /**
-     * generate a quiz if id's are submitted
+     * Generate a quiz if id's are submitted
      * @param array $ids question id's
      * @return bool|int generated quiz course_module id or false on error
      */
     private function generate_quiz($ids) {
         if ($ids) {
             $this->hasquestionids = true;
-            if (!$qcmid = $this->generate_quiz_activity($ids)) {
+            // Check wether there allready is a Quiz for this User and exactly those questions
+            if ($qcmid = $this->get_existing_quiz($ids)) {
+                return $qcmid;
+            } else if (!$qcmid = $this->generate_quiz_activity($ids)) {
                 $this->hasprintableerror = true;
                 $this->errormessage = get_string('viewlib_please_contact_the_admin', 'studentquiz');
                 return false;
@@ -125,7 +130,35 @@ class studentquiz_view {
     }
 
     /**
-     * setup all quiz information and generate it
+     * Checks whetere there allready is the same quiz and returns its id
+     * @param array $ids question id's
+     * @return bool|int quiz-ID if any has been found
+     */
+    private function get_existing_quiz($ids) {
+        global $USER, $DB;
+        $sql = 'SELECT  quizid, COUNT(quizid) FROM {quiz_slots} s1 '
+        .' WHERE questionid IN ('.implode(',', $ids).') '
+        .' AND (select count(s2.quizid) FROM {quiz_slots} s2 WHERE s1.quizid = s2.quizid) = '
+            . count($ids)
+                .' GROUP BY quizid '
+                .' HAVING COUNT(questionid) = '. count($ids) .' ';
+        $result = $DB->get_records_sql($sql, array(), 0, 1);
+        if ($entry = reset($result)) {
+            $moduleid = get_quiz_module_id();
+
+            $qcmid = $DB->get_field('course_modules', 'id', array('instance' => $entry->quizid, 'module' => $moduleid));
+            if (!$DB->get_field('studentquiz_practice', 'id', array('userid' => $USER->id, 'quizcoursemodule' => $qcmid,
+                'studentquizcoursemodule' => $this->get_cm_id()))) {
+                $this->save_quiz_practice($qcmid);
+            }
+            return $qcmid;
+        }
+
+        return false;
+    }
+
+    /**
+     * Setup all quiz information and generate it
      * @param array $ids question id's
      * @return bool|int generated quiz course_module id or false on error
      */
@@ -150,7 +183,7 @@ class studentquiz_view {
     }
 
     /**
-     * create a new studentquiz practice entry in the database
+     * Create a new studentquiz practice entry in the database
      * @param int $quizcmid quiz course module id
      */
     private function save_quiz_practice($quizcmid) {
@@ -159,12 +192,11 @@ class studentquiz_view {
         $quizpractice->quizcoursemodule = $quizcmid;
         $quizpractice->studentquizcoursemodule = $this->get_cm_id();
         $quizpractice->userid = $USER->id;
-
         $DB->insert_record('studentquiz_practice', $quizpractice);
     }
 
     /**
-     * set the course_section information
+     * Set the course_section information
      * @param int $courseid destination course id
      * @param int $coursemoudleid quiz course_module id
      */
@@ -188,7 +220,7 @@ class studentquiz_view {
     }
 
     /**
-     * create a new course section with default parameters
+     * Create a new course section with default parameters
      * @param int $courseid destination course id
      * @return bool|int course_sectionds id or false on error
      */
@@ -206,7 +238,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the course_section with the defined default parameter
+     * Get the course_section with the defined default parameter
      * @return mixed course_section rows
      */
     private function get_course_section() {
@@ -215,7 +247,7 @@ class studentquiz_view {
     }
 
     /**
-     * create a quiz course_module entry with the destination courseid
+     * Create a quiz course_module entry with the destination courseid
      * @param int $courseid destination course id
      * @return bool|int course_modules id or false on error
      */
@@ -231,7 +263,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the standard quiz setup - default database parameters quiz table
+     * Get the standard quiz setup - default database parameters quiz table
      * with question behaviour setup in activity module
      * @return stdClass quiz object
      */
@@ -239,7 +271,7 @@ class studentquiz_view {
         global $USER;
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
-        $quiz->name = $this->cm->name . ' - ' . $USER->username . ' '. GENERATE_QUIZ_PLACEHOLDER;
+        $quiz->name = $this->cm->name;// . ' - ' . $USER->username . ' '. GENERATE_QUIZ_PLACEHOLDER;
         $quiz->intro = GENERATE_QUIZ_INTRO;
         $quiz->introformat = 1;
         $quiz->timeopen = 0;
@@ -387,7 +419,7 @@ class studentquiz_view {
     }
 
     /**
-     * generate the quiz activity with the filtered quiz ids
+     * Generate the quiz activity with the filtered quiz ids
      * @param array $ids filtered question ids
      * @return bool|int course_module id from generate quiz or false on error
      */
@@ -402,7 +434,7 @@ class studentquiz_view {
     }
 
     /**
-     * generate the quiz activity with the selected quiz ids
+     * Generate the quiz activity with the selected quiz ids
      * @param mixed $submitdata
      * @return bool|int course_module id from generate quiz or false on error
      */
@@ -411,7 +443,7 @@ class studentquiz_view {
     }
 
     /**
-     * shows the question custom bank view
+     * Shows the question custom bank view
      */
     public function show_questionbank() {
         // Workaround to get permission to use questionbank.
@@ -436,7 +468,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the quiz ids from the submit data
+     * Get the quiz ids from the submit data
      * @param mixed $rawdata array with prefix q and the id
      * @return array without the prefix q
      */
@@ -451,7 +483,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the question ids
+     * Get the question ids
      * @param mixed $rawdata
      * @return array|bool ids or false on empty array
      */
@@ -470,16 +502,15 @@ class studentquiz_view {
     }
 
     /**
-     * has question ids set
+     * Has question ids set
      * @return bool
      */
     public function has_question_ids() {
         return $this->hasquestionids;
     }
 
-
     /**
-     * get the question bank page url
+     * Get the question bank page url
      * @return moodle_url
      */
     public function get_pageurl() {
@@ -487,7 +518,7 @@ class studentquiz_view {
     }
 
     /**
-     * get actual view url
+     * Get actual view url
      * @return moodle_url
      */
     public function get_viewurl() {
@@ -495,7 +526,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the question pagevar
+     * Get the question pagevar
      * @return object
      */
     public function get_qb_pagevar() {
@@ -503,7 +534,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the urlview data (includes cmid)
+     * Get the urlview data (includes cmid)
      * @return array
      */
     public function get_urlview_data() {
@@ -511,7 +542,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity course
+     * Get activity course
      * @return mixed|stdClass
      */
     public function get_course() {
@@ -519,7 +550,7 @@ class studentquiz_view {
     }
 
     /**
-     * has printable error
+     * Has printable error
      * @return bool
      */
     public function has_printableerror() {
@@ -527,7 +558,7 @@ class studentquiz_view {
     }
 
     /**
-     * get error message
+     * Get error message
      * @return string error message
      */
     public function get_errormessage() {
@@ -535,7 +566,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity course module
+     * Get activity course module
      * @return stdClass
      */
     public function get_coursemodule() {
@@ -543,7 +574,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity course module id
+     * Get activity course module id
      * @return mixed
      */
     public function get_cm_id() {
@@ -551,7 +582,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity category id
+     * Get activity category id
      * @return mixed
      */
     public function get_category_id() {
@@ -559,7 +590,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity context id
+     * Get activity context id
      * @return int
      */
     public function get_context_id() {
@@ -567,7 +598,7 @@ class studentquiz_view {
     }
 
     /**
-     * get activity context
+     * Get activity context
      * @return int
      */
     public function get_context() {
@@ -575,7 +606,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the view title
+     * Get the view title
      * @return string
      */
     public function get_title() {
@@ -583,7 +614,7 @@ class studentquiz_view {
     }
 
     /**
-     * get the question view
+     * Get the question view
      * @return mixed
      */
     public function get_questionbank() {

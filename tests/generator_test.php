@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_studentquiz_generator_testcase extends advanced_testcase {
 
     /**
-     * test create comment
+     * Test create comment
      * @throws coding_exception
      */
     public function test_create_comment() {
@@ -60,7 +60,7 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
     }
 
     /**
-     * test create vote
+     * Test create vote
      * @throws coding_exception
      */
     public function test_create_vote() {

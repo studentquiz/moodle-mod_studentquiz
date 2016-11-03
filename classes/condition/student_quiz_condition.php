@@ -58,7 +58,6 @@ class student_quiz_condition extends \core_question\bank\search\category_conditi
     /**
      * Display the drop down to select the category.
      *
-     *
      * @param array $contexts of contexts that can be accessed from here.
      * @param \moodle_url $pageurl the URL of this page.
      * @param string $current 'categoryID,contextID'.

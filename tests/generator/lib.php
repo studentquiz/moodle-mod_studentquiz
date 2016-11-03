@@ -60,7 +60,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * create studentquiz instance
+     * Create studentquiz instance
      * @param stdClass $record
      * @param array $options
      * @return stdClass
@@ -77,7 +77,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * create studentquiz comment on question
+     * Create studentquiz comment on question
      * @param null $record
      * @return object
      */
@@ -97,7 +97,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * create studentquiz vote on question
+     * Create studentquiz vote on question
      * @param null $record
      * @return object
      */

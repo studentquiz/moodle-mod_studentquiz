@@ -35,7 +35,7 @@ defined('MOODLE_INTERNAL') || die();
 class studentquiz_report_rank_viewed extends \core\event\base {
 
     /**
-     * init event
+     * Init event
      */
     protected function init() {
         $this->data['crud'] = 'r';
@@ -44,7 +44,7 @@ class studentquiz_report_rank_viewed extends \core\event\base {
     }
 
     /**
-     * get description
+     * Get description
      * @return string get description
      */
     public function get_description() {
@@ -52,7 +52,7 @@ class studentquiz_report_rank_viewed extends \core\event\base {
     }
 
     /**
-     * get url
+     * Get url
      * @return \moodle_url view.php url
      */
     public function get_url() {

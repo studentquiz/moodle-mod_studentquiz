@@ -55,9 +55,11 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
     protected function process_studentquiz($data) {
         global $DB;
 
+        //file_put_contents("D:/test.txt", implode($data, ',') . "\n", FILE_APPEND);
+
         $data = (object)$data;
-        $oldid = $data->id;
         $data->course = $this->get_courseid();
+        $data->coursemodule = 0; // Will be updated later
 
         if (empty($data->timecreated)) {
             $data->timecreated = time();
@@ -74,6 +76,9 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
 
         // Create the studentquiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
+
+
+
         $this->apply_activity_instance($newitemid);
     }
 
@@ -81,7 +86,21 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
      * Post-execution actions
      */
     protected function after_execute() {
+        global $DB;
+
         // Add studentquiz related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_studentquiz', 'intro', null);
+
+        // Update the coursemodule id on the studentquiz table
+        $courseid = $this->get_courseid();
+        $moduleid = $DB->get_field('modules', 'id', array('name'=>'studentquiz'));
+
+        $cms = $DB->get_records('course_modules', array('course'=>$courseid, 'module'=>$moduleid));
+
+        foreach ($cms as $cm) {
+            $studentquiz = $DB->get_record('studentquiz', array('id'=>$cm->instance));
+            $studentquiz->coursemodule = $cm->id;
+            $DB->update_record('studentquiz',$studentquiz);
+        }
     }
 }

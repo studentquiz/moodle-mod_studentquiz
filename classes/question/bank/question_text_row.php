@@ -39,7 +39,7 @@ class question_text_row extends \core_question\bank\row_base {
     protected $formatoptions;
 
     /**
-     * get the row name
+     * Get the row name
      * @return string questiontext
      */
     public function get_name() {
@@ -47,13 +47,13 @@ class question_text_row extends \core_question\bank\row_base {
     }
 
     /**
-     * override parent function to don't show the title
+     * Override parent function to don't show the title
      */
     protected function get_title() {
     }
 
     /**
-     * override parent function to don't show content
+     * Override parent function to don't show content
      * @param object $question empty
      * @param string $rowclasses empty
      */
@@ -61,7 +61,7 @@ class question_text_row extends \core_question\bank\row_base {
     }
 
     /**
-     * (copy from parent class - modified several code snippets)
+     * (Copy from parent class - modified several code snippets)
      * Output this column.
      * @param object $question the row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
@@ -70,7 +70,7 @@ class question_text_row extends \core_question\bank\row_base {
     }
 
     /**
-     * get the extra join text
+     * Get the extra join text
      * @return array join text
      */
     public function get_extra_joins() {
@@ -78,7 +78,7 @@ class question_text_row extends \core_question\bank\row_base {
     }
 
     /**
-     * get required fields
+     * Get required fields
      * @return array get all required fields
      */
     public function get_required_fields() {

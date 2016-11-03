@@ -31,7 +31,7 @@ require_once($CFG->dirroot.'/user/filters/text.php');
 require_once($CFG->dirroot.'/user/filters/date.php');
 
 /**
- * question bank filter form intance
+ * Question bank filter form intance
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -40,13 +40,13 @@ require_once($CFG->dirroot.'/user/filters/date.php');
 class question_bank_filter_form extends moodleform {
 
     /**
-     * filter fields of question bank
+     * Filter fields of question bank
      * @var array
      */
     private $fields;
 
     /**
-     * question_bank_filter_form constructor.
+     * Question_bank_filter_form constructor.
      * @param mixed|null $fields filters
      * @param mixed $action the action attribute for the form. If empty defaults to auto detect the
      *              current url. If a moodle_url object then outputs params as hidden variables.
@@ -68,7 +68,7 @@ class question_bank_filter_form extends moodleform {
     }
 
     /**
-     * get fields
+     * Get fields
      * @return array fields filter
      */
     public function get_fields() {
@@ -98,7 +98,7 @@ class question_bank_filter_form extends moodleform {
     }
 
     /**
-     * set form defaults
+     * Set form defaults
      */
     public function set_defaults() {
         $submission = array();
@@ -125,7 +125,7 @@ class question_bank_filter_form extends moodleform {
 
 
 /**
- * number filter
+ * Number filter
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -136,7 +136,7 @@ class user_filter_number extends user_filter_text {
      * Returns an array of comparison operators
      * @return array of comparison operators
      */
-    public function getOperators() {
+    public function get_operators() {
         return array(0 => get_string('filter_ishigher', 'studentquiz'),
             1 => get_string('filter_islower', 'studentquiz'));
     }

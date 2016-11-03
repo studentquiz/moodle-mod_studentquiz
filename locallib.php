@@ -51,7 +51,7 @@ const COURSE_SECTION_VISIBLE = false;
 const DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
 /**
- * checks whether the studentquiz behaviour exists
+ * Checks whether the studentquiz behaviour exists
  *
  * @return bool
  */
@@ -60,7 +60,6 @@ function has_studentquiz_behaviour() {
 
     return array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours);
 }
-
 
 /**
  * Returns behaviour option from the course module with fallback
@@ -92,7 +91,7 @@ function get_current_behaviour($cm=null) {
 }
 
 /**
- * returns quiz module id
+ * Returns quiz module id
  * @return int
  */
 function get_quiz_module_id() {
@@ -101,7 +100,7 @@ function get_quiz_module_id() {
 }
 
 /**
- * check if user has permission to see creator
+ * Check if user has permission to see creator
  * @return bool
  */
 function mod_check_created_permission() {
@@ -120,7 +119,7 @@ function mod_check_created_permission() {
 }
 
 /**
- * checks if activity is anonym or not
+ * Checks if activity is anonym or not
  * @param  int  $cmid course module id
  * @return boolean
  */

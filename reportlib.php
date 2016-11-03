@@ -49,9 +49,11 @@ class studentquiz_report {
      * @var context the quiz context.
      */
     protected $context;
+
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid course_module id
+     * @throws moodle_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
         global $DB;
@@ -66,7 +68,7 @@ class studentquiz_report {
     }
 
     /**
-     * get quiz report url
+     * Get quiz report url
      * @return moodle_url
      */
     public function get_quizreporturl() {
@@ -74,7 +76,7 @@ class studentquiz_report {
     }
 
     /**
-     * get quiz report url
+     * Get quiz report url
      * @return moodle_url
      */
     public function get_rankreporturl() {
@@ -82,7 +84,7 @@ class studentquiz_report {
     }
 
     /**
-     * get the urlview data (includes cmid)
+     * Get the urlview data (includes cmid)
      * @return array
      */
     public function get_urlview_data() {
@@ -90,7 +92,7 @@ class studentquiz_report {
     }
 
     /**
-     * get activity course module
+     * Get activity course module
      * @return stdClass
      */
     public function get_coursemodule() {
@@ -98,16 +100,15 @@ class studentquiz_report {
     }
 
     /**
-     * get activity course module id
+     * Get activity course module id
      * @return mixed
      */
     public function get_cm_id() {
         return $this->cm->id;
     }
 
-
     /**
-     * get activity context id
+     * Get activity context id
      * @return int
      */
     public function get_context_id() {
@@ -115,7 +116,7 @@ class studentquiz_report {
     }
 
     /**
-     * get activity context
+     * Get activity context
      * @return int
      */
     public function get_context() {
@@ -123,7 +124,7 @@ class studentquiz_report {
     }
 
     /**
-     * get activity course
+     * Get activity course
      * @return int
      */
     public function get_course() {
@@ -131,7 +132,7 @@ class studentquiz_report {
     }
 
     /**
-     * get heading course fullname heading
+     * Get heading course fullname heading
      * @return int
      */
     public function get_heading() {
@@ -139,7 +140,7 @@ class studentquiz_report {
     }
 
     /**
-     * get the title
+     * Get the title
      * @return string
      */
     public function get_title() {
@@ -147,7 +148,7 @@ class studentquiz_report {
     }
 
     /**
-     * get's the course_section id from the orphan section
+     * Get's the course_section id from the orphan section
      * @return mixed course_section id
      */
     private function get_quiz_course_section_id() {
@@ -156,7 +157,7 @@ class studentquiz_report {
     }
 
     /**
-     * get all quiz course_modules from the active studentquiz
+     * Get all quiz course_modules from the active studentquiz
      * @param int $userid
      * @return array stdClass course modules
      */
@@ -178,7 +179,7 @@ class studentquiz_report {
     }
 
     /**
-     * get quiz tables
+     * Get quiz tables
      * @return string rendered /mod/quiz/view tables
      */
     public function get_quiz_tables() {
@@ -201,7 +202,7 @@ class studentquiz_report {
     }
 
     /**
-     * get all users in a course
+     * Get all users in a course
      * @param int $courseid
      * @return array stdClass userid, courseid, firstname, lastname
      */
@@ -209,10 +210,10 @@ class studentquiz_report {
         global $DB;
 
         $sql = 'SELECT u.id as userid, c.id as courseid, u.firstname, u.lastname'
-            . '     FROM mdl_user u'
-            . '     INNER JOIN mdl_user_enrolments ue ON ue.userid = u.id'
-            . '     INNER JOIN mdl_enrol e ON e.id = ue.enrolid'
-            . '     INNER JOIN mdl_course c ON e.courseid = c.id'
+            . '     FROM {user} u'
+            . '     INNER JOIN {user_enrolments} ue ON ue.userid = u.id'
+            . '     INNER JOIN {enrol} e ON e.id = ue.enrolid'
+            . '     INNER JOIN {course} c ON e.courseid = c.id'
             . '     WHERE c.id = :courseid';
 
         return $DB->get_records_sql($sql, array(
@@ -221,7 +222,7 @@ class studentquiz_report {
     }
 
     /**
-     * is admin check
+     * Is admin check
      * @return bool
      */
     public function is_admin() {
@@ -229,7 +230,7 @@ class studentquiz_report {
     }
 
     /**
-     * get quiz admin statistic view
+     * Get quiz admin statistic view
      * @return string pre rendered /mod/stundentquiz view_quizreport_table
      */
     public function get_quiz_admin_statistic_view() {
@@ -272,7 +273,7 @@ class studentquiz_report {
     }
 
     /**
-     * get quiz information
+     * Get quiz information
      * @param int $userid
      * @return array
      */
@@ -281,13 +282,14 @@ class studentquiz_report {
         foreach ($this->get_quiz_course_modules($userid) as $cm) {
             $quizobj = quiz::create($cm->instance, $userid);
             $quiz = $quizobj->get_quiz();
+            $quiz->cmid = $cm->id;
             $quizinfos[] = $quiz;
         }
         return $quizinfos;
     }
 
     /**
-     * pre render the single user summary table and get quiz stats
+     * Pre render the single user summary table and get quiz stats
      * @param int $userid
      * @param stdClass $total
      * @return mixed|string
@@ -407,7 +409,6 @@ class studentquiz_report {
                     $viewobj->startattempturl, $unfinishedattemptid);
             }
 
-
             $viewobj->popuprequired = $accessmanager->attempt_must_be_in_popup();
             $viewobj->popupoptions = $accessmanager->get_popup_options();
 
@@ -477,7 +478,7 @@ class studentquiz_report {
     }
 
     /**
-     * get the obtainedmarks, questionright, questionanswered total from the attempt
+     * Get the obtainedmarks, questionright, questionanswered total from the attempt
      * @param int $quizid
      * @param int $attemptuniqueid
      * @param stdClass $total
@@ -497,7 +498,7 @@ class studentquiz_report {
     }
 
     /**
-     * get the quiz slots
+     * Get the quiz slots
      * @param int $quizid
      * @return array stdClass slot array
      */
@@ -509,7 +510,7 @@ class studentquiz_report {
     }
 
     /**
-     * get the calculcated user ranking from the database
+     * Get the calculcated user ranking from the database
      * @return array user ranking data
      */
     public function get_user_ranking() {
@@ -597,7 +598,7 @@ class studentquiz_report {
     }
 
     /**
-     * is the logged in user
+     * Is the logged in user
      * @param int $userid
      * @return bool is loggedin user
      */
@@ -608,7 +609,7 @@ class studentquiz_report {
     }
 
     /**
-     * is anonym active
+     * Is anonym active
      * @return bool
      */
     public function is_anonym() {
