@@ -249,7 +249,8 @@ class mod_studentquiz_view {
      */
     private function get_course_section() {
         global $DB;
-        return $DB->get_record('course_sections', array('section' => STUDENTQUIZ_COURSE_SECTION_ID, 'course' => $this->get_course()->id));
+        return $DB->get_record('course_sections', array('section' => STUDENTQUIZ_COURSE_SECTION_ID,
+                                                        'course' => $this->get_course()->id));
     }
 
     /**
@@ -467,8 +468,8 @@ class mod_studentquiz_view {
         }
         $this->qbpagevar = $pagevars;
 
-        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts
-            , $thispageurl, $this->course, $this->cm);
+        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl,
+                                                                                       $this->course, $this->cm);
         $this->questionbank->process_actions();
     }
 

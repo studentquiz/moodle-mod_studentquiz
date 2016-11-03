@@ -51,7 +51,7 @@ $string['comment_column_name'] = 'Comments';
 $string['difficulty_level_column_name'] = 'Difficulty';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
-$string['start_quiz_button'] = 'Run selected questions';
+$string['start_quiz_button'] = 'Start Quiz';
 $string['nav_question_and_quiz'] = 'Quiz and Questions';
 $string['nav_report'] = 'Report';
 $string['nav_report_quiz'] = 'Quiz';
@@ -99,7 +99,7 @@ $string['config_correct_answered_q_quantifier'] = 'Points received for answering
 $string['settings_incorrect_answered_q_quantifier'] = 'Points for each wrong answer';
 $string['config_incorrect_answered_q_quantifier'] = 'Points received for answering a question wrongly.';
 
-// Report Dashboard
+// Report Dashboard.
 $string['reportquiz_dashboard_title'] = 'Dashboard';
 
 // Report quiz.
@@ -121,7 +121,7 @@ $string['reportquiz_admin_quizzes_table_column_qbehaviour'] = 'Quiz behaviour';
 $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Created';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link to quiz';
 
-// Report quiz stats
+// Report quiz stats.
 $string['reportquiz_stats_title'] = 'Stats';
 $string['reportquiz_stats_nr_of_questions'] = 'Number of questions';
 $string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';

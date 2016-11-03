@@ -69,8 +69,9 @@ if ($contexts === null) { // Need to get the course from the chosen category.
 
 $PAGE->set_url($thispageurl);
 
-$importform = new mod_studentquiz_question_import_form($thispageurl, array('contexts' => $contexts->having_one_edit_tab_cap('import'),
-    'defaultcategory' => $pagevars['cat']));
+$importform = new mod_studentquiz_question_import_form($thispageurl,
+                                                       array('contexts' => $contexts->having_one_edit_tab_cap('import'),
+                                                       'defaultcategory' => $pagevars['cat']));
 
 if ($importform->is_cancelled()) {
     redirect($thispageurl);

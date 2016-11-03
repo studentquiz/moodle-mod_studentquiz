@@ -153,7 +153,8 @@ class mod_studentquiz_report {
      */
     private function get_quiz_course_section_id() {
         global $DB;
-        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id, 'section' => STUDENTQUIZ_COURSE_SECTION_ID));
+        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id,
+                                                             'section' => STUDENTQUIZ_COURSE_SECTION_ID));
     }
 
     /**
@@ -161,9 +162,7 @@ class mod_studentquiz_report {
      * @param int $userid
      * @return array stdClass course modules
      */
-    private function get_quiz_course_modules($userid)
-    {
-        /** @var mysqli_native_moodle_database $DB */
+    private function get_quiz_course_modules($userid) {
         global $DB;
 
         $sql = 'SELECT'
@@ -300,8 +299,7 @@ class mod_studentquiz_report {
      * @param int $userid
      * @return array
      */
-    public function get_user_quiz_stats($userid)
-    {
+    public function get_user_quiz_stats($userid) {
         global $DB;
         $sql = 'select ( '
             . '  SELECT count(1) '

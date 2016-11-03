@@ -253,7 +253,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         if ($isadmin) {
             return $output;
-            //$output = $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_total_heading');
         } else {
             $output = $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
         }
@@ -267,7 +266,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         );
 
         $output .= html_writer::tag('p',
-            html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
+            html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz')
+                              . ': ', 'reportquiz_total_label')
             .html_writer::span($stats->totalrightanswers)
         );
 
