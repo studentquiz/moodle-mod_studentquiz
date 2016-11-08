@@ -241,9 +241,47 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $output;
     }
 
+
+    /**
+     * Builds the quiz report total section
+     * @param stdClass $total
+     * @param bool $isadmin
+     * @return string quiz report data
+     */
+    public function view_quizreport_stats($stats, $isadmin = false) {
+        $output = '';
+
+        if ($isadmin) {
+            return $output;
+            //$output = $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+        } else {
+            $output = $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
+        }
+        $string['reportquiz_stats_title'] = 'Stats';
+        $string['reportquiz_stats_nr_of_questions'] = 'Number of questions';
+        $string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';
+        $string['reportquiz_stats_nr_of_own_questions'] = 'Own questions';
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->totalnrofquestions)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->totalrightanswers)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_nr_of_own_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->totalusersquestions)
+        );
+
+        return $output;
+    }
+
     /**
      * Builds the studentquiz_bank_view
-     * @param mod_studentquiz\question\bank\studentquiz_bank_view $view studentquiz_view class with the necessary information
+     * @param studentquiz_view $view studentquiz_view class with the necessary information
      */
     public function display_questionbank($view) {
         echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';

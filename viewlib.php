@@ -615,7 +615,7 @@ class studentquiz_view {
 
     /**
      * Get the question view
-     * @return mixed
+     * @return \mod_studentquiz\question\bank\studentquiz_bank_view mixed
      */
     public function get_questionbank() {
         return $this->questionbank;

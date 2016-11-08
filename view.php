@@ -58,6 +58,7 @@ if (data_submitted()) {
     }
 }
 
+/** @var mod_studentquiz_renderer $output */
 $output = $PAGE->get_renderer('mod_studentquiz');
 
 $view->show_questionbank();

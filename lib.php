@@ -471,13 +471,13 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
  * @param cm_info $cm course module information
  */
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    $navref->add(get_string('nav_question_and_quiz', 'studentquiz')
-        , new moodle_url('/mod/studentquiz/view.php?id=' . $cm->id));
-    $reportnode = $navref->add(get_string('nav_report', 'studentquiz'));
-    $reportnode->add(get_string('nav_report_rank', 'studentquiz')
-        , new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
-    $reportnode->add(get_string('nav_report_quiz', 'studentquiz')
+    // $navref->add(get_string('nav_question_and_quiz', 'studentquiz')
+    //    , new moodle_url('/mod/studentquiz/view.php?id=' . $cm->id));
+    // $reportnode = $navref->add(get_string('nav_report', 'studentquiz'));
+    $navref->add(get_string('reportquiz_dashboard_title', 'studentquiz')
         , new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
+    $navref->add(get_string('nav_report_rank', 'studentquiz')
+        , new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
 
     if (mod_check_created_permission()) {
         $context = context_module::instance($cm->id);

@@ -27,7 +27,7 @@ require_once(dirname(__FILE__) . '/locallib.php');
 require_once($CFG->dirroot . '/mod/quiz/renderer.php');
 require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
-require_once($CFG->libdir.'/gradelib.php');
+require_once($CFG->libdir . '/gradelib.php');
 
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
@@ -161,7 +161,9 @@ class studentquiz_report {
      * @param int $userid
      * @return array stdClass course modules
      */
-    private function get_quiz_course_modules($userid) {
+    private function get_quiz_course_modules($userid)
+    {
+        /** @var mysqli_native_moodle_database $DB */
         global $DB;
 
         $sql = 'SELECT'
@@ -184,6 +186,8 @@ class studentquiz_report {
      */
     public function get_quiz_tables() {
         global $PAGE, $USER;
+
+        /** @var mod_studentquiz_renderer $reportrenderer */
         $reportrenderer = $PAGE->get_renderer('mod_studentquiz');
 
         $total = new stdClass();
@@ -194,7 +198,10 @@ class studentquiz_report {
 
         $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
 
-        $output = $reportrenderer->view_quizreport_total($total);
+        $outputstats = $this->get_user_quiz_stats($USER->id);
+
+        $output = $reportrenderer->view_quizreport_stats($outputstats);
+        $output .= $reportrenderer->view_quizreport_total($total);
         $output .= $reportrenderer->view_quizreport_summary();
         $output .= $outputsummaries;
 
@@ -286,6 +293,42 @@ class studentquiz_report {
             $quizinfos[] = $quiz;
         }
         return $quizinfos;
+    }
+
+    /**
+     * gets the Stats of the user for the actual studenquiz
+     * @param int $userid
+     * @return array
+     */
+    public function get_user_quiz_stats($userid)
+    {
+        global $DB;
+        $sql = 'select ( '
+            . '  SELECT count(1) '
+            . '  FROM {question} q '
+            . '    LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            . '    LEFT JOIN {context} c ON qc.contextid = c.id '
+            . '  WHERE c.instanceid = :cmid AND c.contextlevel = 70 '
+            . ') AS TotalNrOfQuestions, '
+            . '  (SELECT count(1) '
+            . '   FROM {question} q '
+            . '     LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            . '     LEFT JOIN {context} c ON qc.contextid = c.id '
+            . '   WHERE c.instanceid = :cmid2 AND c.contextlevel = 70 AND q.createdby = :userid '
+            . '  ) AS TotalUsersQuestions, '
+            . '  (select count(DISTINCT att.questionid) '
+            . '   from {question_attempt_steps} ats '
+            . '     left JOIN {question_attempts} att on att.id = ats.questionattemptid '
+            . '   WHERE ats.userid = :userid2 AND ats.state = "gradedright" '
+            . '         AND att.questionid in (SELECT q.id '
+            . '                            FROM {question} q '
+            . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
+            . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)) AS TotalRightAnswers ';
+        $record = $DB->get_record_sql($sql, array(
+            'cmid' => $this->cm->id, 'cmid2' => $this->cm->id, 'cmid3' => $this->cm->id,
+            'userid' => $userid, 'userid2' => $userid));
+        return $record;
     }
 
     /**
