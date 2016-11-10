@@ -85,9 +85,9 @@ $string['filter'] = 'Filter';
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';
 $string['settings_add_q_quantifier'] = 'Points for each question created';
-$string['config_add_q_quantifier'] = 'Points received for the creation of a new question.';
+$string['config_add_q_quantifier'] = 'Points received for creating a new question.';
 $string['settings_vote_quantifier'] = 'Multiplier for the average of stars received for a question';
-$string['config_vote_quantifier'] = 'E.g. if the multiplier is 2 and a question is rated with an average of 4.3 stars, the author of the question will receive 9 points (= ROUND(2 * 4.3; 1)).';
+$string['config_vote_quantifier'] = 'E.g. if the multiplier is 3 and a question is rated with an average of 4.3 stars, the author of the question will receive 13 points (= ROUND(3 * 4.3; 1)).';
 $string['settings_correct_answered_q_quantifier'] = 'Points for each correct answer';
 $string['config_correct_answered_q_quantifier'] = 'Points received for answering a question correctly.';
 $string['settings_incorrect_answered_q_quantifier'] = 'Points for each wrong answer';
