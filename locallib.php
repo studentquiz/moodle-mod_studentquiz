@@ -15,9 +15,9 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Internal library of functions for module studentquiz
+ * Internal library of functions for module StudentQuiz
  *
- * All the studentquiz specific functions, needed to implement the module
+ * All the StudentQuiz specific functions, needed to implement the module
  * logic, should go here. Never include this file from your lib.php!
  *
  * @package    mod_studentquiz
@@ -47,11 +47,11 @@ const COURSE_SECTION_SUMMARY = 'all student quizzes';
 const COURSE_SECTION_SUMMARYFORMAT = 1;
 /** @var string default course section visible for the orphaned activities */
 const COURSE_SECTION_VISIBLE = false;
-/** @var string default studentquiz quiz practice behaviour */
+/** @var string default StudentQuiz quiz practice behaviour */
 const DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
 /**
- * Checks whether the studentquiz behaviour exists
+ * Checks whether the StudentQuiz behaviour exists
  *
  * @return bool
  */

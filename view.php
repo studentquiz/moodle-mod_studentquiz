@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This page is the entry page into the studentquiz UI.
+ * This page is the entry page into the StudentQuiz UI.
  *
  * Displays information about the questions to students and teachers,
  * and lets students to generate new quizzes or add questions.

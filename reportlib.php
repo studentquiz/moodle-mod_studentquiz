@@ -157,7 +157,7 @@ class studentquiz_report {
     }
 
     /**
-     * Get all quiz course_modules from the active studentquiz
+     * Get all quiz course_modules from the active StudentQuiz
      * @param int $userid
      * @return array stdClass course modules
      */

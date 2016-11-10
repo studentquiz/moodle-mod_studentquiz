@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/restore_studentquiz_stepslib.php');
 
 /**
- * Restore task for the studentquiz activity module
+ * Restore task for the StudentQuiz activity module
  *
  * Provides all the settings and steps to perform complete restore of the activity.
  *
@@ -83,7 +83,7 @@ class restore_studentquiz_activity_task extends restore_activity_task {
     /**
      * Define the restore log rules that will be applied
      * by the {@link restore_logs_processor} when restoring
-     * studentquiz logs. It must return one array
+     * StudentQuiz logs. It must return one array
      * of {@link restore_log_rule} objects
      */
     static public function define_restore_log_rules() {
