@@ -34,6 +34,7 @@ require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/question_bank_filter.php');
 require_once(dirname(__FILE__).'/question_text_row.php');
+require_once(dirname(__FILE__).'/performances_column.php');
 
 /**
  * Module instance settings form
@@ -81,7 +82,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param object $course
      * @param null|object $cm
      */
-    public function     __construct($contexts, $pageurl, $course, $cm) {
+    public function __construct($contexts, $pageurl, $course, $cm) {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->set_fields();
         $this->init($pageurl);
@@ -97,6 +98,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level'
             , 'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
+        $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
         $this->fields[] = new \user_filter_text('questiontext', 'Question content', true, 'questiontext');
         if (is_anonym($this->cm->id) && !check_created_permission()) {
@@ -376,6 +378,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 return 'dl.';
             case 'vote':
                 return 'vo.';
+            case 'practice':
+                return 'pr.';
             case 'firstname':
             case 'lastname':
                 return 'uc.';
@@ -738,7 +742,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
             . 'preview_action_column,delete_action_column,creator_name_column,'
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,'
-            . 'mod_studentquiz\\bank\\difficulty_level_column';
+            . 'mod_studentquiz\\bank\\difficulty_level_column,'
+            . 'mod_studentquiz\\bank\\practice_column';
 
         return parent::wanted_columns();
     }
