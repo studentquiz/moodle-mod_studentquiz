@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Representing performances column
+ * Representing comments column
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)
@@ -25,19 +25,19 @@
 namespace mod_studentquiz\bank;
 
 /**
- * Represent performances column in studentquiz_bank_view
+ * Represent comments column in studentquiz_bank_view
  *
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class practice_column extends \core_question\bank\column_base {
+class comment_column extends \core_question\bank\column_base {
 
     /**
      * Get column name
      * @return string column name
      */
     public function get_name() {
-        return 'practice';
+        return 'comment';
     }
 
     /**
@@ -45,7 +45,7 @@ class practice_column extends \core_question\bank\column_base {
      * @return string column title
      */
     protected function get_title() {
-        return get_string('practice_column_name', 'studentquiz');
+        return get_string('comment_column_name', 'studentquiz');
     }
 
     /**
@@ -54,20 +54,21 @@ class practice_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->practice)) {
-            echo $question->practice;
+        if (!empty($question->comment)) {
+            echo $question->comment;
         } else {
-            echo get_string('no_practice', 'studentquiz');
+            echo get_string('no_comment', 'studentquiz');
         }
     }
 
     /**
-     * Get the left join for practice
+     * Get the left join for comments
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        return array('pr' => 'LEFT JOIN ('
-        .'SELECT studentquizcoursemodule,COUNT(studentquizcoursemodule) AS practice FROM mdl_studentquiz_practice GROUP BY studentquizcoursemodule) pr ON pr.studentquizcoursemodule = q.id');
+        return array('co' => 'LEFT JOIN ('
+            . 'SELECT COUNT(comment) as comment'
+            . ', questionid FROM {studentquiz_comment} GROUP BY questionid) co ON co.questionid = q.id');
     }
 
     /**
@@ -75,7 +76,7 @@ class practice_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('pr.practice');
+        return array('co.comment');
     }
 
     /**
@@ -83,6 +84,6 @@ class practice_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'pr.practice';
+        return 'co.comment';
     }
 }

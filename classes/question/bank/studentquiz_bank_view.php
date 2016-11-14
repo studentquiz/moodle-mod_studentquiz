@@ -35,6 +35,7 @@ require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/question_bank_filter.php');
 require_once(dirname(__FILE__).'/question_text_row.php');
 require_once(dirname(__FILE__).'/performances_column.php');
+require_once(dirname(__FILE__).'/comments_column.php');
 
 /**
  * Module instance settings form
@@ -99,6 +100,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             , 'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
+        $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'), true, 'comment');
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
         $this->fields[] = new \user_filter_text('questiontext', 'Question content', true, 'questiontext');
         if (is_anonym($this->cm->id) && !check_created_permission()) {
@@ -380,6 +382,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 return 'vo.';
             case 'practice':
                 return 'pr.';
+            case 'comment':
+                return 'co.';
             case 'firstname':
             case 'lastname':
                 return 'uc.';
@@ -743,7 +747,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'preview_action_column,delete_action_column,creator_name_column,'
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
-            . 'mod_studentquiz\\bank\\practice_column';
+            . 'mod_studentquiz\\bank\\practice_column,'
+            . 'mod_studentquiz\\bank\\comment_column';
 
         return parent::wanted_columns();
     }
