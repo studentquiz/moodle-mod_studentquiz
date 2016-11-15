@@ -67,7 +67,8 @@ $string['createnewquizfromfilter'] = 'Run filtered questions';
 $string['no_difficulty_level'] = 'no difficulty';
 $string['no_tags'] = 'no tags';
 $string['no_votes'] = 'no ratings';
-$string['no_practice'] = 'no perfomances';
+$string['no_practice'] = 'no performances';
+$string['no_comment'] = 'no comment';
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
 

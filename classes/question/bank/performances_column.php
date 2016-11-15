@@ -67,7 +67,7 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         return array('pr' => 'LEFT JOIN ('
-        .'SELECT studentquizcoursemodule,COUNT(studentquizcoursemodule) AS practice FROM mdl_studentquiz_practice GROUP BY studentquizcoursemodule) pr ON pr.studentquizcoursemodule = q.id');
+        .'SELECT studentquizcoursemodule,COUNT(studentquizcoursemodule) AS practice FROM {studentquiz_practice} GROUP BY studentquizcoursemodule) pr ON pr.studentquizcoursemodule = q.id');
     }
 
     /**
