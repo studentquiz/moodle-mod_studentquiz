@@ -25,6 +25,8 @@
 
 namespace mod_studentquiz\bank;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * A column type for the name of the question name.
  *

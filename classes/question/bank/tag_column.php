@@ -24,6 +24,8 @@
 
 namespace mod_studentquiz\bank;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * Represent tag column in studentquiz_bank_view
  *
