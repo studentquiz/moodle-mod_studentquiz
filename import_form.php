@@ -38,7 +38,8 @@ require_once($CFG->libdir . '/formslib.php');
 class question_import_form extends moodleform {
 
     /**
-     * set form
+     * Set form.
+     *
      * @throws coding_exception
      */
     protected function definition() {
@@ -110,9 +111,11 @@ class question_import_form extends moodleform {
 
     /**
      * Checks that a file has been uploaded, and that it is of a plausible type.
+     *
      * @param array $data the submitted data.
      * @param array $errors the errors so far.
      * @return array the updated errors.
+     * @throws moodle_exception
      */
     protected function validate_uploaded_file($data, $errors) {
         global $CFG;
@@ -154,7 +157,8 @@ class question_import_form extends moodleform {
     }
 
     /**
-     * get error for file upload validation
+     * Get error for file upload validation.
+     *
      * @param array $data
      * @param array $files
      * @return array

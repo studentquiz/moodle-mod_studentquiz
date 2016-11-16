@@ -19,16 +19,18 @@
  *
  * @package   mod_studentquiz
  * @category  backup
- * @copyright 2015 Your Name <your@email.adress>
+ * @copyright 2016 HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die;
 
 /**
  * Structure step to restore one StudentQuiz activity
  *
  * @package   mod_studentquiz
  * @category  backup
- * @copyright 2015 Your Name <your@email.adress>
+ * @copyright 2016 HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_studentquiz_activity_structure_step extends restore_activity_structure_step {
@@ -55,11 +57,9 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
     protected function process_studentquiz($data) {
         global $DB;
 
-        //file_put_contents("D:/test.txt", implode($data, ',') . "\n", FILE_APPEND);
-
         $data = (object)$data;
         $data->course = $this->get_courseid();
-        $data->coursemodule = 0; // Will be updated later
+        $data->coursemodule = 0; // Will be updated later.
 
         if (empty($data->timecreated)) {
             $data->timecreated = time();
@@ -77,8 +77,6 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
 
-
-
         $this->apply_activity_instance($newitemid);
     }
 
@@ -91,16 +89,16 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         // Add StudentQuiz related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_studentquiz', 'intro', null);
 
-        // Update the coursemodule id on the studentquiz table
+        // Update the coursemodule id on the studentquiz table.
         $courseid = $this->get_courseid();
-        $moduleid = $DB->get_field('modules', 'id', array('name'=>'studentquiz'));
+        $moduleid = $DB->get_field('modules', 'id', array('name' => 'studentquiz'));
 
-        $cms = $DB->get_records('course_modules', array('course'=>$courseid, 'module'=>$moduleid));
+        $cms = $DB->get_records('course_modules', array('course' => $courseid, 'module' => $moduleid));
 
         foreach ($cms as $cm) {
-            $studentquiz = $DB->get_record('studentquiz', array('id'=>$cm->instance));
+            $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
             $studentquiz->coursemodule = $cm->id;
-            $DB->update_record('studentquiz',$studentquiz);
+            $DB->update_record('studentquiz', $studentquiz);
         }
     }
 }
