@@ -245,10 +245,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Builds the quiz report total section
      * @param stdClass $total
+     * @param stdClass $usergrades
      * @param bool $isadmin
      * @return string quiz report data
      */
-    public function view_quizreport_stats($stats, $isadmin = false) {
+    public function view_quizreport_stats($stats, $usergrades, $isadmin = false) {
         $output = '';
 
         if ($isadmin) {
@@ -256,10 +257,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         } else {
             $output = $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
         }
-        $string['reportquiz_stats_title'] = 'Stats';
-        $string['reportquiz_stats_nr_of_questions'] = 'Number of questions';
-        $string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';
-        $string['reportquiz_stats_nr_of_own_questions'] = 'Own questions';
         $output .= html_writer::tag('p',
             html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
             .html_writer::span($stats->totalnrofquestions)
@@ -274,6 +271,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output .= html_writer::tag('p',
             html_writer::span(get_string('reportquiz_stats_nr_of_own_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
             .html_writer::span($stats->totalusersquestions)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_own_grade_of_max', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($usergrades->usermark . ' / ' . $usergrades->stuquizmaxmark)
         );
 
         return $output;

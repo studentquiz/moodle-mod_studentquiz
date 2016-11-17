@@ -198,8 +198,9 @@ class mod_studentquiz_report {
         $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
 
         $outputstats = $this->get_user_quiz_stats($USER->id);
+        $usergrades = $this->get_user_quiz_grade($USER->id);
 
-        $output = $reportrenderer->view_quizreport_stats($outputstats);
+        $output = $reportrenderer->view_quizreport_stats($outputstats, $usergrades);
         $output .= $reportrenderer->view_quizreport_total($total);
         $output .= $reportrenderer->view_quizreport_summary();
         $output .= $outputsummaries;
@@ -292,6 +293,38 @@ class mod_studentquiz_report {
             $quizinfos[] = $quiz;
         }
         return $quizinfos;
+    }
+
+    /**
+     * @param $userid
+     * @return array usermaxmark usermark stuquizmaxmark
+     */
+    public function get_user_quiz_grade($userid) {
+        global $DB;
+        $sql = 'select round(sum(sub.maxmark), 1) as usermaxmark, round(sum(sub.mark), 1) usermark, '
+            .'  (SELECT round(sum(q.defaultmark), 1) '
+            .'     FROM {question} q '
+            .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            .'       LEFT JOIN {context} c ON qc.contextid = c.id '
+            .'     WHERE c.instanceid = :cmid AND c.contextlevel = 70) as stuquizmaxmark '
+            .'from ( '
+            .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark, max(fraction) * suatt.maxmark as mark '
+            .'from {question_attempt_steps} suats '
+            .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
+            .'WHERE state in ("gradedright", "gradedpartial") '
+            .'        AND userid = :userid AND suatt.questionid IN (SELECT q.id '
+            .'                                            FROM {question} q '
+            .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
+            .'                                            WHERE c.instanceid = :cmid2 AND c.contextlevel = 70) '
+            .'GROUP BY suatt.questionid) as sub ';
+
+
+
+        $record = $DB->get_record_sql($sql, array(
+            'cmid' => $this->cm->id, 'cmid2' => $this->cm->id,
+            'userid' => $userid));
+        return $record;
     }
 
     /**
