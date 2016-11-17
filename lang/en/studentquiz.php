@@ -127,6 +127,8 @@ $string['reportquiz_stats_nr_of_questions'] = 'Number of questions';
 $string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';
 $string['reportquiz_stats_nr_of_own_questions'] = 'Own questions';
 
+$string['reportquiz_stats_own_grade_of_max'] = 'Your Grade of max Grade';
+
 // Report rank.
 $string['reportrank_title'] = 'User ranking';
 $string['reportrank_table_title'] = '- Ranking';
