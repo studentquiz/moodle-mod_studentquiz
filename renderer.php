@@ -253,6 +253,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output = '';
 
         if ($isadmin) {
+            // No stats for admin yet.
             return $output;
         } else {
             $output = $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');

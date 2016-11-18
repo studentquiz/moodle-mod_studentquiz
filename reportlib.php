@@ -174,6 +174,7 @@ class mod_studentquiz_report {
             . '   AND sq.studentquizcoursemodule = :studentquizcoursemodule'
             . '   ORDER BY cm.id DESC';
 
+        /** @var mysqli_native_moodle_database $DB */
         return $DB->get_records_sql($sql, array(
             'userid' => $userid
             , 'studentquizcoursemodule' => $this->cm->id));
@@ -308,7 +309,8 @@ class mod_studentquiz_report {
             .'       LEFT JOIN {context} c ON qc.contextid = c.id '
             .'     WHERE c.instanceid = :cmid AND c.contextlevel = 70) as stuquizmaxmark '
             .'from ( '
-            .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark, max(fraction) * suatt.maxmark as mark '
+            .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
+            .'max(fraction) * suatt.maxmark as mark '
             .'from {question_attempt_steps} suats '
             .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
             .'WHERE state in ("gradedright", "gradedpartial") '
@@ -318,8 +320,6 @@ class mod_studentquiz_report {
             .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
             .'                                            WHERE c.instanceid = :cmid2 AND c.contextlevel = 70) '
             .'GROUP BY suatt.questionid) as sub ';
-
-
 
         $record = $DB->get_record_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id,
