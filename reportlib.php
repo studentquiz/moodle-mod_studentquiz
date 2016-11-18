@@ -173,7 +173,6 @@ class studentquiz_report {
             . '   AND sq.studentquizcoursemodule = :studentquizcoursemodule'
             . '   ORDER BY cm.id DESC';
 
-        /** @var mysqli_native_moodle_database $DB */
         return $DB->get_records_sql($sql, array(
             'userid' => $userid
             , 'studentquizcoursemodule' => $this->cm->id));

@@ -471,7 +471,7 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
  * @param cm_info $cm course module information
  */
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // nav_question_and_quiz
+    // Old NavEntry: nav_question_and_quiz.
 
     $navref->add(get_string('reportquiz_dashboard_title', 'studentquiz')
         , new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
