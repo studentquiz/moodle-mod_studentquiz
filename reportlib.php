@@ -161,9 +161,7 @@ class studentquiz_report {
      * @param int $userid
      * @return array stdClass course modules
      */
-    private function get_quiz_course_modules($userid)
-    {
-        /** @var mysqli_native_moodle_database $DB */
+    private function get_quiz_course_modules($userid) {
         global $DB;
 
         $sql = 'SELECT'
@@ -175,6 +173,7 @@ class studentquiz_report {
             . '   AND sq.studentquizcoursemodule = :studentquizcoursemodule'
             . '   ORDER BY cm.id DESC';
 
+        /** @var mysqli_native_moodle_database $DB */
         return $DB->get_records_sql($sql, array(
             'userid' => $userid
             , 'studentquizcoursemodule' => $this->cm->id));
@@ -309,7 +308,8 @@ class studentquiz_report {
             .'       LEFT JOIN {context} c ON qc.contextid = c.id '
             .'     WHERE c.instanceid = :cmid AND c.contextlevel = 70) as stuquizmaxmark '
             .'from ( '
-            .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark, max(fraction) * suatt.maxmark as mark '
+            .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
+            .'max(fraction) * suatt.maxmark as mark '
             .'from {question_attempt_steps} suats '
             .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
             .'WHERE state in ("gradedright", "gradedpartial") '
@@ -319,8 +319,6 @@ class studentquiz_report {
             .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
             .'                                            WHERE c.instanceid = :cmid2 AND c.contextlevel = 70) '
             .'GROUP BY suatt.questionid) as sub ';
-
-
 
         $record = $DB->get_record_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id,
@@ -333,8 +331,7 @@ class studentquiz_report {
      * @param int $userid
      * @return array
      */
-    public function get_user_quiz_stats($userid)
-    {
+    public function get_user_quiz_stats($userid) {
         global $DB;
         $sql = 'select ( '
             . '  SELECT count(1) '
