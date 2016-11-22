@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
@@ -88,6 +90,9 @@ class studentquiz_view {
         $this->check_question_category();
     }
 
+    /**
+     * Check whether the question category is set and set it if it isn't.
+     */
     private function check_question_category() {
         global $DB;
         $questioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->id));
@@ -96,7 +101,8 @@ class studentquiz_view {
             return;
         }
 
-        $parentquestioncategory = $DB->get_record('question_categories', array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
+        $parentquestioncategory = $DB->get_record('question_categories',
+                                                  array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
 
         if ($parentquestioncategory) {
             $questioncategory->parent = $parentquestioncategory->id;
@@ -112,7 +118,7 @@ class studentquiz_view {
     private function generate_quiz($ids) {
         if ($ids) {
             $this->hasquestionids = true;
-            // Check wether there allready is a Quiz for this User and exactly those questions
+            // Check whether there already is a Quiz for this User and exactly those questions.
             if ($qcmid = $this->get_existing_quiz($ids)) {
                 return $qcmid;
             } else if (!$qcmid = $this->generate_quiz_activity($ids)) {
@@ -271,7 +277,7 @@ class studentquiz_view {
         global $USER;
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
-        $quiz->name = $this->cm->name;// . ' - ' . $USER->username . ' '. GENERATE_QUIZ_PLACEHOLDER;
+        $quiz->name = $this->cm->name;
         $quiz->intro = GENERATE_QUIZ_INTRO;
         $quiz->introformat = 1;
         $quiz->timeopen = 0;
