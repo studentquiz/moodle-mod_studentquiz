@@ -74,15 +74,15 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
 
-        if (has_studentquiz_behaviour()) {
+        if (mod_studentquiz_has_behaviour()) {
             $mform->addElement('advcheckbox', 'quizpracticebehaviour', get_string('quizpracticebehaviour', 'studentquiz')
-                , null, null, array(DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
+                , null, null, array(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
             $mform->setType('quizpracticebehaviour', PARAM_RAW);
             $mform->addHelpButton('quizpracticebehaviour', 'quizpracticebehaviourhelp', 'studentquiz');
 
             $mform->setDefault('quizpracticebehaviour', STUDENTQUIZ_BEHAVIOUR);
         } else {
-            $mform->addElement('hidden', 'quizpracticebehaviour', DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR);
+            $mform->addElement('hidden', 'quizpracticebehaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
             $mform->setType('quizpracticebehaviour', PARAM_RAW);
         }
 

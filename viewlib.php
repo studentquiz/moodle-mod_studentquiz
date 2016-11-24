@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_view {
+class mod_studentquiz_view {
     /**
      * @var stdClass the course_module settings from the database.
      */
@@ -73,15 +73,15 @@ class studentquiz_view {
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid the course_module id for this studentquiz
-     * @throws moodle_studentquiz_view_exception if course module or course can't be retrieved
+     * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
-        global $DB, $COURSE;
+        global $DB;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
-            throw new moodle_studentquiz_view_exception($this, 'invalidcoursemodule');
+            throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
         }
         if (!$this->course = $DB->get_record('course', array('id' => $this->cm->course))) {
-            throw new moodle_studentquiz_view_exception($this, 'coursemisconf');
+            throw new mod_studentquiz_view_exception($this, 'coursemisconf');
         }
 
         $this->context = context_module::instance($this->cm->id);
@@ -150,7 +150,7 @@ class studentquiz_view {
                 .' HAVING COUNT(questionid) = '. count($ids) .' ';
         $result = $DB->get_records_sql($sql, array(), 0, 1);
         if ($entry = reset($result)) {
-            $moduleid = get_quiz_module_id();
+            $moduleid = mod_studentquiz_get_quiz_module_id();
 
             $qcmid = $DB->get_field('course_modules', 'id', array('instance' => $entry->quizid, 'module' => $moduleid));
             if (!$DB->get_field('studentquiz_practice', 'id', array('userid' => $USER->id, 'quizcoursemodule' => $qcmid,
@@ -234,11 +234,11 @@ class studentquiz_view {
         global $DB;
         $coursesection = new stdClass();
         $coursesection->course = $courseid;
-        $coursesection->section = COURSE_SECTION_ID;
-        $coursesection->name = COURSE_SECTION_NAME;
-        $coursesection->summary = COURSE_SECTION_SUMMARY;
-        $coursesection->summaryformat = COURSE_SECTION_SUMMARYFORMAT;
-        $coursesection->visible = COURSE_SECTION_VISIBLE;
+        $coursesection->section = STUDENTQUIZ_COURSE_SECTION_ID;
+        $coursesection->name = STUDENTQUIZ_COURSE_SECTION_NAME;
+        $coursesection->summary = STUDENTQUIZ_COURSE_SECTION_SUMMARY;
+        $coursesection->summaryformat = STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT;
+        $coursesection->visible = STUDENTQUIZ_COURSE_SECTION_VISIBLE;
 
         return $DB->insert_record('course_sections', $coursesection);
     }
@@ -249,7 +249,7 @@ class studentquiz_view {
      */
     private function get_course_section() {
         global $DB;
-        return $DB->get_record('course_sections', array('section' => COURSE_SECTION_ID, 'course' => $this->get_course()->id));
+        return $DB->get_record('course_sections', array('section' => STUDENTQUIZ_COURSE_SECTION_ID, 'course' => $this->get_course()->id));
     }
 
     /**
@@ -259,7 +259,7 @@ class studentquiz_view {
      */
     private function create_quiz_course_module($courseid) {
         global $DB;
-        $moduleid = get_quiz_module_id();
+        $moduleid = mod_studentquiz_get_quiz_module_id();
         $qcm = new stdClass();
         $qcm->course = $courseid;
         $qcm->module = $moduleid;
@@ -278,14 +278,14 @@ class studentquiz_view {
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
         $quiz->name = $this->cm->name;
-        $quiz->intro = GENERATE_QUIZ_INTRO;
+        $quiz->intro = STUDENTQUIZ_GENERATE_QUIZ_INTRO;
         $quiz->introformat = 1;
         $quiz->timeopen = 0;
         $quiz->timeclose = 0;
         $quiz->timelimit = 0;
-        $quiz->overduehandling = GENERATE_QUIZ_OVERDUEHANDLING;
+        $quiz->overduehandling = STUDENTQUIZ_GENERATE_QUIZ_OVERDUEHANDLING;
         $quiz->graceperiod = 0;
-        $quiz->preferredbehaviour = get_current_behaviour($this->cm);
+        $quiz->preferredbehaviour = mod_studentquiz_get_current_behaviour($this->cm);
         $quiz->canredoquestions = 0;
         $quiz->attempts = 0;
         $quiz->attemptonlast = 0;
@@ -358,9 +358,8 @@ class studentquiz_view {
      * @param stdClass $quiz
      * @return bool|int|void
      */
-    private function  quiz_add_instance($quiz) {
+    private function quiz_add_instance($quiz) {
         global $DB;
-        $cmid = $quiz->coursemodule;
 
         // Process the options from the form.
         $quiz->created = time();
@@ -635,7 +634,7 @@ class studentquiz_view {
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class moodle_studentquiz_view_exception extends moodle_exception {
+class mod_studentquiz_view_exception extends moodle_exception {
     /**
      * moodle_studentquiz_view_exception constructor.
      * @param string $view

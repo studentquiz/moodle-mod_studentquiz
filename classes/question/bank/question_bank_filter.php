@@ -36,7 +36,7 @@ require_once($CFG->dirroot.'/user/filters/date.php');
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class question_bank_filter_form extends moodleform {
+class mod_studentquiz_question_bank_filter_form extends moodleform {
 
     /**
      * Filter fields of question bank
@@ -78,8 +78,6 @@ class question_bank_filter_form extends moodleform {
      * Defines forms elements
      */
     public function definition() {
-        global $CFG;
-
         $mform = $this->_form;
         $mform->addElement('header', 'filtertab', get_string('filter', 'studentquiz'));
         $mform->setExpanded('filtertab', false);

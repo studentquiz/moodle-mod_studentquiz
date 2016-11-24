@@ -46,7 +46,7 @@ $PAGE->set_title($strexportquestions);
 $PAGE->set_heading($COURSE->fullname);
 echo $OUTPUT->header();
 
-$exportform = new question_export_form($thispageurl,
+$exportform = new mod_studentquiz_question_export_form($thispageurl,
     array('contexts' => $contexts->having_one_edit_tab_cap('export'), 'defaultcategory' => $pagevars['cat']));
 
 

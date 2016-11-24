@@ -36,7 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class student_quiz_condition extends \core_question\bank\search\category_condition {
+class studentquiz_condition extends \core_question\bank\search\category_condition {
 
     /**
      * Called by question_bank_view to display the GUI for selecting a category
