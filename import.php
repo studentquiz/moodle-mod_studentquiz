@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(dirname(__FILE__) . '/import_form.php');
@@ -31,13 +30,16 @@ require_once($CFG->dirroot . '/question/format.php');
 require_once(dirname(__FILE__).'/locallib.php');
 global $CFG;
 
+list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
+    = question_edit_setup('import', '/mod/studentquiz/import.php');
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+
+require_login($course, false, $cm);
+
 // Have to check it manual because moodle does not distinguish between add and import question.
 if (!mod_check_created_permission()) {
     print_error('nopermissions', '', '', 'access question edit tab import');
 }
-
-list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
-    = question_edit_setup('import', '/mod/studentquiz/import.php');
 
 // Get display strings.
 $txt = new stdClass();

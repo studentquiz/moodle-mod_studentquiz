@@ -31,9 +31,9 @@ require_once($CFG->dirroot . '/question/editlib.php');
 
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars)
     = question_edit_setup('editq', '/mod/studentquiz/view.php', true);
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 
-// Get the course object and related bits.
-$course = $DB->get_record('course', array('id' => $quiz->course), '*', MUST_EXIST);
+require_login($course, true, $cm);
 require_capability('mod/quiz:manage', $contexts->lowest());
 
 // Create quiz question bank view.

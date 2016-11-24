@@ -23,7 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(dirname(__FILE__) . '/export_form.php');
@@ -31,6 +30,9 @@ require_once($CFG->dirroot . '/question/format.php');
 
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
     = question_edit_setup('export', '/mod/studentquiz/export.php');
+$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+
+require_login($course, false, $cm);
 
 // Get display strings.
 $strexportquestions = get_string('exportquestions', 'question');
