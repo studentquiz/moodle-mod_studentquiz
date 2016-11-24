@@ -31,7 +31,7 @@ if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
-$report = new studentquiz_report($cmid);
+$report = new mod_studentquiz_report($cmid);
 require_login($report->get_course(), true, $report->get_coursemodule());
 
 $params = array(

@@ -36,7 +36,7 @@ require_once($CFG->libdir . '/gradelib.php');
  * @copyright  2016 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_report {
+class mod_studentquiz_report {
     /**
      * @var stdClass the course_module settings from the database.
      */
@@ -53,15 +53,15 @@ class studentquiz_report {
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid course_module id
-     * @throws moodle_studentquiz_view_exception if course module or course can't be retrieved
+     * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
         global $DB;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
-            throw new moodle_studentquiz_view_exception($this, 'invalidcoursemodule');
+            throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
         }
         if (!$this->course = $DB->get_record('course', array('id' => $this->cm->course))) {
-            throw new moodle_studentquiz_view_exception($this, 'coursemisconf');
+            throw new mod_studentquiz_view_exception($this, 'coursemisconf');
         }
 
         $this->context = context_module::instance($this->cm->id);
@@ -153,7 +153,7 @@ class studentquiz_report {
      */
     private function get_quiz_course_section_id() {
         global $DB;
-        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id, 'section' => COURSE_SECTION_ID));
+        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id, 'section' => STUDENTQUIZ_COURSE_SECTION_ID));
     }
 
     /**
@@ -233,7 +233,7 @@ class studentquiz_report {
      * @return bool
      */
     public function is_admin() {
-        return mod_check_created_permission();
+        return mod_studentquiz_check_created_permission();
     }
 
     /**
@@ -656,6 +656,6 @@ class studentquiz_report {
      * @return bool
      */
     public function is_anonym() {
-        return is_anonym($this->cm->id);
+        return mod_studentquiz_is_anonym($this->cm->id);
     }
 }

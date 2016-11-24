@@ -37,7 +37,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/restore_studentqui
  * @copyright 2015 Your Name <your@email.adress>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_studentquiz_activity_task extends restore_activity_task {
+class mod_studentquiz_restore_activity_task extends restore_activity_task {
 
     /**
      * Define (add) particular settings this activity can have
@@ -51,7 +51,7 @@ class restore_studentquiz_activity_task extends restore_activity_task {
      */
     protected function define_my_steps() {
         // We have just one structure step here.
-        $this->add_step(new restore_studentquiz_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
+        $this->add_step(new mod_studentquiz_restore_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
     }
 
     /**

@@ -34,7 +34,7 @@ if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
-$view = new studentquiz_view($cmid);
+$view = new mod_studentquiz_view($cmid);
 require_login($view->get_course(), true, $view->get_coursemodule());
 
 $params = array(

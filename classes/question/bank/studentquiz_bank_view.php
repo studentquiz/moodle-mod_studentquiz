@@ -103,7 +103,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'), true, 'comment');
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
         $this->fields[] = new \user_filter_text('questiontext', 'Question content', true, 'questiontext');
-        if (is_anonym($this->cm->id) && !check_created_permission()) {
+        if (mod_studentquiz_is_anonym($this->cm->id) && !mod_studentquiz_check_created_permission()) {
             $this->fields[] = new \user_filter_checkbox('createdby'
                 , get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
         } else {
@@ -137,7 +137,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->setshowmineuserid();
         }
         $this->modify_base_url();
-        $this->filterform = new \question_bank_filter_form(
+        $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(),
             array('cmid' => $this->cm->id)
@@ -244,7 +244,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $PAGE, $OUTPUT;
 
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
-        array_unshift($this->searchconditions, new \mod_studentquiz\condition\student_quiz_condition(
+        array_unshift($this->searchconditions, new \mod_studentquiz\condition\studentquiz_condition(
             $cat, $recurse, $editcontexts, $this->baseurl, $this->course));
 
         // This function can be moderately slow with large question counts and may time out.
@@ -339,11 +339,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $this->isfilteractive = true;
                 $sqldata = $field->get_sql_filter($data);
 
-                if ($field->_name == 'firstname' && !mod_check_created_permission()) {
+                if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission()) {
                     continue;
                 }
 
-                if ($field->_name == 'lastname' && !mod_check_created_permission()) {
+                if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission()) {
                     continue;
                 }
 
@@ -592,7 +592,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         foreach ($questions as $question) {
             $question->tagname = '';
             if (
-                is_anonym($this->cm->id) &&
+                mod_studentquiz_is_anonym($this->cm->id) &&
                 $question->createdby != $USER->id
             ) {
                 $question->creatorfirstname = get_string('creator_anonym_firstname', 'studentquiz');
