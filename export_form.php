@@ -35,7 +35,7 @@ require_once($CFG->libdir . '/formslib.php');
  * @copyright  2007 Jamie Pratt me@jamiep.org
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class question_export_form extends moodleform {
+class mod_studentquiz_question_export_form extends moodleform {
 
     /**
      * set form data
@@ -50,7 +50,7 @@ class question_export_form extends moodleform {
         // Choice of format, with help.
         $mform->addElement('header', 'fileformat', get_string('fileformat', 'question'));
         $fileformatnames = get_import_export_formats('export');
-        $radioarray = array();
+
         $i = 0;
         foreach ($fileformatnames as $shortname => $fileformatname) {
             $currentgrp1 = array();

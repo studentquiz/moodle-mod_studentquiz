@@ -32,30 +32,30 @@ require_once($CFG->libdir . '/questionlib.php');
 /** @var string default quiz behaviour */
 const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
 /** @var int default course section id for the orphaned activities */
-const COURSE_SECTION_ID = 999;
+const STUDENTQUIZ_COURSE_SECTION_ID = 999;
 /** @var string generated student quiz placeholder */
-const GENERATE_QUIZ_PLACEHOLDER = 'quiz';
+const STUDENTQUIZ_GENERATE_QUIZ_PLACEHOLDER = 'quiz';
 /** @var string generated student quiz intro */
-const GENERATE_QUIZ_INTRO = 'Studentquiz';
+const STUDENTQUIZ_GENERATE_QUIZ_INTRO = 'Studentquiz';
 /** @var string generated student quiz overduehandling */
-const GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
+const STUDENTQUIZ_GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
 /** @var string default course section name for the orphaned activities */
-const COURSE_SECTION_NAME = 'studentquiz quizzes';
+const STUDENTQUIZ_COURSE_SECTION_NAME = 'studentquiz quizzes';
 /** @var string default course section summary for the orphaned activities */
-const COURSE_SECTION_SUMMARY = 'all student quizzes';
+const STUDENTQUIZ_COURSE_SECTION_SUMMARY = 'all student quizzes';
 /** @var string default course section summaryformat for the orphaned activities */
-const COURSE_SECTION_SUMMARYFORMAT = 1;
+const STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT = 1;
 /** @var string default course section visible for the orphaned activities */
-const COURSE_SECTION_VISIBLE = false;
+const STUDENTQUIZ_COURSE_SECTION_VISIBLE = false;
 /** @var string default studentquiz quiz practice behaviour */
-const DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR = 'immediatefeedback';
+const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
 /**
  * Checks whether the studentquiz behaviour exists
  *
  * @return bool
  */
-function has_studentquiz_behaviour() {
+function mod_studentquiz_has_behaviour() {
     $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
     return array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours);
@@ -67,10 +67,10 @@ function has_studentquiz_behaviour() {
  * @param  stdClass $cm
  * @return string quiz behaviour
  */
-function get_current_behaviour($cm=null) {
+function mod_studentquiz_get_current_behaviour($cm=null) {
     global $DB;
 
-    $default = DEFAULT_STUDENTQUIZ_QUIZ_BEHAVIOUR;
+    $default = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
     $archetypalbehaviours = question_engine::get_archetypal_behaviours();
 
     if (array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
@@ -94,7 +94,7 @@ function get_current_behaviour($cm=null) {
  * Returns quiz module id
  * @return int
  */
-function get_quiz_module_id() {
+function mod_studentquiz_get_quiz_module_id() {
     global $DB;
     return $DB->get_field('modules', 'id', array('name' => 'quiz'));
 }
@@ -103,7 +103,7 @@ function get_quiz_module_id() {
  * Check if user has permission to see creator
  * @return bool
  */
-function mod_check_created_permission() {
+function mod_studentquiz_check_created_permission() {
     global $USER;
 
     $admins = get_admins();
@@ -123,10 +123,10 @@ function mod_check_created_permission() {
  * @param  int  $cmid course module id
  * @return boolean
  */
-function is_anonym($cmid) {
+function mod_studentquiz_is_anonym($cmid) {
     global $DB;
 
-    if (mod_check_created_permission()) {
+    if (mod_studentquiz_check_created_permission()) {
         return 0;
     }
 
@@ -134,6 +134,6 @@ function is_anonym($cmid) {
     if ($field !== false) {
         return intval($field);
     }
-    // If the dont found an entry better set it anonym.
+    // If no entry was found, better set it anonym.
     return 1;
 }

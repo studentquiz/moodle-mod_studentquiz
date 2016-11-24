@@ -35,7 +35,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/backup_studentquiz
  * @copyright 2015 Your Name <your@email.adress>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_studentquiz_activity_task extends backup_activity_task {
+class mod_studentquiz_backup_activity_task extends backup_activity_task {
 
     /**
      * No specific settings for this activity
@@ -47,7 +47,7 @@ class backup_studentquiz_activity_task extends backup_activity_task {
      * Defines a backup step to store the instance data in the studentquiz.xml file
      */
     protected function define_my_steps() {
-        $this->add_step(new backup_studentquiz_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
+        $this->add_step(new mod_studentquiz_backup_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
     }
 
     /**

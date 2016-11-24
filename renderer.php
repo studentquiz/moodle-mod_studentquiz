@@ -35,7 +35,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * builds the rank report table
-     * @param studentquiz_report $report studentquiz_report class with necessary information
+     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @return string rank report table
      * @throws coding_exception
      */
@@ -86,7 +86,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * Builds the quiz report table for the admin
-     * @param studentquiz_report $report studentquiz_report class with necessary information
+     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @param stdClass $usersdata
      * @return string rank report table
      */
@@ -146,7 +146,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * Builds the quiz admin report view with the created quizzes
-     * @param studentquiz_report $report studentquiz_report class with necessary information
+     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @param stdClass $quizzes
      * @return string rank report table
      */

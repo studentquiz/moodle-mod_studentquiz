@@ -35,7 +35,7 @@ require_once($CFG->libdir . '/formslib.php');
  * @copyright  2007 Jamie Pratt me@jamiep.org
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class question_import_form extends moodleform {
+class mod_studentquiz_question_import_form extends moodleform {
 
     /**
      * Set form.

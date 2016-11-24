@@ -34,12 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
-/**
- * Example constant, you probably want to remove this :-)
- */
-define('STUDENTQUIZ_ULTIMATE_ANSWER', 42);
-
-/* Moodle core API */
+/* Core API */
 
 /**
  * Returns the information on whether the module supports a feature
@@ -78,7 +73,7 @@ function studentquiz_supports($feature) {
  * @return int The id of the newly inserted studentquiz record
  */
 function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
-    global $DB, $COURSE;
+    global $DB;
 
     $studentquiz->timecreated = time();
 
@@ -385,7 +380,7 @@ function studentquiz_grade_item_delete($studentquiz) {
  * @param int $userid update grade of specific user only, 0 means all participants
  */
 function studentquiz_update_grades(stdClass $studentquiz, $userid = 0) {
-    global $CFG, $DB;
+    global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
     // Populate array of grade objects indexed by userid.
@@ -447,8 +442,6 @@ function studentquiz_get_file_info($browser, $areas, $course, $cm, $context, $fi
  * @param array $options additional options affecting the file serving
  */
 function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
-    global $DB, $CFG;
-
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
     }
@@ -479,7 +472,7 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
     $reportnode->add(get_string('nav_report_quiz', 'studentquiz')
         , new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
 
-    if (mod_check_created_permission()) {
+    if (mod_studentquiz_check_created_permission()) {
         $context = context_module::instance($cm->id);
         $category = question_get_default_category($context->id);
         $cat = 'cat=' . $category->id . ',' . $context->id;
