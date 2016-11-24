@@ -18,6 +18,7 @@ env:
   - MOODLE_BRANCH=MOODLE_31_STABLE
  matrix:
   - DB=mysqli
+  - DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
