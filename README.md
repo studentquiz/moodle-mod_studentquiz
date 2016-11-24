@@ -1,22 +1,34 @@
-# moodle-mod_studentquiz
+# StudentQuiz
 
-The Student-Quiz activity allows students to add questions for the crowd. 
-In the Student-Quiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. 
-The teacher has an option to anonymize the created by column.
+Students like preparatory questions for exams. However, it’s hard
+to provide a large quantity of questions for all the self-assessments
+and exams. That’s why the University of Applied Sciences Rapperswil
+developed the Moodle plugin StudentQuiz. StudentQuiz enables students
+to collaboratively create their own question pools within Moodle.
+Even if an individual student contributes just a few questions, a large
+cohort could easily build up an extensive question pool.
 
-The Student-Quiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.
+In StudentQuiz, students can filter questions into quizzes, and they
+can rate and comment on questions while working through the quizzes.
+StudentQuiz collects usage data, and assigns points to students for
+creating questions and giving right answers. The created questions
+become part of the Moodle question bank and can be reused in other
+Moodle quizzes.
+
+Find out more in our short [introduction video](https://tube.switch.ch/videos/637cda8a).
+We hope that StudentQuiz finds your interest.
+
+http://studentquiz.hsr.ch/
 
 For more information read the [User-Manuel](manuals/User-Manual.pdf).
 
 
-
 ## Installation
 
-The Student-Quiz activity depends on the Quiz activity. (installed by default)
+The StudentQuiz activity depends on the Quiz activity (installed by default).
 
-The simplest way to install the Student-Quiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
+The simplest way to install the StudentQuiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
 
-**Important:** The zip and the folder name in the zip have to be named *studentquiz*.
 
 ## License
 

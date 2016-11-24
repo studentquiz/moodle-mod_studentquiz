@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/backup_studentquiz_stepslib.php');
 
 /**
- * Provides the steps to perform one complete backup of the studentquiz instance
+ * Provides the steps to perform one complete backup of the StudentQuiz instance
  *
  * @package   mod_studentquiz
  * @category  backup
@@ -65,7 +65,7 @@ class backup_studentquiz_activity_task extends backup_activity_task {
         $search = '/('.$base.'\/mod\/studentquiz\/index.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@STUDENTQUIZINDEX*$2@$', $content);
 
-        // Link to studentquiz view by moduleid.
+        // Link to StudentQuiz view by moduleid.
         $search = '/('.$base.'\/mod\/studentquiz\/view.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@STUDENTQUIZVIEWBYID*$2@$', $content);
 

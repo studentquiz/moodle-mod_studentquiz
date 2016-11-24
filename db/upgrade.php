@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file keeps track of upgrades to the studentquiz module
+ * This file keeps track of upgrades to the StudentQuiz module
  *
  * Sometimes, changes between versions involve alterations to database
  * structures and other major things that may break installations. The upgrade
@@ -32,7 +32,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Execute studentquiz upgrade from the given old version
+ * Execute StudentQuiz upgrade from the given old version
  *
  * @param int $oldversion
  * @return bool
@@ -53,8 +53,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
      *
      * Lines below (this included)  MUST BE DELETED once you get the first version
      * of your module ready to be installed. They are here only
-     * for demonstrative purposes and to show how the studentquiz
-     * iself has been upgraded.
+     * for demonstrative purposes and to show how the StudentQuiz
+     * itself has been upgraded.
      *
      * For each upgrade block, the file studentquiz/version.php
      * needs to be updated . Such change allows Moodle to know
@@ -64,7 +64,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
      * highly recommended to read information available at:
      *   http://docs.moodle.org/en/Development:XMLDB_Documentation
      * and to play with the XMLDB Editor (in the admin menu) and its
-     * PHP generation posibilities.
+     * PHP generation possibilities.
      *
      * First example, some fields were added to install.xml on 2007/04/01
      */

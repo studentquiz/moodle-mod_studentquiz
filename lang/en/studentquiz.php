@@ -16,7 +16,7 @@
 
 
 /**
- * English strings for studentquiz
+ * English strings for StudentQuiz
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'Student Quiz';
 $string['modulenameplural'] = 'Student Quizzes';
-$string['modulename_help'] = 'The Student-Quiz activity allows students to add questions for the crowd. In the Student-Quiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The Student-Quiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.
+$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.
 ';
 $string['studentquizfieldset'] = 'Custom example fieldset';
 $string['studentquizname'] = 'Student Quiz Name';
@@ -46,6 +46,8 @@ $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'Student Quiz Administration';
 $string['pluginname'] = 'Student Quiz';
 $string['vote_column_name'] = 'Ratings';
+$string['practice_column_name'] = 'Performances';
+$string['comment_column_name'] = 'Comments';
 $string['difficulty_level_column_name'] = 'Difficulty';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
@@ -65,6 +67,8 @@ $string['createnewquizfromfilter'] = 'Run filtered questions';
 $string['no_difficulty_level'] = 'no difficulty';
 $string['no_tags'] = 'no tags';
 $string['no_votes'] = 'no ratings';
+$string['no_practice'] = 'no performances';
+$string['no_comment'] = 'no comment';
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
 
@@ -76,6 +80,8 @@ $string['filter_label_surname'] = 'Surname';
 $string['filter_label_createdate'] = 'Creation';
 $string['filter_label_tags'] = 'Tag';
 $string['filter_label_votes'] = 'Rating';
+$string['filter_label_practice'] = 'Performances';
+$string['filter_label_comment'] = 'Comments';
 $string['filter_label_difficulty_level'] = 'Difficulty';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
@@ -85,13 +91,16 @@ $string['filter'] = 'Filter';
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';
 $string['settings_add_q_quantifier'] = 'Points for each question created';
-$string['config_add_q_quantifier'] = 'Points received for the creation of a new question.';
+$string['config_add_q_quantifier'] = 'Points received for creating a new question.';
 $string['settings_vote_quantifier'] = 'Multiplier for the average of stars received for a question';
-$string['config_vote_quantifier'] = 'E.g. if the multiplier is 2 and a question is rated with an average of 4.3 stars, the author of the question will receive 9 points (= ROUND(2 * 4.3; 1)).';
+$string['config_vote_quantifier'] = 'E.g. if the multiplier is 3 and a question is rated with an average of 4.3 stars, the author of the question will receive 13 points (= ROUND(3 * 4.3; 1)).';
 $string['settings_correct_answered_q_quantifier'] = 'Points for each correct answer';
 $string['config_correct_answered_q_quantifier'] = 'Points received for answering a question correctly.';
 $string['settings_incorrect_answered_q_quantifier'] = 'Points for each wrong answer';
 $string['config_incorrect_answered_q_quantifier'] = 'Points received for answering a question wrongly.';
+
+// Report Dashboard.
+$string['reportquiz_dashboard_title'] = 'Dashboard';
 
 // Report quiz.
 $string['reportquiz_total_title'] = 'Total';
@@ -111,6 +120,14 @@ $string['reportquiz_admin_quizzes_table_column_quizname'] = 'Quiz name';
 $string['reportquiz_admin_quizzes_table_column_qbehaviour'] = 'Quiz behaviour';
 $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Created';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link to quiz';
+
+// Report quiz stats.
+$string['reportquiz_stats_title'] = 'Stats';
+$string['reportquiz_stats_nr_of_questions'] = 'Number of questions';
+$string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';
+$string['reportquiz_stats_nr_of_own_questions'] = 'Own questions';
+
+$string['reportquiz_stats_own_grade_of_max'] = 'Your Grade of max Grade';
 
 // Report rank.
 $string['reportrank_title'] = 'User ranking';

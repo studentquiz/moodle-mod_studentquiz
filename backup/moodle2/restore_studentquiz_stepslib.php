@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die;
 
 /**
- * Structure step to restore one studentquiz activity
+ * Structure step to restore one StudentQuiz activity
  *
  * @package   mod_studentquiz
  * @category  backup
@@ -74,7 +74,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
             $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
         }
 
-        // Create the studentquiz instance.
+        // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
 
         $this->apply_activity_instance($newitemid);
@@ -86,7 +86,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
     protected function after_execute() {
         global $DB;
 
-        // Add studentquiz related files, no need to match by itemname (just internally handled context).
+        // Add StudentQuiz related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_studentquiz', 'intro', null);
 
         // Update the coursemodule id on the studentquiz table.
