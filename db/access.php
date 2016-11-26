@@ -46,7 +46,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-// Modify capabilities as needed and remove this comment.
 $capabilities = array(
     'mod/studentquiz:addinstance' => array(
         'riskbitmask' => RISK_XSS,
@@ -68,7 +67,6 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
-
     'mod/studentquiz:submit' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

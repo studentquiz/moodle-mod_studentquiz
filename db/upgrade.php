@@ -109,7 +109,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2007040101) {
 
         // Define field timecreated to be added to studentquiz.
-        $table = new xmldb_table('studentquiz');
+        $table = new xmldb_table('studentquiz_question');
         $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
             'introformat');
 
@@ -157,7 +157,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
      * when the module version (version.php) is updated.
      *
      * Lines above (this included) MUST BE DELETED once you get the first version of
-     * yout module working. Each time you need to modify something in the module (DB
+     * your module working. Each time you need to modify something in the module (DB
      * related, you'll raise the version and add one upgrade block here.
      *
      * Finally, return of upgrade result (true, all went good) to Moodle.

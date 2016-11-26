@@ -49,6 +49,7 @@ $string['vote_column_name'] = 'Ratings';
 $string['practice_column_name'] = 'Attempts';
 $string['comment_column_name'] = 'Comments';
 $string['difficulty_level_column_name'] = 'Difficulty';
+$string['approved_column_name'] = 'Approved';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
 $string['start_quiz_button'] = 'Start Quiz';
@@ -69,12 +70,18 @@ $string['no_tags'] = 'no tags';
 $string['no_votes'] = 'no ratings';
 $string['no_practice'] = 'no Attempts';
 $string['no_comment'] = 'no comment';
+$string['approved'] = '✓';
+$string['not_approved'] = '✗';
+$string['approve'] = 'Un-/Approve';
+$string['approveselectedscheck'] = 'Are you sure you want to un-/approve the following questions?<br /><br />{$a}';
+$string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
 
 // Filters.
 $string['filter_label_search'] = 'Search';
 $string['filter_label_question'] = 'Question title';
+$string['filter_label_approved'] = 'Only approved questions';
 $string['filter_label_firstname'] = 'Firstname';
 $string['filter_label_surname'] = 'Surname';
 $string['filter_label_createdate'] = 'Creation';

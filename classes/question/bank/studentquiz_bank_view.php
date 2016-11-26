@@ -36,6 +36,7 @@ require_once(dirname(__FILE__).'/difficulty_level_column.php');
 require_once(dirname(__FILE__).'/tag_column.php');
 require_once(dirname(__FILE__).'/performances_column.php');
 require_once(dirname(__FILE__).'/comments_column.php');
+require_once(dirname(__FILE__).'/approved_column.php');
 
 /**
  * Module instance settings form
@@ -124,7 +125,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         \core_php_time_limit::raise(300);
         $this->build_query();
 
-        $this->questions = $this->filter_questions($this->load_questions());
+        $this->questions = $this->load_questions();
+        $this->update_questions($this->load_questions());
+        $this->questions = $this->filter_questions($this->questions);
         $this->totalnumber = count($this->questions);
 
         if ($this->process_actions_needing_ui()) {
@@ -157,6 +160,28 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function process_actions() {
         global $DB;
+
+        // Approve selected questions.
+        if (optional_param('approveselected', false, PARAM_BOOL)) {
+            // If teacher has already confirmed the action.
+            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
+                $approveselected = required_param('approveselected', PARAM_RAW);
+                if ($confirm == md5($approveselected)) {
+                    if ($questionlist = explode(',', $approveselected)) {
+                        // For each question either hide it if it is in use or delete it.
+                        foreach ($questionlist as $questionid) {
+                            $questionid = (int)$questionid;
+
+                            $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
+                            $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+                        }
+                    }
+                    redirect($this->baseurl);
+                } else {
+                    print_error('invalidconfirm', 'question');
+                }
+            }
+        }
 
         // Move selected questions to new category.
         if (optional_param('move', false, PARAM_BOOL) and confirm_sesskey()) {
@@ -235,8 +260,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function process_actions_needing_ui() {
         global $DB, $OUTPUT;
+
         // Make a list of all the questions that are selected.
-        if (optional_param('deleteselected', false, PARAM_BOOL)) {
+        if (optional_param('deleteselected', false, PARAM_BOOL) || optional_param('approveselected', false, PARAM_BOOL)) {
             // This code is called by both POST forms and GET links, so cannot use data_submitted.
             $rawquestions = $_REQUEST;
             // Comma separated list of ids of questions to be deleted.
@@ -266,17 +292,35 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
             $questionlist = rtrim($questionlist, ',');
 
-            // Add an explanation about questions in use.
-            if ($inuse) {
-                $questionnames .= '<br />'.get_string('questionsinuse', 'question');
-            }
             $baseurl = new \moodle_url('view.php', $this->baseurl->params());
-            $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
-                'sesskey' => sesskey()));
 
-            $continue = new \single_button($deleteurl, get_string('delete'), 'post');
-            echo $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
+            if (optional_param('deleteselected', false, PARAM_BOOL)) {
+                // Add an explanation about questions in use.
+                if ($inuse) {
+                    $questionnames .= '<br />'.get_string('questionsinuse', 'question');
+                }
 
+                $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
+                    'sesskey' => sesskey()));
+
+                $continue = new \single_button($deleteurl, get_string('delete'), 'post');
+
+                $output = $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
+            } else if (optional_param('approveselected', false, PARAM_BOOL)) {
+                // Add an explanation about questions in use.
+                if ($inuse) {
+                    $questionnames .= '<br />'.get_string('questionsinuse', 'studentquiz');
+                }
+
+                $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'confirm' => md5($questionlist),
+                    'sesskey' => sesskey()));
+
+                $continue = new \single_button($approveurl, get_string('approve', 'studentquiz'), 'post');
+
+                $output = $OUTPUT->confirm(get_string('approveselectedscheck', 'studentquiz', $questionnames), $continue, $baseurl);
+            }
+
+            echo $output;
             return true;
         }
     }
@@ -355,7 +399,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 }
 
                 // The user_filter_checkbox class has a buggy get_sql_filter function.
-                if ($field->_name == 'createdby') {
+                if ($field->_name == 'createdby' || $field->_name == 'approved') {
                     $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
                 }
 
@@ -437,6 +481,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         if ($caneditall) {
+            echo '<input type="submit" name="approveselected" value="' . get_string('approve', 'studentquiz') . "\" />\n";
             echo '<input type="submit" name="deleteselected" value="' . get_string('delete') . "\" />\n";
         }
 
@@ -519,6 +564,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
             . 'preview_action_column,delete_action_column,creator_name_column,'
+            . 'mod_studentquiz\\bank\\approved_column,'
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
             . 'mod_studentquiz\\bank\\practice_column,'
@@ -538,6 +584,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level',
             'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
+        $this->fields[] = new \user_filter_checkbox('approved', get_string('filter_label_approved', 'studentquiz'),
+                                                    false, 'approved');
 
         // Advanced filters.
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
@@ -725,6 +773,29 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * Update our studenquiz_question table with the question list.
+     *
+     * @param stdClass $questions
+     */
+    private function update_questions($questions) {
+        global $DB;
+        $sqlparams = array();
+        $sql = 'SELECT questionid FROM {studentquiz_question} q';
+        $studentquizquestions = $DB->get_recordset_sql($sql, $sqlparams);
+
+        $questionids = array();
+        foreach ($studentquizquestions as $studentquizquestion) {
+            array_push($questionids, $studentquizquestion->questionid);
+        }
+
+        foreach ($questions as $question) {
+            if (!in_array($question->id, $questionids)) {
+                $DB->insert_record('studentquiz_question', array('questionid' => $question->id, 'approved' => false));
+            }
+        }
+    }
+
+    /**
      * Get the count of the connected tags with the question
      * @param int $id
      * @param bool $withfilter
@@ -773,6 +844,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 return 'pr.';
             case 'comment':
                 return 'co.';
+            case 'approved':
+                return 'ap.';
             case 'firstname':
             case 'lastname':
                 return 'uc.';
