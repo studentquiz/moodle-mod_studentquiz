@@ -327,10 +327,10 @@ function studentquiz_scale_used_anywhere($scaleid) {
  * Needed by {@link grade_update_mod_grades()}.
  *
  * @param stdClass $studentquiz instance object with extra cmidnumber and modname property
- * @param bool $reset reset grades in the gradebook
- * @return void
+ * @param array or string $grades 'reset' grades in the gradebook
+ * @return int Returns GRADE_UPDATE_OK, GRADE_UPDATE_FAILED, GRADE_UPDATE_MULTIPLE or GRADE_UPDATE_ITEM_LOCKED
  */
-function studentquiz_grade_item_update(stdClass $studentquiz, $reset=false) {
+function studentquiz_grade_item_update(stdClass $studentquiz, $grades=null) {
     global $CFG;
     require_once($CFG->libdir.'/gradelib.php');
 
@@ -349,12 +349,12 @@ function studentquiz_grade_item_update(stdClass $studentquiz, $reset=false) {
         $item['gradetype'] = GRADE_TYPE_NONE;
     }
 
-    if ($reset) {
+    if ($grades === 'reset') {
         $item['reset'] = true;
     }
 
-    grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz',
-            $studentquiz->id, 0, null, $item);
+    return grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz',
+            $studentquiz->id, 0, $grades, $item);
 }
 
 /**
