@@ -16,7 +16,7 @@
 
 
 /**
- * English strings for StudentQuiz
+ * French strings for StudentQuiz
  *
  * You can have a rather longer description of the file as well,
  * if you like, and it can span multiple lines.
@@ -45,56 +45,49 @@ $string['quizpracticebehaviourhelp_help'] = 'Rating and comment question';
 $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'StudentQuiz Administration';
 $string['pluginname'] = 'StudentQuiz';
-$string['vote_column_name'] = 'Ratings';
-$string['practice_column_name'] = 'Attempts';
-$string['comment_column_name'] = 'Comments';
-$string['difficulty_level_column_name'] = 'Difficulty';
-$string['approved_column_name'] = 'Approved';
+$string['vote_column_name'] = 'Évaluations';
+$string['practice_column_name'] = 'Tentatives';
+$string['comment_column_name'] = 'Commentaires';
+$string['difficulty_level_column_name'] = 'Difficulté';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
-$string['start_quiz_button'] = 'Start Quiz';
-$string['nav_question_and_quiz'] = 'Quiz and Questions';
-$string['nav_report'] = 'Report';
+$string['start_quiz_button'] = 'Démarrer le quiz';
+$string['nav_question_and_quiz'] = 'Quiz et Questions';
+$string['nav_report'] = 'Rapport';
 $string['nav_report_quiz'] = 'Quiz';
-$string['nav_report_rank'] = 'Rank';
+$string['nav_report_rank'] = 'Rang';
 $string['nav_export'] = 'Export';
 $string['nav_import'] = 'Import';
-$string['nav_questionbank'] = 'Question bank';
-$string['anonymrankhelp'] = 'Anonymize';
+$string['nav_questionbank'] = 'Banque de questions';
+$string['anonymrankhelp'] = 'Anonymiser';
 $string['anonymrankhelp_help'] = 'Anonymize for students the created by column in the question overview and the names of the ranking table.';
-$string['createnewquestionfirst'] = 'Create first question';
-$string['createnewquestion'] = 'Create new question';
-$string['createnewquizfromfilter'] = 'Run filtered questions';
-$string['no_difficulty_level'] = 'no difficulty';
-$string['no_tags'] = 'no tags';
-$string['no_votes'] = 'no ratings';
-$string['no_practice'] = 'no Attempts';
-$string['no_comment'] = 'no comment';
-$string['approved'] = '✓';
-$string['not_approved'] = '✗';
-$string['approve'] = 'Un-/Approve';
-$string['approveselectedscheck'] = 'Are you sure you want to un-/approve the following questions?<br /><br />{$a}';
-$string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
-$string['creator_anonym_firstname'] = 'anonym';
-$string['creator_anonym_lastname'] = 'anonym';
+$string['createnewquestionfirst'] = 'Créer une première question';
+$string['createnewquestion'] = 'Créer une nouvelle question';
+$string['createnewquizfromfilter'] = 'Exécuter des questions filtrées';
+$string['no_difficulty_level'] = 'pas de difficulté';
+$string['no_tags'] = 'pas de tags';
+$string['no_votes'] = 'pas de notes';
+$string['no_practice'] = 'pas de tentative';
+$string['no_comment'] = 'pas de commentaires';
+$string['creator_anonym_firstname'] = 'anonyme';
+$string['creator_anonym_lastname'] = 'anonyme';
 
 // Filters.
-$string['filter_label_search'] = 'Search';
-$string['filter_label_question'] = 'Question title';
-$string['filter_label_approved'] = 'Only approved questions';
-$string['filter_label_firstname'] = 'Firstname';
-$string['filter_label_surname'] = 'Surname';
-$string['filter_label_createdate'] = 'Creation';
-$string['filter_label_questiontext'] = 'Question content';
+$string['filter_label_search'] = 'Chercher';
+$string['filter_label_question'] = 'Titre de question';
+$string['filter_label_firstname'] = 'Prénom';
+$string['filter_label_surname'] = 'Nom de famille';
+$string['filter_label_createdate'] = 'Création';
+$string['filter_label_questiontext'] = 'Contenu de la question';
 $string['filter_label_tags'] = 'Tag';
-$string['filter_label_votes'] = 'Rating';
-$string['filter_label_practice'] = 'Attempts';
-$string['filter_label_comment'] = 'Comments';
-$string['filter_label_difficulty_level'] = 'Difficulty';
-$string['filter_ishigher'] = 'Is higher';
-$string['filter_islower'] = 'Is lower';
-$string['filter_label_show_mine'] = 'Show my questions';
-$string['filter'] = 'Filter';
+$string['filter_label_votes'] = 'Évaluation';
+$string['filter_label_practice'] = 'Tentatives';
+$string['filter_label_comment'] = 'Commentaires';
+$string['filter_label_difficulty_level'] = 'Difficulté';
+$string['filter_ishigher'] = 'est plus élevé';
+$string['filter_islower'] = 'Est plus bas';
+$string['filter_label_show_mine'] = 'Afficher mes questions';
+$string['filter'] = 'Filtre';
 
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';

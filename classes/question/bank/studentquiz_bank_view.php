@@ -591,7 +591,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'), true, 'comment');
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
-        $this->fields[] = new \user_filter_text('questiontext', 'Question content', true, 'questiontext');
+        $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'), true, 'questiontext');
 
         if (mod_studentquiz_is_anonym($this->cm->id) && !mod_studentquiz_check_created_permission()) {
             $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
