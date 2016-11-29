@@ -515,14 +515,14 @@ class mod_studentquiz_view {
      * @return bool True if sucessfully sent, false otherwise.
      */
     private function notify_change($questionid, $context) {
-        global $DB, $USER;
-        if (has_capability('moodle/question:editall', $context)) {
-            list($name, $createdby, $modifiedby) = $DB->get_record('questions', array('id' => $questionid), 'name, createdby, modfiedby');
+        global $DB, $USER, $CFG;
+        //if (has_capability('moodle/question:editall', $context)) {
+            $question = $DB->get_record('question', array('id' => $questionid), 'name, createdby, modifiedby');
 
 
-            if ($createdby != $modifiedby && $createdby != $USER->id && $modifiedby == $USER->id) {
+            if ($question->createdby != $question->modifiedby && $question->createdby != $USER->id && $question->modifiedby == $USER->id) {
 
-                $student = $DB->get_record('user', array('id' => $createdby), '*', MUST_EXIST);
+                $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
                 $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
 
                 $a = new stdClass();
@@ -530,7 +530,8 @@ class mod_studentquiz_view {
                 $a->coursename      = $this->course->fullname;
                 $a->courseshortname = $this->course->shortname;
                 // Question info.
-                $a->quizname        = $name;
+                $a->questionname    = $question->name;
+                $a->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $this->course->id . '&id=' . $questionid;
                 // Student who sat the quiz info.
                 $a->studentidnumber = $student->idnumber;
                 $a->studentname     = fullname($student);
@@ -539,7 +540,7 @@ class mod_studentquiz_view {
                 // Send notifications if required.
                 return mod_studentquiz_send_notification($student, $teacher, $a);
             }
-        }
+        //}
 
         return false;
     }

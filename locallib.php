@@ -155,20 +155,20 @@ function mod_studentquiz_send_notification($recipient, $submitter, $a) {
 
     // Prepare the message.
     $eventdata = new stdClass();
-    $eventdata->component         = 'mod_quiz';
-    $eventdata->name              = 'submission';
+    $eventdata->component         = 'mod_studentquiz';
+    $eventdata->name              = 'change';
     $eventdata->notification      = 1;
 
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;
-    $eventdata->subject           = get_string('emailnotifysubject', 'quiz', $a);
-    $eventdata->fullmessage       = get_string('emailnotifybody', 'quiz', $a);
+    $eventdata->subject           = get_string('emailchangesubject', 'studentquiz', $a);
+    $eventdata->fullmessage       = get_string('emailchangebody', 'studentquiz', $a);
     $eventdata->fullmessageformat = FORMAT_PLAIN;
     $eventdata->fullmessagehtml   = '';
 
-    $eventdata->smallmessage      = get_string('emailnotifysmall', 'quiz', $a);
-    $eventdata->contexturl        = $a->quizreviewurl;
-    $eventdata->contexturlname    = $a->quizname;
+    $eventdata->smallmessage      = get_string('emailchangesmall', 'studentquiz', $a);
+    $eventdata->contexturl        = $a->questionurl;
+    $eventdata->contexturlname    = $a->questionname;
 
     // ... and send it.
     return message_send($eventdata);
