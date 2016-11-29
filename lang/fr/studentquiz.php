@@ -30,8 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['modulename'] = 'StudentQuiz';
 $string['modulenameplural'] = 'StudentQuizzes';
-$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.
-';
+$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.';
 $string['studentquizfieldset'] = 'Custom example fieldset';
 $string['studentquizname'] = 'StudentQuiz Name';
 $string['studentquizname_help'] = 'StudentQuiz Name';
@@ -41,7 +40,6 @@ $string['quizpracticebehaviour'] = 'Rating and Comment';
 $string['quizpracticebehaviourhelp'] = 'Rating and comment questions';
 $string['quizpracticebehaviourhelp_help'] = 'Rating and comment question';
 
-
 $string['studentquiz'] = 'studentquiz';
 $string['pluginadministration'] = 'StudentQuiz Administration';
 $string['pluginname'] = 'StudentQuiz';
@@ -49,6 +47,7 @@ $string['vote_column_name'] = 'Évaluations';
 $string['practice_column_name'] = 'Tentatives';
 $string['comment_column_name'] = 'Commentaires';
 $string['difficulty_level_column_name'] = 'Difficulté';
+$string['approved_column_name'] = 'Approved';
 $string['vote_points'] = 'Points';
 $string['tag_column_name'] = 'Tags';
 $string['start_quiz_button'] = 'Démarrer le quiz';
@@ -69,12 +68,18 @@ $string['no_tags'] = 'pas de tags';
 $string['no_votes'] = 'pas de notes';
 $string['no_practice'] = 'pas de tentative';
 $string['no_comment'] = 'pas de commentaires';
+$string['approved'] = '✓';
+$string['not_approved'] = '✗';
+$string['approve'] = 'Un-/Approve';
+$string['approveselectedscheck'] = 'Are you sure you want to un-/approve the following questions?<br /><br />{$a}';
+$string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
 $string['creator_anonym_firstname'] = 'anonyme';
 $string['creator_anonym_lastname'] = 'anonyme';
 
 // Filters.
 $string['filter_label_search'] = 'Chercher';
 $string['filter_label_question'] = 'Titre de question';
+$string['filter_label_approved'] = 'Only approved questions';
 $string['filter_label_firstname'] = 'Prénom';
 $string['filter_label_surname'] = 'Nom de famille';
 $string['filter_label_createdate'] = 'Création';
