@@ -465,6 +465,7 @@ class mod_studentquiz_view {
         $this->pageurl = new moodle_url($thispageurl);
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
+            $this->notify_change($lastchanged, $contexts);
         }
         $this->qbpagevar = $pagevars;
 
@@ -505,6 +506,42 @@ class mod_studentquiz_view {
         }
 
         return $ids;
+    }
+
+    /**
+     * Notify student if a teacher makes changes to a student's question.
+     * @param int $questionid ID of the student's questions.
+     * @param \context $context Category context for this view.
+     * @return bool True if sucessfully sent, false otherwise.
+     */
+    private function notify_change($questionid, $context) {
+        global $DB, $USER;
+        if (has_capability('moodle/question:editall', $context)) {
+            list($name, $createdby, $modifiedby) = $DB->get_record('questions', array('id' => $questionid), 'name, createdby, modfiedby');
+
+
+            if ($createdby != $modifiedby && $createdby != $USER->id && $modifiedby == $USER->id) {
+
+                $student = $DB->get_record('user', array('id' => $createdby), '*', MUST_EXIST);
+                $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+
+                $a = new stdClass();
+                // Course info.
+                $a->coursename      = $this->course->fullname;
+                $a->courseshortname = $this->course->shortname;
+                // Question info.
+                $a->quizname        = $name;
+                // Student who sat the quiz info.
+                $a->studentidnumber = $student->idnumber;
+                $a->studentname     = fullname($student);
+                $a->studentusername = $student->username;
+
+                // Send notifications if required.
+                return mod_studentquiz_send_notification($student, $teacher, $a);
+            }
+        }
+
+        return false;
     }
 
     /**

@@ -137,3 +137,39 @@ function mod_studentquiz_is_anonym($cmid) {
     // If no entry was found, better set it anonym.
     return 1;
 }
+
+/**
+ * Sends notification messages to the interested parties that assign the role capability
+ *
+ * @param object $recipient user object of the intended recipient
+ * @param object $a associative array of replaceable fields for the templates
+ *
+ * @return int|false as for {@link message_send()}.
+ */
+function mod_studentquiz_send_notification($recipient, $submitter, $a) {
+
+    // Recipient info for template.
+    $a->useridnumber = $recipient->idnumber;
+    $a->username     = fullname($recipient);
+    $a->userusername = $recipient->username;
+
+    // Prepare the message.
+    $eventdata = new stdClass();
+    $eventdata->component         = 'mod_quiz';
+    $eventdata->name              = 'submission';
+    $eventdata->notification      = 1;
+
+    $eventdata->userfrom          = $submitter;
+    $eventdata->userto            = $recipient;
+    $eventdata->subject           = get_string('emailnotifysubject', 'quiz', $a);
+    $eventdata->fullmessage       = get_string('emailnotifybody', 'quiz', $a);
+    $eventdata->fullmessageformat = FORMAT_PLAIN;
+    $eventdata->fullmessagehtml   = '';
+
+    $eventdata->smallmessage      = get_string('emailnotifysmall', 'quiz', $a);
+    $eventdata->contexturl        = $a->quizreviewurl;
+    $eventdata->contexturlname    = $a->quizname;
+
+    // ... and send it.
+    return message_send($eventdata);
+}
