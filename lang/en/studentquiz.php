@@ -162,3 +162,6 @@ has been modified by a teacher.
 You can review this question at {$a->questionurl}.';
 $string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by a teacher.';
 $string['emailchangesubject'] = 'Question modification: {$a->quizname}';
+
+// Message provider
+$string['messageprovider:change'] = 'Question change notification';

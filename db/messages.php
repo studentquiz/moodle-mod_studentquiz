@@ -15,24 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
+ * Defines message providers (types of message sent) for the studentquiz module.
  *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
- *
- * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch) <your@email.address>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_studentquiz
+ * @copyright 2016 HSR (http://www.hsr.ch)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2016112901;
-$plugin->release      = 'v1.0.11';
-$plugin->requires     = 2015102300; // Version 3.0.
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
-$plugin->dependencies = array(
-    'mod_quiz' => '2015111600'
+$messageproviders = array(
+    // Notify students that a teacher has edited one of their question.
+    'change' => array(
+        'capability' => 'mod/studentquiz:emailnotifychange'
+    ),
 );

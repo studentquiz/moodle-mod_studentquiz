@@ -157,7 +157,7 @@ function mod_studentquiz_send_notification($recipient, $submitter, $a) {
     $eventdata = new stdClass();
     $eventdata->component         = 'mod_studentquiz';
     $eventdata->name              = 'change';
-    $eventdata->notification      = 1;
+    $eventdata->notification      = true;
 
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;
