@@ -147,7 +147,6 @@ function mod_studentquiz_is_anonym($cmid) {
  * @return int|false as for {@link message_send()}.
  */
 function mod_studentquiz_send_notification($recipient, $submitter, $a) {
-
     // Recipient info for template.
     $a->useridnumber = $recipient->idnumber;
     $a->username     = fullname($recipient);

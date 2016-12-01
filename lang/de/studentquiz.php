@@ -149,3 +149,16 @@ $string['viewlib_please_contact_the_admin'] = 'Bitte kontaktieren Sie den Admini
 $string['studentquiz:submit'] = 'Studentquiz absenden';
 $string['studentquiz:view'] = 'Studentquiz ansehen';
 $string['studentquiz:addinstance'] = 'Neue Instanz hinzufügen';
+
+// Change notification email
+$string['emailchangebody'] = 'Hallo {$a->username},
+
+Diese E-Mail informiert Sie, dass Ihre Frage \'{$a->questionname}\'
+im Kurs \'{$a->coursename}\' von einer Lehrperson bearbeitet wurde.
+
+Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
+$string['emailchangesmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer Lehrperson bearbeitet.';
+$string['emailchangesubject'] = 'Frage wurde bearbeitet: {$a->questionname}';
+
+// Message provider
+$string['messageprovider:change'] = 'Notification zur Fragenbearbeitung';

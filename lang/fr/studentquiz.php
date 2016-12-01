@@ -150,3 +150,16 @@ $string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
 $string['studentquiz:submit'] = 'Submit on studentquiz';
 $string['studentquiz:view'] = 'View studentquiz';
 $string['studentquiz:addinstance'] = 'Add new instance';
+
+// Change notification email
+$string['emailchangebody'] = 'Dear {$a->username},
+
+This email informs you that your question \'{$a->questionname}\'
+in course \'{$a->coursename}\' has been modified by a teacher.
+
+You can review this question at: {$a->questionurl}.';
+$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by a teacher.';
+$string['emailchangesubject'] = 'Question modification: {$a->questionname}';
+
+// Message provider
+$string['messageprovider:change'] = 'Question change notification';

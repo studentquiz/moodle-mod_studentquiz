@@ -465,7 +465,7 @@ class mod_studentquiz_view {
         $this->pageurl = new moodle_url($thispageurl);
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
-            $this->notify_change($lastchanged, $contexts);
+            $this->notify_change($lastchanged);
         }
         $this->qbpagevar = $pagevars;
 
@@ -514,14 +514,21 @@ class mod_studentquiz_view {
      * @param \context $context Category context for this view.
      * @return bool True if sucessfully sent, false otherwise.
      */
-    private function notify_change($questionid, $context) {
+    private function notify_change($questionid) {
         global $DB, $USER, $CFG;
-        //if (has_capability('moodle/question:editall', $context)) {
-            $question = $DB->get_record('question', array('id' => $questionid), 'name, createdby, modifiedby');
 
+        // Requires the right permission.
+        if (has_capability('moodle/question:editall', $this->context)) {
+            $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+            $lesteditthreshold = 5;
 
-            if ($question->createdby != $question->modifiedby && $question->createdby != $USER->id && $question->modifiedby == $USER->id) {
+            // Creator and modifier must be different and don't send when refreshing the page.
+            if ($question->createdby != $question->modifiedby
+                && $question->createdby != $USER->id
+                && $question->modifiedby == $USER->id
+                && $question->timemodified + $lesteditthreshold >= time()) {
 
+                // Prepare message.
                 $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
                 $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
 
@@ -537,10 +544,9 @@ class mod_studentquiz_view {
                 $a->studentname     = fullname($student);
                 $a->studentusername = $student->username;
 
-                // Send notifications if required.
                 return mod_studentquiz_send_notification($student, $teacher, $a);
             }
-        //}
+        }
 
         return false;
     }
