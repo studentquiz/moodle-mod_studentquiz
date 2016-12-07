@@ -202,12 +202,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function view_quizreport_stats($total, $stats, $usergrades, $isadmin = false) {
         $output = '';
+        $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
 
-        if ($isadmin) {
-            // No stats for admin yet.
-        } else {
-            $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
-
+        // No stats for admin yet.
+        if (!$isadmin) {
             $output .= html_writer::tag('p',
                 html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
                 .html_writer::span($stats->totalnrofquestions)
@@ -229,9 +227,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             );
         }
 
-        if ($isadmin) {
-            $output .= $this->heading(get_string('reportquiz_admin_total_title', 'studentquiz'), 2, 'reportquiz_total_heading');
-        } else {
+        if (!$isadmin) {
             $output .= $this->heading(get_string('reportquiz_total_title', 'studentquiz'), 2, 'reportquiz_total_heading');
         }
         $output .= html_writer::tag('p',
@@ -253,10 +249,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             html_writer::span(get_string('reportquiz_total_questions_wrong', 'studentquiz') . ': ', 'reportquiz_total_label')
             .html_writer::span(($total->questionsanswered - $total->questionsright))
         );
-        $output .= html_writer::tag('p',
-            html_writer::span(get_string('reportquiz_total_obtained_marks', 'studentquiz') . ': ', 'reportquiz_total_label')
-            .html_writer::span($total->obtainedmarks)
-        );
+        // Ex Label with: reportquiz_total_label and $total->obtainedmarks,.
 
         if ($isadmin) {
             $output .= html_writer::tag('p',

@@ -109,11 +109,11 @@ $string['config_incorrect_answered_q_quantifier'] = 'Points received for answeri
 $string['reportquiz_dashboard_title'] = 'Dashboard';
 
 // Report quiz.
-$string['reportquiz_total_title'] = 'Total';
+$string['reportquiz_total_title'] = 'Attempt-stats';
 $string['reportquiz_total_attempt'] = 'Number of attempts';
 $string['reportquiz_total_questions_answered'] = 'Answered questions';
-$string['reportquiz_total_questions_right'] = 'Questions right';
-$string['reportquiz_total_questions_wrong'] = 'Questions wrong';
+$string['reportquiz_total_questions_right'] = 'Right answers';
+$string['reportquiz_total_questions_wrong'] = 'Wrong answers';
 $string['reportquiz_total_obtained_marks'] = 'Obtained marks';
 $string['reportquiz_summary_title'] = 'Quiz summaries';
 $string['reportquiz_total_users'] = 'Participant count';
@@ -128,7 +128,7 @@ $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Created';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link to quiz';
 
 // Report quiz stats.
-$string['reportquiz_stats_title'] = 'Stats';
+$string['reportquiz_stats_title'] = 'Dashboard';
 $string['reportquiz_stats_nr_of_questions'] = 'Questions in this Quiz';
 $string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';
 $string['reportquiz_stats_nr_of_own_questions'] = 'Own questions';

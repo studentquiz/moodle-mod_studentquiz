@@ -109,11 +109,11 @@ $string['config_incorrect_answered_q_quantifier'] = 'Erhaltene Punkte für die f
 $string['reportquiz_dashboard_title'] = 'Übersichtsseite';
 
 // Report quiz.
-$string['reportquiz_total_title'] = 'Total';
+$string['reportquiz_total_title'] = 'Statistik über Versuche';
 $string['reportquiz_total_attempt'] = 'Anzahl der Versuche';
 $string['reportquiz_total_questions_answered'] = 'Beantwortete Fragen';
-$string['reportquiz_total_questions_right'] = 'Richtige Fragen';
-$string['reportquiz_total_questions_wrong'] = 'Falsche Fragen';
+$string['reportquiz_total_questions_right'] = 'Richtig Beantwortet';
+$string['reportquiz_total_questions_wrong'] = 'Falsch Beantwortet';
 $string['reportquiz_total_obtained_marks'] = 'Erhaltene Punkte';
 $string['reportquiz_summary_title'] = 'Quiz Zusammenfassung';
 $string['reportquiz_total_users'] = 'Teilnehmerzahl';
@@ -128,8 +128,8 @@ $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Erstellt';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link zum Quiz';
 
 // Report quiz stats.
-$string['reportquiz_stats_title'] = 'Statistiken';
-$string['reportquiz_stats_nr_of_questions'] = 'Anzahl der Fragen';
+$string['reportquiz_stats_title'] = 'Dashboard';
+$string['reportquiz_stats_nr_of_questions'] = 'Fragen im Quiz';
 $string['reportquiz_stats_right_answered_questions'] = 'Richtig beantwortet';
 $string['reportquiz_stats_nr_of_own_questions'] = 'Eigene Fragen';
 $string['reportquiz_stats_own_grade_of_max'] = 'Ihre Punkteanzahl der max. Punktenzahl';
