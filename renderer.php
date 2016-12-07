@@ -205,17 +205,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         if ($isadmin) {
             // No stats for admin yet.
-            //return $output;
-            echo '1 2 polizei<br>';
         } else {
-            echo '3 4 ich will bier<br>';
             $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
 
             $output .= html_writer::tag('p',
                 html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
                 .html_writer::span($stats->totalnrofquestions)
             );
-echo 'loooooll';
             $output .= html_writer::tag('p',
                 html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz')
                     . ': ', 'reportquiz_total_label')
@@ -261,8 +257,6 @@ echo 'loooooll';
             html_writer::span(get_string('reportquiz_total_obtained_marks', 'studentquiz') . ': ', 'reportquiz_total_label')
             .html_writer::span($total->obtainedmarks)
         );
-        print_object($total);
-        print_object($isadmin);
 
         if ($isadmin) {
             $output .= html_writer::tag('p',
