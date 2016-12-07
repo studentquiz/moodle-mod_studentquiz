@@ -146,8 +146,8 @@ $string['viewlib_please_select_question'] = 'Bitte wählen Sie eine Frage.';
 $string['viewlib_please_contact_the_admin'] = 'Bitte kontaktieren Sie den Administrator.';
 
 // Permission.
-$string['studentquiz:submit'] = 'Studentquiz absenden';
-$string['studentquiz:view'] = 'Studentquiz ansehen';
+$string['studentquiz:submit'] = 'StudentQuiz absenden';
+$string['studentquiz:view'] = 'StudentQuiz ansehen';
 $string['studentquiz:addinstance'] = 'Neue Instanz hinzufügen';
 
 // Change notification email
