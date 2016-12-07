@@ -129,7 +129,7 @@ $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link to quiz';
 
 // Report quiz stats.
 $string['reportquiz_stats_title'] = 'Stats';
-$string['reportquiz_stats_nr_of_questions'] = 'Number of questions';
+$string['reportquiz_stats_nr_of_questions'] = 'Questions in this Quiz';
 $string['reportquiz_stats_right_answered_questions'] = 'Correctly answered';
 $string['reportquiz_stats_nr_of_own_questions'] = 'Own questions';
 
