@@ -201,7 +201,6 @@ class mod_studentquiz_report {
         $usergrades = $this->get_user_quiz_grade($USER->id);
 
         $output = $reportrenderer->view_quizreport_stats($total, $outputstats, $usergrades);
-        //$output .= $reportrenderer->view_quizreport_total($total);
         $output .= $reportrenderer->view_quizreport_summary();
         $output .= $outputsummaries;
 
@@ -270,9 +269,7 @@ class mod_studentquiz_report {
             $total->id = $user->userid;
             $usersdata[] = $total;
         }
-        echo 'Hallo welt!<br>';
         $output = $reportrenderer->view_quizreport_stats($overalltotal, null, null, true);
-        //$output = $reportrenderer->view_quizreport_total($overalltotal, true);
         $output .= $reportrenderer->view_quizreport_table($this, $usersdata);
 
         $output .= $reportrenderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
