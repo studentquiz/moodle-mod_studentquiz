@@ -116,7 +116,7 @@ $string['reportquiz_total_questions_right'] = 'Right answers';
 $string['reportquiz_total_questions_wrong'] = 'Wrong answers';
 $string['reportquiz_total_obtained_marks'] = 'Obtained marks';
 $string['reportquiz_summary_title'] = 'Quiz summaries';
-$string['reportquiz_total_users'] = 'Participant count';
+$string['reportquiz_total_users'] = 'Number of participants';
 $string['reportquiz_admin_title'] = 'Detailed statistic';
 
 // Report quiz admin section.

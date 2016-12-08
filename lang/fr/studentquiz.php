@@ -152,14 +152,14 @@ $string['studentquiz:view'] = 'Voir StudentQuiz';
 $string['studentquiz:addinstance'] = 'Ajouter une nouvelle instance';
 
 // Change notification email
-$string['emailchangebody'] = 'Dear {$a->username},
+$string['emailchangebody'] = 'Cher {$a->username},
 
-This email informs you that your question \'{$a->questionname}\'
-in course \'{$a->coursename}\' has been modified by a teacher.
+Cet e-mail vous informe que votre question \'{$a->questionname}\'
+dans le cours \'{$a->coursename}\' a été modifié par un enseignant.
 
-You can review this question at: {$a->questionurl}.';
-$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by a teacher.';
-$string['emailchangesubject'] = 'Question modification: {$a->questionname}';
+Vous pouvez examiner cette question à: {$a->questionurl}.';
+$string['emailchangesmall'] = 'Votre question \'{$a->questionname}\' a été modifié par un enseignant.';
+$string['emailchangesubject'] = 'Question modifié: {$a->questionname}';
 
 // Message provider
-$string['messageprovider:change'] = 'Question change notification';
+$string['messageprovider:change'] = 'Notification de changement de question';

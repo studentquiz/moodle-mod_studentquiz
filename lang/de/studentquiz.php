@@ -161,4 +161,4 @@ $string['emailchangesmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer
 $string['emailchangesubject'] = 'Frage wurde bearbeitet: {$a->questionname}';
 
 // Message provider
-$string['messageprovider:change'] = 'Notification zur Fragenbearbeitung';
+$string['messageprovider:change'] = 'Mitteilung zur Fragenbearbeitung';
