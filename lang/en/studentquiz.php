@@ -155,16 +155,44 @@ $string['viewlib_please_contact_the_admin'] = 'Please contact the admin.';
 $string['studentquiz:submit'] = 'Submit on StudentQuiz';
 $string['studentquiz:view'] = 'View StudentQuiz';
 $string['studentquiz:addinstance'] = 'Add new instance';
-
-// Change notification email.
-$string['emailchangebody'] = 'Dear {$a->username},
-
-This email informs you that your question \'{$a->questionname}\'
-in course \'{$a->coursename}\' has been modified by a teacher.
-
-You can review this question at: {$a->questionurl}.';
-$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by a teacher.';
-$string['emailchangesubject'] = 'Question modification: {$a->questionname}';
+$string['studentquiz:change'] = 'Question change notification';
+$string['studentquiz:approved'] = 'Question approve notification';
+$string['studentquiz:unapproved'] = 'Question unapprove notification';
+$string['studentquiz:emailnotifychange'] = 'Question change notification';
+$string['studentquiz:emailnotifyapproved'] = 'Question approve notification';
+$string['studentquiz:emailnotifyunapproved'] = 'Question unapprove notification';
 
 // Message provider.
 $string['messageprovider:change'] = 'Question change notification';
+$string['messageprovider:approved'] = 'Question approve notification';
+$string['messageprovider:unapproved'] = 'Question unapprove notification';
+
+// Change notification email.
+$string['emailchangebody'] = 'Dear {$a->studentname},
+
+This email informs you that your question \'{$a->questionname}\'
+in course \'{$a->coursename}\' has been modified by {$a->teachername}.
+
+You can review this question at: {$a->questionurl}.';
+$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->teachername}.';
+$string['emailchangesubject'] = 'Question modification: {$a->questionname}';
+
+// Approve notification email.
+$string['emailapprovedbody'] = 'Dear {$a->studentname},
+
+This email informs you that your question \'{$a->questionname}\'
+in course \'{$a->coursename}\' has been approved by {$a->teachername}.
+
+You can review this question at: {$a->questionurl}.';
+$string['emailapprovedsmall'] = 'Your question \'{$a->questionname}\' has been approved by {$a->teachername}.';
+$string['emailapprovedsubject'] = 'Question approved: {$a->questionname}';
+
+// Unapprove notification email.
+$string['emailunapprovedbody'] = 'Dear {$a->studentname},
+
+This email informs you that your question \'{$a->questionname}\'
+in course \'{$a->coursename}\' has been unapproved by {$a->teachername}.
+
+You can review this question at: {$a->questionurl}.';
+$string['emailunapprovedsmall'] = 'Your question \'{$a->questionname}\' has been unapproved by {$a->teachername}.';
+$string['emailunapprovedsubject'] = 'Question unapproved: {$a->questionname}';

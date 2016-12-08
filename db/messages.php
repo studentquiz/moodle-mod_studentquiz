@@ -29,4 +29,12 @@ $messageproviders = array(
     'change' => array(
         'capability' => 'mod/studentquiz:emailnotifychange'
     ),
+    // Notify students that a teacher has approved one of their question.
+    'approved' => array(
+        'capability' => 'mod/studentquiz:emailnotifyapproved'
+    ),
+    // Notify students that a teacher has unapproved one of their question.
+    'unapproved' => array(
+        'capability' => 'mod/studentquiz:emailnotifyunapproved'
+    ),
 );

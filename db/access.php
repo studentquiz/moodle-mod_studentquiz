@@ -75,4 +75,31 @@ $capabilities = array(
             'student' => CAP_ALLOW
         )
     ),
+    'mod/studentquiz:emailnotifychange' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(),
+        'legacy' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW
+        )
+    ),
+    'mod/studentquiz:emailnotifyapproved' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(),
+        'legacy' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW
+        )
+    ),
+    'mod/studentquiz:emailnotifyunapproved' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(),
+        'legacy' => array(
+            'student' => CAP_ALLOW,
+            'teacher' => CAP_ALLOW
+        )
+    ),
 );

@@ -152,9 +152,20 @@ $string['viewlib_please_contact_the_admin'] = 'Bitte kontaktieren Sie den Admini
 $string['studentquiz:submit'] = 'StudentQuiz absenden';
 $string['studentquiz:view'] = 'StudentQuiz ansehen';
 $string['studentquiz:addinstance'] = 'Neue Instanz hinzufügen';
+$string['studentquiz:change'] = 'Mitteilung zur Fragenbearbeotung';
+$string['studentquiz:approved'] = 'Mitteilung zur Fragenbestätitgung';
+$string['studentquiz:unapproved'] = 'Mitteilung zum rückgängig machen der Fragenbestätitgung';
+$string['studentquiz:emailnotifychange'] = 'Mitteilung zur Fragenbearbeotung';
+$string['studentquiz:emailnotifyapproved'] = 'Mitteilung zur Fragenbestätitgung';
+$string['studentquiz:emailnotifyunapproved'] = 'Mitteilung zum rückgängig machen der Fragenbestätitgung';
+
+// Message provider.
+$string['messageprovider:change'] = 'Mitteilung zur Fragenbearbeitung';
+$string['messageprovider:approved'] = 'Mitteilung zur Fragenbestätitgung';
+$string['messageprovider:unapproved'] = 'Mitteilung zum rückgängig machen der Fragenbestätitgung';
 
 // Change notification email.
-$string['emailchangebody'] = 'Hallo {$a->username},
+$string['emailchangebody'] = 'Hallo {$a->studentname},
 
 Diese E-Mail informiert Sie, dass Ihre Frage \'{$a->questionname}\'
 im Kurs \'{$a->coursename}\' von einer Lehrperson bearbeitet wurde.
@@ -163,5 +174,22 @@ Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
 $string['emailchangesmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer Lehrperson bearbeitet.';
 $string['emailchangesubject'] = 'Frage wurde bearbeitet: {$a->questionname}';
 
-// Message provider.
-$string['messageprovider:change'] = 'Mitteilung zur Fragenbearbeitung';
+// Approve notification email.
+$string['emailapprovedbody'] = 'Hallo {$a->studentname},
+
+Diese E-Mail informiert Sie, dass Ihre Frage \'{$a->questionname}\'
+im Kurs \'{$a->coursename}\' von einer Lehrperson bestätigt wurde.
+
+Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
+$string['emailapprovedsmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer Lehrperson bestätigt.';
+$string['emailapprovedsubject'] = 'Frage wurde bestätigt: {$a->questionname}';
+
+// Unapprove notification email.
+$string['emailunapprovedbody'] = 'Hallo {$a->studentname},
+
+Diese E-Mail informiert Sie, dass die Bestätigung Ihre Frage \'{$a->questionname}\'
+im Kurs \'{$a->coursename}\' von einer Lehrperson rückgängig gemacht wurde.
+
+Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
+$string['emailunapprovedsmall'] = 'Die Bestätigung Ihrer Frage \'{$a->questionname}\' wurde von einer Lehrperson rückgängig gemacht.';
+$string['emailunapprovedsubject'] = 'Bestätigung der Frage wurde rückgängig gemacht: {$a->questionname}';
