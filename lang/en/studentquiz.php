@@ -79,7 +79,7 @@ $string['creator_anonym_lastname'] = 'anonym';
 // Filters.
 $string['filter_label_search'] = 'Search';
 $string['filter_label_question'] = 'Question title';
-$string['filter_label_approved'] = 'Only approved questions';
+$string['filter_label_approved'] = 'Approved questions';
 $string['filter_label_firstname'] = 'Firstname';
 $string['filter_label_surname'] = 'Lastname';
 $string['filter_label_createdate'] = 'Creation';
@@ -91,7 +91,7 @@ $string['filter_label_comment'] = 'Comments';
 $string['filter_label_difficulty_level'] = 'Difficulty';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
-$string['filter_label_show_mine'] = 'Show my questions';
+$string['filter_label_show_mine'] = 'My questions';
 $string['filter'] = 'Filter';
 
 // Admin settings.

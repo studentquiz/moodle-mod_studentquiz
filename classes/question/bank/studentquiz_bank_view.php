@@ -584,8 +584,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level',
             'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
-        $this->fields[] = new \user_filter_checkbox('approved', get_string('filter_label_approved', 'studentquiz'),
-                                                    false, 'approved');
 
         // Advanced filters.
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
@@ -602,6 +600,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
                 true, 'lastname');
         }
+        $this->fields[] = new \user_filter_checkbox('approved', get_string('filter_label_approved', 'studentquiz'),
+            true, 'approved');
 
         $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
                                                 true, 'timecreated');
