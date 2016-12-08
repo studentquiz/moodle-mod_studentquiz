@@ -56,9 +56,11 @@ class approved_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
+        $class = 'question-unapproved';
         $content = get_string('not_approved', 'studentquiz');
 
         if (!empty($question->approved)) {
+            $class = 'question-approved';
             $content = get_string('approved', 'studentquiz');
         }
 
@@ -67,7 +69,7 @@ class approved_column extends \core_question\bank\column_base {
                                    'sesskey' => sesskey()));
             $title = 'Approve';
 
-            $content = '<a title="' . $title . '" href="' . $url . '">' . $content . '</a>';
+            $content = '<a title="' . $title . '" href="' . $url . '" class="' . $class . '">' . $content . '</a>';
         }
 
         echo $content;

@@ -174,3 +174,12 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #page-mod-studentquiz-view .mod_quiz_edit_forms  {
     display:none
 }
+.question-approved {
+    color: #00aa00;
+}
+.question-unapproved {
+    color: #7b1400;
+}
+#categoryquestions .header {
+    text-align: left;
+}
