@@ -106,7 +106,7 @@ $string['settings_incorrect_answered_q_quantifier'] = 'Points pour chaque mauvai
 $string['config_incorrect_answered_q_quantifier'] = 'Points reçus pour avoir mal repondu à une question.';
 
 // Report Dashboard.
-$string['reportquiz_dashboard_title'] = 'Vue d\'ensemble';
+$string['reportquiz_dashboard_title'] = 'Statistiques';
 
 // Report quiz.
 $string['reportquiz_total_title'] = 'Statistique des tentatives';
@@ -115,9 +115,9 @@ $string['reportquiz_total_questions_answered'] = 'Questions Répondu';
 $string['reportquiz_total_questions_right'] = 'Réponses correctes';
 $string['reportquiz_total_questions_wrong'] = 'Réponses fausses';
 $string['reportquiz_total_obtained_marks'] = 'Note reçu';
-$string['reportquiz_summary_title'] = 'Résumé des quiz';
+$string['reportquiz_summary_title'] = 'Votre tenues du quiz';
 $string['reportquiz_total_users'] = 'Nombre de participants';
-$string['reportquiz_admin_title'] = 'Statistique détaillée';
+$string['reportquiz_admin_title'] = 'Statistique d\'utilisateur';
 
 // Report quiz admin section.
 $string['reportquiz_admin_total_title'] = 'Total général';
@@ -128,12 +128,16 @@ $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Créé';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Lien vers le quiz';
 
 // Report quiz stats.
-$string['reportquiz_stats_title'] = 'Vue d\'ensemble';
-$string['reportquiz_stats_nr_of_questions'] = 'Nombre de questions';
-$string['reportquiz_stats_right_answered_questions'] = 'Répondu correctement';
-$string['reportquiz_stats_nr_of_own_questions'] = 'Questions propres';
+$string['reportquiz_stats_title'] = 'Statistiques';
+$string['reportquiz_stats_nr_of_questions'] = 'Nombre de questions dans ce quiz';
+$string['reportquiz_stats_right_answered_questions'] = 'Vous avez répondu correctement';
+$string['reportquiz_stats_nr_of_own_questions'] = 'Vous avez contribué';
 
-$string['reportquiz_stats_own_grade_of_max'] = 'Votre niveau du max';
+$string['reportquiz_stats_own_grade_of_max'] = 'Votre niveau maximal';
+
+$string['reportquiz_stats_attempt'] = 'Nombre que vous avez exécuté le quiz';
+$string['reportquiz_stats_questions_answered'] = 'Total de vos réponses';
+$string['reportquiz_stats_questions_right'] = 'Total des bonnes réponses';
 
 // Report rank.
 $string['reportrank_title'] = 'Classement des etudiants';
@@ -151,7 +155,7 @@ $string['studentquiz:submit'] = 'Envoyer sur StudentQuiz';
 $string['studentquiz:view'] = 'Voir StudentQuiz';
 $string['studentquiz:addinstance'] = 'Ajouter une nouvelle instance';
 
-// Change notification email
+// Change notification email.
 $string['emailchangebody'] = 'Cher {$a->username},
 
 Cet e-mail vous informe que votre question \'{$a->questionname}\'
@@ -161,5 +165,5 @@ Vous pouvez examiner cette question à: {$a->questionurl}.';
 $string['emailchangesmall'] = 'Votre question \'{$a->questionname}\' a été modifié par un enseignant.';
 $string['emailchangesubject'] = 'Question modifié: {$a->questionname}';
 
-// Message provider
+// Message provider.
 $string['messageprovider:change'] = 'Notification de changement de question';

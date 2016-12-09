@@ -200,7 +200,7 @@ class mod_studentquiz_report {
         $outputstats = $this->get_user_quiz_stats($USER->id);
         $usergrades = $this->get_user_quiz_grade($USER->id);
 
-        $output = $reportrenderer->view_quizreport_stats($total, $outputstats, $usergrades);
+        $output = $reportrenderer->view_quizreport_stats(null, $total, $outputstats, $usergrades);
         $output .= $reportrenderer->view_quizreport_summary();
         $output .= $outputsummaries;
 
@@ -259,6 +259,9 @@ class mod_studentquiz_report {
             $total->questionsright = 0;
             $total->questionsanswered = 0;
             $this->get_user_quiz_summary($user->userid, $total);
+            $userstats = $this->get_user_quiz_grade($user->userid);
+            $total->attemptedgrade = $userstats->usermark;
+            $total->maxgrade = $userstats->stuquizmaxmark;
 
             $overalltotal->numattempts += $total->numattempts;
             $overalltotal->obtainedmarks += $total->obtainedmarks;
@@ -269,7 +272,18 @@ class mod_studentquiz_report {
             $total->id = $user->userid;
             $usersdata[] = $total;
         }
-        $output = $reportrenderer->view_quizreport_stats($overalltotal, null, null, true);
+        $outputstats = $this->get_user_quiz_stats($USER->id);
+        $usergrades = $this->get_user_quiz_grade($USER->id);
+
+        $total = new stdClass();
+        $total->numattempts = 0;
+        $total->obtainedmarks = 0;
+        $total->questionsright = 0;
+        $total->questionsanswered = 0;
+
+        $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
+
+        $output = $reportrenderer->view_quizreport_stats($overalltotal, $total, $outputstats, $usergrades, true);
         $output .= $reportrenderer->view_quizreport_table($this, $usersdata);
 
         $output .= $reportrenderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
@@ -299,7 +313,7 @@ class mod_studentquiz_report {
      */
     public function get_user_quiz_grade($userid) {
         global $DB;
-        $sql = 'select round(sum(sub.maxmark), 1) as usermaxmark, round(sum(sub.mark), 1) usermark, '
+        $sql = 'select IFNULL(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, IFNULL(round(sum(sub.mark), 1), 0.0) usermark, '
             .'  (SELECT round(sum(q.defaultmark), 1) '
             .'     FROM {question} q '
             .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
@@ -392,7 +406,7 @@ class mod_studentquiz_report {
             $viewobj->accessmanager = $accessmanager;
             $viewobj->canreviewmine = $canreviewmine;
 
-            $attempts = quiz_get_user_attempts($quiz->id, $userid, 'all', true);
+            $attempts = quiz_get_user_attempts($quiz->id, $userid, 'finished', true);
             $lastfinishedattempt = end($attempts);
             $unfinished = false;
             $unfinishedattemptid = null;

@@ -106,18 +106,18 @@ $string['settings_incorrect_answered_q_quantifier'] = 'Punkte für jede falsche 
 $string['config_incorrect_answered_q_quantifier'] = 'Erhaltene Punkte für die falsche Beantwortung einer Frage.';
 
 // Report Dashboard.
-$string['reportquiz_dashboard_title'] = 'Übersichtsseite';
+$string['reportquiz_dashboard_title'] = 'Statistiken';
 
 // Report quiz.
 $string['reportquiz_total_title'] = 'Statistik über Versuche';
-$string['reportquiz_total_attempt'] = 'Anzahl der Versuche';
-$string['reportquiz_total_questions_answered'] = 'Beantwortete Fragen';
-$string['reportquiz_total_questions_right'] = 'Richtig Beantwortet';
+$string['reportquiz_total_attempt'] = 'Anzahl der Quizdurchführungen';
+$string['reportquiz_total_questions_answered'] = 'Total beantwortete Fragen';
+$string['reportquiz_total_questions_right'] = 'Total richtig Beantwortet';
 $string['reportquiz_total_questions_wrong'] = 'Falsch Beantwortet';
 $string['reportquiz_total_obtained_marks'] = 'Erhaltene Punkte';
-$string['reportquiz_summary_title'] = 'Quiz Zusammenfassung';
+$string['reportquiz_summary_title'] = 'Ihre Quiz Durchführungen';
 $string['reportquiz_total_users'] = 'Teilnehmerzahl';
-$string['reportquiz_admin_title'] = 'Detaillierte Statistik';
+$string['reportquiz_admin_title'] = 'Benutzer Statistik';
 
 // Report quiz admin section.
 $string['reportquiz_admin_total_title'] = 'Gesamttotal';
@@ -128,11 +128,14 @@ $string['reportquiz_admin_quizzes_table_column_timecreated'] = 'Erstellt';
 $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link zum Quiz';
 
 // Report quiz stats.
-$string['reportquiz_stats_title'] = 'Dashboard';
-$string['reportquiz_stats_nr_of_questions'] = 'Fragen im Quiz';
-$string['reportquiz_stats_right_answered_questions'] = 'Richtig beantwortet';
-$string['reportquiz_stats_nr_of_own_questions'] = 'Eigene Fragen';
-$string['reportquiz_stats_own_grade_of_max'] = 'Ihre Punkteanzahl der max. Punktenzahl';
+$string['reportquiz_stats_title'] = 'Statistiken';
+$string['reportquiz_stats_nr_of_questions'] = 'Anzahl Fragen im Quiz';
+$string['reportquiz_stats_right_answered_questions'] = 'Sie haben richtig beantwortet';
+$string['reportquiz_stats_own_grade_of_max'] = 'Ihre maximale Punktenzahl';
+
+$string['reportquiz_stats_attempt'] = 'Anzahl Ihrer Durchführungen';
+$string['reportquiz_stats_questions_answered'] = 'Gesamte Anzahl Ihrer Antworten';
+$string['reportquiz_stats_questions_right'] = 'Gesamte Anzahl korrekter Antworten';
 
 // Report rank.
 $string['reportrank_title'] = 'Benutzerrangliste';
@@ -150,7 +153,7 @@ $string['studentquiz:submit'] = 'StudentQuiz absenden';
 $string['studentquiz:view'] = 'StudentQuiz ansehen';
 $string['studentquiz:addinstance'] = 'Neue Instanz hinzufügen';
 
-// Change notification email
+// Change notification email.
 $string['emailchangebody'] = 'Hallo {$a->username},
 
 Diese E-Mail informiert Sie, dass Ihre Frage \'{$a->questionname}\'
@@ -160,5 +163,5 @@ Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
 $string['emailchangesmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer Lehrperson bearbeitet.';
 $string['emailchangesubject'] = 'Frage wurde bearbeitet: {$a->questionname}';
 
-// Message provider
+// Message provider.
 $string['messageprovider:change'] = 'Mitteilung zur Fragenbearbeitung';
