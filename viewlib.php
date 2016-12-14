@@ -101,11 +101,17 @@ class mod_studentquiz_view {
             return;
         }
 
-        $parentquestioncategory = $DB->get_record('question_categories',
+        $parentquestioncategory = $DB->get_records('question_categories',
                                                   array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
+        // If there are multiple parents category with parent == 0, use the one with the lowest id.
+        if (!empty($parentquestioncategory)) {
+            $questioncategory->parent = $parentquestioncategory[0]->id;
 
-        if ($parentquestioncategory) {
-            $questioncategory->parent = $parentquestioncategory->id;
+            foreach ($parentquestioncategory as $category) {
+                if ($questioncategory->parent < $category->id) {
+                    $questioncategory->parent = $category->id;
+                }
+            }
             $DB->update_record('question_categories', $questioncategory);
         }
     }
