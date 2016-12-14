@@ -471,7 +471,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function display_bottom_controls($totalnumber, $recurse, $category, \context $catcontext, array $addcontexts) {
         $caneditall = has_capability('moodle/question:editall', $catcontext);
-        $canuseall = has_capability('moodle/question:useall', $catcontext);
         $canmoveall = has_capability('moodle/question:moveall', $catcontext);
 
         echo '<div class="modulespecificbuttonscontainer">';
@@ -549,11 +548,25 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         echo '</fieldset>';
 
+        echo '<script>';
         // Select all questions.
-        echo '<script>var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
-                      for (var i=0; i<el.length; i++) {
-                          el[i].checked = true;
-                      }</script>';
+        echo 'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
+                for (var i=0; i<el.length; i++) {
+                  el[i].checked = true;
+              }';
+        // Change both move-to dropdown box at when selection changes.
+        echo 'var elements = document.getElementsByClassName(\'select menucategory\');
+              for(e in elements) {
+                elements[e].onchange = function() {
+                  var elms = document.getElementsByClassName(\'select menucategory\');
+                  for(el in elms) {
+                    if(typeof elms[el] !== \'undefined\' && elms[el] !== this) {
+                      elms[el].value = this.value;
+                    }
+                  }
+                }
+              }';
+        echo '</script>';
     }
 
     /**
