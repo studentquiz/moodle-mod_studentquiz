@@ -658,7 +658,8 @@ class mod_studentquiz_report {
             // Questions created.
             . '    LEFT JOIN'
             . '    ('
-            . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question} GROUP BY category, createdby'
+            . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question}'
+            . '         WHERE parent = 0 GROUP BY category, createdby'
             . '    ) countq ON( countq.createdby = u.id AND countq.category = qc.id )'
             // Question votes.
             . '    LEFT JOIN'
