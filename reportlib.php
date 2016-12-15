@@ -318,7 +318,7 @@ class mod_studentquiz_report {
             .'     FROM {question} q '
             .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
             .'       LEFT JOIN {context} c ON qc.contextid = c.id '
-            .'     WHERE c.instanceid = :cmid AND c.contextlevel = 70) as stuquizmaxmark '
+            .'     WHERE q.parent = 0 AND c.instanceid = :cmid AND c.contextlevel = 70) as stuquizmaxmark '
             .'from ( '
             .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
             .'max(fraction) * suatt.maxmark as mark '
@@ -329,7 +329,7 @@ class mod_studentquiz_report {
             .'                                            FROM {question} q '
             .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
             .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
-            .'                                            WHERE c.instanceid = :cmid2 AND c.contextlevel = 70) '
+            .'                                            WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70) '
             .'GROUP BY suatt.questionid) as sub ';
 
         $record = $DB->get_record_sql($sql, array(
