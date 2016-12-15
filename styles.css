@@ -183,3 +183,6 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #categoryquestions .header {
     text-align: left;
 }
+#categoryquestions .questionname {
+    white-space: normal;
+}

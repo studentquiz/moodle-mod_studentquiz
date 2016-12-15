@@ -477,17 +477,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
         echo '<strong>&nbsp;' . get_string('withselected', 'question') . ':</strong><br />';
 
         if ($this->has_questions_in_category()) {
-            echo '<input class="form-submit" type="submit" name="startquiz" value="'
+            echo '<input class="btn btn-primary form-submit" type="submit" name="startquiz" value="'
                  . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
         }
 
         if ($caneditall) {
-            echo '<input type="submit" name="approveselected" value="' . get_string('approve', 'studentquiz') . "\" />\n";
-            echo '<input type="submit" name="deleteselected" value="' . get_string('delete') . "\" />\n";
+            echo '<input type="submit" class="btn" name="approveselected" value="' . get_string('approve', 'studentquiz') . "\" />\n";
+            echo '<input type="submit" class="btn" name="deleteselected" value="' . get_string('delete') . "\" />\n";
         }
 
         if ($canmoveall && count($addcontexts)) {
-            echo '<input type="submit" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
+            echo '<input type="submit" class="btn" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
             question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
         }
 
