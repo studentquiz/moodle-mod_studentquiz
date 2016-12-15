@@ -186,3 +186,10 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #categoryquestions .questionname {
     white-space: normal;
 }
+#categoryquestions .approved,
+#categoryquestions .votes,
+#categoryquestions .difficultylevel,
+#categoryquestions .practice,
+#categoryquestions .comment {
+    width: 80px;
+}
