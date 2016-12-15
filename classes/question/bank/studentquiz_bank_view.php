@@ -555,10 +555,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
                   el[i].checked = true;
               }';
         // Change both move-to dropdown box at when selection changes.
-        echo 'var elements = document.getElementsByClassName(\'select menucategory\');
+        echo 'var elements = document.getElementsByName(\'category\');
               for(e in elements) {
                 elements[e].onchange = function() {
-                  var elms = document.getElementsByClassName(\'select menucategory\');
+                  var elms = document.getElementsByName(\'category\');
                   for(el in elms) {
                     if(typeof elms[el] !== \'undefined\' && elms[el] !== this) {
                       elms[el].value = this.value;
