@@ -37,7 +37,7 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 require_login($course, false, $cm);
 
 // Have to check it manual because moodle does not distinguish between add and import question.
-if (!mod_studentquiz_check_created_permission()) {
+if (!mod_studentquiz_check_created_permission($cmid)) {
     print_error('nopermissions', '', '', 'access question edit tab import');
 }
 

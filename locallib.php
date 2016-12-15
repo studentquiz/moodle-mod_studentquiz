@@ -103,7 +103,7 @@ function mod_studentquiz_get_quiz_module_id() {
  * Check if user has permission to see creator
  * @return bool
  */
-function mod_studentquiz_check_created_permission() {
+function mod_studentquiz_check_created_permission($cmid) {
     global $USER;
 
     $admins = get_admins();
@@ -112,10 +112,10 @@ function mod_studentquiz_check_created_permission() {
             return true;
         }
     }
-    // 1 Manager, 2, Course creator, 3 editing Teacher.
-    return user_has_role_assignment($USER->id, 1) ||
-        user_has_role_assignment($USER->id, 2) ||
-        user_has_role_assignment($USER->id, 3);
+
+    $context = context_module::instance($cmid);
+
+    return has_capability('moodle/question:editall', $context);
 }
 
 /**
@@ -126,7 +126,7 @@ function mod_studentquiz_check_created_permission() {
 function mod_studentquiz_is_anonym($cmid) {
     global $DB;
 
-    if (mod_studentquiz_check_created_permission()) {
+    if (mod_studentquiz_check_created_permission($cmid)) {
         return 0;
     }
 

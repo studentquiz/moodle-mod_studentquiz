@@ -469,7 +469,7 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
     $navref->add(get_string('nav_report_rank', 'studentquiz')
         , new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
 
-    if (mod_studentquiz_check_created_permission()) {
+    if (mod_studentquiz_check_created_permission($cm->id)) {
         $context = context_module::instance($cm->id);
         $category = question_get_default_category($context->id);
         $cat = 'cat=' . $category->id . ',' . $context->id;

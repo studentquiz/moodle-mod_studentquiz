@@ -232,7 +232,7 @@ class mod_studentquiz_report {
      * @return bool
      */
     public function is_admin() {
-        return mod_studentquiz_check_created_permission();
+        return mod_studentquiz_check_created_permission($this->cm->id);
     }
 
     /**

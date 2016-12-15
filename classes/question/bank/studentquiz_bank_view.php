@@ -387,11 +387,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $this->isfilteractive = true;
                 $sqldata = $field->get_sql_filter($data);
 
-                if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission()) {
+                if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
                     continue;
                 }
 
-                if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission()) {
+                if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
                     continue;
                 }
 
@@ -607,7 +607,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
             true, 'questiontext');
 
-        if (mod_studentquiz_is_anonym($this->cm->id) && !mod_studentquiz_check_created_permission()) {
+        if (mod_studentquiz_is_anonym($this->cm->id) && !mod_studentquiz_check_created_permission($this->cm->id)) {
             $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
                 true, 'createdby');
         } else {
