@@ -41,10 +41,6 @@ class backup_studentquiz_activity_structure_step extends backup_activity_structu
      * @return backup_nested_element
      */
     protected function define_structure() {
-
-        // Get know if we are including userinfo.
-        $userinfo = $this->get_setting_value('userinfo');
-
         // Define the root element describing the StudentQuiz instance.
         $studentquiz = new backup_nested_element('studentquiz', array('id'), array(
             'coursemodule', 'name', 'intro', 'introformat', 'grade'));

@@ -101,13 +101,13 @@ class mod_studentquiz_view {
             return;
         }
 
-        $parentquestioncategory = $DB->get_records('question_categories',
+        $parentqcategory = $DB->get_records('question_categories',
                                                   array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
         // If there are multiple parents category with parent == 0, use the one with the lowest id.
-        if (!empty($parentquestioncategory)) {
-            $questioncategory->parent = $parentquestioncategory[0]->id;
+        if (!empty($parentqcategory)) {
+            $questioncategory->parent = $parentqcategory[0]->id;
 
-            foreach ($parentquestioncategory as $category) {
+            foreach ($parentqcategory as $category) {
                 if ($questioncategory->parent < $category->id) {
                     $questioncategory->parent = $category->id;
                 }
@@ -281,7 +281,6 @@ class mod_studentquiz_view {
      * @return stdClass quiz object
      */
     private function get_standard_quiz_setup() {
-        global $USER;
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
         $quiz->name = $this->cm->name;

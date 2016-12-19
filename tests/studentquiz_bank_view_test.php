@@ -158,7 +158,6 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * Test questionbank empty filter
      */
     public function test_questionbank_empty_filter() {
-        global $DB;
         $this->resetAfterTest(true);
 
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
@@ -175,7 +174,6 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * Test questionbank filter question name
      */
     public function test_questionbank_filter_question_name() {
-        global $DB;
         $this->resetAfterTest(true);
 
         $this->set_filter(QUESTION_NAME_FILTER, 'Question 1');
@@ -196,7 +194,6 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * Test questionbank filter question vote
      */
     public function test_questionbank_filter_question_vote() {
-        global $DB;
         $this->resetAfterTest(true);
 
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
@@ -221,7 +218,6 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      */
     protected function displayqb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
         $cat = $this->cat->id . "," . $this->ctx->id;
-        $output = '';
         ob_start();
         $questionbank->display('questions', $qpage, $qperpage,
             $cat, $recurse, $showhidden,

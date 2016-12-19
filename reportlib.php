@@ -148,16 +148,6 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get's the course_section id from the orphan section
-     * @return mixed course_section id
-     */
-    private function get_quiz_course_section_id() {
-        global $DB;
-        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id,
-                                                             'section' => STUDENTQUIZ_COURSE_SECTION_ID));
-    }
-
-    /**
      * Get all quiz course_modules from the active StudentQuiz
      * @param int $userid
      * @return array stdClass course modules
@@ -280,8 +270,6 @@ class mod_studentquiz_report {
         $total->obtainedmarks = 0;
         $total->questionsright = 0;
         $total->questionsanswered = 0;
-
-        $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
 
         $output = $reportrenderer->view_quizreport_stats($overalltotal, $total, $outputstats, $usergrades, true);
         $output .= $reportrenderer->view_quizreport_table($this, $usersdata);
@@ -571,7 +559,7 @@ class mod_studentquiz_report {
     private function get_attempt_statistic($quizid, $attemptuniqueid, &$total) {
         $quba = question_engine::load_questions_usage_by_activity($attemptuniqueid);
 
-        foreach ($this->get_quiz_slots($quizid) as $slot => $value) {
+        foreach (array_keys($this->get_quiz_slots($quizid)) as $slot) {
             $fraction = $quba->get_question_fraction($slot);
             $maxmarks = $quba->get_question_max_mark($slot);
             $total->obtainedmarks += $fraction * $maxmarks;

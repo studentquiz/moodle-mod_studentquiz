@@ -61,8 +61,8 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     }
 
     public function test_generate_quiz_with_filtered_ids() {
-        global $USER;
-        $test = $this->viewlib->generate_quiz_with_filtered_ids("q1 1");
+        $result = $this->viewlib->generate_quiz_with_filtered_ids("q1 1");
+        self::assertFalse($result);
     }
 
     public function test_has_question_ids() {

@@ -196,7 +196,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             require_capability('moodle/question:add', $tocontext);
             $rawdata = (array) data_submitted();
             $questionids = array();
-            foreach ($rawdata as $key => $value) {  // Parse input for question ids.
+            foreach (array_keys($rawdata) as $key) {  // Parse input for question ids.
                 if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
                     $key = $matches[1];
                     $questionids[] = $key;
@@ -275,7 +275,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $inuse = false;
 
             // Parse input for question ids.
-            foreach ($rawquestions as $key => $value) {
+            foreach (array_keys($rawquestions) as $key) {
                 if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
                     $key = $matches[1];
                     $questionlist .= $key.',';
@@ -965,7 +965,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $OUTPUT;
 
         $pageingurl = new \moodle_url('view.php');
-        $r = $pageingurl->params($pageurl->params());
         $pageingurl->params($this->baseurl->params());
 
         $pagingbar = new \paging_bar($this->totalnumber, $page, $perpage, $pageingurl);
