@@ -134,9 +134,10 @@ class user_filter_number extends user_filter_text {
      * Returns an array of comparison operators
      * @return array of comparison operators
      */
-    public function get_operators() {
+    public function getOperators() {
         return array(0 => get_string('filter_ishigher', 'studentquiz'),
-            1 => get_string('filter_islower', 'studentquiz'));
+                     1 => get_string('filter_islower', 'studentquiz'),
+                     2 => get_string('isequalto', 'filters'));
     }
 
     /**
@@ -147,7 +148,8 @@ class user_filter_number extends user_filter_text {
     public function get_sql_filter($data) {
         global $DB;
         static $counter = 0;
-        $name = 'ex_text_vo'.$counter++;
+        $name1 = 'ex_text_vo'.$counter++;
+        $name2 = 'ex_text_vo'.$counter++;
         $operator = $data['operator'];
         $value    = $data['value'];
         $field    = $this->_name;
@@ -158,18 +160,24 @@ class user_filter_number extends user_filter_text {
             return '';
         }
 
+        // When a count doesn't find anything, it will return NULL, so we have to account for that.
         switch($operator) {
             case 0: // Higher.
-                $res = $field . "> :$name";
-                $params[$name] = $value;
+                $res = "$field > :$name1 OR ($field IS NULL AND 0 > :$name2)";
+                $params[$name1] = $value;
+                $params[$name2] = $value;
                 break;
             case 1: // Lower.
-                $res = $field . "< :$name";
-                $params[$name] = $value;
+                $res = "$field < :$name1 OR ($field IS NULL AND 0 < :$name2)";
+                $params[$name1] = $value;
+                $params[$name2] = $value;
                 break;
             case 2: // Equal to.
-                $res = $DB->sql_like($field, ":$name", false, false);
-                $params[$name] = $value;
+                $res = $DB->sql_like($field, ":$name1", false, false) .
+                       " OR ($field IS NULL AND " .
+                       $DB->sql_like("0", ":$name2", false, false) . ")";
+                $params[$name1] = $value;
+                $params[$name2] = $value;
                 break;
             default:
                 return '';

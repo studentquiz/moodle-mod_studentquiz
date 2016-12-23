@@ -405,9 +405,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
                 }
 
-                $sqldata[0] = str_replace($field->_name, $this->get_sql_table_prefix($field->_name).$field->_name, $sqldata[0]);
-                $tests[] = '((' . $sqldata[0]  .'))';
-                $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
+                if (is_array($sqldata)) {
+                    $sqldata[0] = str_replace($field->_name,
+                                              $this->get_sql_table_prefix($field->_name) . $field->_name, $sqldata[0]);
+                    $tests[] = '((' . $sqldata[0] . '))';
+                    $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
+                }
             }
         }
 
