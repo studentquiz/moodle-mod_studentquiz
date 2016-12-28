@@ -105,10 +105,10 @@ class mod_studentquiz_view {
                                                   array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
         // If there are multiple parents category with parent == 0, use the one with the lowest id.
         if (!empty($parentqcategory)) {
-            $questioncategory->parent = $parentqcategory[0]->id;
+            $questioncategory->parent = reset($parentqcategory)->id;
 
             foreach ($parentqcategory as $category) {
-                if ($questioncategory->parent < $category->id) {
+                if ($questioncategory->parent > $category->id) {
                     $questioncategory->parent = $category->id;
                 }
             }
