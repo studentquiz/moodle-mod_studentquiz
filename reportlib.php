@@ -301,7 +301,8 @@ class mod_studentquiz_report {
      */
     public function get_user_quiz_grade($userid) {
         global $DB;
-        $sql = 'select IFNULL(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, IFNULL(round(sum(sub.mark), 1), 0.0) usermark, '
+        $sql = 'select IFNULL(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
+            .' IFNULL(round(sum(sub.mark), 1), 0.0) usermark, '
             .'  (SELECT round(sum(q.defaultmark), 1) '
             .'     FROM {question} q '
             .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
@@ -312,12 +313,17 @@ class mod_studentquiz_report {
             .'max(fraction) * suatt.maxmark as mark '
             .'from {question_attempt_steps} suats '
             .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
-            .'WHERE state in ("gradedright", "gradedpartial") '
+            .'WHERE state in ("gradedright", "gradedpartial", "gradedwrong") '
             .'        AND userid = :userid AND suatt.questionid IN (SELECT q.id '
             .'                                            FROM {question} q '
             .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
             .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
             .'                                            WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70) '
+            .'AND suats.id in (select max(suatsmax.id)
+                         FROM mdl_question_attempt_steps suatsmax
+                           LEFT JOIN mdl_question_attempts suattmax ON suatsmax.questionattemptid = suattmax.id
+                         where suatsmax.state in ("gradedright", "gradedpartial", "gradedwrong") AND suatsmax.userid = suats.userid
+                         GROUP BY suattmax.questionid)'
             .'GROUP BY suatt.questionid) as sub ';
 
         $record = $DB->get_record_sql($sql, array(
