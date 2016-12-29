@@ -303,11 +303,11 @@ class mod_studentquiz_report {
         global $DB;
         $sql = 'select IFNULL(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
             .' IFNULL(round(sum(sub.mark), 1), 0.0) usermark, '
-            .'  (SELECT round(sum(q.defaultmark), 1) '
+            .'  IFNULL((SELECT round(sum(q.defaultmark), 1) '
             .'     FROM {question} q '
             .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
             .'       LEFT JOIN {context} c ON qc.contextid = c.id '
-            .'     WHERE q.parent = 0 AND c.instanceid = :cmid AND c.contextlevel = 70) as stuquizmaxmark '
+            .'     WHERE q.parent = 0 AND c.instanceid = :cmid AND c.contextlevel = 70), 0.0) as stuquizmaxmark '
             .'from ( '
             .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
             .'max(fraction) * suatt.maxmark as mark '
@@ -360,7 +360,13 @@ class mod_studentquiz_report {
             . '                            FROM {question} q '
             . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
             . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
-            . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)) AS TotalRightAnswers ';
+            . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)
+            AND ats.id IN (SELECT max(suatsmax.id)
+                        FROM mdl_question_attempt_steps suatsmax LEFT JOIN mdl_question_attempts suattmax
+                            ON suatsmax.questionattemptid = suattmax.id
+                        WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
+                              suatsmax.userid = ats.userid
+                        GROUP BY suattmax.questionid)) AS TotalRightAnswers ';
         $record = $DB->get_record_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id, 'cmid3' => $this->cm->id,
             'userid' => $userid, 'userid2' => $userid));
