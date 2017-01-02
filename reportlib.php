@@ -320,8 +320,8 @@ class mod_studentquiz_report {
             .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
             .'                                            WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70) '
             .'AND suats.id in (select max(suatsmax.id)
-                         FROM mdl_question_attempt_steps suatsmax
-                           LEFT JOIN mdl_question_attempts suattmax ON suatsmax.questionattemptid = suattmax.id
+                         FROM {question_attempt_steps} suatsmax
+                           LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id
                          where suatsmax.state in ("gradedright", "gradedpartial", "gradedwrong") AND suatsmax.userid = suats.userid
                          GROUP BY suattmax.questionid)'
             .'GROUP BY suatt.questionid) as sub ';
@@ -362,7 +362,7 @@ class mod_studentquiz_report {
             . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
             . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)
             AND ats.id IN (SELECT max(suatsmax.id)
-                        FROM mdl_question_attempt_steps suatsmax LEFT JOIN mdl_question_attempts suattmax
+                        FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
                             ON suatsmax.questionattemptid = suattmax.id
                         WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
                               suatsmax.userid = ats.userid
