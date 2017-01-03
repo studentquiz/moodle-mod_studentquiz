@@ -213,6 +213,18 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             );
 
             $output .= html_writer::tag('p',
+                html_writer::span(get_string('reportquiz_stats_nr_of_approved_questions', 'studentquiz')
+                    . ': ', 'reportquiz_total_label')
+                .html_writer::span($stats->numapproved)
+            );
+
+            $output .= html_writer::tag('p',
+                html_writer::span(get_string('reportquiz_stats_avg_rating', 'studentquiz')
+                    . ': ', 'reportquiz_total_label')
+                .html_writer::span($stats->avgvotes)
+            );
+
+            $output .= html_writer::tag('p',
                 html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz')
                     . ': ', 'reportquiz_total_label')
                 .html_writer::span($stats->totalrightanswers)

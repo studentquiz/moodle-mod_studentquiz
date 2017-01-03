@@ -366,10 +366,33 @@ class mod_studentquiz_report {
                             ON suatsmax.questionattemptid = suattmax.id
                         WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
                               suatsmax.userid = ats.userid
-                        GROUP BY suattmax.questionid)) AS TotalRightAnswers ';
+                        GROUP BY suattmax.questionid)) AS TotalRightAnswers ,
+                (select  IFNULL(round(avg(v.vote), 1), 0.0)
+from {studentquiz_vote} v
+where v.questionid in (SELECT q.id
+                       FROM {question} q LEFT JOIN
+                         {question_categories} qc
+                           ON q.category = qc.id
+                         LEFT JOIN {context} c
+                           ON qc.contextid = c.id
+                       WHERE c.instanceid = :cmid4 AND
+                             c.contextlevel = 70
+                             and q.createdby = :userid3)) as avgvotes,
+ (select IFNULL(sum(v.approved), 0)
+ from {studentquiz_question} v
+ WHERE v.questionid in (SELECT q.id
+                       FROM {question} q LEFT JOIN
+                         {question_categories} qc
+                           ON q.category = qc.id
+                         LEFT JOIN {context} c
+                           ON qc.contextid = c.id
+                       WHERE c.instanceid = :cmid5 AND
+                             c.contextlevel = 70
+                             and q.createdby = :userid4)) as numapproved ';
         $record = $DB->get_record_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id, 'cmid3' => $this->cm->id,
-            'userid' => $userid, 'userid2' => $userid));
+            'cmid4' => $this->cm->id, 'cmid5' => $this->cm->id,
+            'userid' => $userid, 'userid2' => $userid, 'userid3' => $userid, 'userid4' => $userid));
         return $record;
     }
 

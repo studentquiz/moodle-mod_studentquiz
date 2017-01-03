@@ -133,6 +133,11 @@ $string['reportquiz_stats_nr_of_questions'] = 'Nombre de questions dans ce quiz'
 $string['reportquiz_stats_right_answered_questions'] = 'Vous avez répondu correctement';
 $string['reportquiz_stats_nr_of_own_questions'] = 'Vous avez contribué';
 
+
+$string['reportquiz_stats_nr_of_approved_questions'] = 'Nombre de question attesté';
+$string['reportquiz_stats_avg_rating'] = 'Vous avez une moyenne d\'évaluation';
+
+
 $string['reportquiz_stats_own_grade_of_max'] = 'Votre niveau maximal';
 
 $string['reportquiz_stats_attempt'] = 'Nombre que vous avez exécuté le quiz';

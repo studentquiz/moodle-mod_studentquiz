@@ -131,6 +131,11 @@ $string['reportquiz_admin_quizzes_table_link_to_quiz'] = 'Link zum Quiz';
 $string['reportquiz_stats_title'] = 'Statistiken';
 $string['reportquiz_stats_nr_of_questions'] = 'Anzahl Fragen im Quiz';
 $string['reportquiz_stats_right_answered_questions'] = 'Sie haben richtig beantwortet';
+
+$string['reportquiz_stats_nr_of_own_questions'] = 'Sie haben beigetragen';
+$string['reportquiz_stats_nr_of_approved_questions'] = 'Anzahl der bestätigten Fragen';
+$string['reportquiz_stats_avg_rating'] = 'Sie haben im durchschn. Bewertung';
+
 $string['reportquiz_stats_own_grade_of_max'] = 'Ihre maximale Punktenzahl';
 
 $string['reportquiz_stats_attempt'] = 'Anzahl Ihrer Durchführungen';

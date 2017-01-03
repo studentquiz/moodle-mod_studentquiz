@@ -132,6 +132,8 @@ $string['reportquiz_stats_title'] = 'Statistics';
 $string['reportquiz_stats_nr_of_questions'] = 'Number of questions in this quiz';
 $string['reportquiz_stats_right_answered_questions'] = 'You have answered correctly';
 $string['reportquiz_stats_nr_of_own_questions'] = 'You have contributed';
+$string['reportquiz_stats_nr_of_approved_questions'] = 'Number of approved questions';
+$string['reportquiz_stats_avg_rating'] = 'Your received rating average';
 
 $string['reportquiz_stats_own_grade_of_max'] = 'Your grade total';
 
