@@ -646,21 +646,27 @@ where v.questionid in (SELECT q.id
             . '     LEFT JOIN {question} q ON( q.createdby = u.id AND q.category = qc.id )'
             // Answered questions.
             // Correct answers.
-            . '    LEFT JOIN'
-            . '    ('
-            . '       SELECT'
-            . '          count(distinct q.id) AS countanswer,'
-            . '          qza.userid, q.category'
-            . '       FROM {quiz_attempts} qza'
-            . '       LEFT JOIN {quiz_slots} qs ON( qs.quizid = qza.quiz )'
-            . '       LEFT JOIN {question_attempts} qna ON('
-            . '            qza.uniqueid = qna.questionusageid'
-            . '            AND qna.questionid = qs.questionid'
-            . '            AND qna.rightanswer = qna.responsesummary'
-            . '       )'
-            . '       LEFT JOIN {question} q ON( q.id = qna.questionid )'
-            . '       GROUP BY q.category, qza.userid'
-            . '    ) correctanswers ON( correctanswers.userid = u.id AND correctanswers.category = qc.id )'
+            . '   LEFT JOIN (SELECT  count(DISTINCT suatt.questionid) AS countanswer, userid
+             FROM {question_attempt_steps} suats
+               LEFT JOIN {question_attempts} suatt ON suats.questionattemptid = suatt.id
+             WHERE
+               state IN ("gradedright", "gradedpartial", "gradedwrong")
+               AND suatt.rightanswer = suatt.responsesummary
+               AND suatt.questionid IN (
+                 SELECT q.id  FROM {question} q
+                   LEFT JOIN {question_categories} qc ON q.category = qc.id
+                   LEFT JOIN {context} c ON qc.contextid = c.id
+                 WHERE q.parent = 0
+                       AND c.instanceid = :cmid2 AND
+                       c.contextlevel = 70) AND
+               suats.id IN (SELECT max(suatsmax.id)
+                            FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
+                                ON suatsmax.questionattemptid = suattmax.id
+                            WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
+                                  suatsmax.userid = suats.userid
+                            GROUP BY suattmax.questionid)
+             GROUP BY userid) correctanswers
+    ON (correctanswers.userid = u.id) '
             // Incorrect answers.
             . '    LEFT JOIN'
             . '    ('
@@ -698,7 +704,7 @@ where v.questionid in (SELECT q.id
             . '     ORDER BY points DESC';
 
         return $DB->get_records_sql($sql, array(
-            'cmid' => $this->cm->id
+            'cmid' => $this->cm->id, 'cmid2' => $this->cm->id
             , 'questionquantifier' => get_config('moodle', 'studentquiz_add_question_quantifier')
             , 'votequantifier' => get_config('moodle', 'studentquiz_vote_quantifier')
             , 'correctanswerquantifier' => get_config('moodle', 'studentquiz_correct_answered_question_quantifier')
