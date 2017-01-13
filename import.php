@@ -37,7 +37,7 @@ $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST)
 require_login($course, false, $cm);
 
 // Have to check it manual because moodle does not distinguish between add and import question.
-if (!mod_studentquiz_check_created_permission()) {
+if (!mod_studentquiz_check_created_permission($cmid)) {
     print_error('nopermissions', '', '', 'access question edit tab import');
 }
 
@@ -69,8 +69,9 @@ if ($contexts === null) { // Need to get the course from the chosen category.
 
 $PAGE->set_url($thispageurl);
 
-$importform = new mod_studentquiz_question_import_form($thispageurl, array('contexts' => $contexts->having_one_edit_tab_cap('import'),
-    'defaultcategory' => $pagevars['cat']));
+$importform = new mod_studentquiz_question_import_form($thispageurl,
+                                                       array('contexts' => $contexts->having_one_edit_tab_cap('import'),
+                                                       'defaultcategory' => $pagevars['cat']));
 
 if ($importform->is_cancelled()) {
     redirect($thispageurl);

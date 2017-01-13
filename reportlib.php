@@ -27,7 +27,7 @@ require_once(dirname(__FILE__) . '/locallib.php');
 require_once($CFG->dirroot . '/mod/quiz/renderer.php');
 require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
-require_once($CFG->libdir.'/gradelib.php');
+require_once($CFG->libdir . '/gradelib.php');
 
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
@@ -148,16 +148,7 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get's the course_section id from the orphan section
-     * @return mixed course_section id
-     */
-    private function get_quiz_course_section_id() {
-        global $DB;
-        return $DB->get_field('course_sections', 'id', array('course' => $this->course->id, 'section' => STUDENTQUIZ_COURSE_SECTION_ID));
-    }
-
-    /**
-     * Get all quiz course_modules from the active studentquiz
+     * Get all quiz course_modules from the active StudentQuiz
      * @param int $userid
      * @return array stdClass course modules
      */
@@ -184,6 +175,8 @@ class mod_studentquiz_report {
      */
     public function get_quiz_tables() {
         global $PAGE, $USER;
+
+        /** @var mod_studentquiz_renderer $reportrenderer */
         $reportrenderer = $PAGE->get_renderer('mod_studentquiz');
 
         $total = new stdClass();
@@ -194,7 +187,10 @@ class mod_studentquiz_report {
 
         $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
 
-        $output = $reportrenderer->view_quizreport_total($total);
+        $outputstats = $this->get_user_quiz_stats($USER->id);
+        $usergrades = $this->get_user_quiz_grade($USER->id);
+
+        $output = $reportrenderer->view_quizreport_stats(null, $total, $outputstats, $usergrades);
         $output .= $reportrenderer->view_quizreport_summary();
         $output .= $outputsummaries;
 
@@ -226,7 +222,7 @@ class mod_studentquiz_report {
      * @return bool
      */
     public function is_admin() {
-        return mod_studentquiz_check_created_permission();
+        return mod_studentquiz_check_created_permission($this->cm->id);
     }
 
     /**
@@ -253,6 +249,9 @@ class mod_studentquiz_report {
             $total->questionsright = 0;
             $total->questionsanswered = 0;
             $this->get_user_quiz_summary($user->userid, $total);
+            $userstats = $this->get_user_quiz_grade($user->userid);
+            $total->attemptedgrade = $userstats->usermark;
+            $total->maxgrade = $userstats->stuquizmaxmark;
 
             $overalltotal->numattempts += $total->numattempts;
             $overalltotal->obtainedmarks += $total->obtainedmarks;
@@ -263,8 +262,16 @@ class mod_studentquiz_report {
             $total->id = $user->userid;
             $usersdata[] = $total;
         }
+        $outputstats = $this->get_user_quiz_stats($USER->id);
+        $usergrades = $this->get_user_quiz_grade($USER->id);
 
-        $output = $reportrenderer->view_quizreport_total($overalltotal, true);
+        $total = new stdClass();
+        $total->numattempts = 0;
+        $total->obtainedmarks = 0;
+        $total->questionsright = 0;
+        $total->questionsanswered = 0;
+
+        $output = $reportrenderer->view_quizreport_stats($overalltotal, $total, $outputstats, $usergrades, true);
         $output .= $reportrenderer->view_quizreport_table($this, $usersdata);
 
         $output .= $reportrenderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
@@ -286,6 +293,107 @@ class mod_studentquiz_report {
             $quizinfos[] = $quiz;
         }
         return $quizinfos;
+    }
+
+    /**
+     * @param $userid
+     * @return array usermaxmark usermark stuquizmaxmark
+     */
+    public function get_user_quiz_grade($userid) {
+        global $DB;
+        $sql = 'select IFNULL(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
+            .' IFNULL(round(sum(sub.mark), 1), 0.0) usermark, '
+            .'  IFNULL((SELECT round(sum(q.defaultmark), 1) '
+            .'     FROM {question} q '
+            .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            .'       LEFT JOIN {context} c ON qc.contextid = c.id '
+            .'     WHERE q.parent = 0 AND c.instanceid = :cmid AND c.contextlevel = 70), 0.0) as stuquizmaxmark '
+            .'from ( '
+            .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
+            .'max(fraction) * suatt.maxmark as mark '
+            .'from {question_attempt_steps} suats '
+            .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
+            .'WHERE state in ("gradedright", "gradedpartial", "gradedwrong") '
+            .'        AND userid = :userid AND suatt.questionid IN (SELECT q.id '
+            .'                                            FROM {question} q '
+            .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
+            .'                                            WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70) '
+            .'AND suats.id in (select max(suatsmax.id)
+                         FROM {question_attempt_steps} suatsmax
+                           LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id
+                         where suatsmax.state in ("gradedright", "gradedpartial", "gradedwrong") AND suatsmax.userid = suats.userid
+                         GROUP BY suattmax.questionid)'
+            .'GROUP BY suatt.questionid) as sub ';
+
+        $record = $DB->get_record_sql($sql, array(
+            'cmid' => $this->cm->id, 'cmid2' => $this->cm->id,
+            'userid' => $userid));
+        return $record;
+    }
+
+    /**
+     * gets the Stats of the user for the actual studenquiz
+     * @param int $userid
+     * @return array
+     */
+    public function get_user_quiz_stats($userid) {
+        global $DB;
+        $sql = 'select ( '
+            . '  SELECT count(1) '
+            . '  FROM {question} q '
+            . '    LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            . '    LEFT JOIN {context} c ON qc.contextid = c.id '
+            . '  WHERE c.instanceid = :cmid AND q.parent = 0 AND c.contextlevel = 70 '
+            . ') AS TotalNrOfQuestions, '
+            . '  (SELECT count(1) '
+            . '   FROM {question} q '
+            . '     LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            . '     LEFT JOIN {context} c ON qc.contextid = c.id '
+            . '   WHERE c.instanceid = :cmid2 AND q.parent = 0 AND c.contextlevel = 70 AND q.createdby = :userid '
+            . '  ) AS TotalUsersQuestions, '
+            . '  (select count(DISTINCT att.questionid) '
+            . '   from {question_attempt_steps} ats '
+            . '     left JOIN {question_attempts} att on att.id = ats.questionattemptid '
+            . '   WHERE ats.userid = :userid2 AND ats.state = "gradedright" '
+            . '         AND att.questionid in (SELECT q.id '
+            . '                            FROM {question} q '
+            . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
+            . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
+            . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)
+            AND ats.id IN (SELECT max(suatsmax.id)
+                        FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
+                            ON suatsmax.questionattemptid = suattmax.id
+                        WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
+                              suatsmax.userid = ats.userid
+                        GROUP BY suattmax.questionid)) AS TotalRightAnswers ,
+                (select  IFNULL(round(avg(v.vote), 1), 0.0)
+from {studentquiz_vote} v
+where v.questionid in (SELECT q.id
+                       FROM {question} q LEFT JOIN
+                         {question_categories} qc
+                           ON q.category = qc.id
+                         LEFT JOIN {context} c
+                           ON qc.contextid = c.id
+                       WHERE c.instanceid = :cmid4 AND
+                             c.contextlevel = 70
+                             and q.createdby = :userid3)) as avgvotes,
+ (select IFNULL(sum(v.approved), 0)
+ from {studentquiz_question} v
+ WHERE v.questionid in (SELECT q.id
+                       FROM {question} q LEFT JOIN
+                         {question_categories} qc
+                           ON q.category = qc.id
+                         LEFT JOIN {context} c
+                           ON qc.contextid = c.id
+                       WHERE c.instanceid = :cmid5 AND
+                             c.contextlevel = 70
+                             and q.createdby = :userid4)) as numapproved ';
+        $record = $DB->get_record_sql($sql, array(
+            'cmid' => $this->cm->id, 'cmid2' => $this->cm->id, 'cmid3' => $this->cm->id,
+            'cmid4' => $this->cm->id, 'cmid5' => $this->cm->id,
+            'userid' => $userid, 'userid2' => $userid, 'userid3' => $userid, 'userid4' => $userid));
+        return $record;
     }
 
     /**
@@ -321,7 +429,7 @@ class mod_studentquiz_report {
             $viewobj->accessmanager = $accessmanager;
             $viewobj->canreviewmine = $canreviewmine;
 
-            $attempts = quiz_get_user_attempts($quiz->id, $userid, 'all', true);
+            $attempts = quiz_get_user_attempts($quiz->id, $userid, 'finished', true);
             $lastfinishedattempt = end($attempts);
             $unfinished = false;
             $unfinishedattemptid = null;
@@ -486,7 +594,7 @@ class mod_studentquiz_report {
     private function get_attempt_statistic($quizid, $attemptuniqueid, &$total) {
         $quba = question_engine::load_questions_usage_by_activity($attemptuniqueid);
 
-        foreach ($this->get_quiz_slots($quizid) as $slot => $value) {
+        foreach (array_keys($this->get_quiz_slots($quizid)) as $slot) {
             $fraction = $quba->get_question_fraction($slot);
             $maxmarks = $quba->get_question_max_mark($slot);
             $total->obtainedmarks += $fraction * $maxmarks;
@@ -521,12 +629,12 @@ class mod_studentquiz_report {
             . '    MAX(r.archetype) AS rolename,'
             . '    MAX(countq.countquestions),'
             . '    MAX(votes.meanvotes),'
-            . '    COALESCE('
-            . '        COALESCE(MAX(countquestions) * :questionquantifier,0) +'
-            . '        COALESCE(ROUND(SUM(votes.meanvotes) * :votequantifier), 0) +'
-            . '        COALESCE(MAX(correctanswers.countanswer) * :correctanswerquantifier,0) +'
-            . '        COALESCE(MAX(incorrectanswers.countanswer) * :incorrectanswerquantifier,0)'
-            . '    ,0) AS points'
+            . '    ROUND(COALESCE('
+            . '        COALESCE(MAX(countquestions) * :questionquantifier, 0) +'
+            . '        COALESCE(SUM(votes.meanvotes) * :votequantifier, 0) +'
+            . '        COALESCE(MAX(correctanswers.countanswer) * :correctanswerquantifier, 0) +'
+            . '        COALESCE(MAX(incorrectanswers.countanswer) * :incorrectanswerquantifier, 0)'
+            . '    , 0), 1) AS points'
             . '     FROM {studentquiz} sq'
             . '     JOIN {context} con ON( con.instanceid = sq.coursemodule )'
             . '     JOIN {question_categories} qc ON( qc.contextid = con.id )'
@@ -538,26 +646,32 @@ class mod_studentquiz_report {
             . '     LEFT JOIN {question} q ON( q.createdby = u.id AND q.category = qc.id )'
             // Answered questions.
             // Correct answers.
-            . '    LEFT JOIN'
-            . '    ('
-            . '       SELECT'
-            . '          COUNT(qna.id) AS countanswer,'
-            . '          qza.userid, q.category'
-            . '       FROM {quiz_attempts} qza'
-            . '       LEFT JOIN {quiz_slots} qs ON( qs.quizid = qza.quiz )'
-            . '       LEFT JOIN {question_attempts} qna ON('
-            . '            qza.uniqueid = qna.questionusageid'
-            . '            AND qna.questionid = qs.questionid'
-            . '            AND qna.rightanswer = qna.responsesummary'
-            . '       )'
-            . '       LEFT JOIN {question} q ON( q.id = qna.questionid )'
-            . '       GROUP BY q.category, qza.userid'
-            . '    ) correctanswers ON( correctanswers.userid = u.id AND correctanswers.category = qc.id )'
+            . '   LEFT JOIN (SELECT  count(DISTINCT suatt.questionid) AS countanswer, userid
+             FROM {question_attempt_steps} suats
+               LEFT JOIN {question_attempts} suatt ON suats.questionattemptid = suatt.id
+             WHERE
+               state IN ("gradedright", "gradedpartial", "gradedwrong")
+               AND suatt.rightanswer = suatt.responsesummary
+               AND suatt.questionid IN (
+                 SELECT q.id  FROM {question} q
+                   LEFT JOIN {question_categories} qc ON q.category = qc.id
+                   LEFT JOIN {context} c ON qc.contextid = c.id
+                 WHERE q.parent = 0
+                       AND c.instanceid = :cmid2 AND
+                       c.contextlevel = 70) AND
+               suats.id IN (SELECT max(suatsmax.id)
+                            FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
+                                ON suatsmax.questionattemptid = suattmax.id
+                            WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
+                                  suatsmax.userid = suats.userid
+                            GROUP BY suattmax.questionid)
+             GROUP BY userid) correctanswers
+    ON (correctanswers.userid = u.id) '
             // Incorrect answers.
             . '    LEFT JOIN'
             . '    ('
             . '         SELECT'
-            . '            COUNT(qna.id) AS countanswer,'
+            . '            count(distinct q.id) AS countanswer,'
             . '            qza.userid, q.category'
             . '         FROM {quiz_attempts} qza'
             . '         LEFT JOIN {quiz_slots} qs ON ( qs.quizid = qza.quiz )'
@@ -573,7 +687,8 @@ class mod_studentquiz_report {
             // Questions created.
             . '    LEFT JOIN'
             . '    ('
-            . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question} GROUP BY category, createdby'
+            . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question}'
+            . '         WHERE parent = 0 GROUP BY category, createdby'
             . '    ) countq ON( countq.createdby = u.id AND countq.category = qc.id )'
             // Question votes.
             . '    LEFT JOIN'
@@ -589,7 +704,7 @@ class mod_studentquiz_report {
             . '     ORDER BY points DESC';
 
         return $DB->get_records_sql($sql, array(
-            'cmid' => $this->cm->id
+            'cmid' => $this->cm->id, 'cmid2' => $this->cm->id
             , 'questionquantifier' => get_config('moodle', 'studentquiz_add_question_quantifier')
             , 'votequantifier' => get_config('moodle', 'studentquiz_vote_quantifier')
             , 'correctanswerquantifier' => get_config('moodle', 'studentquiz_correct_answered_question_quantifier')

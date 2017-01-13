@@ -55,7 +55,7 @@ class mod_studentquiz_view {
     /**
      * @var  bool has question ids found
      */
-    protected $hasquestionids;
+    protected $hasquestionids = false;
     /**
      * @var object pagevars
      */
@@ -72,7 +72,7 @@ class mod_studentquiz_view {
 
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param int $cmid the course_module id for this studentquiz
+     * @param int $cmid the course_module id for this StudentQuiz
      * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
@@ -101,11 +101,17 @@ class mod_studentquiz_view {
             return;
         }
 
-        $parentquestioncategory = $DB->get_record('question_categories',
+        $parentqcategory = $DB->get_records('question_categories',
                                                   array('contextid' => $this->context->get_parent_context()->id, 'parent' => 0));
+        // If there are multiple parents category with parent == 0, use the one with the lowest id.
+        if (!empty($parentqcategory)) {
+            $questioncategory->parent = reset($parentqcategory)->id;
 
-        if ($parentquestioncategory) {
-            $questioncategory->parent = $parentquestioncategory->id;
+            foreach ($parentqcategory as $category) {
+                if ($questioncategory->parent > $category->id) {
+                    $questioncategory->parent = $category->id;
+                }
+            }
             $DB->update_record('question_categories', $questioncategory);
         }
     }
@@ -189,7 +195,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Create a new studentquiz practice entry in the database
+     * Create a new StudentQuiz practice entry in the database
      * @param int $quizcmid quiz course module id
      */
     private function save_quiz_practice($quizcmid) {
@@ -249,7 +255,8 @@ class mod_studentquiz_view {
      */
     private function get_course_section() {
         global $DB;
-        return $DB->get_record('course_sections', array('section' => STUDENTQUIZ_COURSE_SECTION_ID, 'course' => $this->get_course()->id));
+        return $DB->get_record('course_sections', array('section' => STUDENTQUIZ_COURSE_SECTION_ID,
+                                                        'course' => $this->get_course()->id));
     }
 
     /**
@@ -274,7 +281,6 @@ class mod_studentquiz_view {
      * @return stdClass quiz object
      */
     private function get_standard_quiz_setup() {
-        global $USER;
         $quiz = new stdClass();
         $quiz->course = $this->get_course()->id;
         $quiz->name = $this->cm->name;
@@ -464,11 +470,12 @@ class mod_studentquiz_view {
         $this->pageurl = new moodle_url($thispageurl);
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
+            mod_studentquiz_notify_change($lastchanged, $this->course);
         }
         $this->qbpagevar = $pagevars;
 
-        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts
-            , $thispageurl, $this->course, $this->cm);
+        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl,
+                                                                                       $this->course, $this->cm);
         $this->questionbank->process_actions();
     }
 
@@ -620,7 +627,7 @@ class mod_studentquiz_view {
 
     /**
      * Get the question view
-     * @return mixed
+     * @return \mod_studentquiz\question\bank\studentquiz_bank_view mixed
      */
     public function get_questionbank() {
         return $this->questionbank;
@@ -628,7 +635,7 @@ class mod_studentquiz_view {
 }
 
 /**
- * Class for studentquiz view exceptions. Just saves a couple of arguments on the constructor for a moodle_exception.
+ * Class for StudentQuiz view exceptions. Just saves a couple of arguments on the constructor for a moodle_exception.
  *
  * @package    mod_studentquiz
  * @copyright  2016 HSR (http://www.hsr.ch)

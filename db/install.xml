@@ -77,5 +77,16 @@
             <INDEX NAME="studentquizcoursemodule" UNIQUE="false" FIELDS="studentquizcoursemodule"/>
         </INDEXES>
     </TABLE>
+    <TABLE NAME="studentquiz_question" COMMENT="Store question related properties">
+        <FIELDS>
+            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="approved" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Property whether question is approved or not."/>
+        </FIELDS>
+        <KEYS>
+            <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+            <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
+        </KEYS>
+     </TABLE>
   </TABLES>
 </XMLDB>

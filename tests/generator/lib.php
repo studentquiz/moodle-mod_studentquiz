@@ -32,17 +32,17 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_studentquiz_generator extends testing_module_generator {
     /**
-     * @var int keep track of how many studentquiz have been created.
+     * @var int keep track of how many StudentQuiz have been created.
      */
     protected $studentquizcount = 0;
 
     /**
-     * @var int keep track of how many studentquiz comments have been created.
+     * @var int keep track of how many StudentQuiz comments have been created.
      */
     protected $commentcount = 0;
 
     /**
-     * @var int keep track of how many studentquiz votes have been created.
+     * @var int keep track of how many StudentQuiz votes have been created.
      */
     protected $votecount = 0;
 
@@ -60,7 +60,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * Create studentquiz instance
+     * Create StudentQuiz instance
      * @param stdClass $record
      * @param array $options
      * @return stdClass
@@ -77,7 +77,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * Create studentquiz comment on question
+     * Create StudentQuiz comment on question
      * @param null $record
      * @return object
      */
@@ -97,7 +97,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * Create studentquiz vote on question
+     * Create StudentQuiz vote on question
      * @param null $record
      * @return object
      */
