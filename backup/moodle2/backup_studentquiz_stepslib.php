@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright 2016 HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_backup_activity_structure_step extends backup_activity_structure_step {
+class backup_studentquiz_activity_structure_step extends backup_activity_structure_step {
 
     /**
      * Defines the backup structure of the module

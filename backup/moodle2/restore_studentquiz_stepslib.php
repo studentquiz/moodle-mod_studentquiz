@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright 2016 HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_restore_activity_structure_step extends restore_activity_structure_step {
+class restore_studentquiz_activity_structure_step extends restore_activity_structure_step {
 
     /**
      * Defines structure of path elements to be processed during the restore
