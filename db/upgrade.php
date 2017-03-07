@@ -42,6 +42,31 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
+    if ($oldversion < 2017021601) {
+
+        // Define table studentquiz_question to be created.
+        $table = new xmldb_table('studentquiz_question');
+
+        // Adding fields to table studentquiz_question.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('approved', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table studentquiz_question.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
+
+        // Conditionally launch create table for studentquiz_question.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2017021601, 'studentquiz');
+    }
+
+
     /*
      * And upgrade begins here. For each one, you'll need one
      * block of code similar to the next one. Please, delete
