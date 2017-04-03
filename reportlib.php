@@ -301,9 +301,9 @@ class mod_studentquiz_report {
      */
     public function get_user_quiz_grade($userid) {
         global $DB;
-        $sql = 'select IFNULL(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
-            .' IFNULL(round(sum(sub.mark), 1), 0.0) usermark, '
-            .'  IFNULL((SELECT round(sum(q.defaultmark), 1) '
+        $sql = 'select COALESCE(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
+            .' COALESCE(round(sum(sub.mark), 1), 0.0) usermark, '
+            .'  COALESCE((SELECT round(sum(q.defaultmark), 1) '
             .'     FROM {question} q '
             .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
             .'       LEFT JOIN {context} c ON qc.contextid = c.id '
@@ -313,7 +313,7 @@ class mod_studentquiz_report {
             .'max(fraction) * suatt.maxmark as mark '
             .'from {question_attempt_steps} suats '
             .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
-            .'WHERE state in ("gradedright", "gradedpartial", "gradedwrong") '
+            .'WHERE state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') '
             .'        AND userid = :userid AND suatt.questionid IN (SELECT q.id '
             .'                                            FROM {question} q '
             .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
@@ -322,9 +322,9 @@ class mod_studentquiz_report {
             .'AND suats.id in (select max(suatsmax.id)
                          FROM {question_attempt_steps} suatsmax
                            LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id
-                         where suatsmax.state in ("gradedright", "gradedpartial", "gradedwrong") AND suatsmax.userid = suats.userid
+                         where suatsmax.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND suatsmax.userid = suats.userid
                          GROUP BY suattmax.questionid)'
-            .'GROUP BY suatt.questionid) as sub ';
+            .'GROUP BY suatt.questionid, suatt.id, suatt.questionid,suats.questionattemptid) as sub ';
 
         $record = $DB->get_record_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id,
@@ -355,7 +355,7 @@ class mod_studentquiz_report {
             . '  (select count(DISTINCT att.questionid) '
             . '   from {question_attempt_steps} ats '
             . '     left JOIN {question_attempts} att on att.id = ats.questionattemptid '
-            . '   WHERE ats.userid = :userid2 AND ats.state = "gradedright" '
+            . '   WHERE ats.userid = :userid2 AND ats.state = \'gradedright\' '
             . '         AND att.questionid in (SELECT q.id '
             . '                            FROM {question} q '
             . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
@@ -364,10 +364,10 @@ class mod_studentquiz_report {
             AND ats.id IN (SELECT max(suatsmax.id)
                         FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
                             ON suatsmax.questionattemptid = suattmax.id
-                        WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
+                        WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND
                               suatsmax.userid = ats.userid
                         GROUP BY suattmax.questionid)) AS TotalRightAnswers ,
-                (select  IFNULL(round(avg(v.vote), 1), 0.0)
+                (select  COALESCE(round(avg(v.vote), 1), 0.0)
 from {studentquiz_vote} v
 where v.questionid in (SELECT q.id
                        FROM {question} q LEFT JOIN
@@ -378,7 +378,7 @@ where v.questionid in (SELECT q.id
                        WHERE c.instanceid = :cmid4 AND
                              c.contextlevel = 70
                              and q.createdby = :userid3)) as avgvotes,
- (select IFNULL(sum(v.approved), 0)
+ (select COALESCE(sum(v.approved), 0)
  from {studentquiz_question} v
  WHERE v.questionid in (SELECT q.id
                        FROM {question} q LEFT JOIN
@@ -650,7 +650,7 @@ where v.questionid in (SELECT q.id
              FROM {question_attempt_steps} suats
                LEFT JOIN {question_attempts} suatt ON suats.questionattemptid = suatt.id
              WHERE
-               state IN ("gradedright", "gradedpartial", "gradedwrong")
+               state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\')
                AND suatt.rightanswer = suatt.responsesummary
                AND suatt.questionid IN (
                  SELECT q.id  FROM {question} q
@@ -662,7 +662,7 @@ where v.questionid in (SELECT q.id
                suats.id IN (SELECT max(suatsmax.id)
                             FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
                                 ON suatsmax.questionattemptid = suattmax.id
-                            WHERE suatsmax.state IN ("gradedright", "gradedpartial", "gradedwrong") AND
+                            WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND
                                   suatsmax.userid = suats.userid
                             GROUP BY suattmax.questionid)
              GROUP BY userid) correctanswers
