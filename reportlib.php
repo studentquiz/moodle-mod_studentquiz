@@ -322,7 +322,8 @@ class mod_studentquiz_report {
             .'AND suats.id in (select max(suatsmax.id)
                          FROM {question_attempt_steps} suatsmax
                            LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id
-                         where suatsmax.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND suatsmax.userid = suats.userid
+                         where suatsmax.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') 
+                         AND suatsmax.userid = suats.userid
                          GROUP BY suattmax.questionid)'
             .'GROUP BY suatt.questionid, suatt.id, suatt.questionid,suats.questionattemptid) as sub ';
 

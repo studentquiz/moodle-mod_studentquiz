@@ -64,7 +64,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2017021601, 'studentquiz');
     }
-    
+
     /*
      * And upgrade begins here. For each one, you'll need one
      * block of code similar to the next one. Please, delete
