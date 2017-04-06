@@ -134,7 +134,7 @@ class user_filter_number extends user_filter_text {
      * Returns an array of comparison operators
      * @return array of comparison operators
      */
-    public function getOperators() {
+    public function getOperators() { // @codingStandardsIgnoreLine
         return array(0 => get_string('filter_ishigher', 'studentquiz'),
                      1 => get_string('filter_islower', 'studentquiz'),
                      2 => get_string('isequalto', 'filters'));
