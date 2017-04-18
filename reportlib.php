@@ -325,7 +325,7 @@ class mod_studentquiz_report {
                          where suatsmax.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')
                          AND suatsmax.userid = suats.userid
                          GROUP BY suattmax.questionid)'
-            .'GROUP BY suatt.questionid, suatt.id, suatt.questionid,suats.questionattemptid) as sub ';
+            .'GROUP BY suatt.questionid, suatt.id, suatt.questionid, suatt.maxmark, suats.questionattemptid) as sub ';
 
         $record = $DB->get_record_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id,
@@ -701,7 +701,7 @@ where v.questionid in (SELECT q.id
             . '         GROUP BY sqvote.questionid'
             . '     ) votes ON( votes.questionid = q.id )'
             . '     WHERE sq.coursemodule = :cmid'
-            . '     GROUP BY u.id'
+            . '     GROUP BY u.id, u.firstname, u.lastname'
             . '     ORDER BY points DESC';
 
         return $DB->get_records_sql($sql, array(
