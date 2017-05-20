@@ -126,7 +126,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->build_query();
 
         $this->questions = $this->load_questions();
-        $this->update_questions($this->load_questions());
         $this->questions = $this->filter_questions($this->questions);
         $this->totalnumber = count($this->questions);
 
@@ -760,7 +759,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $USER;
 
         $filteredquestions = array();
+        $questionids = array();
         foreach ($questions as $question) {
+            $questionids[] = $question->id;
             $question->tagname = '';
             if (
                 mod_studentquiz_is_anonym($this->cm->id) &&
@@ -789,28 +790,31 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 }
             }
         }
+
+        $this->update_questions($questionids);
+
         return $filteredquestions;
     }
 
     /**
      * Update our studenquiz_question table with the question list.
      *
-     * @param stdClass $questions
+     * @param array $questionids
      */
-    private function update_questions($questions) {
+    private function update_questions($questionids) {
         global $DB;
         $sqlparams = array();
         $sql = 'SELECT questionid FROM {studentquiz_question} q';
         $studentquizquestions = $DB->get_recordset_sql($sql, $sqlparams);
 
-        $questionids = array();
+        $studentquizquestionids = array();
         foreach ($studentquizquestions as $studentquizquestion) {
-            array_push($questionids, $studentquizquestion->questionid);
+            array_push($studentquizquestionids, $studentquizquestion->questionid);
         }
 
-        foreach ($questions as $question) {
-            if (!in_array($question->id, $questionids)) {
-                $DB->insert_record('studentquiz_question', array('questionid' => $question->id, 'approved' => false));
+        foreach ($questionids as $id) {
+            if (!in_array($id, $studentquizquestionids)) {
+                $DB->insert_record('studentquiz_question', array('questionid' => $id, 'approved' => false));
             }
         }
     }
