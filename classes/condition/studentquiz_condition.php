@@ -37,6 +37,44 @@ defined('MOODLE_INTERNAL') || die();
  */
 class studentquiz_condition extends \core_question\bank\search\category_condition {
 
+    /* Due to fix_sql_params not accepting repeated use of named params,
+       we need to get unique names for params that will be used more than
+       once...
+
+       init() from parent class duplicated here as we can't call it directly
+       (private) :-P
+
+       where() overridden with call to init() followed by call to parent
+       where()...
+
+       params() always returns $this->params, which doesn't change between
+       calls to get_in_or_equal, so don't need to fix anything there.
+       Which is fortunate, as there'd be no way to keep where() and params()
+       in sync.
+    */
+
+    protected function init() {
+        global $DB;
+        if (!$this->category = $this->get_current_category($this->cat)) {
+            return;
+        }
+        if ($this->recurse) {
+            $categoryids = question_categorylist($this->category->id);
+        } else {
+            $categoryids = array($this->category->id);
+        }
+        list($catidtest, $this->params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'cat');
+        $this->where = 'q.category ' . $catidtest;
+    }
+
+    public function where() {
+        // Gross, but rebuilds this->where with fresh catidtest...
+        $this->init();
+        $foo = parent::where();
+        error_log('studentquiz_condition returning where: ' . $foo);
+        return $foo;
+    }
+
     /**
      * Called by question_bank_view to display the GUI for selecting a category
      *

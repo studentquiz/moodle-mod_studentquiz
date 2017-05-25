@@ -343,15 +343,22 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function build_query() {
         // Get the required tables and fields.
+        $this->sqlparams = array();
         $joins = array();
         $fields = array('q.hidden', 'q.category');
         foreach ($this->requiredcolumns as $column) {
+            if (method_exists($column, 'set_joinconditions')) {
+                $column->set_joinconditions($this->searchconditions);
+            }
             $extrajoins = $column->get_extra_joins();
             foreach ($extrajoins as $prefix => $join) {
                 if (isset($joins[$prefix]) && $joins[$prefix] != $join) {
                     throw new \coding_exception('Join ' . $join . ' conflicts with previous join ' . $joins[$prefix]);
                 }
                 $joins[$prefix] = $join;
+            }
+            if (method_exists($column, 'get_sqlparams')) {
+                $this->sqlparams = array_merge($this->sqlparams, $column->get_sqlparams());
             }
             $fields = array_merge($fields, $column->get_required_fields());
         }
@@ -366,7 +373,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Build the where clause.
         $tests = array('q.parent = 0');
-        $this->sqlparams = array();
         foreach ($this->searchconditions as $searchcondition) {
             if ($searchcondition->where()) {
                 $tests[] = '((' . $searchcondition->where() .'))';
