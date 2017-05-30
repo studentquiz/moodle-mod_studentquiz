@@ -70,9 +70,7 @@ class studentquiz_condition extends \core_question\bank\search\category_conditio
     public function where() {
         // Gross, but rebuilds this->where with fresh catidtest...
         $this->init();
-        $foo = parent::where();
-        error_log('studentquiz_condition returning where: ' . $foo);
-        return $foo;
+        return parent::where();
     }
 
     /**
