@@ -476,12 +476,15 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
         $category = question_get_default_category($context->id);
         $cat = 'cat=' . $category->id . ',' . $context->id;
 
-        $navref->add(get_string('nav_export', 'studentquiz')
+        $export = $navref->add(get_string('nav_export', 'studentquiz')
             , new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
-        $navref->add(get_string('nav_import', 'studentquiz')
+        $export->showinflatnavigation = true;
+        $import = $navref->add(get_string('nav_import', 'studentquiz')
             , new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
-        $navref->add(get_string('nav_questionbank', 'studentquiz')
+        $import->showinflatnavigation = true;
+        $questionbank = $navref->add(get_string('nav_questionbank', 'studentquiz')
             , new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
+        $questionbank->showinflatnavigation = true;
     }
 }
 
@@ -495,19 +498,4 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
  * @param navigation_node $studentquiznode StudentQuiz administration node
  */
 function studentquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $studentquiznode=null) {
-    global $PAGE, $CFG;
-    $cm = $PAGE->cm;
-    if (mod_studentquiz_check_created_permission($cm->id)) {
-        $course = new stdClass;
-        $course->id = $cm->course;
-        $context = context_module::instance($cm->id);
-        $category = question_get_default_category($context->id);
-        $cat = 'cat=' . $category->id . ',' . $context->id;
-        $studentquiznode->add(get_string('nav_export', 'studentquiz')
-            , new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
-        $studentquiznode->add(get_string('nav_import', 'studentquiz')
-            , new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
-        $studentquiznode->add(get_string('nav_questionbank', 'studentquiz')
-            , new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
-    }
 }
