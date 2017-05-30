@@ -174,7 +174,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
                             $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
 
-                            mod_studentquiz_notify_approving($questionid, $this->course);
+                            mod_studentquiz_notify_approving($questionid, $this->course, $this->cm);
                         }
                     }
                     redirect($this->baseurl);

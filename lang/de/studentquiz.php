@@ -172,29 +172,29 @@ $string['messageprovider:unapproved'] = 'Mitteilung zum rückgängig machen der 
 // Change notification email.
 $string['emailchangebody'] = 'Hallo {$a->studentname},
 
-Diese E-Mail informiert Sie, dass Ihre Frage \'{$a->questionname}\'
-im Kurs \'{$a->coursename}\' von einer Lehrperson bearbeitet wurde.
+Ihre Frage \'{$a->questionname}\' im Kurs \'{$a->coursename}\' in StudentQuiz-Activity \'{$a->modulename}\'
+wurde am \'{$a->questiontime}\' von dem Benutzer \'{$a->teachername}\' bearbeitet.
 
 Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
-$string['emailchangesmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer Lehrperson bearbeitet.';
+$string['emailchangesmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von \'{$a->teachername}\' bearbeitet.';
 $string['emailchangesubject'] = 'Frage wurde bearbeitet: {$a->questionname}';
 
 // Approve notification email.
 $string['emailapprovedbody'] = 'Hallo {$a->studentname},
 
-Diese E-Mail informiert Sie, dass Ihre Frage \'{$a->questionname}\'
-im Kurs \'{$a->coursename}\' von einer Lehrperson bestätigt wurde.
+Ihre Frage \'{$a->questionname}\' im Kurs \'{$a->coursename}\' in StudentQuiz-Activity \'{$a->modulename}\'
+wurde am \'{$a->questiontime}\' von dem Benutzer \'{$a->teachername}\' bestätigt.
 
 Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
-$string['emailapprovedsmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von einer Lehrperson bestätigt.';
+$string['emailapprovedsmall'] = 'Ihre Frage \'{$a->questionname}\' wurde von \'{$a->teachername}\' bestätigt.';
 $string['emailapprovedsubject'] = 'Frage wurde bestätigt: {$a->questionname}';
 
 // Unapprove notification email.
 $string['emailunapprovedbody'] = 'Hallo {$a->studentname},
 
-Diese E-Mail informiert Sie, dass die Bestätigung Ihre Frage \'{$a->questionname}\'
-im Kurs \'{$a->coursename}\' von einer Lehrperson rückgängig gemacht wurde.
+Die Bestätitung Ihrer Frage \'{$a->questionname}\' im Kurs \'{$a->coursename}\' in StudentQuiz-Activity \'{$a->modulename}\'
+wurde am \'{$a->questiontime}\' von dem Benutzer \'{$a->teachername}\' widerrufen.
 
 Sie können die Frage über den folgenden Link betrachten: {$a->questionurl}.';
-$string['emailunapprovedsmall'] = 'Die Bestätigung Ihrer Frage \'{$a->questionname}\' wurde von einer Lehrperson rückgängig gemacht.';
+$string['emailunapprovedsmall'] = 'Die Bestätigung Ihrer Frage \'{$a->questionname}\' wurde von \'{$a->teachername}\' rückgängig gemacht.';
 $string['emailunapprovedsubject'] = 'Bestätigung der Frage wurde rückgängig gemacht: {$a->questionname}';

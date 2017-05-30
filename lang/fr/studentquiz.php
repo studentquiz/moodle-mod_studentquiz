@@ -174,29 +174,29 @@ $string['messageprovider:unapproved'] = 'Notification de deattesté de question'
 // Change notification email.
 $string['emailchangebody'] = 'Cher {$a->studentname},
 
-Cet e-mail vous informe que votre question \'{$a->questionname}\'
-dans le cours \'{$a->coursename}\' a été modifié par un enseignant.
+Votre question \'{$a->questionname}\' dans le cours \'{$a->coursename}\' dans StudentQuiz activity \'{$a->modulename}\'
+a été modifié sur \'{$a->questiontime}\' par \'{$a->teachername}\'.
 
 Vous pouvez examiner cette question à: {$a->questionurl}.';
-$string['emailchangesmall'] = 'Votre question \'{$a->questionname}\' a été modifié par un enseignant.';
+$string['emailchangesmall'] = 'Votre question \'{$a->questionname}\' a été modifié par \'{$a->teachername}\'.';
 $string['emailchangesubject'] = 'Question modifié: {$a->questionname}';
 
 // Approve notification email.
 $string['emailapprovedbody'] = 'Dear {$a->studentname},
 
-Cet e-mail vous informe que votre question \'{$a->questionname}\'
-dans le cours \'{$a->coursename}\' a été attesté par un enseignant.
+Votre question \'{$a->questionname}\' dans le cours \'{$a->coursename}\' dans StudentQuiz activity \'{$a->modulename}\'
+a été attesté sur \'{$a->questiontime}\' par \'{$a->teachername}\'.
 
 Vous pouvez examiner cette question à: {$a->questionurl}.';
-$string['emailapprovedsmall'] = 'Votre question \'{$a->questionname}\' a été attesté par un enseignant.';
+$string['emailapprovedsmall'] = 'Votre question \'{$a->questionname}\' a été attesté par \'{$a->teachername}\'.';
 $string['emailapprovedsubject'] = 'Question attesté: {$a->questionname}';
 
 // Unapprove notification email.
 $string['emailunapprovedbody'] = 'Dear {$a->studentname},
 
-Cet e-mail vous informe que votre question \'{$a->questionname}\'
-dans le cours \'{$a->coursename}\' a été deattesté par un enseignant.
+Votre question \'{$a->questionname}\' dans le cours \'{$a->coursename}\' dans StudentQuiz activity \'{$a->modulename}\'
+a été deattesté sur \'{$a->questiontime}\' par \'{$a->teachername}\'.
 
 Vous pouvez examiner cette question à: {$a->questionurl}.';
-$string['emailunapprovedsmall'] = 'Votre question \'{$a->questionname}\' a été deattesté par un enseignant.';
+$string['emailunapprovedsmall'] = 'Votre question \'{$a->questionname}\' a été deattesté par \'{$a->teachername}\'.';
 $string['emailunapprovedsubject'] = 'Question deattesté: {$a->questionname}';

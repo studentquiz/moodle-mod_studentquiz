@@ -172,8 +172,8 @@ $string['messageprovider:unapproved'] = 'Question unapprove notification';
 // Change notification email.
 $string['emailchangebody'] = 'Dear {$a->studentname},
 
-This email informs you that your question \'{$a->questionname}\'
-in course \'{$a->coursename}\' has been modified by {$a->teachername}.
+Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\'
+has been modified by \'{$a->teachername}\' at \'{$->questiontime}\'.
 
 You can review this question at: {$a->questionurl}.';
 $string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->teachername}.';

@@ -144,7 +144,7 @@ function mod_studentquiz_is_anonym($cmid) {
  * @param \context $context Category context for this view.
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_notify_change($questionid, $course) {
+function mod_studentquiz_notify_change($questionid, $course, $module) {
     global $DB, $USER, $CFG;
 
     // Requires the right permission.
@@ -161,14 +161,18 @@ function mod_studentquiz_notify_change($questionid, $course) {
             // Prepare message.
             $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
             $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+            $time = new DateTime("now", core_date::get_user_timezone_object());
 
             $data = new stdClass();
             // Course info.
             $data->coursename      = $course->fullname;
             $data->courseshortname = $course->shortname;
+            // Module info.
+            $data->modulename      = $module->name;
             // Question info.
             $data->questionname    = $question->name;
             $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $questionid;
+            $data->questiontime    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
             // Student who created the question.
             $data->studentidnumber = $student->idnumber;
             $data->studentname     = fullname($student);
@@ -194,7 +198,7 @@ function mod_studentquiz_notify_change($questionid, $course) {
  * @param \context $context Category context for this view.
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_notify_approving($questionid, $course) {
+function mod_studentquiz_notify_approving($questionid, $course, $module) {
     global $DB, $USER, $CFG;
 
     // Requires the right permission.
@@ -205,14 +209,18 @@ function mod_studentquiz_notify_approving($questionid, $course) {
         // Prepare message.
         $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
         $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+        $time = new DateTime("now", core_date::get_user_timezone_object());
 
         $data = new stdClass();
         // Course info.
         $data->coursename      = $course->fullname;
         $data->courseshortname = $course->shortname;
+        // Module info.
+        $data->modulename      = $module->name;
         // Question info.
         $data->questionname    = $question->name;
         $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $questionid;
+        $data->questiontime    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
         // Student who created the question.
         $data->studentidnumber = $student->idnumber;
         $data->studentname     = fullname($student);
