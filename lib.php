@@ -176,6 +176,25 @@ function studentquiz_delete_instance($id) {
 }
 
 /**
+ * Clean up studentquiz question categories when deleting studentquiz
+ * @Warning: This callback is only triggered in Moodle Version >=3.1!
+ * @param cm_info|stdClass $mod The course module info object or record
+ * @return true|false
+ */
+function studentquiz_pre_course_module_delete($cm){
+    global $DB;
+
+    // Skip if $cm is not a studentquiz module
+    if (! $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance))) {
+        return false;
+    }
+    $context = context_module::instance($studentquiz->coursemodule);
+
+    $DB->delete_records('question_categories', array('contextid' => $context->id));
+    return true;
+}
+
+/**
  * Returns a small object with summary information about what a
  * user has done with a given particular instance of this module
  * Used for user activity reports.

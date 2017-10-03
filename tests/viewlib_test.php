@@ -83,7 +83,6 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
 
     public function test_get_title() {
         $result = $this->viewlib->get_title();
-        echo "\nthe question: ".$result."\n";
         self::assertEquals('Edit questions', $result);
     }
 
