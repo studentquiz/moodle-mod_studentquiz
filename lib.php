@@ -181,10 +181,10 @@ function studentquiz_delete_instance($id) {
  * @param cm_info|stdClass $mod The course module info object or record
  * @return true|false
  */
-function studentquiz_pre_course_module_delete($cm){
+function studentquiz_pre_course_module_delete($cm) {
     global $DB;
 
-    // Skip if $cm is not a studentquiz module
+    // Skip if $cm is not a studentquiz module.
     if (! $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance))) {
         return false;
     }
