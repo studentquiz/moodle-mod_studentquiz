@@ -31,8 +31,6 @@ require_once($CFG->libdir . '/questionlib.php');
 
 /** @var string default quiz behaviour */
 const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
-/** @var int default course section id for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_ID = 999;
 /** @var string generated student quiz placeholder */
 const STUDENTQUIZ_GENERATE_QUIZ_PLACEHOLDER = 'quiz';
 /** @var string generated student quiz intro */
@@ -284,3 +282,14 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
     // ... and send it.
     return message_send($eventdata);
 }
+
+/**
+ * Allow studentquiz to use stealth sections to store quiz activities
+ * in the same section as the activity it belongs to.
+ * @return int|false as for {@link message_send()}.
+ */
+function mod_studentquiz_use_stealth_section(){
+    global $CFG;
+    return $CFG->allowstealth && $CFG->version >= 2017051500;
+}
+

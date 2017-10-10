@@ -173,6 +173,26 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2007040200, 'studentquiz');
     }
 
+
+    // Introduce field `hiddensection` to studentquiz table.
+    if ($oldversion < 2017101000) {
+
+        // Define field hiddensection.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('hiddensection', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'name');
+
+        // Add field hiddensection.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Add key.
+        $table->add_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
+
+
+        upgrade_mod_savepoint(true, 2017101000, 'studentquiz');
+    }
+
     /*
      * And that's all. Please, examine and understand the 3 example blocks above. Also
      * it's interesting to look how other modules are using this script. Remember that

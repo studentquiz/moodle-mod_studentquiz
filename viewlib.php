@@ -142,7 +142,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Checks whetere there allready is the same quiz and returns its id
+     * Checks whether there already is the same quiz and returns its id
      * @param array $ids question id's
      * @return bool|int quiz-ID if any has been found
      */
@@ -238,15 +238,22 @@ class mod_studentquiz_view {
      */
     private function create_course_section($courseid) {
         global $DB;
+
+        $section = 1 + $DB->count_records('course_sections', array('course' => $courseid));
+
         $coursesection = new stdClass();
         $coursesection->course = $courseid;
-        $coursesection->section = STUDENTQUIZ_COURSE_SECTION_ID;
+        $coursesection->section = $section;
         $coursesection->name = STUDENTQUIZ_COURSE_SECTION_NAME;
         $coursesection->summary = STUDENTQUIZ_COURSE_SECTION_SUMMARY;
         $coursesection->summaryformat = STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT;
         $coursesection->visible = STUDENTQUIZ_COURSE_SECTION_VISIBLE;
 
-        return $DB->insert_record('course_sections', $coursesection);
+        $sectionid = $DB->insert_record('course_sections', $coursesection);
+
+        $DB->set_field('studentquiz', 'hiddensection', $sectionid, array('coursemodule' => $this->cm->id));
+
+        return $sectionid;
     }
 
     /**
@@ -255,8 +262,19 @@ class mod_studentquiz_view {
      */
     private function get_course_section() {
         global $DB;
-        return $DB->get_record('course_sections', array('section' => STUDENTQUIZ_COURSE_SECTION_ID,
-                                                        'course' => $this->get_course()->id));
+        // Store Quiz instances in same section in moodle versions below 3.3 if stealth section is available.
+        if (mod_studentquiz_use_stealth_section()) {
+            $section = $DB->get_record('course_sections', array('id' => $this->cm->section,
+                'course' => $this->get_course()->id));
+            return $section;
+        } else {
+            if (!$studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $this->cm->id))) {
+                return $DB->get_record('course_sections', array('section' => $studentquiz->hiddensection,
+                    'course' => $this->get_course()->id));
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -272,6 +290,11 @@ class mod_studentquiz_view {
         $qcm->module = $moduleid;
         $qcm->instance = 0;
 
+        if (mod_studentquiz_use_stealth_section()) {
+            $qcm->visibleoncoursepage = 0;
+            $qcm->visibleold = 1;
+            $qcm->visible = 1;
+        }
         return $DB->insert_record('course_modules', $qcm);
     }
 
