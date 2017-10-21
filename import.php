@@ -23,11 +23,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(__DIR__)).'/config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
-require_once(dirname(__FILE__) . '/import_form.php');
+require_once(__DIR__ . '/import_form.php');
 require_once($CFG->dirroot . '/question/format.php');
-require_once(dirname(__FILE__).'/locallib.php');
+require_once(__DIR__ .'/locallib.php');
 global $CFG;
 
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)

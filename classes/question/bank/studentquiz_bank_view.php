@@ -28,15 +28,15 @@ namespace mod_studentquiz\question\bank;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(dirname(__FILE__).'/../../../locallib.php');
-require_once(dirname(__FILE__).'/question_bank_filter.php');
-require_once(dirname(__FILE__).'/question_text_row.php');
-require_once(dirname(__FILE__).'/vote_column.php');
-require_once(dirname(__FILE__).'/difficulty_level_column.php');
-require_once(dirname(__FILE__).'/tag_column.php');
-require_once(dirname(__FILE__).'/performances_column.php');
-require_once(dirname(__FILE__).'/comments_column.php');
-require_once(dirname(__FILE__).'/approved_column.php');
+require_once(__DIR__ .'/../../../locallib.php');
+require_once(__DIR__ .'/question_bank_filter.php');
+require_once(__DIR__ .'/question_text_row.php');
+require_once(__DIR__ .'/vote_column.php');
+require_once(__DIR__ .'/difficulty_level_column.php');
+require_once(__DIR__ .'/tag_column.php');
+require_once(__DIR__ .'/performances_column.php');
+require_once(__DIR__ .'/comments_column.php');
+require_once(__DIR__ .'/approved_column.php');
 
 /**
  * Module instance settings form
