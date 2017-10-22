@@ -140,11 +140,19 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get the title
+     * Get the ranking title
      * @return string
      */
-    public function get_title() {
+    public function get_ranking_title() {
         return get_string('reportrank_title', 'studentquiz');
+    }
+
+    /**
+     * Get the statistic title
+     * @return string
+     */
+    public function get_statistic_title() {
+        return get_string('reportquiz_stats_title', 'studentquiz');
     }
 
     /**

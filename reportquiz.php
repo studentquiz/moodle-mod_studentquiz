@@ -42,7 +42,7 @@ $params = array(
 $event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
 $event->trigger();
 
-$PAGE->set_title($report->get_title());
+$PAGE->set_title($report->get_statistic_title());
 $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());
 $PAGE->set_url($report->get_quizreporturl());
