@@ -21,7 +21,7 @@
  * See https://docs.moodle.org/dev/version.php for more info.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch) <your@email.address>
+ * @copyright  2017 HSR (http://www.hsr.ch) <your@email.address>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

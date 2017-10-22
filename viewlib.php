@@ -17,7 +17,7 @@
 /**
  * Back-end code for handling data about selected / created questions and call /mod/quiz to generate quizzes
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -32,7 +32,7 @@ require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 /**
  * This class  holds data about the selected state and generate quizzes
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_view {
@@ -638,7 +638,7 @@ class mod_studentquiz_view {
  * Class for StudentQuiz view exceptions. Just saves a couple of arguments on the constructor for a moodle_exception.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_view_exception extends moodle_exception {
