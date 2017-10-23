@@ -8,7 +8,7 @@ Feature: Backup and restore of studentquizzes
     Given the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
-    Given the following "users" exist:
+    And the following "users" exist:
       | username | firstname | lastname | email                |
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
       | student1 | Sam1      | Student1 | student1@example.com |
@@ -29,4 +29,5 @@ Feature: Backup and restore of studentquizzes
     And I set the field "format" to "xml"
     And I upload "mod/studentquiz/tests/fixtures/studentquiz-export-v2.0.3.xml" file to "Import" filemanager
     And I press "Import"
-    Then I should see "Importing 323 questions from file"
+    Then I wait until the page is ready
+    And I should see "Importing 323 questions from file"
