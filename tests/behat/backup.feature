@@ -26,8 +26,9 @@ Feature: Backup and restore of studentquizzes
     When I am on "Course 1" course homepage
     And I follow "studentquiz 0"
     And I follow "Import"
-    And I set the field "format" to "xml"
+    #And I set the field "format" to "xml" #seems not to work, thus workaround:
+    And I click on "#id_format_xml" "css_element"
     And I upload "mod/studentquiz/tests/fixtures/studentquiz-export-v2.0.3.xml" file to "Import" filemanager
-    And I press "Import"
+    And I click on "#id_submitbutton" "css_element"
     Then I wait until the page is ready
     And I should see "Importing 323 questions from file"
