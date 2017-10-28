@@ -605,31 +605,24 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Standard filters.
         $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'), false, 'vote');
-        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level',
-            'studentquiz'), false, 'difficultylevel');
+        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'), false, 'difficultylevel');
         $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
 
         // Advanced filters.
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'), true, 'comment');
         $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
-        $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
-            true, 'questiontext');
+        $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'), true, 'questiontext');
 
         if (mod_studentquiz_is_anonym($this->cm->id) && !mod_studentquiz_check_created_permission($this->cm->id)) {
-            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
-                true, 'createdby');
+            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'), true, 'createdby');
         } else {
-            $this->fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'),
-                true, 'firstname');
-            $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
-                true, 'lastname');
+            $this->fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'), true, 'firstname');
+            $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'), true, 'lastname');
         }
-        $this->fields[] = new \user_filter_checkbox('approved', get_string('filter_label_approved', 'studentquiz'),
-            true, 'approved');
+        $this->fields[] = new \user_filter_simpleselect('approved', get_string('filter_label_approved', 'studentquiz'), true, 'approved', array(true => get_string('approved', 'studentquiz'), false => get_string('not_approved', 'studentquiz')));
 
-        $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
-                                                true, 'timecreated');
+        $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'), true, 'timecreated');
     }
 
     /**
