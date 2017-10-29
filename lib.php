@@ -473,20 +473,6 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding StudentQuiz nodes if there is a relevant content
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the StudentQuiz module instance
- * @param stdClass $course current course record
- * @param stdClass $module current StudentQuiz instance record
- * @param cm_info $cm course module information
- */
-function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    // removed in favor of extend_settings_navigation
-}
-
-/**
  * Extends the settings navigation with the StudentQuiz settings
  *
  * This function is called when the context for the page is a StudentQuiz module. This is not called by AJAX
@@ -513,17 +499,17 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
         $beforekey = $keys[$i + 1];
     }
 
-    // Add the navigation items
+    // Add the navigation items.
     $studentquiznode->add_node(navigation_node::create(get_string('modulename', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/view.php', array('id'=>$PAGE->cm->id)),
+        new moodle_url('/mod/studentquiz/view.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_dashboard',
         new pix_icon('i/cohort', '')), $beforekey);
     $studentquiznode->add_node(navigation_node::create(get_string('reportquiz_dashboard_title', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/reportquiz.php', array('id'=>$PAGE->cm->id)),
+        new moodle_url('/mod/studentquiz/reportquiz.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_statistics',
         new pix_icon('i/report', '')), $beforekey);
     $studentquiznode->add_node(navigation_node::create(get_string('nav_report_rank', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/reportrank.php', array('id'=>$PAGE->cm->id)),
+        new moodle_url('/mod/studentquiz/reportrank.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_rank',
         new pix_icon('i/scales', '')), $beforekey);
 
