@@ -540,7 +540,8 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
             new moodle_url('/mod/studentquiz/import.php', array('cmid' => $PAGE->cm->id, 'cat' => $cat)),
             navigation_node::TYPE_SETTING, null, 'mod_studentquiz_import',
             new pix_icon('i/import', '')), $beforekey);
+
+        question_extend_settings_navigation($studentquiznode, $PAGE->cm->context)->trim_if_empty();
     }
 
-    question_extend_settings_navigation($studentquiznode, $PAGE->cm->context)->trim_if_empty();
 }
