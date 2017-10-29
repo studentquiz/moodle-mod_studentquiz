@@ -27,7 +27,7 @@ env:
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
   #- MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
   #- MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
-  #- MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
 matrix:
   include:
@@ -52,9 +52,9 @@ script:
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
-  - if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; moodle-plugin-ci validate; fi
-  - if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; moodle-plugin-ci savepoints; fi
-  #- if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; moodle-plugin-ci; fi mustache #currently no mustache relevant files, so we can also save the oracle packages
+  - if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; then moodle-plugin-ci validate; fi
+  - if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; then moodle-plugin-ci savepoints; fi
+  #- if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; then moodle-plugin-ci; fi mustache #currently no mustache relevant files, so we can also save the oracle packages
   - moodle-plugin-ci grunt
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci csslint; fi
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci shifter; fi
