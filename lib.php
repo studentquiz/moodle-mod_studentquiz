@@ -484,28 +484,6 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
  */
 function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
     // removed in favor of extend_settings_navigation
-    $navref->showinflatnavigation = true;
-    $stats = $navref->add(get_string('reportquiz_dashboard_title', 'studentquiz')
-        , new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
-    $stats->showinflatnavigation = true;
-    $rank = $navref->add(get_string('nav_report_rank', 'studentquiz')
-        , new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
-    $rank->showinflatnavigation = true;
-    if (mod_studentquiz_check_created_permission($cm->id)) {
-        $context = context_module::instance($cm->id);
-        $category = question_get_default_category($context->id);
-        $cat = 'cat=' . $category->id . ',' . $context->id;
-
-        $export = $navref->add(get_string('nav_export', 'studentquiz')
-            , new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
-        $export->showinflatnavigation = true;
-        $import = $navref->add(get_string('nav_import', 'studentquiz')
-            , new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
-        $import->showinflatnavigation = true;
-        $questionbank = $navref->add(get_string('nav_questionbank', 'studentquiz')
-            , new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
-        $questionbank->showinflatnavigation = true;
-    }
 }
 
 /**
