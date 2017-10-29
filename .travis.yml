@@ -1,24 +1,36 @@
 language: php
 
-sudo: required
+sudo: false
 
 notifications:
   email: false
 
+addons:
+  apt:
+    packages:
+      #- oracle-java8-installer
+      #- oracle-java8-set-default
+      - chromium-chromedriver
+
 cache:
   directories:
     - $HOME/.composer/cache
+    - $HOME/.npm
+
 
 php:
  - 5.6
  - 7.0
+ - 7.1
 
 env:
- global:
-  - MOODLE_BRANCH=MOODLE_31_STABLE
- matrix:
-  - DB=mysqli
-  - DB=pgsql
+  # mysql is slow, so use it only on latest beta and lts of moodle
+  - MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
+  - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
+  - MOODLE_BRANCH=master DB=mysqli
+  - MOODLE_BRANCH=master DB=pgsql
 
 before_install:
   - phpenv config-rm xdebug.ini
@@ -32,12 +44,16 @@ install:
 
 script:
   - moodle-plugin-ci phplint
-#  - moodle-plugin-ci phpcpd
+  - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
+  - moodle-plugin-ci validate
+  - moodle-plugin-ci savepoints
+  - moodle-plugin-ci mustache
+  #- moodle-plugin-ci grunt
   - moodle-plugin-ci csslint
   - moodle-plugin-ci shifter
   - moodle-plugin-ci jshint
-  - moodle-plugin-ci validate
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat
+  # unfotunately firefox is currently not working with behat, so use chrome for now
+  - moodle-plugin-ci behat --profile chrome
