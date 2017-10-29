@@ -8,6 +8,10 @@ notifications:
 addons:
   firefox: "47.0.1"
   postgresql: "9.3"
+  apt:
+    packages:
+      - oracle-java8-installer
+      - oracle-java8-set-default
 
 cache:
   directories:
@@ -34,6 +38,7 @@ matrix:
 
 before_install:
   - phpenv config-rm xdebug.ini
+  - nvm install node
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
@@ -49,6 +54,7 @@ script:
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache
+  - moodle-plugin-ci grunt
   - moodle-plugin-ci csslint
   - moodle-plugin-ci shifter
   - moodle-plugin-ci jshint
