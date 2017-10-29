@@ -24,4 +24,3 @@ Feature: Activities can be created
     And I am on "Course 1" course homepage
     And I follow "Test quiz name"
     Then I should see "Create first question"
-
