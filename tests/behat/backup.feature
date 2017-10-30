@@ -25,7 +25,7 @@ Feature: Backup and restore of studentquizzes
   Scenario: Restore a Studentquiz 2.0.3 xml backup
     When I am on "Course 1" course homepage
     And I follow "studentquiz 0"
-    And I follow "Import"
+    And I navigate to "Import" in current page administration
     #And I set the field "format" to "xml" #seems not to work, thus workaround:
     And I click on "#id_format_xml" "css_element"
     And I upload "mod/studentquiz/tests/fixtures/studentquiz-export-v2.0.3.xml" file to "Import" filemanager
