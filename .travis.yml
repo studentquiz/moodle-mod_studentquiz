@@ -18,6 +18,12 @@ cache:
     - $HOME/.composer/cache
     - $HOME/.npm
 
+# PHP Compatibility Matrix Moodle
+# Moodle 3.1: php5.4, php5.5, php5.6, php7.0 (lim)
+# Moodle 3.2: php5.6, php7.0 (lim), php7.1 (lim)
+# Moodle 3.3: php5.6, php7.0 (lim), php7.1 (lim)
+# Moodle 3.4: php7.0, php7.1, php7.2 (exp)
+# lim: limited, exp: expected
 php:
  - 5.6
  - 7.0
@@ -25,15 +31,26 @@ php:
 
 env:
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
   - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
 matrix:
+  exclude:
+    # Moodle 3.1 doesn't support php7.1
+    - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
   include:
+    # Some MySQL as backend with various PHP versions, but just some to save matrix slots
+    - php: 5.6
+      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
+    - php: 7.0
+      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
     - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
+    # Test upcoming Moodle 3.4 with latest possible versions
+    - php: 7.2
       env: MOODLE_BRANCH=master DB=pgsql
-    - php: 7.1
+    - php: 7.2
       env: MOODLE_BRANCH=master DB=mysqli
 
 before_install:
