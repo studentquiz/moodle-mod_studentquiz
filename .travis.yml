@@ -10,11 +10,13 @@ addons:
   # https://docs.moodle.org/dev/Acceptance_testing/Browsers/Working_combinations_of_OS%2BBrowser%2Bselenium
   # firefox is not working with moodle 3.1, but it should ... So far only chrome suits all versions
   #firefox: "47.0.1"
-  chrome: stable
-  #apt: #can be omitted because mustache is not in use
-  #  packages:
+  #chrome: stable
+  apt:
+    packages:
+       # can be omitted because mustache is not in use
   #    - oracle-java8-installer
   #    - oracle-java8-set-default
+      - chromium-chromedriver
 
 cache:
   directories:
@@ -69,14 +71,14 @@ before_install:
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^$MPCIV
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   # chromedriver
-  - chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
-  - curl https://chromedriver.storage.googleapis.com/$chromedriverversion/chromedriver_linux64.zip | gunzip - > ci/bin/chromedriver
-  - chmod +x ci/bin/chromedriver
+  #- chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
+  #- curl https://chromedriver.storage.googleapis.com/$chromedriverversion/chromedriver_linux64.zip | gunzip - > ci/bin/chromedriver
+  #- chmod +x ci/bin/chromedriver
 
 install:
+  - moodle-plugin-ci install
   - ls -lah .
   - ls -lah ci/bin
-  - moodle-plugin-ci install
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome"]];'; fi
 
 script:
