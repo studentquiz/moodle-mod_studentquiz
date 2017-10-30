@@ -37,7 +37,7 @@ php:
 
 env:
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
+#  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
 #  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
 #matrix:
@@ -84,7 +84,7 @@ install:
   #- if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
   #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/moodlerooms/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
   #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "firefox", "wd_host" => "http://localhost:4444/wd/hub",], "chrome" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",];'; fi
+  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
   - cat moodle/config.php
 
 script:
@@ -102,6 +102,6 @@ script:
   - moodle-plugin-ci phpunit
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
-  #- if [ $MPCIV == '1' ]; then moodle-plugin-ci behat; fi
+  - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat || true; fi # currently not working at all
   - java -jar moodle/selenium.jar &
   - if [ $MPCIV == '1' ]; then php vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi
