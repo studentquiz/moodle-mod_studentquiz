@@ -38,6 +38,7 @@ matrix:
 
 before_install:
   - phpenv config-rm xdebug.ini
+  - echo "upload_max_filesize=20M\npost_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - nvm install node
   - cd ../..
   - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MOODLE_PLUGIN_CI_VERSION=1; else MOODLE_PLUGIN_CI_VERSION=2; fi
