@@ -7,8 +7,6 @@ notifications:
 
 addons:
   postgresql: "9.3"
-  # https://docs.moodle.org/dev/Acceptance_testing/Browsers/Working_combinations_of_OS%2BBrowser%2Bselenium
-  # firefox is not working with moodle 3.1, but it should ... So far only chromium suits all versions (where on my local machine only chrome worked)
   firefox: "47.0.1"
   #chrome: stable
   apt:
@@ -31,33 +29,33 @@ cache:
 # Moodle 3.4: php7.0, php7.1, php7.2 (exp)
 # lim: limited, exp: expected
 php:
-# - 5.6
+ - 5.6
  - 7.0
-# - 7.1
+ - 7.1
 
 env:
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
-#  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
-#  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
-#matrix:
-#  exclude:
-#    # Moodle 3.1 doesn't support php7.1
-#    - php: 7.1
-#      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
-#  include:
-#    # Some MySQL as backend with various PHP versions, but just some to save matrix slots
-#    - php: 5.6
-#      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
-#    - php: 7.0
-#      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
-#    - php: 7.1
-#      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
-#    # Test upcoming Moodle 3.4 with latest possible versions
-#    - php: 7.2
-#      env: MOODLE_BRANCH=master DB=pgsql
-#    - php: 7.2
-#      env: MOODLE_BRANCH=master DB=mysqli
+matrix:
+  exclude:
+    # Moodle 3.1 doesn't support php7.1
+    - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
+  include:
+    # Some MySQL as backend with various PHP versions, but just some to save matrix slots
+    - php: 5.6
+      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
+    - php: 7.0
+      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
+    - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
+    # Test upcoming Moodle 3.4 with latest possible versions
+    - php: 7.2
+      env: MOODLE_BRANCH=master DB=pgsql
+    - php: 7.2
+      env: MOODLE_BRANCH=master DB=mysqli
 
 before_install:
   - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=1; else MPCIV=2; fi
@@ -78,14 +76,12 @@ before_install:
 
 install:
   - moodle-plugin-ci install
-  - tree -L 2 .
-  #- java -jar moodle/selenium.jar --version
   # change firefox to chrome for older moodles
   #- if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
   #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/moodlerooms/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
   #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "firefox", "wd_host" => "http://localhost:4444/wd/hub",], "chrome" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
-  - cat moodle/config.php
+  #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
+  #- cat moodle/config.php
 
 script:
   - moodle-plugin-ci phplint
@@ -103,5 +99,5 @@ script:
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat || true; fi # currently not working at all
-  - java -jar moodle/selenium.jar &
-  - if [ $MPCIV == '1' ]; then php moodle/vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi
+  #- java -jar moodle/selenium.jar &
+  #- if [ $MPCIV == '1' ]; then php moodle/vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi
