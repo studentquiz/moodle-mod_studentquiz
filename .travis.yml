@@ -79,6 +79,7 @@ before_install:
 install:
   - moodle-plugin-ci install
   - tree -L 2 .
+  - java -jar moodle/selenium.jar --version
   # change firefox to chrome for older moodles
   #- if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
   #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/moodlerooms/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
