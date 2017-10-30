@@ -52,13 +52,13 @@ class mod_studentquiz_question_export_form extends moodleform {
         $fileformatnames = get_import_export_formats('export');
 
         $i = 0;
-        foreach ($fileformatnames as $shortname => $fileformatname) {
+        foreach ($fileformatnames as $extensionname => $fileformatname) {
             $currentgrp1 = array();
-            $currentgrp1[] = $mform->createElement('radio', 'format', '', $fileformatname, $shortname);
+            $currentgrp1[] = $mform->createElement('radio', 'format', '', $fileformatname, $extensionname);
             $mform->addGroup($currentgrp1, "formathelp[{$i}]", '', array('<br />'), false);
 
-            if (get_string_manager()->string_exists('pluginname_help', 'qformat_' . $shortname)) {
-                $mform->addHelpButton("formathelp[{$i}]", 'pluginname', 'qformat_' . $shortname);
+            if (get_string_manager()->string_exists('pluginname_help', 'qformat_' . $extensionname)) {
+                $mform->addHelpButton("formathelp[{$i}]", 'pluginname', 'qformat_' . $extensionname);
             }
 
             $i++;

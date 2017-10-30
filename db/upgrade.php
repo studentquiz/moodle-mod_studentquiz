@@ -150,7 +150,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2007040200, 'studentquiz');
     }
 
-    // for version ???.
+    // For version ???.
     if ($oldversion < 2017021601) {
 
         // Define table studentquiz_question to be created.
