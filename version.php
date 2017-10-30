@@ -28,11 +28,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2017053101;
-$plugin->release      = 'v2.0.3';
-$plugin->requires     = 2015102300; // Version 3.0.
+$plugin->version      = 2017103000;
+$plugin->release      = 'v2.1.0';
+$plugin->requires     = 2016052300; // Version MOODLE_31, 3.1.0
 $plugin->maturity     = MATURITY_STABLE;
 $plugin->cron         = 0;
 $plugin->dependencies = array(
-    'mod_quiz' => '2015111600'
+    'mod_quiz' => '2016052301'
 );
