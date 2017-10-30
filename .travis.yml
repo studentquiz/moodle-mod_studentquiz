@@ -77,9 +77,11 @@ before_install:
 
 install:
   - moodle-plugin-ci install
-  # change firefox to chrome
+  # change firefox to chrome for older moodles
   - if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
   - cat moodle/config.php
+  - cat ci/bin/moodle-plugin-ci
+  - tree ci/vendor
 
 script:
   - moodle-plugin-ci phplint
