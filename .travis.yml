@@ -70,9 +70,8 @@ before_install:
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   # chromedriver
   - chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
-  - curl https://chromedriver.storage.googleapis.com/$chromedriverversion/chromedriver_linux64.zip | gunzip - > /tmp/chromedriver
-  - chmod +x /tmp/chromedriver
-  - export CHROME_DRIVER_PATH=/tmp/chromedriver
+  - curl https://chromedriver.storage.googleapis.com/$chromedriverversion/chromedriver_linux64.zip | gunzip - > ci/bin/chromedriver
+  - chmod +x ci/bin/chromedriver
 
 install:
   - moodle-plugin-ci install
@@ -93,4 +92,3 @@ script:
   - moodle-plugin-ci phpunit
   - if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci behat; fi
-  
