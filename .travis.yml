@@ -82,5 +82,5 @@ script:
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci shifter; fi
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci jshint; fi
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat
+  - moodle-plugin-ci behat --profile chrome
   
