@@ -57,17 +57,26 @@ env:
 #      env: MOODLE_BRANCH=master DB=mysqli
 
 before_install:
+  # php settings
   - phpenv config-rm xdebug.ini
   - echo "upload_max_filesize=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
+  # moodle dependencies
   - nvm install node
+  # moodle-plugin-ci iinstallation
   - cd ../..
   - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MOODLE_PLUGIN_CI_VERSION=1; else MOODLE_PLUGIN_CI_VERSION=2; fi
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^$MOODLE_PLUGIN_CI_VERSION
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  # chromedriver
+  - chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
+  - curl https://chromedriver.storage.googleapis.com/$chromedriverversion/chromedriver_linux64.zip | gunzip - > /tmp/chromedriver
+  - chmod +x /tmp/chromedriver
+  - export CHROME_DRIVER_PATH=/tmp/chromedriver
 
 install:
   - moodle-plugin-ci install
+  - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome"]];'; fi
 
 script:
   - moodle-plugin-ci phplint
@@ -82,5 +91,6 @@ script:
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci shifter; fi
   - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci jshint; fi
   - moodle-plugin-ci phpunit
-  - moodle-plugin-ci behat --profile chrome
+  - if [ $MOODLE_PLUGIN_CI_VERSION == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
+  - if [ $MOODLE_PLUGIN_CI_VERSION == '1' ]; then moodle-plugin-ci behat; fi
   
