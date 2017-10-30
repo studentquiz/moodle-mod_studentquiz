@@ -77,7 +77,7 @@ before_install:
 
 install:
   - moodle-plugin-ci install
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome"]];'; fi
+  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_config = ["default" => ["browser" => "chrome"]];'; fi
   - cat moodle/config.php
 
 script:
