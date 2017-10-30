@@ -17,6 +17,7 @@ addons:
   #    - oracle-java8-installer
   #    - oracle-java8-set-default
       - chromium-chromedriver
+      - tree
 
 cache:
   directories:
@@ -59,14 +60,14 @@ env:
 #      env: MOODLE_BRANCH=master DB=mysqli
 
 before_install:
-  - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=v1; else MPCIV=2; fi
+  - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=1; else MPCIV=2; fi
   # php settings
   - phpenv config-rm xdebug.ini
   - echo "upload_max_filesize=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # moodle dependencies
-  - if [ $MPCIV == '2' ]; then nvm install node; fi
-  # moodle-plugin-ci iinstallation
+  - if [ $MPCIV=='2' ]; then nvm install node; fi
+  # moodle-plugin-ci installation
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^$MPCIV
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
@@ -78,24 +79,24 @@ before_install:
 install:
   - moodle-plugin-ci install
   # change firefox to chrome for older moodles
-  #- if [ $MPCIV == 'v1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
+  #- if [ $MPCIV=='1' ];then sed -i 's/firefox/chrome/' moodle/config.php; fi
   - cat moodle/config.php
   - cat ci/bin/moodle-plugin-ci
-  #- tree ci/vendor
+  - tree ci/vendor
 
 script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci validate; fi
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci savepoints; fi
-  #- if [ $MPCIV == '2' ]; then moodle-plugin-ci; fi mustache #currently no mustache relevant files, so we can also save the oracle packages
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci grunt; fi
-  - if [ $MPCIV == 'v1' ]; then moodle-plugin-ci csslint; fi
-  - if [ $MPCIV == 'v1' ]; then moodle-plugin-ci shifter; fi
-  - if [ $MPCIV == 'v1' ]; then moodle-plugin-ci jshint; fi
+  - if [ $MPCIV=='2' ]; then moodle-plugin-ci validate; fi
+  - if [ $MPCIV=='2' ]; then moodle-plugin-ci savepoints; fi
+  #- if [ $MPCIV=='2' ]; then moodle-plugin-ci; fi mustache #currently no mustache relevant files, so we can also save the oracle packages
+  - if [ $MPCIV=='2' ]; then moodle-plugin-ci grunt; fi
+  - if [ $MPCIV=='1' ]; then moodle-plugin-ci csslint; fi
+  - if [ $MPCIV=='1' ]; then moodle-plugin-ci shifter; fi
+  - if [ $MPCIV=='1' ]; then moodle-plugin-ci jshint; fi
   - moodle-plugin-ci phpunit
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
-  - if [ $MPCIV == 'v1' ]; then moodle-plugin-ci behat; fi
+  - if [ $MPCIV=='2' ]; then moodle-plugin-ci behat --profile chrome; fi
+  - if [ $MPCIV=='2' ]; then moodle-plugin-ci behat; fi # is profile firefox
+  - if [ $MPCIV=='1' ]; then moodle-plugin-ci behat; fi
