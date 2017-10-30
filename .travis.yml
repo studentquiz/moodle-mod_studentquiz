@@ -77,7 +77,21 @@ before_install:
 
 install:
   - moodle-plugin-ci install
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_config = ["default" => ["browser" => "chrome"]];'; fi
+  - |
+    if [ $MPCIV == '1' ]; then
+      moodle-plugin-ci add-config '$CFG->behat_config   = array(
+        'default' => array(
+          'extensions' => array(
+            'Behat\MinkExtension\Extension' => array(
+              'selenium2' => array(
+                 'browser' => 'chrome',
+                 'wd_host' => 'http://localhost:4444/wd/hub'
+              )
+            )
+          )
+        ),
+      );';
+    fi
   - cat moodle/config.php
 
 script:
@@ -94,4 +108,5 @@ script:
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci jshint; fi
   - moodle-plugin-ci phpunit
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
+  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat; fi
