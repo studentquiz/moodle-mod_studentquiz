@@ -8,8 +8,8 @@ notifications:
 addons:
   postgresql: "9.3"
   # https://docs.moodle.org/dev/Acceptance_testing/Browsers/Working_combinations_of_OS%2BBrowser%2Bselenium
-  # firefox is not working with moodle 3.1, but it should ... So far only chrome suits all versions
-  #firefox: "47.0.1"
+  # firefox is not working with moodle 3.1, but it should ... So far only chromium suits all versions (where on my local machine only chrome worked)
+  firefox: "47.0.1"
   #chrome: stable
   apt:
     packages:
@@ -35,9 +35,9 @@ php:
 # - 7.1
 
 env:
-#  - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
 #  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
+#  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
 #matrix:
 #  exclude:
@@ -65,7 +65,7 @@ before_install:
   - echo "upload_max_filesize=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # moodle dependencies
-  - if [ $MPCIV == '1' ]; then nvm install node; fi
+  - if [ $MPCIV == '2' ]; then nvm install node; fi
   # moodle-plugin-ci iinstallation
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^$MPCIV
@@ -78,7 +78,8 @@ before_install:
 install:
   - moodle-plugin-ci install
   - ls -lah .
-  - ls -lah ci/bin
+  - ls -lah moodle
+  - cat moodle/config.php
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome"]];'; fi
 
 script:
