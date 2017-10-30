@@ -38,7 +38,7 @@ php:
 env:
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
 #  - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
-#  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
 
 #matrix:
 #  exclude:
@@ -82,7 +82,7 @@ install:
   #- if [ $MPCIV=='1' ];then sed -i 's/firefox/chrome/' moodle/config.php; fi
   - cat moodle/config.php
   - cat ci/bin/moodle-plugin-ci
-  - tree ci/vendor
+  - tree ci
 
 script:
   - moodle-plugin-ci phplint
