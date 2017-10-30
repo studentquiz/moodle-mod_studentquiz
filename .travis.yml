@@ -103,5 +103,5 @@ script:
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
   #- if [ $MPCIV == '1' ]; then moodle-plugin-ci behat; fi
-  - if [ $MPCIV == '1' ]; then /usr/bin/java -jar /home/dionysius/.moodle-sdk/selenium.jar & fi
-  - if [ $MPCIV == '1' ]; then /usr/bin/java -jar /home/dionysius/.moodle-sdk/selenium.jar & fi
+  - java -jar moodle/selenium.jar &
+  - if [ $MPCIV == '1' ]; then php vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi
