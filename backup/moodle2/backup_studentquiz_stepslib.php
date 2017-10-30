@@ -43,7 +43,7 @@ class backup_studentquiz_activity_structure_step extends backup_activity_structu
     protected function define_structure() {
         // Define the root element describing the StudentQuiz instance.
         $studentquiz = new backup_nested_element('studentquiz', array('id'), array(
-            'coursemodule', 'name', 'intro', 'introformat', 'grade'));
+            'coursemodule', 'name', 'hiddensection', 'intro', 'introformat', 'grade', 'anonymrank', 'quizpracticebehaviour'));
 
         // If we had more elements, we would build the tree here.
 

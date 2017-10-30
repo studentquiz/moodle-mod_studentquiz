@@ -82,10 +82,12 @@ function mod_studentquiz_get_current_behaviour($cm=null) {
             return $default;
         }
 
-        return $rec->quizpracticebehaviour;
-    } else {
-        return $default;
+        if (array_key_exists($rec->quizpracticebehaviour, $archetypalbehaviours)) {
+            return $rec->quizpracticebehaviour;
+        }
     }
+
+    return $default;
 }
 
 /**

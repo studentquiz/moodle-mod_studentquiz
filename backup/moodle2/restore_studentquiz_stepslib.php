@@ -74,6 +74,18 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
             $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
         }
 
+        if (empty($data->quizpracticebehaviour)) {
+            $data->quizpracticebehaviour = "studentquiz";
+        }
+
+        if (empty($data->hiddensection)) {
+            $data->hiddensection = 0;
+        }
+
+        if (empty($data->anonymrank)) {
+            $data->anonymrank= true;
+        }
+
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
 
