@@ -81,7 +81,7 @@ install:
   #- if [ $MPCIV == 'v1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
   - cat moodle/config.php
   - cat ci/bin/moodle-plugin-ci
-  - tree ci/vendor
+  #- tree ci/vendor
 
 script:
   - moodle-plugin-ci phplint
