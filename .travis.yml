@@ -78,13 +78,12 @@ before_install:
 
 install:
   - moodle-plugin-ci install
+  - tree .
   # change firefox to chrome for older moodles
   #- if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
+  #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/moodlerooms/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
+  #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "firefox", "wd_host" => "http://localhost:4444/wd/hub",], "chrome" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
   - cat moodle/config.php
-  - cat ci/bin/moodle-plugin-ci
-  - #tree ci
-  - if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/moodlerooms/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "firefox", "wd_host" => "http://localhost:4444/wd/hub",], "chrome" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
 
 script:
   - moodle-plugin-ci phplint
