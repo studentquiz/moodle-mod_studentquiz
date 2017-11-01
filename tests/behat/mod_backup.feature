@@ -29,6 +29,7 @@ Feature: Backup and restore of studentquizzes
     #And I set the field "format" to "xml" #seems not to work, thus workaround:
     And I click on "#id_format_xml" "css_element"
     And I upload "mod/studentquiz/tests/fixtures/studentquiz-export-v2.0.3.xml" file to "Import" filemanager
+    #The "Import" button is not the only clickable item with a text beginning with "Import", so need to specify exactly
     And I click on "#id_submitbutton" "css_element"
     Then I wait until the page is ready
     And I should see "Importing 323 questions from file"
