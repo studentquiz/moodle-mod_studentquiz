@@ -64,7 +64,7 @@ before_install:
   - echo "upload_max_filesize=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # moodle dependencies
-  - if [ $MPCIV == '2' ]; then nvm install node; fi
+  - if [ $MPCIV == '2' ]; then nvm install node v8; fi
   # moodle-plugin-ci installation
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^$MPCIV
