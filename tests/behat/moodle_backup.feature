@@ -38,7 +38,7 @@ Feature: Backup and restore of moodle exports
 
     Examples:
       | file                                             |
-      #| backup-moodle2-course_moodle30_sq203_nofiles.mbz |
-      #| backup-moodle2-course_moodle31_sq203_nofiles.mbz |
+      | backup-moodle2-course_moodle30_sq203_nofiles.mbz |
+      | backup-moodle2-course_moodle31_sq203_nofiles.mbz |
       | backup-moodle2-course_moodle32_sq203_nofiles.mbz |
-      #| backup-moodle2-course_moodle33_sq203_nofiles.mbz |
+      | backup-moodle2-course_moodle33_sq203_nofiles.mbz |
