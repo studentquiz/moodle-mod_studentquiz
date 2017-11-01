@@ -1,4 +1,4 @@
-@mod @mod_quiz
+@mod @mod_studentquiz
 Feature: Backup and restore of moodle exports
   In order to reuse my studentquizzes
   As a admin
