@@ -18,12 +18,12 @@
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once(__DIR__ . '/locallib.php');
 require_once($CFG->dirroot . '/mod/quiz/renderer.php');
 require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
@@ -33,7 +33,7 @@ require_once($CFG->libdir . '/gradelib.php');
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_report {
@@ -140,11 +140,19 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get the title
+     * Get the ranking title
      * @return string
      */
-    public function get_title() {
+    public function get_ranking_title() {
         return get_string('reportrank_title', 'studentquiz');
+    }
+
+    /**
+     * Get the statistic title
+     * @return string
+     */
+    public function get_statistic_title() {
+        return get_string('reportquiz_stats_title', 'studentquiz');
     }
 
     /**

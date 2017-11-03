@@ -19,7 +19,7 @@
  *
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,7 +33,7 @@ require_once($CFG->dirroot.'/user/filters/date.php');
  * Question bank filter form intance
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_question_bank_filter_form extends moodleform {
@@ -81,7 +81,7 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
         $mform = $this->_form;
 
         $mform->addElement('header', 'filtertab', get_string('filter', 'studentquiz'));
-        $mform->setExpanded('filtertab', false);
+        $mform->setExpanded('filtertab', true);
         foreach ($this->fields as $field) {
             $field->setupForm($mform);
         }
@@ -126,7 +126,7 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
  * Number filter
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class user_filter_number extends user_filter_text {

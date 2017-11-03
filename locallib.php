@@ -21,7 +21,7 @@
  * logic, should go here. Never include this file from your lib.php!
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -132,20 +132,58 @@ function mod_studentquiz_is_anonym($cmid) {
 
     $field = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $cmid));
     if ($field !== false) {
-        return intval($field);
+        return (int)$field;
     }
     // If no entry was found, better set it anonym.
     return 1;
 }
 
 /**
+ * Prepare message for notify.
+ * @param stdClass $question object
+ * @param stdClass $student student object
+ * @param stdClass $teacher teacher object
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return stdClass Data object with course, module, question, student and teacher info
+ */
+
+function mod_studentquiz_prepare_notify_data($question, $student, $teacher, $course, $module) {
+    global $CFG;
+
+    // Prepare message.
+    $time = new DateTime('now', core_date::get_user_timezone_object());
+
+    $data = new stdClass();
+    // Course info.
+    $data->coursename      = $course->fullname;
+    $data->courseshortname = $course->shortname;
+    // Module info.
+    $data->modulename      = $module->name;
+    // Question info.
+    $data->questionname    = $question->name;
+    $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $question->id;
+    $data->questiontime    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
+    // Student who created the question.
+    $data->studentidnumber = $student->idnumber;
+    $data->studentname     = fullname($student);
+    $data->studentusername = $student->username;
+    // Teacher who edited the question.
+    $data->teachername     = fullname($teacher);
+    $data->teacherusername = $teacher->username;
+
+    return $data;
+}
+
+/**
  * Notify student if a teacher makes changes to a student's question.
  * @param int $questionid ID of the student's questions.
- * @param \context $context Category context for this view.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
  */
 function mod_studentquiz_notify_change($questionid, $course, $module) {
-    global $DB, $USER, $CFG;
+    global $DB, $USER;
 
     // Requires the right permission.
     if (question_has_capability_on($questionid, 'editall')) {
@@ -158,28 +196,9 @@ function mod_studentquiz_notify_change($questionid, $course, $module) {
             && $question->modifiedby == $USER->id
             && $question->timemodified + $lesteditthreshold >= time()) {
 
-            // Prepare message.
             $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
             $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-            $time = new DateTime("now", core_date::get_user_timezone_object());
-
-            $data = new stdClass();
-            // Course info.
-            $data->coursename      = $course->fullname;
-            $data->courseshortname = $course->shortname;
-            // Module info.
-            $data->modulename      = $module->name;
-            // Question info.
-            $data->questionname    = $question->name;
-            $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $questionid;
-            $data->questiontime    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
-            // Student who created the question.
-            $data->studentidnumber = $student->idnumber;
-            $data->studentname     = fullname($student);
-            $data->studentusername = $student->username;
-            // Teacher who edited the question.
-            $data->teachername     = fullname($teacher);
-            $data->teacherusername = $teacher->username;
+            $data = mod_studentquiz_prepare_notify_data($question, $student, $teacher, $course, $module);
 
             $subject = get_string('emailchangesubject', 'studentquiz', $data);
             $fulltext = get_string('emailchangebody', 'studentquiz', $data);
@@ -195,39 +214,21 @@ function mod_studentquiz_notify_change($questionid, $course, $module) {
 /**
  * Notify student if a teacher approves or disapproves a student's question.
  * @param int $questionid ID of the student's questions.
- * @param \context $context Category context for this view.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
  */
 function mod_studentquiz_notify_approving($questionid, $course, $module) {
-    global $DB, $USER, $CFG;
+    global $DB, $USER;
 
     // Requires the right permission.
     if (question_has_capability_on($questionid, 'editall')) {
         $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
         $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
 
-        // Prepare message.
         $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
         $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-        $time = new DateTime("now", core_date::get_user_timezone_object());
-
-        $data = new stdClass();
-        // Course info.
-        $data->coursename      = $course->fullname;
-        $data->courseshortname = $course->shortname;
-        // Module info.
-        $data->modulename      = $module->name;
-        // Question info.
-        $data->questionname    = $question->name;
-        $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $questionid;
-        $data->questiontime    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
-        // Student who created the question.
-        $data->studentidnumber = $student->idnumber;
-        $data->studentname     = fullname($student);
-        $data->studentusername = $student->username;
-        // Teacher who edited the question.
-        $data->teachername     = fullname($teacher);
-        $data->teacherusername = $teacher->username;
+        $data = mod_studentquiz_prepare_notify_data($question, $student, $teacher, $course, $module);
 
         if ($approved) {
             $subject = get_string('emailapprovedsubject', 'studentquiz', $data);
@@ -249,12 +250,12 @@ function mod_studentquiz_notify_approving($questionid, $course, $module) {
  * Sends notification messages to the interested parties that assign the role capability
  *
  * @param string $event message event string
- * @param object $recipient user object of the intended recipient
- * @param object $submitter user object of the sender
+ * @param stdClass $recipient user object of the intended recipient
+ * @param stdClass $submitter user object of the sender
  * @param string $subject subject of the message
  * @param string $fullmessage Full message text
- * @param string $smallemessage Small message text
- * @param object $data associative array of replaceable fields for the templates
+ * @param string $smallmessage Small message text
+ * @param stdClass $data object of replaceable fields for the templates
  *
  * @return int|false as for {@link message_send()}.
  */

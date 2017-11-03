@@ -20,14 +20,14 @@
  * @see uninstall_plugin()
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot.'/course/lib.php');
-require_once(dirname(__FILE__) . '/../lib.php');
+require_once(__DIR__ . '/../lib.php');
 
 /**
  * Custom uninstallation procedure

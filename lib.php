@@ -25,14 +25,14 @@
  * Moodle is performing actions across all modules.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/questionlib.php');
-require_once(dirname(__FILE__) . '/locallib.php');
+require_once(__DIR__ . '/locallib.php');
 
 /* Core API */
 
@@ -485,41 +485,6 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
 /* Navigation API */
 
 /**
- * Extends the global navigation tree by adding StudentQuiz nodes if there is a relevant content
- *
- * This can be called by an AJAX request so do not rely on $PAGE as it might not be set up properly.
- *
- * @param navigation_node $navref An object representing the navigation tree node of the StudentQuiz module instance
- * @param stdClass $course current course record
- * @param stdClass $module current StudentQuiz instance record
- * @param cm_info $cm course module information
- */
-function studentquiz_extend_navigation(navigation_node $navref, stdClass $course, stdClass $module, cm_info $cm) {
-    $navref->showinflatnavigation = true;
-    $stats = $navref->add(get_string('reportquiz_dashboard_title', 'studentquiz')
-        , new moodle_url('/mod/studentquiz/reportquiz.php?id=' . $cm->id));
-    $stats->showinflatnavigation = true;
-    $rank = $navref->add(get_string('nav_report_rank', 'studentquiz')
-        , new moodle_url('/mod/studentquiz/reportrank.php?id=' . $cm->id));
-    $rank->showinflatnavigation = true;
-    if (mod_studentquiz_check_created_permission($cm->id)) {
-        $context = context_module::instance($cm->id);
-        $category = question_get_default_category($context->id);
-        $cat = 'cat=' . $category->id . ',' . $context->id;
-
-        $export = $navref->add(get_string('nav_export', 'studentquiz')
-            , new moodle_url('/mod/studentquiz/export.php?' . $cat . '&cmid=' . $cm->id));
-        $export->showinflatnavigation = true;
-        $import = $navref->add(get_string('nav_import', 'studentquiz')
-            , new moodle_url('/mod/studentquiz/import.php?' . $cat . '&cmid=' . $cm->id));
-        $import->showinflatnavigation = true;
-        $questionbank = $navref->add(get_string('nav_questionbank', 'studentquiz')
-            , new moodle_url('/question/edit.php?courseid' . $course->id . '&' . $cat . '&cmid=' . $cm->id));
-        $questionbank->showinflatnavigation = true;
-    }
-}
-
-/**
  * Extends the settings navigation with the StudentQuiz settings
  *
  * This function is called when the context for the page is a StudentQuiz module. This is not called by AJAX
@@ -528,5 +493,53 @@ function studentquiz_extend_navigation(navigation_node $navref, stdClass $course
  * @param settings_navigation $settingsnav complete settings navigation tree
  * @param navigation_node $studentquiznode StudentQuiz administration node
  */
-function studentquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $studentquiznode=null) {
+function studentquiz_extend_settings_navigation(settings_navigation $settingsnav, navigation_node $studentquiznode) {
+    global $PAGE, $CFG;
+
+    // Require {@link questionlib.php}
+    // Included here as we only ever want to include this file if we really need to.
+    require_once($CFG->libdir . '/questionlib.php');
+
+    // We want to add these new nodes after the Edit settings node, and before the
+    // Locally assigned roles node. Of course, both of those are controlled by capabilities.
+    $keys = $studentquiznode->get_children_key_list();
+    $beforekey = null;
+    $i = array_search('modedit', $keys);
+    if ($i === false and array_key_exists(0, $keys)) {
+        $beforekey = $keys[0];
+    } else if (array_key_exists($i + 1, $keys)) {
+        $beforekey = $keys[$i + 1];
+    }
+
+    // Add the navigation items.
+    $studentquiznode->add_node(navigation_node::create(get_string('modulename', 'studentquiz'),
+        new moodle_url('/mod/studentquiz/view.php', array('id' => $PAGE->cm->id)),
+        navigation_node::TYPE_SETTING, null, 'mod_studentquiz_dashboard',
+        new pix_icon('i/cohort', '')), $beforekey);
+    $studentquiznode->add_node(navigation_node::create(get_string('reportquiz_dashboard_title', 'studentquiz'),
+        new moodle_url('/mod/studentquiz/reportquiz.php', array('id' => $PAGE->cm->id)),
+        navigation_node::TYPE_SETTING, null, 'mod_studentquiz_statistics',
+        new pix_icon('i/report', '')), $beforekey);
+    $studentquiznode->add_node(navigation_node::create(get_string('nav_report_rank', 'studentquiz'),
+        new moodle_url('/mod/studentquiz/reportrank.php', array('id' => $PAGE->cm->id)),
+        navigation_node::TYPE_SETTING, null, 'mod_studentquiz_rank',
+        new pix_icon('i/scales', '')), $beforekey);
+
+    if (mod_studentquiz_check_created_permission($PAGE->cm->id)) {
+        $context = context_module::instance($PAGE->cm->id);
+        $category = question_get_default_category($context->id);
+        $cat = $category->id . ',' . $context->id;
+
+        $studentquiznode->add_node(navigation_node::create(get_string('nav_export', 'studentquiz'),
+            new moodle_url('/mod/studentquiz/export.php', array('cmid' => $PAGE->cm->id, 'cat' => $cat)),
+            navigation_node::TYPE_SETTING, null, 'mod_studentquiz_export',
+            new pix_icon('i/export', '')), $beforekey);
+        $studentquiznode->add_node(navigation_node::create(get_string('nav_import', 'studentquiz'),
+            new moodle_url('/mod/studentquiz/import.php', array('cmid' => $PAGE->cm->id, 'cat' => $cat)),
+            navigation_node::TYPE_SETTING, null, 'mod_studentquiz_import',
+            new pix_icon('i/import', '')), $beforekey);
+
+        question_extend_settings_navigation($studentquiznode, $PAGE->cm->context)->trim_if_empty();
+    }
+
 }

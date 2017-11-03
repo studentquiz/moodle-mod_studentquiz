@@ -25,7 +25,7 @@
  * here will all be database-neutral, using the functions defined in DLL libraries.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -41,29 +41,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     global $DB;
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
-
-    if ($oldversion < 2017021601) {
-
-        // Define table studentquiz_question to be created.
-        $table = new xmldb_table('studentquiz_question');
-
-        // Adding fields to table studentquiz_question.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('approved', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
-
-        // Adding keys to table studentquiz_question.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
-
-        // Conditionally launch create table for studentquiz_question.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
-
-        // Studentquiz savepoint reached.
-        upgrade_mod_savepoint(true, 2017021601, 'studentquiz');
-    }
 
     /*
      * And upgrade begins here. For each one, you'll need one
@@ -171,6 +148,30 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Insert code here to perform some actions (same as in install.php).
 
         upgrade_mod_savepoint(true, 2007040200, 'studentquiz');
+    }
+
+    // For version ???.
+    if ($oldversion < 2017021601) {
+
+        // Define table studentquiz_question to be created.
+        $table = new xmldb_table('studentquiz_question');
+
+        // Adding fields to table studentquiz_question.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('approved', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table studentquiz_question.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
+
+        // Conditionally launch create table for studentquiz_question.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2017021601, 'studentquiz');
     }
 
     // Introduce field `hiddensection` to studentquiz table.

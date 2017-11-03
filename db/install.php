@@ -21,7 +21,7 @@
  * lib.php/modulename_install() post installation hook and partially defaults.php.
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch) <your@email.adress>
+ * @copyright  2017 HSR (http://www.hsr.ch) <your@email.adress>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

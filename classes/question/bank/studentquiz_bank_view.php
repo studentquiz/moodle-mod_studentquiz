@@ -19,7 +19,7 @@
  *
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,21 +28,21 @@ namespace mod_studentquiz\question\bank;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(dirname(__FILE__).'/../../../locallib.php');
-require_once(dirname(__FILE__).'/question_bank_filter.php');
-require_once(dirname(__FILE__).'/question_text_row.php');
-require_once(dirname(__FILE__).'/vote_column.php');
-require_once(dirname(__FILE__).'/difficulty_level_column.php');
-require_once(dirname(__FILE__).'/tag_column.php');
-require_once(dirname(__FILE__).'/performances_column.php');
-require_once(dirname(__FILE__).'/comments_column.php');
-require_once(dirname(__FILE__).'/approved_column.php');
+require_once(__DIR__ .'/../../../locallib.php');
+require_once(__DIR__ .'/question_bank_filter.php');
+require_once(__DIR__ .'/question_text_row.php');
+require_once(__DIR__ .'/vote_column.php');
+require_once(__DIR__ .'/difficulty_level_column.php');
+require_once(__DIR__ .'/tag_column.php');
+require_once(__DIR__ .'/performances_column.php');
+require_once(__DIR__ .'/comments_column.php');
+require_once(__DIR__ .'/approved_column.php');
 
 /**
  * Module instance settings form
  *
  * @package    mod_studentquiz
- * @copyright  2016 HSR (http://www.hsr.ch)
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_bank_view extends \core_question\bank\view {
@@ -604,15 +604,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields = array();
 
         // Standard filters.
-        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'), false, 'vote');
-        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level',
-            'studentquiz'), false, 'difficultylevel');
-        $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'), false, 'tagname');
+        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'),
+            false, 'vote');
+        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
+            false, 'difficultylevel');
+        $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'),
+            false, 'tagname');
 
         // Advanced filters.
-        $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'), true, 'practice');
-        $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'), true, 'comment');
-        $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'), true, 'name');
+        $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'),
+            true, 'practice');
+        $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'),
+            true, 'comment');
+        $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
+            true, 'name');
         $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
             true, 'questiontext');
 
@@ -625,11 +630,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
                 true, 'lastname');
         }
-        $this->fields[] = new \user_filter_checkbox('approved', get_string('filter_label_approved', 'studentquiz'),
-            true, 'approved');
+        $this->fields[] = new \user_filter_simpleselect('approved', get_string('filter_label_approved', 'studentquiz'),
+            true, 'approved', array(
+                true => get_string('approved', 'studentquiz'),
+                false => get_string('not_approved', 'studentquiz')
+            ));
 
         $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
-                                                true, 'timecreated');
+            true, 'timecreated');
     }
 
     /**

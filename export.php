@@ -23,9 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(dirname(__FILE__))).'/config.php');
+require_once(dirname(dirname(__DIR__)).'/config.php');
 require_once($CFG->dirroot . '/question/editlib.php');
-require_once(dirname(__FILE__) . '/export_form.php');
+require_once(__DIR__ . '/export_form.php');
 require_once($CFG->dirroot . '/question/format.php');
 
 list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
