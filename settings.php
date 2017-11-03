@@ -27,8 +27,9 @@ defined('MOODLE_INTERNAL') || die;
 if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
         'studentquiz/ratingsettings',
-        get_string('rankingsettingsheader', 'studentquiz'), '')
-    );
+        get_string('rankingsettingsheader', 'studentquiz'),
+        get_string('rankingsettingsdescription', 'studentquiz')
+    ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz_add_question_quantifier',
@@ -56,5 +57,20 @@ if ($ADMIN->fulltree) {
         get_string('settings_incorrect_answered_q_quantifier', 'studentquiz'),
         get_string('config_incorrect_answered_q_quantifier', 'studentquiz'),
         0, PARAM_INT
+    ));
+
+    $settings->add(new admin_setting_heading(
+        'studentquiz/importsettings',
+        get_string('importsettingsheader', 'studentquiz'),
+        get_string('importsettingsdescription', 'studentquiz')
+    ));
+
+    // Option to refuse the import functions to automatically remove empty sections. This option is required for
+    // the removal of section 999. But since this plugin is actively trying to remove stuff it's primarly not
+    // responsible for, thus can lead to side-effects, we need to give the admin the option to opt out from it.
+    $settings->add(new admin_setting_configcheckbox('studentquiz/removeemptysections',
+        get_string('settings/removeemptysections', 'studentquiz'),
+        get_string('config/removeemptysections', 'studentquiz'),
+        '1'
     ));
 }
