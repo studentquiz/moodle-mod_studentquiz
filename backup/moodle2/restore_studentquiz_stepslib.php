@@ -83,7 +83,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         }
 
         if (empty($data->anonymrank)) {
-            $data->anonymrank= true;
+            $data->anonymrank = true;
         }
 
         // Create the StudentQuiz instance.

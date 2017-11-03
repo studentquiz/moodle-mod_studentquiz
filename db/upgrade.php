@@ -173,7 +173,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2007040200, 'studentquiz');
     }
 
-
     // Introduce field `hiddensection` to studentquiz table.
     if ($oldversion < 2017101000) {
 
@@ -188,7 +187,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Add key.
         $table->add_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
-
 
         upgrade_mod_savepoint(true, 2017101000, 'studentquiz');
     }

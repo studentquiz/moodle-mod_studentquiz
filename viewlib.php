@@ -262,18 +262,10 @@ class mod_studentquiz_view {
      */
     private function get_course_section() {
         global $DB;
-        // Store Quiz instances in same section in moodle versions below 3.3 if stealth section is available.
-        if (mod_studentquiz_use_stealth_section()) {
-            $section = $DB->get_record('course_sections', array('id' => $this->cm->section,
-                'course' => $this->get_course()->id));
-            return $section;
+        if ($studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $this->cm->id))) {
+                return $DB->get_record('course_sections', array('id' => $studentquiz->hiddensection));
         } else {
-            if (!$studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $this->cm->id))) {
-                return $DB->get_record('course_sections', array('section' => $studentquiz->hiddensection,
-                    'course' => $this->get_course()->id));
-            } else {
-                return false;
-            }
+            return false;
         }
     }
 
@@ -289,12 +281,9 @@ class mod_studentquiz_view {
         $qcm->course = $courseid;
         $qcm->module = $moduleid;
         $qcm->instance = 0;
-
-        if (mod_studentquiz_use_stealth_section()) {
-            $qcm->visibleoncoursepage = 0;
-            $qcm->visibleold = 1;
-            $qcm->visible = 1;
-        }
+        $qcm->visibleoncoursepage = 0;
+        $qcm->visibleold = 1;
+        $qcm->visible = 1;
         return $DB->insert_record('course_modules', $qcm);
     }
 

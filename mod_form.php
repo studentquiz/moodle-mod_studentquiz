@@ -69,10 +69,20 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         }
 
         $mform->addElement('header', 'studentranking', get_string('quiz_advanced_settings_header', 'studentquiz'));
+
+        // Field anonymous Ranking.
         $mform->addElement('checkbox', 'anonymrank', get_string('anonymous_checkbox_label', 'studentquiz'));
         $mform->setType('anonymrank', PARAM_INT);
         $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
+
+        // Field for hidden section.
+        $hiddensectionoptions = mod_studentquiz_get_hiddensection_options($this->_course->id);
+        $mform->addElement('select', 'hiddensection',
+            get_string('hiddensection_select_label', 'studentquiz'), $hiddensectionoptions);
+        $mform->setType('hiddensection', PARAM_INT);
+        $mform->addHelpButton('hiddensection', 'hiddensectionhelp', 'studentquiz');
+        $mform->setDefault('hiddensection', 0);
 
         if (mod_studentquiz_has_behaviour()) {
             $mform->addElement('advcheckbox', 'quizpracticebehaviour', get_string('quizpracticebehaviour', 'studentquiz')

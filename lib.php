@@ -81,6 +81,18 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
         $studentquiz->anonymrank = 0;
     }
 
+    if (isset($mform->anonymrank)) {
+        $studentquiz->anonymrank = $mform->anonymrank;
+    }
+
+    if ((!isset($studentquiz->hiddensection))) {
+        $studentquiz->hiddensection = 0;
+    }
+
+    if (isset($mform->hiddensection)) {
+        $studentquiz->hiddensection = $mform->hiddensection;
+    }
+
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
 
