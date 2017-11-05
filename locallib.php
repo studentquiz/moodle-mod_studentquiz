@@ -33,6 +33,8 @@ require_once($CFG->libdir . '/questionlib.php');
 const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
 /** @var int default course section id for the orphaned activities */
 const STUDENTQUIZ_COURSE_SECTION_ID = 999;
+/** @var int legacy course section id for the orphaned activities, only used for import fixes */
+const STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER = 999;
 /** @var string generated student quiz placeholder */
 const STUDENTQUIZ_GENERATE_QUIZ_PLACEHOLDER = 'quiz';
 /** @var string generated student quiz intro */

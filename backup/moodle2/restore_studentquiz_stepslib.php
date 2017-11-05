@@ -81,7 +81,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
     }
 
     /**
-     * Post-execution actions
+     * Post-execution actions per activity
      */
     protected function after_execute() {
         global $DB;
@@ -99,6 +99,59 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
             $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
             $studentquiz->coursemodule = $cm->id;
             $DB->update_record('studentquiz', $studentquiz);
+        }
+    }
+
+    /**
+     * Post-execution actions per whole restore
+     */
+    protected function after_restore() {
+        global $DB;
+
+        // Cleanup imports (empty sections) when this respective option is set.
+        if(get_config('studentquiz', 'removeemptysections')) {
+            // And only if a section 999 initially created from this module is present.
+            $orphaned_section = $DB->get_record('course_sections', array(
+                'course' => $this->get_courseid(),
+                'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
+                'name' => STUDENTQUIZ_COURSE_SECTION_NAME
+            ));
+            if ($orphaned_section !== false) {
+                // Then lookup the last non-empty section.
+                $last_nonempty_section = $DB->get_record_sql(
+                    'SELECT MAX(s.section) as max_section' .
+                    '   FROM {course_sections} s' .
+                    '   left join {course_modules} m on s.id = m.section ' .
+                    '   where s.course = :course' .
+                    '   and s.section <> :section' .
+                    '   and (' .
+                    '       m.id is not NULL' .
+                    '       or s.name <> :sectionname' .
+                    '       or s.summary <> :sectionsummary' .
+                    '   )', array(
+                    'course' => $this->get_courseid(),
+                    'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
+                    'sectionname' => '',
+                    'sectionsummary' => ''
+                ));
+                if ($last_nonempty_section !== false) {
+                    // And remove all these useless sections.
+                    $success = $DB->delete_records_select('course_sections',
+                        'course = :course AND section > :nonemptysection AND section <> :oldorphanedsection',
+                        array(
+                            'course' => $this->get_courseid(),
+                            'nonemptysection' => $last_nonempty_section->max_section,
+                            'oldorphanedsection' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER
+                        )
+                    );
+                    if($success) {
+                        // And move the orphaned section to the next free section number
+                        $DB->set_field('course_sections', 'section', $last_nonempty_section->max_section+1, array(
+                            'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER
+                        ));
+                    }
+                }
+            }
         }
     }
 }

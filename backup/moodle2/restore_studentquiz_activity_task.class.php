@@ -19,7 +19,7 @@
  *
  * @package   mod_studentquiz
  * @category  backup
- * @copyright 2015 Your Name <your@email.adress>
+ * @copyright 2017 HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
