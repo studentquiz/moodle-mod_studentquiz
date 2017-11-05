@@ -109,16 +109,16 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         global $DB;
 
         // Cleanup imports (empty sections) when this respective option is set.
-        if(get_config('studentquiz', 'removeemptysections')) {
+        if (get_config('studentquiz', 'removeemptysections')) {
             // And only if a section 999 initially created from this module is present.
-            $orphaned_section = $DB->get_record('course_sections', array(
+            $orphanedsection = $DB->get_record('course_sections', array(
                 'course' => $this->get_courseid(),
                 'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
                 'name' => STUDENTQUIZ_COURSE_SECTION_NAME
             ));
-            if ($orphaned_section !== false) {
+            if ($orphanedsection !== false) {
                 // Then lookup the last non-empty section.
-                $last_nonempty_section = $DB->get_record_sql(
+                $lastnonemptysection = $DB->get_record_sql(
                     'SELECT MAX(s.section) as max_section' .
                     '   FROM {course_sections} s' .
                     '   left join {course_modules} m on s.id = m.section ' .
@@ -134,19 +134,19 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
                     'sectionname' => '',
                     'sectionsummary' => ''
                 ));
-                if ($last_nonempty_section !== false) {
+                if ($lastnonemptysection !== false) {
                     // And remove all these useless sections.
                     $success = $DB->delete_records_select('course_sections',
                         'course = :course AND section > :nonemptysection AND section <> :oldorphanedsection',
                         array(
                             'course' => $this->get_courseid(),
-                            'nonemptysection' => $last_nonempty_section->max_section,
+                            'nonemptysection' => $lastnonemptysection->max_section,
                             'oldorphanedsection' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER
                         )
                     );
-                    if($success) {
+                    if ($success) {
                         // And move the orphaned section to the next free section number
-                        $DB->set_field('course_sections', 'section', $last_nonempty_section->max_section+1, array(
+                        $DB->set_field('course_sections', 'section', $lastnonemptysection->max_section + 1, array(
                             'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER
                         ));
                     }
