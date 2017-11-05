@@ -145,7 +145,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
                         )
                     );
                     if ($success) {
-                        // And move the orphaned section to the next free section number
+                        // And move the orphaned section to the next free section number.
                         $DB->set_field('course_sections', 'section', $lastnonemptysection->max_section + 1, array(
                             'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER
                         ));
