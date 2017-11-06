@@ -165,7 +165,7 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
             }
         }
 
-        mod_studentquiz_move_quiz_instances_to_hiddensection($studentquiz->coursemodule, $studentquiz->hiddensection);
+        mod_studentquiz_move_quiz_instances_to_hiddensection($studentquiz->course, $studentquiz->coursemodule, $studentquiz->hiddensection);
     }
 
     // You may have to add extra stuff in here.

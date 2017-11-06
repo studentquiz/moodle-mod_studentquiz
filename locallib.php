@@ -296,7 +296,7 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
  * @param the course module id of the StudentQuiz Activity
  * return true on success return false if any problem arose
  */
-function mod_studentquiz_move_quiz_instances_to_hiddensection($hiddensection, $cmid) {
+function mod_studentquiz_move_quiz_instances_to_hiddensection($courseid, $cmid, $hiddensection) {
 
     global $DB;
 
@@ -322,12 +322,15 @@ function mod_studentquiz_move_quiz_instances_to_hiddensection($hiddensection, $c
         return false;
     }
 
+    rebuild_course_cache($courseid, true);
+
     return true;
 }
 
 /**
  * Use this method update the hiddensection field by existing quiz instances
  * StudentQuiz Activity $cm to $cm->hiddensection
+ * return true on success return false if any problem arose
  * return true on success return false if any problem arose
  */
 function mod_studentquiz_set_hiddensection_by_quiz_instances($cm) {
