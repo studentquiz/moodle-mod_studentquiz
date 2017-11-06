@@ -447,3 +447,22 @@ function mod_studentquiz_create_new_hidden_section($courseid, $cmid) {
 
     return $sectionid;
 }
+
+/**
+ * Creates a new default category for StudentQuiz
+ *
+ * @param stdClass $contexts The context objects for this context and all parent contexts.
+ * @param string $name Append the name of the module if the context hasn't it yet.
+ * @return stdClass The default category - the category in the course context
+ */
+function mod_studentquiz_add_default_question_category(stdClass $context, string $name='') {
+    global $DB;
+
+    $questioncategory = question_make_default_categories(array($context));
+    if ($name !== '') {
+        $questioncategory->name .= $name;
+    }
+    $questioncategory->parent = -1;
+    $DB->update_record('question_categories', $questioncategory);
+    return $questioncategory;
+}
