@@ -2,15 +2,12 @@
 Feature: Backup and restore of moodle exports
   In order to reuse my studentquizzes
   As a admin
-  I need to be able to back them up and restore them.
+  I need to be able to use the moodles backup and restore features
 
   Background:
     Given the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
-    And the following "question categories" exist:
-      | contextlevel | reference | name           |
-      | Course       | C1        | Test questions |
     And the following "users" exist:
       | username | firstname | lastname | email                |
       | student1 | Sam1      | Student1 | student1@example.com |
