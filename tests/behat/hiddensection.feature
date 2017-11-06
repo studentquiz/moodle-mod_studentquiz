@@ -25,7 +25,7 @@ Feature: Manage hidden section setting of a StudentQuiz Activity
     And I log in as "teacher1"
 
     #Scenario:
-  #And |I should see <number> "<string>" elements
+    #And |I should see <number> "<string>" elements
     # Create StudentQuiz with 2 questions
     # Run Quiz with both questions selected
     # Change hidden section of StudentQuiz activity to another section.
@@ -36,8 +36,12 @@ Feature: Manage hidden section setting of a StudentQuiz Activity
   Scenario:
     Given I am on "Course 1" course homepage
     And I follow "studentquiz 0"
-    When I click on "Select" "checkbox" in the "Question 1" "table_row"
     And I click on "Start Quiz" "button"
+    Then I am on "Course 1" course homepage
+    And I follow "studentquiz 0"
+    # Deselect one of the two questions
+    And I click on "Start Quiz" "button"
+    Then I am on "Course 1" course homepage
 
   Scenario: The default setting of hidden section is 0
     # Go into Activity Edit Settings, Check what section is selected for hidden section

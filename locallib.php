@@ -394,12 +394,11 @@ function mod_studentquiz_get_hiddensection_options($courseid) {
     $options = array(
             0 => get_string('studentquiz_create_new_section', 'studentquiz')
     );
-
     $sections = mod_studentquiz_get_course_sections($courseid);
     $counter = 0;
     foreach ($sections as $key => $section) {
         if (empty($section)) {
-            $options[$key] = get_section_name($courseid, $section);
+            $options[$key] = get_section_name($courseid, $counter);
         } else {
             $options[$key] = $section;
         }
@@ -442,7 +441,7 @@ function mod_studentquiz_create_new_hidden_section($courseid, $cmid) {
 
     $sectionid = $DB->insert_record('course_sections', $coursesection);
 
-    $DB->set_field('studentquiz', 'hiddensection', $sectionid, array('coursemodule' => $this->cm->id));
+    $DB->set_field('studentquiz', 'hiddensection', $sectionid, array('coursemodule' => $cmid));
 
     return $sectionid;
 }
