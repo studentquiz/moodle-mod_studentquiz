@@ -319,12 +319,12 @@ function mod_studentquiz_move_quiz_instances_to_hiddensection($courseid, $studen
         return false;
     }
 
-    $quiz_cmids = mod_studentquiz_get_quiz_cmids($studentquizcmid);
+    $quizcmids = mod_studentquiz_get_quiz_cmids($studentquizcmid);
 
     $modinfo = get_fast_modinfo($courseid);
 
     foreach ($modinfo->get_cms() as $cm) {
-        if(in_array($cm->id, $quiz_cmids)) {
+        if (in_array($cm->id, $quizcmids)) {
             moveto_module($cm, $hiddensection);
         }
     }
@@ -338,12 +338,14 @@ function mod_studentquiz_move_quiz_instances_to_hiddensection($courseid, $studen
  * @param $studentquizid
  * @return array
  */
-function mod_studentquiz_get_quiz_cmids($studentquizid)
-{
+function mod_studentquiz_get_quiz_cmids($studentquizid) {
     global $DB;
-    $result = $DB->get_records('studentquiz_practice', array('studentquizcoursemodule' => $studentquizid), null, 'id,quizcoursemodule');
+    $result = $DB->get_records(
+        'studentquiz_practice',
+        array('studentquizcoursemodule' => $studentquizid),
+        null, 'id,quizcoursemodule');
     $cmids = array();
-    foreach ($result as $k=>$v) {
+    foreach ($result as $k => $v) {
         $cmids[$k] = intval($v->quizcoursemodule);
     }
     return $cmids;
