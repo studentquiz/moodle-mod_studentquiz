@@ -288,31 +288,34 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
 
 /**
  * Use this method to move all existing quiz instances belonging to this
- * StudentQuiz Activity $cm to $cm->hiddensection
+ * NOTE: This function doesent verify if cmid is a StudentQuiz Module
+ *       Nor does it verify id hidden section exists in this course.
+ *       nor if 'Create a new section' was selected
+ *       or if the user has any rights to move the quiz instances.
+ * @hiddensection the id of the section all quiz instances should be moved to.
+ * @param the course module id of the StudentQuiz Activity
  * return true on success return false if any problem arose
  */
-function mod_studentquiz_move_quiz_instances_to_hiddensection($cm) {
+function mod_studentquiz_move_quiz_instances_to_hiddensection($hiddensection, $cmid) {
 
     global $DB;
 
-    if (empty($cm)) {
-        debugging('The given course module was empty ' , DEBUG_DEVELOPER );
+    if (empty($cmid)) {
+        debugging('The course module id was empty ' , DEBUG_DEVELOPER );
         return false;
     }
 
-    if (empty($cm->hiddensection)) {
-        debugging('The given course module has no value for hidden section ' , DEBUG_DEVELOPER );
+    if (empty($hiddensection)) {
+        debugging('The given hidden section id was empty ' , DEBUG_DEVELOPER );
         return false;
     }
 
     $sql = 'UPDATE {course_modules}'
-            .'   SET section = ? WHERE id IN ('
-            .'SELECT {course_modules}.id '
-            .'  FROM {course_modules} '
             .'  JOIN {studentquiz_practice}'
             .'    ON {course_modules}.id = {studentquiz_practice}.quizcoursemodule'
-            .' WHERE {studentquiz_practice}.studentquizcoursemodule = ?)';
-    $params = array($cm->hiddensection, $cm->id);
+            .'   SET section = ? '
+            .' WHERE {studentquiz_practice}.studentquizcoursemodule = ? ';
+    $params = array($hiddensection, $cmid);
 
     if (!$DB->execute($sql, $params)) {
         debugging('Failed to update quiz instance location');
@@ -339,7 +342,7 @@ function mod_studentquiz_set_hiddensection_by_quiz_instances($cm) {
     $sql = ' SELECT MAX(section) as sectionid '
            .'   FROM {course_modules} '
            .'   JOIN {studentquiz_practice} '
-           .'     ON {mdl_course_modules}.id = {studentquiz_practice}.quizcoursemodule'
+           .'     ON {course_modules}.id = {studentquiz_practice}.quizcoursemodule'
            .'  WHERE {studentquiz_practice}.studentquizcoursemodule = ?';
     $params = array($cm->id);
 
@@ -393,4 +396,29 @@ function mod_studentquiz_get_course_sections($courseid) {
     $sort = 'section';
     $result = $DB->get_records_select_menu($table, $select, $params, $sort, $fields);
     return $result;
+}
+
+/**
+ * Add a new hidden section to a course to save quiz instances to.
+ * @param $course
+ * @return int
+ */
+function mod_studentquiz_create_new_hidden_section($courseid, $cmid) {
+    global $DB;
+
+    $section = 1 + $DB->count_records('course_sections', array('course' => $courseid));
+
+    $coursesection = new stdClass();
+    $coursesection->course = $courseid;
+    $coursesection->section = $section;
+    $coursesection->name = STUDENTQUIZ_COURSE_SECTION_NAME;
+    $coursesection->summary = STUDENTQUIZ_COURSE_SECTION_SUMMARY;
+    $coursesection->summaryformat = STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT;
+    $coursesection->visible = STUDENTQUIZ_COURSE_SECTION_VISIBLE;
+
+    $sectionid = $DB->insert_record('course_sections', $coursesection);
+
+    $DB->set_field('studentquiz', 'hiddensection', $sectionid, array('coursemodule' => $this->cm->id));
+
+    return $sectionid;
 }

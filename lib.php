@@ -150,6 +150,24 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
         $studentquiz->anonymrank = 0;
     }
 
+    if ($studentquiz->hiddensection != $mform->get_current()->hiddensection) {
+
+        $sections = mod_studentquiz_get_course_sections($studentquiz->course);
+
+        if (!array_key_exists($studentquiz->hiddensection, $sections)) {
+            if ($studentquiz->hiddensection == 0) {
+                debugging('Crete new section was selected. Not yet implemented');
+                $newhiddensectionid = mod_studentquiz_create_studentquiz_section($studentquiz->course, $studentquiz->coursemodule);
+                $studentquiz->hiddensection = $newhiddensectionid;
+            } else {
+                debugging('Unkown section was given. Cancel update of hidden section.');
+                $studentquiz->hiddensection = $mform->get_current()->hiddensection;
+            }
+        }
+
+        mod_studentquiz_move_quiz_instances_to_hiddensection($studentquiz->coursemodule, $studentquiz->hiddensection);
+    }
+
     // You may have to add extra stuff in here.
 
     $result = $DB->update_record('studentquiz', $studentquiz);

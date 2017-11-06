@@ -237,23 +237,8 @@ class mod_studentquiz_view {
      * @return bool|int course_sectionds id or false on error
      */
     private function create_course_section($courseid) {
-        global $DB;
 
-        $section = 1 + $DB->count_records('course_sections', array('course' => $courseid));
-
-        $coursesection = new stdClass();
-        $coursesection->course = $courseid;
-        $coursesection->section = $section;
-        $coursesection->name = STUDENTQUIZ_COURSE_SECTION_NAME;
-        $coursesection->summary = STUDENTQUIZ_COURSE_SECTION_SUMMARY;
-        $coursesection->summaryformat = STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT;
-        $coursesection->visible = STUDENTQUIZ_COURSE_SECTION_VISIBLE;
-
-        $sectionid = $DB->insert_record('course_sections', $coursesection);
-
-        $DB->set_field('studentquiz', 'hiddensection', $sectionid, array('coursemodule' => $this->cm->id));
-
-        return $sectionid;
+        return mod_studentquiz_create_new_hidden_section($courseid, $this->cm->id);
     }
 
     /**
