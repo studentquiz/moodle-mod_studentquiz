@@ -112,7 +112,7 @@ $string['config_incorrect_answered_q_quantifier'] = 'Points received for answeri
 $string['importsettingsheader'] = 'Imports settings';
 $string['importsettingsdescription'] = 'Here you set various settings to change the behavior of imports';
 $string['settings/removeemptysections'] = 'Remove empty sections at the end of the course';
-$string['config/removeemptysections'] = 'StudentQuiz 2.0.3 and prior used a socalled orphaned section with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
+$string['config/removeemptysections'] = 'StudentQuiz 2.0.3 and prior used a socalled orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
 
 // Report Dashboard.
 $string['reportquiz_dashboard_title'] = 'Statistics';

@@ -94,7 +94,8 @@ script:
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci csslint; fi
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci shifter; fi
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci jshint; fi
-  - moodle-plugin-ci phpunit
+  - if [ $MPCIV == '2' ]; then moodle-plugin-ci phpunit --coverage-text; fi # output code coverage in MPCIV 2
+  - if [ $MPCIV == '1' ]; then moodle-plugin-ci phpunit; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat || true; fi # currently not working at all

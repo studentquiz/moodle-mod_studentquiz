@@ -24,6 +24,7 @@ Feature: Backup and restore of moodle exports
     And I upload "mod/studentquiz/tests/fixtures/<file>" file to "Files" filemanager
     And I press "Save changes"
     And I restore "<file>" backup into a new course using this options:
+    And "//*[contains(@href, '#section-999')]" "xpath_element" should not exist
     And I log out
     Then the following "course enrolments" exist:
       | user     | course | role           |

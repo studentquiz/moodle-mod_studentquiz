@@ -25,70 +25,86 @@
 require_once(dirname(dirname(__DIR__)).'/config.php');
 require_once(__DIR__ .'/lib.php');
 
-$cmid = required_param('id', PARAM_INT);
-$cm = get_coursemodule_from_id('studentquiz', $cmid, 0, false, MUST_EXIST);
-$course = $DB->get_record('course', array('id' => $cm->id), '*', MUST_EXIST);
-
-require_login($course, true, $cm);
+$id = required_param('id', PARAM_INT);
+if (!$course = $DB->get_record('course', array('id' => $id))) {
+    print_error('invalidcourseid');
+}
+$coursecontext = context_course::instance($id);
+require_login($course);
 
 $params = array(
-    'context' => context_course::instance($course->id)
+    'context' => $coursecontext
 );
 $event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
-$event->add_record_snapshot('course', $course);
 $event->trigger();
 
 $strname = get_string('modulenameplural', 'mod_studentquiz');
-$PAGE->set_url('/mod/studentquiz/index.php', array('id' => $cmid));
+$PAGE->set_url('/mod/studentquiz/index.php', array('id' => $id));
 $PAGE->navbar->add($strname);
 $PAGE->set_title("$course->shortname: $strname");
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('incourse');
 
 echo $OUTPUT->header();
-echo $OUTPUT->heading($strname);
+echo $OUTPUT->heading($strname, 2);
 
-if (! $studentquizs = get_all_instances_in_course('studentquiz', $course)) {
-    notice(get_string('nostudentquizs', 'studentquiz'), new moodle_url('/course/view.php', array('id' => $course->id)));
+// Get all the appropriate data.
+if (!$studentquizzes = get_all_instances_in_course("studentquiz", $course)) {
+    notice(get_string('thereareno', 'moodle', $strname), "../../course/view.php?id=$course->id");
+    die;
 }
 
-$usesections = course_format_uses_sections($course->format);
+// Configure table for displaying the list of instances.
+$headings = array(get_string('name'));
+$align = array('left');
+
+if (course_format_uses_sections($course->format)) {
+    array_unshift($headings, get_string('sectionname', 'format_'.$course->format));
+} else {
+    array_unshift($headings, '');
+}
+array_unshift($align, 'center');
+
+$showing = '';
 
 $table = new html_table();
-$table->attributes['class'] = 'generaltable mod_index';
+$table->head = $headings;
+$table->align = $align;
 
-if ($usesections) {
-    $strsectionname = get_string('sectionname', 'format_'.$course->format);
-    $table->head  = array ($strsectionname, $strname);
-    $table->align = array ('center', 'left');
-} else {
-    $table->head  = array ($strname);
-    $table->align = array ('left');
-}
-
-$modinfo = get_fast_modinfo($course);
+// Populate the table with the list of instances.
 $currentsection = '';
-foreach ($modinfo->instances['studentquiz'] as $cm) {
-    $row = array();
-    if ($usesections) {
-        if ($cm->sectionnum !== $currentsection) {
-            if ($cm->sectionnum) {
-                $row[] = get_section_name($course, $cm->sectionnum);
-            }
-            if ($currentsection !== '') {
-                $table->data[] = 'hr';
-            }
-            $currentsection = $cm->sectionnum;
+foreach ($studentquizzes as $studentquiz) {
+    $cm = get_coursemodule_from_instance('studentquiz', $studentquiz->id);
+    $context = context_module::instance($cm->id);
+    $data = array();
+
+    // Section number if necessary.
+    $strsection = '';
+    if ($studentquiz->section != $currentsection) {
+        if ($studentquiz->section) {
+            $strsection = $studentquiz->section;
+            $strsection = get_section_name($course, $studentquiz->section);
         }
+        if ($currentsection) {
+            $learningtable->data[] = 'hr';
+        }
+        $currentsection = $studentquiz->section;
     }
+    $data[] = $strsection;
 
-    $class = $cm->visible ? null : array('class' => 'dimmed');
+    // Link to the instance.
+    $class = '';
+    if (!$studentquiz->visible) {
+        $class = ' class="dimmed"';
+    }
+    $data[] = "<a$class href=\"view.php?id=$studentquiz->coursemodule\">" .
+        format_string($studentquiz->name, true) . '</a>';
 
-    $row[] = html_writer::link(new moodle_url('view.php', array('id' => $cm->id)),
-                $cm->get_formatted_name(), $class);
-    $table->data[] = $row;
-}
+    $table->data[] = $data;
+} // End of loop over studentquiz instances.
 
+// Display the table.
 echo html_writer::table($table);
 
+// Finish the page.
 echo $OUTPUT->footer();
