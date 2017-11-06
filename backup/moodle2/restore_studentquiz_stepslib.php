@@ -158,16 +158,16 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
                     );
                     if ($success) {
                         // And move the orphaned section to the next free section number.
-                        $quizsection = $DB->get_field('course_sections', 'id', array(
+                        $quizsectionid = $DB->get_field('course_sections', 'id', array(
                             'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
                             'course' => $this->get_courseid()
                         ));
                         // TODO: better use: move_section_to().
                         $DB->set_field('course_sections', 'section', $lastnonemptysection->max_section + 1, array(
-                            'id' => $quizsection->id
+                            'id' => $quizsectionid
                         ));
                         // Set the new section id as hiddensection in studentquiz
-                        $DB->set_field('studentquiz', 'hiddensection', $quizsection->id, array(
+                        $DB->set_field('studentquiz', 'hiddensection', $quizsectionid, array(
                             'course' => $this->get_courseid()
                         ));
                     }
