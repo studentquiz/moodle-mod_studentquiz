@@ -1,7 +1,8 @@
 @mod @mod_studentquiz
 Feature: Manage hidden section setting of a StudentQuiz Activity
   As a teacher
-  In order to save and change the section StudentQuiz stores the Quiz instances I use the select box in Activity settings.
+  In order to save and change the section StudentQuiz stores the Quiz
+  instances I use the select box in Activity settings.
 
   Background:
     Given the following "courses" exist:
@@ -33,7 +34,7 @@ Feature: Manage hidden section setting of a StudentQuiz Activity
     # Verify: - both quiz instance are in new newly selected section.
 
   @javascript
-  Scenario:
+  Scenario: Two quiz instances are created
     Given I am on "Course 1" course homepage
     And I follow "studentquiz 0"
     And I click on "Start Quiz" "button"
@@ -42,6 +43,8 @@ Feature: Manage hidden section setting of a StudentQuiz Activity
     # Deselect one of the two questions
     And I click on "Start Quiz" "button"
     Then I am on "Course 1" course homepage
+    And I should see "studentquiz 0" in the "studentquiz quizzes" "section"
+    # See two quiz instances in studentquiz quizzes section
 
   Scenario: The default setting of hidden section is 0
     # Go into Activity Edit Settings, Check what section is selected for hidden section
@@ -51,14 +54,11 @@ Feature: Manage hidden section setting of a StudentQuiz Activity
     And I navigate to "Edit settings" in current page administration
     Then the field "hiddensection" matches value "0"
 
-  #TODO We could get rid of this javascript annotation if we can verify that we are on a quiz starting page
-  @javascript
-  Scenario:
+  Scenario: A new Quiz was instanced in a section which has no id 999
     Given I am on "Course 1" course homepage
     And I follow "studentquiz 0"
     And I click on "Start Quiz" "button"
     And I wait until the page is ready
-    And I should see "Preview quiz now"
     Then I am on "Course 1" course homepage
     And I should see "studentquiz quizzes"
     And I should see "studentquiz 0" in the "studentquiz quizzes" "section"
