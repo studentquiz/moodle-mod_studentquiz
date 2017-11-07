@@ -194,7 +194,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
 
     // Introduce table studentquiz_progress
-    if ($oldversion < 2017110700) {
+    if ($oldversion < 2017110701) {
 
         // Setup a new table.
         $table = new xmldb_table('studentquiz_progress');
@@ -202,22 +202,23 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Adding fields to table studentquiz_question.
         $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('studentquizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('lastanswercorrect', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0);
         $table->add_field('attempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
         $table->add_field('correctattempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
-
 
         // Add key.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, array('questionid', 'userid'));
         $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
         $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, array('studentquizid'), 'studentquiz', array('id'));
 
         // Conditionally launch create table for studentquiz_progress.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2017110700, 'studentquiz');
+        upgrade_mod_savepoint(true, 2017110701, 'studentquiz');
     }
 
     /*

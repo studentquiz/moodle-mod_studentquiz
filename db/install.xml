@@ -49,14 +49,16 @@
         <FIELDS>
             <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
             <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
+            <FIELD NAME="studentquizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of studentquiz"/>
             <FIELD NAME="lastanswercorrect" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" COMMENT="0: last answer was wrong or undefined, 1: last answer was correct" />
             <FIELD NAME="attempts" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="number of attempts to answer this question" />
             <FIELD NAME="correctattempts" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Number of correct answers" />
         </FIELDS>
         <KEYS>
-            <KEY NAME="primary" TYPE="primary" FIELDS="questionid,userid"/>
+            <KEY NAME="primary" TYPE="primary" FIELDS="questionid,userid,studentquizid"/>
             <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
             <KEY NAME="questionid" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id"/>
+            <KEY NAME="studentquizid" TYPE="foreign" FIELDS="studentquizid" REFTABLE="studentquiz" REFFIELDS="id"/>
         </KEYS>
         <INDEXES>
             <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
