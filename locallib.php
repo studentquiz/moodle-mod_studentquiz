@@ -455,7 +455,7 @@ function mod_studentquiz_create_new_hidden_section($courseid, $cmid) {
  * @param string $name Append the name of the module if the context hasn't it yet.
  * @return stdClass The default category - the category in the course context
  */
-function mod_studentquiz_add_default_question_category(stdClass $context, string $name='') {
+function mod_studentquiz_add_default_question_category($context, $name='') {
     global $DB;
 
     $questioncategory = question_make_default_categories(array($context));
