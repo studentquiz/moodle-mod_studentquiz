@@ -120,7 +120,7 @@
         </FIELDS>
         <KEYS>
             <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-            <KEY NAME="studentquizid" TYPE="foreign" FIELDS="qpracticeid" REFTABLE="studentquiz" REFFIELDS="id"/>
+            <KEY NAME="studentquizid" TYPE="foreign" FIELDS="studentquizid" REFTABLE="studentquiz" REFFIELDS="id"/>
             <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
             <KEY NAME="questionusageid" TYPE="foreign" FIELDS="questionusageid" REFTABLE="question_usages" REFFIELDS="id"/>
             <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="question_categories" REFFIELDS="id"/>

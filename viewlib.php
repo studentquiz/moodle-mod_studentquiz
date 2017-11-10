@@ -124,15 +124,7 @@ class mod_studentquiz_view {
     private function generate_quiz($ids) {
         if ($ids) {
             $this->hasquestionids = true;
-            // Check whether there already is a Quiz for this User and exactly those questions.
-            if ($qcmid = $this->get_existing_quiz($ids)) {
-                return $qcmid;
-            } else if (!$qcmid = $this->generate_quiz_activity($ids)) {
-                $this->hasprintableerror = true;
-                $this->errormessage = get_string('viewlib_please_contact_the_admin', 'studentquiz');
-                return false;
-            }
-            return $qcmid;
+            return $this->generate_attempt($ids);
         } else {
             $this->hasquestionids = false;
             $this->hasprintableerror = true;
@@ -142,288 +134,50 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Checks whether there already is the same quiz and returns its id
-     * @param array $ids question id's
-     * @return bool|int quiz-ID if any has been found
+     * Generate an attempt with question usage
+     * @param ids array of question ids to be used in this attempt
      */
-    private function get_existing_quiz($ids) {
-        global $USER, $DB;
-        $sql = 'SELECT  quizid, COUNT(quizid) FROM {quiz_slots} s1 '
-        .' WHERE questionid IN ('.implode(',', $ids).') '
-        .' AND (select count(s2.quizid) FROM {quiz_slots} s2 WHERE s1.quizid = s2.quizid) = '
-            . count($ids)
-                .' GROUP BY quizid '
-                .' HAVING COUNT(questionid) = '. count($ids) .' ';
-        $result = $DB->get_records_sql($sql, array(), 0, 1);
-        if ($entry = reset($result)) {
-            $moduleid = mod_studentquiz_get_quiz_module_id();
+    private function generate_attempt($ids){
 
-            $qcmid = $DB->get_field('course_modules', 'id', array('instance' => $entry->quizid, 'module' => $moduleid));
-            if (!$DB->get_field('studentquiz_practice', 'id', array('userid' => $USER->id, 'quizcoursemodule' => $qcmid,
-                'studentquizcoursemodule' => $this->get_cm_id()))) {
-                $this->save_quiz_practice($qcmid);
-            }
-            return $qcmid;
+        global $DB, $USER;
+
+        // Load context of studentquiz activity.
+        // TODO: use: this->get_context()?
+        $context = context_module::instance($this->get_cm_id());
+        // ??? --> Should be instance id of studentquiz cm.
+
+        $questionusage = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
+
+        $attempt = new stdClass();
+
+        // Add further attempt default values here.
+        // TODO: Check if get category id always points to lowest context level category of our studentquiz activity.
+        $attempt->categoryid = $this->get_category_id();
+        $attempt->userid = $USER->id;
+
+        // TODO: Configurable on Activity Level.
+        $questionusage->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
+        // TODO: Check if this is instance id from studentquiz table
+        $attempt->studentquizid = $this->cm->instance;
+
+        // Add questions to usage
+        $usageorder = array();
+        foreach ($ids as $i => $questionid) {
+            $questiondata = question_bank::load_question($questionid);
+            $usageorder[$i] = $questionusage->add_question($questiondata);
         }
 
-        return false;
-    }
+        // TODO: is it necessary to start all questions here, or just the current one.
+        $questionusage->start_all_questions();
 
-    /**
-     * Setup all quiz information and generate it
-     * @param array $ids question id's
-     * @return bool|int generated quiz course_module id or false on error
-     */
-    private function generate_quiz_activity($ids) {
-        $quiz = $this->get_standard_quiz_setup();
-        $quiz->coursemodule = $this->create_quiz_course_module($quiz->course);
+        // Commit Usage to persistence:
+        question_engine::save_questions_usage_by_activity($questionusage);
 
-        $this->set_course_section_information($quiz->course, $quiz->coursemodule);
+        $attempt->questionusageid = $questionusage->get_id();
 
-        $quiz->instance = $this->quiz_add_instance($quiz);
+        $attemptid = $DB->insert_record('studentquiz_attempt', $attempt);
 
-        foreach ($ids as $key) {
-            quiz_add_quiz_question($key, $quiz, 0);
-            quiz_update_sumgrades($quiz);
-            quiz_set_grade($quiz->sumgrades, $quiz);
-        }
-
-        rebuild_course_cache($quiz->course, true);
-
-        $this->save_quiz_practice($quiz->coursemodule);
-        return $quiz->coursemodule;
-    }
-
-    /**
-     * Create a new StudentQuiz practice entry in the database
-     * @param int $quizcmid quiz course module id
-     */
-    private function save_quiz_practice($quizcmid) {
-        global $USER, $DB;
-        $quizpractice = new stdClass();
-        $quizpractice->quizcoursemodule = $quizcmid;
-        $quizpractice->studentquizcoursemodule = $this->get_cm_id();
-        $quizpractice->userid = $USER->id;
-        $DB->insert_record('studentquiz_practice', $quizpractice);
-    }
-
-    /**
-     * Set the course_section information
-     * @param int $courseid destination course id
-     * @param int $coursemoudleid quiz course_module id
-     */
-    private function set_course_section_information($courseid, $coursemoudleid) {
-        global $DB;
-        $coursesection = $this->get_course_section();
-
-        if (!$coursesection) {
-            $coursesectionid = $this->create_course_section($courseid);
-            $sequence = array();
-        } else {
-            $coursesectionid = $coursesection->id;
-            $sequence = explode(',', $coursesection->sequence);
-        }
-
-        $sequence[] = $coursemoudleid;
-        sort($sequence);
-
-        $DB->set_field('course_modules', 'section', $coursesectionid, array('id' => $coursemoudleid));
-        $DB->set_field('course_sections', 'sequence', implode(',', $sequence), array('id' => $coursesectionid));
-    }
-
-    /**
-     * Create a new course section with default parameters
-     * @param int $courseid destination course id
-     * @return bool|int course_sectionds id or false on error
-     */
-    private function create_course_section($courseid) {
-
-        return mod_studentquiz_create_new_hidden_section($courseid, $this->cm->id);
-    }
-
-    /**
-     * Get the course_section with the defined default parameter
-     * @return mixed course_section rows
-     */
-    private function get_course_section() {
-        global $DB;
-        if ($studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $this->cm->id))) {
-                return $DB->get_record('course_sections', array('id' => $studentquiz->hiddensection));
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Create a quiz course_module entry with the destination courseid
-     * @param int $courseid destination course id
-     * @return bool|int course_modules id or false on error
-     */
-    private function create_quiz_course_module($courseid) {
-        global $DB;
-        $moduleid = mod_studentquiz_get_quiz_module_id();
-        $qcm = new stdClass();
-        $qcm->course = $courseid;
-        $qcm->module = $moduleid;
-        $qcm->instance = 0;
-        $qcm->visibleoncoursepage = 0;
-        $qcm->visibleold = 1;
-        $qcm->visible = 1;
-        return $DB->insert_record('course_modules', $qcm);
-    }
-
-    /**
-     * Get the standard quiz setup - default database parameters quiz table
-     * with question behaviour setup in activity module
-     * @return stdClass quiz object
-     */
-    private function get_standard_quiz_setup() {
-        $quiz = new stdClass();
-        $quiz->course = $this->get_course()->id;
-        $quiz->name = $this->cm->name;
-        $quiz->intro = STUDENTQUIZ_GENERATE_QUIZ_INTRO;
-        $quiz->introformat = 1;
-        $quiz->timeopen = 0;
-        $quiz->timeclose = 0;
-        $quiz->timelimit = 0;
-        $quiz->overduehandling = STUDENTQUIZ_GENERATE_QUIZ_OVERDUEHANDLING;
-        $quiz->graceperiod = 0;
-        $quiz->preferredbehaviour = mod_studentquiz_get_current_behaviour($this->cm);
-        $quiz->canredoquestions = 0;
-        $quiz->attempts = 0;
-        $quiz->attemptonlast = 0;
-        $quiz->grademethod = 1;
-        $quiz->decimalpoints = 2;
-        $quiz->questiondecimalpoints = -1;
-
-        // Reviewattempt.
-        $quiz->attemptduring = 1;
-        $quiz->attemptimmediately = 1;
-        $quiz->attemptopen = 1;
-        $quiz->attemptclosed = 1;
-
-        // Reviewcorrectness.
-        $quiz->correctnessduring = 1;
-        $quiz->correctnessimmediately = 1;
-        $quiz->correctnessopen = 1;
-        $quiz->correctnessclosed = 1;
-
-        // Reviewmarks.
-        $quiz->marksduring = 1;
-        $quiz->marksimmediately = 1;
-        $quiz->marksopen = 1;
-        $quiz->marksclosed = 1;
-
-        // Reviewspecificfeedback.
-        $quiz->specificfeedbackduring = 1;
-        $quiz->specificfeedbackimmediately = 1;
-        $quiz->specificfeedbackopen = 1;
-        $quiz->specificfeedbackclosed = 1;
-
-        // Reviewgeneralfeedback.
-        $quiz->generalfeedbackduring = 1;
-        $quiz->generalfeedbackimmediately = 1;
-        $quiz->generalfeedbackopen = 1;
-        $quiz->generalfeedbackclosed = 1;
-
-        // Reviewrightanswer.
-        $quiz->rightanswerduring = 1;
-        $quiz->rightanswerimmediately = 1;
-        $quiz->rightansweropen = 1;
-        $quiz->rightanswerclosed = 1;
-
-        // Reviewoverallfeedback.
-        $quiz->overallfeedbackimmediately = 1;
-        $quiz->overallfeedbackopen = 1;
-        $quiz->overallfeedbackclosed = 1;
-
-        $quiz->questionsperpage = 1;
-        $quiz->navmethod = 'free';
-        $quiz->shuffleanswers = 1;
-        $quiz->sumgrades = 0.0;
-        $quiz->grade = 0.0;
-        $quiz->timecreated = time();
-        $quiz->quizpassword = '';
-        $quiz->subnet = '';
-        $quiz->browsersecurity = '-';
-        $quiz->delay1 = 0;
-        $quiz->delay2 = 0;
-        $quiz->showuserpicture = 0;
-        $quiz->showblocks = 0;
-        $quiz->completionattemptsexhausted  = 0;
-        $quiz->completionpass = 0;
-        return $quiz;
-    }
-
-    /**
-     * Override quiz_add_instance method from quiz lib to call custom quiz_after_add_or_update method,
-     * because the user has no permission to call this method.
-     * @param stdClass $quiz
-     * @return bool|int|void
-     */
-    private function quiz_add_instance($quiz) {
-        global $DB;
-
-        // Process the options from the form.
-        $quiz->created = time();
-        $result = quiz_process_options($quiz);
-        if ($result && is_string($result)) {
-            return $result;
-        }
-
-        // Try to store it in the database.
-        $quiz->id = $DB->insert_record('quiz', $quiz);
-
-        // Create the first section for this quiz.
-        $DB->insert_record('quiz_sections', array('quizid' => $quiz->id,
-            'firstslot' => 1, 'heading' => '', 'shufflequestions' => 0));
-
-        // Do the processing required after an add or an update.
-        $this->quiz_after_add_or_update($quiz);
-
-        return $quiz->id;
-    }
-
-    /**
-     * Override quiz_after_add_or_update method from quiz lib to prevent quiz_update_events,
-     * because the user has no permission to do this.
-     * @param stdClass $quiz
-     */
-    private function quiz_after_add_or_update($quiz) {
-        global $DB;
-        $cmid = $quiz->coursemodule;
-
-        // We need to use context now, so we need to make sure all needed info is already in db.
-        $DB->set_field('course_modules', 'instance', $quiz->id, array('id' => $cmid));
-        $context = context_module::instance($cmid);
-
-        // Save the feedback.
-        $DB->delete_records('quiz_feedback', array('quizid' => $quiz->id));
-
-        for ($i = 0; $i <= $quiz->feedbackboundarycount; $i++) {
-            $feedback = new stdClass();
-            $feedback->quizid = $quiz->id;
-            $feedback->feedbacktext = $quiz->feedbacktext[$i]['text'];
-            $feedback->feedbacktextformat = $quiz->feedbacktext[$i]['format'];
-            $feedback->mingrade = $quiz->feedbackboundaries[$i];
-            $feedback->maxgrade = $quiz->feedbackboundaries[$i - 1];
-            $feedback->id = $DB->insert_record('quiz_feedback', $feedback);
-            $feedbacktext = file_save_draft_area_files((int)$quiz->feedbacktext[$i]['itemid'],
-                $context->id, 'mod_quiz', 'feedback', $feedback->id,
-                array('subdirs' => false, 'maxfiles' => -1, 'maxbytes' => 0),
-                $quiz->feedbacktext[$i]['text']);
-            $DB->set_field('quiz_feedback', 'feedbacktext', $feedbacktext,
-                array('id' => $feedback->id));
-        }
-
-        // Store any settings belonging to the access rules.
-        quiz_access_manager::save_settings($quiz);
-
-        // Update the events relating to this quiz.
-        // Function quiz_update_events($quiz); no permission.
-
-        // Update related grade item.
-        quiz_grade_item_update($quiz);
+        return $attemptid;
     }
 
     /**

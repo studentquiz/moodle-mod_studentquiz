@@ -41,7 +41,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function view_rankreport_table($report) {
         $table = new html_table();
-        $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
+        $table->attributes['class'] = 'generaltable boxaligncenter';
         $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportrank_table_title', 'studentquiz');
         $table->head = array(get_string('reportrank_table_column_rank', 'studentquiz')
             , get_string('reportrank_table_column_fullname', 'studentquiz')
@@ -93,7 +93,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function view_quizreport_table($report, $usersdata) {
         $output = $this->heading(get_string('reportquiz_admin_title', 'studentquiz'), 2, 'reportquiz_total_heading');
         $table = new html_table();
-        $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
+        $table->attributes['class'] = 'generaltable boxaligncenter';
         $table->head = array(get_string('reportrank_table_column_fullname', 'studentquiz')
             , get_string('reportquiz_total_attempt', 'studentquiz')
             , get_string('reportquiz_total_questions_answered', 'studentquiz')
@@ -148,7 +148,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function view_quizreport_admin_quizzes($report, $quizzes) {
         $output = $this->heading(get_string('reportquiz_admin_quizzes_title', 'studentquiz'), 2, 'reportquiz_total_heading');
         $table = new html_table();
-        $table->attributes['class'] = 'generaltable qpracticesummaryofattempt boxaligncenter';
+        $table->attributes['class'] = 'generaltable boxaligncenter';
         $table->head = array(get_string('reportquiz_admin_quizzes_table_column_quizname', 'studentquiz')
         , get_string('reportquiz_admin_quizzes_table_column_qbehaviour', 'studentquiz')
         , get_string('reportquiz_admin_quizzes_table_column_timecreated', 'studentquiz'));

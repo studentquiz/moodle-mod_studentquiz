@@ -222,7 +222,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     // Introduce table studentquiz_attempt
-    if ($oldversion < 2017111000) {
+    if ($oldversion < 2017111001) {
 
         // Setup a new table.
         $table = new xmldb_table('studentquiz_attempt');
@@ -246,7 +246,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2017111000, 'studentquiz');
+        upgrade_mod_savepoint(true, 2017111001, 'studentquiz');
     }
 
     /*

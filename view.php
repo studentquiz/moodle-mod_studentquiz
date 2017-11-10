@@ -50,14 +50,10 @@ $event->trigger();
 // Redirect if we have received valid POST data.
 if (data_submitted()) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
-        if ($quizmid = $view->generate_quiz_with_selected_ids((array) data_submitted())) {
-            redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
-        }
-    }
-    if (optional_param('startfilteredquiz', null, PARAM_RAW)) {
-        $ids = required_param('filtered_question_ids', PARAM_RAW);
-        if ($quizmid = $view->generate_quiz_with_filtered_ids($ids)) {
-            redirect(new moodle_url('/mod/quiz/view.php', array('id' => $quizmid)));
+        if ($attemptid = $view->generate_quiz_with_selected_ids((array) data_submitted())) {
+            redirect(new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => 1)));
+        } else {
+            // TODO: Not question selected // no attempt possible
         }
     }
 }
