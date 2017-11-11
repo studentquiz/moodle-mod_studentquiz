@@ -37,6 +37,7 @@ require_once(__DIR__ .'/tag_column.php');
 require_once(__DIR__ .'/performances_column.php');
 require_once(__DIR__ .'/comments_column.php');
 require_once(__DIR__ .'/approved_column.php');
+require_once(__DIR__ .'/myattempts_column.php');
 
 /**
  * Module instance settings form
@@ -592,6 +593,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
             . 'mod_studentquiz\\bank\\practice_column,'
+            . 'mod_studentquiz\\bank\\myattempts_column,'
             . 'mod_studentquiz\\bank\\comment_column';
 
         return parent::wanted_columns();
