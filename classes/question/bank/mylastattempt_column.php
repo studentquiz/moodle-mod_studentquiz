@@ -71,7 +71,10 @@ class mylastattempt_column extends \core_question\bank\column_base {
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->mylastattempt)) {
-            echo $question->mylastattempt;
+            // @TODO: Refactor magic constant
+            echo $question->mylastattempt == 'gradedright'
+                ?get_string('lastattempt_right', 'studentquiz')
+                :get_string('lastattempt_wrong', 'studentquiz');
         } else {
             echo get_string('no_mylastattempt', 'studentquiz');
         }

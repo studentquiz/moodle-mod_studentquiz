@@ -587,19 +587,19 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function wanted_columns() {
         global $CFG;
-
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
             . 'preview_action_column,delete_action_column,creator_name_column,'
+            . 'mod_studentquiz\\bank\\tag_column,'
             . 'mod_studentquiz\\bank\\approved_column,'
-            . 'mod_studentquiz\\bank\\tag_column,mod_studentquiz\\bank\\vote_column,'
-            . 'mod_studentquiz\\bank\\difficulty_level_column,'
             . 'mod_studentquiz\\bank\\practice_column,'
+            . 'mod_studentquiz\\bank\\difficulty_level_column,'
+            . 'mod_studentquiz\\bank\\vote_column,'
+            . 'mod_studentquiz\\bank\\comment_column,'
             . 'mod_studentquiz\\bank\\myattempts_column,'
             . 'mod_studentquiz\\bank\\mydifficulty_column,'
-            . 'mod_studentquiz\\bank\\comment_column,'
-            . 'mod_studentquiz\\bank\\mylastattempt_column';
-
+            . 'mod_studentquiz\\bank\\mylastattempt_column'
+            ;
         return parent::wanted_columns();
     }
 
@@ -644,6 +644,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
+
+        $this->fields[] = new \user_filter_simpleselect('mylastattempt', get_string('filter_label_mylastattempt', 'studentquiz'),
+            true, 'mylastattempt', array(
+                'gradedright' => get_string('lastattempt_right', 'studentquiz'),
+                'gradedwrong' => get_string('lastattempt_wrong', 'studentquiz')
+            ));
+
+        $this->fields[] = new \user_filter_number('myattempts', get_string('filter_label_myattempts', 'studentquiz'),
+            true, 'myattempts');
+
+        $this->fields[] = new \user_filter_number('mydifficulty', get_string('filter_label_mydifficulty', 'studentquiz'),
+            true, 'mydifficulty');
     }
 
     /**
@@ -893,6 +905,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
             case 'firstname':
             case 'lastname':
                 return 'uc.';
+            case 'mylastattempt':
+                return 'mylatts.';
+            case 'mydifficulty':
+                return 'mydiffs.';
+            case 'myattempts':
+                return 'myatts.';
             default;
                 return 'q.';
         }
