@@ -309,4 +309,142 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function show_error($errormessage) {
         return html_writer::div($errormessage, 'error');
     }
+
+    /**
+     * Generate some HTML to display comment list
+     *
+     * @param  int $questionid Question id
+     * @return string HTML fragment
+     */
+    public function comment_list($questionid) {
+        return studentquiz_comment_renderer($questionid);
+    }
+
+    /**
+     * Add submit button to controls
+     *
+     * @param question_attempt $qa a question attempt.
+     * @param question_display_options $options controls what should and should not be displayed.
+     * @return string HTML fragment.
+     */
+/*    public function controls(question_attempt $qa, question_display_options $options) {
+        return $this->submit_button($qa, $options);
+    }
+*/
+
+    /**
+     * Generate some HTML (which may be blank) that appears in the outcome area,
+     * after the question-type generated output.
+     *
+     * For example, the CBM models use this to display an explanation of the score
+     * adjustment that was made based on the certainty selected.
+     *
+     * @param question_definition $question the current question.
+     * @param question_display_options $options controls what should and should not be displayed.
+     * @return string HTML fragment.
+     */
+    public function feedback(question_definition $question, question_display_options $options) {
+        // TODO: ->feedback enabled?
+        //if ($options->feedback) {
+            global $CFG;
+            return html_writer::div(
+                    $this->render_vote($question->id)
+                    . $this->render_comment($question->id), 'studentquiz_behaviour')
+                . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
+                , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
+                . html_writer::start_div('none')
+                . html_writer::start_div('none');
+        //}
+        //return '';
+    }
+
+    /**
+     * Generate some HTML to display rating options
+     *
+     * @param  int $questionid Question id
+     * @param  boolean $selected shows the selected vote
+     * @param  boolean $readonly describes if rating is readonly
+     * @return string HTML fragment
+     */
+    protected function vote_choices($questionid, $selected, $readonly) {
+        $attributes = array(
+            'type' => 'radio',
+            'name' => 'q' . $questionid,
+        );
+
+        if ($readonly) {
+            $attributes['disabled'] = 'disabled';
+        }
+
+        $selected = (int)$selected;
+
+        $rateable = '';
+        if (!$readonly) {
+            $rateable = 'rateable ';
+        }
+
+        $choices = '';
+        $votes = [5, 4, 3, 2, 1];
+        foreach ($votes as $vote) {
+            $class = 'star-empty';
+            if ($vote <= $selected) {
+                $class = 'star';
+            }
+            $choices .= html_writer::span('', $rateable . $class, array('data-rate' => $vote, 'data-questionid' => $questionid));
+        }
+        return get_string('vote_title', 'mod_studentquiz')
+            . $this->output->help_icon('vote_help', 'mod_studentquiz') . ': '
+            . html_writer::div($choices, 'rating')
+            . html_writer::div(get_string('vote_error', 'mod_studentquiz'), 'hide error');
+    }
+
+    /**
+     * Generate some HTML to display comment form for add comment
+     *
+     * @param  int $questionid Question id
+     * @return string HTML fragment
+     */
+    protected function comment_form($questionid) {
+        return html_writer::tag('p', get_string('add_comment', 'mod_studentquiz')
+                . $this->output->help_icon('comment_help', 'mod_studentquiz') . ':')
+            . html_writer::tag('p', html_writer::tag(
+                'textarea', '',
+                array('class' => 'add_comment_field', 'name' => 'q' . $questionid)))
+            . html_writer::tag('p', html_writer::tag(
+                'button',
+                get_string('add_comment', 'mod_studentquiz'),
+                array('type' => 'button', 'class' => 'add_comment'))
+            );
+    }
+
+    /**
+     * Generate some HTML to display rating
+     *
+     * @param  int $questionid Question id
+     * @return string HTML fragment
+     */
+    protected function render_vote($questionid) {
+        global $DB, $USER;
+
+        $value = -1; $readonly = false;
+        $vote = $DB->get_record('studentquiz_vote', array('questionid' => $questionid, 'userid' => $USER->id));
+        if ($vote !== false) {
+            $value = $vote->vote;
+            $readonly = true;
+        }
+
+        return html_writer::div($this->vote_choices($questionid, $value , $readonly), 'vote');
+    }
+
+    /**
+     * Generate some HTML to display the complete comment fragment
+     *
+     * @param  int $questionid Question id
+     * @return string HTML fragment
+     */
+    protected function render_comment($questionid) {
+        return html_writer::div(
+            $this->comment_form($questionid)
+            . html_writer::div($this->comment_list($questionid), 'comment_list'), 'comments');
+    }
 }

@@ -194,3 +194,84 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #categoryquestions .comment {
     width: 120px;
 }
+
+/* behavior */
+.studentquiz_behaviour {
+    margin: 0 0 10px 5px;
+}
+
+.studentquiz_behaviour label,
+.im-feedback .studentquiz_behaviour label,
+.studentquiz_behaviour span.label {
+    margin-right: 15px;
+}
+
+.studentquiz_behaviour .vote {
+    margin-bottom: 20px;
+}
+
+.studentquiz_behaviour textarea {
+    box-sizing: border-box;
+    height: 100px;
+    width: 100%;
+}
+
+.studentquiz_behaviour .comment_list div {
+    border-bottom: 1px solid #fff;
+    border-top: 1px solid #eee;
+    padding: 15px 0;
+    position: relative;
+}
+
+.studentquiz_behaviour .comment_list div span.remove_action {
+    cursor: pointer;
+    position: absolute;
+    right: 0;
+    text-decoration: underline;
+    top: 0;
+}
+
+.studentquiz_behaviour .comment_list div span.remove_action:hover {
+    text-decoration: none;
+}
+
+.studentquiz_behaviour .comment_list div p:last-child {
+    margin: 0;
+}
+
+.studentquiz_behaviour .vote .rating {
+    cursor: not-allowed;
+    direction: rtl;
+    display: inline-block;
+    unicode-bidi: bidi-override;
+}
+
+.studentquiz_behaviour .vote .error {
+    color: #ff0000;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.studentquiz_behaviour .vote .rating .rateable.star-empty:hover,
+.studentquiz_behaviour .vote .rating .rateable.star-empty:hover ~ .rateable.star-empty {
+    background-image: url([[pix:mod_studentquiz|star_icon]]);
+}
+
+.studentquiz_behaviour .star,
+.studentquiz_behaviour .star-empty {
+    display: inline-block;
+    height: 20px;
+    width: 20px;
+}
+
+.studentquiz_behaviour .vote .rating .rateable {
+    cursor: pointer;
+}
+
+.studentquiz_behaviour .star {
+    background-image: url([[pix:mod_studentquiz|star_icon]]);
+}
+
+.studentquiz_behaviour .star-empty {
+    background-image: url([[pix:mod_studentquiz|star_empty_icon]]);
+}

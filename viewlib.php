@@ -119,7 +119,7 @@ class mod_studentquiz_view {
     /**
      * Generate a quiz if id's are submitted
      * @param array $ids question id's
-     * @return bool|int generated quiz course_module id or false on error
+     * @return stdClass|false attempt from generate quiz or false on error
      */
     private function generate_quiz($ids) {
         if ($ids) {
@@ -135,7 +135,8 @@ class mod_studentquiz_view {
 
     /**
      * Generate an attempt with question usage
-     * @param ids array of question ids to be used in this attempt
+     * @param array $ids of question ids to be used in this attempt
+     * @return stdClass attempt from generate quiz or false on error
      */
     private function generate_attempt($ids){
 
@@ -175,9 +176,9 @@ class mod_studentquiz_view {
 
         $attempt->questionusageid = $questionusage->get_id();
 
-        $attemptid = $DB->insert_record('studentquiz_attempt', $attempt);
+        $attempt->id = $DB->insert_record('studentquiz_attempt', $attempt);
 
-        return $attemptid;
+        return $attempt;
     }
 
     /**
@@ -198,7 +199,7 @@ class mod_studentquiz_view {
     /**
      * Generate the quiz activity with the selected quiz ids
      * @param mixed $submitdata
-     * @return bool|int course_module id from generate quiz or false on error
+     * @return stdClass|false attempt from generate quiz or false on error
      */
     public function generate_quiz_with_selected_ids($submitdata) {
         return $this->generate_quiz($this->get_question_ids($submitdata));

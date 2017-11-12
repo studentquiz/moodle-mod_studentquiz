@@ -50,8 +50,9 @@ $event->trigger();
 // Redirect if we have received valid POST data.
 if (data_submitted()) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
-        if ($attemptid = $view->generate_quiz_with_selected_ids((array) data_submitted())) {
-            redirect(new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => 1)));
+        if ($attempt = $view->generate_quiz_with_selected_ids((array) data_submitted())) {
+            $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
+            redirect(new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attempt->id, 'slot' => $questionusage->get_first_question_number())));
         } else {
             // TODO: Not question selected // no attempt possible
         }

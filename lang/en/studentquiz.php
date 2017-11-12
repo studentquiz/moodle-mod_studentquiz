@@ -219,3 +219,20 @@ in course \'{$a->coursename}\' has been unapproved by {$a->teachername}.
 You can review this question at: {$a->questionurl}.';
 $string['emailunapprovedsmall'] = 'Your question \'{$a->questionname}\' has been unapproved by {$a->teachername}.';
 $string['emailunapprovedsubject'] = 'Question unapproved: {$a->questionname}';
+
+// Question behavior.
+$string['no_comments'] = 'No comments';
+$string['add_comment'] = 'Add comment';
+$string['show_more'] = 'Show more';
+$string['show_less'] = 'Show less';
+$string['vote_title'] = 'Rate';
+$string['vote_help_help'] = "Rate this question. \n 1 star is very bad and 5 stars is very good";
+$string['vote_help'] = 'Rate this question';
+$string['vote_error'] = 'Please Rate';
+$string['comment_help'] = 'Write a comment';
+$string['comment_help_help'] = 'Write a comment to the question';
+
+// Moodle quiz state override.
+$string['answeredandmodified'] = 'Answered and checked';
+$string['notyetanswered'] = 'Not yet answered';
+$string['answered'] = 'Answered';

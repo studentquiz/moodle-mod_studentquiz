@@ -15,21 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * Ajax request to this script gives all comments of a question back. Requires GET param "question_id"
  *
  * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch) <your@email.address>
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+define('AJAX_SCRIPT', true);
 
-$plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2017111200;
-$plugin->release      = 'v2.2.0';
-$plugin->requires     = 2016052300; // Version MOODLE_31, 3.1.0.
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
+
+$questionid = required_param('questionid', PARAM_INT);
+
+require_login();
+require_sesskey();
+
+header('Content-Type: text/html; charset=utf-8');
+
+echo studentquiz_comment_renderer($questionid);
