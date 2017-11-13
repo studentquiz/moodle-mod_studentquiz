@@ -85,8 +85,8 @@ class myattempts_column extends \core_question\bank\column_base {
         $tests = array(
             'quiza.studentquizid = ' . $this->studentquizid,
             'quiza.userid = ' . $this->currentuserid,
-            'name="-submit"',
-            '(state = "gradedright" OR state = "gradedwrong" OR state="gradedpartial")'
+            'name=\'-submit\'',
+            '(state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
         );
         return array('myatts' => 'LEFT JOIN ('
             . 'SELECT COUNT(*) as myattempts, questionid'

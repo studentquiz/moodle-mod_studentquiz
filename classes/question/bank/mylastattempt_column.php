@@ -88,8 +88,8 @@ class mylastattempt_column extends \core_question\bank\column_base {
         $tests = array(
             'quiza.studentquizid = ' . $this->studentquizid,
             'quiza.userid = ' . $this->currentuserid,
-            'name="-submit"',
-            '(qas.state = "gradedright" OR state = "gradedwrong" OR state="gradedpartial")'
+            'name=\'-submit\'',
+            '(qas.state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
         );
         return array( 'mylastattempt' => 'LEFT JOIN (
                          SELECT qa.questionid, qas.state as mylastattempt

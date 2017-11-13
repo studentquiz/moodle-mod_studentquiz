@@ -85,14 +85,14 @@ class mydifficulty_column extends \core_question\bank\column_base {
         $tests = array(
             'quiza.studentquizid = ' . $this->studentquizid,
             'quiza.userid = ' . $this->currentuserid,
-            'name="-submit"',
-            '(state = "gradedright" OR state = "gradedwrong" OR state="gradedpartial")'
+            'name=\'-submit\'',
+            '(state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
         );
 
         return array( 'mydiffs' => 'LEFT JOIN ('
             . 'SELECT '
-            . ' ROUND(1-(sum(case state when "gradedright" then 1 else 0 end)/count(*)),2) as mydifficulty,'
-            . ' sum(case state when "gradedright" then 1 else 0 end) as mycorrectattempts,'
+            . ' ROUND(1-(sum(case state when \'gradedright\' then 1 else 0 end)/count(*)),2) as mydifficulty,'
+            . ' sum(case state when \'gradedright\' then 1 else 0 end) as mycorrectattempts,'
             . ' questionid'
             . ' FROM {studentquiz_attempt} quiza '
             . ' JOIN mdl_question_usages qu ON qu.id = quiza.questionusageid '
