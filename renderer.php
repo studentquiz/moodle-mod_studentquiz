@@ -209,6 +209,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 html_writer::span(get_string('reportquiz_stats_questions_right', 'studentquiz') . ': ', 'reportquiz_total_label')
                 . html_writer::span($owntotal->questionsright)
             );
+            $output .= html_writer::tag('p',
+                html_writer::span(get_string('reportquiz_stats_learning_quotient', 'studentquiz') . ': ', 'reportquiz_total_label')
+                . html_writer::span(1 - (($owntotal->questionsright)/($owntotal->questionsanswered + $owntotal->questionsright)))
+            );
         }
         if ($total != null && false) {
             $output .= html_writer::tag('p',

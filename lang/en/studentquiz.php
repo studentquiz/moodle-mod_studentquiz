@@ -155,7 +155,7 @@ $string['reportquiz_stats_right_answered_questions'] = 'You have answered correc
 $string['reportquiz_stats_nr_of_own_questions'] = 'You have contributed';
 $string['reportquiz_stats_nr_of_approved_questions'] = 'Number of approved questions';
 $string['reportquiz_stats_avg_rating'] = 'Your received rating average';
-
+$string['reportquiz_stats_learning_quotient'] = 'Your learning quotient';
 $string['reportquiz_stats_own_grade_of_max'] = 'Your grade total';
 
 
