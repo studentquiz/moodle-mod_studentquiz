@@ -145,48 +145,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param stdClass $quizzes
      * @return string rank report table
      */
-    public function view_quizreport_admin_quizzes($report, $quizzes) {
-        $output = $this->heading(get_string('reportquiz_admin_quizzes_title', 'studentquiz'), 2, 'reportquiz_total_heading');
-        $table = new html_table();
-        $table->attributes['class'] = 'generaltable boxaligncenter';
-        $table->head = array(get_string('reportquiz_admin_quizzes_table_column_quizname', 'studentquiz')
-        , get_string('reportquiz_admin_quizzes_table_column_qbehaviour', 'studentquiz')
-        , get_string('reportquiz_admin_quizzes_table_column_timecreated', 'studentquiz'));
-        $table->align = array('left', 'left');
-        $table->size = array('', '');
-        $table->data = array();
-        $rows = array();
-        foreach ($quizzes as $quiz) {
-            $cellquizname = new html_table_cell();
-            $cellquizname->text = $quiz->name;
-
-            $cellqbehaviour = new html_table_cell();
-            $cellqbehaviour->text = $quiz->preferredbehaviour;
-
-            $cellcreated = new html_table_cell();
-            $cellcreated->text = userdate($quiz->timecreated);
-
-            $cellurl = new html_table_cell();
-            $cellurl->text = html_writer::link(new moodle_url('/mod/quiz/view.php', array('id' => $quiz->cmid))
-                , get_string('reportquiz_admin_quizzes_table_link_to_quiz', 'studentquiz'));
-
-            $row = new html_table_row();
-            $row->cells = array($cellquizname, $cellqbehaviour, $cellcreated, $cellurl);
-            $rows[] = $row;
-        }
-        $table->data = $rows;
-        $output .= html_writer::table($table);
-
-        return $output;
-    }
-
-    /**
-     * Build the quiz report summary section
-     * @return string quiz report summary title
-     */
-    public function view_quizreport_summary() {
-        return $this->heading(get_string('reportquiz_summary_title', 'studentquiz'), 2, 'reportquiz_total_heading');
-    }
 
     /**
      * Builds the quiz report total section

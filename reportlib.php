@@ -187,21 +187,10 @@ class mod_studentquiz_report {
         /** @var mod_studentquiz_renderer $reportrenderer */
         $reportrenderer = $PAGE->get_renderer('mod_studentquiz');
 
-        $total = new stdClass();
-        $total->numattempts = 0;
-        $total->obtainedmarks = 0;
-        $total->questionsright = 0;
-        $total->questionsanswered = 0;
-
-        $outputsummaries = $this->get_user_quiz_summary($USER->id, $total);
-
+        $total = $this->get_user_quiz_summary($USER->id, $total);
         $outputstats = $this->get_user_quiz_stats($USER->id);
         $usergrades = $this->get_user_quiz_grade($USER->id);
-
         $output = $reportrenderer->view_quizreport_stats(null, $total, $outputstats, $usergrades);
-        $output .= $reportrenderer->view_quizreport_summary();
-        $output .= $outputsummaries;
-
         return $output;
     }
 
@@ -250,6 +239,13 @@ class mod_studentquiz_report {
 
         $users = $this->get_all_users_in_course($this->course->id);
         $overalltotal->usercount = count($users);
+
+        $admintotal = new stdClass();
+        $admintotal->numattempts = 0;
+        $admintotal->obtainedmarks = 0;
+        $admintotal->questionsright = 0;
+        $admintotal->questionsanswered = 0;
+
         foreach ($users as $user) {
             $total = new stdClass();
             $total->numattempts = 0;
@@ -269,20 +265,15 @@ class mod_studentquiz_report {
             $total->name = $user->firstname . ' ' . $user->lastname;
             $total->id = $user->userid;
             $usersdata[] = $total;
+            if ($user->userid == $USER->id) {
+                $admintotal = $total;
+            }
         }
         $outputstats = $this->get_user_quiz_stats($USER->id);
         $usergrades = $this->get_user_quiz_grade($USER->id);
 
-        $total = new stdClass();
-        $total->numattempts = 0;
-        $total->obtainedmarks = 0;
-        $total->questionsright = 0;
-        $total->questionsanswered = 0;
-
-        $output = $reportrenderer->view_quizreport_stats($overalltotal, $total, $outputstats, $usergrades, true);
+        $output = $reportrenderer->view_quizreport_stats($overalltotal, $admintotal, $outputstats, $usergrades, true);
         $output .= $reportrenderer->view_quizreport_table($this, $usersdata);
-
-        $output .= $reportrenderer->view_quizreport_admin_quizzes($this, $this->get_quiz_information($USER->id));
 
         return $output;
     }
@@ -406,204 +397,52 @@ where v.questionid in (SELECT q.id
     }
 
     /**
+     * Returns the id of the currently evaluated StudentQuiz.
+     */
+    public function get_studentquiz_id()
+    {
+        return $this->cm->instance;
+    }
+
+    public function get_studentquiz_attempts($studentquizid, $userid) {
+        global $DB;
+        return $DB->get_records('studentquiz_attempt',
+            array('studentquizid' => $studentquizid, 'userid' => $userid));
+    }
+
+    /**
      * Pre render the single user summary table and get quiz stats
      * @param int $userid
-     * @param stdClass $total
-     * @return mixed|string
+     * @return stdClass $total aggregated result of attempt statistics
      * @throws coding_exception
      */
     public function get_user_quiz_summary($userid, &$total) {
-        global $PAGE;
-        $outputsummaries = '';
-        $coursemodules = $this->get_quiz_course_modules($userid);
-        $quizrenderer = $PAGE->get_renderer('mod_quiz');
-        foreach ($coursemodules as $cm) {
-            $quizobj = quiz::create($cm->instance, $userid);
-            $quiz = $quizobj->get_quiz();
-            $context = context_module::instance($cm->id);
-
-            /*
-             *  modified /mod/quiz/view.php code, simplified and rearranged
-             *  ==============================================================
-             */
-
-            $canattempt = has_capability('mod/quiz:attempt', $context);
-            $canreviewmine = has_capability('mod/quiz:reviewmyattempts', $context);
-            $canpreview = has_capability('mod/quiz:preview', $context);
-
-            $accessmanager = new quiz_access_manager($quizobj, time(),
-                has_capability('mod/quiz:ignoretimelimits', $context, null, false));
-
-            $viewobj = new mod_quiz_view_object();
-            $viewobj->accessmanager = $accessmanager;
-            $viewobj->canreviewmine = $canreviewmine;
-
-            $attempts = quiz_get_user_attempts($quiz->id, $userid, 'finished', true);
-            $lastfinishedattempt = end($attempts);
-            $unfinished = false;
-            $unfinishedattemptid = null;
-            if ($unfinishedattempt = quiz_get_user_attempt_unfinished($quiz->id, $userid)) {
-                $attempts[] = $unfinishedattempt;
-
-                $quizobj->create_attempt_object($unfinishedattempt)->handle_if_time_expired(time(), false);
-
-                $unfinished = $unfinishedattempt->state == quiz_attempt::IN_PROGRESS ||
-                    $unfinishedattempt->state == quiz_attempt::OVERDUE;
-                if (!$unfinished) {
-                    $lastfinishedattempt = $unfinishedattempt;
-                }
-                $unfinishedattemptid = $unfinishedattempt->id;
-                $unfinishedattempt = null; // To make it clear we do not use this again.
-            }
-            $numattempts = count($attempts);
-            $viewobj->attempts = $attempts;
-            $viewobj->attemptobjs = array();
-            $total->numattempts += $numattempts;
-
-            foreach ($attempts as $attempt) {
-                $fullattempt = new quiz_attempt($attempt, $quiz, $cm, $this->course, false);
-                $viewobj->attemptobjs[] = $fullattempt;
-
-                $this->get_attempt_statistic($fullattempt->get_quizid(), $attempt->uniqueid, $total);
-            }
-
-            if (!$canpreview) {
-                $mygrade = quiz_get_best_grade($quiz, $userid);
-            } else if ($lastfinishedattempt) {
-                $mygrade = quiz_rescale_grade($lastfinishedattempt->sumgrades, $quiz, false);
-            } else {
-                $mygrade = null;
-            }
-
-            $mygradeoverridden = false;
-            $gradebookfeedback = '';
-
-            $gradinginfo = grade_get_grades($this->course->id, 'mod', 'quiz', $quiz->id, $userid);
-            if (!empty($gradinginfo->items)) {
-                $item = $gradinginfo->items[0];
-                if (isset($item->grades[$userid])) {
-                    $grade = $item->grades[$userid];
-
-                    if ($grade->overridden) {
-                        $mygrade = $grade->grade + 0; // Convert to number.
-                        $mygradeoverridden = true;
-                    }
-                    if (!empty($grade->str_feedback)) {
-                        $gradebookfeedback = $grade->str_feedback;
-                    }
-                }
-            }
-
-            if ($attempts) {
-                list($someoptions, $alloptions) = quiz_get_combined_reviewoptions($quiz, $attempts, $context);
-
-                $viewobj->attemptcolumn  = $quiz->attempts != 1;
-
-                $viewobj->gradecolumn    = $someoptions->marks >= question_display_options::MARK_AND_MAX &&
-                    quiz_has_grades($quiz);
-                $viewobj->markcolumn     = $viewobj->gradecolumn && ($quiz->grade != $quiz->sumgrades);
-                $viewobj->overallstats   = $lastfinishedattempt && $alloptions->marks >= question_display_options::MARK_AND_MAX;
-
-                $viewobj->feedbackcolumn = quiz_has_feedback($quiz) && $alloptions->overallfeedback;
-            }
-
-            $viewobj->timenow = time();
-            $viewobj->numattempts = $numattempts;
-            $viewobj->mygrade = $mygrade;
-            $viewobj->moreattempts = $unfinished ||
-                !$accessmanager->is_finished($numattempts, $lastfinishedattempt);
-            $viewobj->mygradeoverridden = $mygradeoverridden;
-            $viewobj->gradebookfeedback = $gradebookfeedback;
-            $viewobj->lastfinishedattempt = $lastfinishedattempt;
-            $viewobj->canedit = false; // Modified to false.
-            // Changed url's.
-            $viewobj->editurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
-            $viewobj->backtocourseurl = new moodle_url('/course/view.php', array('id' => $this->course->id));
-            $viewobj->startattempturl = $quizobj->start_attempt_url();
-
-            if ($accessmanager->is_preflight_check_required($unfinishedattemptid)) {
-                $viewobj->preflightcheckform = $accessmanager->get_preflight_check_form(
-                    $viewobj->startattempturl, $unfinishedattemptid);
-            }
-
-            $viewobj->popuprequired = $accessmanager->attempt_must_be_in_popup();
-            $viewobj->popupoptions = $accessmanager->get_popup_options();
-
-            $viewobj->infomessages = $viewobj->accessmanager->describe_rules();
-            if ($quiz->attempts != 1) {
-                $viewobj->infomessages[] = get_string('gradingmethod', 'quiz',
-                    quiz_get_grading_option_name($quiz->grademethod));
-            }
-
-            $viewobj->quizhasquestions = $quizobj->has_questions();
-            $viewobj->preventmessages = array();
-            if (!$viewobj->quizhasquestions) {
-                $viewobj->buttontext = '';
-
-            } else {
-                if ($unfinished) {
-                    if ($canattempt) {
-                        $viewobj->buttontext = get_string('continueattemptquiz', 'quiz');
-                    } else if ($canpreview) {
-                        $viewobj->buttontext = get_string('continuepreview', 'quiz');
-                    }
-                } else {
-                    if ($canattempt) {
-                        $viewobj->preventmessages = $viewobj->accessmanager->prevent_new_attempt(
-                            $viewobj->numattempts, $viewobj->lastfinishedattempt);
-
-                        if ($viewobj->preventmessages) {
-                            $viewobj->buttontext = '';
-                        } else if ($viewobj->numattempts == 0) {
-                            $viewobj->buttontext = get_string('attemptquiznow', 'quiz');
-                        } else {
-                            $viewobj->buttontext = get_string('reattemptquiz', 'quiz');
-                        }
-                    } else if ($canpreview) {
-                        $viewobj->buttontext = get_string('previewquiznow', 'quiz');
-                    }
-                }
-
-                if ($viewobj->buttontext) {
-                    if (!$viewobj->moreattempts) {
-                        $viewobj->buttontext = '';
-                    } else if ($canattempt
-                        && $viewobj->preventmessages = $viewobj->accessmanager->prevent_access()) {
-                        $viewobj->buttontext = '';
-                    }
-                }
-            }
-
-            $viewobj->showbacktocourse = ($viewobj->buttontext === '' &&
-                course_get_format($this->course)->has_view_page());
-
-            /*
-             *  ==============================================================
-             *  custom code
-            */
-
-            $outputsummaries .= $quizrenderer->view_table($quiz, $context, $viewobj);
-            $outputsummaries = str_replace(get_string('summaryofattempts', 'quiz')
-                , $quizrenderer->heading(userdate($quiz->timecreated), 3)
-                , $outputsummaries);
-
-            if ($attempts) {
-                $outputsummaries .= $quizrenderer->box($quizrenderer->view_page_buttons($viewobj), 'quizattempt');
-            }
+        // @TODO: Refactor to not scale DB requests with number of attempts!
+        $total = new stdClass();
+        $total->numattempts = 0;
+        $total->obtainedmarks = 0;
+        $total->questionsright = 0;
+        $total->questionsanswered = 0;
+        $studentquizid = $this->get_studentquiz_id();
+        // Get all attempts of this user in this StudentQuiz.
+        $studentquizattempts = $this->get_studentquiz_attempts($studentquizid, $userid);
+        $numattempts = count($studentquizattempts);
+        $total->numattempts += $numattempts;
+        foreach ($studentquizattempts as $studentquizattempt) {
+               $this->get_attempt_statistic($studentquizattempt->questionusageid, $total);
         }
-        return $outputsummaries;
+        return $total;
     }
 
     /**
      * Get the obtainedmarks, questionright, questionanswered total from the attempt
-     * @param int $quizid
      * @param int $attemptuniqueid
      * @param stdClass $total
      */
-    private function get_attempt_statistic($quizid, $attemptuniqueid, &$total) {
+    private function get_attempt_statistic($attemptuniqueid, &$total) {
         $quba = question_engine::load_questions_usage_by_activity($attemptuniqueid);
 
-        foreach (array_keys($this->get_quiz_slots($quizid)) as $slot) {
+        foreach ($quba->get_slots() as $slot) {
             $fraction = $quba->get_question_fraction($slot);
             $maxmarks = $quba->get_question_max_mark($slot);
             $total->obtainedmarks += $fraction * $maxmarks;
@@ -612,18 +451,6 @@ where v.questionid in (SELECT q.id
             }
             ++$total->questionsanswered;
         }
-    }
-
-    /**
-     * Get the quiz slots
-     * @param int $quizid
-     * @return array stdClass slot array
-     */
-    private function get_quiz_slots($quizid) {
-        global $DB;
-        return $DB->get_records('quiz_slots',
-            array('quizid' => $quizid), 'slot',
-            'slot, requireprevious, questionid');
     }
 
     /**

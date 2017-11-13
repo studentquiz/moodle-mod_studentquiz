@@ -151,13 +151,6 @@ $html .= html_writer::end_tag('form');
 
 echo $html;
 
-var_dump(array(
-    "hasprevious" => $hasprevious,
-    "hasnext" => $hasnext,
-    "hasvoted" => $hasvoted,
-    "hasanswered" => $hasanswered,
-    "canfinish" => $canfinish
-));
 // Display the settings form.
 
 echo $OUTPUT->footer();
