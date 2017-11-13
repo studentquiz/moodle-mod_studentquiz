@@ -166,10 +166,9 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
                         $DB->set_field('course_sections', 'section', $lastnonemptysection->max_section + 1, array(
                             'id' => $quizsectionid
                         ));
-                        // Set the new section id as hiddensection in studentquiz
-                        $DB->set_field('studentquiz', 'hiddensection', $quizsectionid, array(
-                            'course' => $this->get_courseid()
-                        ));
+                        // TODO: Reassign question usages of imported quiz instances to studentquiz actictivity.
+                        // TODO: And delete quiz instances and generated section.
+
                     }
                 }
             }

@@ -174,7 +174,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017021601, 'studentquiz');
     }
 
-    // Introduce field `hiddensection` to studentquiz table.
+    // Introduce field `hiddensection` to studentquiz table not needed any more.
+    // For future reference.
     if ($oldversion < 2017110600) {
 
         // Define field hiddensection.
@@ -191,7 +192,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2017110600, 'studentquiz');
     }
-
 
     // Introduce table studentquiz_progress
     if ($oldversion < 2017110701) {
@@ -247,6 +247,22 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2017111001, 'studentquiz');
+    }
+
+    // Remove hidden section from studentquiz
+    if ($oldversion < 2017111300) {
+        // Define field hiddensection.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('hiddensection', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'name');
+        $key =  new xmldb_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
+
+        // Remove field and key hiddensection if exists.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_key($table, $key);
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2017111300, 'studentquiz');
     }
 
     /*

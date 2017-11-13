@@ -76,14 +76,6 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
 
-        // Field for hidden section.
-        $hiddensectionoptions = mod_studentquiz_get_hiddensection_options($this->_course->id);
-        $mform->addElement('select', 'hiddensection',
-            get_string('hiddensection_select_label', 'studentquiz'), $hiddensectionoptions);
-        $mform->setType('hiddensection', PARAM_INT);
-        $mform->addHelpButton('hiddensection', 'hiddensectionhelp', 'studentquiz');
-        $mform->setDefault('hiddensection', 0);
-
         if (mod_studentquiz_has_behaviour()) {
             $mform->addElement('advcheckbox', 'quizpracticebehaviour', get_string('quizpracticebehaviour', 'studentquiz')
                 , null, null, array(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
