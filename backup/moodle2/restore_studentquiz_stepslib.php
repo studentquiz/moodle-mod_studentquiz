@@ -78,10 +78,6 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
             $data->quizpracticebehaviour = "studentquiz";
         }
 
-        if (empty($data->hiddensection)) {
-            $data->hiddensection = 0;
-        }
-
         if (empty($data->anonymrank)) {
             $data->anonymrank = true;
         }
@@ -90,6 +86,14 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         $newitemid = $DB->insert_record('studentquiz', $data);
 
         $this->apply_activity_instance($newitemid);
+
+        if (!empty($data->attempts)) {
+            foreach( $data->attempts as $attempt) {
+                $DB->insert_record('studentquiz_attempt', $attempt);
+            }
+        }
+
+
     }
 
     /**
