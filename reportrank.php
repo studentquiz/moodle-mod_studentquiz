@@ -49,5 +49,7 @@ $PAGE->set_url($report->get_rankreporturl());
 $output = $PAGE->get_renderer('mod_studentquiz');
 
 echo $OUTPUT->header();
+echo $output->view_quantifier_information($report);
 echo $output->view_rankreport_table($report);
+
 echo $OUTPUT->footer();

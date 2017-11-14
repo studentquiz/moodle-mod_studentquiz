@@ -34,6 +34,71 @@ defined('MOODLE_INTERNAL') || die();
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
+     * displays quantifier information
+     */
+    public function view_quantifier_information($report) {
+        $table = new html_table();
+        $table->attributes['class'] = '';
+        $table->caption = get_string('reportrank_table_quantifier_caption', 'studentquiz');
+        $table->head = array(get_string('reportrank_table_column_quantifier_name', 'studentquiz')
+            , get_string('reportrank_table_column_factor', 'studentquiz')
+            , get_string('reportrank_table_column_description', 'studentquiz')
+        );
+        $table->align = array('left', 'left');
+        $table->size = array('', '', '');
+        $table->data = array();
+        $rows = array();
+
+        // Question quantifier.
+        $row = new html_table_row();
+        $cellname = new html_table_cell();
+        $cellname->text = get_string('settings_questionquantifier', 'studentquiz');
+        $cellvalue = new html_table_cell();
+        $cellvalue->text = $report->get_quantifier_question();
+        $celldescription = new html_table_cell();
+        $celldescription->text = get_string('settings_questionquantifier_help', 'studentquiz');
+        $row->cells = array($cellname, $cellvalue, $celldescription);
+        $rows[] = $row;
+
+        // Vote quantifier.
+        $row = new html_table_row();
+        $cellname = new html_table_cell();
+        $cellname->text = get_string('settings_votequantifier', 'studentquiz');
+        $cellvalue = new html_table_cell();
+        $cellvalue->text = $report->get_quantifier_vote();
+        $celldescription = new html_table_cell();
+        $celldescription->text = get_string('settings_votequantifier_help', 'studentquiz');
+        $row->cells = array($cellname, $cellvalue, $celldescription);
+        $rows[] = $row;
+
+        // Correct answer quantifier.
+        $row = new html_table_row();
+        $cellname = new html_table_cell();
+        $cellname->text = get_string('settings_correctanswerquantifier', 'studentquiz');
+        $cellvalue = new html_table_cell();
+        $cellvalue->text = $report->get_quantifier_correctanswer();
+        $celldescription = new html_table_cell();
+        $celldescription->text = get_string('settings_correctanswerquantifier_help', 'studentquiz');
+        $row->cells = array($cellname, $cellvalue, $celldescription);
+        $rows[] = $row;
+
+        // Incorrect answer quantifier.
+        $row = new html_table_row();
+        $cellname = new html_table_cell();
+        $cellname->text = get_string('settings_incorrectanswerquantifier', 'studentquiz');
+        $cellvalue = new html_table_cell();
+        $cellvalue->text = $report->get_quantifier_incorrectanswer();
+        $celldescription = new html_table_cell();
+        $celldescription->text = get_string('settings_incorrectanswerquantifier_help', 'studentquiz');
+        $row->cells = array($cellname, $cellvalue, $celldescription);
+        $rows[] = $row;
+
+        $table->data = $rows;
+
+        return html_writer::table($table);
+    }
+
+    /**
      * builds the rank report table
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @return string rank report table

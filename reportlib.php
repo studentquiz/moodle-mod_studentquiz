@@ -150,6 +150,46 @@ class mod_studentquiz_report {
     }
 
     /**
+     * Get the question quantifier of this studentquiz
+     */
+    public function get_quantifier_question() {
+        return $this->studentquiz->questionquantifier;
+    }
+
+    /**
+     * Get the vote quantifier of this studentquiz
+     */
+    public function get_quantifier_vote() {
+        return $this->studentquiz->votequantifier;
+    }
+
+    /**
+     * Get the correctanswerquantifier of this studentquiz
+     */
+    public function get_quantifier_correctanswer() {
+        return $this->studentquiz->correctanswerquantifier;
+    }
+
+    /**
+     * Get the correctanswerquantifier of this studentquiz
+     */
+    public function get_quantifier_incorrectanswer() {
+        return $this->studentquiz->incorrectanswerquantifier;
+    }
+
+    /**
+     * Get the array of quanitifers
+     */
+    public function get_quantifiers() {
+        return array(
+            'question' => $this->studentquiz->questionquantifier,
+            'vote' => $this->studentquiz->votequantifier,
+            'correctanswer' => $this->studentquiz->correctanswerquantifier,
+            'incorrectanswer' => $this->studentquiz->incorrectanswerquantifier,
+        );
+    }
+
+    /**
      * Get the ranking title
      * @return string
      */

@@ -172,6 +172,7 @@ $string['reportquiz_stats_questions_right'] = 'Total of correct answers';
 
 // Report rank.
 $string['reportrank_title'] = 'User ranking';
+$string['reportrank_table_quantifier_caption'] = 'How your Points are calculated';
 $string['reportrank_table_title'] = '- Ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
@@ -180,6 +181,9 @@ $string['reportrank_table_column_countquestions'] = 'Number of questions';
 $string['reportrank_table_column_summeanvotes'] = 'Voting Score';
 $string['reportrank_table_column_correctanswers'] = 'Correct Answers';
 $string['reportrank_table_column_incorrectanswers'] = 'Incorrect Answers';
+$string['reportrank_table_column_quantifier_name'] = 'Name';
+$string['reportrank_table_column_factor'] = 'Factor';
+$string['reportrank_table_column_description'] = 'Description';
 
 // View.
 $string['viewlib_please_select_question'] = 'Please select a question.';
