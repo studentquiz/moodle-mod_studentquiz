@@ -60,17 +60,16 @@ $output = $PAGE->get_renderer('mod_studentquiz');
 
 echo $OUTPUT->header();
 
-// TODO: Refactor language strings!
 $output = '';
 $output .= html_writer::start_tag('form', array('method' => 'post', 'action' => '',
     'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 $output .= html_writer::start_tag('div', array('align' => 'center'));
 $output .= html_writer::empty_tag('input', array('type' => 'submit',
-    'name' => 'back', 'value' => 'Retry'));
+    'name' => 'back', 'value' => get_string('retry_button', 'studentquiz')));
 $output .= html_writer::empty_tag('br');
 $output .= html_writer::empty_tag('br');
 $output .= html_writer::empty_tag('input', array('type' => 'submit',
-    'name' => 'finish', 'value' => 'Finish'));
+    'name' => 'finish', 'value' => get_string('finish_button', 'studentquiz')));
 $output .= html_writer::end_tag('div');
 $output .= html_writer::end_tag('form');
 
