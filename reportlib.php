@@ -49,6 +49,11 @@ class mod_studentquiz_report {
      * @var context the quiz context.
      */
     protected $context;
+    /**
+     * @var stdClass the studentquiz settings
+     */
+    protected $studentquiz;
+
 
     /**
      * Constructor assuming we already have the necessary data loaded.
@@ -62,6 +67,11 @@ class mod_studentquiz_report {
         }
         if (!$this->course = $DB->get_record('course', array('id' => $this->cm->course))) {
             throw new mod_studentquiz_view_exception($this, 'coursemisconf');
+        }
+
+        if (!$this->studentquiz = $DB->get_record('studentquiz',
+            array('coursemodule' => $this->cm->id, 'course' => $this->course->id))) {
+            throw new mod_studentquiz_view_exception($this, 'studentquiznotfound');
         }
 
         $this->context = context_module::instance($this->cm->id);
@@ -539,12 +549,13 @@ where v.questionid in (SELECT q.id
             . '     GROUP BY u.id, u.firstname, u.lastname'
             . '     ORDER BY points DESC';
 
+        // @TODO: Load quantifiers from studentquiz activity settings
         return $DB->get_records_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id
-            , 'questionquantifier' => get_config('moodle', 'studentquiz_add_question_quantifier')
-            , 'votequantifier' => get_config('moodle', 'studentquiz_vote_quantifier')
-            , 'correctanswerquantifier' => get_config('moodle', 'studentquiz_correct_answered_question_quantifier')
-            , 'incorrectanswerquantifier' => get_config('moodle', 'studentquiz_incorrect_answered_question_quantifier')
+            , 'questionquantifier' => $this->studentquiz->questionquantifier
+            , 'votequantifier' => $this->studentquiz->votequantifier
+            , 'correctanswerquantifier' => $this->studentquiz->correctanswerquantifier
+            , 'incorrectanswerquantifier' => $this->studentquiz->incorrectanswerquantifier
         ));
     }
 

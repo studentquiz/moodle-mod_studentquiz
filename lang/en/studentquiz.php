@@ -63,6 +63,18 @@ $string['nav_import'] = 'Import';
 $string['nav_questionbank'] = 'Question bank';
 $string['anonymrankhelp'] = 'Anonymize';
 $string['anonymrankhelp_help'] = 'Anonymize for students the created by column in the question overview and the names of the ranking table.';
+$string['settings_questionquantifier'] = 'Question quantifier';
+$string['settings_questionquantifier_label'] = 'Points for each question created';
+$string['settings_questionquantifier_help'] = 'Points received for creating a new question.';
+$string['settings_votequantifier'] = 'Vote quantifier';
+$string['settings_votequantifier_label'] = 'Multiplier for the average of stars received for a question';
+$string['settings_votequantifier_help'] = 'E.g. if the multiplier is 3 and a question is rated with an average of 4.3 stars, the author of the question will receive 13 points (= ROUND(3 * 4.3; 1)).';
+$string['settings_correctanswerquantifier'] = 'Correct answer quantifier';
+$string['settings_correctanswerquantifier_label'] = 'Points for each correct answer';
+$string['settings_correctanswerquantifier_help'] = 'Points received for answering a question correctly.';
+$string['settings_incorrectanswerquantifier'] = 'Incorrect answer quantifier';
+$string['settings_incorrectanswerquantifier_label'] = 'Points for each wrong answer';
+$string['settings_incorrectanswerquantifier_help'] = 'Points received for answering a question wrongly.';
 $string['createnewquestionfirst'] = 'Create first question';
 $string['createnewquestion'] = 'Create new question';
 $string['createnewquizfromfilter'] = 'Run filtered questions';
@@ -153,7 +165,6 @@ $string['reportquiz_stats_nr_of_approved_questions'] = 'Number of approved quest
 $string['reportquiz_stats_avg_rating'] = 'Your received rating average';
 $string['reportquiz_stats_learning_quotient'] = 'Your learning quotient';
 $string['reportquiz_stats_own_grade_of_max'] = 'Your grade total';
-
 
 $string['reportquiz_stats_attempt'] = 'Times you run the quiz';
 $string['reportquiz_stats_questions_answered'] = 'Total of your answers';
