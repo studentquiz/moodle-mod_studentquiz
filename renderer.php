@@ -45,7 +45,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportrank_table_title', 'studentquiz');
         $table->head = array(get_string('reportrank_table_column_rank', 'studentquiz')
             , get_string('reportrank_table_column_fullname', 'studentquiz')
-            , get_string('reportrank_table_column_points', 'studentquiz'));
+            , get_string('reportrank_table_column_points', 'studentquiz')
+            , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
+            , get_string( 'reportrank_table_column_summeanvotes', 'studentquiz')
+            , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
+            , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
+            );
         $table->align = array('left', 'left');
         $table->size = array('', '');
         $table->data = array();
@@ -59,6 +64,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $tmp = $ur->firstname . ' ' . $ur->lastname;
             if ($report->is_anonym()) {
                 if (!$report->is_loggedin_user($ur->userid)) {
+                    // TODO: code smell: magic constant
                     $tmp = 'anonymous';
                 }
             }
@@ -67,6 +73,18 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $cellpoints = new html_table_cell();
             $cellpoints->text = $ur->points;
 
+            $cellcountquestions = new html_table_cell();
+            $cellcountquestions->text = $ur->countquestions;
+
+            $cellsummeanvotes = new html_table_cell();
+            $cellsummeanvotes->text = $ur->summeanvotes;
+
+            $cellcorrectanswers = new html_table_cell();
+            $cellcorrectanswers->text = $ur->correctanswers;
+
+            $cellincorrectanswers = new html_table_cell();
+            $cellincorrectanswers->text = $ur->incorrectanswers;
+
             $row = new html_table_row();
 
             if ($report->is_loggedin_user($ur->userid)) {
@@ -74,9 +92,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 $cellrank->attributes = $style;
                 $cellfullname->attributes = $style;
                 $cellpoints->attributes = $style;
+                $cellcountquestions->attributes = $style;
+                $cellsummeanvotes->attributes = $style;
+                $cellcorrectanswers->attributes = $style;
+                $cellincorrectanswers->attributes = $style;
                 $row->attributes = $style;
             }
-            $row->cells = array($cellrank, $cellfullname, $cellpoints);
+            $row->cells = array($cellrank, $cellfullname, $cellpoints,
+                $cellcountquestions, $cellsummeanvotes, $cellcorrectanswers, $cellincorrectanswers);
             $rows[] = $row;
             ++$rank;
         }

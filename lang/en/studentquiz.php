@@ -176,6 +176,10 @@ $string['reportrank_table_title'] = '- Ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';
+$string['reportrank_table_column_countquestions'] = 'Number of questions';
+$string['reportrank_table_column_summeanvotes'] = 'Voting Score';
+$string['reportrank_table_column_correctanswers'] = 'Correct Answers';
+$string['reportrank_table_column_incorrectanswers'] = 'Incorrect Answers';
 
 // View.
 $string['viewlib_please_select_question'] = 'Please select a question.';

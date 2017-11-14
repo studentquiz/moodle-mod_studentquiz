@@ -475,6 +475,10 @@ where v.questionid in (SELECT q.id
             . '    MAX(r.archetype) AS rolename,'
             . '    MAX(countq.countquestions),'
             . '    MAX(votes.meanvotes),'
+            . '    ROUND(COALESCE(MAX(countquestions),0),1) AS countquestions,'
+            . '    ROUND(COALESCE(SUM(votes.meanvotes),0),1) AS summeanvotes,'
+            . '    ROUND(COALESCE(MAX(correctanswers.countanswer),0),1) AS correctanswers,'
+            . '    ROUND(COALESCE(MAX(incorrectanswers.countanswer),0),1) AS incorrectanswers,'
             . '    ROUND(COALESCE('
             . '        COALESCE(MAX(countquestions) * :questionquantifier, 0) +'
             . '        COALESCE(SUM(votes.meanvotes) * :votequantifier, 0) +'
@@ -549,7 +553,6 @@ where v.questionid in (SELECT q.id
             . '     GROUP BY u.id, u.firstname, u.lastname'
             . '     ORDER BY points DESC';
 
-        // @TODO: Load quantifiers from studentquiz activity settings
         return $DB->get_records_sql($sql, array(
             'cmid' => $this->cm->id, 'cmid2' => $this->cm->id
             , 'questionquantifier' => $this->studentquiz->questionquantifier
