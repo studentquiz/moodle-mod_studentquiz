@@ -284,11 +284,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         if ($owntotal) {
             $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_attempt', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($owntotal->numattempts)
-            );
-
-            $output .= html_writer::tag('p',
                 html_writer::span(get_string('reportquiz_stats_questions_answered', 'studentquiz') . ': ', 'reportquiz_total_label')
                 . html_writer::span($owntotal->questionsanswered)
             );
