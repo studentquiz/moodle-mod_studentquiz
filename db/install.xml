@@ -17,10 +17,10 @@
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="The maximum grade. Can be negative to indicate the use of a scale."/>
         <FIELD NAME="anonymrank" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Setting to show ranking anonym or not."/>
         <FIELD NAME="quizpracticebehaviour" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Displays the question behaviour selected by teachers"/>
-        <FIELD NAME="questionquantifier" TYPE="float" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Point factor multiplied with number of questions contributed"/>
-        <FIELD NAME="votequantifier" TYPE="float" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Point factor multiplied with average rating per question"/>
-        <FIELD NAME="correctanswerquantifier" TYPE="float" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Point factor multiplied with number of correct answers"/>
-        <FIELD NAME="incorrectanswerquantifier" TYPE="float" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Point factor multiplied with number of incorrect answers"/>
+        <FIELD NAME="questionquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of questions contributed"/>
+        <FIELD NAME="votequantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with average rating per question"/>
+        <FIELD NAME="correctanswerquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of correct answers"/>
+        <FIELD NAME="incorrectanswerquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of incorrect answers"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
