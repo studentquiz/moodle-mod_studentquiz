@@ -51,8 +51,6 @@ function studentquiz_supports($feature) {
             return true;
         case FEATURE_SHOW_DESCRIPTION:
             return true;
-        case FEATURE_GRADE_HAS_GRADE:
-            return true;
         case FEATURE_BACKUP_MOODLE2:
             return true;
         default:
@@ -124,8 +122,6 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     $questioncategory->parent = 0;
     $DB->update_record('question_categories', $questioncategory);
 
-    studentquiz_grade_item_update($studentquiz);
-
     return $studentquiz->id;
 }
 
@@ -154,8 +150,6 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
 
     $result = $DB->update_record('studentquiz', $studentquiz);
 
-    studentquiz_grade_item_update($studentquiz);
-
     return $result;
 }
 
@@ -181,8 +175,6 @@ function studentquiz_delete_instance($id) {
     $DB->delete_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
 
     $DB->delete_records('studentquiz', array('id' => $studentquiz->id));
-
-    studentquiz_grade_item_delete($studentquiz);
 
     return true;
 }
@@ -310,114 +302,6 @@ function studentquiz_cron () {
  */
 function studentquiz_get_extra_capabilities() {
     return array();
-}
-
-/* Gradebook API */
-
-/**
- * Is a given scale used by the instance of StudentQuiz?
- *
- * This function returns if a scale is being used by one StudentQuiz
- * if it has support for grading and scales.
- *
- * @param int $studentquizid ID of an instance of this module
- * @param int $scaleid ID of the scale
- * @return bool true if the scale is used by the given StudentQuiz instance
- */
-function studentquiz_scale_used($studentquizid, $scaleid) {
-    global $DB;
-
-    if ($scaleid and $DB->record_exists('studentquiz', array('id' => $studentquizid, 'grade' => -$scaleid))) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
- * Checks if scale is being used by any instance of StudentQuiz.
- *
- * This is used to find out if scale used anywhere.
- *
- * @param int $scaleid ID of the scale
- * @return boolean true if the scale is used by any StudentQuiz instance
- */
-function studentquiz_scale_used_anywhere($scaleid) {
-    global $DB;
-
-    if ($scaleid and $DB->record_exists('studentquiz', array('grade' => -$scaleid))) {
-        return true;
-    } else {
-        return false;
-    }
-}
-
-/**
- * Creates or updates grade item for the given StudentQuiz instance
- *
- * Needed by {@link grade_update_mod_grades()}.
- *
- * @param stdClass $studentquiz instance object with extra cmidnumber and modname property
- * @param array or string $grades 'reset' grades in the gradebook
- * @return int Returns GRADE_UPDATE_OK, GRADE_UPDATE_FAILED, GRADE_UPDATE_MULTIPLE or GRADE_UPDATE_ITEM_LOCKED
- */
-function studentquiz_grade_item_update(stdClass $studentquiz, $grades=null) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    $item = array();
-    $item['itemname'] = clean_param($studentquiz->name, PARAM_NOTAGS);
-    $item['gradetype'] = GRADE_TYPE_VALUE;
-
-    if ($studentquiz->grade > 0) {
-        $item['gradetype'] = GRADE_TYPE_VALUE;
-        $item['grademax']  = $studentquiz->grade;
-        $item['grademin']  = 0;
-    } else if ($studentquiz->grade < 0) {
-        $item['gradetype'] = GRADE_TYPE_SCALE;
-        $item['scaleid']   = -$studentquiz->grade;
-    } else {
-        $item['gradetype'] = GRADE_TYPE_NONE;
-    }
-
-    if ($grades === 'reset') {
-        $item['reset'] = true;
-    }
-
-    return grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz',
-            $studentquiz->id, 0, $grades, $item);
-}
-
-/**
- * Delete grade item for given StudentQuiz instance
- *
- * @param stdClass $studentquiz instance object
- * @return grade_item
- */
-function studentquiz_grade_item_delete($studentquiz) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    return grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz',
-            $studentquiz->id, 0, null, array('deleted' => 1));
-}
-
-/**
- * Update StudentQuiz grades in the gradebook
- *
- * Needed by {@link grade_update_mod_grades()}.
- *
- * @param stdClass $studentquiz instance object with extra cmidnumber and modname property
- * @param int $userid update grade of specific user only, 0 means all participants
- */
-function studentquiz_update_grades(stdClass $studentquiz, $userid = 0) {
-    global $CFG;
-    require_once($CFG->libdir.'/gradelib.php');
-
-    // Populate array of grade objects indexed by userid.
-    $grades = array();
-
-    grade_update('mod/studentquiz', $studentquiz->course, 'mod', 'studentquiz', $studentquiz->id, 0, $grades);
 }
 
 /* File API */
