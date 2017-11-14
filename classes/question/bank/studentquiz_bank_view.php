@@ -338,6 +338,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * Override base default sort
+     */
+    protected function default_sort() {
+        return array();
+    }
+
+    /**
      * (Copy from parent class - modified several code snippets)
      *
      * Create the SQL query to retrieve the indicated questions, based on
@@ -347,7 +354,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Get the required tables and fields.
         $this->sqlparams = array();
         $joins = array();
-        $fields = array('q.hidden', 'q.category');
+        $fields = array('q.hidden', 'q.category', 'q.timecreated');
         foreach ($this->requiredcolumns as $column) {
             if (method_exists($column, 'set_joinconditions')) {
                 $column->set_joinconditions($this->searchconditions);
@@ -371,6 +378,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         foreach ($this->sort as $sort => $order) {
             list($colname, $subsort) = $this->parse_subsort($sort);
             $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
+        }
+        if(empty($sorts)) {
+            $sorts[] = 'q.timecreated DESC';
         }
 
         // Build the where clause.
