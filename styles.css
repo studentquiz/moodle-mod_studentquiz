@@ -247,7 +247,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 }
 
 .studentquiz_behaviour .vote .error {
-    color: #ff0000;
+    color: red;
     font-weight: bold;
     margin-top: 5px;
 }

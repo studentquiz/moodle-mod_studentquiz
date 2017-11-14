@@ -38,7 +38,7 @@ class myattempts_column extends \core_question\bank\column_base {
      * Initialise Parameters for join
      */
     protected function init() {
-        global $DB,$USER;
+        global $DB, $USER;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
         // TODO: Get StudentQuiz id from infrastructure instead of DB!
