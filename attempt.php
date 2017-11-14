@@ -1,10 +1,30 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// @TODO Reduce filelib if not necessary.
+/**
+ * This view renders a single question during the executing of a StudentQuiz
+ *
+ * @package    mod_studentquiz
+ * @copyright  2017 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
-require_once($CFG->libdir . '/filelib.php');
 
 $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
@@ -16,11 +36,13 @@ $course = $DB->get_record('course', array('id' => $cm->course));
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-// TODO: Manage capabilities and events for studentquiz
+// TODO: Manage capabilities and events for studentquiz.
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
-//$behavior = $questionusage->get_preferred_behaviour();
-//$questionusage->get_question_attempt($slot)->
-//$a = $questionusage->get_question_attempt($slot)->get_behaviour()->can_finish_during_attempt();
+/*
+ $behavior = $questionusage->get_preferred_behaviour().
+ $questionusage->get_question_attempt($slot)->
+ $a = $questionusage->get_question_attempt($slot)->get_behaviour()->can_finish_during_attempt();
+*/
 
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => $slot));
 $stopurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $attemptid));
@@ -41,7 +63,7 @@ if (data_submitted()) {
 
         $questionusage->finish_question($slot);
 
-        // @TODO: Update tracking data --> studentquiz progress, studentquiz_attempt
+        // TODO: Update tracking data --> studentquiz progress, studentquiz_attempt.
         $transaction->allow_commit();
 
         if ($hasnext) {
@@ -60,7 +82,7 @@ if (data_submitted()) {
         }
     } else if (optional_param('finish', null, PARAM_BOOL)) {
         question_engine::save_questions_usage_by_activity($questionusage);
-        //@TODO Trigger events?
+        // TODO Trigger events?
         redirect($stopurl);
     } else {
         $questionusage->process_all_actions();
@@ -69,7 +91,7 @@ if (data_submitted()) {
     }
 }
 
-// hast answered?
+// Hast answered?
 $hasanswered = false;
 switch($questionusage->get_question_attempt($slot)->get_state()) {
     case question_state::$gradedpartial:
@@ -82,11 +104,11 @@ switch($questionusage->get_question_attempt($slot)->get_state()) {
     default:
         $hasanswered = false;
 }
-// is voted?
+// Is voted?
 $hasvoted = false;
 
 $options = new question_display_options();
-// TODO do they do anything? $headtags not used anywhere and question_engin..._js returns void
+// TODO do they do anything? $headtags not used anywhere and question_engin..._js returns void.
 $headtags = '';
 $headtags .= $questionusage->render_question_head_html($slot);
 $headtags .= question_engine::initialise_js();
@@ -122,7 +144,8 @@ $html .= html_writer::start_tag('div', array('class' => 'row'));
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-left'));
 if ($hasprevious) {
-    $html .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'previous', 'value' => 'Previous', 'class' => 'btn btn-primary'));
+    $html .= html_writer::empty_tag('input',
+        array('type' => 'submit', 'name' => 'previous', 'value' => 'Previous', 'class' => 'btn btn-primary'));
 }
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
@@ -130,18 +153,21 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
 if ($canfinish && ($hasnext || !$hasanswered)) {
-    $html .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'finish', 'value' => 'Finish', 'class' => 'btn btn-link'));
+    $html .= html_writer::empty_tag('input',
+        array('type' => 'submit', 'name' => 'finish', 'value' => 'Finish', 'class' => 'btn btn-link'));
 }
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-right'));
-// @TODO: extract to language file.
+// TODO: extract to language file.
 if ($hasanswered /*&& $voted*/) {
     if ($hasnext) {
-        $html .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'next', 'value' => 'Next', 'class' => 'btn btn-primary'));
+        $html .= html_writer::empty_tag('input',
+            array('type' => 'submit', 'name' => 'next', 'value' => 'Next', 'class' => 'btn btn-primary'));
     } else { // Finish instead of next on the last question.
-        $html .= html_writer::empty_tag('input', array('type' => 'submit', 'name' => 'finish', 'value' => 'Finish', 'class' => 'btn btn-primary'));
+        $html .= html_writer::empty_tag('input',
+            array('type' => 'submit', 'name' => 'finish', 'value' => 'Finish', 'class' => 'btn btn-primary'));
     }
 }
 $html .= html_writer::end_tag('div');

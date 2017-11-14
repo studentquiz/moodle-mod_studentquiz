@@ -379,7 +379,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             list($colname, $subsort) = $this->parse_subsort($sort);
             $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
         }
-        if(empty($sorts)) {
+
+        if (empty($sorts)) {
             $sorts[] = 'q.timecreated DESC';
         }
 
@@ -608,8 +609,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'mod_studentquiz\\bank\\comment_column,'
             . 'mod_studentquiz\\bank\\myattempts_column,'
             . 'mod_studentquiz\\bank\\mydifficulty_column,'
-            . 'mod_studentquiz\\bank\\mylastattempt_column'
-            ;
+            . 'mod_studentquiz\\bank\\mylastattempt_column';
         return parent::wanted_columns();
     }
 

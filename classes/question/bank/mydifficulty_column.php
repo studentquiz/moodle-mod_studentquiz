@@ -38,14 +38,14 @@ class mydifficulty_column extends \core_question\bank\column_base {
      * Initialise Parameters for join
      */
     protected function init() {
-        global $DB,$USER;
+        global $DB, $USER;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
-        // @TODO: Get StudentQuiz id from infrastructure instead of DB!
-        // @TODO: Exception handling lookup fails somehow
+        // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // TODO: Exception handling lookup fails somehow.
         $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
         $this->studentquizid = $sq->id;
-        // @TODO: Sanitize!
+        // TODO: Sanitize!
     }
 
     /**
@@ -95,10 +95,10 @@ class mydifficulty_column extends \core_question\bank\column_base {
             . ' sum(case state when \'gradedright\' then 1 else 0 end) as mycorrectattempts,'
             . ' questionid'
             . ' FROM {studentquiz_attempt} quiza '
-            . ' JOIN mdl_question_usages qu ON qu.id = quiza.questionusageid '
-            . ' JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id'
-            . ' JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id'
-            . ' LEFT JOIN mdl_question_attempt_step_data qasd ON qasd.attemptstepid = qas.id'
+            . ' JOIN {question_usages} qu ON qu.id = quiza.questionusageid '
+            . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
             . ' WHERE ' . implode(' AND ', $tests)
             . ' GROUP BY qa.questionid) mydiffs ON mydiffs.questionid = q.id');
     }

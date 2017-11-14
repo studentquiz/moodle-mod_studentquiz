@@ -138,14 +138,14 @@ class mod_studentquiz_view {
      * @param array $ids of question ids to be used in this attempt
      * @return stdClass attempt from generate quiz or false on error
      */
-    private function generate_attempt($ids){
+    private function generate_attempt($ids) {
 
         global $DB, $USER;
 
         // Load context of studentquiz activity.
         // TODO: use: this->get_context()?
         $context = context_module::instance($this->get_cm_id());
-        // ??? --> Should be instance id of studentquiz cm.
+        // Should be instance id of studentquiz cm.
 
         $questionusage = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
 
@@ -158,7 +158,7 @@ class mod_studentquiz_view {
 
         // TODO: Configurable on Activity Level.
         $questionusage->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
-        // TODO: Check if this is instance id from studentquiz table
+        // TODO: Check if this is instance id from studentquiz table.
         $attempt->studentquizid = $this->cm->instance;
 
         // Add questions to usage
@@ -171,7 +171,7 @@ class mod_studentquiz_view {
         // TODO: is it necessary to start all questions here, or just the current one.
         $questionusage->start_all_questions();
 
-        // Commit Usage to persistence:
+        // Commit Usage to persistence.
         question_engine::save_questions_usage_by_activity($questionusage);
 
         $attempt->questionusageid = $questionusage->get_id();

@@ -249,12 +249,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017111001, 'studentquiz');
     }
 
-    // Remove hidden section from studentquiz
+    // Remove hidden section from studentquiz.
     if ($oldversion < 2017111300) {
         // Define field hiddensection.
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('hiddensection', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'name');
-        $key =  new xmldb_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
+        $key = new xmldb_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
 
         // Remove field and key hiddensection if exists.
         if ($dbman->field_exists($table, $field)) {
@@ -269,25 +269,25 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017111402) {
         $table = new xmldb_table('studentquiz');
 
-        // Add questionquantifier
+        // Add questionquantifier.
         $field = new xmldb_field('questionquantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'quizpracticebehaviour');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // Add votequantifier
+        // Add votequantifier.
         $field = new xmldb_field('votequantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'questionquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // Add correctanswerquantifier
+        // Add correctanswerquantifier.
         $field = new xmldb_field('correctanswerquantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'votequantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // Add incorrectanswerquantifier
+        // Add incorrectanswerquantifier.
         $field = new xmldb_field('incorrectanswerquantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'correctanswerquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -295,7 +295,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2017111402, 'studentquiz');
     }
-
 
     /*
      * And that's all. Please, examine and understand the 3 example blocks above. Also

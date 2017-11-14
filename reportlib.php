@@ -449,8 +449,7 @@ where v.questionid in (SELECT q.id
     /**
      * Returns the id of the currently evaluated StudentQuiz.
      */
-    public function get_studentquiz_id()
-    {
+    public function get_studentquiz_id() {
         return $this->cm->instance;
     }
 
@@ -467,7 +466,7 @@ where v.questionid in (SELECT q.id
      * @throws coding_exception
      */
     public function get_user_quiz_summary($userid, &$total) {
-        // @TODO: Refactor to not scale DB requests with number of attempts!
+        // TODO: Refactor to not scale DB requests with number of attempts!
         $total = new stdClass();
         $total->numattempts = 0;
         $total->obtainedmarks = 0;

@@ -129,7 +129,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $tmp = $ur->firstname . ' ' . $ur->lastname;
             if ($report->is_anonym()) {
                 if (!$report->is_loggedin_user($ur->userid)) {
-                    // TODO: code smell: magic constant
+                    // TODO: code smell: magic constant.
                     $tmp = 'anonymous';
                 }
             }
@@ -299,7 +299,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             );
             $output .= html_writer::tag('p',
                 html_writer::span(get_string('reportquiz_stats_learning_quotient', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span(1 - (($owntotal->questionsright)/($owntotal->questionsanswered + $owntotal->questionsright)))
+                . html_writer::span(1 - (($owntotal->questionsright) / ($owntotal->questionsanswered + $owntotal->questionsright)))
             );
         }
         if ($total != null && false) {
@@ -371,18 +371,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Add submit button to controls
-     *
-     * @param question_attempt $qa a question attempt.
-     * @param question_display_options $options controls what should and should not be displayed.
-     * @return string HTML fragment.
-     */
-/*    public function controls(question_attempt $qa, question_display_options $options) {
-        return $this->submit_button($qa, $options);
-    }
-*/
-
-    /**
      * Generate some HTML (which may be blank) that appears in the outcome area,
      * after the question-type generated output.
      *
@@ -394,18 +382,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string HTML fragment.
      */
     public function feedback(question_definition $question, question_display_options $options) {
-        // TODO: ->feedback enabled?
-        //if ($options->feedback) {
-            global $CFG;
-            return html_writer::div(
-                    $this->render_vote($question->id)
-                    . $this->render_comment($question->id), 'studentquiz_behaviour')
-                . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
-                , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
-                . html_writer::start_div('none')
-                . html_writer::start_div('none');
-        //}
-        //return '';
+        global $CFG;
+        return html_writer::div($this->render_vote($question->id)
+            . $this->render_comment($question->id), 'studentquiz_behaviour')
+            . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
+            , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
+            . html_writer::start_div('none')
+            . html_writer::start_div('none');
     }
 
     /**

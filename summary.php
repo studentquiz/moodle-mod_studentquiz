@@ -1,9 +1,33 @@
 <?php
+// This file is part of Moodle - http://moodle.org/
+//
+// Moodle is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// Moodle is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+/**
+ * This page displays the result summary of the current attempt
+ *
+ * @package    mod_studentquiz
+ * @copyright  2017 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(dirname(__FILE__) . '/renderer.php');
-require_once("$CFG->libdir/formslib.php");
+require_once($CFG->libdir . '/formslib.php');
+
+global $PAGE;
 
 $attemptid = required_param('id', PARAM_INT);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
@@ -14,7 +38,7 @@ $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
 
-// @TODO: Trigger view events
+// TODO: Trigger view events!
 
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => 1));
 $stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cm->id));
@@ -24,7 +48,7 @@ if (data_submitted()) {
         redirect($actionurl);
     }
     if (optional_param('finish', null, PARAM_BOOL)) {
-        // @TODO: Summary and aggregate evaluations of attempt?
+        // TODO: Summary and aggregate evaluations of attempt!
         redirect($stopurl);
     }
 }
@@ -36,7 +60,7 @@ $output = $PAGE->get_renderer('mod_studentquiz');
 
 echo $OUTPUT->header();
 
-// @TODO: Refactor language strings
+// TODO: Refactor language strings!
 $output = '';
 $output .= html_writer::start_tag('form', array('method' => 'post', 'action' => '',
     'enctype' => 'multipart/form-data', 'id' => 'responseform'));

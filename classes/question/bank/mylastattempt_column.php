@@ -38,14 +38,14 @@ class mylastattempt_column extends \core_question\bank\column_base {
      * Initialise Parameters for join
      */
     protected function init() {
-        global $DB,$USER;
+        global $DB, $USER;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
-        // @TODO: Get StudentQuiz id from infrastructure instead of DB!
-        // @TODO: Exception handling lookup fails somehow
+        // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // TODO: Exception handling lookup fails somehow.
         $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
         $this->studentquizid = $sq->id;
-        // @TODO: Sanitize!
+        // TODO: Sanitize
     }
 
     /**
@@ -71,10 +71,12 @@ class mylastattempt_column extends \core_question\bank\column_base {
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->mylastattempt)) {
-            // @TODO: Refactor magic constant
-            echo $question->mylastattempt == 'gradedright'
-                ?get_string('lastattempt_right', 'studentquiz')
-                :get_string('lastattempt_wrong', 'studentquiz');
+            // TODO: Refactor magic constant.
+            if ($question->mylastattempt == 'gradedright') {
+                echo get_string('lastattempt_right', 'studentquiz');
+            } else {
+                echo get_string('lastattempt_wrong', 'studentquiz');
+            }
         } else {
             echo get_string('no_mylastattempt', 'studentquiz');
         }
@@ -91,24 +93,23 @@ class mylastattempt_column extends \core_question\bank\column_base {
             'name=\'-submit\'',
             '(qas.state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
         );
-        return array( 'mylastattempt' => 'LEFT JOIN (
-                         SELECT qa.questionid, qas.state as mylastattempt
-                         FROM {studentquiz_attempt} quiza 
-                         JOIN {question_usages} qu ON qu.id = quiza.questionusageid 
-                         JOIN {question_attempts} qa ON qa.questionusageid = qu.id
-                         LEFT JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-                         AND qas.id = (
-                             SELECT MAX(qas2.id) 
-                             FROM {studentquiz_attempt} as quiza2 
-                             JOIN {question_usages} qu2 ON qu2.id = quiza2.questionusageid
-                             JOIN {question_attempts} qa2 ON qa2.questionusageid = qu2.id
-                             JOIN {question_attempt_steps} qas2 ON qas2.questionattemptid = qa2.id
-                             WHERE qa2.questionid =	qa.questionid
-                             AND (qas2.state = \'gradedright\' OR qas2.state =\'gradedwrong\' OR qas2.state=\'gradedpartial\')
-                         )
-                         LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
-                         WHERE ' . implode(' AND ', $tests) .
-                     ') mylatts ON mylatts.questionid = q.id'
+        return array( 'mylastattempt' => 'LEFT JOIN ('
+            .' SELECT qa.questionid, qas.state mylastattempt'
+            .' FROM {studentquiz_attempt} quiza'
+            .'  JOIN {question_usages} qu ON qu.id = quiza.questionusageid'
+            .'  JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            .'   LEFT JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            .'   AND qas.id = ('
+            .'      SELECT MAX(qas2.id)'
+            .'      FROM {studentquiz_attempt} quiza2'
+            .'      JOIN {question_usages} qu2 ON qu2.id = quiza2.questionusageid'
+            .'      JOIN {question_attempts} qa2 ON qa2.questionusageid = qu2.id'
+            .'      JOIN {question_attempt_steps} qas2 ON qas2.questionattemptid = qa2.id'
+            .'      WHERE qa2.questionid =	qa.questionid'
+            .'      AND (qas2.state = \'gradedright\' OR qas2.state =\'gradedwrong\' OR qas2.state=\'gradedpartial\')'
+            .'      )'
+            .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+            .' WHERE ' . implode(' AND ', $tests) . ') mylatts ON mylatts.questionid = q.id'
         );
     }
 

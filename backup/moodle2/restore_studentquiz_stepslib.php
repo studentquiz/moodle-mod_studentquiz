@@ -88,12 +88,10 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         $this->apply_activity_instance($newitemid);
 
         if (!empty($data->attempts)) {
-            foreach( $data->attempts as $attempt) {
+            foreach ($data->attempts as $attempt) {
                 $DB->insert_record('studentquiz_attempt', $attempt);
             }
         }
-
-
     }
 
     /**

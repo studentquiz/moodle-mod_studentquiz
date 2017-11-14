@@ -95,6 +95,7 @@ $string['approveselectedscheck'] = 'Are you sure you want to un-/approve the fol
 $string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
+$string['no_questions_selected_message'] = 'Please select at least one question to start the quiz.';
 
 // Filters.
 $string['filter_label_search'] = 'Search';
