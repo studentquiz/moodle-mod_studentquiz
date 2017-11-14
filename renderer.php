@@ -183,7 +183,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table = new html_table();
         $table->attributes['class'] = 'generaltable boxaligncenter';
         $table->head = array(get_string('reportrank_table_column_fullname', 'studentquiz')
-            , get_string('reportquiz_total_attempt', 'studentquiz')
             , get_string('reportquiz_total_questions_answered', 'studentquiz')
             , get_string('reportquiz_total_questions_right', 'studentquiz')
             , get_string('reportquiz_total_obtained_marks', 'studentquiz'));
@@ -212,13 +211,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             if ($report->is_loggedin_user($user->id)) {
                 $style = array('class' => 'mod-studentquiz-summary-highlight');
                 $cellfullname->attributes = $style;
-                $cellnumattempts->attributes = $style;
                 $cellobtainedmarks->attributes = $style;
                 $cellquestionsanswered->attributes = $style;
                 $cellquestionsright->attributes = $style;
                 $row->attributes = $style;
             }
-            $row->cells = array($cellfullname, $cellnumattempts, $cellquestionsanswered
+            $row->cells = array($cellfullname, $cellquestionsanswered
             , $cellquestionsright, $cellobtainedmarks);
             $rows[] = $row;
         }
