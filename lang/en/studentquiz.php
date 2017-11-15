@@ -210,34 +210,68 @@ $string['messageprovider:approved'] = 'Question approve notification';
 $string['messageprovider:unapproved'] = 'Question unapprove notification';
 
 // Change notification email.
-$string['emailchangebody'] = 'Dear {$a->studentname},
+$string['emailchangebody'] = 'Dear {$a->recepientname},
 
 Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\'
-has been modified by \'{$a->teachername}\' at \'{$->questiontime}\'.
+has been modified by \'{$a->actorname}\' at \'{$a->questiontime}\'.
 
 You can review this question at: {$a->questionurl}.';
-$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->teachername}.';
+$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->actorname}.';
 $string['emailchangesubject'] = 'Question modification: {$a->questionname}';
 
 // Approve notification email.
-$string['emailapprovedbody'] = 'Dear {$a->studentname},
+$string['emailapprovedbody'] = 'Dear {$a->recepientname},
 
-This email informs you that your question \'{$a->questionname}\'
-in course \'{$a->coursename}\' has been approved by {$a->teachername}.
+Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\'
+has been approved by {$a->actorname} at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
-$string['emailapprovedsmall'] = 'Your question \'{$a->questionname}\' has been approved by {$a->teachername}.';
+$string['emailapprovedsmall'] = 'Your question \'{$a->questionname}\' has been approved by {$a->actorname}.';
 $string['emailapprovedsubject'] = 'Question approved: {$a->questionname}';
 
 // Unapprove notification email.
-$string['emailunapprovedbody'] = 'Dear {$a->studentname},
+$string['emailunapprovedbody'] = 'Dear {$a->recepientname},
 
-This email informs you that your question \'{$a->questionname}\'
-in course \'{$a->coursename}\' has been unapproved by {$a->teachername}.
+The approval of your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' 
+in course \'{$a->coursename}\' was revoked by {$a->actorname} at \'{$a->timestamp}\'. 
 
 You can review this question at: {$a->questionurl}.';
-$string['emailunapprovedsmall'] = 'Your question \'{$a->questionname}\' has been unapproved by {$a->teachername}.';
+$string['emailunapprovedsmall'] = 'Your question \'{$a->questionname}\' has been unapproved by {$a->actorname}.';
 $string['emailunapprovedsubject'] = 'Question unapproved: {$a->questionname}';
+
+// Comment added notification email.
+$string['emailcommentedbody'] = 'Dear {$a->recepientname},
+
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' 
+in course \'{$a->coursename}\' was commented by {$a->actorname} at \'{$a->timestamp}\'. 
+
+The comment was: 
+\'{$a->comment}\'
+
+You can review this question at: {$a->questionurl}.';
+$string['emailcommendedsmall'] = 'Your question \'{$a->questionname}\' has been commented by {$a->username}.';
+$string['emailcommentedsubject'] = 'Question commented: {$a->questionname}';
+
+// Comment deleted notification email.
+$string['emailcommentdeletedbody'] = 'Dear {$a->recepientname},
+
+Your comment \'{$a->comment}\' to the question \'{$a->questionname}\' on \'{$a->commenttime}\' 
+in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' was deleted by {$a->actorname} 
+at \'{$a->timestamp}\'. 
+
+You can review this question at: {$a->questionurl}.';
+$string['emailcommentdeletedsmall'] = 'Your comment to \'{$a->questionname}\' has been deleted by {$a->actorname}.';
+$string['emailcommentdeletedsubject'] = 'Question comment deleted: {$a->questionname}';
+
+// Question deleted notification email.
+$string['emailquestiondeletedbody'] = 'Dear {$a->recepientname},
+
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' 
+in course \'{$a->coursename}\' was deleted by {$a->actorname} at \'{$a->timestamp}\'. 
+
+You can review this question at: {$a->questionurl}.';
+$string['emailquestiondeletedsmall'] = 'Your question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
+$string['emailquestiondeletedsubject'] = 'Question deleted: {$a->questionname}';
 
 // Question behavior.
 $string['no_comments'] = 'No comments';

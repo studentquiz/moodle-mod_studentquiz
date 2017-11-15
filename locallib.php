@@ -144,37 +144,44 @@ function mod_studentquiz_is_anonym($cmid) {
 /**
  * Prepare message for notify.
  * @param stdClass $question object
- * @param stdClass $student student object
- * @param stdClass $teacher teacher object
+ * @param stdClass $recepient user object receiving the notification
+ * @param stdClass $actor user object triggering the notification
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return stdClass Data object with course, module, question, student and teacher info
  */
 
-function mod_studentquiz_prepare_notify_data($question, $student, $teacher, $course, $module) {
+function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module) {
     global $CFG;
 
     // Prepare message.
     $time = new DateTime('now', core_date::get_user_timezone_object());
 
     $data = new stdClass();
+
     // Course info.
     $data->coursename      = $course->fullname;
     $data->courseshortname = $course->shortname;
+
     // Module info.
     $data->modulename      = $module->name;
+
     // Question info.
     $data->questionname    = $question->name;
     $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $question->id;
-    $data->questiontime    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
-    // Student who created the question.
-    $data->studentidnumber = $student->idnumber;
-    $data->studentname     = fullname($student);
-    $data->studentusername = $student->username;
-    // Teacher who edited the question.
-    $data->teachername     = fullname($teacher);
-    $data->teacherusername = $teacher->username;
 
+    // Notification timestamp.
+    // TODO: Note: userdate will format for the actor, not for the recepient.
+    $data->timestamp    = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
+
+    // Recepient who receives the notification
+    $data->recepientidnumber = $recepient->idnumber;
+    $data->recepientname     = fullname($recepient);
+    $data->recepientusername = $recepient->username;
+
+    // User who triggered the noticication
+    $data->actorname     = fullname($actor);
+    $data->actorusername = $recepient->username;
     return $data;
 }
 
@@ -199,15 +206,85 @@ function mod_studentquiz_notify_change($questionid, $course, $module) {
             && $question->modifiedby == $USER->id
             && $question->timemodified + $lesteditthreshold >= time()) {
 
-            $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
-            $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-            $data = mod_studentquiz_prepare_notify_data($question, $student, $teacher, $course, $module);
+            $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
+            $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
 
             $subject = get_string('emailchangesubject', 'studentquiz', $data);
             $fulltext = get_string('emailchangebody', 'studentquiz', $data);
             $smalltext = get_string('emailchangesmall', 'studentquiz', $data);
 
-            return mod_studentquiz_send_notification('change', $student, $teacher, $subject, $fulltext, $smalltext, $data);
+            return mod_studentquiz_send_notification('change', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Notify author of a question if anyone commented on it.
+ * @param stdClass comment that was just added to the question
+ * @param int $questionid ID of the student's questions.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_notify_comment($comment, $questionid, $course, $module) {
+    global $DB, $USER;
+
+    // Requires the right permission.
+    if (question_has_capability_on($questionid, 'editall')) {
+        $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+        $lesteditthreshold = 5;
+
+        // Creator and modifier must be different and don't send when refreshing the page.
+        if ($comment->userid != $question->createdby
+            && $comment->userid == $USER->id
+            && $question->createdby != $USER->id
+            && $question->timemodified + $lesteditthreshold >= time()) {
+
+            $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
+            $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            $data->comment = $comment;
+
+            $subject = get_string('emailcommentedsubject', 'studentquiz', $data);
+            $fulltext = get_string('emailcommentedbody', 'studentquiz', $data);
+            $smalltext = get_string('emailcommentedsmall', 'studentquiz', $data);
+
+            return mod_studentquiz_send_notification('commented', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Notify author of a question about its deletion.
+ * @param int $questionid ID of the author's question.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_notify_question_deleted($questionid, $course, $module) {
+    global $DB, $USER;
+
+    // Requires the right permission.
+    if (question_has_capability_on($questionid, 'editall')) {
+        $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+
+        // Creator and deletor must be different.
+        if ($question->createdby != $USER->id) {
+
+            $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
+            $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+
+            $subject = get_string('emailquestiondeletedsubject', 'studentquiz', $data);
+            $fulltext = get_string('emailquestiondeletedbody', 'studentquiz', $data);
+            $smalltext = get_string('emailquestiondeletedsmall', 'studentquiz', $data);
+
+            return mod_studentquiz_send_notification('commented', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
         }
     }
 
@@ -229,21 +306,21 @@ function mod_studentquiz_notify_approving($questionid, $course, $module) {
         $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
         $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
 
-        $student = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
-        $teacher = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-        $data = mod_studentquiz_prepare_notify_data($question, $student, $teacher, $course, $module);
+        $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
+        $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
+        $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
 
         if ($approved) {
             $subject = get_string('emailapprovedsubject', 'studentquiz', $data);
             $fulltext = get_string('emailapprovedbody', 'studentquiz', $data);
             $smalltext = get_string('emailapprovedsmall', 'studentquiz', $data);
-            return mod_studentquiz_send_notification('approved', $student, $teacher, $subject, $fulltext, $smalltext, $data);
+            return mod_studentquiz_send_notification('updated', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
         }
 
         $subject = get_string('emailunapprovedsubject', 'studentquiz', $data);
         $fulltext = get_string('emailunapprovedbody', 'studentquiz', $data);
         $smalltext = get_string('emailunapprovedsmall', 'studentquiz', $data);
-        return mod_studentquiz_send_notification('unapproved', $student, $teacher, $subject, $fulltext, $smalltext, $data);
+        return mod_studentquiz_send_notification('updated', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
     }
 
     return false;
@@ -269,10 +346,10 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
     $data->userusername = $recipient->username;
 
     // Prepare the message.
-    $eventdata = new stdClass();
+    $eventdata = new \core\message\message();
     $eventdata->component         = 'mod_studentquiz';
     $eventdata->name              = $event;
-    $eventdata->notification      = true;
+    $eventdata->notification      = 1;
 
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;
@@ -307,46 +384,6 @@ function mod_studentquiz_get_quiz_cmids($studentquizid) {
         $cmids[$k] = intval($v->quizcoursemodule);
     }
     return $cmids;
-}
-
-/**
- * Return sections of course
- */
-function mod_studentquiz_get_course_sections($courseid) {
-    global $DB;
-    $table = 'course_sections';
-    $select = 'course = ?';
-    $params = array($courseid);
-    $fields = 'id, name, section';
-    $sort = 'section';
-    $result = $DB->get_records_select_menu($table, $select, $params, $sort, $fields);
-    return $result;
-}
-
-/**
- * Add a new hidden section to a course to save quiz instances to.
- * @param $course
- * @return int
- * @deprecated
- */
-function mod_studentquiz_create_new_hidden_section($courseid, $cmid) {
-    global $DB;
-
-    $section = 1 + $DB->count_records('course_sections', array('course' => $courseid));
-
-    $coursesection = new stdClass();
-    $coursesection->course = $courseid;
-    $coursesection->section = $section;
-    $coursesection->name = STUDENTQUIZ_COURSE_SECTION_NAME;
-    $coursesection->summary = STUDENTQUIZ_COURSE_SECTION_SUMMARY;
-    $coursesection->summaryformat = STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT;
-    $coursesection->visible = STUDENTQUIZ_COURSE_SECTION_VISIBLE;
-
-    $sectionid = $DB->insert_record('course_sections', $coursesection);
-
-    $DB->set_field('studentquiz', 'hiddensection', $sectionid, array('coursemodule' => $cmid));
-
-    return $sectionid;
 }
 
 /**

@@ -32,7 +32,6 @@ Feature: Backup and restore of moodle exports
     And I should see "Create new question"
     # The following creates a new quiz instance, because there is no existing quiz in the backup with the full question set.
     And I click on "Start Quiz" "button"
-    And I should see "Attempt quiz now"
 
     Examples:
       | file                                             |

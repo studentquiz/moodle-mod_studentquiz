@@ -230,6 +230,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                         foreach ($questionlist as $questionid) {
                             $questionid = (int)$questionid;
                             question_require_capability_on($questionid, 'edit');
+                            mod_studentquiz_notify_question_deleted($questionid, $this->course, $this->cm);
                             if (questions_in_use(array($questionid))) {
                                 $DB->set_field('question', 'hidden', 1, array('id' => $questionid));
                             } else {

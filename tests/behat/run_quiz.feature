@@ -26,7 +26,6 @@ Feature: Quizzes can be startet
     And I follow "studentquiz 0"
     Then I should see "Create new question"
     And I click on "Start Quiz" "button"
-    And I should see "Attempt quiz now"
 
   @javascript
   Scenario: An already logged in user can participate a studentquiz meanwhile created
@@ -50,4 +49,3 @@ Feature: Quizzes can be startet
     And I follow "studentquiz 0"
     And I should see "Create new question"
     And I click on "Start Quiz" "button"
-    And I should see "Attempt quiz now"

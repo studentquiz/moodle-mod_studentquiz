@@ -43,6 +43,11 @@ $data->userid = $USER->id;
 $questionid = required_param('questionid', PARAM_INT);
 $data->questionid = $questionid;
 
+// TODO: Missing verification!
+// Question is part of this StudentQuiz Activity.
+// StudentQuiz activity is part of this Course.
+// User is enrolled in tghis course.
+
 $save = required_param('save', PARAM_NOTAGS);
 require_sesskey();
 
@@ -88,4 +93,7 @@ function mod_studentquiz_save_comment($data) {
     $data->created = usertime(time(), usertimezone());
 
     $DB->insert_record('studentquiz_comment', $data);
+
+    // TODO: mod_studentquiz_notify_comment
+
 }
