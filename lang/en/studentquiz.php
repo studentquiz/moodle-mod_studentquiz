@@ -99,6 +99,7 @@ $string['questionsinuse'] = '(* Questions marked by an asterisk are already in u
 $string['creator_anonym_firstname'] = 'anonym';
 $string['creator_anonym_lastname'] = 'anonym';
 $string['no_questions_selected_message'] = 'Please select at least one question to start the quiz.';
+$string['progress_bar_caption'] = 'Your progress in this StudentQuiz activity';
 
 // Filters.
 $string['filter_label_search'] = 'Search';

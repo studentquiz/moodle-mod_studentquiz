@@ -113,10 +113,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param bool $recurse
      * @param bool $showhidden
      * @param bool $showquestiontext
+     * @return html output
      */
     public function display($tabname, $page, $perpage, $cat,
                             $recurse, $showhidden, $showquestiontext) {
-        global $OUTPUT;
+        $output = '';
 
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
         array_unshift($this->searchconditions, new \mod_studentquiz\condition\studentquiz_condition(
@@ -136,22 +137,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
             return;
         }
 
-        echo $OUTPUT->heading($this->cm->name, 2);
-        $this->create_new_question_form_ext($cat);
+        $output .= $this->create_new_question_form_ext($cat);
 
         if ($this->has_questions_in_category() || $this->isfilteractive) {
-            echo $this->filterform->render();
+            $output .= $this->filterform->render();
         }
 
-        echo '<form method="post" action="view.php">';
+        $output .= '<form method="post" action="view.php">';
 
         // Continues with list of questions.
-        $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
+        $output .= $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
             $this->baseurl, $cat, $this->cm,
             null, $page, $perpage, $showhidden, $showquestiontext,
             $this->contexts->having_cap('moodle/question:add'));
 
-        echo '</form>';
+        $output .= '</form>';
+
+        return $output;
     }
 
     /**
@@ -174,8 +176,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                         foreach ($questionlist as $questionid) {
                             $questionid = (int)$questionid;
 
-                            $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-                            $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+                            mod_studentquiz_flip_approved($questionid);
 
                             mod_studentquiz_notify_approving($questionid, $this->course, $this->cm);
                         }
@@ -460,7 +461,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $catcontext = \context::instance_by_id($contextid);
 
         $canadd = has_capability('moodle/question:add', $catcontext);
-        $this->create_new_question_form($category, $canadd);
+        return $this->create_new_question_form($category, $canadd);
     }
 
     /**
@@ -469,18 +470,24 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param bool $canadd capability state
      */
     protected function create_new_question_form($category, $canadd) {
-        echo '<div class="createnewquestion">';
+        $output = '';
+        $output .= '<div class="createnewquestion">';
+
         $caption = get_string('createnewquestion', 'studentquiz');
         if (!$this->has_questions_in_category()) {
             $caption = get_string('createnewquestionfirst', 'studentquiz');
         }
+        ob_start();
         if ($canadd) {
             create_new_question_button($category->id, $this->editquestionurl->params(),
                 $caption);
         } else {
             print_string('nopermissionadd', 'question');
         }
-        echo '</div>';
+        $output .= ob_get_contents();
+        ob_end_clean();
+        $output .= '</div>';
+        return $output;
     }
 
     /**
@@ -491,31 +498,37 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param stdClass $category    The question_category row from the database.
      * @param context  $catcontext  The context of the category being displayed.
      * @param array    $addcontexts contexts where the user is allowed to add new questions.
+     * @return html output
      */
     protected function display_bottom_controls($totalnumber, $recurse, $category, \context $catcontext, array $addcontexts) {
+        $output = '';
         $caneditall = has_capability('moodle/question:editall', $catcontext);
         $canmoveall = has_capability('moodle/question:moveall', $catcontext);
 
-        echo '<div class="modulespecificbuttonscontainer">';
-        echo '<strong>&nbsp;' . get_string('withselected', 'question') . ':</strong><br />';
+        $output .= '<div class="modulespecificbuttonscontainer">';
+        $output .= '<strong>&nbsp;' . get_string('withselected', 'question') . ':</strong><br />';
 
         if ($this->has_questions_in_category()) {
-            echo '<input class="btn btn-primary form-submit" type="submit" name="startquiz" value="'
+            $output .= '<input class="btn btn-primary form-submit" type="submit" name="startquiz" value="'
                  . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
         }
 
         if ($caneditall) {
-            echo '<input type="submit" class="btn" name="approveselected" value="'
+            $output .= '<input type="submit" class="btn" name="approveselected" value="'
                     . get_string('approve', 'studentquiz') . "\" />\n";
-            echo '<input type="submit" class="btn" name="deleteselected" value="' . get_string('delete') . "\" />\n";
+            $output .= '<input type="submit" class="btn" name="deleteselected" value="' . get_string('delete') . "\" />\n";
         }
 
         if ($canmoveall && count($addcontexts)) {
-            echo '<input type="submit" class="btn" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
+            $output .= '<input type="submit" class="btn" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
+            ob_start();
             question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
+            $output .= ob_get_contents();
+            ob_end_clean();
         }
 
-        echo "</div>\n";
+        $output .= "</div>\n";
+        return $output;
     }
 
     /**
@@ -532,10 +545,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param bool       $showhidden  whether deleted questions should be displayed.
      * @param bool       $showquestiontext whether the text of each question should be shown in the list. Deprecated.
      * @param array      $addcontexts contexts where the user is allowed to add new questions.
+     * @return html output
      */
     protected function display_question_list($contexts, $pageurl, $categoryandcontext,
                                              $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false,
                                              $showquestiontext = false, $addcontexts = array()) {
+        $output = '';
+
         $category = $this->get_current_category($categoryandcontext);
 
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
@@ -548,38 +564,38 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $questions = $this->load_page_questions_array($this->questions, $page, $perpage);
         $pagingbar = $this->create_paging_bar($pageurl, $page, $perpage);
 
-        echo '<fieldset class="invisiblefieldset" style="display: block;">';
-        echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        echo "<input name='id' type='hidden' value='".$this->cm->id ."' />";
-        echo "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->get_filtered_question_ids()) ."' />";
-        echo \html_writer::input_hidden_params($this->baseurl);
+        $output .= '<fieldset class="invisiblefieldset" style="display: block;">';
+        $output .=  '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+        $output .=  "<input name='id' type='hidden' value='".$this->cm->id ."' />";
+        $output .=  "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->get_filtered_question_ids()) ."' />";
+        $output .=  \html_writer::input_hidden_params($this->baseurl);
 
-        $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
-        echo $pagingbar;
+        $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
+        $output .= $pagingbar;
 
-        echo '<div class="categoryquestionscontainer">';
-        $this->start_table();
-        $rowcount = 0;
-        foreach ($questions as $question) {
-            $this->print_table_row($question, $rowcount);
-            $rowcount += 1;
-        }
-        $this->end_table();
-        echo "</div>\n";
+        $output .= $this->display_question_list_rows($questions);
 
-        echo $pagingbar;
-        $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
+        $output .= $pagingbar;
 
-        echo '</fieldset>';
+        $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
-        echo '<script>';
+        $output .=  '</fieldset>';
+
+        $output .= $this->display_javascript_snippet();
+
+        return $output;
+    }
+
+    protected function display_javascript_snippet() {
+        $output = '';
+        $output .=  '<script>';
         // Select all questions.
-        echo 'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
+        $output .=  'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
                 for (var i=0; i<el.length; i++) {
                   el[i].checked = true;
               }';
         // Change both move-to dropdown box at when selection changes.
-        echo 'var elements = document.getElementsByName(\'category\');
+        $output .=  'var elements = document.getElementsByName(\'category\');
               for(e in elements) {
                 elements[e].onchange = function() {
                   var elms = document.getElementsByName(\'category\');
@@ -590,7 +606,26 @@ class studentquiz_bank_view extends \core_question\bank\view {
                   }
                 }
               }';
-        echo '</script>';
+        $output .=  '</script>';
+        return $output;
+    }
+
+    protected function display_question_list_rows($questions) {
+        $output = '';
+        $output .=  '<div class="categoryquestionscontainer">';
+
+        ob_start();
+        $this->start_table();
+                $rowcount = 0;
+        foreach ($questions as $question) {
+            $this->print_table_row($question, $rowcount);
+            $rowcount += 1;
+        }
+        $this->end_table();
+        $output .= ob_get_contents();
+        ob_end_clean();
+        $output .= "</div>\n";
+        return $output;
     }
 
     /**
@@ -1051,5 +1086,4 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         return $pagingbaroutput;
     }
-
 }

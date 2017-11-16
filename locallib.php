@@ -63,6 +63,31 @@ function mod_studentquiz_has_behaviour() {
 }
 
 /**
+ * Load studentquiz from coursemodule id
+ *
+ * @param int cmid course module id
+ * @return stdClass studentquiz or false
+ */
+function mod_studentquiz_load_studentquiz_by_cmid($cmid) {
+    global $DB;
+    return $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+}
+
+/**
+ * Flip a question's approval status.
+ * TODO: Ensure question is part of a studentquiz context.
+ * @param int questionid index number of question
+ */
+function mod_studentquiz_flip_approved($questionid) {
+    global $DB;
+
+    $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
+
+    // TODO: Handle record not found!
+    $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+}
+
+/**
  * Returns behaviour option from the course module with fallback
  *
  * @param  stdClass $cm
@@ -115,9 +140,7 @@ function mod_studentquiz_check_created_permission($cmid) {
             return true;
         }
     }
-
     $context = context_module::instance($cmid);
-
     return has_capability('moodle/question:editall', $context);
 }
 
@@ -402,4 +425,124 @@ function mod_studentquiz_add_default_question_category($context, $name='') {
     $questioncategory->parent = -1;
     $DB->update_record('question_categories', $questioncategory);
     return $questioncategory;
+}
+
+/**
+ * Generate an attempt with question usage
+ * @param array $ids of question ids to be used in this attempt
+ * @param stdClass $studentquiz generating this attempt
+ * @param userid user attempting this StudentQuiz
+ * @return stdClass attempt from generate quiz or false on error
+ * TODO: Remove dependency on persistence from factory!
+ */
+function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
+
+    global $DB;
+
+    // Load context of studentquiz activity.
+    // TODO: use: this->get_context()?
+    $context = context_module::instance($studentquiz->get_cm_id());
+
+    $questionusage = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
+
+    $attempt = new stdClass();
+
+    // Add further attempt default values here.
+    // TODO: Check if get category id always points to lowest context level category of our studentquiz activity.
+    $attempt->categoryid = $studentquiz->categoryid;
+    $attempt->userid = $userid;
+
+    // TODO: Configurable on Activity Level.
+    $questionusage->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
+    // TODO: Check if this is instance id from studentquiz table.
+    $attempt->studentquizid = $studentquiz->id;
+
+    // Add questions to usage
+    $usageorder = array();
+    foreach ($ids as $i => $questionid) {
+        $questiondata = question_bank::load_question($questionid);
+        $usageorder[$i] = $questionusage->add_question($questiondata);
+    }
+
+    // Persistence.
+    // TODO: Is it necessary to start all questions here, or just the current one?
+    $questionusage->start_all_questions();
+
+    question_engine::save_questions_usage_by_activity($questionusage);
+
+    $attempt->questionusageid = $questionusage->get_id();
+
+    $attempt->id = $DB->insert_record('studentquiz_attempt', $attempt);
+
+    return $attempt;
+}
+
+
+/**
+ * Trigger Completion api and view Event
+ *
+ * @param  stdClass $course     course object
+ * @param  stdClass $cm         course module object
+ * @param  stdClass $context    context object
+ */
+function mod_studentquiz_overview_viewed($course, $cm, $context) {
+
+    $params = array(
+        'objectid' => $cm->id,
+        'context' => $context
+    );
+
+    $event = \mod_studentquiz\event\course_module_viewed::create($params);
+    $event->trigger();
+
+    // Completion.
+    $completion = new completion_info($course);
+    $completion->set_module_viewed($cm);
+}
+
+/**
+ * Helper to get ids from prefexed ids in raw submit data
+ */
+function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
+    if (!isset($rawdata)&& empty($rawdata)) {
+        return false;
+    }
+    $ids = array();
+    foreach ($rawdata as $key => $value) {
+        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
+            $ids[] = $matches[1];
+        }
+    }
+    if (!count($ids)) {
+        return false;
+    }
+    return $ids;
+}
+
+/**
+ * @param module_context context
+ * TODO: Refactor! This check not only checks but also updates!
+ */
+function mod_studentquiz_check_question_category($context) {
+    global $DB;
+    $questioncategory = $DB->get_record('question_categories', array('contextid' => $context->id));
+
+    if ($questioncategory->parent != -1) {
+        return;
+    }
+
+    $parentqcategory = $DB->get_records('question_categories',
+        array('contextid' => $context->get_parent_context()->id, 'parent' => 0));
+    // If there are multiple parents category with parent == 0, use the one with the lowest id.
+    if (!empty($parentqcategory)) {
+        $questioncategory->parent = reset($parentqcategory)->id;
+
+        foreach ($parentqcategory as $category) {
+            if ($questioncategory->parent > $category->id) {
+                $questioncategory->parent = $category->id;
+            }
+        }
+        // TODO: Why is this update necessary?
+        $DB->update_record('question_categories', $questioncategory);
+    }
 }

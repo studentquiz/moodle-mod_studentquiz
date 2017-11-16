@@ -173,6 +173,73 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Return a svg representing a progress bar filling 100% of is containing element
+     * @param stdClass $info
+     */
+    public function render_progress_bar($info) {
+
+        // Check input.
+        $validInput = true;
+        if (!isset($info->total)) {
+            $validInput = false;
+        }
+
+        if (!isset($info->attempted)) {
+            $validInput = false;
+        }
+
+        if (!isset($info->lastattemptcorrect)) {
+            $validInput = false;
+        }
+
+        // Stylings.
+        $rgbStroke = 'rgb(100,100,100)';
+        $rgbBackground = 'rgb(200,200,200)';
+        $rgbGreen = 'rgb(0,255,0)';
+        $rgbBlue = 'rgb(0,0,255)';
+        $rgbWhite = 'rgb(255,255,255)';
+        $barstroke = 'stroke-width:3;stroke:' . $rgbStroke .';';
+        $svgdims = array('width' => '100%', 'height' => 20);
+        $bardims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
+        $idBlue = 'blue';
+        $idGreen = 'green';
+        $gradientdims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
+        $stopColorWhite = html_writer::tag('stop', null,
+            array('offset' => '0%', 'style' => 'stop-color:' . $rgbWhite .';stop-opacity:1'));
+        $stopColorGreen = html_writer::tag('stop', null,
+            array('offset' => '100%','style' => 'stop-color:' . $rgbGreen . ';stop-opacity:1'));
+        $stopColorBlue = html_writer::tag('stop', null,
+            array('offset' => '100%','style' => 'stop-color:' . $rgbBlue . ';stop-opacity:1'));
+        $gradientBlue = html_writer::tag('radialGradient', $stopColorWhite . $stopColorBlue,
+            array_merge($gradientdims, array('id' => $idBlue)));
+        $gradientGreen = html_writer::tag('radialGradient', $stopColorWhite . $stopColorGreen,
+            array_merge($gradientdims, array('id' => $idGreen)));
+        $gradients = array($gradientBlue, $gradientGreen);
+        $defs = html_writer::tag('defs', implode($gradients));
+
+        // Background bar.
+        $barbackground = html_writer::tag('rect', null, array_merge($bardims,
+            array('width' => '100%', 'style' => $barstroke . 'fill:' . $rgbBackground)));
+
+        // Return empty bar if no questions are in StudentQuiz.
+        if( !$validInput || $info->total <= 0) {
+            return html_writer::tag('svg', $barbackground, $svgdims);
+        }
+
+        // Calculate Percentages to display.
+        $percent_attempted = round(100 * ($info->attempted / $info->total));
+        $percent_lastattemptcorrect = round(100 * ($info->lastattemptcorrect / $info->total));
+
+        // Return stacked bars.
+        $bars = array($barbackground);
+        $bars[] = html_writer::tag('rect', null, array_merge($bardims,
+            array('width' => $percent_attempted . '%', 'style' => $barstroke . 'fill:url(#' . $idBlue .')')));
+        $bars[] = html_writer::tag('rect', null, array_merge($bardims,
+            array('width' => $percent_lastattemptcorrect . '%', 'style' => $barstroke . 'fill:url(#' . $idGreen .')')));
+        return html_writer::tag('svg', $defs . implode($bars), $svgdims);
+    }
+
+    /**
      * Builds the quiz report table for the admin
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @param stdClass $usersdata
@@ -330,18 +397,24 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * Builds the studentquiz_bank_view
      * @param studentquiz_view $view studentquiz_view class with the necessary information
      */
-    public function display_questionbank($view) {
-        echo '<div class="questionbankwindow boxwidthwide boxaligncenter">';
+    public function render_overview($view) {
+        $contents = '';
+
         $pagevars = $view->get_qb_pagevar();
-        $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
+
+        $contents .= html_writer::tag('div', $this->render_progress_bar($view->get_progress_info()));
+
+        $contents .= $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
             $pagevars['cat'], false, $pagevars['showhidden'],
-            $pagevars['qbshowtext']);
+           $pagevars['qbshowtext']);
 
         if ($view->has_printableerror()) {
-            echo $this->show_error($view->get_errormessage());
+            $contents .= $this->show_error($view->get_errormessage());
         }
 
-        echo "</div>\n";
+        return $this->heading(format_string($view->get_studentquiz_name()))
+            .html_writer::tag('div', $contents, array('class' => implode(' ',
+                array('questionbankwindow', 'boxwidthwide', 'boxaligncenter'))));
     }
 
     /**
