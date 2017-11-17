@@ -24,14 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/locallib.php');
-require_once($CFG->dirroot . '/mod/quiz/renderer.php');
-require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
-require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
-require_once($CFG->libdir . '/gradelib.php');
+//require_once($CFG->dirroot . '/mod/quiz/renderer.php');
+//require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
+//require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
+//require_once($CFG->libdir . '/gradelib.php');
 
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
- *
+ * TODO: REFACTOR!
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

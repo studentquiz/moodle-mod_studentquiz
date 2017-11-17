@@ -31,6 +31,7 @@ require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
 
 /**
  * This class loads and represents the state for the main view.
+ *
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -111,6 +112,7 @@ class mod_studentquiz_view {
         // TODO: Refactor this category fix! It should be removed.
         $this->check_question_category();
 
+        // TODO: Refactor!
         $this->load_questionbank();
     }
 

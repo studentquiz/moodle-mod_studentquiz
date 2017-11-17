@@ -47,8 +47,8 @@ $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());
 $PAGE->set_url($report->get_quizreporturl());
 
-
 echo $OUTPUT->header();
+
 if ($report->is_admin()) {
     echo $report->get_quiz_admin_statistic_view();
 } else {

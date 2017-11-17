@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the renderer for the StudentQuiz module.
+ * Defines the renderers for the StudentQuiz module.
  *
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Defines the renderer for the StudentQuiz module.
+ * Base renderer for Studentquiz with helpers
  *
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
@@ -33,143 +33,39 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
-    /**
-     * displays quantifier information
-     */
-    public function view_quantifier_information($report) {
-        $table = new html_table();
-        $table->attributes['class'] = '';
-        $table->caption = get_string('reportrank_table_quantifier_caption', 'studentquiz');
-        $table->head = array(get_string('reportrank_table_column_quantifier_name', 'studentquiz')
-            , get_string('reportrank_table_column_factor', 'studentquiz')
-            , get_string('reportrank_table_column_description', 'studentquiz')
-        );
-        $table->align = array('left', 'left');
-        $table->size = array('', '', '');
-        $table->data = array();
+
+    public function render_data($celldata) {
         $rows = array();
-
-        // Question quantifier.
-        $row = new html_table_row();
-        $cellname = new html_table_cell();
-        $cellname->text = get_string('settings_questionquantifier', 'studentquiz');
-        $cellvalue = new html_table_cell();
-        $cellvalue->text = $report->get_quantifier_question();
-        $celldescription = new html_table_cell();
-        $celldescription->text = get_string('settings_questionquantifier_help', 'studentquiz');
-        $row->cells = array($cellname, $cellvalue, $celldescription);
-        $rows[] = $row;
-
-        // Vote quantifier.
-        $row = new html_table_row();
-        $cellname = new html_table_cell();
-        $cellname->text = get_string('settings_votequantifier', 'studentquiz');
-        $cellvalue = new html_table_cell();
-        $cellvalue->text = $report->get_quantifier_vote();
-        $celldescription = new html_table_cell();
-        $celldescription->text = get_string('settings_votequantifier_help', 'studentquiz');
-        $row->cells = array($cellname, $cellvalue, $celldescription);
-        $rows[] = $row;
-
-        // Correct answer quantifier.
-        $row = new html_table_row();
-        $cellname = new html_table_cell();
-        $cellname->text = get_string('settings_correctanswerquantifier', 'studentquiz');
-        $cellvalue = new html_table_cell();
-        $cellvalue->text = $report->get_quantifier_correctanswer();
-        $celldescription = new html_table_cell();
-        $celldescription->text = get_string('settings_correctanswerquantifier_help', 'studentquiz');
-        $row->cells = array($cellname, $cellvalue, $celldescription);
-        $rows[] = $row;
-
-        // Incorrect answer quantifier.
-        $row = new html_table_row();
-        $cellname = new html_table_cell();
-        $cellname->text = get_string('settings_incorrectanswerquantifier', 'studentquiz');
-        $cellvalue = new html_table_cell();
-        $cellvalue->text = $report->get_quantifier_incorrectanswer();
-        $celldescription = new html_table_cell();
-        $celldescription->text = get_string('settings_incorrectanswerquantifier_help', 'studentquiz');
-        $row->cells = array($cellname, $cellvalue, $celldescription);
-        $rows[] = $row;
-
-        $table->data = $rows;
-
-        return html_writer::table($table);
+        foreach($celldata as $row){
+            $cells = array();
+            foreach($row as $cell){
+                $cells[] = $this->render_table_cell($cell);
+            }
+            $datarows[] = $this->render_table_row($cells);
+        }
+        return $rows;
     }
 
-    /**
-     * builds the rank report table
-     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
-     * @return string rank report table
-     * @throws coding_exception
-     */
-    public function view_rankreport_table($report) {
+    public function render_table_cell($text) {
+        $cell = new html_table_cell();
+        $cell->text = $text;
+        return $cell;
+    }
+
+    public function render_table_row($cells) {
+        $row = new html_table_row();
+        $row->cells = $cells;
+        return $row;
+    }
+
+    public function render_table($data, $size, $align, $head, $caption) {
         $table = new html_table();
-        $table->attributes['class'] = 'generaltable boxaligncenter';
-        $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportrank_table_title', 'studentquiz');
-        $table->head = array(get_string('reportrank_table_column_rank', 'studentquiz')
-            , get_string('reportrank_table_column_fullname', 'studentquiz')
-            , get_string('reportrank_table_column_points', 'studentquiz')
-            , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
-            , get_string( 'reportrank_table_column_summeanvotes', 'studentquiz')
-            , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
-            , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
-            );
-        $table->align = array('left', 'left');
-        $table->size = array('', '');
-        $table->data = array();
-        $rows = array();
-        $rank = 1;
-        foreach ($report->get_user_ranking() as $ur) {
-            $cellrank = new html_table_cell();
-            $cellrank->text = $rank;
-            $cellfullname = new html_table_cell();
-
-            $tmp = $ur->firstname . ' ' . $ur->lastname;
-            if ($report->is_anonym()) {
-                if (!$report->is_loggedin_user($ur->userid)) {
-                    // TODO: code smell: magic constant.
-                    $tmp = 'anonymous';
-                }
-            }
-            $cellfullname->text = $tmp;
-
-            $cellpoints = new html_table_cell();
-            $cellpoints->text = $ur->points;
-
-            $cellcountquestions = new html_table_cell();
-            $cellcountquestions->text = $ur->countquestions;
-
-            $cellsummeanvotes = new html_table_cell();
-            $cellsummeanvotes->text = $ur->summeanvotes;
-
-            $cellcorrectanswers = new html_table_cell();
-            $cellcorrectanswers->text = $ur->correctanswers;
-
-            $cellincorrectanswers = new html_table_cell();
-            $cellincorrectanswers->text = $ur->incorrectanswers;
-
-            $row = new html_table_row();
-
-            if ($report->is_loggedin_user($ur->userid)) {
-                $style = array('class' => 'mod-studentquiz-summary-highlight');
-                $cellrank->attributes = $style;
-                $cellfullname->attributes = $style;
-                $cellpoints->attributes = $style;
-                $cellcountquestions->attributes = $style;
-                $cellsummeanvotes->attributes = $style;
-                $cellcorrectanswers->attributes = $style;
-                $cellincorrectanswers->attributes = $style;
-                $row->attributes = $style;
-            }
-            $row->cells = array($cellrank, $cellfullname, $cellpoints,
-                $cellcountquestions, $cellsummeanvotes, $cellcorrectanswers, $cellincorrectanswers);
-            $rows[] = $row;
-            ++$rank;
-        }
-        $table->data = $rows;
-        return  html_writer::table($table);
+        $table->caption = $caption;
+        $table->head = $head;
+        $table->align = $align;
+        $table->size = $size;
+        $table->data = $data;
+        return html_writer::table($table);
     }
 
     /**
@@ -240,184 +136,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Builds the quiz report table for the admin
-     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
-     * @param stdClass $usersdata
-     * @return string rank report table
-     */
-    public function view_quizreport_table($report, $usersdata) {
-        $output = $this->heading(get_string('reportquiz_admin_title', 'studentquiz'), 2, 'reportquiz_total_heading');
-        $table = new html_table();
-        $table->attributes['class'] = 'generaltable boxaligncenter';
-        $table->head = array(get_string('reportrank_table_column_fullname', 'studentquiz')
-            , get_string('reportquiz_total_questions_answered', 'studentquiz')
-            , get_string('reportquiz_total_questions_right', 'studentquiz')
-            , get_string('reportquiz_total_obtained_marks', 'studentquiz'));
-        $table->align = array('left', 'left');
-        $table->size = array('', '');
-        $table->data = array();
-        $rows = array();
-        foreach ($usersdata as $user) {
-            $cellfullname = new html_table_cell();
-            $cellfullname->text = $user->name;
-
-            $cellnumattempts = new html_table_cell();
-            $cellnumattempts->text = $user->numattempts;
-
-            $cellobtainedmarks = new html_table_cell();
-            $cellobtainedmarks->text = $user->attemptedgrade . ' / ' . $user->maxgrade;
-
-            $cellquestionsanswered = new html_table_cell();
-            $cellquestionsanswered->text = $user->questionsanswered;
-
-            $cellquestionsright = new html_table_cell();
-            $cellquestionsright->text = $user->questionsright;
-
-            $row = new html_table_row();
-
-            if ($report->is_loggedin_user($user->id)) {
-                $style = array('class' => 'mod-studentquiz-summary-highlight');
-                $cellfullname->attributes = $style;
-                $cellobtainedmarks->attributes = $style;
-                $cellquestionsanswered->attributes = $style;
-                $cellquestionsright->attributes = $style;
-                $row->attributes = $style;
-            }
-            $row->cells = array($cellfullname, $cellquestionsanswered
-            , $cellquestionsright, $cellobtainedmarks);
-            $rows[] = $row;
-        }
-        $table->data = $rows;
-        $output .= html_writer::table($table);
-        return $output;
-    }
-
-    /**
-     * Builds the quiz admin report view with the created quizzes
-     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
-     * @param stdClass $quizzes
-     * @return string rank report table
-     */
-
-    /**
-     * Builds the quiz report total section
-     * @param stdClass $total
-     * @param stdClass $usergrades
-     * @param bool $isadmin
-     * @return string quiz report data
-     */
-    public function view_quizreport_stats($total, $owntotal, $stats, $usergrades, $isadmin = false) {
-        $output = '';
-        $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
-
-        // No stats for admin yet.
-        if ($stats != null) {
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
-                .html_writer::span($stats->totalnrofquestions)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_nr_of_own_questions', 'studentquiz')
-                    . ': ', 'reportquiz_total_label')
-                .html_writer::span($stats->totalusersquestions)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_nr_of_approved_questions', 'studentquiz')
-                    . ': ', 'reportquiz_total_label')
-                .html_writer::span($stats->numapproved)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_avg_rating', 'studentquiz')
-                    . ': ', 'reportquiz_total_label')
-                .html_writer::span($stats->avgvotes)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz')
-                    . ': ', 'reportquiz_total_label')
-                .html_writer::span($stats->totalrightanswers)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_own_grade_of_max', 'studentquiz') . ': ', 'reportquiz_total_label')
-                .html_writer::span($usergrades->usermark . ' / ' . $usergrades->stuquizmaxmark)
-            );
-        }
-
-        if ($owntotal) {
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_questions_answered', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($owntotal->questionsanswered)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_questions_right', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($owntotal->questionsright)
-            );
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_stats_learning_quotient', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span(1 - (($owntotal->questionsright) / ($owntotal->questionsanswered + $owntotal->questionsright)))
-            );
-        }
-        if ($total != null && false) {
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_total_attempt', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($total->numattempts)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_total_questions_answered', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($total->questionsanswered)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_total_questions_right', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($total->questionsright)
-            );
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_total_questions_wrong', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span(($total->questionsanswered - $total->questionsright))
-            );
-            // Ex Label with: reportquiz_total_label and $total->obtainedmarks,.
-
-            $output .= html_writer::tag('p',
-                html_writer::span(get_string('reportquiz_total_users', 'studentquiz') . ': ', 'reportquiz_total_label')
-                . html_writer::span($total->usercount)
-            );
-        }
-
-        return $output;
-    }
-
-    /**
-     * Builds the studentquiz_bank_view
-     * @param studentquiz_view $view studentquiz_view class with the necessary information
-     */
-    public function render_overview($view) {
-        $contents = '';
-
-        $pagevars = $view->get_qb_pagevar();
-
-        $contents .= html_writer::tag('div', $this->render_progress_bar($view->get_progress_info()));
-
-        $contents .= $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
-            $pagevars['cat'], false, $pagevars['showhidden'],
-           $pagevars['qbshowtext']);
-
-        if ($view->has_printableerror()) {
-            $contents .= $this->show_error($view->get_errormessage());
-        }
-
-        return $this->heading(format_string($view->get_studentquiz_name()))
-            .html_writer::tag('div', $contents, array('class' => implode(' ',
-                array('questionbankwindow', 'boxwidthwide', 'boxaligncenter'))));
-    }
-
-    /**
      * Prints the error message
      * @param string $errormessage string error message
      * @return string error as HTML
@@ -426,6 +144,83 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return html_writer::div($errormessage, 'error');
     }
 
+}
+
+
+class mod_studentquiz_summary_renderer extends mod_studentquiz_renderer {
+    /**
+     * Renders the summary object given to html
+     * @param mod_studentquiz_summary_view $summary summary view obj.
+     * @return summary html
+     */
+    public function render_summary($summary) {
+        $output = '';
+        $output .= html_writer::start_tag('form', array('method' => 'post', 'action' => '',
+            'enctype' => 'multipart/form-data', 'id' => 'responseform'));
+        $output .= html_writer::start_tag('div', array('align' => 'center'));
+        $output .= html_writer::empty_tag('input', array('type' => 'submit',
+            'name' => 'back', 'value' => get_string('retry_button', 'studentquiz')));
+        $output .= html_writer::empty_tag('br');
+        $output .= html_writer::empty_tag('br');
+        $output .= html_writer::empty_tag('input', array('type' => 'submit',
+            'name' => 'finish', 'value' => get_string('finish_button', 'studentquiz')));
+        $output .= html_writer::end_tag('div');
+        $output .= html_writer::end_tag('form');
+        return $output;
+    }
+}
+
+class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
+
+    /**
+     * Builds the studentquiz_bank_view
+     * @param studentquiz_view $view studentquiz_view class with the necessary information
+     * @return string formatted html
+     */
+    public function render_overview($view)
+    {
+        $contents = '';
+
+        $contents .= $this->heading(format_string($view->get_studentquiz_name()));
+
+        $contents .= html_writer::tag('div', $this->render_progress_bar($view->get_progress_info()));
+
+        $contents .= $this->render_select_qtype_form($view);
+
+        $contents .= $this->render_questionbank($view);
+
+        if ($view->has_printableerror()) {
+            $contents .= $this->show_error($view->get_errormessage());
+        }
+
+        return html_writer::tag('div', $contents, array('class' => implode(' ',
+                array('questionbankwindow', 'boxwidthwide', 'boxaligncenter'))));
+    }
+
+    /**
+     * @param $view
+     * @return mixed
+     * TODO: REFACTOR!
+     */
+    public function render_questionbank($view) {
+        $pagevars = $view->get_qb_pagevar();
+        return $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
+            $pagevars['cat'], false, $pagevars['showhidden'],
+            $pagevars['qbshowtext']);
+    }
+
+    /**
+     * @param $view
+     * @return string
+     */
+    public function render_select_qtype_form($view) {
+        $output = '';
+        $output .= $view->get_questionbank()->create_new_question_form($view->get_category_id(), true);
+        return html_writer::tag('div', $output);
+    }
+}
+
+class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate some HTML to display comment list
      * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
@@ -457,10 +252,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function feedback(question_definition $question,
                              question_display_options $options, $cmid,
-                    $comments, $userid, $anonymize = true, $ismoderator = false) {
+                             $comments, $userid, $anonymize = true, $ismoderator = false) {
         global $CFG;
         return html_writer::div($this->render_vote($question->id)
-            . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
+                . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
             . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
             , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
             . html_writer::start_div('none')
@@ -561,5 +356,282 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $this->comment_form($questionid, $cmid)
             . html_writer::div($this->comment_list($comments, $userid, $anonymize, $ismoderator),
                 'comment_list'), 'comments');
+    }
+}
+
+
+
+
+class mod_studentquiz_statistic_renderer {
+
+
+    /**
+     * Builds the quiz report table for the admin
+     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
+     * @param stdClass $usersdata
+     * @return string rank report table
+     */
+    public function view_quizreport_table($report, $usersdata) {
+        $output = $this->heading(get_string('reportquiz_admin_title', 'studentquiz'), 2, 'reportquiz_total_heading');
+        $table = new html_table();
+        $table->attributes['class'] = 'generaltable boxaligncenter';
+        $table->head = array(get_string('reportrank_table_column_fullname', 'studentquiz')
+        , get_string('reportquiz_total_questions_answered', 'studentquiz')
+        , get_string('reportquiz_total_questions_right', 'studentquiz')
+        , get_string('reportquiz_total_obtained_marks', 'studentquiz'));
+        $table->align = array('left', 'left');
+        $table->size = array('', '');
+        $table->data = array();
+        $rows = array();
+        foreach ($usersdata as $user) {
+            $cellfullname = new html_table_cell();
+            $cellfullname->text = $user->name;
+
+            $cellnumattempts = new html_table_cell();
+            $cellnumattempts->text = $user->numattempts;
+
+            $cellobtainedmarks = new html_table_cell();
+            $cellobtainedmarks->text = $user->attemptedgrade . ' / ' . $user->maxgrade;
+
+            $cellquestionsanswered = new html_table_cell();
+            $cellquestionsanswered->text = $user->questionsanswered;
+
+            $cellquestionsright = new html_table_cell();
+            $cellquestionsright->text = $user->questionsright;
+
+            $row = new html_table_row();
+
+            if ($report->is_loggedin_user($user->id)) {
+                $style = array('class' => 'mod-studentquiz-summary-highlight');
+                $cellfullname->attributes = $style;
+                $cellobtainedmarks->attributes = $style;
+                $cellquestionsanswered->attributes = $style;
+                $cellquestionsright->attributes = $style;
+                $row->attributes = $style;
+            }
+            $row->cells = array($cellfullname, $cellquestionsanswered
+            , $cellquestionsright, $cellobtainedmarks);
+            $rows[] = $row;
+        }
+        $table->data = $rows;
+        $output .= html_writer::table($table);
+        return $output;
+    }
+
+    /**
+     * Builds the quiz admin report view with the created quizzes
+     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
+     * @param stdClass $quizzes
+     * @return string rank report table
+     */
+
+    /**
+     * Builds the quiz report total section
+     * @param stdClass $total
+     * @param stdClass $usergrades
+     * @param bool $isadmin
+     * @return string quiz report data
+     */
+    public function view_quizreport_stats($total, $owntotal, $stats, $usergrades, $isadmin = false) {
+    $output = '';
+    $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
+
+    // No stats for admin yet.
+    if ($stats != null) {
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->totalnrofquestions)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_nr_of_own_questions', 'studentquiz')
+                . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->totalusersquestions)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_nr_of_approved_questions', 'studentquiz')
+                . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->numapproved)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_avg_rating', 'studentquiz')
+                . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->avgvotes)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_right_answered_questions', 'studentquiz')
+                . ': ', 'reportquiz_total_label')
+            .html_writer::span($stats->totalrightanswers)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_own_grade_of_max', 'studentquiz') . ': ', 'reportquiz_total_label')
+            .html_writer::span($usergrades->usermark . ' / ' . $usergrades->stuquizmaxmark)
+        );
+    }
+
+    if ($owntotal) {
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_questions_answered', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span($owntotal->questionsanswered)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_questions_right', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span($owntotal->questionsright)
+        );
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_stats_learning_quotient', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span(1 - (($owntotal->questionsright) / ($owntotal->questionsanswered + $owntotal->questionsright)))
+        );
+    }
+    if ($total != null && false) {
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_attempt', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span($total->numattempts)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_questions_answered', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span($total->questionsanswered)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_questions_right', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span($total->questionsright)
+        );
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_questions_wrong', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span(($total->questionsanswered - $total->questionsright))
+        );
+        // Ex Label with: reportquiz_total_label and $total->obtainedmarks,.
+
+        $output .= html_writer::tag('p',
+            html_writer::span(get_string('reportquiz_total_users', 'studentquiz') . ': ', 'reportquiz_total_label')
+            . html_writer::span($total->usercount)
+        );
+    }
+
+    return $output;
+}
+}
+
+
+class mod_studentquiz_ranking_renderer {
+
+
+    /**
+     * @param $report
+     */
+    public function view_ranking($report) {
+       return $this->view_quantifier_information($report)
+        .$this->view_rankreport_table($report);
+    }
+
+    /**
+     * displays quantifier information
+     */
+    public function view_quantifier_information($report) {
+        $align = array('left', 'left');
+        $size = array('', '', '');
+        $head = array(get_string('reportrank_table_column_quantifier_name', 'studentquiz')
+        , get_string('reportrank_table_column_factor', 'studentquiz')
+        , get_string('reportrank_table_column_description', 'studentquiz'));
+        $caption = get_string('reportrank_table_quantifier_caption', 'studentquiz');
+        $celldata = array(
+            array(get_string('settings_questionquantifier', 'studentquiz'),
+                $report->get_quantifier_question(),
+                'description' => get_string('settings_questionquantifier_help', 'studentquiz')),
+            array('text' => get_string('settings_votequantifier', 'studentquiz'),
+                $report->get_quantifier_help(),
+                'value' => get_string('settings_votequantifier_help', 'studentquiz')),
+            array('text' => get_string('settings_correctanswerquantifier', 'studentquiz'),
+                $report->get_quantifier_correctanswer(),
+                'value' => get_string('settings_correctanswerquantifier_help', 'studentquiz')),
+            array('text' => get_string('settings_incorrectanswerquantifier', 'studentquiz'),
+                $report->get_quantifier_incorrectanswer(),
+                'value' => get_string('settings_incorrectanswerquantifier_help', 'studentquiz'))
+        );
+        $data = $this->render_table_data($celldata);
+        $table = $this->render_table($data, $size, $align, $head, $caption);
+        return html_writer::table($table);
+    }
+
+    /**
+     * builds the rank report table
+     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
+     * @return string rank report table
+     * @throws coding_exception
+     */
+    public function view_rankreport_table($report) {
+        $table = new html_table();
+        $table->attributes['class'] = 'generaltable boxaligncenter';
+        $table->caption = $report->get_coursemodule()->name . ' '. get_string('reportrank_table_title', 'studentquiz');
+        $table->head = array(get_string('reportrank_table_column_rank', 'studentquiz')
+        , get_string('reportrank_table_column_fullname', 'studentquiz')
+        , get_string('reportrank_table_column_points', 'studentquiz')
+        , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
+        , get_string( 'reportrank_table_column_summeanvotes', 'studentquiz')
+        , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
+        , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
+        );
+        $table->align = array('left', 'left');
+        $table->size = array('', '');
+        $table->data = array();
+        $rows = array();
+        $rank = 1;
+        foreach ($report->get_user_ranking() as $ur) {
+            $cellrank = new html_table_cell();
+            $cellrank->text = $rank;
+            $cellfullname = new html_table_cell();
+
+            $tmp = $ur->firstname . ' ' . $ur->lastname;
+            if ($report->is_anonym()) {
+                if (!$report->is_loggedin_user($ur->userid)) {
+                    // TODO: code smell: magic constant.
+                    $tmp = 'anonymous';
+                }
+            }
+            $cellfullname->text = $tmp;
+
+            $cellpoints = new html_table_cell();
+            $cellpoints->text = $ur->points;
+
+            $cellcountquestions = new html_table_cell();
+            $cellcountquestions->text = $ur->countquestions;
+
+            $cellsummeanvotes = new html_table_cell();
+            $cellsummeanvotes->text = $ur->summeanvotes;
+
+            $cellcorrectanswers = new html_table_cell();
+            $cellcorrectanswers->text = $ur->correctanswers;
+
+            $cellincorrectanswers = new html_table_cell();
+            $cellincorrectanswers->text = $ur->incorrectanswers;
+
+            $row = new html_table_row();
+
+            if ($report->is_loggedin_user($ur->userid)) {
+                $style = array('class' => 'mod-studentquiz-summary-highlight');
+                $cellrank->attributes = $style;
+                $cellfullname->attributes = $style;
+                $cellpoints->attributes = $style;
+                $cellcountquestions->attributes = $style;
+                $cellsummeanvotes->attributes = $style;
+                $cellcorrectanswers->attributes = $style;
+                $cellincorrectanswers->attributes = $style;
+                $row->attributes = $style;
+            }
+            $row->cells = array($cellrank, $cellfullname, $cellpoints,
+                $cellcountquestions, $cellsummeanvotes, $cellcorrectanswers, $cellincorrectanswers);
+            $rows[] = $row;
+            ++$rank;
+        }
+        $table->data = $rows;
+        return  html_writer::table($table);
     }
 }

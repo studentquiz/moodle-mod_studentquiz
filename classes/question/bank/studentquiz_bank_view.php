@@ -137,7 +137,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             return;
         }
 
-        $output .= $this->create_new_question_form_ext($cat);
+        //$output .= $this->create_new_question_form_ext($cat);
 
         if ($this->has_questions_in_category() || $this->isfilteractive) {
             $output .= $this->filterform->render();
@@ -451,25 +451,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Extends the question form with custom add question button
-     * @param string $cat question category
-     */
-    protected function create_new_question_form_ext($cat) {
-        $category = $this->get_current_category($cat);
-        list($categoryid, $contextid) = explode(',', $cat);
-
-        $catcontext = \context::instance_by_id($contextid);
-
-        $canadd = has_capability('moodle/question:add', $catcontext);
-        return $this->create_new_question_form($category, $canadd);
-    }
-
-    /**
      * Create new default question form
      * @param string $category question category
      * @param bool $canadd capability state
      */
-    protected function create_new_question_form($category, $canadd) {
+    public function create_new_question_form($categoryid, $canadd) {
         $output = '';
         $output .= '<div class="createnewquestion">';
 
@@ -479,7 +465,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
         ob_start();
         if ($canadd) {
-            create_new_question_button($category->id, $this->editquestionurl->params(),
+            create_new_question_button($categoryid, $this->editquestionurl->params(),
                 $caption);
         } else {
             print_string('nopermissionadd', 'question');

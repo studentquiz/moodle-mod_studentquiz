@@ -91,10 +91,10 @@ mod_studentquiz_overview_viewed($course, $cm, $context);
 
 echo $OUTPUT->header();
 
-$output = $PAGE->get_renderer('mod_studentquiz');
+$renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 
 // Render view.
-echo $output->render_overview($view);
+echo $renderer->render_overview($view);
 
 echo $OUTPUT->footer();
 

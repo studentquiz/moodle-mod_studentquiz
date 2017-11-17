@@ -46,10 +46,10 @@ $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());
 $PAGE->set_url($report->get_rankreporturl());
 
-$output = $PAGE->get_renderer('mod_studentquiz');
+$output = $PAGE->get_renderer('mod_studentquiz', 'ranking');
 
 echo $OUTPUT->header();
-echo $output->view_quantifier_information($report);
-echo $output->view_rankreport_table($report);
+
+echo $output->view_ranking($report);
 
 echo $OUTPUT->footer();

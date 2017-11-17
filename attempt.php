@@ -118,7 +118,7 @@ $headtags .= $questionusage->render_question_head_html($slot);
 $headtags .= question_engine::initialise_js();
 
 /** @var mod_studentquiz_renderer $output */
-$output = $PAGE->get_renderer('mod_studentquiz');
+$output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
 // Start output.
 $PAGE->set_url($actionurl);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
