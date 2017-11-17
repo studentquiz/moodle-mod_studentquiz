@@ -151,8 +151,8 @@ class mod_studentquiz_view {
         $this->qbpagevar = $pagevars;
 
         // TODO: Why are we not just extending \core_question\bank\view directly instead of aggregating it here?
-        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view($contexts, $thispageurl,
-                                                                                       $this->course, $this->cm);
+        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
+            $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz);
     }
 
     /**

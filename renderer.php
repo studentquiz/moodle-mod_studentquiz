@@ -34,14 +34,14 @@ defined('MOODLE_INTERNAL') || die();
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
 
-    public function render_data($celldata) {
+    public function render_table_data($celldata) {
         $rows = array();
         foreach($celldata as $row){
             $cells = array();
             foreach($row as $cell){
                 $cells[] = $this->render_table_cell($cell);
             }
-            $datarows[] = $this->render_table_row($cells);
+            $rows[] = $this->render_table_row($cells);
         }
         return $rows;
     }
@@ -362,7 +362,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 
 
 
-class mod_studentquiz_statistic_renderer {
+class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
 
 
     /**
@@ -418,12 +418,20 @@ class mod_studentquiz_statistic_renderer {
         return $output;
     }
 
+
     /**
-     * Builds the quiz admin report view with the created quizzes
-     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
-     * @param stdClass $quizzes
-     * @return string rank report table
+     * Get quiz admin statistic view
+     * $userid of viewing user
+     * @param mod_studentquiz_report $report
+     * @return string pre rendered /mod/stundentquiz view_quizreport_table
      */
+    public function get_quiz_admin_statistic_view(mod_studentquiz_report $report) {
+        $output = '';
+        $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
+        $output .= $this->view_quizreport_stats($report->get_overalltotal(), $report->get_admintotal(), $report->get_outputstats(), $report->get_usergrades(), true);
+        $output .= $this->view_quizreport_table($report, $report->get_usersdata());
+        return $output;
+    }
 
     /**
      * Builds the quiz report total section
@@ -433,10 +441,8 @@ class mod_studentquiz_statistic_renderer {
      * @return string quiz report data
      */
     public function view_quizreport_stats($total, $owntotal, $stats, $usergrades, $isadmin = false) {
-    $output = '';
-    $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
-
     // No stats for admin yet.
+    $output = '';
     if ($stats != null) {
         $output .= html_writer::tag('p',
             html_writer::span(get_string('reportquiz_stats_nr_of_questions', 'studentquiz') . ': ', 'reportquiz_total_label')
@@ -517,19 +523,34 @@ class mod_studentquiz_statistic_renderer {
     }
 
     return $output;
+    }
+
+
+    /**
+     * Get quiz tables
+     * @return string rendered /mod/quiz/view tables
+     */
+    public function get_quiz_tables($report) {
+        $total = $this->get_user_quiz_summary($report->userid, null);
+        $outputstats = $this->get_user_quiz_stats($report->userid);
+        $usergrades = $this->get_user_quiz_grade($report->userid);
+        $output = $this->view_quizreport_stats(null, $total, $outputstats, $usergrades);
+        return $output;
+    }
+
+
 }
-}
 
 
-class mod_studentquiz_ranking_renderer {
-
+class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
 
     /**
      * @param $report
      */
     public function view_ranking($report) {
-       return $this->view_quantifier_information($report)
-        .$this->view_rankreport_table($report);
+       return $this->heading(get_string('reportrank_title', 'studentquiz'))
+                . $this->view_quantifier_information($report)
+                . $this->view_rankreport_table($report);
     }
 
     /**
@@ -547,7 +568,7 @@ class mod_studentquiz_ranking_renderer {
                 $report->get_quantifier_question(),
                 'description' => get_string('settings_questionquantifier_help', 'studentquiz')),
             array('text' => get_string('settings_votequantifier', 'studentquiz'),
-                $report->get_quantifier_help(),
+                $report->get_quantifier_vote(),
                 'value' => get_string('settings_votequantifier_help', 'studentquiz')),
             array('text' => get_string('settings_correctanswerquantifier', 'studentquiz'),
                 $report->get_quantifier_correctanswer(),
@@ -557,8 +578,7 @@ class mod_studentquiz_ranking_renderer {
                 'value' => get_string('settings_incorrectanswerquantifier_help', 'studentquiz'))
         );
         $data = $this->render_table_data($celldata);
-        $table = $this->render_table($data, $size, $align, $head, $caption);
-        return html_writer::table($table);
+        return $this->render_table($data, $size, $align, $head, $caption);
     }
 
     /**
@@ -566,6 +586,7 @@ class mod_studentquiz_ranking_renderer {
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @return string rank report table
      * @throws coding_exception
+     * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
      */
     public function view_rankreport_table($report) {
         $table = new html_table();
@@ -584,6 +605,7 @@ class mod_studentquiz_ranking_renderer {
         $table->data = array();
         $rows = array();
         $rank = 1;
+
         foreach ($report->get_user_ranking() as $ur) {
             $cellrank = new html_table_cell();
             $cellrank->text = $rank;

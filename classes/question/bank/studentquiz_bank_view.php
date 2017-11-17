@@ -78,6 +78,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private $fields;
 
+    /**
+     * @var object $studentquiz current studentquiz record
+     */
+    private $studentquiz;
+
 
     /**
      * Constructor assuming we already have the necessary data loaded.
@@ -86,10 +91,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param \core_question\bank\moodle_url $pageurl
      * @param object $course
      * @param null|object $cm
+     * @param object $studentquiz
      */
-    public function __construct($contexts, $pageurl, $course, $cm) {
+    public function __construct($contexts, $pageurl, $course, $cm, $studentquiz) {
         parent::__construct($contexts, $pageurl, $course, $cm);
-        $this->set_filter_form_fields();
+        $this->studentquiz = $studentquiz;
+        $this->set_filter_form_fields($studentquiz->anonymrank);
         $this->initialize_filter_form($pageurl);
     }
 
@@ -637,8 +644,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * Set filter form fields
+     * @param bool $anonymize if false, questions can get filtered by author last name and first name instead by own userid only.
      */
-    private function set_filter_form_fields() {
+    private function set_filter_form_fields($anonymize = true) {
         $this->fields = array();
 
         // Standard filters.
@@ -659,7 +667,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
             true, 'questiontext');
 
-        if (mod_studentquiz_is_anonym($this->cm->id) && !mod_studentquiz_check_created_permission($this->cm->id)) {
+        if ($anonymize) {
             $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
                 true, 'createdby');
         } else {
@@ -819,7 +827,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param stdClass $questions
      * @return array questions
      */
-    private function filter_questions($questions) {
+    private function filter_questions($questions, $anonymize = true) {
         global $USER;
 
         $filteredquestions = array();
@@ -828,7 +836,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $questionids[] = $question->id;
             $question->tagname = '';
             if (
-                mod_studentquiz_is_anonym($this->cm->id) &&
+                $anonymize &&
                 $question->createdby != $USER->id
             ) {
                 $question->creatorfirstname = get_string('creator_anonym_firstname', 'studentquiz');

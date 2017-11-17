@@ -32,15 +32,19 @@ if (!$cmid) {
 }
 
 $report = new mod_studentquiz_report($cmid);
+
 require_login($report->get_course(), true, $report->get_coursemodule());
 
-$params = array(
-    'objectid' => $report->get_cm_id(),
-    'context' => $report->get_context()
-);
+global $USER;
+$userid = $USER->id;
+$context = context_module::instance($cmid);
 
-$event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
-$event->trigger();
+mod_studentquiz_report_viewed($cmid, $context);
+
+// TODO: Refactor: We don't want all users loaded to memory!
+$users = mod_studentquiz_get_all_users_in_course($report->get_course()->id);
+$report->set_users($users);
+$report->calc_stats();
 
 $PAGE->set_title($report->get_statistic_title());
 $PAGE->set_heading($report->get_heading());
@@ -49,9 +53,12 @@ $PAGE->set_url($report->get_quizreporturl());
 
 echo $OUTPUT->header();
 
-if ($report->is_admin()) {
-    echo $report->get_quiz_admin_statistic_view();
+$renderer = $PAGE->get_renderer('mod_studentquiz', 'report');
+
+if (mod_studentquiz_check_created_permission($userid)) {
+    echo $renderer->get_quiz_admin_statistic_view($report);
 } else {
-    echo $report->get_quiz_tables();
+    echo $renderer->get_quiz_tables($report);
 }
+
 echo $OUTPUT->footer();

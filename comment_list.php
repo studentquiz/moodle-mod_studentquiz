@@ -37,7 +37,9 @@ header('Content-Type: text/html; charset=utf-8');
 
 global $USER;
 $userid = $USER->id;
-$anonymize = mod_studentquiz_is_anonym($cmid);
+$context = context_module::instance($cmid);
+$studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
+$anonymize = $studentquiz->anonymrank;
 // TODO: Get from
 $ismoderator = false;
 

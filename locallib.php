@@ -138,6 +138,7 @@ function mod_studentquiz_get_quiz_module_id() {
 /**
  * Check if user has permission to see creator
  * @return bool
+ * TODO: Define studentquiz capabilities and check against those only!
  */
 function mod_studentquiz_check_created_permission($cmid) {
     global $USER;
@@ -150,23 +151,6 @@ function mod_studentquiz_check_created_permission($cmid) {
     }
     $context = context_module::instance($cmid);
     return has_capability('moodle/question:editall', $context);
-}
-
-/**
- * Checks if activity is anonym or not
- * @param  int  $cmid course module id
- * @return boolean
- * // TODO: Refactor: Reuse result if called twice!
- */
-function mod_studentquiz_is_anonym($cmid) {
-    global $DB;
-
-    $field = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $cmid));
-    if ($field !== false) {
-        return (int)$field;
-    }
-    // If no entry was found, better set it anonym.
-    return 1;
 }
 
 /**
@@ -484,6 +468,21 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
 
 
 /**
+ * Trigger Report viewed Event
+ */
+function mod_studentquiz_report_viewed($cmid, $context)
+{
+    // TODO: How about $cmid from $context?
+    $params = array(
+        'objectid' => $cmid,
+        'context' => $context
+    );
+
+    $event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
+    $event->trigger();
+}
+
+/**
  * Trigger Completion api and view Event
  *
  * @param  stdClass $course     course object
@@ -636,19 +635,268 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize = true,
 
     return $output;
 }
+
 /**
- * Check permission if is no student
- *
- * @return boolean the current user is not a student
- * TODO: REFACTOR! It should not be necessary to query the DB for just one comment!
+ * gets the Stats of the user for the actual studenquiz
+ * @param int $userid
+ * @param int $cmid course module id of studentquiz activity
+ * @return array
+ * @deprecated
+ * TODO: Refactor!
  */
-function mod_studentquiz_check_created_comment_permission($commentid) {
-    global $USER, $DB;
+function mod_studentquiz_get_user_quiz_stats($userid, $cmid) {
+    global $DB;
+    $sql = 'select ( '
+        . '  SELECT count(1) '
+        . '  FROM {question} q '
+        . '    LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        . '    LEFT JOIN {context} c ON qc.contextid = c.id '
+        . '  WHERE c.instanceid = :cmid AND q.parent = 0 AND c.contextlevel = 70 '
+        . ') AS TotalNrOfQuestions, '
+        . '  (SELECT count(1) '
+        . '   FROM {question} q '
+        . '     LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        . '     LEFT JOIN {context} c ON qc.contextid = c.id '
+        . '   WHERE c.instanceid = :cmid2 AND q.parent = 0 AND c.contextlevel = 70 AND q.createdby = :userid '
+        . '  ) AS TotalUsersQuestions, '
+        . '  (select count(DISTINCT att.questionid) '
+        . '   from {question_attempt_steps} ats '
+        . '     left JOIN {question_attempts} att on att.id = ats.questionattemptid '
+        . '   WHERE ats.userid = :userid2 AND ats.state = \'gradedright\' '
+        . '         AND att.questionid in (SELECT q.id '
+        . '                            FROM {question} q '
+        . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
+        . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)
+            AND ats.id IN (SELECT max(suatsmax.id)
+                        FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
+                            ON suatsmax.questionattemptid = suattmax.id
+                        WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND
+                              suatsmax.userid = ats.userid
+                        GROUP BY suattmax.questionid)) AS TotalRightAnswers ,
+                (select  COALESCE(round(avg(v.vote), 1), 0.0)
+from {studentquiz_vote} v
+where v.questionid in (SELECT q.id
+                       FROM {question} q LEFT JOIN
+                         {question_categories} qc
+                           ON q.category = qc.id
+                         LEFT JOIN {context} c
+                           ON qc.contextid = c.id
+                       WHERE c.instanceid = :cmid4 AND
+                             c.contextlevel = 70
+                             and q.createdby = :userid3)) as avgvotes,
+ (select COALESCE(sum(v.approved), 0)
+ from {studentquiz_question} v
+ WHERE v.questionid in (SELECT q.id
+                       FROM {question} q LEFT JOIN
+                         {question_categories} qc
+                           ON q.category = qc.id
+                         LEFT JOIN {context} c
+                           ON qc.contextid = c.id
+                       WHERE c.instanceid = :cmid5 AND
+                             c.contextlevel = 70
+                             and q.createdby = :userid4)) as numapproved ';
+    $record = $DB->get_record_sql($sql, array(
+        'cmid' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
+        'cmid4' => $cmid, 'cmid5' => $cmid,
+        'userid' => $userid, 'userid2' => $userid, 'userid3' => $userid, 'userid4' => $userid));
+    return $record;
+}
 
-    // Check if user is comment creator.
-    if ($DB->get_field('studentquiz_comment', 'userid', array('id' => $commentid)) == $USER->id) {
-        return true;
+/**
+ * Get all users in a course
+ * @param int $courseid
+ * @return array stdClass userid, courseid, firstname, lastname$
+ * TODO: Refactor! We don't want to load all users of a course into memory ever.
+ * @deprecated
+ */
+function mod_studentquiz_get_all_users_in_course($courseid) {
+    global $DB;
+    $sql = 'SELECT u.id as userid, c.id as courseid, u.firstname, u.lastname'
+        . '     FROM {user} u'
+        . '     INNER JOIN {user_enrolments} ue ON ue.userid = u.id'
+        . '     INNER JOIN {enrol} e ON e.id = ue.enrolid'
+        . '     INNER JOIN {course} c ON e.courseid = c.id'
+        . '     WHERE c.id = :courseid';
+
+    return $DB->get_records_sql($sql, array(
+        'courseid' => $courseid
+    ));
+}
+
+/**
+ * @param $userid
+ * @return array usermaxmark usermark stuquizmaxmark
+ * @deprecated TODO: We don't want to call this vor every user in the table!
+ */
+function mod_studentquiz_get_user_quiz_grade($userid, $cmid) {
+    global $DB;
+    $sql = 'select COALESCE(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
+        .' COALESCE(round(sum(sub.mark), 1), 0.0) usermark, '
+        .'  COALESCE((SELECT round(sum(q.defaultmark), 1) '
+        .'     FROM {question} q '
+        .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        .'       LEFT JOIN {context} c ON qc.contextid = c.id '
+        .'     WHERE q.parent = 0 AND c.instanceid = :cmid AND c.contextlevel = 70), 0.0) as stuquizmaxmark '
+        .'from ( '
+        .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
+        .'max(fraction) * suatt.maxmark as mark '
+        .'from {question_attempt_steps} suats '
+        .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
+        .'WHERE state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') '
+        .'        AND userid = :userid AND suatt.questionid IN (SELECT q.id '
+        .'                                            FROM {question} q '
+        .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
+        .'                                            WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70) '
+        .'AND suats.id in (select max(suatsmax.id)
+                         FROM {question_attempt_steps} suatsmax
+                           LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id
+                         where suatsmax.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')
+                         AND suatsmax.userid = suats.userid
+                         GROUP BY suattmax.questionid)'
+        .'GROUP BY suatt.questionid, suatt.id, suatt.questionid, suatt.maxmark, suats.questionattemptid) as sub ';
+
+    $record = $DB->get_record_sql($sql, array(
+        'cmid' => $cmid, 'cmid2' => $cmid,
+        'userid' => $userid));
+    return $record;
+}
+
+/**
+ * Get the calculcated user ranking from the database
+ * @param $cmid
+ * @param $questionquantifier
+ * @param $votequantifier
+ * @param $correctanswerquantifier
+ * @param $incorrectanswerquantifier
+ * @return array user ranking data
+ * @deprecated
+ * TODO: Introduce some sort of pagination!
+ */
+function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $votequantifier, $correctanswerquantifier, $incorrectanswerquantifier ) {
+    global $DB;
+    $sql = 'SELECT'
+        . '    u.id AS userid, u.firstname, u.lastname,'
+        . '    MAX(c.id) AS courseid, MAX(c.fullname), MAX(c.shortname),'
+        . '    MAX(r.archetype) AS rolename,'
+        . '    MAX(countq.countquestions),'
+        . '    MAX(votes.meanvotes),'
+        . '    ROUND(COALESCE(MAX(countquestions),0),1) AS countquestions,'
+        . '    ROUND(COALESCE(SUM(votes.meanvotes),0),1) AS summeanvotes,'
+        . '    ROUND(COALESCE(MAX(correctanswers.countanswer),0),1) AS correctanswers,'
+        . '    ROUND(COALESCE(MAX(incorrectanswers.countanswer),0),1) AS incorrectanswers,'
+        . '    ROUND(COALESCE('
+        . '        COALESCE(MAX(countquestions) * :questionquantifier, 0) +'
+        . '        COALESCE(SUM(votes.meanvotes) * :votequantifier, 0) +'
+        . '        COALESCE(MAX(correctanswers.countanswer) * :correctanswerquantifier, 0) +'
+        . '        COALESCE(MAX(incorrectanswers.countanswer) * :incorrectanswerquantifier, 0)'
+        . '    , 0), 1) AS points'
+        . '     FROM {studentquiz} sq'
+        . '     JOIN {context} con ON( con.instanceid = sq.coursemodule )'
+        . '     JOIN {question_categories} qc ON( qc.contextid = con.id )'
+        . '     JOIN {course} c ON( sq.course = c.id )'
+        . '     JOIN {enrol} e ON( c.id = e.courseid )'
+        . '     JOIN {role} r ON( r.id = e.roleid )'
+        . '     JOIN {user_enrolments} ue ON( ue.enrolid = e.id )'
+        . '     JOIN {user} u ON( u.id = ue.userid )'
+        . '     LEFT JOIN {question} q ON( q.createdby = u.id AND q.category = qc.id )'
+        // Answered questions.
+        // Correct answers.
+        . '   LEFT JOIN (SELECT  count(DISTINCT suatt.questionid) AS countanswer, userid'
+        . ' FROM {question_attempt_steps} suats'
+        . ' LEFT JOIN {question_attempts} suatt ON suats.questionattemptid = suatt.id'
+        . ' WHERE'
+        . '  state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
+        . '  AND suatt.rightanswer = suatt.responsesummary'
+        . '  AND suatt.questionid IN ('
+        . '    SELECT q.id  FROM {question} q'
+        . '    LEFT JOIN {question_categories} qc ON q.category = qc.id'
+        . '    LEFT JOIN {context} c ON qc.contextid = c.id'
+        . '  WHERE q.parent = 0'
+        . '        AND c.instanceid = :cmid2 AND'
+        . '        c.contextlevel = 70) AND'
+        . '        suats.id IN (SELECT max(suatsmax.id)'
+        . '             FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax'
+        . '                 ON suatsmax.questionattemptid = suattmax.id'
+        . '             WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND'
+        . '                   suatsmax.userid = suats.userid'
+        . '             GROUP BY suattmax.questionid)'
+        . ' GROUP BY userid) correctanswers'
+        . '  ON (correctanswers.userid = u.id) '
+        // Incorrect answers.
+        . '    LEFT JOIN'
+        . '    ('
+        . '         SELECT'
+        . '            count(distinct q.id) AS countanswer,'
+        . '            qza.userid, q.category'
+        . '         FROM {quiz_attempts} qza'
+        . '         LEFT JOIN {quiz_slots} qs ON ( qs.quizid = qza.quiz )'
+        . '         LEFT JOIN {question_attempts} qna ON ('
+        . '              qza.uniqueid = qna.questionusageid'
+        . '              AND qna.questionid = qs.questionid'
+        . '              AND qna.rightanswer <> qna.responsesummary'
+        . '              AND qna.responsesummary IS NOT NULL'
+        . '         )'
+        . '         LEFT JOIN {question} q ON( q.id = qna.questionid )'
+        . '         GROUP BY q.category, qza.userid'
+        . '    ) incorrectanswers ON ( incorrectanswers.userid = u.id AND incorrectanswers.category = qc.id )'
+        // Questions created.
+        . '    LEFT JOIN'
+        . '    ('
+        . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question}'
+        . '         WHERE parent = 0 GROUP BY category, createdby'
+        . '    ) countq ON( countq.createdby = u.id AND countq.category = qc.id )'
+        // Question votes.
+        . '    LEFT JOIN'
+        . '    ('
+        . '         SELECT'
+        . '            ROUND(SUM(sqvote.vote) / COUNT(sqvote.vote),2) AS meanvotes,'
+        . '            questionid'
+        . '         FROM {studentquiz_vote} sqvote'
+        . '         GROUP BY sqvote.questionid'
+        . '     ) votes ON( votes.questionid = q.id )'
+        . '     WHERE sq.coursemodule = :cmid'
+        . '     GROUP BY u.id, u.firstname, u.lastname'
+        . '     ORDER BY points DESC';
+
+    return $DB->get_records_sql($sql, array(
+        'cmid' => $cmid, 'cmid2' => $cmid
+    , 'questionquantifier' => $questionquantifier
+    , 'votequantifier' => $votequantifier
+    , 'correctanswerquantifier' => $correctanswerquantifier
+    , 'incorrectanswerquantifier' => $incorrectanswerquantifier
+    ));
+}
+
+/**
+ * @param $studentquizid
+ * @param $userid
+ * @return array
+ * @deprecated
+ * TODO: Add pagination!
+ */
+function mod_studentquiz_get_user_attempts($studentquizid, $userid) {
+    global $DB;
+    return $DB->get_records('studentquiz_attempt',
+        array('studentquizid' => $studentquizid, 'userid' => $userid));
+}
+
+/**
+ * @param $usageid
+ * @param $total
+ * @deprecated
+ * TODO: We dont want to sum this in memory for each attempt for each user!
+ */
+function mod_studentquiz_get_attempt_stats($usageid, &$total) {
+    $quba = question_engine::load_questions_usage_by_activity($usageid);
+    foreach ($quba->get_slots() as $slot) {
+        $fraction = $quba->get_question_fraction($slot);
+        $maxmarks = $quba->get_question_max_mark($slot);
+        $total->obtainedmarks += $fraction * $maxmarks;
+        if ($fraction > 0) {
+            ++$total->questionsright;
+        }
+        ++$total->questionsanswered;
     }
-
-    return false;
 }
