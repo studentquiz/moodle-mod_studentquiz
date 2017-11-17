@@ -57,7 +57,7 @@ require_login($cm->course, true, $cm);
 $context = context_module::instance($cm->id);
 
 // Load studentquiz.
-$studentquiz = mod_studentquiz_load_studentquiz_by_cmid($cm->id);
+$studentquiz = mod_studentquiz_load_studentquiz($cm->id, $context->id);
 
 // Redirect if we have received valid POST data.
 if (data_submitted()) {

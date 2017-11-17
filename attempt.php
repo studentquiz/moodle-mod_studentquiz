@@ -31,10 +31,14 @@ $slot = required_param('slot', PARAM_INT);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
 
 $cm = get_coursemodule_from_instance('studentquiz', $attempt->studentquizid);
+$cmid = $cm->id;
 $course = $DB->get_record('course', array('id' => $cm->course));
 
 require_login($course, true, $cm);
 $context = context_module::instance($cm->id);
+
+global $USER;
+$userid = $USER->id;
 
 // TODO: Manage capabilities and events for studentquiz.
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
@@ -130,13 +134,20 @@ echo $OUTPUT->header();
 $html = html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
     'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 
+$html .= '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';
+
 // Output the question.
 // TODO, options?
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the voting.
 if ($hasanswered) {
-    $html .= $output->feedback($question, $options);
+    $comments = mod_studentquiz_get_comments_with_creators($question->id);
+    // TODO: Get from activity config
+    $anonymize = true;
+    // TODO: Get from capabilities
+    $ismoderator = false;
+    $html .= $output->feedback($question, $options, $cmid, $comments, $userid, $anonymize, $ismoderator);
 }
 
 // Finish the question form.

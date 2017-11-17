@@ -25,13 +25,23 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/locallib.php');
 
 $questionid = required_param('questionid', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
 
 require_login();
 require_sesskey();
 
 header('Content-Type: text/html; charset=utf-8');
 
-echo studentquiz_comment_renderer($questionid);
+global $USER;
+$userid = $USER->id;
+$anonymize = mod_studentquiz_is_anonym($cmid);
+// TODO: Get from
+$ismoderator = false;
+
+$comments = mod_studentquiz_get_comments_with_creators($questionid);
+
+
+echo mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismoderator);

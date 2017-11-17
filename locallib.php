@@ -66,11 +66,19 @@ function mod_studentquiz_has_behaviour() {
  * Load studentquiz from coursemodule id
  *
  * @param int cmid course module id
- * @return stdClass studentquiz or false
+ * @param int context id id of the context of this course module
+ * @return stdClass|bool studentquiz or false
+ * TODO: Should we refactor dependency on questionlib by inserting category as parameter?
  */
-function mod_studentquiz_load_studentquiz_by_cmid($cmid) {
+function mod_studentquiz_load_studentquiz($cmid, $contextid) {
     global $DB;
-    return $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+    if ($studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $cmid))) {
+        if ($studentquiz->category = question_get_default_category($contextid)) {
+            $studentquiz->categoryid = $studentquiz->category->id;
+            return $studentquiz;
+        }
+    }
+    return false;
 }
 
 /**
@@ -148,13 +156,10 @@ function mod_studentquiz_check_created_permission($cmid) {
  * Checks if activity is anonym or not
  * @param  int  $cmid course module id
  * @return boolean
+ * // TODO: Refactor: Reuse result if called twice!
  */
 function mod_studentquiz_is_anonym($cmid) {
     global $DB;
-
-    if (mod_studentquiz_check_created_permission($cmid)) {
-        return 0;
-    }
 
     $field = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $cmid));
     if ($field !== false) {
@@ -431,7 +436,7 @@ function mod_studentquiz_add_default_question_category($context, $name='') {
  * Generate an attempt with question usage
  * @param array $ids of question ids to be used in this attempt
  * @param stdClass $studentquiz generating this attempt
- * @param userid user attempting this StudentQuiz
+ * @param userid attempting this StudentQuiz
  * @return stdClass attempt from generate quiz or false on error
  * TODO: Remove dependency on persistence from factory!
  */
@@ -441,7 +446,7 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
 
     // Load context of studentquiz activity.
     // TODO: use: this->get_context()?
-    $context = context_module::instance($studentquiz->get_cm_id());
+    $context = context_module::instance($studentquiz->coursemodule);
 
     $questionusage = question_engine::make_questions_usage_by_activity('mod_studentquiz', $context);
 
@@ -545,4 +550,105 @@ function mod_studentquiz_check_question_category($context) {
         // TODO: Why is this update necessary?
         $DB->update_record('question_categories', $questioncategory);
     }
+}
+
+/**
+ * Returns comment records joined with their user first & lastname
+ * @param int $questionid
+ */
+function mod_studentquiz_get_comments_with_creators($questionid) {
+    global $DB;
+
+    $sql = 'SELECT co.*, u.firstname, u.lastname FROM {studentquiz_comment} co'
+            .' JOIN {user} u on u.id = co.userid'
+            .' WHERE co.questionid = :questionid'
+            .' ORDER BY co.created ASC';
+
+    return $DB->get_records_sql($sql, array( 'questionid' => $questionid));
+}
+
+
+/**
+ * Generate some HTML to render comments
+ *
+ * @param array $comments from studentquiz_coments joind with user.firstname, user.lastname on comment.userid
+ *        ordered by comment->created ASC
+ * @param int $userid, viewing user id
+ * @param bool $anonymize Display or hide other author names
+ * @param bool $ismoderator True renders edit buttons to all comments false, only those for createdby userid
+ * @return string HTML fragment
+ * TODO: Render function should move to renderers!
+ */
+function mod_studentquiz_comment_renderer($comments, $userid, $anonymize = true, $ismoderator = false) {
+
+    $output = '';
+
+    $modname = 'studentquiz';
+
+    if (empty($comments)) {
+        return html_writer::div(get_string('no_comments', $modname));
+    }
+
+    $authorids = array();
+
+    foreach ($comments as $comment) {
+
+        // Collect distinct comment author ids chronologically.
+        if (!in_array($comment->userid, $authorids)) {
+            $authorids[] = $comment->userid;
+        }
+
+        $date = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
+
+        $canedit = $ismoderator || $comment->userid == $userid;
+        $seename = !$anonymize || $comment->userid == $userid;
+
+        if ($seename) {
+            $username = $comment->firstname . ' ' . $comment->lastname;
+        } else {
+            $username = get_string('student', 'studentquiz')
+                . ' #' . (1 + array_search($comment->userid, $authorids));
+        }
+
+        if ($canedit) {
+            $editspan = html_writer::span('remove', 'remove_action',
+                array(
+                    'data-id' => $comment->id,
+                    'data-question_id' => $comment->questionid
+                ));
+        } else {
+            $editspan = '';
+        }
+
+        $output .= html_writer::div( $editspan
+            . html_writer::tag('p', $date . ' | ' . $username)
+            . html_writer::tag('p', $comment->comment)
+        );
+    }
+
+    if (count($comments) > 2) {
+        $output .= html_writer::div(
+            html_writer::tag('button', get_string('show_more', $modname), array('type' => 'button', 'class' => 'show_more'))
+            . html_writer::tag('button', get_string('show_less', $modname)
+                , array('type' => 'button', 'class' => 'show_less hidden')), 'button_controls'
+        );
+    }
+
+    return $output;
+}
+/**
+ * Check permission if is no student
+ *
+ * @return boolean the current user is not a student
+ * TODO: REFACTOR! It should not be necessary to query the DB for just one comment!
+ */
+function mod_studentquiz_check_created_comment_permission($commentid) {
+    global $USER, $DB;
+
+    // Check if user is comment creator.
+    if ($DB->get_field('studentquiz_comment', 'userid', array('id' => $commentid)) == $USER->id) {
+        return true;
+    }
+
+    return false;
 }

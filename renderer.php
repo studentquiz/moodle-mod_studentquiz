@@ -428,12 +428,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * Generate some HTML to display comment list
-     *
-     * @param  int $questionid Question id
+     * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
+     * @param int $userid viewing user id
+     * @param bool $anonymize users can't see other comment authors user names except ismoderator
+     * @param bool $ismoderator can delete all comments, can see all usernames
      * @return string HTML fragment
+     * TODO: move mod_studentquiz_comment_renderer in here!
      */
-    public function comment_list($questionid) {
-        return studentquiz_comment_renderer($questionid);
+    public function comment_list($comments, $userid, $anonymize = true, $ismoderator = false) {
+        return mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismoderator);
     }
 
     /**
@@ -445,12 +448,19 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      *
      * @param question_definition $question the current question.
      * @param question_display_options $options controls what should and should not be displayed.
+     * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
+     * @param int $userid viewing user id
+     * @param bool $anonymize users can't see other comment authors user names except ismoderator
+     * @param bool $ismoderator can delete all comments, can see all usernames
+     * @return string HTML fragment
      * @return string HTML fragment.
      */
-    public function feedback(question_definition $question, question_display_options $options) {
+    public function feedback(question_definition $question,
+                             question_display_options $options, $cmid,
+                    $comments, $userid, $anonymize = true, $ismoderator = false) {
         global $CFG;
         return html_writer::div($this->render_vote($question->id)
-            . $this->render_comment($question->id), 'studentquiz_behaviour')
+            . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
             . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
             , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
             . html_writer::start_div('none')
@@ -503,7 +513,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param  int $questionid Question id
      * @return string HTML fragment
      */
-    protected function comment_form($questionid) {
+    protected function comment_form($questionid, $cmid) {
         return html_writer::tag('p', get_string('add_comment', 'mod_studentquiz')
                 . $this->output->help_icon('comment_help', 'mod_studentquiz') . ':')
             . html_writer::tag('p', html_writer::tag(
@@ -520,6 +530,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * Generate some HTML to display rating
      *
      * @param  int $questionid Question id
+     * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
+     * @param int $userid viewing user id
+     * @param bool $anonymize users can't see other comment authors user names except ismoderator
+     * @param bool $ismoderator can delete all comments, can see all usernames
+     * @return string HTML fragment
      * @return string HTML fragment
      */
     protected function render_vote($questionid) {
@@ -541,9 +556,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param  int $questionid Question id
      * @return string HTML fragment
      */
-    protected function render_comment($questionid) {
+    protected function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false) {
         return html_writer::div(
-            $this->comment_form($questionid)
-            . html_writer::div($this->comment_list($questionid), 'comment_list'), 'comments');
+            $this->comment_form($questionid, $cmid)
+            . html_writer::div($this->comment_list($comments, $userid, $anonymize, $ismoderator),
+                'comment_list'), 'comments');
     }
 }
