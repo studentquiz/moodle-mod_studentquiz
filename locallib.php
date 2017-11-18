@@ -637,7 +637,7 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize = true,
 }
 
 /**
- * gets the Stats of the user for the actual studenquiz
+ * gets the Stats of the user for the actual StudentQuiz
  * @param int $userid
  * @param int $cmid course module id of studentquiz activity
  * @return array
@@ -667,35 +667,35 @@ function mod_studentquiz_get_user_quiz_stats($userid, $cmid) {
         . '                            FROM {question} q '
         . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
         . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
-        . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)
-            AND ats.id IN (SELECT max(suatsmax.id)
-                        FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax
-                            ON suatsmax.questionattemptid = suattmax.id
-                        WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND
-                              suatsmax.userid = ats.userid
-                        GROUP BY suattmax.questionid)) AS TotalRightAnswers ,
-                (select  COALESCE(round(avg(v.vote), 1), 0.0)
-from {studentquiz_vote} v
-where v.questionid in (SELECT q.id
-                       FROM {question} q LEFT JOIN
-                         {question_categories} qc
-                           ON q.category = qc.id
-                         LEFT JOIN {context} c
-                           ON qc.contextid = c.id
-                       WHERE c.instanceid = :cmid4 AND
-                             c.contextlevel = 70
-                             and q.createdby = :userid3)) as avgvotes,
- (select COALESCE(sum(v.approved), 0)
- from {studentquiz_question} v
- WHERE v.questionid in (SELECT q.id
-                       FROM {question} q LEFT JOIN
-                         {question_categories} qc
-                           ON q.category = qc.id
-                         LEFT JOIN {context} c
-                           ON qc.contextid = c.id
-                       WHERE c.instanceid = :cmid5 AND
-                             c.contextlevel = 70
-                             and q.createdby = :userid4)) as numapproved ';
+        . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)'
+        . '          AND ats.id IN (SELECT max(suatsmax.id)'
+        . '           FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax'
+        . '                 ON suatsmax.questionattemptid = suattmax.id'
+        . '             WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND'
+        . '                   suatsmax.userid = ats.userid'
+        . '             GROUP BY suattmax.questionid)) AS TotalRightAnswers ,'
+        . '     (select  COALESCE(round(avg(v.vote), 1), 0.0)'
+        . ' from {studentquiz_vote} v'
+        . ' where v.questionid in (SELECT q.id'
+        . '            FROM {question} q LEFT JOIN'
+        . '              {question_categories} qc'
+        . '                ON q.category = qc.id'
+        . '              LEFT JOIN {context} c'
+        . '                ON qc.contextid = c.id'
+        . '            WHERE c.instanceid = :cmid4 AND'
+        . '                  c.contextlevel = 70'
+        . '                  and q.createdby = :userid3)) as avgvotes,'
+        . ' (select COALESCE(sum(v.approved), 0)'
+        . ' from {studentquiz_question} v'
+        . ' WHERE v.questionid in (SELECT q.id'
+        . '            FROM {question} q LEFT JOIN'
+        . '              {question_categories} qc'
+        . '                ON q.category = qc.id'
+        . '              LEFT JOIN {context} c'
+        . '                ON qc.contextid = c.id'
+        . '            WHERE c.instanceid = :cmid5 AND'
+        . '                  c.contextlevel = 70'
+        . '                  and q.createdby = :userid4)) as numapproved ';
     $record = $DB->get_record_sql($sql, array(
         'cmid' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
         'cmid4' => $cmid, 'cmid5' => $cmid,
@@ -767,14 +767,16 @@ function mod_studentquiz_get_user_quiz_grade($userid, $cmid) {
  * Get the calculcated user ranking from the database
  * @param $cmid
  * @param $questionquantifier
+ * @param $approvedquantifier
  * @param $votequantifier
  * @param $correctanswerquantifier
  * @param $incorrectanswerquantifier
  * @return array user ranking data
  * @deprecated
  * TODO: Introduce some sort of pagination!
+ * TODO: Refactor quantifiers to quantifier object
  */
-function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $votequantifier, $correctanswerquantifier, $incorrectanswerquantifier ) {
+function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $approvedquantifier, $votequantifier, $correctanswerquantifier, $incorrectanswerquantifier ) {
     global $DB;
     $sql = 'SELECT'
         . '    u.id AS userid, u.firstname, u.lastname,'
@@ -783,11 +785,13 @@ function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $votequant
         . '    MAX(countq.countquestions),'
         . '    MAX(votes.meanvotes),'
         . '    ROUND(COALESCE(MAX(countquestions),0),1) AS countquestions,'
+        . '    COALESCE(approvedq.countapproved, 0) as numapproved,'
         . '    ROUND(COALESCE(SUM(votes.meanvotes),0),1) AS summeanvotes,'
         . '    ROUND(COALESCE(MAX(correctanswers.countanswer),0),1) AS correctanswers,'
         . '    ROUND(COALESCE(MAX(incorrectanswers.countanswer),0),1) AS incorrectanswers,'
         . '    ROUND(COALESCE('
         . '        COALESCE(MAX(countquestions) * :questionquantifier, 0) +'
+        . '        COALESCE(approvedq.countapproved, 0) * :approvedquantifier + '
         . '        COALESCE(SUM(votes.meanvotes) * :votequantifier, 0) +'
         . '        COALESCE(MAX(correctanswers.countanswer) * :correctanswerquantifier, 0) +'
         . '        COALESCE(MAX(incorrectanswers.countanswer) * :incorrectanswerquantifier, 0)'
@@ -847,6 +851,13 @@ function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $votequant
         . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question}'
         . '         WHERE parent = 0 GROUP BY category, createdby'
         . '    ) countq ON( countq.createdby = u.id AND countq.category = qc.id )'
+        // Questions approved.
+        . '    LEFT JOIN'
+        . '    ('
+        . '         SELECT SUM(sqq.approved) AS countapproved, createdby, category '
+        . '         FROM {question} q JOIN {studentquiz_question} sqq ON q.id = sqq.questionid'
+        . '         GROUP BY q.createdby, q.category'
+        . '    ) approvedq ON( approvedq.createdby = u.id AND approvedq.category = qc.id )'
         // Question votes.
         . '    LEFT JOIN'
         . '    ('
@@ -863,6 +874,7 @@ function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $votequant
     return $DB->get_records_sql($sql, array(
         'cmid' => $cmid, 'cmid2' => $cmid
     , 'questionquantifier' => $questionquantifier
+    , 'approvedquantifier' => $approvedquantifier
     , 'votequantifier' => $votequantifier
     , 'correctanswerquantifier' => $correctanswerquantifier
     , 'incorrectanswerquantifier' => $incorrectanswerquantifier
@@ -899,4 +911,11 @@ function mod_studentquiz_get_attempt_stats($usageid, &$total) {
         }
         ++$total->questionsanswered;
     }
+}
+
+/**
+ *
+ */
+function mod_studentquiz_get_number_of_enrolled_users() {
+
 }

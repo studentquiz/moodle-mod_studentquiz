@@ -18,6 +18,7 @@
         <FIELD NAME="anonymrank" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Setting to show ranking anonym or not."/>
         <FIELD NAME="quizpracticebehaviour" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Displays the question behaviour selected by teachers"/>
         <FIELD NAME="questionquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of questions contributed"/>
+        <FIELD NAME="approvedquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with the number of approved questions created"/>
         <FIELD NAME="votequantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with average rating per question"/>
         <FIELD NAME="correctanswerquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of correct answers"/>
         <FIELD NAME="incorrectanswerquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of incorrect answers"/>

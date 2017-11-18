@@ -39,6 +39,13 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_configtext(
+        'studentquiz_approved_quantifier',
+        get_string('settings_approved_quantifier', 'studentquiz'),
+        get_string('config_approved_quantifier', 'studentquiz'),
+        5, PARAM_INT
+    ));
+
+    $settings->add(new admin_setting_configtext(
         'studentquiz_vote_quantifier',
         get_string('settings_vote_quantifier', 'studentquiz'),
         get_string('config_vote_quantifier', 'studentquiz'),

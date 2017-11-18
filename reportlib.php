@@ -205,6 +205,13 @@ class mod_studentquiz_report {
     }
 
     /**
+     * Get the approved quantifier of this studentquiz
+     */
+    public function get_quantifier_approved() {
+        return $this->studentquiz->approvedquantifier;
+    }
+
+    /**
      * Get the vote quantifier of this studentquiz
      */
     public function get_quantifier_vote() {
@@ -397,6 +404,7 @@ class mod_studentquiz_report {
     public function get_user_ranking() {
         return mod_studentquiz_get_user_ranking($this->get_cm_id(),
             $this->get_quantifier_question(),
+            $this->get_quantifier_approved(),
             $this->get_quantifier_vote(),
             $this->get_quantifier_correctanswer(),
             $this->get_quantifier_incorrectanswer());

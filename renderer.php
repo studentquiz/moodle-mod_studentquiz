@@ -89,37 +89,37 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         }
 
         // Stylings.
-        $rgbStroke = 'rgb(100,100,100)';
-        $rgbBackground = 'rgb(200,200,200)';
-        $rgbGreen = 'rgb(0,255,0)';
-        $rgbBlue = 'rgb(0,0,255)';
-        $rgbWhite = 'rgb(255,255,255)';
-        $barstroke = 'stroke-width:3;stroke:' . $rgbStroke .';';
-        $svgdims = array('width' => '100%', 'height' => 20);
-        $bardims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
-        $idBlue = 'blue';
-        $idGreen = 'green';
-        $gradientdims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
+        $rgb_stroke = 'rgb(100,100,100)';
+        $rgb_background = 'rgb(200,200,200)';
+        $rgb_green = 'rgb(0,255,0)';
+        $rgb_blue = 'rgb(0,0,255)';
+        $rgb_white = 'rgb(255,255,255)';
+        $bar_stroke = 'stroke-width:3;stroke:' . $rgb_stroke .';';
+        $svg_dims = array('width' => '100%', 'height' => 20);
+        $bar_dims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
+        $id_blue = 'blue';
+        $id_green = 'green';
+        $gradient_dims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
         $stopColorWhite = html_writer::tag('stop', null,
-            array('offset' => '0%', 'style' => 'stop-color:' . $rgbWhite .';stop-opacity:1'));
+            array('offset' => '0%', 'style' => 'stop-color:' . $rgb_white .';stop-opacity:1'));
         $stopColorGreen = html_writer::tag('stop', null,
-            array('offset' => '100%','style' => 'stop-color:' . $rgbGreen . ';stop-opacity:1'));
+            array('offset' => '100%','style' => 'stop-color:' . $rgb_green . ';stop-opacity:1'));
         $stopColorBlue = html_writer::tag('stop', null,
-            array('offset' => '100%','style' => 'stop-color:' . $rgbBlue . ';stop-opacity:1'));
+            array('offset' => '100%','style' => 'stop-color:' . $rgb_blue . ';stop-opacity:1'));
         $gradientBlue = html_writer::tag('radialGradient', $stopColorWhite . $stopColorBlue,
-            array_merge($gradientdims, array('id' => $idBlue)));
+            array_merge($gradient_dims, array('id' => $id_blue)));
         $gradientGreen = html_writer::tag('radialGradient', $stopColorWhite . $stopColorGreen,
-            array_merge($gradientdims, array('id' => $idGreen)));
+            array_merge($gradient_dims, array('id' => $id_green)));
         $gradients = array($gradientBlue, $gradientGreen);
         $defs = html_writer::tag('defs', implode($gradients));
 
         // Background bar.
-        $barbackground = html_writer::tag('rect', null, array_merge($bardims,
-            array('width' => '100%', 'style' => $barstroke . 'fill:' . $rgbBackground)));
+        $barbackground = html_writer::tag('rect', null, array_merge($bar_dims,
+            array('width' => '100%', 'style' => $bar_stroke . 'fill:' . $rgb_background)));
 
         // Return empty bar if no questions are in StudentQuiz.
         if( !$validInput || $info->total <= 0) {
-            return html_writer::tag('svg', $barbackground, $svgdims);
+            return html_writer::tag('svg', $barbackground, $svg_dims);
         }
 
         // Calculate Percentages to display.
@@ -128,11 +128,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         // Return stacked bars.
         $bars = array($barbackground);
-        $bars[] = html_writer::tag('rect', null, array_merge($bardims,
-            array('width' => $percent_attempted . '%', 'style' => $barstroke . 'fill:url(#' . $idBlue .')')));
-        $bars[] = html_writer::tag('rect', null, array_merge($bardims,
-            array('width' => $percent_lastattemptcorrect . '%', 'style' => $barstroke . 'fill:url(#' . $idGreen .')')));
-        return html_writer::tag('svg', $defs . implode($bars), $svgdims);
+        $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
+            array('width' => $percent_attempted . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
+        $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
+            array('width' => $percent_lastattemptcorrect . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
+        return html_writer::tag('svg', $defs . implode($bars), $svg_dims);
     }
 
     /**
@@ -359,11 +359,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     }
 }
 
-
-
-
 class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
-
 
     /**
      * Builds the quiz report table for the admin
@@ -491,7 +487,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
         );
         $output .= html_writer::tag('p',
             html_writer::span(get_string('reportquiz_stats_learning_quotient', 'studentquiz') . ': ', 'reportquiz_total_label')
-            . html_writer::span(1 - (($owntotal->questionsright) / ($owntotal->questionsanswered + $owntotal->questionsright)))
+            . html_writer::span((($owntotal->questionsright) / ($owntotal->questionsanswered + $owntotal->questionsright)))
         );
     }
     if ($total != null && false) {
@@ -567,6 +563,9 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             array(get_string('settings_questionquantifier', 'studentquiz'),
                 $report->get_quantifier_question(),
                 'description' => get_string('settings_questionquantifier_help', 'studentquiz')),
+            array(get_string('settings_approvedquantifier', 'studentquiz'),
+                $report->get_quantifier_approved(),
+                'description' => get_string('settings_approvedquantifier_help', 'studentquiz')),
             array('text' => get_string('settings_votequantifier', 'studentquiz'),
                 $report->get_quantifier_vote(),
                 'value' => get_string('settings_votequantifier_help', 'studentquiz')),
@@ -596,6 +595,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         , get_string('reportrank_table_column_fullname', 'studentquiz')
         , get_string('reportrank_table_column_points', 'studentquiz')
         , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
+        , get_string( 'reportrank_table_column_approvedquestions', 'studentquiz')
         , get_string( 'reportrank_table_column_summeanvotes', 'studentquiz')
         , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
         , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
@@ -606,6 +606,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $rows = array();
         $rank = 1;
 
+        // TODO Refactor
         foreach ($report->get_user_ranking() as $ur) {
             $cellrank = new html_table_cell();
             $cellrank->text = $rank;
@@ -626,6 +627,9 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             $cellcountquestions = new html_table_cell();
             $cellcountquestions->text = $ur->countquestions;
 
+            $cellapprovedquestions = new html_table_cell();
+            $cellapprovedquestions->text = $ur->numapproved;
+
             $cellsummeanvotes = new html_table_cell();
             $cellsummeanvotes->text = $ur->summeanvotes;
 
@@ -643,13 +647,14 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 $cellfullname->attributes = $style;
                 $cellpoints->attributes = $style;
                 $cellcountquestions->attributes = $style;
+                $cellapprovedquestions->attributes = $style;
                 $cellsummeanvotes->attributes = $style;
                 $cellcorrectanswers->attributes = $style;
                 $cellincorrectanswers->attributes = $style;
                 $row->attributes = $style;
             }
             $row->cells = array($cellrank, $cellfullname, $cellpoints,
-                $cellcountquestions, $cellsummeanvotes, $cellcorrectanswers, $cellincorrectanswers);
+                $cellcountquestions, $cellapprovedquestions, $cellsummeanvotes, $cellcorrectanswers, $cellincorrectanswers);
             $rows[] = $row;
             ++$rank;
         }

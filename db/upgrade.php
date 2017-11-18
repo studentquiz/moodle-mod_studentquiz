@@ -266,7 +266,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     // Add Ranking quantifiers on activity level.
-    if ($oldversion < 2017111402) {
+    if ($oldversion < 2017111800) {
         $table = new xmldb_table('studentquiz');
 
         // Add questionquantifier.
@@ -275,8 +275,14 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
+        // Add questionquantifier.
+        $field = new xmldb_field('approvedquantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'questionquantifier');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Add votequantifier.
-        $field = new xmldb_field('votequantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'questionquantifier');
+        $field = new xmldb_field('votequantifier', XMLDB_TYPE_FLOAT, '3,2', null, XMLDB_NOTNULL, null, '0', 'approvedquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -293,8 +299,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        upgrade_mod_savepoint(true, 2017111402, 'studentquiz');
+        upgrade_mod_savepoint(true, 2017111800, 'studentquiz');
     }
+
+
 
     /*
      * And that's all. Please, examine and understand the 3 example blocks above. Also

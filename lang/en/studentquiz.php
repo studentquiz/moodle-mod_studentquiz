@@ -69,6 +69,9 @@ $string['anonymrankhelp_help'] = 'Anonymize for students the created by column i
 $string['settings_questionquantifier'] = 'Question quantifier';
 $string['settings_questionquantifier_label'] = 'Points for each question created';
 $string['settings_questionquantifier_help'] = 'Points received for creating a new question.';
+$string['settings_approvedquantifier'] = 'Approved quantifier';
+$string['settings_approvedquantifier_label'] = 'Points for each question approved';
+$string['settings_approvedquantifier_help'] = 'Points received for each question approved.';
 $string['settings_votequantifier'] = 'Vote quantifier';
 $string['settings_votequantifier_label'] = 'Multiplier for the average of stars received for a question';
 $string['settings_votequantifier_help'] = 'E.g. if the multiplier is 3 and a question is rated with an average of 4.3 stars, the author of the question will receive 13 points (= ROUND(3 * 4.3; 1)).';
@@ -184,6 +187,7 @@ $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';
 $string['reportrank_table_column_countquestions'] = 'Number of questions';
+$string['reportrank_table_column_approvedquestions'] = 'Number of approved questions';
 $string['reportrank_table_column_summeanvotes'] = 'Voting Score';
 $string['reportrank_table_column_correctanswers'] = 'Correct Answers';
 $string['reportrank_table_column_incorrectanswers'] = 'Incorrect Answers';
