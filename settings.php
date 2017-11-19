@@ -35,35 +35,35 @@ if ($ADMIN->fulltree) {
         'studentquiz/addquestion',
         get_string('settings_questionquantifier_label', 'studentquiz'),
         get_string('settings_questionquantifier_help', 'studentquiz'),
-        10, PARAM_INT
+        10, PARAM_FLOAT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/approved',
         get_string('settings_approvedquantifier_label', 'studentquiz'),
         get_string('settings_approvedquantifier_help', 'studentquiz'),
-        5, PARAM_INT
+        5, PARAM_FLOAT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/vote',
         get_string('settings_votequantifier_label', 'studentquiz'),
         get_string('settings_votequantifier_help', 'studentquiz'),
-        3, PARAM_INT
+        3, PARAM_FLOAT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/correctanswered',
         get_string('settings_correctanswerquantifier_label', 'studentquiz'),
         get_string('settings_correctanswerquantifier_help', 'studentquiz'),
-        2, PARAM_INT
+        2, PARAM_FLOAT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/incorrectanswered',
         get_string('settings_incorrectanswerquantifier_label', 'studentquiz'),
         get_string('settings_incorrectanswerquantifier_help', 'studentquiz'),
-        0, PARAM_INT
+        0, PARAM_FLOAT
     ));
 
     $settings->add(new admin_setting_heading(
