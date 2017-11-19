@@ -127,8 +127,14 @@ $string['settings_removeemptysections'] = 'Remove empty sections';
 $string['settings_removeemptysections_label'] = 'Remove empty sections at the end of the course';
 $string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a socalled orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
 $string['settings_removeqbehavior'] = 'Remove question behavior plugin StudentQuiz';
-$string['settings_removeqbehavior_label'] = '\'Remove question behavior plugin StudentQuiz';
+$string['settings_removeqbehavior_label'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_help'] = 'This info should appear only once during update. We inform you that we detected our question behavior plugin StudentQuiz is installed. This plugin is not required anymore and thus we try to automatically remove it. If you still see this setting, please uninstall the question behavior plugin StudentQuiz manually <a href="{$a}">here</a>.';
+$string['settings_allowallqtypes'] = 'Allow all question types';
+$string['settings_allowedqtypes'] = 'Allowed question types';
+$string['settings_allowedqtypes_help'] = 'Here you specify the type of questions that are allowed';
+
+// Error messages.
+$string['needtoallowatleastoneqtype'] = 'You need to allow at least one question type';
 
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';
@@ -160,7 +166,7 @@ $string['reportquiz_stats_questions_right'] = 'Total of correct answers';
 
 // Report rank.
 $string['reportrank_title'] = 'User ranking';
-$string['reportrank_table_quantifier_caption'] = 'How your Points are calculated';
+$string['reportrank_table_quantifier_caption'] = 'How your points are calculated';
 $string['reportrank_table_title'] = '- Ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';

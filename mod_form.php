@@ -129,10 +129,50 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setDefault('incorrectanswerquantifier',
             get_config('studentquiz', 'incorrectanswered'));
 
+        // Selection for allowed question types.
+        $allowedgroup = array();
+        $allowedgroup[] =& $mform->createElement('checkbox', "ALL", '', get_string('settings_allowallqtypes', 'studentquiz'));
+        foreach (mod_studentquiz_get_question_types() as $qtype => $name) {
+            $allowedgroup[] =& $mform->createElement('checkbox', $qtype, '', $name);
+        }
+        $mform->setDefault("allowedqtypes[ALL]", 1);
+        $mform->addGroup($allowedgroup, 'allowedqtypes', get_string('settings_allowedqtypes', 'studentquiz'));
+        $mform->disabledIf('allowedqtypes', "allowedqtypes[ALL]", 'checked');
+        $mform->addHelpButton('allowedqtypes', 'settings_allowedqtypes', 'studentquiz');
+
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
         // Add standard buttons, common to all modules.
         $this->add_action_buttons();
+    }
+
+    /**
+     * TODO: describe this
+     * @param array $defaultvalues
+     */
+    public function data_preprocessing(&$defaultvalues) {
+        // comma separated should be fine for our case
+        /*if (isset($defaultvalues['allowedqtypes'])) {
+            $enabled = explode(',', $defaultvalues['allowedqtypes']);
+            foreach (mod_studentquiz_get_question_types() as $qtype => $notused) {
+                $defaultvalues["allowedqtypes[$qtype]"] = (int)in_array($qtype, $enabled);
+            }
+            $defaultvalues["allowedqtypes[ALL]"] = (int)in_array("ALL", $enabled);
+        }*/
+    }
+
+    /**
+     * TODO: describe this
+     * @param array $data
+     * @param array $files
+     * @return array $errors
+     */
+    public function validation($data, $files) {
+        $errors = array();
+        if (!isset($data['allowedqtypes'])) {
+            $errors['allowedqtypes'] = get_string('needtoallowatleastoneqtype', 'studentquiz');
+        }
+        return $errors;
     }
 }

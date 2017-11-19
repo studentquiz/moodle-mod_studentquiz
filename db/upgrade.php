@@ -42,32 +42,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     $dbman = $DB->get_manager(); // Loads ddl manager and xmldb classes.
 
-    /*
-     * And upgrade begins here. For each one, you'll need one
-     * block of code similar to the next one. Please, delete
-     * this comment lines once this file start handling proper
-     * upgrade code.
-     *
-     * if ($oldversion < YYYYMMDD00) { //New version in version.php
-     * }
-     *
-     * Lines below (this included)  MUST BE DELETED once you get the first version
-     * of your module ready to be installed. They are here only
-     * for demonstrative purposes and to show how the StudentQuiz
-     * itself has been upgraded.
-     *
-     * For each upgrade block, the file studentquiz/version.php
-     * needs to be updated . Such change allows Moodle to know
-     * that this file has to be processed.
-     *
-     * To know more about how to write correct DB upgrade scripts it's
-     * highly recommended to read information available at:
-     *   http://docs.moodle.org/en/Development:XMLDB_Documentation
-     * and to play with the XMLDB Editor (in the admin menu) and its
-     * PHP generation possibilities.
-     *
-     * First example, some fields were added to install.xml on 2007/04/01
-     */
+    // The first view upgrade processes were not precicely documented.
     if ($oldversion < 2007040100) {
 
         // Define field course to be added to studentquiz.
@@ -98,14 +73,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Once we reach this point, we can store the new version and consider the module
-        // ... upgraded to the version 2007040100 so the next time this block is skipped.
         upgrade_mod_savepoint(true, 2007040100, 'studentquiz');
     }
 
-    // Second example, some hours later, the same day 2007/04/01
-    // ... two more fields and one index were added to install.xml (note the micro increment
-    // ... "01" in the last two digits of the version).
     if ($oldversion < 2007040101) {
 
         // Define field timecreated to be added to studentquiz.
@@ -137,7 +107,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->add_index($table, $index);
         }
 
-        // Another save point reached.
         upgrade_mod_savepoint(true, 2007040101, 'studentquiz');
     }
 
@@ -170,7 +139,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->create_table($table);
         }
 
-        // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2017021601, 'studentquiz');
     }
 
@@ -302,7 +270,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017111800, 'studentquiz');
     }
 
-    // cleanup deprecated questionbehavior studentquiz
+    // Cleanup deprecated questionbehavior studentquiz.
     if ($oldversion < 2017111903) {
         if (array_key_exists('studentquiz', core_component::get_plugin_list('qbehaviour'))) {
             $DB->set_field('question_attempts', 'behaviour', 'immediatefeedback', array(
@@ -310,20 +278,20 @@ function xmldb_studentquiz_upgrade($oldversion) {
             ));
             uninstall_plugin('qbehaviour', 'studentquiz');
         }
+        upgrade_mod_savepoint(true, 2017111903, 'studentquiz');
     }
 
+    // Add allowed qtypes field for the activity.
+    if ($oldversion < 2017111904) {
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('allowedqtypes', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'incorrectanswerquantifier');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // TODO: Because no default value is allowed in text fields, the frontend part must accept empty string or ALL as ALl
 
-    /*
-     * And that's all. Please, examine and understand the 3 example blocks above. Also
-     * it's interesting to look how other modules are using this script. Remember that
-     * the basic idea is to have "blocks" of code (each one being executed only once,
-     * when the module version (version.php) is updated.
-     *
-     * Lines above (this included) MUST BE DELETED once you get the first version of
-     * your module working. Each time you need to modify something in the module (DB
-     * related, you'll raise the version and add one upgrade block here.
-     *
-     * Finally, return of upgrade result (true, all went good) to Moodle.
-     */
+        upgrade_mod_savepoint(true, 2017111904, 'studentquiz');
+    }
+
     return true;
 }

@@ -908,3 +908,19 @@ function mod_studentquiz_get_attempt_stats($usageid, &$total) {
 function mod_studentquiz_get_number_of_enrolled_users() {
 
 }
+
+/**
+ * Lookup available question types.
+ * @return array question types with identifier as key and name as value
+ */
+function mod_studentquiz_get_question_types() {
+    $types = question_bank::get_creatable_qtypes();
+    $returntypes = array();
+
+    foreach ($types as $name => $qtype) {
+        if ($name != 'randomsamatch') {
+            $returntypes[$name] = $qtype->local_name();
+        }
+    }
+    return $returntypes;
+}

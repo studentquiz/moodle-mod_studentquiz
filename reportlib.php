@@ -276,7 +276,10 @@ class mod_studentquiz_report {
         return $this->users;
     }
 
-
+    /**
+     * TODO: Don't calc stats one by one, using a clever sql query should be faster and less resource hungry
+     * @deprecated
+     */
     public function calc_stats() {
         $overalltotal = new stdClass();
         $overalltotal->numattempts = 0;

@@ -22,6 +22,7 @@
         <FIELD NAME="votequantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with average rating per question"/>
         <FIELD NAME="correctanswerquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of correct answers"/>
         <FIELD NAME="incorrectanswerquantifier" TYPE="float" LENGTH="5" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="2" COMMENT="Point factor multiplied with number of incorrect answers"/>
+        <FIELD NAME="allowedqtypes" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" COMMENT="which question types are allowed"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
