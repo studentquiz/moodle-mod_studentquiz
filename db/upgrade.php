@@ -302,6 +302,15 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017111800, 'studentquiz');
     }
 
+    // cleanup deprecated questionbehavior studentquiz
+    if ($oldversion < 2017111903) {
+        if (array_key_exists('studentquiz', core_component::get_plugin_list('qbehaviour'))) {
+            $DB->set_field('question_attempts', 'behaviour', 'immediatefeedback', array(
+                'behaviour' => 'studentquiz'
+            ));
+            uninstall_plugin('qbehaviour', 'studentquiz');
+        }
+    }
 
 
     /*

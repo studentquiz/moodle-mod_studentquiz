@@ -80,4 +80,16 @@ if ($ADMIN->fulltree) {
         get_string('settings_removeemptysections_help', 'studentquiz'),
         '1'
     ));
+
+    // Show a onetime settings option as info, that we'll uninstall the questionbehavior plugin automatically.
+    // Will not show this option if this plugin doesn't exist.
+    if (array_key_exists("studentquiz", core_component::get_plugin_list('qbehaviour'))) {
+        $url = new moodle_url("/admin/plugins.php", array('sesskey' => sesskey(), 'uninstall' => 'qbehaviour_studentquiz'));
+        $settings->add(new admin_setting_configcheckbox('studentquiz/removeqbehavior',
+            get_string('settings_removeqbehavior_label', 'studentquiz'),
+            get_string('settings_removeqbehavior_help', 'studentquiz', $url->out()),
+            '1'
+        ));
+    }
+
 }
