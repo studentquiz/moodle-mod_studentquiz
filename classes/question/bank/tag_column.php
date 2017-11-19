@@ -47,7 +47,7 @@ class tag_column extends \core_question\bank\column_base {
      * @return string translated title
      */
     protected function get_title() {
-        return get_string('tag_column_name', 'studentquiz');
+        return get_string('tags', 'studentquiz');
     }
 
     /**

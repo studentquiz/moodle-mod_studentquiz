@@ -70,14 +70,24 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        $mform->addElement('header', 'studentranking', get_string('quiz_advanced_settings_header', 'studentquiz'));
+        $mform->addElement('header', 'studentranking', get_string('advancedsettings', 'moodle'));
 
         // Field anonymous Ranking.
         $mform->addElement('checkbox', 'anonymrank',
-            get_string('anonymous_checkbox_label', 'studentquiz'));
+            get_string('settings_anonymous_label', 'studentquiz'));
         $mform->setType('anonymrank', PARAM_INT);
-        $mform->addHelpButton('anonymrank', 'anonymrankhelp', 'studentquiz');
+        $mform->addHelpButton('anonymrank', 'settings_anonymous', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
+
+        // Select question behaviour.
+        // TODO: There's no studentquiz behavior anymore. We could offer a selection, but they have to be of type feedback (or support non-feedback behavior).
+        // This setting as it is is missleading, we should extract "rate and comment" to it's own field (and then update all usages of that to it)
+        $mform->addElement('advcheckbox', 'quizpracticebehaviour',
+            get_string('settings_quizpracticebehaviour_label', 'studentquiz')
+            , null, null, array(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
+        $mform->setType('quizpracticebehaviour', PARAM_RAW);
+        $mform->addHelpButton('quizpracticebehaviour', 'settings_quizpracticebehaviour', 'studentquiz');
+        $mform->setDefault('quizpracticebehaviour', STUDENTQUIZ_BEHAVIOUR);
 
         // Field questionquantifier.
         $mform->addElement('text', 'questionquantifier',
@@ -85,7 +95,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setType('questionquantifier', PARAM_FLOAT);
         $mform->addHelpButton('questionquantifier', 'settings_questionquantifier', 'studentquiz');
         $mform->setDefault('questionquantifier',
-            get_config('studentquiz', 'studentquiz_add_question_quantifier'));
+            get_config('studentquiz', 'addquestion'));
 
         // Field approvedquantifier.
         $mform->addElement('text', 'approvedquantifier',
@@ -93,7 +103,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setType('approvedquantifier', PARAM_FLOAT);
         $mform->addHelpButton('approvedquantifier', 'settings_approvedquantifier', 'studentquiz');
         $mform->setDefault('approvedquantifier',
-            get_config('studentquiz', 'studentquiz_approved_quantifier'));
+            get_config('studentquiz', 'approved'));
 
         // Field votequantifier.
         $mform->addElement('text', 'votequantifier',
@@ -101,7 +111,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setType('votequantifier', PARAM_FLOAT);
         $mform->addHelpButton('votequantifier', 'settings_votequantifier', 'studentquiz');
         $mform->setDefault('votequantifier',
-            get_config('studentquiz', 'studentquiz_vote_quantifier'));
+            get_config('studentquiz', 'vote'));
 
         // Field correctanswerquantifier.
         $mform->addElement('text', 'correctanswerquantifier',
@@ -109,7 +119,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setType('correctanswerquantifier', PARAM_FLOAT);
         $mform->addHelpButton('correctanswerquantifier', 'settings_correctanswerquantifier', 'studentquiz');
         $mform->setDefault('correctanswerquantifier',
-            get_config('studentquiz', 'studentquiz_correct_answered_question_quantifier'));
+            get_config('studentquiz', 'correctanswered'));
 
         // Field incorrectanswerquantifier.
         $mform->addElement('text', 'incorrectanswerquantifier',
@@ -117,21 +127,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setType('incorrectanswerquantifier', PARAM_FLOAT);
         $mform->addHelpButton('incorrectanswerquantifier', 'settings_incorrectanswerquantifier', 'studentquiz');
         $mform->setDefault('incorrectanswerquantifier',
-            get_config('studentquiz', 'studentquiz_incorrect_answered_question_quantifier'));
-
-        // Select question behaviour.
-        if (mod_studentquiz_has_behaviour()) {
-            $mform->addElement('advcheckbox', 'quizpracticebehaviour',
-                get_string('quizpracticebehaviour', 'studentquiz')
-                , null, null, array(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
-            $mform->setType('quizpracticebehaviour', PARAM_RAW);
-            $mform->addHelpButton('quizpracticebehaviour', 'quizpracticebehaviourhelp', 'studentquiz');
-
-            $mform->setDefault('quizpracticebehaviour', STUDENTQUIZ_BEHAVIOUR);
-        } else {
-            $mform->addElement('hidden', 'quizpracticebehaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
-            $mform->setType('quizpracticebehaviour', PARAM_RAW);
-        }
+            get_config('studentquiz', 'incorrectanswered'));
 
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();

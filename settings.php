@@ -32,37 +32,37 @@ if ($ADMIN->fulltree) {
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_add_question_quantifier',
-        get_string('settings_add_q_quantifier', 'studentquiz'),
-        get_string('config_add_q_quantifier', 'studentquiz'),
+        'studentquiz/addquestion',
+        get_string('settings_questionquantifier_label', 'studentquiz'),
+        get_string('settings_questionquantifier_help', 'studentquiz'),
         10, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_approved_quantifier',
-        get_string('settings_approved_quantifier', 'studentquiz'),
-        get_string('config_approved_quantifier', 'studentquiz'),
+        'studentquiz/approved',
+        get_string('settings_approvedquantifier_label', 'studentquiz'),
+        get_string('settings_approvedquantifier_help', 'studentquiz'),
         5, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_vote_quantifier',
-        get_string('settings_vote_quantifier', 'studentquiz'),
-        get_string('config_vote_quantifier', 'studentquiz'),
+        'studentquiz/vote',
+        get_string('settings_votequantifier_label', 'studentquiz'),
+        get_string('settings_votequantifier_help', 'studentquiz'),
         3, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_correct_answered_question_quantifier',
-        get_string('settings_correct_answered_q_quantifier', 'studentquiz'),
-        get_string('config_correct_answered_q_quantifier', 'studentquiz'),
+        'studentquiz/correctanswered',
+        get_string('settings_correctanswerquantifier_label', 'studentquiz'),
+        get_string('settings_correctanswerquantifier_help', 'studentquiz'),
         2, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
-        'studentquiz_incorrect_answered_question_quantifier',
-        get_string('settings_incorrect_answered_q_quantifier', 'studentquiz'),
-        get_string('config_incorrect_answered_q_quantifier', 'studentquiz'),
+        'studentquiz/incorrectanswered',
+        get_string('settings_incorrectanswerquantifier_label', 'studentquiz'),
+        get_string('settings_incorrectanswerquantifier_help', 'studentquiz'),
         0, PARAM_INT
     ));
 
@@ -76,8 +76,8 @@ if ($ADMIN->fulltree) {
     // the removal of section 999. But since this plugin is actively trying to remove stuff it's primarly not
     // responsible for, thus can lead to side-effects, we need to give the admin the option to opt out from it.
     $settings->add(new admin_setting_configcheckbox('studentquiz/removeemptysections',
-        get_string('settings/removeemptysections', 'studentquiz'),
-        get_string('config/removeemptysections', 'studentquiz'),
+        get_string('settings_removeemptysections_label', 'studentquiz'),
+        get_string('settings_removeemptysections_help', 'studentquiz'),
         '1'
     ));
 }

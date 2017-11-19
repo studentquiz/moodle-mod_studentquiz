@@ -159,7 +159,7 @@ class mod_studentquiz_summary_renderer extends mod_studentquiz_renderer {
             'enctype' => 'multipart/form-data', 'id' => 'responseform'));
         $output .= html_writer::start_tag('div', array('align' => 'center'));
         $output .= html_writer::empty_tag('input', array('type' => 'submit',
-            'name' => 'back', 'value' => get_string('retry_button', 'studentquiz')));
+            'name' => 'back', 'value' => get_string('review_button', 'studentquiz')));
         $output .= html_writer::empty_tag('br');
         $output .= html_writer::empty_tag('br');
         $output .= html_writer::empty_tag('input', array('type' => 'submit',

@@ -52,17 +52,6 @@ const STUDENTQUIZ_COURSE_SECTION_VISIBLE = false;
 const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
 /**
- * Checks whether the StudentQuiz behaviour exists
- *
- * @return bool
- */
-function mod_studentquiz_has_behaviour() {
-    $archetypalbehaviours = question_engine::get_archetypal_behaviours();
-
-    return array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours);
-}
-
-/**
  * Load studentquiz from coursemodule id
  *
  * @param int cmid course module id
