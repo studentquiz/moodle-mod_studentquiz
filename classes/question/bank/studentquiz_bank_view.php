@@ -476,8 +476,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $params = $this->editquestionurl->params();
             $params['category'] = $categoryid;
             $url = new \moodle_url('/question/addquestion.php', $params);
+            // TODO: ALL should show all qtypes
+            $allowedtypes = (empty($this->studentquiz->allowedqtypes))? 'ALL': $this->studentquiz->allowedqtypes;
+            $allowedtypes = ($allowedtypes == 'ALL')? null: explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(
-                print_choose_qtype_to_add_form(array(), explode(',', $this->studentquiz->allowedqtypes), '',
+                print_choose_qtype_to_add_form(array(), $allowedtypes, '',
                 array('id' => 'qtypechoicecontainer')
             ));
             $output .= \html_writer::div(
