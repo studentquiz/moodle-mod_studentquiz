@@ -153,13 +153,13 @@ class mod_studentquiz_mod_form extends moodleform_mod {
      */
     public function data_preprocessing(&$defaultvalues) {
         // comma separated should be fine for our case
-        /*if (isset($defaultvalues['allowedqtypes'])) {
+        if (isset($defaultvalues['allowedqtypes'])) {
             $enabled = explode(',', $defaultvalues['allowedqtypes']);
-            foreach (mod_studentquiz_get_question_types() as $qtype => $notused) {
+            foreach (array_keys(mod_studentquiz_get_question_types()) as $qtype) {
                 $defaultvalues["allowedqtypes[$qtype]"] = (int)in_array($qtype, $enabled);
             }
             $defaultvalues["allowedqtypes[ALL]"] = (int)in_array("ALL", $enabled);
-        }*/
+        }
     }
 
     /**

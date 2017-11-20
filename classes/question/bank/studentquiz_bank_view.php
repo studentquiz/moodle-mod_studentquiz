@@ -463,6 +463,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param bool $canadd capability state
      */
     public function create_new_question_form($categoryid, $canadd) {
+        global $OUTPUT;
+
         $output = '';
         $output .= '<div class="createnewquestion">';
 
@@ -470,15 +472,21 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (!$this->has_questions_in_category()) {
             $caption = get_string('createnewquestionfirst', 'studentquiz');
         }
-        ob_start();
         if ($canadd) {
-            create_new_question_button($categoryid, $this->editquestionurl->params(),
-                $caption);
+            $params = $this->editquestionurl->params();
+            $params['category'] = $categoryid;
+            $url = new \moodle_url('/question/addquestion.php', $params);
+            $qtypecontainer = \html_writer::div(
+                print_choose_qtype_to_add_form(array(), explode(',', $this->studentquiz->allowedqtypes), '',
+                array('id' => 'qtypechoicecontainer')
+            ));
+            $output .= \html_writer::div(
+                $OUTPUT->render(new \single_button($url, $caption, 'get')) .
+                $qtypecontainer, 'createnewquestion'
+            );
         } else {
-            print_string('nopermissionadd', 'question');
+            $output .= get_string('nopermissionadd', 'question');
         }
-        $output .= ob_get_contents();
-        ob_end_clean();
         $output .= '</div>';
         return $output;
     }

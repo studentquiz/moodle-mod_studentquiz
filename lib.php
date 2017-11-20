@@ -142,11 +142,11 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
     $studentquiz->timemodified = time();
     $studentquiz->id = $studentquiz->instance;
 
+    // Initialize values or manipulations where needed.
     if (!isset($studentquiz->anonymrank)) {
         $studentquiz->anonymrank = 0;
     }
-
-    // You may have to add extra stuff in here.
+    $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
 
     $result = $DB->update_record('studentquiz', $studentquiz);
 
