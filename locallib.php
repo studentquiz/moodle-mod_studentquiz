@@ -161,6 +161,7 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
     $data = new stdClass();
 
     // Course info.
+    $data->courseid        = $course->id;
     $data->coursename      = $course->fullname;
     $data->courseshortname = $course->shortname;
 
@@ -193,12 +194,12 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_notify_change($questionid, $course, $module) {
+function mod_studentquiz_notify_changed($questionid, $course, $module) {
     global $DB, $USER;
 
     // Requires the right permission.
     if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
         $lesteditthreshold = 5;
 
         // Creator and modifier must be different and don't send when refreshing the page.
@@ -215,7 +216,7 @@ function mod_studentquiz_notify_change($questionid, $course, $module) {
             $fulltext = get_string('emailchangebody', 'studentquiz', $data);
             $smalltext = get_string('emailchangesmall', 'studentquiz', $data);
 
-            return mod_studentquiz_send_notification('change', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+            return mod_studentquiz_send_notification('changed', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
         }
     }
 
@@ -235,7 +236,7 @@ function mod_studentquiz_notify_comment($comment, $questionid, $course, $module)
 
     // Requires the right permission.
     if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
         $lesteditthreshold = 5;
 
         // Creator and modifier must be different and don't send when refreshing the page.
@@ -272,7 +273,7 @@ function mod_studentquiz_notify_question_deleted($questionid, $course, $module) 
 
     // Requires the right permission.
     if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
 
         // Creator and deletor must be different.
         if ($question->createdby != $USER->id) {
@@ -304,7 +305,7 @@ function mod_studentquiz_notify_approving($questionid, $course, $module) {
 
     // Requires the right permission.
     if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'name, timemodified, createdby, modifiedby');
+        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
         $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
 
         $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
@@ -315,13 +316,13 @@ function mod_studentquiz_notify_approving($questionid, $course, $module) {
             $subject = get_string('emailapprovedsubject', 'studentquiz', $data);
             $fulltext = get_string('emailapprovedbody', 'studentquiz', $data);
             $smalltext = get_string('emailapprovedsmall', 'studentquiz', $data);
-            return mod_studentquiz_send_notification('updated', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+            return mod_studentquiz_send_notification('changed', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
         }
 
         $subject = get_string('emailunapprovedsubject', 'studentquiz', $data);
         $fulltext = get_string('emailunapprovedbody', 'studentquiz', $data);
         $smalltext = get_string('emailunapprovedsmall', 'studentquiz', $data);
-        return mod_studentquiz_send_notification('updated', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+        return mod_studentquiz_send_notification('changed', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
     }
 
     return false;
@@ -351,6 +352,7 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
     $eventdata->component         = 'mod_studentquiz';
     $eventdata->name              = $event;
     $eventdata->notification      = 1;
+    $eventdata->courseid          = $data->courseid;
 
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;

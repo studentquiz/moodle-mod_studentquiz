@@ -75,7 +75,7 @@ $capabilities = array(
             'student' => CAP_ALLOW
         )
     ),
-    'mod/studentquiz:emailnotifychange' => array(
+    'mod/studentquiz:emailnotifychanged' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(),

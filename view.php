@@ -81,12 +81,12 @@ if (data_submitted()) {
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id);
 
-// Process actions.
-$view->process_actions();
-
 $PAGE->set_url($view->get_pageurl());
 $PAGE->set_title($view->get_title());
 $PAGE->set_heading($COURSE->fullname);
+
+// Process actions.
+$view->process_actions();
 
 // Fire view event for completion API and event API
 mod_studentquiz_overview_viewed($course, $cm, $context);

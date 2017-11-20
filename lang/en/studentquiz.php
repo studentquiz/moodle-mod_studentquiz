@@ -184,15 +184,15 @@ $string['reportrank_table_column_description'] = 'Description';
 $string['studentquiz:submit'] = 'Submit on StudentQuiz';
 $string['studentquiz:view'] = 'View StudentQuiz';
 $string['studentquiz:addinstance'] = 'Add new instance';
-$string['studentquiz:change'] = 'Question change notification';
+$string['studentquiz:changed'] = 'Question change notification';
 $string['studentquiz:approved'] = 'Question approve notification';
 $string['studentquiz:unapproved'] = 'Question unapprove notification';
-$string['studentquiz:emailnotifychange'] = 'Question change notification';
+$string['studentquiz:emailnotifychanged'] = 'Question change notification';
 $string['studentquiz:emailnotifyapproved'] = 'Question approve notification';
 $string['studentquiz:emailnotifyunapproved'] = 'Question unapprove notification';
 
 // Message provider.
-$string['messageprovider:change'] = 'Question change notification';
+$string['messageprovider:changed'] = 'Question change notification';
 $string['messageprovider:approved'] = 'Question approve notification';
 $string['messageprovider:unapproved'] = 'Question unapprove notification';
 

@@ -145,7 +145,7 @@ class mod_studentquiz_view {
 
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
-            mod_studentquiz_notify_change($lastchanged, $this->course, $module);
+            mod_studentquiz_notify_changed($lastchanged, $this->course, $module);
         }
 
         $this->qbpagevar = $pagevars;

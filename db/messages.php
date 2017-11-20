@@ -26,8 +26,8 @@ defined('MOODLE_INTERNAL') || die();
 
 $messageproviders = array(
     // Notify students that a teacher has edited one of their question.
-    'change' => array(
-        'capability' => 'mod/studentquiz:emailnotifychange'
+    'changed' => array(
+        'capability' => 'mod/studentquiz:emailnotifychanged'
     ),
     // Notify students that a teacher has approved one of their question.
     'approved' => array(
