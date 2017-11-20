@@ -96,7 +96,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz) {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->studentquiz = $studentquiz;
-        $this->set_filter_form_fields($studentquiz->anonymrank);
+        $this->set_filter_form_fields($this->is_anonym());
         $this->initialize_filter_form($pageurl);
     }
 
@@ -137,7 +137,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->build_query();
 
         $this->questions = $this->load_questions();
-        $this->questions = $this->filter_questions($this->questions);
+        $this->questions = $this->filter_questions($this->questions, $this->is_anonym());
         $this->totalnumber = count($this->questions);
 
         if ($this->process_actions_needing_ui()) {
@@ -1090,5 +1090,21 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $pagingbaroutput .= '</div>';
 
         return $pagingbaroutput;
+    }
+
+    /**
+     * TODO: rename function and apply (there is duplicate method)
+     * @return bool studentquiz is set to anoymize ranking.
+     */
+    public function is_anonym() {
+        if (!$this->studentquiz->anonymrank) {
+            return false;
+        }
+        $context = \context_module::instance($this->studentquiz->coursemodule);
+        if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+            return false;
+        }
+        // Instance is anonymized and isn't allowed to unhide that.
+        return true;
     }
 }

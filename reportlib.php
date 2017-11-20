@@ -101,7 +101,7 @@ class mod_studentquiz_report {
      * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
-        global $DB;
+        global $DB, $USER;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
             throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
         }
@@ -115,6 +115,7 @@ class mod_studentquiz_report {
         }
 
         $this->context = context_module::instance($this->cm->id);
+        $this->userid = $USER->id;
     }
 
     /**
@@ -123,6 +124,14 @@ class mod_studentquiz_report {
      */
     public function set_users($users) {
         $this->users = $users;
+    }
+
+    /**
+     * Returns current user id
+     * @return int $user->id
+     */
+    public function get_user_id() {
+        return $this->userid;
     }
 
     /**
@@ -423,9 +432,18 @@ class mod_studentquiz_report {
     }
 
     /**
+     * TODO: rename function and apply (there is duplicate method)
      * @return bool studentquiz is set to anoymize ranking.
      */
     public function is_anonym() {
-        return $this->studentquiz->anonymrank;
+        if (!$this->studentquiz->anonymrank) {
+            return false;
+        }
+        $context = context_module::instance($this->studentquiz->coursemodule);
+        if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+            return false;
+        }
+        // Instance is anonymized and isn't allowed to unhide that.
+        return true;
     }
 }

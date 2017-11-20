@@ -35,8 +35,6 @@ $report = new mod_studentquiz_report($cmid);
 
 require_login($report->get_course(), true, $report->get_coursemodule());
 
-global $USER;
-$userid = $USER->id;
 $context = context_module::instance($cmid);
 
 mod_studentquiz_report_viewed($cmid, $context);
@@ -55,10 +53,6 @@ echo $OUTPUT->header();
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'report');
 
-if (mod_studentquiz_check_created_permission($userid)) {
-    echo $renderer->get_quiz_admin_statistic_view($report);
-} else {
-    echo $renderer->get_quiz_tables($report);
-}
+echo $renderer->get_quiz_statistic_view($report);
 
 echo $OUTPUT->footer();

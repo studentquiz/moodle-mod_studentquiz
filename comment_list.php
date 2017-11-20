@@ -39,6 +39,7 @@ global $USER;
 $userid = $USER->id;
 $context = context_module::instance($cmid);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
+// TODO: has capability when anonymized?
 $anonymize = $studentquiz->anonymrank;
 // TODO: Get from
 $ismoderator = false;

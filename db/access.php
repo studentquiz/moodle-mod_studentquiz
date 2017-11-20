@@ -67,6 +67,18 @@ $capabilities = array(
             'manager' => CAP_ALLOW
         )
     ),
+    'mod/studentquiz:unhideanonymous' => array(
+        'captype'      => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'guest'          => CAP_PREVENT,
+            'student'        => CAP_PREVENT,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'coursecreator'  => CAP_ALLOW,
+            'manager'        => CAP_ALLOW
+        )
+    ),
     'mod/studentquiz:submit' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

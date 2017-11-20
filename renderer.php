@@ -421,11 +421,13 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
      * @param mod_studentquiz_report $report
      * @return string pre rendered /mod/stundentquiz view_quizreport_table
      */
-    public function get_quiz_admin_statistic_view(mod_studentquiz_report $report) {
+    public function get_quiz_statistic_view(mod_studentquiz_report $report) {
         $output = '';
         $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
         $output .= $this->view_quizreport_stats($report->get_overalltotal(), $report->get_admintotal(), $report->get_outputstats(), $report->get_usergrades(), true);
-        $output .= $this->view_quizreport_table($report, $report->get_usersdata());
+        if($report->is_admin()) {
+            $output .= $this->view_quizreport_table($report, $report->get_usersdata());
+        }
         return $output;
     }
 
@@ -487,7 +489,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
         );
         $output .= html_writer::tag('p',
             html_writer::span(get_string('reportquiz_stats_learning_quotient', 'studentquiz') . ': ', 'reportquiz_total_label')
-            . html_writer::span((($owntotal->questionsright) / ($owntotal->questionsanswered + $owntotal->questionsright)))
+            . html_writer::span((($owntotal->questionsright) / ($stats->totalusersquestions)))
         );
     }
     if ($total != null && false) {
@@ -527,9 +529,9 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
      * @return string rendered /mod/quiz/view tables
      */
     public function get_quiz_tables($report) {
-        $total = $this->get_user_quiz_summary($report->userid, null);
-        $outputstats = $this->get_user_quiz_stats($report->userid);
-        $usergrades = $this->get_user_quiz_grade($report->userid);
+        $total = $this->get_user_quiz_summary($report->get_user_id(), null);
+        $outputstats = $this->get_user_quiz_stats($report->get_user_id());
+        $usergrades = $this->get_user_quiz_grade($report->get_user_id());
         $output = $this->view_quizreport_stats(null, $total, $outputstats, $usergrades);
         return $output;
     }
