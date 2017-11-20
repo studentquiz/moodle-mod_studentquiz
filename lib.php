@@ -75,9 +75,12 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $studentquiz->timecreated = time();
 
+    // TODO unify parsing of submitted variables
+
     if (!isset($studentquiz->anonymrank)) {
         $studentquiz->anonymrank = 0;
     }
+    $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
 
     if (isset($mform->anonymrank)) {
         $studentquiz->anonymrank = $mform->anonymrank;
