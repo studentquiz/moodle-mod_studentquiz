@@ -132,12 +132,6 @@ function mod_studentquiz_get_quiz_module_id() {
 function mod_studentquiz_check_created_permission($cmid) {
     global $USER;
 
-    $admins = get_admins();
-    foreach ($admins as $admin) {
-        if ($USER->id == $admin->id) {
-            return true;
-        }
-    }
     $context = context_module::instance($cmid);
     return has_capability('moodle/question:editall', $context);
 }
