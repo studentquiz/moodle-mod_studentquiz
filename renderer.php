@@ -183,7 +183,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
 
         $contents .= $this->heading(format_string($view->get_studentquiz_name()));
 
-        $contents .= html_writer::tag('div', $this->render_progress_bar($view->get_progress_info()));
+        //$contents .= html_writer::tag('div', $this->render_progress_bar($view->get_progress_info()));
 
         $contents .= $this->render_select_qtype_form($view);
 
