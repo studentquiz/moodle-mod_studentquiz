@@ -33,7 +33,12 @@ defined('MOODLE_INTERNAL') || die;
  * @copyright 2017 HSR (http://www.hsr.ch)
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class restore_studentquiz_activity_structure_step extends restore_activity_structure_step {
+class restore_studentquiz_activity_structure_step extends restore_questions_activity_structure_step {
+
+    /**
+     * @var object $currentquizattempt intermediate result for studentquiz attempts
+     */
+    protected $currentattempt;
 
     /**
      * Defines structure of path elements to be processed during the restore
@@ -44,6 +49,17 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
 
         $paths = array();
         $paths[] = new restore_path_element('studentquiz', '/activity/studentquiz');
+
+        // Get Setting value if user data should be restored.
+        $userinfo = $this->get_setting_value('userinfo');
+
+        // Additional Path for attempts.
+        $attempt = new restore_path_element('attempt',
+            '/activity/studentquiz/attempts/attempt');
+        $paths[] = $attempt;
+
+        // Add attempt data.
+        $this->add_question_usages($attempt, $paths);
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
@@ -61,6 +77,8 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         $data->course = $this->get_courseid();
         $data->coursemodule = 0; // Will be updated later.
 
+        $oldid = $data->id;
+
         if (empty($data->timecreated)) {
             $data->timecreated = time();
         }
@@ -75,7 +93,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
         }
 
         if (empty($data->quizpracticebehaviour)) {
-            $data->quizpracticebehaviour = "studentquiz";
+            $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
         }
 
         if (empty($data->anonymrank)) {
@@ -87,11 +105,18 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
 
         $this->apply_activity_instance($newitemid);
 
-        if (!empty($data->attempts)) {
-            foreach ($data->attempts as $attempt) {
-                $DB->insert_record('studentquiz_attempt', $attempt);
-            }
-        }
+        $this->set_mapping('studentquiz', $oldid, $newitemid, true); // Has related files.
+
+    }
+
+    protected function process_attempt($data) {
+        $data = (object)$data;
+
+        $data->studentquizid = $this->get_new_parentid('studentquiz');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        // The data is actually inserted into the database later in inform_new_usage_id.
+        $this->currentattempt = clone($data);
     }
 
     /**
@@ -114,6 +139,25 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
             $studentquiz->coursemodule = $cm->id;
             $DB->update_record('studentquiz', $studentquiz);
         }
+    }
+
+
+    protected function inform_new_usage_id($newusageid) {
+        global $DB;
+
+        $data = $this->currentattempt;
+
+        $oldid = $data->id;
+        $data->questionusageid = $newusageid;
+
+        // TODO: Update Category id?
+
+        //
+
+        $newitemid = $DB->insert_record('studentquiz_attempt', $data);
+
+        // Save studentuquiz_attempt->id mapping, because logs use it.
+        $this->set_mapping('studentquiz_attempt', $oldid, $newitemid, false);
     }
 
     /**
@@ -168,7 +212,7 @@ class restore_studentquiz_activity_structure_step extends restore_activity_struc
                         $DB->set_field('course_sections', 'section', $lastnonemptysection->max_section + 1, array(
                             'id' => $quizsectionid
                         ));
-                        // TODO: Reassign question usages of imported quiz instances to studentquiz actictivity.
+                        // TODO: Reassign question usages of imported quiz instances to studentquiz activity.
                         // TODO: And delete quiz instances and generated section.
 
                     }

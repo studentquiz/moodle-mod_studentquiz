@@ -47,7 +47,11 @@ class backup_studentquiz_activity_task extends backup_activity_task {
      * Defines a backup step to store the instance data in the studentquiz.xml file
      */
     protected function define_my_steps() {
+        // Backup studentquiz tables.
         $this->add_step(new backup_studentquiz_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
+
+        // Backup question categories.
+        $this->add_step(new backup_calculate_question_categories('activity_question_categories'));
     }
 
     /**
