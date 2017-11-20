@@ -68,7 +68,7 @@ if (data_submitted()) {
                 shuffle($ids);
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
                 redirect(new moodle_url('/mod/studentquiz/attempt.php',
-                    array('id' => $attempt->id, 'slot' => $questionusage->get_first_question_number())));
+                    array('cmid' => $cmid, 'id' => $attempt->id, 'slot' => $questionusage->get_first_question_number())));
             }
         }
         // Redirect to overview to clear submit.

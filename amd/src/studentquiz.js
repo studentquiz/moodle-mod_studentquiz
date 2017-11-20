@@ -31,7 +31,7 @@ define(['jquery'], function ($) {
                 var $comments = $(this).closest('.comments');
                 var $field = $comments.find('.add_comment_field');
                 var questionid = $field.attr('name').substr(1);
-                var $cmidfield = $comments.find('.cmid_field');
+                var $cmidfield = $(this).closest('form').find('.cmid_field');
                 var cmid = $cmidfield.attr('value');
                 var $commentlist = $comments.children('.comment_list');
 
@@ -120,11 +120,12 @@ define(['jquery'], function ($) {
         });
 
         $('.studentquiz_behaviour .remove_action').off('click').on('click', function () {
-            var cmid = $(this).attr('data-cmid');
+            var $cmidfield = $(this).closest('form').find('.cmid_field');
+            var cmid = $cmidfield.attr('value');
             var questionid = $(this).attr('data-question_id');
             var $commentlist = $(this).closest('.comments').children('.comment_list');
             $.post($('#baseurlmoodle').val() + '/mod/studentquiz/remove.php',
-                {id: $(this).attr('data-id'), sesskey: M.cfg.sesskey}, function () {
+                {id: $(this).attr('data-id'), cmid: cmid, sesskey: M.cfg.sesskey}, function () {
                     get_comment_list(questionid, $commentlist, cmid);
                 });
         });

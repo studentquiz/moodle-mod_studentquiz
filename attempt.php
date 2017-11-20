@@ -26,6 +26,7 @@ require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
+$cmid = required_param('cmid', PARAM_INT);
 $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
@@ -35,7 +36,9 @@ $cmid = $cm->id;
 $course = $DB->get_record('course', array('id' => $cm->course));
 
 require_login($course, true, $cm);
+
 $context = context_module::instance($cm->id);
+$studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
 global $USER;
 $userid = $USER->id;
@@ -48,8 +51,8 @@ $questionusage = question_engine::load_questions_usage_by_activity($attempt->que
  $a = $questionusage->get_question_attempt($slot)->get_behaviour()->can_finish_during_attempt();
 */
 
-$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => $slot));
-$stopurl = new moodle_url('/mod/studentquiz/summary.php', array('id' => $attemptid));
+$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
+$stopurl = new moodle_url('/mod/studentquiz/summary.php', array('cmid' => $cmid, 'id' => $attemptid));
 
 // Get Current Question.
 $question = $questionusage->get_question($slot);
@@ -143,10 +146,16 @@ $html .= $questionusage->render_question($slot, $options, (string)$slot);
 // Output the voting.
 if ($hasanswered) {
     $comments = mod_studentquiz_get_comments_with_creators($question->id);
-    // TODO: Get from activity config
-    $anonymize = true;
-    // TODO: Get from capabilities
+
+    $anonymize = $studentquiz->anonymrank;
+    if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+        $anonymize = false;
+    }
     $ismoderator = false;
+    if(mod_studentquiz_check_created_permission($cmid)) {
+        $ismoderator = true;
+    }
+
     $html .= $output->feedback($question, $options, $cmid, $comments, $userid, $anonymize, $ismoderator);
 }
 
