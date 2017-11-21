@@ -97,8 +97,9 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
 
-    $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
+
+    $role = $DB->get_record('role', array('shortname' => 'student'));
 
     $capabilities = array(
         'moodle/question:usemine',
@@ -108,16 +109,11 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     );
 
     foreach ($capabilities as $capability) {
-        $obj = new stdClass();
-        $obj->contextid = $context->id;
-        $obj->roleid = $role->id;
-        $obj->capability = $capability;
-        $obj->permission = 1;
-        $obj->timemodified = time();
-        $obj->modifierid = 0;
-
-        $DB->insert_record('role_capabilities', $obj, false);
+        assign_capability($capability, CAP_ALLOW, $role->id, $context->id);
     }
+
+    // As recommended by accesslib to force context reload across sessions.
+    $context->mark_dirty();
 
     // Add default category.
     $questioncategory = question_make_default_categories(array($context));
