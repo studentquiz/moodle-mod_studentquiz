@@ -722,32 +722,39 @@ function mod_studentquiz_get_all_users_in_course($courseid) {
  */
 function mod_studentquiz_get_user_quiz_grade($userid, $cmid) {
     global $DB;
-    $sql = 'select COALESCE(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
-        .' COALESCE(round(sum(sub.mark), 1), 0.0) usermark, '
-        .'  COALESCE((SELECT round(sum(q.defaultmark), 1) '
-        .'     FROM {question} q '
-        .'       LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        .'       LEFT JOIN {context} c ON qc.contextid = c.id '
-        .'     WHERE q.parent = 0 AND c.instanceid = :cmid AND c.contextlevel = 70), 0.0) as stuquizmaxmark '
-        .'from ( '
-        .'    SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
-        .'max(fraction) * suatt.maxmark as mark '
-        .'from {question_attempt_steps} suats '
-        .'  left JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
-        .'WHERE state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') '
-        .'        AND userid = :userid AND suatt.questionid IN (SELECT q.id '
-        .'                                            FROM {question} q '
-        .'                                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        .'                                              LEFT JOIN {context} c ON qc.contextid = c.id '
-        .'                                            WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70) '
-        .'AND suats.id in (select max(suatsmax.id)
-                         FROM {question_attempt_steps} suatsmax
-                           LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id
-                         where suatsmax.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')
-                         AND suatsmax.userid = suats.userid
-                         GROUP BY suattmax.questionid)'
-        .'GROUP BY suatt.questionid, suatt.id, suatt.questionid, suatt.maxmark, suats.questionattemptid) as sub ';
-
+    $sql = 'SELECT COALESCE(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
+        .'         COALESCE(round(sum(sub.mark), 1), 0.0) usermark, '
+        .'         COALESCE((SELECT round(sum(q.defaultmark), 1) '
+        .'                   FROM {question} q '
+        .'                   LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        .'                   LEFT JOIN {context} c ON qc.contextid = c.id '
+        .'                   WHERE q.parent = 0 AND c.instanceid = :cmid'
+        .'                            AND c.contextlevel = 70), 0.0) as stuquizmaxmark '
+        .'   FROM ( '
+        .'         SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
+        .'         max(fraction) * suatt.maxmark as mark '
+        .'         from {question_attempt_steps} suats '
+        .'         LEFT JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
+        .'         WHERE state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') '
+        .'            AND userid = :userid AND suatt.questionid'
+        .'              IN ('
+        .'               SELECT q.id '
+        .'               FROM {question} q '
+        .'               LEFT JOIN {question_categories} qc ON q.category = qc.id '
+        .'               LEFT JOIN {context} c ON qc.contextid = c.id '
+        .'               WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70'
+        .'              ) '
+        .'            AND suats.id '
+        .'              IN ('
+        .'                SELECT max(suatsmax.id)'
+        .'                FROM {question_attempt_steps} suatsmax'
+        .'                LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id'
+        .'                where suatsmax.state '
+        .'                IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
+        .'                AND suatsmax.userid = suats.userid'
+        .'                GROUP BY suattmax.questionid'
+        .'               )'
+        .'  GROUP BY suatt.questionid, suatt.id, suatt.questionid, suatt.maxmark, suats.questionattemptid) as sub ';
     $record = $DB->get_record_sql($sql, array(
         'cmid' => $cmid, 'cmid2' => $cmid,
         'userid' => $userid));
@@ -902,13 +909,6 @@ function mod_studentquiz_get_attempt_stats($usageid, &$total) {
         }
         ++$total->questionsanswered;
     }
-}
-
-/**
- *
- */
-function mod_studentquiz_get_number_of_enrolled_users() {
-
 }
 
 /**
