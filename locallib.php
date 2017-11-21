@@ -132,12 +132,6 @@ function mod_studentquiz_get_quiz_module_id() {
 function mod_studentquiz_check_created_permission($cmid) {
     global $USER;
 
-    $admins = get_admins();
-    foreach ($admins as $admin) {
-        if ($USER->id == $admin->id) {
-            return true;
-        }
-    }
     $context = context_module::instance($cmid);
     return has_capability('moodle/question:editall', $context);
 }
@@ -569,7 +563,7 @@ function mod_studentquiz_get_comments_with_creators($questionid) {
  * @return string HTML fragment
  * TODO: Render function should move to renderers!
  */
-function mod_studentquiz_comment_renderer($comments, $userid, $anonymize = true, $ismoderator = false) {
+function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismoderator) {
 
     $output = '';
 
@@ -581,6 +575,7 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize = true,
 
     $authorids = array();
 
+    $num = 0;
     foreach ($comments as $comment) {
 
         // Collect distinct comment author ids chronologically.
@@ -612,8 +607,10 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize = true,
 
         $output .= html_writer::div( $editspan
             . html_writer::tag('p', $date . ' | ' . $username)
-            . html_writer::tag('p', $comment->comment)
+            . html_writer::tag('p', $comment->comment),
+            ($num>=2)? 'hidden': ''
         );
+        $num++;
     }
 
     if (count($comments) > 2) {

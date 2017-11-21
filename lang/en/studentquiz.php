@@ -187,6 +187,7 @@ $string['studentquiz:addinstance'] = 'Add new instance';
 $string['studentquiz:changed'] = 'Question change notification';
 $string['studentquiz:approved'] = 'Question approve notification';
 $string['studentquiz:unapproved'] = 'Question unapprove notification';
+$string['studentquiz:unhideanonymous'] = 'Allows to override anonymous settings';
 $string['studentquiz:emailnotifychanged'] = 'Question change notification';
 $string['studentquiz:emailnotifyapproved'] = 'Question approve notification';
 $string['studentquiz:emailnotifyunapproved'] = 'Question unapprove notification';

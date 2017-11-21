@@ -79,26 +79,17 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         $oldid = $data->id;
 
-        if (empty($data->timecreated)) {
-            $data->timecreated = time();
-        }
-
-        if (empty($data->timemodified)) {
-            $data->timemodified = time();
-        }
-
-        if ($data->grade < 0) {
-            // Scale found, get mapping.
-            $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
-        }
-
-        if (empty($data->quizpracticebehaviour)) {
-            $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
-        }
-
-        if (empty($data->anonymrank)) {
-            $data->anonymrank = true;
-        }
+        if (empty($data->timecreated)) $data->timecreated = time();
+        if (empty($data->timemodified)) $data->timemodified = time();
+        if ($data->grade < 0) $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
+        if (empty($data->quizpracticebehaviour)) $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
+        if (empty($data->anonymrank)) $data->anonymrank = true;
+        if (empty($data->questionquantifier)) $data->questionquantifier = get_config('studentquiz', 'addquestion');
+        if (empty($data->approvedquantifier)) $data->approvedquantifier = get_config('studentquiz', 'approved');
+        if (empty($data->votequantifier)) $data->votequantifier = get_config('studentquiz', 'vote');
+        if (empty($data->correctanswerquantifier)) $data->correctanswerquantifier = get_config('studentquiz', 'correctanswered');
+        if (empty($data->incorrectanswerquantifier)) $data->incorrectanswerquantifier = get_config('studentquiz', 'incorrectanswered');
+        if (empty($data->allowedqtypes)) $data->allowedqtypes = 'ALL';
 
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
@@ -166,16 +157,78 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function after_restore() {
         global $DB;
 
-        // Cleanup imports (empty sections) when this respective option is set.
-        if (get_config('studentquiz', 'removeemptysections')) {
-            // And only if a section 999 initially created from this module is present.
-            $orphanedsection = $DB->get_record('course_sections', array(
-                'course' => $this->get_courseid(),
-                'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
-                'name' => STUDENTQUIZ_COURSE_SECTION_NAME
+        // Import old Core Quiz Data (question attempts) to studentquiz.
+        // This is the case, when the orphaned section can be found.
+        $orphanedsection = $DB->get_record('course_sections', array(
+            'course' => $this->get_courseid(),
+            'name' => STUDENTQUIZ_COURSE_SECTION_NAME
+        ));
+
+        if ($orphanedsection !== false) {
+            $studentquizzes = $DB->get_records_sql('
+                select s.id, s.name, cm.id as cmid, c.id as contextid
+                from {studentquiz} s
+                inner join {course_modules} cm on s.id = cm.instance
+                inner join {context} c on cm.id = c.instanceid
+                inner join {modules} m on cm.module = m.id
+                where m.name = :modulename
+                and cm.course = :course
+            ', array(
+                'modulename' => 'studentquiz',
+                'course' => $this->get_courseid()
             ));
-            if ($orphanedsection !== false) {
-                // Then lookup the last non-empty section.
+
+            // TODO: probably we can use the $newitemid from above.
+            foreach ($studentquizzes as $studentquiz) {
+                $oldquizzes = $DB->get_records_sql('
+                    select q.id, cm.id as cmid, c.id as contextid, qu.id as qusageid
+                    from {quiz} q
+                    inner join {course_modules} cm on q.id = cm.instance
+                    inner join {context} c on cm.id = c.instanceid
+                    inner join {modules} m on cm.module = m.id
+                    inner join {question_usages} qu on c.id = qu.contextid
+                    where m.name = :modulename
+                    and cm.course = :course
+                    and q.name = :name
+                ', array(
+                    'modulename' => 'quiz',
+                    'course' => $this->get_courseid(),
+                    'name' => $studentquiz->name
+                ));
+
+                // For each old quiz we need to move the question usage.
+                foreach ($oldquizzes as $oldquiz) {
+                    $DB->set_field("question_usages", "component", 'mod_studentquiz', array("id" => $oldquiz->qusageid));
+                    $DB->set_field("question_usages", "contextid", $studentquiz->contextid, array("id" => $oldquiz->qusageid));
+                    $DB->set_field("question_usages", "preferredbehaviour", STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, array("id" => $oldquiz->qusageid));
+                    $DB->set_field("question_attempts", "behaviour", STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, array("questionusageid" => $oldquiz->qusageid));
+
+                    // Now we need each user as own attempt.
+                    $userids = $DB->get_fieldset_sql('
+                        select distinct qas.userid
+                        from {question_attempt_steps} qas
+                        inner join {question_attempts} qa on qas.questionattemptid = qa.id
+                        where qa.questionusageid = :qusageid
+                    ', array(
+                        'qusageid' => $oldquiz->qusageid
+                    ));
+                    foreach ($userids as $userid) {
+                        $DB->insert_record("studentquiz_attempt", array(
+                            "studentquizid" => $studentquiz->id,
+                            "userid" => $userid,
+                            "questionusageid" => $oldquiz->qusageid,
+                            "categoryid" => 0, // TODO? how to find out?
+                        ));
+                    }
+                    // So that quiz doesn't remove the question usages.
+                    $DB->set_field("quiz_attempts", "uniqueid", 0, array('quiz' => $oldquiz->id));
+                    quiz_delete_instance($oldquiz->id);
+                }
+            }
+
+            // Then remove empty sections if it's empty, if the admin allows us.
+            if (get_config('studentquiz', 'removeemptysections')) {
+                // So lookup the last non-empty section first.
                 $lastnonemptysection = $DB->get_record_sql(
                     'SELECT MAX(s.section) as max_section' .
                     '   FROM {course_sections} s' .
@@ -187,35 +240,20 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                     '       or s.name <> :sectionname' .
                     '       or s.summary <> :sectionsummary' .
                     '   )', array(
-                    'course' => $this->get_courseid(),
                     'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
+                    'course' => $this->get_courseid(),
                     'sectionname' => '',
                     'sectionsummary' => ''
                 ));
                 if ($lastnonemptysection !== false) {
                     // And remove all these useless sections.
                     $success = $DB->delete_records_select('course_sections',
-                        'course = :course AND section > :nonemptysection AND section <> :oldorphanedsection',
+                        'course = :course AND section > :nonemptysection',
                         array(
                             'course' => $this->get_courseid(),
-                            'nonemptysection' => $lastnonemptysection->max_section,
-                            'oldorphanedsection' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER
+                            'nonemptysection' => $lastnonemptysection->max_section
                         )
                     );
-                    if ($success) {
-                        // And move the orphaned section to the next free section number.
-                        $quizsectionid = $DB->get_field('course_sections', 'id', array(
-                            'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
-                            'course' => $this->get_courseid()
-                        ));
-                        // TODO: better use: move_section_to().
-                        $DB->set_field('course_sections', 'section', $lastnonemptysection->max_section + 1, array(
-                            'id' => $quizsectionid
-                        ));
-                        // TODO: Reassign question usages of imported quiz instances to studentquiz activity.
-                        // TODO: And delete quiz instances and generated section.
-
-                    }
                 }
             }
         }

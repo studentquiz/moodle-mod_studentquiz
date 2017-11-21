@@ -25,17 +25,25 @@
 define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
-require_once(__DIR__ . '/lib.php');
+require_once(__DIR__ . '/locallib.php');
 
 $commentid = required_param('id', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
 
 require_login();
 require_sesskey();
 
 header('Content-Type: text/html; charset=utf-8');
 
-if (studentquiz_check_created_permission($commentid)) {
-    $DB->delete_records('studentquiz_comment', array('id' => $commentid));
+// TODO strange return 401?
+if (mod_studentquiz_check_created_permission($cmid)) {
+    $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid));
+    if(!$success) {
+        return http_response_code(401);
+    }
 } else {
-    return http_response_code(401);
+    $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid, 'userid' => $USER->id));
+    if(!$success) {
+        return http_response_code(401);
+    }
 }
