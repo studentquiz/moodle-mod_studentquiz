@@ -20,7 +20,7 @@ We hope that StudentQuiz finds your interest.
 
 http://studentquiz.hsr.ch/
 
-For more information read the [User-Manuel](manuals/User-Manual.pdf).
+For more information read the [student manual](manuals/User-Manual.pdf).
 
 
 ## Installation

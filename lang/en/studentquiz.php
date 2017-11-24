@@ -31,13 +31,12 @@ defined('MOODLE_INTERNAL') || die();
 // General plugin strings.
 $string['modulename'] = 'StudentQuiz';
 $string['modulenameplural'] = 'StudentQuizzes';
-$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">User-Manual</a>.';
+$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">student manual</a>.';
 $string['studentquizname'] = 'StudentQuiz Name';
 $string['studentquizname_help'] = 'The name of this StudentQuiz Activity';
 $string['studentquiz'] = 'studentquiz';
 $string['pluginname'] = 'StudentQuiz';
 $string['pluginadministration'] = 'StudentQuiz Administration';
-$string['student'] = 'Student';
 
 // Labels and buttons.
 $string['vote_column_name'] = 'Rating';
@@ -76,8 +75,8 @@ $string['lastattempt_wrong'] = '✗';
 $string['approve'] = 'Un-/Approve';
 $string['approveselectedscheck'] = 'Are you sure you want to un-/approve the following questions?<br /><br />{$a}';
 $string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
-$string['creator_anonym_firstname'] = 'anonym';
-$string['creator_anonym_lastname'] = 'anonym';
+$string['creator_anonym_firstname'] = 'Student';
+$string['creator_anonym_lastname'] = 'Anonymous';
 $string['no_questions_selected_message'] = 'Please select at least one question to start the quiz.';
 $string['progress_bar_caption'] = 'Your progress in this StudentQuiz activity';
 
@@ -116,13 +115,13 @@ $string['settings_approvedquantifier_label'] = 'Points for each question approve
 $string['settings_approvedquantifier_help'] = 'Points received for each question approved.';
 $string['settings_votequantifier'] = 'Vote quantifier';
 $string['settings_votequantifier_label'] = 'Multiplier for the average of stars received for a question';
-$string['settings_votequantifier_help'] = 'E.g. if the multiplier is 3 and a question is rated with an average of 4.3 stars, the author of the question will receive 13 points (= ROUND(3 * 4.3; 1)).';
+$string['settings_votequantifier_help'] = 'Points multiplier for each qustions average vote rating.';
 $string['settings_correctanswerquantifier'] = 'Correct answer quantifier';
 $string['settings_correctanswerquantifier_label'] = 'Points for each correct answer';
-$string['settings_correctanswerquantifier_help'] = 'Points received for answering a question correctly.';
+$string['settings_correctanswerquantifier_help'] = 'Points received for answering a question correctly (Applies for the last attempt of a question).';
 $string['settings_incorrectanswerquantifier'] = 'Incorrect answer quantifier';
 $string['settings_incorrectanswerquantifier_label'] = 'Points for each wrong answer';
-$string['settings_incorrectanswerquantifier_help'] = 'Points received for answering a question wrongly.';
+$string['settings_incorrectanswerquantifier_help'] = 'Points received for answering a question wrongly';
 $string['settings_removeemptysections'] = 'Remove empty sections';
 $string['settings_removeemptysections_label'] = 'Remove empty sections at the end of the course';
 $string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a socalled orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
@@ -150,7 +149,7 @@ $string['reportquiz_total_questions_right'] = 'Total of correct answers';
 $string['reportquiz_total_questions_wrong'] = 'Wrong answers';
 $string['reportquiz_total_obtained_marks'] = 'Grade total';
 $string['reportquiz_total_users'] = 'Number of participants';
-$string['reportquiz_admin_title'] = 'User statistics';
+$string['reportquiz_admin_title'] = 'Student statistics';
 
 // Report quiz stats.
 $string['reportquiz_stats_title'] = 'Statistics';
@@ -165,17 +164,18 @@ $string['reportquiz_stats_questions_answered'] = 'Total of your answers';
 $string['reportquiz_stats_questions_right'] = 'Total of correct answers';
 
 // Report rank.
-$string['reportrank_title'] = 'User ranking';
+$string['reportrank_title'] = 'Student ranking';
 $string['reportrank_table_quantifier_caption'] = 'How your points are calculated';
-$string['reportrank_table_title'] = '- Ranking';
+$string['reportrank_table_title'] = 'Ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';
-$string['reportrank_table_column_countquestions'] = 'Number of questions';
-$string['reportrank_table_column_approvedquestions'] = 'Number of approved questions';
-$string['reportrank_table_column_summeanvotes'] = 'Voting Score';
-$string['reportrank_table_column_correctanswers'] = 'Correct Answers';
-$string['reportrank_table_column_incorrectanswers'] = 'Incorrect Answers';
+$string['reportrank_table_column_total_points'] = 'Total Points';
+$string['reportrank_table_column_countquestions'] = 'Points for questions';
+$string['reportrank_table_column_approvedquestions'] = 'Points for approved questions';
+$string['reportrank_table_column_summeanvotes'] = 'Points for votes';
+$string['reportrank_table_column_correctanswers'] = 'Points for correct answers';
+$string['reportrank_table_column_incorrectanswers'] = 'Points for incorrect Answers';
 $string['reportrank_table_column_quantifier_name'] = 'Name';
 $string['reportrank_table_column_factor'] = 'Factor';
 $string['reportrank_table_column_description'] = 'Description';

@@ -288,7 +288,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-        // TODO: Because no default value is allowed in text fields, the frontend part must accept empty string or ALL as ALl
 
         upgrade_mod_savepoint(true, 2017111904, 'studentquiz');
     }

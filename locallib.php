@@ -560,7 +560,7 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
         if ($seename) {
             $username = $comment->firstname . ' ' . $comment->lastname;
         } else {
-            $username = get_string('student', 'studentquiz')
+            $username = get_string('creator_anonym_firstname', 'studentquiz')
                 . ' #' . (1 + array_search($comment->userid, $authorids));
         }
 
