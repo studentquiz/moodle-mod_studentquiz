@@ -401,6 +401,7 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     $attempt->studentquizid = $studentquiz->id;
 
     // Add questions to usage
+    shuffle($ids);
     $usageorder = array();
     foreach ($ids as $i => $questionid) {
         $questiondata = question_bank::load_question($questionid);
@@ -918,4 +919,113 @@ function mod_studentquiz_add_question_capabilities($context) {
         }
     }
     return true;
+}
+
+/**
+ * @param int|null $course_id
+ */
+function mod_studentquiz_migrate_old_quiz_usage(int $course_id=null) {
+    global $DB;
+
+    $courseids = array();
+    if (!empty($course_id)) {
+        $courseids[] = $course_id;
+    } else {
+        $courseids = $DB->get_fieldset_sql('
+            select distinct cm.course
+            from {course_modules} cm
+            inner join {context} c on cm.id = c.instanceid
+            inner join {question_categories} cats on cats.contextid = c.id
+            inner join {modules} m on cm.module = m.id
+            where m.name = :modulename
+        ', array(
+            'modulename' => 'studentquiz'
+        ));
+    }
+
+    foreach($courseids as $courseid) {
+        $studentquizzes = $DB->get_records_sql('
+            select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
+            from {studentquiz} s
+            inner join {course_modules} cm on s.id = cm.instance
+            inner join {context} c on cm.id = c.instanceid
+            inner join {question_categories} cats on cats.contextid = c.id
+            inner join {modules} m on cm.module = m.id
+            where m.name = :modulename
+            and cm.course = :course
+        ', array(
+            'modulename' => 'studentquiz',
+            'course' => $courseid
+        ));
+
+        foreach ($studentquizzes as $studentquiz) {
+
+            $oldquizzes = $DB->get_records_sql('
+                select q.id, cm.id as cmid, cm.section as sectionid, c.id as contextid, qu.id as qusageid
+                from {quiz} q
+                inner join {course_modules} cm on q.id = cm.instance
+                inner join {context} c on cm.id = c.instanceid
+                inner join {modules} m on cm.module = m.id
+                inner join {question_usages} qu on c.id = qu.contextid
+                where m.name = :modulename
+                and cm.course = :course
+                and q.name = :name
+            ', array(
+                'modulename' => 'quiz',
+                'course' => $courseid,
+                'name' => $studentquiz->name
+            ));
+
+            // For each old quiz we need to move the question usage.
+            foreach ($oldquizzes as $oldquiz) {
+                $DB->set_field('question_usages', 'component', 'mod_studentquiz', array('id' => $oldquiz->qusageid));
+                $DB->set_field('question_usages', 'contextid', $studentquiz->contextid, array('id' => $oldquiz->qusageid));
+                $DB->set_field('question_usages', 'preferredbehaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, array('id' => $oldquiz->qusageid));
+                $DB->set_field('question_attempts', 'behaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, array('questionusageid' => $oldquiz->qusageid));
+
+                // Now we need each user as own attempt.
+                $userids = $DB->get_fieldset_sql('
+                    select distinct qas.userid
+                    from {question_attempt_steps} qas
+                    inner join {question_attempts} qa on qas.questionattemptid = qa.id
+                    where qa.questionusageid = :qusageid
+                ', array(
+                    'qusageid' => $oldquiz->qusageid
+                ));
+                foreach ($userids as $userid) {
+                    $DB->insert_record('studentquiz_attempt', (object)array(
+                        'studentquizid' => $studentquiz->id,
+                        'userid' => $userid,
+                        'questionusageid' => $oldquiz->qusageid,
+                        'categoryid' => $studentquiz->categoryid,
+                    ));
+                }
+                // So that quiz doesn't remove the question usages.
+                $DB->set_field('quiz_attempts', 'uniqueid', 0, array('quiz' => $oldquiz->id));
+                quiz_delete_instance($oldquiz->id);
+            }
+        }
+
+        // Try to clean up sections. Need to be exactly as created by v2.0.3 and before. Otherwise manual removal needed as it
+        // can't be detected properly.
+        $oldsections = $DB->get_fieldset_sql('
+                SELECT s.id
+                FROM {course_sections} s
+                left join {course_modules} m on s.id = m.section
+                where s.course = :course
+                and m.id is NULL
+                and s.name = :sectionname
+                and s.summary = :sectionsummary
+            ', array(
+            'course' => $courseid,
+            'sectionname' => STUDENTQUIZ_COURSE_SECTION_NAME,
+            'sectionsummary' => STUDENTQUIZ_COURSE_SECTION_SUMMARY
+        ));
+        foreach($oldsections as $sectionid) {
+            $DB->delete_records('course_sections', array(
+                    'id' => $sectionid
+                )
+            );
+        }
+    }
 }

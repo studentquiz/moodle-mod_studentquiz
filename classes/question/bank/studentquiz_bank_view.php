@@ -458,6 +458,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * TODO: document PHPDoc
      * Create new default question form
      * @param string $category question category
      * @param bool $canadd capability state
@@ -484,7 +485,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 array('id' => 'qtypechoicecontainer')
             ));
             $output .= \html_writer::div(
-                $OUTPUT->render(new \single_button($url, $caption, 'get')) .
+                $OUTPUT->render(new \single_button($url, $caption, 'get', true)) .
                 $qtypecontainer, 'createnewquestion'
             );
         } else {

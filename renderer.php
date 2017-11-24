@@ -407,7 +407,6 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
         return $this->render_table($data, $size, $align, $head, $caption);
     }
 
-
     /**
      * Get quiz admin statistic view
      * $userid of viewing user

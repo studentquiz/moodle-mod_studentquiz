@@ -185,68 +185,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         ));
 
         if ($orphanedsection !== false) {
-            $studentquizzes = $DB->get_records_sql('
-                select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
-                from {studentquiz} s
-                inner join {course_modules} cm on s.id = cm.instance
-                inner join {context} c on cm.id = c.instanceid
-                inner join {question_categories} cats on cats.contextid = c.id
-                inner join {modules} m on cm.module = m.id
-                where m.name = :modulename
-                and cm.course = :course
-            ', array(
-                'modulename' => 'studentquiz',
-                'course' => $this->get_courseid()
-            ));
 
-            // TODO: probably we can use the $newitemid from above.
-            foreach ($studentquizzes as $studentquiz) {
-
-                $oldquizzes = $DB->get_records_sql('
-                    select q.id, cm.id as cmid, c.id as contextid, qu.id as qusageid
-                    from {quiz} q
-                    inner join {course_modules} cm on q.id = cm.instance
-                    inner join {context} c on cm.id = c.instanceid
-                    inner join {modules} m on cm.module = m.id
-                    inner join {question_usages} qu on c.id = qu.contextid
-                    where m.name = :modulename
-                    and cm.course = :course
-                    and q.name = :name
-                ', array(
-                    'modulename' => 'quiz',
-                    'course' => $this->get_courseid(),
-                    'name' => $studentquiz->name
-                ));
-
-                // For each old quiz we need to move the question usage.
-                foreach ($oldquizzes as $oldquiz) {
-                    $DB->set_field("question_usages", "component", 'mod_studentquiz', array("id" => $oldquiz->qusageid));
-                    $DB->set_field("question_usages", "contextid", $studentquiz->contextid, array("id" => $oldquiz->qusageid));
-                    $DB->set_field("question_usages", "preferredbehaviour", STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, array("id" => $oldquiz->qusageid));
-                    $DB->set_field("question_attempts", "behaviour", STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, array("questionusageid" => $oldquiz->qusageid));
-
-                    // Now we need each user as own attempt.
-                    $userids = $DB->get_fieldset_sql('
-                        select distinct qas.userid
-                        from {question_attempt_steps} qas
-                        inner join {question_attempts} qa on qas.questionattemptid = qa.id
-                        where qa.questionusageid = :qusageid
-                    ', array(
-                        'qusageid' => $oldquiz->qusageid
-                    ));
-                    foreach ($userids as $userid) {
-                        $DB->insert_record("studentquiz_attempt", array(
-                            "studentquizid" => $studentquiz->id,
-                            "userid" => $userid,
-                            "questionusageid" => $oldquiz->qusageid,
-                            "categoryid" => $studentquiz->categoryid,
-                        ));
-                    }
-                    // So that quiz doesn't remove the question usages.
-                    $DB->set_field("quiz_attempts", "uniqueid", 0, array('quiz' => $oldquiz->id));
-                    quiz_delete_instance($oldquiz->id);
-                }
-            }
+            mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
 
             // Then remove empty sections if it's empty, if the admin allows us.
             if (get_config('studentquiz', 'removeemptysections')) {

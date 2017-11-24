@@ -64,8 +64,6 @@ if (data_submitted()) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
         if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(data_submitted())) {
             if ($attempt = mod_studentquiz_generate_attempt($ids, $studentquiz, $USER->id)) {
-                // TODO: shuffle works?
-                shuffle($ids);
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
                 redirect(new moodle_url('/mod/studentquiz/attempt.php',
                     array('cmid' => $cmid, 'id' => $attempt->id, 'slot' => $questionusage->get_first_question_number())));
