@@ -99,24 +99,8 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $context = context_module::instance($studentquiz->coursemodule);
 
-    // TODO: We can't be sure cover all roles this way.
-    $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-    $noneditingteacherrole = $DB->get_record('role', array('shortname' => 'teacher'));
-
-    $capabilities = array(
-        'moodle/question:usemine',
-        'moodle/question:useall',
-        'moodle/question:editmine',
-        'moodle/question:add'
-    );
-
-    foreach ($capabilities as $capability) {
-        assign_capability($capability, CAP_ALLOW, $studentrole->id, $context->id);
-        assign_capability($capability, CAP_ALLOW, $noneditingteacherrole->id, $context->id);
-    }
-
-    // As recommended by accesslib to force context reload across sessions.
-    $context->mark_dirty();
+    // Leverage add capabilities to add questions in StudentQuiz context.
+    mod_studentquiz_add_question_capabilities($context);
 
     // Add default category.
     $questioncategory = question_make_default_categories(array($context));

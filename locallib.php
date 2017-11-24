@@ -892,3 +892,30 @@ function mod_studentquiz_get_question_types() {
     }
     return $returntypes;
 }
+
+/**
+ * Add capabilities to teacher (Non editing teacher) and
+ * Student roles in the context of this context
+ * @param stdClass $context of the studentquiz activity
+ * @return true or exception
+ */
+function mod_studentquiz_add_question_capabilities($context) {
+    $archtyperoles = array('student', 'teacher');
+    $roles = array();
+    foreach($archtyperoles as $archtyperole) {
+        foreach(get_archetype_roles($archtyperole) as $role) {
+            $roles[] = $role;
+        }
+    }
+    $capabilities = array(
+        'moodle/question:add',
+        'moodle/question:usemine',
+        'moodle/question:viewmine',
+        'moodle/question:editmine');
+    foreach($capabilities as $capability) {
+        foreach($roles as $role) {
+            assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
+        }
+    }
+    return true;
+}

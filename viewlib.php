@@ -138,6 +138,11 @@ class mod_studentquiz_view {
         // TODO: Refactor!
         $_GET["qbshowtext"] = 0;
 
+        // Ensure capabilities are set to load question bank.
+        if (!has_capability('moodle/question:add', $this->context)) {
+            mod_studentquiz_add_question_capabilities($this->context);
+        }
+
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
 
