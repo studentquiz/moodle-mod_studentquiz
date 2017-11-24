@@ -46,7 +46,7 @@ class mod_studentquiz_report {
      */
     protected $course;
     /**
-     * @var context the quiz context.
+     * @var context_module the quiz context.
      */
     protected $context;
     /**
@@ -138,15 +138,15 @@ class mod_studentquiz_report {
      * Get quiz report url
      * @return moodle_url
      */
-    public function get_quizreporturl() {
-        return new moodle_url('/mod/studentquiz/reportquiz.php', $this->get_urlview_data());
+    public function get_stat_url() {
+        return new moodle_url('/mod/studentquiz/reportstat.php', $this->get_urlview_data());
     }
 
     /**
      * Get quiz report url
      * @return moodle_url
      */
-    public function get_rankreporturl() {
+    public function get_rank_url() {
         return new moodle_url('/mod/studentquiz/reportrank.php', $this->get_urlview_data());
     }
 
@@ -184,7 +184,7 @@ class mod_studentquiz_report {
 
     /**
      * Get activity context
-     * @return int
+     * @return context_module
      */
     public function get_context() {
         return $this->context;
@@ -310,7 +310,7 @@ class mod_studentquiz_report {
             $total->obtainedmarks = 0;
             $total->questionsright = 0;
             $total->questionsanswered = 0;
-            $this->get_user_quiz_summary($user->userid, $total);
+            $this->get_user_attempt_summary($user->userid, $total);
             $userstats = $this->get_user_quiz_grade($user->userid, $this->get_cm_id());
             $total->attemptedgrade = $userstats->usermark;
             $total->maxgrade = $userstats->stuquizmaxmark;
@@ -380,7 +380,7 @@ class mod_studentquiz_report {
      * @throws coding_exception
      * @deprecated
      */
-    public function get_user_quiz_summary($userid, &$total) {
+    public function get_user_attempt_summary($userid, &$total) {
         // TODO: Refactor to not scale DB requests with number of attempts!
         $total = new stdClass();
         $total->numattempts = 0;

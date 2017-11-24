@@ -44,12 +44,12 @@ $event->trigger();
 $PAGE->set_title($report->get_ranking_title());
 $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());
-$PAGE->set_url($report->get_rankreporturl());
+$PAGE->set_url($report->get_rank_url());
 
 $output = $PAGE->get_renderer('mod_studentquiz', 'ranking');
 
 echo $OUTPUT->header();
 
-echo $output->view_ranking($report);
+echo $output->view_rank($report);
 
 echo $OUTPUT->footer();

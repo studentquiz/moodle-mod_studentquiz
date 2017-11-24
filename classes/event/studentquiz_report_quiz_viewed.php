@@ -57,6 +57,6 @@ class studentquiz_report_quiz_viewed extends \core\event\base {
      * @return \moodle_url view.php url
      */
     public function get_url() {
-        return new \moodle_url('/mod/studentquiz/reportquiz.php', array('id' => $this->objectid));
+        return new \moodle_url('/mod/studentquiz/reportstat.php', array('id' => $this->objectid));
     }
 }

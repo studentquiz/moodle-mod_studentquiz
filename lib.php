@@ -386,11 +386,11 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
         new moodle_url('/mod/studentquiz/view.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_dashboard',
         new pix_icon('i/cohort', '')), $beforekey);
-    $studentquiznode->add_node(navigation_node::create(get_string('reportquiz_dashboard_title', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/reportquiz.php', array('id' => $PAGE->cm->id)),
+    $studentquiznode->add_node(navigation_node::create(get_string('reportquiz_stats_title', 'studentquiz'),
+        new moodle_url('/mod/studentquiz/reportstat.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_statistics',
         new pix_icon('i/report', '')), $beforekey);
-    $studentquiznode->add_node(navigation_node::create(get_string('nav_report_rank', 'studentquiz'),
+    $studentquiznode->add_node(navigation_node::create(get_string('reportrank_title', 'studentquiz'),
         new moodle_url('/mod/studentquiz/reportrank.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_rank',
         new pix_icon('i/scales', '')), $beforekey);

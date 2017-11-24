@@ -53,8 +53,6 @@ $string['review_button'] = 'Review';
 $string['finish_button'] = 'Finish';
 $string['next_button'] = 'Next';
 $string['previous_button'] = 'Previous';
-$string['nav_report'] = 'Report';
-$string['nav_report_rank'] = 'Rank';
 $string['nav_export'] = 'Export';
 $string['nav_import'] = 'Import';
 $string['createnewquestionfirst'] = 'Create first question';
@@ -142,7 +140,6 @@ $string['importsettingsheader'] = 'Import settings';
 $string['importsettingsdescription'] = 'Here you set various settings to change the behavior of imports';
 
 // Report Dashboard.
-$string['reportquiz_dashboard_title'] = 'Statistics';
 $string['reportquiz_total_attempt'] = 'Times user run the quiz';
 $string['reportquiz_total_questions_answered'] = 'Total of answers';
 $string['reportquiz_total_questions_right'] = 'Total of correct answers';
@@ -151,22 +148,27 @@ $string['reportquiz_total_obtained_marks'] = 'Grade total';
 $string['reportquiz_total_users'] = 'Number of participants';
 $string['reportquiz_admin_title'] = 'Student statistics';
 
-// Report quiz stats.
+// Report stat.
 $string['reportquiz_stats_title'] = 'Statistics';
-$string['reportquiz_stats_nr_of_questions'] = 'Number of questions in this quiz';
+$string['reportrank_table_progress_caption'] = 'Current progress';
+$string['reportquiz_stats_nr_of_questions'] = 'Number of questions in this community';
 $string['reportquiz_stats_right_answered_questions'] = 'You have answered correctly';
-$string['reportquiz_stats_nr_of_own_questions'] = 'You have contributed';
+$string['reportquiz_stats_nr_of_own_questions'] = 'Number of questions you have contributed';
 $string['reportquiz_stats_nr_of_approved_questions'] = 'Number of approved questions';
 $string['reportquiz_stats_avg_rating'] = 'Your received rating average';
 $string['reportquiz_stats_learning_quotient'] = 'Your learning quotient';
-$string['reportquiz_stats_own_grade_of_max'] = 'Your grade total';
+$string['reportquiz_stats_own_grade'] = 'Your grade total';
+$string['reportquiz_stats_community_grade'] = 'Community grade total';
 $string['reportquiz_stats_questions_answered'] = 'Total of your answers';
 $string['reportquiz_stats_questions_right'] = 'Total of correct answers';
+$string['reportrank_table_column_yourstatus'] = 'Personal Status';
+$string['reportrank_table_column_communitystatus'] = 'Community Status';
+$string['reportrank_table_column_value'] = 'Value';
 
 // Report rank.
-$string['reportrank_title'] = 'Student ranking';
+$string['reportrank_title'] = 'Ranking';
 $string['reportrank_table_quantifier_caption'] = 'How your points are calculated';
-$string['reportrank_table_title'] = 'Ranking';
+$string['reportrank_table_title'] = 'Student ranking';
 $string['reportrank_table_column_rank'] = 'Rank';
 $string['reportrank_table_column_fullname'] = 'Fullname';
 $string['reportrank_table_column_points'] = 'Points';

@@ -47,12 +47,12 @@ $report->calc_stats();
 $PAGE->set_title($report->get_statistic_title());
 $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());
-$PAGE->set_url($report->get_quizreporturl());
+$PAGE->set_url($report->get_stat_url());
 
 echo $OUTPUT->header();
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'report');
 
-echo $renderer->get_quiz_statistic_view($report);
+echo $renderer->view_stat($report);
 
 echo $OUTPUT->footer();
