@@ -61,6 +61,21 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         // Add attempt data.
         $this->add_question_usages($attempt, $paths);
 
+        // Restore Votes.
+        $vote = new restore_path_element('vote',
+            '/activity/studentquiz/votes/vote');
+        $paths[] = $vote;
+
+        // Restore Comments.
+        $comment = new restore_path_element('comment',
+            '/activity/studentquiz/comments/comment');
+        $paths[] = $comment;
+
+        // Restore Question meta.
+        $question = new restore_path_element('question_meta',
+            '/activity/studentquiz/questions/question');
+        $paths[] = $question;
+
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
@@ -75,14 +90,15 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         $data = (object)$data;
         $data->course = $this->get_courseid();
-        $data->coursemodule = 0; // Will be updated later.
-
+        $data->coursemodule = $this->get_mappingid('course_module', $data->coursemodule);
         $oldid = $data->id;
 
         if (empty($data->timecreated)) $data->timecreated = time();
         if (empty($data->timemodified)) $data->timemodified = time();
         if ($data->grade < 0) $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
-        if (empty($data->quizpracticebehaviour)) $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
+        if (empty($data->quizpracticebehaviour) || $data->quizpracticebehaviour == STUDENTQUIZ_BEHAVIOUR) {
+            $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
+        }
         if (empty($data->anonymrank)) $data->anonymrank = true;
         if (empty($data->questionquantifier)) $data->questionquantifier = get_config('studentquiz', 'addquestion');
         if (empty($data->approvedquantifier)) $data->approvedquantifier = get_config('studentquiz', 'approved');
@@ -93,11 +109,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
-
         $this->apply_activity_instance($newitemid);
-
         $this->set_mapping('studentquiz', $oldid, $newitemid, true); // Has related files.
-
     }
 
     protected function process_attempt($data) {
@@ -110,26 +123,35 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $this->currentattempt = clone($data);
     }
 
+    protected function process_vote($data) {
+        global $DB;
+        $data = (object) $data;
+        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $newitemid = $DB->insert_record('studentquiz_vote', $data);
+    }
+
+    protected function process_comment($data) {
+        global $DB;
+        $data = (object) $data;
+        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $DB->insert_record('studentquiz_comment', $data);
+    }
+
+    protected function process_question_meta($data) {
+        global $DB;
+        $data = (object) $data;
+        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $DB->insert_record('studentquiz_question', $data);
+    }
+
     /**
      * Post-execution actions per activity
      */
     protected function after_execute() {
-        global $DB;
-
         // Add StudentQuiz related files, no need to match by itemname (just internally handled context).
         $this->add_related_files('mod_studentquiz', 'intro', null);
-
-        // Update the coursemodule id on the studentquiz table.
-        $courseid = $this->get_courseid();
-        $moduleid = $DB->get_field('modules', 'id', array('name' => 'studentquiz'));
-
-        $cms = $DB->get_records('course_modules', array('course' => $courseid, 'module' => $moduleid));
-
-        foreach ($cms as $cm) {
-            $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
-            $studentquiz->coursemodule = $cm->id;
-            $DB->update_record('studentquiz', $studentquiz);
-        }
     }
 
 
@@ -141,9 +163,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $oldid = $data->id;
         $data->questionusageid = $newusageid;
 
-        // TODO: Update Category id?
-
-        //
+        $data->categoryid = $this->get_mappingid('question_category', $data->categoryid);
 
         $newitemid = $DB->insert_record('studentquiz_attempt', $data);
 
@@ -166,10 +186,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         if ($orphanedsection !== false) {
             $studentquizzes = $DB->get_records_sql('
-                select s.id, s.name, cm.id as cmid, c.id as contextid
+                select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
                 from {studentquiz} s
                 inner join {course_modules} cm on s.id = cm.instance
                 inner join {context} c on cm.id = c.instanceid
+                inner join {question_categories} cats on cats.contextid = c.id
                 inner join {modules} m on cm.module = m.id
                 where m.name = :modulename
                 and cm.course = :course
@@ -180,6 +201,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
             // TODO: probably we can use the $newitemid from above.
             foreach ($studentquizzes as $studentquiz) {
+
                 $oldquizzes = $DB->get_records_sql('
                     select q.id, cm.id as cmid, c.id as contextid, qu.id as qusageid
                     from {quiz} q
@@ -217,7 +239,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                             "studentquizid" => $studentquiz->id,
                             "userid" => $userid,
                             "questionusageid" => $oldquiz->qusageid,
-                            "categoryid" => 0, // TODO? how to find out?
+                            "categoryid" => $studentquiz->categoryid,
                         ));
                     }
                     // So that quiz doesn't remove the question usages.

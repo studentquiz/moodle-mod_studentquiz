@@ -85,37 +85,6 @@ function mod_studentquiz_flip_approved($questionid) {
 }
 
 /**
- * Returns behaviour option from the course module with fallback
- *
- * @param  stdClass $cm
- * @return string quiz behaviour
- */
-function mod_studentquiz_get_current_behaviour($cm=null) {
-    global $DB;
-
-    $default = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
-    $archetypalbehaviours = question_engine::get_archetypal_behaviours();
-
-    if (array_key_exists(STUDENTQUIZ_BEHAVIOUR, $archetypalbehaviours)) {
-        $default = STUDENTQUIZ_BEHAVIOUR;
-    }
-
-    if (isset($cm)) {
-        $rec = $DB->get_record('studentquiz', array('id' => $cm->instance), 'quizpracticebehaviour');
-
-        if (!$rec) {
-            return $default;
-        }
-
-        if (array_key_exists($rec->quizpracticebehaviour, $archetypalbehaviours)) {
-            return $rec->quizpracticebehaviour;
-        }
-    }
-
-    return $default;
-}
-
-/**
  * Returns quiz module id
  * @return int
  */
