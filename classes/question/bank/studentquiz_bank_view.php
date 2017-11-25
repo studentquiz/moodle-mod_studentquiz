@@ -460,10 +460,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $caption = get_string('createnewquestionfirst', 'studentquiz');
         }
         if ($canadd) {
-            $params = $this->editquestionurl->params();
-            $params['category'] = $categoryid;
+            $returnurl = new \moodle_url('/mod/studentquiz/view.php', array(
+                'id' => $this->studentquiz->coursemodule
+            ));
+            $params = array(
+                // TODO: MAGIC CONSTANT
+                'returnurl' => $returnurl->out_as_local_url(false),
+                'category' => $categoryid,
+                'cmid' => $this->studentquiz->coursemodule,
+            );
+
             $url = new \moodle_url('/question/addquestion.php', $params);
-            // TODO: ALL should show all qtypes
+
             $allowedtypes = (empty($this->studentquiz->allowedqtypes))? 'ALL': $this->studentquiz->allowedqtypes;
             $allowedtypes = ($allowedtypes == 'ALL')? null: explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(

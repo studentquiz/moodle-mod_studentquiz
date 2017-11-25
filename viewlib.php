@@ -135,7 +135,8 @@ class mod_studentquiz_view {
 
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
-            mod_studentquiz_notify_changed($lastchanged, $this->course, $module);
+            mod_studentquiz_notify_changed($lastchanged, $this->course, $this->cm);
+            redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));
         }
 
         $this->qbpagevar = $pagevars;

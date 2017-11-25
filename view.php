@@ -15,12 +15,7 @@ require_once(__DIR__ . '/viewlib.php');
 require_once(__DIR__.'/classes/event/studentquiz_questionbank_viewed.php');
 
 // Get parameters.
-$cmid = optional_param('id', 0, PARAM_INT);
-
-// TODO: Is this necesserary for viewlib.php -> load_questionbank() workaround?
-if (!$cmid) {
-    $cmid = required_param('cmid', PARAM_INT);
-}
+$cmid = required_param('id', PARAM_INT);
 
 // Load course and course module requested.
 if ($cmid) {
@@ -30,7 +25,7 @@ if ($cmid) {
     if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
         print_error('coursemisconf');
     }
-}else{
+} else {
     print_error('invalidcoursemodule');
 }
 
