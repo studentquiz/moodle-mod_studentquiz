@@ -178,6 +178,7 @@ $string['reportrank_table_column_approvedquestions'] = 'Points for approved ques
 $string['reportrank_table_column_summeanvotes'] = 'Points for votes';
 $string['reportrank_table_column_correctanswers'] = 'Points for correct answers';
 $string['reportrank_table_column_incorrectanswers'] = 'Points for incorrect Answers';
+$string['reportrank_table_column_progress'] = 'Progress';
 $string['reportrank_table_column_quantifier_name'] = 'Name';
 $string['reportrank_table_column_factor'] = 'Factor';
 $string['reportrank_table_column_description'] = 'Description';

@@ -537,6 +537,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
      */
     public function view_rank_table($report) {
+
         $align = array('left', 'left');
         $size = array('', '', '');
         $head = array(get_string('reportrank_table_column_rank', 'studentquiz')
@@ -547,14 +548,21 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         , get_string( 'reportrank_table_column_summeanvotes', 'studentquiz')
         , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
         , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
+        , get_string( 'reportrank_table_column_progress', 'studentquiz')
         );
         $caption = get_string('reportrank_table_title', 'studentquiz');
         $celldata = array();
         $rowstyle = array();
 
-        $rank = 1;
-        // TODO Refactor
-        foreach ($report->get_user_ranking() as $ur) {
+        // Todo: Get Pagination from get parameters
+        $limitfrom = 0;
+        $limitnum = 0;
+
+        // Update rank offset to pagination.
+        $numofquestions = $report->get_questions_count();
+        $rank = 1 + $limitfrom;
+        $rankingresultset = $report->get_user_ranking($limitfrom, $limitnum);
+        foreach ($rankingresultset as $ur) {
             $username = $ur->firstname . ' ' . $ur->lastname;
             if ($report->is_anonym() && !$report->is_loggedin_user($ur->userid)) {
                 $username = get_string('creator_anonym_firstname', 'studentquiz') . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
@@ -562,16 +570,18 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             $celldata[] = array(
                 $rank,
                 $username,
-                round($ur->points, 2),
-                round($ur->countquestions * $report->get_quantifier_question(), 2),
-                round($ur->numapproved * $report->get_quantifier_approved(), 2),
-                round($ur->summeanvotes * $report->get_quantifier_vote(), 2),
-                round($ur->correctanswers * $report->get_quantifier_correctanswer(), 2),
-                round($ur->incorrectanswers * $report->get_quantifier_incorrectanswer(), 2)
+                round($report->get_points_by_ranking_record($ur), 2),
+                round($ur->questions_created * $report->get_quantifier_question(), 2),
+                round($ur->questions_approved * $report->get_quantifier_approved(), 2),
+                round($ur->votes_average * $report->get_quantifier_vote(), 2),
+                round($ur->question_attempts_correct * $report->get_quantifier_correctanswer(), 2),
+                round($ur->question_attempts_incorrect * $report->get_quantifier_incorrectanswer(), 2),
+                (100 * round($ur->last_attempt_correct / $numofquestions, 2)) . ' %'
             );
             $rowstyle[] = $report->is_loggedin_user($ur->userid)? array('class' => 'mod-studentquiz-summary-highlight'): array();
             $rank++;
         }
+        $rankingresultset->close();
 
         $data = $this->render_table_data($celldata, $rowstyle);
         return $this->render_table($data, $size, $align, $head, $caption);

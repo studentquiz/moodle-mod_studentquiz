@@ -729,121 +729,120 @@ function mod_studentquiz_get_user_quiz_grade($userid, $cmid) {
 }
 
 /**
- * Get the calculcated user ranking from the database
+ * Get Paginated ranking data
  * @param $cmid
- * @param $questionquantifier
- * @param $approvedquantifier
- * @param $votequantifier
- * @param $correctanswerquantifier
- * @param $incorrectanswerquantifier
- * @return array user ranking data
- * @deprecated
- * TODO: Introduce some sort of pagination!
- * TODO: Refactor quantifiers to quantifier object
+ * @param $limitfrom
+ * @param $limitnum
+ * @return recordset
  */
-function mod_studentquiz_get_user_ranking($cmid, $questionquantifier, $approvedquantifier, $votequantifier, $correctanswerquantifier, $incorrectanswerquantifier ) {
+function mod_studentquiz_get_user_ranking($cmid, $limitfrom = 0, $limitnum = 0) {
     global $DB;
-    $sql = 'SELECT'
-        . '    u.id AS userid, u.firstname, u.lastname,'
-        . '    MAX(c.id) AS courseid, MAX(c.fullname), MAX(c.shortname),'
-        . '    MAX(r.archetype) AS rolename,'
-        . '    MAX(countq.countquestions),'
-        . '    MAX(votes.meanvotes),'
-        . '    ROUND(COALESCE(MAX(countquestions),0),1) AS countquestions,'
-        . '    COALESCE(approvedq.countapproved, 0) as numapproved,'
-        . '    ROUND(COALESCE(SUM(votes.meanvotes),0),1) AS summeanvotes,'
-        . '    ROUND(COALESCE(MAX(correctanswers.countanswer),0),1) AS correctanswers,'
-        . '    ROUND(COALESCE(MAX(incorrectanswers.countanswer),0),1) AS incorrectanswers,'
-        . '    ROUND(COALESCE('
-        . '        COALESCE(MAX(countquestions) * :questionquantifier, 0) +'
-        . '        COALESCE(approvedq.countapproved, 0) * :approvedquantifier + '
-        . '        COALESCE(SUM(votes.meanvotes) * :votequantifier, 0) +'
-        . '        COALESCE(MAX(correctanswers.countanswer) * :correctanswerquantifier, 0) +'
-        . '        COALESCE(MAX(incorrectanswers.countanswer) * :incorrectanswerquantifier, 0)'
-        . '    , 0), 1) AS points'
-        . '     FROM {studentquiz} sq'
-        . '     JOIN {context} con ON( con.instanceid = sq.coursemodule )'
-        . '     JOIN {question_categories} qc ON( qc.contextid = con.id )'
-        . '     JOIN {course} c ON( sq.course = c.id )'
-        . '     JOIN {enrol} e ON( c.id = e.courseid )'
-        . '     JOIN {role} r ON( r.id = e.roleid )'
-        . '     JOIN {user_enrolments} ue ON( ue.enrolid = e.id )'
-        . '     JOIN {user} u ON( u.id = ue.userid )'
-        . '     LEFT JOIN {question} q ON( q.createdby = u.id AND q.category = qc.id )'
-        // Answered questions.
-        // Correct answers.
-        . '   LEFT JOIN (SELECT  count(DISTINCT suatt.questionid) AS countanswer, userid'
-        . ' FROM {question_attempt_steps} suats'
-        . ' LEFT JOIN {question_attempts} suatt ON suats.questionattemptid = suatt.id'
-        . ' WHERE'
-        . '  state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
-        . '  AND suatt.rightanswer = suatt.responsesummary'
-        . '  AND suatt.questionid IN ('
-        . '    SELECT q.id  FROM {question} q'
-        . '    LEFT JOIN {question_categories} qc ON q.category = qc.id'
-        . '    LEFT JOIN {context} c ON qc.contextid = c.id'
-        . '  WHERE q.parent = 0'
-        . '        AND c.instanceid = :cmid2 AND'
-        . '        c.contextlevel = 70) AND'
-        . '        suats.id IN (SELECT max(suatsmax.id)'
-        . '             FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax'
-        . '                 ON suatsmax.questionattemptid = suattmax.id'
-        . '             WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND'
-        . '                   suatsmax.userid = suats.userid'
-        . '             GROUP BY suattmax.questionid)'
-        . ' GROUP BY userid) correctanswers'
-        . '  ON (correctanswers.userid = u.id) '
-        // Incorrect answers.
-        . '    LEFT JOIN'
-        . '    ('
-        . '         SELECT'
-        . '            count(distinct q.id) AS countanswer,'
-        . '            qza.userid, q.category'
-        . '         FROM {quiz_attempts} qza'
-        . '         LEFT JOIN {quiz_slots} qs ON ( qs.quizid = qza.quiz )'
-        . '         LEFT JOIN {question_attempts} qna ON ('
-        . '              qza.uniqueid = qna.questionusageid'
-        . '              AND qna.questionid = qs.questionid'
-        . '              AND qna.rightanswer <> qna.responsesummary'
-        . '              AND qna.responsesummary IS NOT NULL'
-        . '         )'
-        . '         LEFT JOIN {question} q ON( q.id = qna.questionid )'
-        . '         GROUP BY q.category, qza.userid'
-        . '    ) incorrectanswers ON ( incorrectanswers.userid = u.id AND incorrectanswers.category = qc.id )'
-        // Questions created.
-        . '    LEFT JOIN'
-        . '    ('
-        . '         SELECT COUNT(*) AS countquestions, createdby, category FROM {question}'
-        . '         WHERE parent = 0 GROUP BY category, createdby'
-        . '    ) countq ON( countq.createdby = u.id AND countq.category = qc.id )'
-        // Questions approved.
-        . '    LEFT JOIN'
-        . '    ('
-        . '         SELECT SUM(sqq.approved) AS countapproved, createdby, category '
-        . '         FROM {question} q JOIN {studentquiz_question} sqq ON q.id = sqq.questionid'
-        . '         GROUP BY q.createdby, q.category'
-        . '    ) approvedq ON( approvedq.createdby = u.id AND approvedq.category = qc.id )'
-        // Question votes.
-        . '    LEFT JOIN'
-        . '    ('
-        . '         SELECT'
-        . '            ROUND(SUM(sqvote.vote) / COUNT(sqvote.vote),2) AS meanvotes,'
-        . '            questionid'
-        . '         FROM {studentquiz_vote} sqvote'
-        . '         GROUP BY sqvote.questionid'
-        . '     ) votes ON( votes.questionid = q.id )'
-        . '     WHERE sq.coursemodule = :cmid'
-        . '     GROUP BY u.id, u.firstname, u.lastname'
-        . '     ORDER BY points DESC';
-
-    return $DB->get_records_sql($sql, array(
-        'cmid' => $cmid, 'cmid2' => $cmid
-    , 'questionquantifier' => $questionquantifier
-    , 'approvedquantifier' => $approvedquantifier
-    , 'votequantifier' => $votequantifier
-    , 'correctanswerquantifier' => $correctanswerquantifier
-    , 'incorrectanswerquantifier' => $incorrectanswerquantifier
-    ));
+    $sql = 'SELECT 
+              u.id userid, 
+              u.firstname firstname, 
+              u.lastname lastname,
+            -- questions created
+              COALESCE(creators.countq, 0) questions_created,
+            -- questions approved
+              COALESCE(approvals.countq, 0) questions_approved,
+            -- questions rating received
+              COALESCE(votes.countv, 0) votes_received, 
+              COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 0),0) votes_average,
+            -- question attempts 
+              COALESCE(attempts.counta, 0) question_attempts,  
+              COALESCE(attempts.countright, 0) question_attempts_correct,
+              COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) question_attempts_incorrect,
+            -- last attempt
+              COALESCE(lastattempt.last_attempt_exists, 0) last_attempt_exists,
+              COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct
+            -- select only data from this studentquiz
+            FROM mdl_studentquiz sq 
+            -- get this Studentquiz Question category
+            JOIN mdl_context con on con.instanceid = sq.coursemodule
+            JOIN mdl_question_categories qc on qc.contextid = con.id
+            -- only enrolled users
+            JOIN mdl_course c on c.id = sq.course
+            JOIN mdl_enrol e on e.courseid = c.id
+            JOIN mdl_user_enrolments ue on ue.enrolid = e.id
+            JOIN mdl_user u on ue.userid = u.id
+            -- question created by user
+            left JOIN 
+              ( SELECT count(*) countq, q.createdby creator
+                FROM mdl_question q
+                WHERE q.hidden = 0
+                GROUP BY creator
+              ) creators ON creators.creator = u.id
+            -- Approved questions
+            left JOIN 
+              ( SELECT count(*) countq, q.createdby creator
+                FROM mdl_question q
+                join mdl_studentquiz_question sqq on q.id = sqq.questionid
+                where q.hidden = 0 and sqq.approved = 1
+                group by creator
+              ) approvals ON approvals.creator = u.id
+            -- Rating for own questions received
+            left join 
+              ( SELECT count(*) countv, sum(sqv.vote) sumv, q.createdby creator
+                FROM mdl_question q
+                join mdl_studentquiz_vote sqv on q.id = sqv.questionid
+                where q.hidden = 0
+                group by q.createdby
+              ) votes ON votes.creator = u.id
+            -- question attempts: sum of number of graded attempts per questoin
+            left join 
+              (
+                select count(*) counta, 
+                SUM(CASE WHEN state = "gradedright" THEN 1 ELSE 0 END) countright,
+                sqa.userid userid
+                FROM mdl_studentquiz sq
+                join mdl_studentquiz_attempt sqa on sq.id = sqa.studentquizid
+                JOIN mdl_question_usages qu ON qu.id = sqa.questionusageid
+                JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
+                JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
+                LEFT JOIN mdl_question_attempt_step_data qasd ON qasd.attemptstepid = qas.id
+                WHERE sq.coursemodule = 3
+                -- Todo: Note: There are grading states by manual grading as well.
+                and qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')
+                -- only count grading triggered by submits
+                and qasd.name = \'answer\' 
+                group by sqa.userid
+              ) attempts on attempts.userid = u.id
+            -- left join latest attempts
+            left join
+             (
+                select
+                    sqa.userid,
+                    count(*) last_attempt_exists,
+                    SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct
+                FROM mdl_studentquiz sq
+                join mdl_studentquiz_attempt sqa on sq.id = sqa.studentquizid
+                JOIN mdl_question_usages qu ON qu.id = sqa.questionusageid
+                JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
+                JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
+                LEFT JOIN mdl_question_attempt_step_data qasd ON 
+                 qasd.attemptstepid = qas.id and 
+                 qasd.id in ( 
+                        -- select only latest states (its a constant result)
+                        select max(qasd.id) latest_grading_event
+                        FROM mdl_studentquiz sq
+                        join mdl_studentquiz_attempt sqa on sq.id = sqa.studentquizid
+                        JOIN mdl_question_usages qu ON qu.id = sqa.questionusageid
+                        JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
+                        JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
+                        LEFT JOIN mdl_question_attempt_step_data qasd ON qasd.attemptstepid = qas.id
+                        WHERE sq.coursemodule = :cmid1 and qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\') and qasd.name = \'answer\'
+                        group by sqa.userid, questionid
+                 )
+                WHERE sq.coursemodule = :cmid2
+                and qas.state in (\'gradedright\', \'gradedwrong\')
+                -- only count grading triggered by submits
+                and qasd.name = \'answer\' 
+                group by userid
+             ) lastattempt on lastattempt.userid = u.id
+            WHERE sq.coursemodule = :cmid3
+            
+            ';
+    return $DB->get_recordset_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid), $limitfrom, $limitnum);
 }
 
 /**
@@ -1028,4 +1027,14 @@ function mod_studentquiz_migrate_old_quiz_usage(int $course_id=null) {
             );
         }
     }
+}
+
+
+function mod_studentquiz_count_questions($cmid) {
+    global $DB;
+    return $DB->count_records_sql(
+        'SELECT COUNT(*) FROM {question} q '
+            . ' LEFT JOIN {question_categories} qc ON q.category = qc.id'
+            . ' LEFT JOIN {context} c ON qc.contextid = c.id'
+            . ' WHERE c.instanceid = :cmid', array('cmid' => $cmid));
 }

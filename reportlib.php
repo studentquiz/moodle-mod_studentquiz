@@ -96,6 +96,14 @@ class mod_studentquiz_report {
     }
 
     /**
+     *
+     */
+    protected $questionscount;
+    public function get_questions_count() {
+        return $this->questionscount;
+    }
+
+    /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid course_module id
      * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
@@ -113,6 +121,8 @@ class mod_studentquiz_report {
             array('coursemodule' => $this->cm->id, 'course' => $this->course->id))) {
             throw new mod_studentquiz_view_exception($this, 'studentquiznotfound');
         }
+
+        $this->questionscount = mod_studentquiz_count_questions($cmid);
 
         $this->context = context_module::instance($this->cm->id);
         $this->userid = $USER->id;
@@ -304,6 +314,8 @@ class mod_studentquiz_report {
         $admintotal->questionsright = 0;
         $admintotal->questionsanswered = 0;
 
+
+
         foreach ($this->users as $user) {
             $total = new stdClass();
             $total->numattempts = 0;
@@ -410,16 +422,11 @@ class mod_studentquiz_report {
     }
 
     /**
-     * @return array
+     * @return recordset
      * TODO: Refactor: Use Pagination with record sets!
      */
-    public function get_user_ranking() {
-        return mod_studentquiz_get_user_ranking($this->get_cm_id(),
-            $this->get_quantifier_question(),
-            $this->get_quantifier_approved(),
-            $this->get_quantifier_vote(),
-            $this->get_quantifier_correctanswer(),
-            $this->get_quantifier_incorrectanswer());
+    public function get_user_ranking($limitfrom = 0, $limitnum = 0) {
+        return mod_studentquiz_get_user_ranking($this->get_cm_id(), $limitfrom, $limitnum);
     }
 
     /**
@@ -445,5 +452,18 @@ class mod_studentquiz_report {
         }
         // Instance is anonymized and isn't allowed to unhide that.
         return true;
+    }
+
+
+    /**
+     *
+     */
+    public function get_points_by_ranking_record($ur) {
+        return
+        $ur->questions_created * $this->get_quantifier_question() +
+        $ur->questions_approved * $this->get_quantifier_approved() +
+        $ur->votes_average * $this->get_quantifier_vote() +
+        $ur->question_attempts_correct * $this->get_quantifier_correctanswer() +
+        $ur->question_attempts_incorrect * $this->get_quantifier_incorrectanswer();
     }
 }
