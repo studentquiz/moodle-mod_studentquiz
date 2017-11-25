@@ -36,12 +36,15 @@ env:
   - MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_32_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_33_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
 
 matrix:
   exclude:
     # Moodle 3.1 doesn't support php7.1
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
+    - php: 5.6
+      env: MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
   include:
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 5.6
@@ -50,11 +53,8 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mysqli
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
-    # Test upcoming Moodle 3.4 with latest possible versions
     - php: 7.2
-      env: MOODLE_BRANCH=master DB=pgsql
-    - php: 7.2
-      env: MOODLE_BRANCH=master DB=mysqli
+      env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
 
 before_install:
   - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=1; else MPCIV=2; fi
@@ -97,7 +97,8 @@ script:
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci phpunit --coverage-text; fi # output code coverage in MPCIV 2
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci phpunit; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
+  #TODO: Swap between firefox and chrome using environment info
+  #- if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat || true; fi # currently not working at all
   #- java -jar moodle/selenium.jar &
   #- if [ $MPCIV == '1' ]; then php moodle/vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi

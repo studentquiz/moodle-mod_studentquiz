@@ -1,19 +1,4 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * The question bank view
  *
@@ -176,16 +161,15 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (optional_param('approveselected', false, PARAM_BOOL)) {
             // If teacher has already confirmed the action.
             if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
+                // TODO: What? Security by obscurity? Needs a look closer, probably best by using the capability :manage
                 $approveselected = required_param('approveselected', PARAM_RAW);
                 if ($confirm == md5($approveselected)) {
                     if ($questionlist = explode(',', $approveselected)) {
                         // For each question either hide it if it is in use or delete it.
                         foreach ($questionlist as $questionid) {
                             $questionid = (int)$questionid;
-
                             mod_studentquiz_flip_approved($questionid);
-
-                            mod_studentquiz_notify_approving($questionid, $this->course, $this->cm);
+                            mod_studentquiz_notify_approved($questionid, $this->course, $this->cm);
                         }
                     }
                     redirect($this->baseurl);
@@ -196,6 +180,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Move selected questions to new category.
+        // TODO: Isn't there a questionlib function for that?
         if (optional_param('move', false, PARAM_BOOL) and confirm_sesskey()) {
             $category = required_param('category', PARAM_SEQUENCE);
             list($tocategoryid, $contextid) = explode(',', $category);
@@ -205,6 +190,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $tocontext = \context::instance_by_id($contextid);
             require_capability('moodle/question:add', $tocontext);
             $rawdata = (array) data_submitted();
+            // TODO: Seen that somewhere else, extract in common function
             $questionids = array();
             foreach (array_keys($rawdata) as $key) {  // Parse input for question ids.
                 if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
@@ -238,7 +224,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                         foreach ($questionlist as $questionid) {
                             $questionid = (int)$questionid;
                             question_require_capability_on($questionid, 'edit');
-                            mod_studentquiz_notify_question_deleted($questionid, $this->course, $this->cm);
+                            mod_studentquiz_notify_deleted($questionid, $this->course, $this->cm);
                             if (questions_in_use(array($questionid))) {
                                 $DB->set_field('question', 'hidden', 1, array('id' => $questionid));
                             } else {
