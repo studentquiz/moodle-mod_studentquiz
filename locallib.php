@@ -731,118 +731,132 @@ function mod_studentquiz_get_user_quiz_grade($userid, $cmid) {
 /**
  * Get Paginated ranking data
  * @param $cmid
+ * @param $quantifiers
  * @param $limitfrom
  * @param $limitnum
  * @return recordset
  */
-function mod_studentquiz_get_user_ranking($cmid, $limitfrom = 0, $limitnum = 0) {
+function mod_studentquiz_get_user_ranking($cmid, $quantifiers, $limitfrom = 0, $limitnum = 0) {
     global $DB;
-    $sql = 'SELECT 
-              u.id userid, 
-              u.firstname firstname, 
-              u.lastname lastname,
-            -- questions created
-              COALESCE(creators.countq, 0) questions_created,
-            -- questions approved
-              COALESCE(approvals.countq, 0) questions_approved,
-            -- questions rating received
-              COALESCE(votes.countv, 0) votes_received, 
-              COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 0),0) votes_average,
-            -- question attempts 
-              COALESCE(attempts.counta, 0) question_attempts,  
-              COALESCE(attempts.countright, 0) question_attempts_correct,
-              COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) question_attempts_incorrect,
-            -- last attempt
-              COALESCE(lastattempt.last_attempt_exists, 0) last_attempt_exists,
-              COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct
-            -- select only data from this studentquiz
-            FROM mdl_studentquiz sq 
-            -- get this Studentquiz Question category
-            JOIN mdl_context con on con.instanceid = sq.coursemodule
-            JOIN mdl_question_categories qc on qc.contextid = con.id
-            -- only enrolled users
-            JOIN mdl_course c on c.id = sq.course
-            JOIN mdl_enrol e on e.courseid = c.id
-            JOIN mdl_user_enrolments ue on ue.enrolid = e.id
-            JOIN mdl_user u on ue.userid = u.id
-            -- question created by user
-            left JOIN 
-              ( SELECT count(*) countq, q.createdby creator
-                FROM mdl_question q
-                WHERE q.hidden = 0
-                GROUP BY creator
-              ) creators ON creators.creator = u.id
-            -- Approved questions
-            left JOIN 
-              ( SELECT count(*) countq, q.createdby creator
-                FROM mdl_question q
-                join mdl_studentquiz_question sqq on q.id = sqq.questionid
-                where q.hidden = 0 and sqq.approved = 1
-                group by creator
-              ) approvals ON approvals.creator = u.id
-            -- Rating for own questions received
-            left join 
-              ( SELECT count(*) countv, sum(sqv.vote) sumv, q.createdby creator
-                FROM mdl_question q
-                join mdl_studentquiz_vote sqv on q.id = sqv.questionid
-                where q.hidden = 0
-                group by q.createdby
-              ) votes ON votes.creator = u.id
-            -- question attempts: sum of number of graded attempts per questoin
-            left join 
-              (
-                select count(*) counta, 
-                SUM(CASE WHEN state = "gradedright" THEN 1 ELSE 0 END) countright,
-                sqa.userid userid
-                FROM mdl_studentquiz sq
-                join mdl_studentquiz_attempt sqa on sq.id = sqa.studentquizid
-                JOIN mdl_question_usages qu ON qu.id = sqa.questionusageid
-                JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
-                JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
-                LEFT JOIN mdl_question_attempt_step_data qasd ON qasd.attemptstepid = qas.id
-                WHERE sq.coursemodule = 3
-                -- Todo: Note: There are grading states by manual grading as well.
-                and qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')
-                -- only count grading triggered by submits
-                and qasd.name = \'answer\' 
-                group by sqa.userid
-              ) attempts on attempts.userid = u.id
-            -- left join latest attempts
-            left join
-             (
-                select
-                    sqa.userid,
-                    count(*) last_attempt_exists,
-                    SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct
-                FROM mdl_studentquiz sq
-                join mdl_studentquiz_attempt sqa on sq.id = sqa.studentquizid
-                JOIN mdl_question_usages qu ON qu.id = sqa.questionusageid
-                JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
-                JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
-                LEFT JOIN mdl_question_attempt_step_data qasd ON 
-                 qasd.attemptstepid = qas.id and 
-                 qasd.id in ( 
-                        -- select only latest states (its a constant result)
-                        select max(qasd.id) latest_grading_event
-                        FROM mdl_studentquiz sq
-                        join mdl_studentquiz_attempt sqa on sq.id = sqa.studentquizid
-                        JOIN mdl_question_usages qu ON qu.id = sqa.questionusageid
-                        JOIN mdl_question_attempts qa ON qa.questionusageid = qu.id
-                        JOIN mdl_question_attempt_steps qas ON qas.questionattemptid = qa.id
-                        LEFT JOIN mdl_question_attempt_step_data qasd ON qasd.attemptstepid = qas.id
-                        WHERE sq.coursemodule = :cmid1 and qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\') and qasd.name = \'answer\'
-                        group by sqa.userid, questionid
-                 )
-                WHERE sq.coursemodule = :cmid2
-                and qas.state in (\'gradedright\', \'gradedwrong\')
-                -- only count grading triggered by submits
-                and qasd.name = \'answer\' 
-                group by userid
-             ) lastattempt on lastattempt.userid = u.id
-            WHERE sq.coursemodule = :cmid3
-            
-            ';
-    return $DB->get_recordset_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid), $limitfrom, $limitnum);
+    $sql = 'SELECT '
+            .' u.id userid,'
+            .' u.firstname firstname,'
+            .' u.lastname lastname,'
+            // calculate points
+            .' COALESCE ( ROUND('
+            .' COALESCE(creators.countq, 0) * :questionquantifier  ' // questions created
+            .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // questions approved
+            .'+ COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 0),0) * :votequantifier  ' // voting
+            .'+ COALESCE(attempts.countright, 0) * :correctanswerquantifier  ' // correct answers
+            .'+ COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) * :incorrectanswerquantifier ' // incorrect answers
+            .' , 1) , 0) points, '
+            // questions created
+            .' COALESCE(creators.countq, 0) questions_created,'
+            // questions approved
+            .' COALESCE(approvals.countq, 0) questions_approved,'
+            // questions rating received
+            .' COALESCE(votes.countv, 0) votes_received,'
+            .' COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 0),0) votes_average,'
+            // question attempts
+            .' COALESCE(attempts.counta, 0) question_attempts,'
+            .' COALESCE(attempts.countright, 0) question_attempts_correct,'
+            .' COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) question_attempts_incorrect,'
+            // last attempt
+            .' COALESCE(lastattempt.last_attempt_exists, 0) last_attempt_exists,'
+            .' COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct'
+        // SELECT only data from this studentquiz
+        .' FROM {studentquiz} sq'
+        // get this Studentquiz Question category
+        .' JOIN {context} con ON con.instanceid = sq.coursemodule'
+        .' JOIN {question_categories} qc ON qc.contextid = con.id'
+        // only enrolled users
+        .' JOIN {course} c ON c.id = sq.course'
+        .' JOIN {enrol} e ON e.courseid = c.id'
+        .' JOIN {user_enrolments} ue ON ue.enrolid = e.id'
+        .' JOIN {user} u ON ue.userid = u.id'
+        // question created by user
+        .' LEFT JOIN'
+            .' ( SELECT count(*) countq, q.createdby creator'
+            .' FROM {question} q'
+            .' WHERE q.hidden = 0'
+            .' GROUP BY creator'
+            .' ) creators ON creators.creator = u.id'
+        // Approved questions
+        .' LEFT JOIN'
+            .' ( SELECT count(*) countq, q.createdby creator'
+            .' FROM {question} q'
+            .' JOIN {studentquiz_question} sqq ON q.id = sqq.questionid'
+            .' where q.hidden = 0 AND sqq.approved = 1'
+            .' group by creator'
+            .' ) approvals ON approvals.creator = u.id'
+        // Rating for own questions received
+        .' LEFT JOIN'
+            .' ( SELECT count(*) countv, sum(sqv.vote) sumv, q.createdby creator'
+            .' FROM {question} q'
+            .' JOIN {studentquiz_vote} sqv ON q.id = sqv.questionid'
+            .' where q.hidden = 0'
+            .' group by q.createdby'
+            .' ) votes ON votes.creator = u.id'
+        // question attempts: sum of number of graded attempts per questoin
+        .' LEFT JOIN'
+            .' ('
+            .' SELECT count(*) counta,'
+            .' SUM(CASE WHEN state = \'gradedright\' THEN 1 ELSE 0 END) countright,'
+            .' sqa.userid userid'
+            .' FROM {studentquiz} sq'
+            .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
+            .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
+            .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+            .' WHERE sq.coursemodule = 3'
+            // Todo: Note: There are grading states by manual grading as well.
+            .' AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
+            // only count grading triggered by submits
+            .' AND qasd.name = \'answer\''
+            .' group by sqa.userid'
+            .' ) attempts ON attempts.userid = u.id'
+        // LEFT JOIN latest attempts
+        .' LEFT JOIN'
+            .' ('
+            .' SELECT'
+            .' sqa.userid,'
+            .' count(*) last_attempt_exists,'
+            .' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct'
+            .' FROM {studentquiz} sq'
+            .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
+            .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
+            .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            .' LEFT JOIN {question_attempt_step_data} qasd ON'
+            .' qasd.attemptstepid = qas.id and'
+            .' qasd.id in ('
+                // SELECT only latest states (its a constant result)
+                .' SELECT max(qasd.id) latest_grading_event'
+                .' FROM {studentquiz} sq'
+                .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
+                .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
+                .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+                .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+                .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+                .' WHERE sq.coursemodule = :cmid1 AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\') AND qasd.name = \'answer\''
+                .' group by sqa.userid, questionid'
+                .' )'
+            .' WHERE sq.coursemodule = :cmid2'
+            .' AND qas.state in (\'gradedright\', \'gradedwrong\')'
+            // only count grading triggered by submits
+            .' AND qasd.name = \'answer\''
+            .' group by userid'
+            .' ) lastattempt ON lastattempt.userid = u.id'
+            .' WHERE sq.coursemodule = :cmid3'
+         .' ORDER BY points DESC';
+    return $DB->get_recordset_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid
+        , 'questionquantifier' => $quantifiers->question
+        , 'approvedquantifier' => $quantifiers->approved
+        , 'votequantifier' => $quantifiers->vote
+        , 'correctanswerquantifier' => $quantifiers->correctanswer
+        , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
+        ), $limitfrom, $limitnum);
 }
 
 /**

@@ -255,12 +255,13 @@ class mod_studentquiz_report {
      * Get the array of quanitifers
      */
     public function get_quantifiers() {
-        return array(
-            'question' => $this->studentquiz->questionquantifier,
-            'vote' => $this->studentquiz->votequantifier,
-            'correctanswer' => $this->studentquiz->correctanswerquantifier,
-            'incorrectanswer' => $this->studentquiz->incorrectanswerquantifier,
-        );
+        $quantifiers = new stdClass();
+            $quantifiers->question = $this->studentquiz->questionquantifier;
+            $quantifiers->vote = $this->studentquiz->votequantifier;
+            $quantifiers->approved = $this->studentquiz->approvedquantifier;
+            $quantifiers->correctanswer = $this->studentquiz->correctanswerquantifier;
+            $quantifiers->incorrectanswer = $this->studentquiz->incorrectanswerquantifier;
+        return $quantifiers;
     }
 
     /**
@@ -426,7 +427,7 @@ class mod_studentquiz_report {
      * TODO: Refactor: Use Pagination with record sets!
      */
     public function get_user_ranking($limitfrom = 0, $limitnum = 0) {
-        return mod_studentquiz_get_user_ranking($this->get_cm_id(), $limitfrom, $limitnum);
+        return mod_studentquiz_get_user_ranking($this->get_cm_id(), $this->get_quantifiers(), $limitfrom, $limitnum);
     }
 
     /**

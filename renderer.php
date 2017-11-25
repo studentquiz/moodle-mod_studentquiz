@@ -570,7 +570,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             $celldata[] = array(
                 $rank,
                 $username,
-                round($report->get_points_by_ranking_record($ur), 2),
+                round($ur->points, 2),
                 round($ur->questions_created * $report->get_quantifier_question(), 2),
                 round($ur->questions_approved * $report->get_quantifier_approved(), 2),
                 round($ur->votes_average * $report->get_quantifier_vote(), 2),
