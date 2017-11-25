@@ -347,7 +347,7 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
         send_file_not_found();
     }
 
-    require_login($course, true, $cm);
+    require_login($course, false, $cm);
 
     send_file_not_found();
 }

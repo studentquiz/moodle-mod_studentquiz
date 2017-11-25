@@ -33,7 +33,7 @@ list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars)
     = question_edit_setup('editq', '/mod/studentquiz/view.php', true);
 $course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
 
-require_login($course, true, $cm);
+require_login($course, false, $cm);
 require_capability('mod/quiz:manage', $contexts->lowest());
 
 // Create quiz question bank view.

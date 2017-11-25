@@ -50,8 +50,7 @@ if ($cmid) {
 }
 
 // Authentication check.
-// TODO: Do we want to allow guests to use StudentQuiz at all?
-require_login($cm->course, true, $cm);
+require_login($cm->course, false, $cm);
 
 // Load context.
 $context = context_module::instance($cm->id);

@@ -33,7 +33,7 @@ if (!$cmid) {
 
 $report = new mod_studentquiz_report($cmid);
 
-require_login($report->get_course(), true, $report->get_coursemodule());
+require_login($report->get_course(), false, $report->get_coursemodule());
 
 $context = context_module::instance($cmid);
 

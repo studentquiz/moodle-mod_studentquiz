@@ -35,7 +35,7 @@ $cm = get_coursemodule_from_instance('studentquiz', $attempt->studentquizid);
 $cmid = $cm->id;
 $course = $DB->get_record('course', array('id' => $cm->course));
 
-require_login($course, true, $cm);
+require_login($course, false, $cm);
 
 $context = context_module::instance($cm->id);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);

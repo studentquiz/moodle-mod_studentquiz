@@ -38,7 +38,7 @@ $course = $DB->get_record('course', array('id' => $cm->course));
 $studentquiz = $DB->get_record('studentquiz', array('id' => $cm->instance));
 $userid = $USER->id;
 
-require_login($course, true, $cm);
+require_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => 1));
