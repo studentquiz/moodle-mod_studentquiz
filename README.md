@@ -25,19 +25,23 @@ For more information read the [student manual](manuals/User-Manual.pdf).
 
 ## Installation
 
-The StudentQuiz activity depends on the Quiz activity (installed by default).
+StudentQuiz is available in the Moodle plugins directory: https://moodle.org/plugins/mod_studentquiz
 
 The simplest way to install the StudentQuiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
 
+## Compatibility
+
+Supported and tested with:
+
+* Moodle 3.1, 3.2, 3.3, 3.4
+* PHP 5.6, 7.0, 7.1, 7.2
+* Databases: MySQL, PostgreSQL, MariaDB
+* Browsers: Firefox, Chrome, Chromium
+
+Refer to the Moodle release notes for the minimum requirements for PHP and the databases. Other modern browsers should be compatible too, it's just not tested or developed against them explicitly.
 
 ## License
 
 [GNU GPL v3 or later](http://www.gnu.org/copyleft/gpl.html) 
 
-## Moodle Version
-
-Supported is Moodle v3. Not tested with Moodle v2.
-
-## Copyright
-
-[Hochschule für Technik Rapperswil](https://www.hsr.ch/)
+(c) [Hochschule für Technik Rapperswil](https://www.hsr.ch/)

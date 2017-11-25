@@ -1,19 +1,4 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
 /**
  * Internal library of functions for module StudentQuiz
  *
@@ -99,8 +84,6 @@ function mod_studentquiz_get_quiz_module_id() {
  * TODO: Define studentquiz capabilities and check against those only!
  */
 function mod_studentquiz_check_created_permission($cmid) {
-    global $USER;
-
     $context = context_module::instance($cmid);
     return has_capability('moodle/question:editall', $context);
 }
@@ -109,7 +92,7 @@ function mod_studentquiz_check_created_permission($cmid) {
  * Prepare message for notify.
  * @param stdClass $question object
  * @param stdClass $recepient user object receiving the notification
- * @param stdClass $actor user object triggering the notification
+ * @param int $actor user object triggering the notification
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return stdClass Data object with course, module, question, student and teacher info
@@ -151,141 +134,151 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
 }
 
 /**
- * Notify student if a teacher makes changes to a student's question.
+ * Notify student that someone has edited his question. (Info to question author)
  * @param int $questionid ID of the student's questions.
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
  */
 function mod_studentquiz_notify_changed($questionid, $course, $module) {
-    global $DB, $USER;
-
-    // Requires the right permission.
-    if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
-        $lesteditthreshold = 5;
-
-        // Creator and modifier must be different and don't send when refreshing the page.
-        if ($question->createdby != $question->modifiedby
-            && $question->createdby != $USER->id
-            && $question->modifiedby == $USER->id
-            && $question->timemodified + $lesteditthreshold >= time()) {
-
-            $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
-            $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
-
-            $subject = get_string('emailchangesubject', 'studentquiz', $data);
-            $fulltext = get_string('emailchangebody', 'studentquiz', $data);
-            $smalltext = get_string('emailchangesmall', 'studentquiz', $data);
-
-            return mod_studentquiz_send_notification('changed', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
-        }
-    }
-
-    return false;
+    return mod_studentquiz_event_notification_question('changed', $questionid, $course, $module);
 }
 
 /**
- * Notify author of a question if anyone commented on it.
+ * Notify student that someone has deleted his question. (Info to question author)
+ * @param int $questionid ID of the author's question.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_notify_deleted($questionid, $course, $module) {
+    return mod_studentquiz_event_notification_question('deleted', $questionid, $course, $module);
+}
+
+/**
+ * Notify student that someone has approved or unapproved his question. (Info to question author)
+ * @param int $questionid ID of the student's questions.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_notify_approved($questionid, $course, $module) {
+    global $DB;
+
+    $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
+    return mod_studentquiz_event_notification_question(($approved)? 'approved': 'unapproved', $questionid, $course, $module);
+}
+
+/**
+ * Notify student that someone has commented to his question. (Info to question author)
  * @param stdClass comment that was just added to the question
  * @param int $questionid ID of the student's questions.
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_notify_comment($comment, $questionid, $course, $module) {
-    global $DB, $USER;
-
-    // Requires the right permission.
-    if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
-        $lesteditthreshold = 5;
-
-        // Creator and modifier must be different and don't send when refreshing the page.
-        if ($comment->userid != $question->createdby
-            && $comment->userid == $USER->id
-            && $question->createdby != $USER->id
-            && $question->timemodified + $lesteditthreshold >= time()) {
-
-            $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
-            $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
-            $data->comment = $comment;
-
-            $subject = get_string('emailcommentedsubject', 'studentquiz', $data);
-            $fulltext = get_string('emailcommentedbody', 'studentquiz', $data);
-            $smalltext = get_string('emailcommentedsmall', 'studentquiz', $data);
-
-            return mod_studentquiz_send_notification('commented', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
-        }
-    }
-
-    return false;
+function mod_studentquiz_notify_comment_added($comment, $course, $module) {
+    return mod_studentquiz_event_notification_comment('added', $comment, $course, $module);
 }
 
 /**
- * Notify author of a question about its deletion.
- * @param int $questionid ID of the author's question.
- * @param stdClass $course course object
- * @param stdClass $module course module object
- * @return bool True if sucessfully sent, false otherwise.
- */
-function mod_studentquiz_notify_question_deleted($questionid, $course, $module) {
-    global $DB, $USER;
-
-    // Requires the right permission.
-    if (question_has_capability_on($questionid, 'editall')) {
-        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
-
-        // Creator and deletor must be different.
-        if ($question->createdby != $USER->id) {
-
-            $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
-            $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
-
-            $subject = get_string('emailquestiondeletedsubject', 'studentquiz', $data);
-            $fulltext = get_string('emailquestiondeletedbody', 'studentquiz', $data);
-            $smalltext = get_string('emailquestiondeletedsmall', 'studentquiz', $data);
-
-            return mod_studentquiz_send_notification('commented', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
-        }
-    }
-
-    return false;
-}
-
-/**
- * Notify student if a teacher approves or disapproves a student's question.
+ * Notify student that someone has deleted their comment to his question. (Info to question author)
+ * Notify student that someone has deleted his comment to someone's question. (Info to comment author)
+ * @param stdClass comment that was just added to the question
  * @param int $questionid ID of the student's questions.
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_notify_approving($questionid, $course, $module) {
+function mod_studentquiz_notify_comment_deleted($comment, $course, $module) {
+    $successtoauthor = mod_studentquiz_event_notification_comment('deleted', $comment, $course, $module);
+    $successtocommenter = mod_studentquiz_event_notification_minecomment('deleted', $comment, $course, $module);
+    return $successtoauthor || $successtocommenter;
+}
+
+/**
+ * Notify question author that an event occured when the autor has this capabilty
+ * @param string $event The name of the event, used to automatically get capability and mail contents
+ * @param int $questionid ID of the student's questions.
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_event_notification_question($event, $questionid, $course, $module) {
     global $DB, $USER;
 
     // Requires the right permission.
-    if (question_has_capability_on($questionid, 'editall')) {
+    $context = context_module::instance($module->id);
+    if (has_capability('mod/studentquiz:emailnotify' . $event, $context)) {
         $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
-        $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
 
-        $recepient = $DB->get_record('user', array('id' => $question->createdby), '*', MUST_EXIST);
-        $actor = $DB->get_record('user', array('id' => $USER->id), '*', MUST_EXIST);
-        $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
-
-        if ($approved) {
-            $subject = get_string('emailapprovedsubject', 'studentquiz', $data);
-            $fulltext = get_string('emailapprovedbody', 'studentquiz', $data);
-            $smalltext = get_string('emailapprovedsmall', 'studentquiz', $data);
-            return mod_studentquiz_send_notification('changed', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+        // Creator and Actor must be different.
+        if ($question->createdby != $USER->id) {
+            list($recepient, $actor) = user_get_users_by_id(array($question->createdby, $USER->id));
+            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            return mod_studentquiz_send_notification($event, $recepient, $actor, $data);
         }
+    }
 
-        $subject = get_string('emailunapprovedsubject', 'studentquiz', $data);
-        $fulltext = get_string('emailunapprovedbody', 'studentquiz', $data);
-        $smalltext = get_string('emailunapprovedsmall', 'studentquiz', $data);
-        return mod_studentquiz_send_notification('changed', $recepient, $actor, $subject, $fulltext, $smalltext, $data);
+    return false;
+}
+
+/**
+ * Notify question author that an event occured when the autor has this capabilty
+ * @param string $event The name of the event, used to automatically get capability and mail contents
+ * @param stdClass comment that was just added to the question
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_event_notification_comment($event, $comment, $course, $module) {
+    global $DB, $USER;
+
+    $questionid = $comment->questionid;
+    // Requires the right permission.
+    $context = context_module::instance($module->id);
+    if (has_capability('mod/studentquiz:emailnotifycomment' . $event, $context)) {
+        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
+
+        // Creator and Actor must be different.
+        if ($question->createdby != $USER->id) {
+            list($recepient, $actor) = user_get_users_by_id(array($question->createdby, $USER->id));
+            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            $data->comment = $comment;
+
+            return mod_studentquiz_send_notification('comment' . $event, $recepient, $actor, $data);
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Notify question author that an event occured when the autor has this capabilty
+ * @param string $event The name of the event, used to automatically get capability and mail contents
+ * @param stdClass comment that was just added to the question
+ * @param stdClass $course course object
+ * @param stdClass $module course module object
+ * @return bool True if sucessfully sent, false otherwise.
+ */
+function mod_studentquiz_event_notification_minecomment($event, $comment, $course, $module) {
+    global $DB, $USER;
+
+    $questionid = $comment->questionid;
+    // Requires the right permission.
+    $context = context_module::instance($module->id);
+    // Intentional that minecomment has same capability as comment.
+    if (has_capability('mod/studentquiz:emailnotifycomment' . $event, $context)) {
+        $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
+
+        // Creator and Actor must be different.
+        if ($comment->userid != $USER->id) {
+            list($recepient, $actor) = user_get_users_by_id(array($comment->userid, $USER->id));
+            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            $data->comment = $comment;
+
+            return mod_studentquiz_send_notification('minecomment' . $event, $recepient, $actor, $data);
+        }
     }
 
     return false;
@@ -297,14 +290,11 @@ function mod_studentquiz_notify_approving($questionid, $course, $module) {
  * @param string $event message event string
  * @param stdClass $recipient user object of the intended recipient
  * @param stdClass $submitter user object of the sender
- * @param string $subject subject of the message
- * @param string $fullmessage Full message text
- * @param string $smallmessage Small message text
  * @param stdClass $data object of replaceable fields for the templates
  *
  * @return int|false as for {@link message_send()}.
  */
-function mod_studentquiz_send_notification($event, $recipient, $submitter, $subject, $fullmessage, $smallmessage, $data) {
+function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
     // Recipient info for template.
     $data->useridnumber = $recipient->idnumber;
     $data->username     = fullname($recipient);
@@ -319,12 +309,12 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
 
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;
-    $eventdata->subject           = $subject;
-    $eventdata->fullmessage       = $fullmessage;
+    $eventdata->subject           = get_string('email' . $event . 'subject', 'studentquiz', $data);
+    $eventdata->smallmessage      = get_string('email' . $event . 'small', 'studentquiz', $data);
+    $eventdata->fullmessage       = get_string('email' . $event . 'body', 'studentquiz', $data);
     $eventdata->fullmessageformat = FORMAT_PLAIN;
     $eventdata->fullmessagehtml   = '';
 
-    $eventdata->smallmessage      = $smallmessage;
     $eventdata->contexturl        = $data->questionurl;
     $eventdata->contexturlname    = $data->questionname;
 
@@ -333,30 +323,11 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $subj
 }
 
 /**
- * Returns an array of course module ids of quiz instances generated by the
- * StudentQuiz Activity with id $studentquizid
- * @param $studentquizid
- * @return array
- * @deprecated
- */
-function mod_studentquiz_get_quiz_cmids($studentquizid) {
-    global $DB;
-    $result = $DB->get_records(
-        'studentquiz_practice',
-        array('studentquizcoursemodule' => $studentquizid),
-        null, 'id,quizcoursemodule');
-    $cmids = array();
-    foreach ($result as $k => $v) {
-        $cmids[$k] = intval($v->quizcoursemodule);
-    }
-    return $cmids;
-}
-
-/**
  * Creates a new default category for StudentQuiz
- * @param stdClass $contexts The context objects for this context and all parent contexts.
+ * @param $context
  * @param string $name Append the name of the module if the context hasn't it yet.
  * @return stdClass The default category - the category in the course context
+ * @internal param stdClass $contexts The context objects for this context and all parent contexts.
  */
 function mod_studentquiz_add_default_question_category($context, $name='') {
     global $DB;
