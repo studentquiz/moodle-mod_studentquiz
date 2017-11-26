@@ -14,6 +14,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot. '/course/lib.php');
+require_once($CFG->dirroot . '/user/lib.php');
 
 /** @var string default quiz behaviour */
 const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
@@ -166,7 +167,7 @@ function mod_studentquiz_notify_approved($questionid, $course, $module) {
     global $DB;
 
     $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-    return mod_studentquiz_event_notification_question(($approved)? 'approved': 'unapproved', $questionid, $course, $module);
+    return mod_studentquiz_event_notification_question(($approved)? 'approved': 'unapproved', $questionid, $course, $module, 'approved');
 }
 
 /**
@@ -202,18 +203,23 @@ function mod_studentquiz_notify_comment_deleted($comment, $course, $module) {
  * @param int $questionid ID of the student's questions.
  * @param stdClass $course course object
  * @param stdClass $module course module object
+ * @param string $othercapability
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_event_notification_question($event, $questionid, $course, $module) {
+function mod_studentquiz_event_notification_question($event, $questionid, $course, $module, $othercapability='') {
     global $DB, $USER;
     // Requires the right permission.
     $context = context_module::instance($module->id);
-    if (has_capability('mod/studentquiz:emailnotify' . $event, $context)) {
+    if (has_capability('mod/studentquiz:emailnotify' . (!empty($othercapability)? $othercapability: $event), $context)) {
         $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
 
         // Creator and Actor must be different.
         if ($question->createdby != $USER->id) {
-            list($recepient, $actor) = user_get_users_by_id(array($question->createdby, $USER->id));
+            $users = user_get_users_by_id(array($question->createdby, $USER->id));
+            $recepient = $users[$question->createdby];
+            $actor = $users[$USER->id];
+            var_dump(array(array($question->createdby, $USER->id), $recepient, $actor));
+
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
             return mod_studentquiz_send_notification($event, $recepient, $actor, $data);
         }
@@ -240,7 +246,9 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
 
         // Creator and Actor must be different.
         if ($question->createdby != $USER->id) {
-            list($recepient, $actor) = user_get_users_by_id(array($question->createdby, $USER->id));
+            $users = user_get_users_by_id(array($question->createdby, $USER->id));
+            $recepient = $users[$question->createdby];
+            $actor = $users[$USER->id];
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
             $data->comment = $comment;
 
@@ -271,7 +279,9 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
 
         // Creator and Actor must be different.
         if ($comment->userid != $USER->id) {
-            list($recepient, $actor) = user_get_users_by_id(array($comment->userid, $USER->id));
+            $users = user_get_users_by_id(array($question->createdby, $USER->id));
+            $recepient = $users[$comment->userid];
+            $actor = $users[$USER->id];
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
             $data->comment = $comment;
 

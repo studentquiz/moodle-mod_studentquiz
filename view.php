@@ -15,7 +15,9 @@ require_once(__DIR__ . '/viewlib.php');
 require_once(__DIR__.'/classes/event/studentquiz_questionbank_viewed.php');
 
 // Get parameters.
-$cmid = required_param('id', PARAM_INT);
+if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
+    $cmid = required_param('id', PARAM_INT);
+}
 
 // Load course and course module requested.
 if ($cmid) {

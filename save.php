@@ -34,8 +34,7 @@ if ($cmid) {
 }
 
 // Authentication check.
-// TODO: Do we want to allow guests to use StudentQuiz at all?
-require_login($module->course, true, $module);
+require_login($module->course, false, $module);
 
 $data = new \stdClass();
 if (!isset($USER->id) || empty($USER->id)) {
@@ -44,11 +43,6 @@ if (!isset($USER->id) || empty($USER->id)) {
 $data->userid = $USER->id;
 
 $data->questionid = $questionid;
-
-// TODO: Missing verification!
-// Question is part of this StudentQuiz Activity.
-// StudentQuiz activity is part of this Course.
-// User is enrolled in tghis course.
 
 $save = required_param('save', PARAM_NOTAGS);
 require_sesskey();

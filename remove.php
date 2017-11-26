@@ -21,7 +21,7 @@ if ($cmid) {
     if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
         print_error('invalidcoursemodule');
     }
-    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
         print_error('coursemisconf');
     }
 } else {
