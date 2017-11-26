@@ -26,7 +26,7 @@ if ($cmid) {
     if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
         print_error('invalidcoursemodule');
     }
-    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
         print_error('coursemisconf');
     }
 } else {
@@ -56,7 +56,7 @@ require_sesskey();
 switch($save) {
     case 'vote': mod_studentquiz_save_vote($data);
         break;
-    case 'comment': mod_studentquiz_save_comment($data);
+    case 'comment': mod_studentquiz_save_comment($data, $course, $module);
         break;
 }
 

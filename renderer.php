@@ -316,7 +316,8 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                 'button',
                 get_string('add_comment', 'mod_studentquiz'),
                 array('type' => 'button', 'class' => 'add_comment'))
-            );
+            )
+            . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid));
     }
 
     /**

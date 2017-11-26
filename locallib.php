@@ -748,24 +748,33 @@ function mod_studentquiz_get_user_ranking($cmid, $quantifiers, $limitfrom = 0, $
         // question created by user
         .' LEFT JOIN'
             .' ( SELECT count(*) countq, q.createdby creator'
-            .' FROM {question} q'
-            .' WHERE q.hidden = 0'
+            .' FROM {studentquiz} sq'
+            .' JOIN {context} con ON con.instanceid = sq.coursemodule'
+            .' JOIN {question_categories} qc ON qc.contextid = con.id'
+            .' JOIN {question} q on q.category = qc.id'
+            .' WHERE q.hidden = 0 AND sq.coursemodule = :cmid4'
             .' GROUP BY creator'
             .' ) creators ON creators.creator = u.id'
         // Approved questions
         .' LEFT JOIN'
             .' ( SELECT count(*) countq, q.createdby creator'
-            .' FROM {question} q'
+            .' FROM {studentquiz} sq'
+            .' JOIN {context} con ON con.instanceid = sq.coursemodule'
+            .' JOIN {question_categories} qc ON qc.contextid = con.id'
+            .' JOIN {question} q on q.category = qc.id'
             .' JOIN {studentquiz_question} sqq ON q.id = sqq.questionid'
-            .' where q.hidden = 0 AND sqq.approved = 1'
+            .' where q.hidden = 0 AND sqq.approved = 1 AND sq.coursemodule = :cmid5'
             .' group by creator'
             .' ) approvals ON approvals.creator = u.id'
         // Rating for own questions received
         .' LEFT JOIN'
             .' ( SELECT count(*) countv, sum(sqv.vote) sumv, q.createdby creator'
-            .' FROM {question} q'
+            .' FROM {studentquiz} sq'
+            .' JOIN {context} con ON con.instanceid = sq.coursemodule'
+            .' JOIN {question_categories} qc ON qc.contextid = con.id'
+            .' JOIN {question} q on q.category = qc.id'
             .' JOIN {studentquiz_vote} sqv ON q.id = sqv.questionid'
-            .' where q.hidden = 0'
+            .' where q.hidden = 0 AND sq.coursemodule = :cmid6'
             .' group by q.createdby'
             .' ) votes ON votes.creator = u.id'
         // question attempts: sum of number of graded attempts per questoin
@@ -821,7 +830,9 @@ function mod_studentquiz_get_user_ranking($cmid, $quantifiers, $limitfrom = 0, $
             .' ) lastattempt ON lastattempt.userid = u.id'
             .' WHERE sq.coursemodule = :cmid3'
          .' ORDER BY points DESC';
-    return $DB->get_recordset_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid
+    return $DB->get_recordset_sql($sql,
+        array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
+              'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid
         , 'questionquantifier' => $quantifiers->question
         , 'approvedquantifier' => $quantifiers->approved
         , 'votequantifier' => $quantifiers->vote
