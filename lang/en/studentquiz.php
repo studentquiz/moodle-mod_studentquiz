@@ -135,18 +135,20 @@ $string['reportquiz_admin_title'] = 'Student statistics';
 // Report stat.
 $string['reportquiz_stats_title'] = 'Statistics';
 $string['reportrank_table_progress_caption'] = 'Current progress';
-$string['reportquiz_stats_nr_of_questions'] = 'Number of questions in this community';
-$string['reportquiz_stats_right_answered_questions'] = 'You have answered correctly';
-$string['reportquiz_stats_nr_of_own_questions'] = 'Number of questions you have contributed';
-$string['reportquiz_stats_nr_of_approved_questions'] = 'Number of approved questions';
-$string['reportquiz_stats_avg_rating'] = 'Your received rating average';
-$string['reportquiz_stats_learning_quotient'] = 'Your learning quotient';
-$string['reportquiz_stats_own_grade'] = 'Your grade total';
-$string['reportquiz_stats_community_grade'] = 'Community grade total';
-$string['reportquiz_stats_questions_answered'] = 'Total of your answers';
-$string['reportquiz_stats_questions_right'] = 'Total of correct answers';
+$string['reportquiz_stats_all_questions_created'] = 'Number of questions in this community';
+$string['reportquiz_stats_own_questions_created'] = 'Number of questions you have contributed';
+$string['reportquiz_stats_all_questions_approved'] = 'Number of approved questions';
+$string['reportquiz_stats_own_questions_approved'] = 'Number of your approved questions';
+$string['reportquiz_stats_own_votes_average'] = 'Your received rating average';
+$string['reportquiz_stats_all_votes_average'] = 'Overall voting average';
+$string['reportquiz_stats_own_question_attempts_correct'] = 'You have answered correctly';
+$string['reportquiz_stats_all_question_attempts_correct'] = 'Community answered correctly';
+$string['reportquiz_stats_own_questions_answered'] = 'Number of your answers';
+$string['reportquiz_stats_all_questions_answered'] = 'Community number of all answers';
 $string['reportrank_table_column_yourstatus'] = 'Personal Status';
 $string['reportrank_table_column_communitystatus'] = 'Community Status';
+$string['reportquiz_stats_own_progress'] = 'Personal Progress';
+$string['reportquiz_stats_all_progress'] = 'Average Community Progress ';
 $string['reportrank_table_column_value'] = 'Value';
 
 // Report rank.

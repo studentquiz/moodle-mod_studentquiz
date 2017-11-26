@@ -24,11 +24,6 @@ $context = context_module::instance($cmid);
 
 mod_studentquiz_report_viewed($cmid, $context);
 
-// TODO: Refactor: We don't want all users loaded to memory!
-$users = mod_studentquiz_get_all_users_in_course($report->get_course()->id);
-$report->set_users($users);
-$report->calc_stats();
-
 $PAGE->set_title($report->get_statistic_title());
 $PAGE->set_heading($report->get_heading());
 $PAGE->set_context($report->get_context());

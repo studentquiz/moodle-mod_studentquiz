@@ -402,10 +402,14 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
     public function view_stat(mod_studentquiz_report $report) {
         $output = '';
         $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
-        $output .= $this->view_stat_cards($report->get_overalltotal(), $report->get_admintotal(), $report->get_outputstats(), $report->get_usergrades());
-        if($report->is_admin()) {
-            $output .= $this->view_stat_table($report, $report->get_usersdata());
-        }
+        $output .= $this->view_stat_cards(
+            $report->get_studentquiz_stats(),
+            $report->get_user_stats()
+            );
+        // TODO: Refactor: Suggestion to remove this redundant table entirely
+        /*if($report->is_admin()) {
+            $output .= $this->view_stat_table($report, $report->get_user_stats());
+        }*/
         return $output;
     }
 
@@ -415,7 +419,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
      * @param stdClass $usergrades
      * @return string quiz report data
      */
-    public function view_stat_cards($total, $owntotal, $stats, $usergrades) {
+    public function view_stat_cards($studentquizstats, $userrankingstats) {
         $align = array();
         $size = array();
         $head = array(
@@ -425,51 +429,48 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             get_string('reportrank_table_column_value', 'studentquiz')
         );
         $caption = get_string('reportrank_table_progress_caption', 'studentquiz');
-        // TODO: What the heck are all these values? are these correct? what they mean?
         $celldata = array(
             array(
-                get_string('reportquiz_stats_nr_of_own_questions', 'studentquiz'),
-                $stats->totalusersquestions,
-                get_string('reportquiz_stats_nr_of_questions', 'studentquiz'),
-                $stats->totalnrofquestions
+                get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
+                $userrankingstats->questions_created,
+                get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
+                $studentquizstats->questions_created,
             ),
             array(
-                get_string('reportquiz_stats_own_grade', 'studentquiz'),
-                $usergrades->usermark,
-                get_string('reportquiz_stats_community_grade', 'studentquiz'),
-                $usergrades->stuquizmaxmark // What is that?
+                get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
+                $userrankingstats->questions_approved,
+                get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
+                $studentquizstats->questions_approved,
             ),
             array(
-                get_string('reportquiz_stats_nr_of_approved_questions', 'studentquiz'),
-                $stats->numapproved,
-                get_string('reportquiz_total_attempt', 'studentquiz'),
-                $total->numattempts
+                get_string('reportquiz_stats_own_votes_average', 'studentquiz'),
+                $userrankingstats->votes_average,
+                get_string('reportquiz_stats_all_votes_average', 'studentquiz'),
+                $studentquizstats->votes_average,
             ),
             array(
-                get_string('reportquiz_stats_avg_rating', 'studentquiz'),
-                $stats->avgvotes,
-                get_string('reportquiz_total_users', 'studentquiz'),
-                $total->usercount
+                get_string('reportquiz_stats_own_question_attempts_correct', 'studentquiz'),
+                $userrankingstats->question_attempts_correct,
+                get_string('reportquiz_stats_all_question_attempts_correct', 'studentquiz'),
+                $studentquizstats->question_attempts_correct
             ),
             array(
-                get_string('reportquiz_stats_right_answered_questions', 'studentquiz'),
-                $stats->totalrightanswers . ' ?vs? ' . $owntotal->questionsright,
-                get_string('reportquiz_total_questions_right', 'studentquiz'),
-                $total->questionsright
+                get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
+                $userrankingstats->question_attempts,
+                get_string('reportquiz_stats_all_questions_answered', 'studentquiz'),
+                $studentquizstats->question_attempts,
             ),
             array(
-                get_string('reportquiz_stats_questions_answered', 'studentquiz'),
-                $owntotal->questionsanswered,
-                get_string('reportquiz_total_questions_answered', 'studentquiz'),
-                $total->questionsanswered
+                get_string('reportquiz_stats_own_progress', 'studentquiz'),
+                (100 * round($userrankingstats->last_attempt_correct / ($studentquizstats->questions_created), 1)) . ' %',
+                get_string('reportquiz_stats_all_progress', 'studentquiz'),
+                (100 * round(($studentquizstats->last_attempt_correct / $studentquizstats->questions_created / $studentquizstats->participants), 1)) . ' %',
             )
         );
         $data = $this->render_table_data($celldata);
         return $this->render_table($data, $size, $align, $head, $caption);
     }
-
 }
-
 
 class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
 
@@ -523,7 +524,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
      */
     public function view_rank_table($report) {
-
         $align = array('left', 'left');
         $size = array('', '', '');
         $head = array(get_string('reportrank_table_column_rank', 'studentquiz')
@@ -540,14 +540,14 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $celldata = array();
         $rowstyle = array();
 
-        // Todo: Get Pagination from get parameters
+        // Todo: Get Pagination from request parameters!
         $limitfrom = 0;
         $limitnum = 0;
 
         // Update rank offset to pagination.
-        $numofquestions = $report->get_questions_count();
         $rank = 1 + $limitfrom;
-        $rankingresultset = $report->get_user_ranking($limitfrom, $limitnum);
+        $rankingresultset = $report->get_user_ranking_table($limitfrom, $limitnum);
+        $numofquestions = $report->get_studentquiz_stats()->questions_created;
         foreach ($rankingresultset as $ur) {
             $username = $ur->firstname . ' ' . $ur->lastname;
             if ($report->is_anonym() && !$report->is_loggedin_user($ur->userid)) {
@@ -562,13 +562,12 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 round($ur->votes_average * $report->get_quantifier_vote(), 2),
                 round($ur->question_attempts_correct * $report->get_quantifier_correctanswer(), 2),
                 round($ur->question_attempts_incorrect * $report->get_quantifier_incorrectanswer(), 2),
-                (100 * round($ur->last_attempt_correct / $numofquestions, 2)) . ' %'
+                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
             );
             $rowstyle[] = $report->is_loggedin_user($ur->userid)? array('class' => 'mod-studentquiz-summary-highlight'): array();
             $rank++;
         }
         $rankingresultset->close();
-
         $data = $this->render_table_data($celldata, $rowstyle);
         return $this->render_table($data, $size, $align, $head, $caption);
     }

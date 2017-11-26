@@ -45,47 +45,37 @@ class mod_studentquiz_report {
     protected $userid;
 
     /**
-     * @var $users array of user ids enrolled in this course
-     * @deprecated TODO: REFACTOR We don't want to load all users into memory!
+     * Overall Stats of the studentquiz
+     * @return stdClass
      */
-    protected $users;
-
-    protected $admintotal;
-
-    public function get_admintotal() {
-        return $this->admintotal;
-    }
-
-    protected $outputstats;
-
-    public function get_outputstats() {
-        return $this->outputstats;
-    }
-
-    protected $usergrades;
-
-    public function get_usergrades() {
-        return $this->usergrades;
-    }
-
-    protected $usersdata;
-
-    public function get_usersdata() {
-        return $this->usersdata;
-    }
-
-    protected $overalltotal;
-
-    public function get_overalltotal() {
-        return $this->overalltotal;
+    protected $studentquizstats;
+    public function get_studentquiz_stats() {
+        if (empty($this->studentquizstats)) {
+            return $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->get_quantifiers());
+        }else {
+            return $this->studentquizstats;
+        }
     }
 
     /**
-     *
+     * Ranking stats for current user (same as ranking table)
      */
-    protected $questionscount;
-    public function get_questions_count() {
-        return $this->questionscount;
+    protected $userrankingstats;
+    public function get_user_stats() {
+        if (empty($this->userrankingstats)) {
+            return $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->get_quantifiers(), $this->get_user_id());
+        }else{
+            return $this->userrankingstats;
+        }
+    }
+
+    /**
+     * Personal stats for interaction with studentquiz:
+     * @return stdClass: numcomments, numvotes, avgvotes, numstarts
+     */
+    protected $useractivitystats;
+    public function get_useractivitystats() {
+        return $this->useractivitystats;
     }
 
     /**
@@ -107,18 +97,8 @@ class mod_studentquiz_report {
             throw new mod_studentquiz_view_exception($this, 'studentquiznotfound');
         }
 
-        $this->questionscount = mod_studentquiz_count_questions($cmid);
-
         $this->context = context_module::instance($this->cm->id);
         $this->userid = $USER->id;
-    }
-
-    /**
-     * @param $users enrolled in this course
-     * @deprecated TODO REFACTOR: We don't want to load all the users into memory
-     */
-    public function set_users($users) {
-        $this->users = $users;
     }
 
     /**
@@ -237,7 +217,7 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get the array of quanitifers
+     * @return stdClass of quantifiers
      */
     public function get_quantifiers() {
         $quantifiers = new stdClass();
@@ -274,64 +254,6 @@ class mod_studentquiz_report {
     }
 
     /**
-     * TODO: We don't want to have all users in memory!
-     * @deprecated
-     */
-    public function get_users() {
-        return $this->users;
-    }
-
-    /**
-     * TODO: Don't calc stats one by one, using a clever sql query should be faster and less resource hungry
-     * @deprecated
-     */
-    public function calc_stats() {
-        $overalltotal = new stdClass();
-        $overalltotal->numattempts = 0;
-        $overalltotal->obtainedmarks = 0;
-        $overalltotal->questionsright = 0;
-        $overalltotal->questionsanswered = 0;
-        $usersdata = array();
-        $overalltotal->usercount = count($this->users);
-
-        $admintotal = new stdClass();
-        $admintotal->numattempts = 0;
-        $admintotal->obtainedmarks = 0;
-        $admintotal->questionsright = 0;
-        $admintotal->questionsanswered = 0;
-
-
-
-        foreach ($this->users as $user) {
-            $total = new stdClass();
-            $total->numattempts = 0;
-            $total->obtainedmarks = 0;
-            $total->questionsright = 0;
-            $total->questionsanswered = 0;
-            $this->get_user_attempt_summary($user->userid, $total);
-            $userstats = $this->get_user_quiz_grade($user->userid, $this->get_cm_id());
-            $total->attemptedgrade = $userstats->usermark;
-            $total->maxgrade = $userstats->stuquizmaxmark;
-
-            $overalltotal->numattempts += $total->numattempts;
-            $overalltotal->obtainedmarks += $total->obtainedmarks;
-            $overalltotal->questionsright += $total->questionsright;
-            $overalltotal->questionsanswered += $total->questionsanswered;
-
-            $total->name = $user->firstname . ' ' . $user->lastname;
-            $total->id = $user->userid;
-            $usersdata[] = $total;
-            if ($user->userid == $this->userid) {
-                $this->admintotal = $total;
-            }
-        }
-        $this->overalltotal = $overalltotal;
-        $this->usersdata = $usersdata;
-        $this->outputstats = $this->get_user_quiz_stats($this->userid, $this->get_cm_id());
-        $this->usergrades = $this->get_user_quiz_grade($this->userid, $this->get_cm_id());
-    }
-
-    /**
      * Returns the id of the currently evaluated StudentQuiz.
      */
     public function get_studentquiz_id() {
@@ -339,80 +261,13 @@ class mod_studentquiz_report {
     }
 
     /**
-     * @param $userid
-     * @param $cmid
-     * @return array
-     * @deprecated
-     * TODO: We dont want fetch these for each user in course!
+     * Get Paginated ranking data ordered (DESC) by points, questions_created, questions_approved, votes_average
+     * @param int $limitfrom return a subset of records, starting at this point (optional).
+     * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
+     * @return moodle_recordset of paginated ranking table
      */
-    protected function get_user_quiz_stats($userid, $cmid) {
-        return mod_studentquiz_get_user_quiz_stats($userid, $cmid);
-    }
-
-    /**
-     * @param $userid
-     * @param $cmid
-     * @return array
-     * @deprecated
-     * TODO: We dont want to featch these for each user in the course!
-     */
-    protected function get_user_quiz_grade($userid, $cmid) {
-        return mod_studentquiz_get_user_quiz_grade($userid, $cmid);
-    }
-
-    /**
-     * @param $studentquizid
-     * @param $userid
-     * @return array
-     * @deprecated
-     * TODO: We dont want to load all attempts for each user into memory!
-     */
-    public function get_studentquiz_attempts($studentquizid, $userid) {
-        return mod_studentquiz_get_user_attempts($studentquizid, $userid);
-    }
-
-    /**
-     * Pre render the single user summary table and get quiz stats
-     * @param int $userid
-     * @return stdClass $total aggregated result of attempt statistics
-     * @throws coding_exception
-     * @deprecated
-     */
-    public function get_user_attempt_summary($userid, &$total) {
-        // TODO: Refactor to not scale DB requests with number of attempts!
-        $total = new stdClass();
-        $total->numattempts = 0;
-        $total->obtainedmarks = 0;
-        $total->questionsright = 0;
-        $total->questionsanswered = 0;
-        $studentquizid = $this->get_studentquiz_id();
-        // Get all attempts of this user in this StudentQuiz.
-        $studentquizattempts = $this->get_studentquiz_attempts($studentquizid, $userid);
-        $numattempts = count($studentquizattempts);
-        $total->numattempts += $numattempts;
-        foreach ($studentquizattempts as $studentquizattempt) {
-               $this->get_attempt_statistic($studentquizattempt->questionusageid, $total);
-        }
-        return $total;
-    }
-
-    /**
-     * Get the obtainedmarks, questionright, questionanswered total from the attempt
-     * @param int $attemptuniqueid
-     * @param stdClass $total
-     * @deprecated
-     * TODO:
-     */
-    private function get_attempt_statistic($attemptuniqueid, &$total) {
-        return mod_studentquiz_get_attempt_stats($attemptuniqueid, $total);
-    }
-
-    /**
-     * @return recordset
-     * TODO: Refactor: Use Pagination with record sets!
-     */
-    public function get_user_ranking($limitfrom = 0, $limitnum = 0) {
-        return mod_studentquiz_get_user_ranking($this->get_cm_id(), $this->get_quantifiers(), $limitfrom, $limitnum);
+    public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
+        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->get_quantifiers(), 0, $limitfrom, $limitnum);
     }
 
     /**
@@ -432,24 +287,10 @@ class mod_studentquiz_report {
         if (!$this->studentquiz->anonymrank) {
             return false;
         }
-        $context = context_module::instance($this->studentquiz->coursemodule);
-        if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+        if(has_capability('mod/studentquiz:unhideanonymous', $this->get_context())) {
             return false;
         }
         // Instance is anonymized and isn't allowed to unhide that.
         return true;
-    }
-
-
-    /**
-     *
-     */
-    public function get_points_by_ranking_record($ur) {
-        return
-        $ur->questions_created * $this->get_quantifier_question() +
-        $ur->questions_approved * $this->get_quantifier_approved() +
-        $ur->votes_average * $this->get_quantifier_vote() +
-        $ur->question_attempts_correct * $this->get_quantifier_correctanswer() +
-        $ur->question_attempts_incorrect * $this->get_quantifier_incorrectanswer();
     }
 }
