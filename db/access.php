@@ -32,17 +32,29 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
+    // Ability to add a new activity.
     'mod/studentquiz:addinstance' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'clonepermissionsfrom' => 'mod/studentquiz:manage'
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
+    // Ability to see the activity.
     'mod/studentquiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'mod/studentquiz:submit'
+        'archetypes' => array(
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
+    // Ability to create questions.
     'mod/studentquiz:submit' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
@@ -51,49 +63,76 @@ $capabilities = array(
             'student'        => CAP_ALLOW,
             'teacher'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
-            'coursecreator'  => CAP_ALLOW,
-            'manager'        => CAP_ALLOW
-        )
+            'manager'        => CAP_ALLOW,
+        ),
     ),
+    // Ability to edit the settings.
     'mod/studentquiz:manage' => array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'editingteacher' => CAP_ALLOW,
-            'coursecreator'  => CAP_ALLOW,
-            'manager'        => CAP_ALLOW
+            'manager'        => CAP_ALLOW,
         ),
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
+        'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
+    // Ability to see the real user names even when anonymize is active.
     'mod/studentquiz:unhideanonymous' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'moodle/course:manage'
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
-    // Notifications
+    // Notifications, event trigger checked against the actors enrolment
     'mod/studentquiz:emailnotifychanged' => array(
+        'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'moodle/course:manage'
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
     'mod/studentquiz:emailnotifydeleted' => array(
+        'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'moodle/course:manage'
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
     'mod/studentquiz:emailnotifyapproved' => array(
+        'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'moodle/course:manage'
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
     'mod/studentquiz:emailnotifycommentadded' => array(
+        'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'mod/studentquiz:submit'
+        'archetypes' => array(
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
     'mod/studentquiz:emailnotifycommentdeleted' => array(
+        'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'clonepermissionsfrom' => 'mod/studentquiz:submit'
+        'archetypes' => array(
+            'student'        => CAP_ALLOW,
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
     ),
 );
