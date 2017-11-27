@@ -1,0 +1,112 @@
+<?php
+/**
+ * This page lets a user preview a question including comments.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2017 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/viewlib.php');
+
+// Get parameters.
+$cmid = required_param('cmid', PARAM_INT);
+$questionid = required_param('questionid', PARAM_INT);
+
+// Load course and course module requested.
+if ($cmid) {
+    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
+        print_error('invalidcoursemodule');
+    }
+    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
+        print_error('coursemisconf');
+    }
+} else {
+    print_error('invalidcoursemodule');
+}
+
+// Authentication check.
+require_login($module->course, false, $module);
+
+// Load context.
+$context = context_module::instance($module->id);
+$studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
+
+// Lookup question.
+$question = question_bank::load_question($questionid);
+question_require_capability_on($question, 'use');
+
+// Get and validate existing preview, or start a new one.
+$actionurl = new moodle_url('/mod/studentquiz/preview.php', array('id' => $cmid, 'questionid' => $questionid));
+$previewid = optional_param('previewid', 0, PARAM_INT);
+
+if ($previewid) {
+    $actionurl = new moodle_url($actionurl, array('previewid' => $previewid));
+    $quba = question_engine::load_questions_usage_by_activity($previewid);
+    $slot = $quba->get_first_question_number();
+
+    // Process submitted data
+    if (data_submitted()) {
+        $quba->process_all_actions();
+
+        $transaction = $DB->start_delegated_transaction();
+        question_engine::save_questions_usage_by_activity($quba);
+        $transaction->allow_commit();
+
+        redirect($actionurl);
+    }
+} else {
+    // Prepare Question for preview.
+    $quba = question_engine::make_questions_usage_by_activity(
+        'mod_studentquiz_preview', context_user::instance($USER->id));
+    $quba->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
+    $slot = $quba->add_question($question);
+    $quba->start_question($slot);
+    $transaction = $DB->start_delegated_transaction();
+    question_engine::save_questions_usage_by_activity($quba);
+    $transaction->allow_commit();
+
+    $previewid = $quba->get_id();
+    $actionurl = new moodle_url($actionurl, array('previewid' => $previewid));
+}
+
+$options = new question_display_options();
+
+// Output
+$title = get_string('previewquestion', 'question', format_string($question->name));
+$headtags = question_engine::initialise_js() . $quba->render_question_head_html($slot);
+$output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
+$PAGE->set_pagelayout('popup');
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
+$PAGE->set_url($actionurl);
+$PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
+echo $OUTPUT->header();
+echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
+    'enctype' => 'multipart/form-data', 'id' => 'responseform'));
+echo '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';
+echo $quba->render_question($slot, $options, 'i');
+
+$PAGE->requires->js_module('core_question_engine');
+$PAGE->requires->strings_for_js(array(
+    'closepreview',
+), 'question');
+//$PAGE->requires->yui_module('moodle-question-preview', 'M.question.preview.init');
+
+// studentquiz part
+$comments = mod_studentquiz_get_comments_with_creators($question->id);
+
+$anonymize = $studentquiz->anonymrank;
+if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+    $anonymize = false;
+}
+$ismoderator = false;
+if(mod_studentquiz_check_created_permission($cmid)) {
+    $ismoderator = true;
+}
+
+echo $output->feedback($question, $options, $cmid, $comments, $USER->id, $anonymize, $ismoderator);
+
+echo html_writer::end_tag('form');
+echo $OUTPUT->footer();
