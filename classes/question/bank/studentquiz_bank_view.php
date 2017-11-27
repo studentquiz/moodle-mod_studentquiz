@@ -25,6 +25,7 @@ require_once(__DIR__ .'/approved_column.php');
 require_once(__DIR__ .'/myattempts_column.php');
 require_once(__DIR__ .'/mydifficulty_column.php');
 require_once(__DIR__ .'/mylastattempt_column.php');
+require_once(__DIR__ . '/myvote_column.php');
 
 /**
  * Module instance settings form
@@ -641,10 +642,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'mod_studentquiz\\bank\\practice_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
             . 'mod_studentquiz\\bank\\vote_column,'
+            . 'mod_studentquiz\\bank\\myvote_column,'
             . 'mod_studentquiz\\bank\\comment_column,'
             . 'mod_studentquiz\\bank\\myattempts_column,'
             . 'mod_studentquiz\\bank\\mydifficulty_column,'
             . 'mod_studentquiz\\bank\\mylastattempt_column';
+
         return parent::wanted_columns();
     }
 

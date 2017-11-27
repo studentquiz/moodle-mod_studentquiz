@@ -118,7 +118,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->difficultylevel)) {
-            echo $question->difficultylevel;
+            echo round(100 * $question->difficultylevel, 1) . ' %';
         } else {
             echo get_string('no_difficulty_level', 'studentquiz');
         }

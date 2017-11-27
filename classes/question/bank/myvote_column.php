@@ -12,12 +12,12 @@ namespace mod_studentquiz\bank;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Represent my difficulty column in studentquiz_bank_view
+ * Represent my rating column in studentquiz_bank_view
  *
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mydifficulty_column extends \core_question\bank\column_base {
+class myvote_column extends \core_question\bank\column_base {
 
     /**
      * Initialise Parameters for join
@@ -38,7 +38,7 @@ class mydifficulty_column extends \core_question\bank\column_base {
      * @return string column name
      */
     public function get_name() {
-        return 'mydifficulty';
+        return 'myvotes';
     }
 
     /**
@@ -46,7 +46,7 @@ class mydifficulty_column extends \core_question\bank\column_base {
      * @return string column title
      */
     protected function get_title() {
-        return get_string('mydifficulty_column_name', 'studentquiz');
+        return get_string('myvote_column_name', 'studentquiz');
     }
 
     /**
@@ -55,37 +55,26 @@ class mydifficulty_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->mydifficulty)) {
-            echo round(100 * $question->mydifficulty, 1) . ' %';
+        if (!empty($question->myvote)) {
+            echo $question->myvote;
         } else {
-            echo get_string('no_mydifficulty', 'studentquiz');
+            echo get_string('no_myvote', 'studentquiz');
         }
     }
 
     /**
-     * Get the left join for myattempts
+     * Get the left join
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        $tests = array(
-            'quiza.studentquizid = ' . $this->studentquizid,
-            'quiza.userid = ' . $this->currentuserid,
-            'name=\'-submit\'',
-            '(state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
-        );
-
-        return array( 'mydiffs' => 'LEFT JOIN ('
+        return array( 'myvote' => 'LEFT JOIN ('
             . 'SELECT '
-            . ' ROUND(1-(sum(case state when \'gradedright\' then 1 else 0 end)/count(*)),2) as mydifficulty,'
-            . ' sum(case state when \'gradedright\' then 1 else 0 end) as mycorrectattempts,'
-            . ' questionid'
-            . ' FROM {studentquiz_attempt} quiza '
-            . ' JOIN {question_usages} qu ON qu.id = quiza.questionusageid '
-            . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-            . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-            . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-            . ' WHERE ' . implode(' AND ', $tests)
-            . ' GROUP BY qa.questionid) mydiffs ON mydiffs.questionid = q.id');
+            . ' vote myvote, '
+            . ' q.id questionid'
+            . ' FROM {question} q'
+            . ' LEFT JOIN {studentquiz_vote} vote on q.id = vote.questionid'
+            . ' AND vote.userid = ' . $this->currentuserid
+            . ' ) myvote ON myvote.questionid = q.id');
     }
 
     /**
@@ -93,7 +82,7 @@ class mydifficulty_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('mydiffs.mydifficulty', 'mydiffs.mycorrectattempts');
+        return array('myvote.myvote');
     }
 
     /**
@@ -101,6 +90,6 @@ class mydifficulty_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'mydiffs.mydifficulty';
+        return 'myvote.myvote';
     }
 }
