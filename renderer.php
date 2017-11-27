@@ -138,13 +138,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @Override from core_question renderer
      * Render an icon, optionally with the word 'Preview' beside it, to preview
      * a given question.
-     * @param int $questionid the id of the question to be previewed.
-     * @param context $context the context in which the preview is happening.
-     *      Must be a course or category context.
+     * @param stdClass $question object of the question to be previewed.
+     * @param int $cmid the currend coursemodule id.
      * @param bool $showlabel if true, show the word 'Preview' after the icon.
      *      If false, just show the icon.
      */
-    public function question_preview_link($questionid, context $context, $showlabel) {
+    public function question_preview_link($question, $context, $showlabel) {
         if ($showlabel) {
             $alt = '';
             $label = ' ' . get_string('preview');
@@ -157,10 +156,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         $image = $this->pix_icon('t/preview', $alt, '', array('class' => 'iconsmall'));
         //$link = question_preview_url($questionid, null, null, null, null, $context);
-        // TODO: get cmid from context
-        $cmid = 2;
-        $params = array('cmid' => $cmid);
-        $link = new moodle_url('mod/studentquiz/preview.php', $params);
+        $params = array('cmid' => $context->instanceid, 'questionid' => $question->id);
+        $link = new moodle_url('/mod/studentquiz/preview.php', $params);
         $action = new popup_action('click', $link, 'questionpreview',
             question_preview_popup_params());
         return $this->action_link($link, $image . $label, $action, $attributes);

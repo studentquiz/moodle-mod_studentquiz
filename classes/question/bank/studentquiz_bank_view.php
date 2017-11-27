@@ -14,19 +14,20 @@ namespace mod_studentquiz\question\bank;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ .'/../../../locallib.php');
-require_once(__DIR__ .'/question_bank_filter.php');
-require_once(__DIR__ .'/question_text_row.php');
-require_once(__DIR__ .'/vote_column.php');
-require_once(__DIR__ .'/difficulty_level_column.php');
-require_once(__DIR__ .'/tag_column.php');
-require_once(__DIR__ .'/performances_column.php');
-require_once(__DIR__ .'/comments_column.php');
-require_once(__DIR__ .'/approved_column.php');
-require_once(__DIR__ .'/anonym_creator_name_column.php');
-require_once(__DIR__ .'/myattempts_column.php');
-require_once(__DIR__ .'/mydifficulty_column.php');
-require_once(__DIR__ .'/mylastattempt_column.php');
+require_once(__DIR__ . '/question_bank_filter.php');
+require_once(__DIR__ . '/question_text_row.php');
+require_once(__DIR__ . '/vote_column.php');
+require_once(__DIR__ . '/difficulty_level_column.php');
+require_once(__DIR__ . '/tag_column.php');
+require_once(__DIR__ . '/performances_column.php');
+require_once(__DIR__ . '/comments_column.php');
+require_once(__DIR__ . '/approved_column.php');
+require_once(__DIR__ . '/anonym_creator_name_column.php');
+require_once(__DIR__ . '/myattempts_column.php');
+require_once(__DIR__ . '/mydifficulty_column.php');
+require_once(__DIR__ . '/mylastattempt_column.php');
 require_once(__DIR__ . '/myvote_column.php');
+require_once(__DIR__ . '/preview_column.php');
 
 /**
  * Module instance settings form
@@ -117,8 +118,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @return html output
      */
     public function display($tabname, $page, $perpage, $cat,
-                            $recurse, $showhidden, $showquestiontext)
-    {
+                            $recurse, $showhidden, $showquestiontext) {
         $output = '';
 
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
@@ -898,7 +898,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * Get all filtered question ids qith q prefix
      * @return array question ids with q prefix
+     * @deprecated TODO: This should nowhere be necessary!
      */
     private function get_filtered_question_ids() {
         return $this->displayedquestionsids;
