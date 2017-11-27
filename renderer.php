@@ -133,6 +133,39 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return html_writer::tag('svg', $defs . implode($bars), $svg_dims);
     }
 
+
+    /**
+     * @Override from core_question renderer
+     * Render an icon, optionally with the word 'Preview' beside it, to preview
+     * a given question.
+     * @param int $questionid the id of the question to be previewed.
+     * @param context $context the context in which the preview is happening.
+     *      Must be a course or category context.
+     * @param bool $showlabel if true, show the word 'Preview' after the icon.
+     *      If false, just show the icon.
+     */
+    public function question_preview_link($questionid, context $context, $showlabel) {
+        if ($showlabel) {
+            $alt = '';
+            $label = ' ' . get_string('preview');
+            $attributes = array();
+        } else {
+            $alt = get_string('preview');
+            $label = '';
+            $attributes = array('title' => $alt);
+        }
+
+        $image = $this->pix_icon('t/preview', $alt, '', array('class' => 'iconsmall'));
+        //$link = question_preview_url($questionid, null, null, null, null, $context);
+        // TODO: get cmid from context
+        $cmid = 2;
+        $params = array('cmid' => $cmid);
+        $link = new moodle_url('mod/studentquiz/preview.php', $params);
+        $action = new popup_action('click', $link, 'questionpreview',
+            question_preview_popup_params());
+        return $this->action_link($link, $image . $label, $action, $attributes);
+    }
+
     /**
      * Prints the error message
      * @param string $errormessage string error message
