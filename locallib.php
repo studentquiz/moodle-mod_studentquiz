@@ -1079,7 +1079,8 @@ function mod_studentquiz_migrate_old_quiz_usage(int $course_id=null) {
                     ));
                 }
                 // So that quiz doesn't remove the question usages.
-                $DB->set_field('quiz_attempts', 'uniqueid', 0, array('quiz' => $oldquiz->id));
+                $DB->delete_records('quiz_attempts', array('quiz' => $oldquiz->id));
+                // And delete the quiz finally.
                 quiz_delete_instance($oldquiz->id);
             }
         }
