@@ -178,18 +178,22 @@ $string['studentquiz:view'] = 'View questions on StudentQuiz';
 $string['studentquiz:submit'] = 'Submit questions on StudentQuiz';
 $string['studentquiz:manage'] = 'Moderate questions on StudentQuiz';
 $string['studentquiz:unhideanonymous'] = 'Can see real names even when anonymize is active';
+
+// Notifications
 $string['studentquiz:changed'] = 'Question changed notification';
 $string['studentquiz:deleted'] = 'Question deleted notification';
 $string['studentquiz:approved'] = 'Question approved notification';
 $string['studentquiz:unapproved'] = 'Question unapproved notification';
 $string['studentquiz:commentadded'] = 'Comment added notification';
 $string['studentquiz:commentdeleted'] = 'Comment deleted notification';
+$string['studentquiz:minecommentdeleted'] = 'Comment deleted notification';
 $string['studentquiz:emailnotifychanged'] = 'Question changed notification';
 $string['studentquiz:emailnotifydeleted'] = 'Question deleted notification';
 $string['studentquiz:emailnotifyapproved'] = 'Question approved notification';
 $string['studentquiz:emailnotifyunapproved'] = 'Question unapproved notification';
 $string['studentquiz:emailnotifycommentadded'] = 'Comment added notification';
 $string['studentquiz:emailnotifycommentdeleted'] = 'Comment deleted notification';
+$string['studentquiz:emailnotifyminecommentdeleted'] = 'Comment deleted notification';
 
 // Message provider.
 $string['messageprovider:changed'] = 'Question changed notification';
@@ -198,6 +202,7 @@ $string['messageprovider:approved'] = 'Question approved notification';
 $string['messageprovider:unapproved'] = 'Question unapproved notification';
 $string['messageprovider:commentadded'] = 'Comment added notification';
 $string['messageprovider:commentdeleted'] = 'Comment deleted notification';
+$string['messageprovider:minecommentdeleted'] = 'Comment deleted notification';
 
 // Change notification email.
 $string['emailchangesubject'] = 'Question has been modified: {$a->questionname}';
@@ -256,9 +261,9 @@ The comment was: \'{$a->commenttext}\'
 You can review this question at: {$a->questionurl}.';
 
 // Comment deleted notification email for comment author
-$string['emailcommentminedeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
-$string['emailcommentminedeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
-$string['emailcommentminedeletedbody'] = 'Dear {$a->recepientname},
+$string['emailminecommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
+$string['emailminecommentdeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
+$string['emailminecommentdeletedbody'] = 'Dear {$a->recepientname},
 
 Your comment on \'{$a->commenttime}\' to the question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
 
