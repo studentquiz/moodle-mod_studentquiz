@@ -180,20 +180,11 @@ $string['studentquiz:manage'] = 'Moderate questions on StudentQuiz';
 $string['studentquiz:unhideanonymous'] = 'Can see real names even when anonymize is active';
 
 // Notifications
-$string['studentquiz:changed'] = 'Question changed notification';
-$string['studentquiz:deleted'] = 'Question deleted notification';
-$string['studentquiz:approved'] = 'Question approved notification';
-$string['studentquiz:unapproved'] = 'Question unapproved notification';
-$string['studentquiz:commentadded'] = 'Comment added notification';
-$string['studentquiz:commentdeleted'] = 'Comment deleted notification';
-$string['studentquiz:minecommentdeleted'] = 'My comment deleted notification';
 $string['studentquiz:emailnotifychanged'] = 'Question changed notification';
 $string['studentquiz:emailnotifydeleted'] = 'Question deleted notification';
 $string['studentquiz:emailnotifyapproved'] = 'Question approved notification';
-$string['studentquiz:emailnotifyunapproved'] = 'Question unapproved notification';
 $string['studentquiz:emailnotifycommentadded'] = 'Comment added notification';
 $string['studentquiz:emailnotifycommentdeleted'] = 'Comment deleted notification';
-$string['studentquiz:emailnotifyminecommentdeleted'] = 'My comment deleted notification';
 
 // Message provider.
 $string['messageprovider:changed'] = 'Question changed notification';
