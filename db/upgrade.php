@@ -288,7 +288,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     // Update capabilities list and permission types, to make sure the defaults are set after this upgrade.
-    if ($oldversion < 2017112600) {
+    if ($oldversion < 2017112601) {
         // Load current access definition for easier iteration.
         require_once(dirname(__DIR__) . '/db/access.php');
         // Load all contexts this has to be defined.
@@ -305,7 +305,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
             }
         }
 
-        upgrade_mod_savepoint(true, 2017112600, 'studentquiz');
+        upgrade_mod_savepoint(true, 2017112601, 'studentquiz');
     }
 
     return true;

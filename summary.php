@@ -16,6 +16,7 @@ require_once($CFG->libdir . '/formslib.php');
 
 global $PAGE, $USER;
 
+$cmid = required_param('cmid', PARAM_INT);
 $attemptid = required_param('id', PARAM_INT);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
 $cm = get_coursemodule_from_instance('studentquiz', $attempt->studentquizid);
@@ -26,7 +27,7 @@ $userid = $USER->id;
 require_login($course, false, $cm);
 $context = context_module::instance($cm->id);
 
-$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('id' => $attemptid, 'slot' => 1));
+$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => 1));
 $stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cm->id));
 
 if (data_submitted()) {

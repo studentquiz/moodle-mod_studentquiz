@@ -24,15 +24,18 @@ $messageproviders = array(
     ),
     // Notify student that someone has unapproved his question. (Info to question author)
     'unapproved' => array(
-        'capability' => 'mod/studentquiz:emailnotifyunapproved'
+        'capability' => 'mod/studentquiz:emailnotifyapproved'
     ),
     // Notify student that someone has commented to his question. (Info to question author)
     'commentadded' => array(
         'capability' => 'mod/studentquiz:emailnotifycommentadded'
     ),
     // Notify student that someone has deleted their comment to his question. (Info to question author)
-    // Notify student that someone has deleted his comment to someone's question. (Info to comment author)
     'commentdeleted' => array(
+        'capability' => 'mod/studentquiz:emailnotifycommentdeleted'
+    ),
+    // Notify student that someone has deleted his comment to someone's question. (Info to comment author)
+    'minecommentdeleted' => array(
         'capability' => 'mod/studentquiz:emailnotifycommentdeleted'
     ),
 );

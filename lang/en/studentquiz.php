@@ -186,14 +186,14 @@ $string['studentquiz:approved'] = 'Question approved notification';
 $string['studentquiz:unapproved'] = 'Question unapproved notification';
 $string['studentquiz:commentadded'] = 'Comment added notification';
 $string['studentquiz:commentdeleted'] = 'Comment deleted notification';
-$string['studentquiz:minecommentdeleted'] = 'Comment deleted notification';
+$string['studentquiz:minecommentdeleted'] = 'My comment deleted notification';
 $string['studentquiz:emailnotifychanged'] = 'Question changed notification';
 $string['studentquiz:emailnotifydeleted'] = 'Question deleted notification';
 $string['studentquiz:emailnotifyapproved'] = 'Question approved notification';
 $string['studentquiz:emailnotifyunapproved'] = 'Question unapproved notification';
 $string['studentquiz:emailnotifycommentadded'] = 'Comment added notification';
 $string['studentquiz:emailnotifycommentdeleted'] = 'Comment deleted notification';
-$string['studentquiz:emailnotifyminecommentdeleted'] = 'Comment deleted notification';
+$string['studentquiz:emailnotifyminecommentdeleted'] = 'My comment deleted notification';
 
 // Message provider.
 $string['messageprovider:changed'] = 'Question changed notification';
@@ -202,7 +202,7 @@ $string['messageprovider:approved'] = 'Question approved notification';
 $string['messageprovider:unapproved'] = 'Question unapproved notification';
 $string['messageprovider:commentadded'] = 'Comment added notification';
 $string['messageprovider:commentdeleted'] = 'Comment deleted notification';
-$string['messageprovider:minecommentdeleted'] = 'Comment deleted notification';
+$string['messageprovider:minecommentdeleted'] = 'My comment deleted notification';
 
 // Change notification email.
 $string['emailchangesubject'] = 'Question has been modified: {$a->questionname}';
