@@ -293,7 +293,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         require_once(dirname(__DIR__) . '/db/access.php');
         // Load all contexts this has to be defined.
         // Only system context needed, as by default it's inherited from there and if someone did an override, it's intentional.
-        $context = array(context_system::instance());
+        $context = context_system::instance();
         // Load the roles for easier name to id assignment
         $roleids = $DB->get_records_menu('role', null, '', 'shortname, id');
         // And finally update them for every context.
