@@ -664,7 +664,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $CFG;
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
-            . 'preview_action_column,delete_action_column,'
+            . 'mod_studentquiz\\bank\\preview_column,delete_action_column,'
             . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
             . 'mod_studentquiz\\bank\\tag_column,'
             . 'mod_studentquiz\\bank\\approved_column,'
