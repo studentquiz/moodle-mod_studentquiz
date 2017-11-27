@@ -219,8 +219,6 @@ function mod_studentquiz_event_notification_question($event, $questionid, $cours
             $users = user_get_users_by_id(array($question->createdby, $USER->id));
             $recepient = $users[$question->createdby];
             $actor = $users[$USER->id];
-            var_dump(array(array($question->createdby, $USER->id), $recepient, $actor));
-
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
             return mod_studentquiz_send_notification($event, $recepient, $actor, $data);
         }
