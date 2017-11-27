@@ -240,7 +240,7 @@ $string['emailcommentaddedbody'] = 'Dear {$a->recepientname},
 
 Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been commented by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
 
-The comment is: \'{$a->comment}\'
+The comment is: \'{$a->comment->comment}\'
 
 You can review this question at: {$a->questionurl}.';
 
@@ -249,9 +249,9 @@ $string['emailcommentdeletedsubject'] = 'Comment has been deleted to question: {
 $string['emailcommentdeletedsmall'] = 'The comment to your question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailcommentdeletedbody'] = 'Dear {$a->recepientname},
 
-The comment on \'{$a->commenttime}\' to your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
+The comment on \'{$a->comment->timestamp}\' to your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
 
-The comment was: \'{$a->comment}\'
+The comment was: \'{$a->comment->comment}\'
 
 You can review this question at: {$a->questionurl}.';
 
@@ -260,9 +260,9 @@ $string['emailcommentminedeletedsubject'] = 'Comment has been deleted to questio
 $string['emailcommentminedeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailcommentminedeletedbody'] = 'Dear {$a->recepientname},
 
-Your comment on \'{$a->commenttime}\' to the question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
+Your comment on \'{$a->comment->timestamp}\' to the question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
 
-The comment was: \'{$a->comment}\'
+The comment was: \'{$a->comment->comment}\'
 
 You can review this question at: {$a->questionurl}.';
 
