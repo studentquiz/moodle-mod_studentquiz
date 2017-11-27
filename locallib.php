@@ -217,11 +217,11 @@ function mod_studentquiz_event_notification_question($event, $questionid, $cours
         // Creator and Actor must be different.
         if ($question->createdby != $USER->id) {
             $users = user_get_users_by_id(array($question->createdby, $USER->id));
-            $recepient = $users[$question->createdby];
+            $recipient = $users[$question->createdby];
             $actor = $users[$USER->id];
-            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            $data = mod_studentquiz_prepare_notify_data($question, $recipient, $actor, $course, $module);
 
-            return mod_studentquiz_send_notification($event, $recepient, $actor, $data);
+            return mod_studentquiz_send_notification($event, $recipient, $actor, $data);
         }
     }
     return false;
@@ -245,15 +245,17 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
         $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
 
         // Creator and Actor must be different.
-        if ($question->createdby != $USER->id) {
+        // If the comment and question is the same recipient, only send the minecomment notification (see function below).
+        if ($question->createdby != $USER->id &&
+            $comment->userid != $question->createdby) {
             $users = user_get_users_by_id(array($question->createdby, $USER->id));
-            $recepient = $users[$question->createdby];
+            $recipient = $users[$question->createdby];
             $actor = $users[$USER->id];
-            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            $data = mod_studentquiz_prepare_notify_data($question, $recipient, $actor, $course, $module);
             $data->commenttext = $comment->comment;
             $data->commenttime = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
-            return mod_studentquiz_send_notification('comment' . $event, $recepient, $actor, $data);
+            return mod_studentquiz_send_notification('comment' . $event, $recipient, $actor, $data);
         }
     }
 
@@ -281,13 +283,13 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
         // Creator and Actor must be different.
         if ($comment->userid != $USER->id) {
             $users = user_get_users_by_id(array($comment->userid, $USER->id));
-            $recepient = $users[$comment->userid];
+            $recipient = $users[$comment->userid];
             $actor = $users[$USER->id];
-            $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+            $data = mod_studentquiz_prepare_notify_data($question, $recipient, $actor, $course, $module);
             $data->commenttext = $comment->comment;
             $data->commenttime = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
-            return mod_studentquiz_send_notification('minecomment' . $event, $recepient, $actor, $data);
+            return mod_studentquiz_send_notification('minecomment' . $event, $recipient, $actor, $data);
         }
     }
 
