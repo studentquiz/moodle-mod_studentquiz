@@ -1121,3 +1121,16 @@ function mod_studentquiz_count_questions($cmid) {
             . ' LEFT JOIN {context} c ON qc.contextid = c.id'
             . ' WHERE c.instanceid = :cmid', array('cmid' => $cmid));
 }
+
+
+/**
+ * This is a helper to ensure we have a studentquiz_question record for a specific question
+ * @param int $id question id
+ */
+function mod_studentquiz_ensure_studentquiz_question_record($id){
+    global $DB;
+    // Check if record exist:
+    if( ! $DB->count_records('studentquiz_question', array('questionid' => $id)) )  {
+        $DB->insert_record('studentquiz_question', array('questionid' => $id, 'approved' => 0));
+    }
+}

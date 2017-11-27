@@ -135,13 +135,14 @@ class mod_studentquiz_view {
 
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
+            // Ensure we have a studentquiz_question record
+            mod_studentquiz_ensure_studentquiz_question_record($lastchanged);
             mod_studentquiz_notify_changed($lastchanged, $this->course, $this->cm);
             redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));
         }
 
         $this->qbpagevar = $pagevars;
 
-        // TODO: Why are we not just extending \core_question\bank\view directly instead of aggregating it here?
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz);
     }

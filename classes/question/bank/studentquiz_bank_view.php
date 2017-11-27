@@ -838,6 +838,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * Filter question with the filter option
      * @param stdClass $questions
      * @return array questions
+     * @deprecated
      */
     private function filter_questions($questions, $anonymize = true) {
         global $USER;
@@ -875,32 +876,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
         }
 
-        $this->update_questions($questionids);
-
         return $filteredquestions;
-    }
-
-    /**
-     * Update our studenquiz_question table with the question list.
-     *
-     * @param array $questionids
-     */
-    private function update_questions($questionids) {
-        global $DB;
-        $sqlparams = array();
-        $sql = 'SELECT questionid FROM {studentquiz_question} q';
-        $studentquizquestions = $DB->get_recordset_sql($sql, $sqlparams);
-
-        $studentquizquestionids = array();
-        foreach ($studentquizquestions as $studentquizquestion) {
-            array_push($studentquizquestionids, $studentquizquestion->questionid);
-        }
-
-        foreach ($questionids as $id) {
-            if (!in_array($id, $studentquizquestionids)) {
-                $DB->insert_record('studentquiz_question', array('questionid' => $id, 'approved' => false));
-            }
-        }
     }
 
     /**
@@ -965,6 +941,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 return 'myatts.';
             case 'myvote':
                 return 'myvote.';
+            case 'tags':
+                return 'tags.';
             default;
                 return 'q.';
         }
@@ -973,6 +951,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     /**
      * Get all filtered question ids qith q prefix
      * @return array question ids with q prefix
+     * @deprecated TODO: This should nowhere be necessary!
      */
     private function get_filtered_question_ids() {
         $questionids = array();
