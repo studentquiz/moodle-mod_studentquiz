@@ -107,6 +107,60 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
 }
 
 
+class user_filter_tag extends user_filter_text {
+
+    /**
+     * Returns the condition to be used with SQL where
+     * @param array $data filter settings
+     * @return array sql string and $params
+     */
+    public function get_sql_filter($data)
+    {
+        global $DB;
+        static $counter = 0;
+        $name = 'ex_tag' . $counter++;
+
+        $operator = $data['operator'];
+        $value = $data['value'];
+        $field = $this->_field;
+
+        // TODO: Ugly override for PoC.
+        $field = 'tags';
+
+        $params = array();
+
+        switch ($operator) {
+            case 0: // Contains.
+                $res = $DB->sql_like($field, ":$name", false, false);
+                $params[$name] = "%$value%";
+                break;
+            case 1: // Does not contain.
+                $res = $DB->sql_like($field, ":$name", false, false, true);
+                $params[$name] = "%$value%";
+                break;
+            case 2: // Equal to.
+                $res = $DB->sql_like($field, ":$name", false, false);
+                $params[$name] = "$value";
+                break;
+            case 3: // Starts with.
+                $res = $DB->sql_like($field, ":$name", false, false);
+                $params[$name] = "$value%";
+                break;
+            case 4: // Ends with.
+                $res = $DB->sql_like($field, ":$name", false, false);
+                $params[$name] = "%$value";
+                break;
+            case 5: // Empty.
+                $res = "$field is null";
+                break;
+            default:
+                return '';
+        }
+        return array($res, $params);
+    }
+
+}
+
 /**
  * Number filter
  *

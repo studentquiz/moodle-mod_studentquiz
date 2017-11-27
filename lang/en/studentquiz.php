@@ -59,8 +59,8 @@ $string['lastattempt_wrong'] = '✗';
 $string['approve'] = 'Un-/Approve';
 $string['approveselectedscheck'] = 'Are you sure you want to un-/approve the following questions?<br /><br />{$a}';
 $string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
-$string['creator_anonym_firstname'] = 'Student';
-$string['creator_anonym_lastname'] = 'Anonymous';
+$string['creator_anonym_firstname'] = 'Anonymous';
+$string['creator_anonym_lastname'] = 'Student';
 $string['no_questions_selected_message'] = 'Please select at least one question to start the quiz.';
 $string['progress_bar_caption'] = 'Your progress in this StudentQuiz activity';
 

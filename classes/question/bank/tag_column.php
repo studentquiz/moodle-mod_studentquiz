@@ -73,7 +73,6 @@ class tag_column extends \core_question\bank\column_base {
             .') tags ON tags.questionid = q.id ');
     }
 
-
     public function get_required_fields()
     {
         $fields = parent::get_required_fields();

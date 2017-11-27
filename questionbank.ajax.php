@@ -23,6 +23,7 @@ require_login($course, false, $cm);
 require_capability('mod/quiz:manage', $contexts->lowest());
 
 // Create quiz question bank view.
+// TODO: Remove dependency on mod_quiz here!
 $questionbank = new mod_quiz\question\bank\custom_view($contexts, $thispageurl, $course, $cm, $quiz);
 $questionbank->set_quiz_has_attempts(quiz_has_attempts($quiz->id));
 
