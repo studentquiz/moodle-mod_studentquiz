@@ -234,9 +234,9 @@ The approval of your question \'{$a->questionname}\' in StudentQuiz activity \'{
 You can review this question at: {$a->questionurl}.';
 
 // Comment added notification email.
-$string['emailcommentedsubject'] = 'Question has been commented: {$a->questionname}';
-$string['emailcommendedsmall'] = 'Your question \'{$a->questionname}\' has been commented by {$a->username}.';
-$string['emailcommentedbody'] = 'Dear {$a->recepientname},
+$string['emailcommentaddedsubject'] = 'Question has been commented: {$a->questionname}';
+$string['emailcommentaddedsmall'] = 'Your question \'{$a->questionname}\' has been commented by {$a->username}.';
+$string['emailcommentaddedbody'] = 'Dear {$a->recepientname},
 
 Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been commented by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
 
