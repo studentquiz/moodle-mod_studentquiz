@@ -118,7 +118,8 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
 
     // Question info.
     $data->questionname    = $question->name;
-    $data->questionurl     = $CFG->wwwroot . '/question/question.php?cmid=' . $course->id . '&id=' . $question->id;
+    $questionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $module->id, 'questionid' => $question->id));
+    $data->questionurl     = $questionurl->out(false);
 
     // Notification timestamp.
     // TODO: Note: userdate will format for the actor, not for the recepient.

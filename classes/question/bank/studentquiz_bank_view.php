@@ -14,19 +14,20 @@ namespace mod_studentquiz\question\bank;
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ .'/../../../locallib.php');
-require_once(__DIR__ .'/question_bank_filter.php');
-require_once(__DIR__ .'/question_text_row.php');
-require_once(__DIR__ .'/vote_column.php');
-require_once(__DIR__ .'/difficulty_level_column.php');
-require_once(__DIR__ .'/tag_column.php');
-require_once(__DIR__ .'/performances_column.php');
-require_once(__DIR__ .'/comments_column.php');
-require_once(__DIR__ .'/approved_column.php');
-require_once(__DIR__ .'/anonym_creator_name_column.php');
-require_once(__DIR__ .'/myattempts_column.php');
-require_once(__DIR__ .'/mydifficulty_column.php');
-require_once(__DIR__ .'/mylastattempt_column.php');
+require_once(__DIR__ . '/question_bank_filter.php');
+require_once(__DIR__ . '/question_text_row.php');
+require_once(__DIR__ . '/vote_column.php');
+require_once(__DIR__ . '/difficulty_level_column.php');
+require_once(__DIR__ . '/tag_column.php');
+require_once(__DIR__ . '/performances_column.php');
+require_once(__DIR__ . '/comments_column.php');
+require_once(__DIR__ . '/approved_column.php');
+require_once(__DIR__ . '/anonym_creator_name_column.php');
+require_once(__DIR__ . '/myattempts_column.php');
+require_once(__DIR__ . '/mydifficulty_column.php');
+require_once(__DIR__ . '/mylastattempt_column.php');
 require_once(__DIR__ . '/myvote_column.php');
+require_once(__DIR__ . '/preview_column.php');
 
 /**
  * Module instance settings form
@@ -351,7 +352,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Get the required tables and fields.
         $this->sqlparams = array();
         $joins = array();
-        $fields = array('q.hidden', 'q.category', 'q.timecreated', 'q.createdby');
+        $fields = array('q.hidden', 'q.category', 'q.timecreated');
         foreach ($this->requiredcolumns as $column) {
             if (method_exists($column, 'set_joinconditions')) {
                 $column->set_joinconditions($this->searchconditions);
@@ -413,8 +414,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
                 if ($field->_name == 'tagname') {
                     $this->tagnamefield = $sqldata;
-                    // TODO: ugly override for PoC!
-                    $field->_name = 'tags';
+                    continue;
                 }
 
                 // The user_filter_checkbox class has a buggy get_sql_filter function.
@@ -424,7 +424,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
                 if (is_array($sqldata)) {
                     $sqldata[0] = str_replace($field->_name,
-                            $this->get_sql_table_prefix($field->_name) . $field->_name, $sqldata[0]);
+                                              $this->get_sql_table_prefix($field->_name) . $field->_name, $sqldata[0]);
                     $tests[] = '((' . $sqldata[0] . '))';
                     $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
                 }
@@ -638,8 +638,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $CFG;
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
             . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
-            . 'preview_action_column,delete_action_column,'
-            . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
+            . 'preview_action_column,delete_action_column,creator_name_column,'
             . 'mod_studentquiz\\bank\\tag_column,'
             . 'mod_studentquiz\\bank\\approved_column,'
             . 'mod_studentquiz\\bank\\practice_column,'
@@ -666,7 +665,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             false, 'vote');
         $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             false, 'difficultylevel');
-        $this->fields[] = new \user_filter_tag('tagname', get_string('filter_label_tags', 'studentquiz'),
+        $this->fields[] = new \user_filter_text('tagname', get_string('filter_label_tags', 'studentquiz'),
             false, 'tagname');
 
         // Advanced filters.
@@ -844,16 +843,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @deprecated
      */
     private function filter_questions($questions, $anonymize = true) {
+        global $USER;
 
         $filteredquestions = array();
         $questionids = array();
         foreach ($questions as $question) {
             $questionids[] = $question->id;
             $question->tagname = '';
+            if (
+                $anonymize &&
+                $question->createdby != $USER->id
+            ) {
+                $question->creatorfirstname = get_string('creator_anonym_firstname', 'studentquiz');
+                $question->creatorlastname = get_string('creator_anonym_lastname', 'studentquiz');
+            }
 
-            // Todo: remove filtering by filter questions.
-            $count = 0; // $this->get_question_tag_count($question->id);
-            if ($count && false) {
+            $count = $this->get_question_tag_count($question->id);
+            if ($count) {
                 foreach ($this->get_question_tag($question->id) as $tag) {
                     $question->tagname .= ', '.$tag->name;
                 }
@@ -863,8 +869,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $filteredquestions[] = $question;
             } else {
                 if (isset($this->tagnamefield)) {
-                    // TODO: disable filtering for tags by filter_questions.
-                    if (true || $this->show_question($question->id, $count)) {
+                    if ($this->show_question($question->id, $count)) {
                         $filteredquestions[] = $question;
                     }
                 } else {
@@ -882,7 +887,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param bool $withfilter
      * @return int
      * @throws \coding_exception
-     * @deprecated
      */
     private function get_question_tag_count($id, $withfilter = true) {
         global $DB;
@@ -981,7 +985,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * Get all question tags
      * @param int $id
      * @return \moodle_recordset all tags connected with the question
-     * @decprecated
      */
     private function get_question_tag($id) {
         global $DB;
