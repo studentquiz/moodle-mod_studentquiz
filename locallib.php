@@ -220,6 +220,7 @@ function mod_studentquiz_event_notification_question($event, $questionid, $cours
             $recepient = $users[$question->createdby];
             $actor = $users[$USER->id];
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
+
             return mod_studentquiz_send_notification($event, $recepient, $actor, $data);
         }
     }
@@ -249,9 +250,8 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
             $recepient = $users[$question->createdby];
             $actor = $users[$USER->id];
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
-            $comment->timestamp = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
-            $data->comment = $comment;
-
+            $data->commenttext = $comment->comment;
+            $data->commenttime = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
             return mod_studentquiz_send_notification('comment' . $event, $recepient, $actor, $data);
         }
@@ -284,8 +284,8 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
             $recepient = $users[$comment->userid];
             $actor = $users[$USER->id];
             $data = mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module);
-            $comment->timestamp = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
-            $data->comment = $comment;
+            $data->commenttext = $comment->comment;
+            $data->commenttime = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
             return mod_studentquiz_send_notification('minecomment' . $event, $recepient, $actor, $data);
         }
