@@ -279,6 +279,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
         $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
 
         // Creator and Actor must be different.
+        var_dump($comment, $USER->id);
         if ($comment->userid != $USER->id) {
             $users = user_get_users_by_id(array($question->createdby, $USER->id));
             $recepient = $users[$comment->userid];

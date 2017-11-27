@@ -29,8 +29,7 @@ if ($cmid) {
 }
 
 // Authentication check.
-// TODO: Do we want to allow guests to use StudentQuiz at all?
-require_login($module->course, true, $module);
+require_login($module->course, false, $module);
 require_sesskey();
 
 header('Content-Type: text/html; charset=utf-8');
