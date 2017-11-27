@@ -705,6 +705,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $this->fields[] = new \user_filter_number('mydifficulty', get_string('filter_label_mydifficulty', 'studentquiz'),
             true, 'mydifficulty');
+
+        $this->fields[] = new \user_filter_number('myvote', get_string('filter_label_myvote', 'studentquiz'),
+            true, 'myvote');
     }
 
     /**
@@ -960,6 +963,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 return 'mydiffs.';
             case 'myattempts':
                 return 'myatts.';
+            case 'myvote':
+                return 'myvote.';
             default;
                 return 'q.';
         }

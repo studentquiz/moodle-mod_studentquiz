@@ -38,7 +38,7 @@ class myvote_column extends \core_question\bank\column_base {
      * @return string column name
      */
     public function get_name() {
-        return 'myvotes';
+        return 'myvote';
     }
 
     /**

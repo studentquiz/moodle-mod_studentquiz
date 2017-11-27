@@ -80,6 +80,7 @@ $string['filter_label_difficulty_level'] = 'Difficulty';
 $string['filter_label_mylastattempt'] = 'My latest attempt';
 $string['filter_label_myattempts'] = 'My attempts';
 $string['filter_label_mydifficulty'] = 'My difficulty';
+$string['filter_label_myvote'] = 'My Rating';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
 $string['filter_label_show_mine'] = 'My questions';
