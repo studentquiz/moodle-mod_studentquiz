@@ -40,6 +40,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @var stdClass filtered questions from database
      */
     private $questions;
+
+    /**
+     * @var array of ids of the questions that are displayed on current page
+     * (IF the filter result is paginated, ids on other pages are not collected!)
+     */
+    private $displayedquestionsids = array();
+
     /**
      * @var int totalnumber from filtered questions
      */
@@ -110,7 +117,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @return html output
      */
     public function display($tabname, $page, $perpage, $cat,
-                            $recurse, $showhidden, $showquestiontext) {
+                            $recurse, $showhidden, $showquestiontext)
+    {
         $output = '';
 
         $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
@@ -123,17 +131,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
         \core_php_time_limit::raise(300);
         $this->build_query();
 
+        // Get result set.
         $this->questions = $this->load_questions();
-        $this->questions = $this->filter_questions($this->questions, $this->is_anonym());
-        $this->totalnumber = count($this->questions);
 
         if ($this->process_actions_needing_ui()) {
             return;
         }
 
-        //$output .= $this->create_new_question_form_ext($cat);
-
-        if ($this->has_questions_in_category() || $this->isfilteractive) {
+        if ($this->questions->valid() || $this->isfilteractive) {
             $output .= $this->filterform->render();
         }
 
@@ -146,6 +151,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->contexts->having_cap('moodle/question:add'));
 
         $output .= '</form>';
+
+        $this->questions->close();
 
         return $output;
     }
@@ -559,11 +566,26 @@ class studentquiz_bank_view extends \core_question\bank\view {
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
 
-        if ($this->totalnumber == 0) {
-            return;
+        $counterquestions = 0;
+        $this->questions->rewind();
+
+        // Skip Questions on previous pages.
+        while($this->questions->valid() && $counterquestions < $page * $perpage) {
+            $this->questions->next();
+            $counterquestions++;
         }
 
-        $questions = $this->load_page_questions_array($this->questions, $page, $perpage);
+        // Render questions and iterate to end to get totalnumber.
+        $renderedQuestions = $this->display_question_list_rows($perpage);
+
+        $counterquestions += $this->numberofdisplayedquestions;
+        // Iterate to end.
+        while($this->questions->valid()) {
+            $this->questions->next();
+            $counterquestions++;
+        }
+        $this->totalnumber = $counterquestions;
+
         $pagingbar = $this->create_paging_bar($pageurl, $page, $perpage);
 
         $output .= '<fieldset class="invisiblefieldset" style="display: block;">';
@@ -573,9 +595,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $output .=  \html_writer::input_hidden_params($this->baseurl);
 
         $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
+
         $output .= $pagingbar;
 
-        $output .= $this->display_question_list_rows($questions);
+        $output .= $renderedQuestions;
 
         $output .= $pagingbar;
 
@@ -612,17 +635,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $output;
     }
 
-    protected function display_question_list_rows($questions) {
+    protected function display_question_list_rows($perpage) {
         $output = '';
         $output .=  '<div class="categoryquestionscontainer">';
-
         ob_start();
         $this->start_table();
-                $rowcount = 0;
-        foreach ($questions as $question) {
+        $rowcount = 0;
+        while($rowcount <= $perpage && $this->questions->valid()) {
+            $question = $this->questions->current();
+            $this->displayedquestionsids[] = $question->id;
             $this->print_table_row($question, $rowcount);
-            $rowcount += 1;
+            $this->questions->next();
+            $rowcount++;
         }
+        $this->numberofdisplayedquestions = $rowcount;
         $this->end_table();
         $output .= ob_get_contents();
         ob_end_clean();
@@ -793,7 +819,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function set_createdby_user_id() {
         global $USER;
-
         $_POST['createdby'] = $USER->id;
     }
 
@@ -838,80 +863,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Filter question with the filter option
-     * @param stdClass $questions
-     * @return array questions
-     * @deprecated
-     */
-    private function filter_questions($questions, $anonymize = true) {
-
-        $filteredquestions = array();
-        $questionids = array();
-        foreach ($questions as $question) {
-            $questionids[] = $question->id;
-            $question->tagname = '';
-
-            // Todo: remove filtering by filter questions.
-            $count = 0; // $this->get_question_tag_count($question->id);
-            if ($count && false) {
-                foreach ($this->get_question_tag($question->id) as $tag) {
-                    $question->tagname .= ', '.$tag->name;
-                }
-                $question->tagname = substr($question->tagname, 2);
-            }
-            if (!$this->isfilteractive) {
-                $filteredquestions[] = $question;
-            } else {
-                if (isset($this->tagnamefield)) {
-                    // TODO: disable filtering for tags by filter_questions.
-                    if (true || $this->show_question($question->id, $count)) {
-                        $filteredquestions[] = $question;
-                    }
-                } else {
-                    $filteredquestions[] = $question;
-                }
-            }
-        }
-
-        return $filteredquestions;
-    }
-
-    /**
-     * Get the count of the connected tags with the question
-     * @param int $id
-     * @param bool $withfilter
-     * @return int
-     * @throws \coding_exception
-     * @deprecated
-     */
-    private function get_question_tag_count($id, $withfilter = true) {
-        global $DB;
-        $sqlparams = array();
-
-        $sqlext = '';
-        if (isset($this->tagnamefield)) {
-            $sqlext = str_replace ( 'tagname' , 't.name' , $this->tagnamefield[0]);
-            $sqlparams = $this->tagnamefield[1];
-
-            $sqlext = ' AND '. '((' . $sqlext  .'))';
-        }
-
-        $sql = 'SELECT count(1)'
-            .' FROM {tag} t'
-            .' JOIN {tag_instance} ti'
-            .' ON t.id = ti.tagid'
-            .' WHERE ti.itemtype = \'question\' AND ti.itemid = :qid';
-
-        if ($withfilter) {
-            $sql .= $sqlext;
-        }
-
-        $sqlparams['qid'] = $id;
-
-        return $DB->count_records_sql($sql, $sqlparams);
-    }
-
-    /**
      * Get the sql table prefix
      * @param string $name
      * @return string return sql prefix
@@ -947,89 +898,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Get all filtered question ids qith q prefix
      * @return array question ids with q prefix
-     * @deprecated TODO: This should nowhere be necessary!
      */
     private function get_filtered_question_ids() {
-        $questionids = array();
-        foreach ($this->questions as $question) {
-            $questionids[] = 'q' . $question->id;
-        }
-        return $questionids;
-    }
-
-    /**
-     * Slice question list into array per page of questions.
-     *
-     * @param stdClass $question
-     * @param int $page
-     * @param int $perpage
-     * @return array questions
-     */
-    private function load_page_questions_array($question, $page, $perpage) {
-        if ($page * $perpage > count($question)) {
-            $questions = array_slice ($question , 0, $perpage, true);
-        } else {
-            $questions = array_slice ($question , $page * $perpage, $perpage, true);
-        }
-
-        return $questions;
-    }
-
-    /**
-     * Get all question tags
-     * @param int $id
-     * @return \moodle_recordset all tags connected with the question
-     * @decprecated
-     */
-    private function get_question_tag($id) {
-        global $DB;
-        $sqlparams = array();
-
-        $sql = 'SELECT t.name, ti.itemid'
-            .' FROM {tag} t'
-            .' JOIN {tag_instance} ti'
-            .' ON t.id = ti.tagid'
-            .' WHERE ti.itemtype = \'question\' AND ti.itemid = :qid';
-
-        $sqlparams['qid'] = $id;
-
-        return $DB->get_recordset_sql($sql, $sqlparams);
-    }
-
-    /**
-     * Check if show question or not
-     * @param int $id
-     * @param int $count
-     * @return bool question show or not
-     */
-    private function show_question($id, $count) {
-        $countfiltered = $count;
-        $count = $this->get_question_tag_count($id, false);
-
-        if (strpos($this->tagnamefield[0], 'NOT LIKE') !== false) {
-            if ($count == $countfiltered) {
-                return true;
-            }
-            return false;
-        }
-
-        if (strpos($this->tagnamefield[0], 'LIKE') !== false) {
-            if ($countfiltered > 0) {
-                return true;
-            }
-            return false;
-        }
-
-        if (strpos($this->tagnamefield[0], '=' && $this->tagnamefield[1]['ex_text0']) == '') {
-            if ($count == 0) {
-                return true;
-            }
-            return false;
-        }
-
-        return false;
+        return $this->displayedquestionsids;
     }
 
     /**
