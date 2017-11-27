@@ -72,29 +72,32 @@ class mylastattempt_column extends \core_question\bank\column_base {
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        $tests = array(
-            'quiza.studentquizid = ' . $this->studentquizid,
-            'quiza.userid = ' . $this->currentuserid,
-            'name=\'-submit\'',
-            '(qas.state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
-        );
         return array( 'mylastattempt' => 'LEFT JOIN ('
-            .' SELECT qa.questionid, qas.state mylastattempt'
-            .' FROM {studentquiz_attempt} quiza'
-            .'  JOIN {question_usages} qu ON qu.id = quiza.questionusageid'
-            .'  JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-            .'   LEFT JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-            .'   AND qas.id = ('
-            .'      SELECT MAX(qas2.id)'
-            .'      FROM {studentquiz_attempt} quiza2'
-            .'      JOIN {question_usages} qu2 ON qu2.id = quiza2.questionusageid'
-            .'      JOIN {question_attempts} qa2 ON qa2.questionusageid = qu2.id'
-            .'      JOIN {question_attempt_steps} qas2 ON qas2.questionattemptid = qa2.id'
-            .'      WHERE qa2.questionid =	qa.questionid'
-            .'      AND (qas2.state = \'gradedright\' OR qas2.state =\'gradedwrong\' OR qas2.state=\'gradedpartial\')'
-            .'      )'
-            .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-            .' WHERE ' . implode(' AND ', $tests) . ') mylatts ON mylatts.questionid = q.id'
+            .'SELECT'
+                .' 	qa.questionid,'
+                .' 	qas.state mylastattempt'
+            .' FROM'
+                .' 	{studentquiz} sq '
+                .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
+                .' 	JOIN {question_usages} qu on qu.id = sqa.questionusageid '
+                .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
+                .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
+                .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
+            .' WHERE qasd.name = \'answer\''
+            .' AND qasd.id IN ('
+                .' 	SELECT MAX(qasd.id)'
+                .' 	FROM {studentquiz} sq '
+                .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
+                .' 	JOIN {question_usages} qu on qu.id = sqa.questionusageid '
+                .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
+                .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
+                .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
+                .' 	WHERE qasd.name = \'answer\''
+                .'  AND sq.id = ' . $this->studentquizid
+                .'  AND sqa.userid = ' . $this->currentuserid
+                .' 	GROUP BY qa.questionid'
+            .' )'
+            . ') mylatts ON mylatts.questionid = q.id'
         );
     }
 
