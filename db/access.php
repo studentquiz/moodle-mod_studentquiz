@@ -66,6 +66,16 @@ $capabilities = array(
             'manager'        => CAP_ALLOW,
         ),
     ),
+    // Ability to preview questions other than mine
+    'mod/studentquiz:previewothers' => array(
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
+    ),
     // Ability to edit the settings.
     'mod/studentquiz:manage' => array(
         'captype' => 'write',

@@ -11,40 +11,36 @@ namespace mod_studentquiz\bank;
 
 class preview_column extends \core_question\bank\preview_action_column {
 
-    // Current userid
-    protected $currentuserid;
-
-    protected $anonymize;
-
-    protected $canpreview;
-
     protected $renderer;
+    protected $context;
 
     /**
      * Loads config of current userid and can see
      */
     public function init() {
-        global $USER, $PAGE;
-        $this->currentuserid = $USER->id;
-        // TODO: Set these values on init.
-        $this->anonymize = true;
-        $this->canpreview = true;
+        global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
+        $this->context = $this->qbank->get_most_specific_context();
     }
 
     /**
      * Override of base display_content
      * @param object $question
      * @param string $rowclasses
-     * TODO: Check with init members.
      */
     protected function display_content($question, $rowclasses) {
-        global $PAGE;
-        // Todo: Check question->createdby with currentuserid,
-        if ($this->canpreview) {
-            // TODO: get our own renderer here (mod_studentquiz) and implement question_preview_link there
-            echo $this->renderer->question_preview_link(
-                $question, $this->qbank->get_most_specific_context(), false);
+        if ($this->can_preview($question)) {
+            echo $this->renderer->question_preview_link($question, $this->context, false);
         }
+    }
+
+    /**
+     * Look up if current user is allowed to preview this question
+     * @param object $question The current question object
+     * @return boolean
+     */
+    private function can_preview($question) {
+        global $USER;
+        return ($question->createdby == $USER->id) || has_capability('mod/studentquiz:previewothers', $this->context);
     }
 }

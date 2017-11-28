@@ -175,11 +175,12 @@ $string['reportrank_table_column_description'] = 'Description';
 // Permission.
 $string['studentquiz:addinstance'] = 'Add new instance for StudentQuiz';
 $string['studentquiz:view'] = 'View questions on StudentQuiz';
+$string['studentquiz:previewothers'] = 'Preview questions of others on StudentQuiz';
 $string['studentquiz:submit'] = 'Submit questions on StudentQuiz';
 $string['studentquiz:manage'] = 'Moderate questions on StudentQuiz';
 $string['studentquiz:unhideanonymous'] = 'Can see real names even when anonymize is active';
 
-// Notifications
+// Notifications.
 $string['studentquiz:emailnotifychanged'] = 'Question changed notification';
 $string['studentquiz:emailnotifydeleted'] = 'Question deleted notification';
 $string['studentquiz:emailnotifyapproved'] = 'Question approved notification';

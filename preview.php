@@ -36,7 +36,9 @@ $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
 // Lookup question.
 try {
     $question = question_bank::load_question($questionid);
-    question_require_capability_on($question, 'use');
+    // There is no capability check on previewothers, because he can gotten the link for review by notification.
+    // If this should be limited also here, you need to implement some sort of onetime token for the link in the notification.
+    //question_require_capability_on($question, 'use');
 } catch (dml_missing_record_exception $e) {
     $question = null;
 }
@@ -93,11 +95,13 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_url($actionurl);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
+
 echo $OUTPUT->header();
 if($question) {
     echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
         'enctype' => 'multipart/form-data', 'id' => 'responseform'));
     echo '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';
+
     echo $quba->render_question($slot, $options, 'i');
 
     $PAGE->requires->js_module('core_question_engine');
