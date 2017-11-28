@@ -64,14 +64,9 @@ class tag_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if($this->tags === null) {
-           // debugging('The tag array was not initialized!', DEBUG_DEVELOPER);
-            echo "(missing)";
-            return;
-        }
-        if (!empty($question->tags)) {
+        if (!empty($question->tags) && !empty($question->tagarray)) {
             echo $question->tags;
-            foreach($this->tags[$question->id] as $tag) {
+            foreach($question->tagarray as $tag) {
                 $tag = $this->render_tag($tag);
                 echo $tag;
             }
@@ -80,9 +75,9 @@ class tag_column extends \core_question\bank\column_base {
         }
     }
 
-    private function render_tag($rawname) {
+    private function render_tag($tag) {
         return '<span role="listitem" data-value="HELLO" aria-selected="true" class="tag tag-success " style="font-size: 60%">'
-                . (strlen($rawname) > 10 ? (substr($rawname,0,8) ."...") : $rawname)
+                . (strlen($tag->rawname) > 10 ? (substr($tag->rawname,0,8) ."...") : $tag->rawname)
                 . '</span> ';
     }
 

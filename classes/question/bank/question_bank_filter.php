@@ -138,23 +138,24 @@ class user_filter_tag extends user_filter_text {
                 $params[$name] = "%$value%";
                 break;
             case 1: // Does not contain.
-                $res = $DB->sql_like($field, ":$name", false, false, true);
+                $res = ' (searchtag = 0 or searchtag is null) ';
                 $params[$name] = "%$value%";
                 break;
             case 2: // Equal to.
-                $res = $DB->sql_like($field, ":$name", false, false);
+                $res = '  searchtag = 1 ';
                 $params[$name] = "$value";
                 break;
             case 3: // Starts with.
-                $res = $DB->sql_like($field, ":$name", false, false);
+                $res = '  searchtag > 0 ';
                 $params[$name] = "$value%";
                 break;
             case 4: // Ends with.
-                $res = $DB->sql_like($field, ":$name", false, false);
+                $res = ' searchtag > 0 ';
                 $params[$name] = "%$value";
                 break;
             case 5: // Empty.
-                $res = "$field is null";
+                $res = ' (tags = 0 or tags is null) ';
+                $params[$name] = "-ignore-";
                 break;
             default:
                 return '';

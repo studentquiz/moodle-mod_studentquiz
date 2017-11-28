@@ -136,13 +136,26 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->build_query();
 
         // Get result set.
-        $this->questions = $this->load_questions();
+        $questions = $this->load_questions($page, $perpage  );
+
+        $tags = mod_studentquiz_get_tags_by_question_ids($this->displayedquestionsids);
+
+        // Annotate questions with
+        foreach ($questions as $question) {
+            if(array_key_exists($question->id, $tags)) {
+                $question->tagarray = $tags[$question->id];
+            } else {
+                $question->tagarray = null;
+            }
+        }
+
+        $this->questions = $questions;
 
         if ($this->process_actions_needing_ui()) {
             return;
         }
 
-        if ($this->questions->valid() || $this->isfilteractive) {
+        if (count($this->questions) || $this->isfilteractive) {
             $output .= $this->filterform->render();
         }
 
@@ -155,8 +168,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->contexts->having_cap('moodle/question:add'));
 
         $output .= '</form>';
-
-        $this->questions->close();
 
         return $output;
     }
@@ -533,26 +544,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
 
-        $counterquestions = 0;
-        $this->questions->rewind();
-
-        // Skip Questions on previous pages.
-        while($this->questions->valid() && $counterquestions < $page * $perpage) {
-            $this->questions->next();
-            $counterquestions++;
-        }
-
-        // Render questions and iterate to end to get totalnumber.
-        $renderedQuestions = $this->display_question_list_rows($perpage);
-
-        $counterquestions += $this->numberofdisplayedquestions;
-        // Iterate to end.
-        while($this->questions->valid()) {
-            $this->questions->next();
-            $counterquestions++;
-        }
-        $this->totalnumber = $counterquestions;
-
         $pagingbar = $this->create_paging_bar($pageurl, $page, $perpage);
 
         $output .= '<fieldset class="invisiblefieldset" style="display: block;">';
@@ -565,7 +556,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= $pagingbar;
 
-        $output .= $renderedQuestions;
+        $output .= $this->display_question_list_rows($page);
 
         $output .= $pagingbar;
 
@@ -602,17 +593,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $output;
     }
 
-    protected function display_question_list_rows($perpage) {
+    protected function display_question_list_rows() {
         $output = '';
         $output .=  '<div class="categoryquestionscontainer">';
         ob_start();
         $this->start_table();
         $rowcount = 0;
-        while($rowcount <= $perpage && $this->questions->valid()) {
-            $question = $this->questions->current();
-            $this->displayedquestionsids[] = $question->id;
+        foreach($this->questions as $question) {
             $this->print_table_row($question, $rowcount);
-            $this->questions->next();
             $rowcount++;
         }
         $this->numberofdisplayedquestions = $rowcount;
@@ -822,14 +810,52 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * Load question from database
-     * @return \moodle_recordset
+     * @return pqginated array of questions
      */
-    private function load_questions() {
+    private function load_questions($page, $perpage) {
         global $DB;
         $DB->set_debug(true);
         $rs =  $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
         $DB->set_debug(false);
-        return $rs;
+
+        $counterquestions = 0;
+        $numberofdisplayedquestions = 0;
+        $rs->rewind();
+
+        // Skip Questions on previous pages.
+        while($rs->valid() && $counterquestions < $page * $perpage) {
+            $rs->next();
+            $counterquestions++;
+        }
+
+        // Reset and start from 0 if page was empty
+        if($counterquestions < $page * $perpage) {
+            $rs->rewind();
+        }
+
+        //
+        // Unfortunately we cant just render the questions directly, because we need
+        // To annotate tags first.
+        //
+        $questions = array();
+        // Load questions
+        while($rs->valid() && $numberofdisplayedquestions < $perpage) {
+            $question = $rs->current();
+            $numberofdisplayedquestions++;
+            $counterquestions++;
+            $this->displayedquestionsids[] = $question->id;
+            $rs->next();
+            $questions[] = $question;
+        }
+
+        // Iterate to end.
+        while($rs->valid()) {
+            $rs->next();
+            $counterquestions++;
+        }
+        $this->totalnumber = $counterquestions;
+        $rs->close();
+        return $questions;
     }
 
     /**
