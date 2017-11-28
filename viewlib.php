@@ -144,7 +144,7 @@ class mod_studentquiz_view {
         $this->qbpagevar = $pagevars;
 
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz);
+            $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars);
     }
 
     /**

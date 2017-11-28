@@ -46,7 +46,6 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
     }
 
     protected function display_content($question, $rowclasses) {
-
         $date = userdate($question->timecreated, get_string('strftimedatetime', 'langconfig'));
         if( $this->anonymize && $question->createdby != $this->currentuserid) {
             echo  \html_writer::tag('span', $this->anonymousname)

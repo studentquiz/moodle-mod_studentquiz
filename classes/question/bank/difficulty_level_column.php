@@ -20,6 +20,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class difficulty_level_column extends \core_question\bank\column_base {
 
+    protected $sqlparams =  array();
+
     /**
      * Return name of column
      * @return string columnname
@@ -49,40 +51,24 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        $tests = array('q.parent = 0');
-        $correcttests = array('rightanswer = responsesummary');
-        $totaltests = array('responsesummary IS NOT NULL');
-        // Have to build params array while building query, due to inability to use single
-        // named parameter multiple times. Each call to joincondition->where updates
-        // joincondition's params.
-        $this->sqlparams = array();
-        foreach ($this->joinconditions as $joincondition) {
-            if ($joincondition->where()) {
-                $tests[] = '((' . $joincondition->where() .'))';
-                $this->sqlparams = array_merge($this->sqlparams, $joincondition->params());
-                $correcttests[] = '((' . $joincondition->where() .'))';
-                $this->sqlparams = array_merge($this->sqlparams, $joincondition->params());
-                $totaltests[] = '((' . $joincondition->where() .'))';
-                $this->sqlparams = array_merge($this->sqlparams, $joincondition->params());
-            }
-        }
         return array('dl' => 'LEFT JOIN ('
             . 'SELECT ROUND(1 - (COALESCE(correct.num, 0) / total.num), 2) AS difficultylevel,'
             . 'qa.questionid'
             . ' FROM {question_attempts} qa JOIN {question} q ON q.id = qa.questionid'
             . ' LEFT JOIN  ('
             . ' SELECT COUNT(*) AS num, questionid'
-            . '  FROM {question_attempts} qa JOIN {question} q ON q.id = qa.questionid'
-            . '  WHERE ' . implode(' AND ', $correcttests)
+            . '  FROM {question_attempts} qa'
+            . '  JOIN {question} q ON q.id = qa.questionid'
+            . '  WHERE rightanswer = responsesummary'
             . '  GROUP BY questionid'
             . ') correct ON(correct.questionid = qa.questionid)'
             . ' LEFT JOIN ('
             . ' SELECT COUNT(*) AS num, questionid'
             . '  FROM {question_attempts} qa JOIN {question} q ON q.id = qa.questionid'
-            . '  WHERE ' . implode(' AND ', $totaltests)
+            . '  WHERE responsesummary IS NOT NULL'
             . '  GROUP BY questionid'
             . ') total ON(total.questionid = qa.questionid)'
-            . ' WHERE ' . implode(' AND ', $tests)
+            . ' WHERE q.parent = 0'
             . ' GROUP BY qa.questionid, correct.num, total.num'
             . ') dl ON dl.questionid = q.id');
     }

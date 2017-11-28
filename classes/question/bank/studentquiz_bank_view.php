@@ -79,6 +79,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
     private $studentquiz;
 
 
+    private $pagevars;
+
     /**
      * Constructor assuming we already have the necessary data loaded.
      *
@@ -88,11 +90,21 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param null|object $cm
      * @param object $studentquiz
      */
-    public function __construct($contexts, $pageurl, $course, $cm, $studentquiz) {
+    public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars) {
         parent::__construct($contexts, $pageurl, $course, $cm);
+        $this->pagevars = $pagevars;
         $this->studentquiz = $studentquiz;
         $this->set_filter_form_fields($this->is_anonym());
         $this->initialize_filter_form($pageurl);
+        // Init search conditions with filterform state.
+        $this->searchconditions[] = new \core_question\bank\search\category_condition(
+                $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
+        $this->searchconditions[] = new \mod_studentquiz\condition\studentquiz_condition(
+            $this->filterform,
+            $pagevars,
+            $cm,
+            $studentquiz
+            );
     }
 
     /**
@@ -121,14 +133,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             $recurse, $showhidden, $showquestiontext) {
         $output = '';
 
-        $editcontexts = $this->contexts->having_one_edit_tab_cap($tabname);
-        array_unshift($this->searchconditions, new \mod_studentquiz\condition\studentquiz_condition(
-            $cat, $recurse, $editcontexts, $this->baseurl, $this->course));
-
-        // This function can be moderately slow with large question counts and may time out.
-        // We probably do not want to raise it to unlimited, so randomly picking 5 minutes.
-        // Note: We do not call this in the loop because quiz ob_ captures this function (see raise() PHP doc).
-        \core_php_time_limit::raise(300);
         $this->build_query();
 
         // Get result set.
@@ -355,13 +359,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * \core_question\bank\search\condition filters.
      */
     protected function build_query() {
-        // Get the required tables and fields.
-        $this->sqlparams = array();
+        // Hard coded setup
+        $params = array();
         $joins = array();
         $fields = array('q.hidden', 'q.category', 'q.timecreated', 'q.createdby');
+        $tests = array('q.parent = 0', 'q.hidden = 0');
         foreach ($this->requiredcolumns as $column) {
-            if (method_exists($column, 'set_joinconditions')) {
-                $column->set_joinconditions($this->searchconditions);
+            if (method_exists($column, 'set_searchconditions')) {
+                $column->set_searchconditions($this->searchconditions);
             }
             $extrajoins = $column->get_extra_joins();
             foreach ($extrajoins as $prefix => $join) {
@@ -371,7 +376,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $joins[$prefix] = $join;
             }
             if (method_exists($column, 'get_sqlparams')) {
-                $this->sqlparams = array_merge($this->sqlparams, $column->get_sqlparams());
+                $params = array_merge($params, $column->get_sqlparams());
             }
             $fields = array_merge($fields, $column->get_required_fields());
         }
@@ -384,63 +389,25 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
         }
 
+        // Default sorting.
         if (empty($sorts)) {
             $sorts[] = 'q.timecreated DESC';
         }
 
-        // Build the where clause.
-        $tests = array('q.parent = 0');
+        // Build the where clause and load params from search conditions.
         foreach ($this->searchconditions as $searchcondition) {
-            if ($searchcondition->where()) {
-                $tests[] = '((' . $searchcondition->where() .'))';
+            if(!empty($searchcondition->where())) {
+                $tests[] = $searchcondition->where();
             }
-            if ($searchcondition->params()) {
-                $this->sqlparams = array_merge($this->sqlparams, $searchcondition->params());
-            }
-        }
-        $this->sqlparams['filter'] = '';
-        if ($adddata = $this->filterform->get_data()) {
-            foreach ($this->filterform->get_fields() as $field) {
-                $data = $field->check_data($adddata);
-
-                if ($data === false) {
-                    continue;
-                }
-
-                $this->isfilteractive = true;
-                $sqldata = $field->get_sql_filter($data);
-
-                if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
-                    continue;
-                }
-
-                if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
-                    continue;
-                }
-
-                if ($field->_name == 'tagname') {
-                    $this->tagnamefield = $sqldata;
-                    // TODO: ugly override for PoC!
-                    $field->_name = 'tags';
-                }
-
-                // The user_filter_checkbox class has a buggy get_sql_filter function.
-                if ($field->_name == 'createdby' || $field->_name == 'approved') {
-                    $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
-                }
-
-                if (is_array($sqldata)) {
-                    $sqldata[0] = str_replace($field->_name,
-                            $this->get_sql_table_prefix($field->_name) . $field->_name, $sqldata[0]);
-                    $tests[] = '((' . $sqldata[0] . '))';
-                    $this->sqlparams = array_merge($this->sqlparams, $sqldata[1]);
-                }
+            if(!empty($searchcondition->params())) {
+                $params = array_merge($params, $searchcondition->params());
             }
         }
 
         // Build the complete SQL query.
         $sql = ' FROM {question} q ' . implode(' ', $joins);
         $sql .= ' WHERE ' . implode(' AND ', $tests);
+        $this->sqlparams = $params;
         $this->countsql = 'SELECT count(1)' . $sql;
         $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
     }
@@ -859,42 +826,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function load_questions() {
         global $DB;
-        return $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
-    }
-
-    /**
-     * Get the sql table prefix
-     * @param string $name
-     * @return string return sql prefix
-     */
-    private function get_sql_table_prefix($name) {
-        switch($name){
-            case 'difficultylevel':
-                return 'dl.';
-            case 'vote':
-                return 'vo.';
-            case 'practice':
-                return 'pr.';
-            case 'comment':
-                return 'co.';
-            case 'approved':
-                return 'ap.';
-            case 'firstname':
-            case 'lastname':
-                return 'uc.';
-            case 'mylastattempt':
-                return 'mylatts.';
-            case 'mydifficulty':
-                return 'mydiffs.';
-            case 'myattempts':
-                return 'myatts.';
-            case 'myvote':
-                return 'myvote.';
-            case 'tags':
-                return 'tags.';
-            default;
-                return 'q.';
-        }
+        $DB->set_debug(true);
+        $rs =  $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
+        $DB->set_debug(false);
+        return $rs;
     }
 
     /**

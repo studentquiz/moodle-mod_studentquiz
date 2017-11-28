@@ -49,24 +49,11 @@ class practice_column extends \core_question\bank\column_base {
     }
 
     /**
-     * Set conditions to apply to join.
-     * @param  array $joinconditions Conditions to apply to join (via WHERE clause)
-     */
-    public function set_joinconditions($joinconditions) {
-        $this->joinconditions = $joinconditions;
-    }
-
-    /**
      * Get params that this join requires be added to the query.
      * @return array sqlparams required to be added to query
      */
     public function get_sqlparams() {
         $this->sqlparams = array();
-        foreach ($this->joinconditions as $joincondition) {
-            if ($joincondition->params()) {
-                $this->sqlparams = array_merge($this->sqlparams, $joincondition->params());
-            }
-        }
         return $this->sqlparams;
     }
 
@@ -76,11 +63,6 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         $tests = array('qa.responsesummary IS NOT NULL');
-        foreach ($this->joinconditions as $joincondition) {
-            if ($joincondition->where()) {
-                $tests[] = '((' . $joincondition->where() .'))';
-            }
-        }
         return array('pr' => 'LEFT JOIN ('
             . 'SELECT COUNT(questionid) as practice'
             . ', questionid FROM {question_attempts} qa JOIN {question} q ON qa.questionid = q.id'

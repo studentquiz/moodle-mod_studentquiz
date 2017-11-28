@@ -15,7 +15,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_condition extends \core_question\bank\search\category_condition {
+class studentquiz_condition extends \core_question\bank\search\condition {
 
     /* Due to fix_sql_params not accepting repeated use of named params,
        we need to get unique names for params that will be used more than
@@ -33,51 +33,140 @@ class studentquiz_condition extends \core_question\bank\search\category_conditio
        in sync.
     */
 
-    protected function init() {
-        global $DB;
-        if (!$this->category = $this->get_current_category($this->cat)) {
-            return;
-        }
-        if ($this->recurse) {
-            $categoryids = question_categorylist($this->category->id);
-        } else {
-            $categoryids = array($this->category->id);
-        }
-        list($catidtest, $this->params) = $DB->get_in_or_equal($categoryids, SQL_PARAMS_NAMED, 'cat');
-        $this->where = 'q.category ' . $catidtest;
-    }
-
-    public function where() {
-        // Gross, but rebuilds this->where with fresh catidtest...
+    public function __construct($filterform) {
+        $this->filterform = $filterform;
+        $this->tests = array();
+        $this->params = array();
         $this->init();
-        return parent::where();
+    }
+
+    // Search condition depends on filterform.
+    protected $filterform;
+
+    protected $tests;
+
+    protected $params;
+
+    protected $isfilteractive = false;
+
+    protected $istagfilteractive = false;
+
+    public function is_tag_filter_active() {
+        return $this->istagfilteractive;
+    }
+
+
+    protected function init() {
+
+        if ($adddata = $this->filterform->get_data()) {
+
+            $this->tests = array();
+            $this->params = array();
+
+            foreach ($this->filterform->get_fields() as $field) {
+
+                // Validate input.
+                $data = $field->check_data($adddata);
+
+                // If input is valid, at least one filter was activated.
+                if ($data === false) {
+                    continue;
+                } else {
+                    $this->isfilteractive = true;
+                }
+
+                $sqldata = $field->get_sql_filter($data);
+
+                // Disable filtering by firstname if anonymized
+                // TODO: Check with anonymrank setting of studentquiz record and capability
+                if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
+                    continue;
+                }
+
+                // Disable filtering by firstname if anonymized
+                // TODO: Check with anonymrank setting of studentquiz record and capability
+                if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
+                    continue;
+                }
+
+                if ($field->_name == 'tagname') {
+                    $this->istagfilteractive = true;
+                    $this->tagnamefield = $sqldata;
+                    // TODO: ugly override for PoC!
+                    $field->_name = 'tags';
+                }
+
+                // TODO: cleanup that buggy filter function to remove this!
+                // The user_filter_checkbox class has a buggy get_sql_filter function.
+                if ($field->_name == 'createdby' || $field->_name == 'approved') {
+                    $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
+                }
+
+                if (is_array($sqldata)) {
+                    $sqldata[0] = str_replace($field->_name,
+                        $this->get_sql_table_prefix($field->_name) . $field->_name, $sqldata[0]);
+                    $this->tests[] = '((' . $sqldata[0] . '))';
+                    $this->params = array_merge($this->params, $sqldata[1]);
+                }
+            }
+        }
     }
 
     /**
-     * Called by question_bank_view to display the GUI for selecting a category
-     *
+     * Get the sql table prefix
+     * @param string $name
+     * @return string return sql prefix
      */
-    public function display_options() {
+    private function get_sql_table_prefix($name) {
+        switch($name){
+            case 'difficultylevel':
+                return 'dl.';
+            case 'vote':
+                return 'vo.';
+            case 'practice':
+                return 'pr.';
+            case 'comment':
+                return 'co.';
+            case 'approved':
+                return 'ap.';
+            case 'firstname':
+            case 'lastname':
+                return 'uc.';
+            case 'mylastattempt':
+                return 'mylatts.';
+            case 'mydifficulty':
+                return 'mydiffs.';
+            case 'myattempts':
+                return 'myatts.';
+            case 'myvote':
+                return 'myvote.';
+            case 'tags':
+                return 'tags.';
+            case 'searchtag':
+                return 'tags.';
+            default;
+                return 'q.';
+        }
+    }
 
+    /*
+    *
+    *
+     * */
+
+    /**
+     * @Return an SQL fragment to be ANDed into the WHERE clause to filter which questions are shown.
+     * @return string SQL fragment. Must use named parameters.
+     */
+    public function where() {
+        return implode(' AND ', $this->tests);
     }
 
     /**
-     * Displays the recursion checkbox GUI.
-     * question_bank_view places this within the section that is hidden by default
-     *
+     * Return parameters to be bound to the above WHERE clause fragment.
+     * @return array parameter name => value.
      */
-    public function display_options_adv() {
-
-    }
-
-    /**
-     * Display the drop down to select the category.
-     *
-     * @param array $contexts of contexts that can be accessed from here.
-     * @param \moodle_url $pageurl the URL of this page.
-     * @param string $current 'categoryID,contextID'.
-     */
-    protected function display_category_form($contexts, $pageurl, $current) {
-
+    public function params() {
+        return $this->params;
     }
 }

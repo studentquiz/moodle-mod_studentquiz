@@ -19,12 +19,35 @@ defined('MOODLE_INTERNAL') || die();
  */
 class tag_column extends \core_question\bank\column_base {
 
+    protected $tags;
+
+    protected $searchconditions;
+
+    protected $tagfilteractive;
+
     /**
      * Get column name
      * @return string
      */
     public function get_name() {
         return 'tags';
+    }
+
+    public function set_searchconditions($searchconditions) {
+        $this->searchconditions = $searchconditions;
+        foreach($searchconditions as $searchcondition) {
+            if(method_exists($searchcondition, 'is_tag_filter_active')) {
+                $this->tagfilteractive = $searchcondition->is_tag_filter_active();
+            }
+        }
+    }
+
+    /**
+     * Set array of tags, used for renderer by this column
+     * @param $tags array ( [questionid] => array( [tag.id] => {$tag->rawname, $tag.name}  )
+     */
+    public function set_tags($tags) {
+        $this->tags = $tags;
     }
 
     /**
@@ -41,9 +64,15 @@ class tag_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
+        if($this->tags === null) {
+           // debugging('The tag array was not initialized!', DEBUG_DEVELOPER);
+            echo "(missing)";
+            return;
+        }
         if (!empty($question->tags)) {
-            foreach(explode(',,', $question->tags) as $tagstr) {
-                $tag = $this->render_tag(explode(',', $tagstr)[1]);
+            echo $question->tags;
+            foreach($this->tags[$question->id] as $tag) {
+                $tag = $this->render_tag($tag);
                 echo $tag;
             }
         } else {
@@ -62,22 +91,42 @@ class tag_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        return array( 'tags' => 'LEFT JOIN ('
-            .'  SELECT'
-            .'   ti.itemid questionid,'
-            .'   GROUP_CONCAT(CONCAT_WS(\',\', t.id, t.rawname) ORDER BY t.name DESC SEPARATOR \',,\') tags'
-            .'  FROM {tag} t'
-            .'  JOIN {tag_instance} ti ON t.id = ti.tagid'
-            .'  WHERE ti.itemtype = \'question\''
-            .'  GROUP BY ti.itemid'
-            .') tags ON tags.questionid = q.id ');
+        if($this->tagfilteractive) {
+            return array('tags' => 'LEFT JOIN ('
+                .' SELECT '
+			    .' ti.itemid questionid,'
+			    .' COUNT(*) tags,'
+			    .' SUM(CASE WHEN t.rawname LIKE :searchtag then 1 else 0 end) searchtag'
+		        .' FROM {tag} t '
+                .' JOIN {tag_instance} ti ON t.id = ti.tagid'
+		        .' WHERE ti.itemtype = \'question\''
+		        .' GROUP BY	questionid'
+                . ') tags ON tags.questionid = q.id ');
+        } else {
+            return array('tags' => 'LEFT JOIN ('
+                .' SELECT '
+                .' ti.itemid questionid,'
+                .' COUNT(*) tags,'
+                .' 0 searchtag'
+                .' FROM {tag} t '
+                .' JOIN {tag_instance} ti ON t.id = ti.tagid'
+                .' WHERE ti.itemtype = \'question\''
+                .' GROUP BY	questionid'
+                . ') tags ON tags.questionid = q.id ');
+        }
+    }
+
+    /**
+     * Return parameter for
+     */
+    public function get_sqlparams()
+    {
+            return array();
     }
 
     public function get_required_fields()
     {
-        $fields = parent::get_required_fields();
-        $fields[] = 'tags.tags';
-        return $fields;
+        return array('tags.tags', 'tags.searchtag');
     }
 
 }

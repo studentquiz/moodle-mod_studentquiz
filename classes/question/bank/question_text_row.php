@@ -54,6 +54,7 @@ class question_text_row extends \core_question\bank\row_base {
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
     public function display($question, $rowclasses) {
+
     }
 
     /**

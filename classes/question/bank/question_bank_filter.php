@@ -120,6 +120,9 @@ class user_filter_tag extends user_filter_text {
         static $counter = 0;
         $name = 'ex_tag' . $counter++;
 
+        // TODO Override for PoC
+        $name = 'searchtag';
+
         $operator = $data['operator'];
         $value = $data['value'];
         $field = $this->_field;
@@ -131,7 +134,7 @@ class user_filter_tag extends user_filter_text {
 
         switch ($operator) {
             case 0: // Contains.
-                $res = $DB->sql_like($field, ":$name", false, false);
+                $res = ' searchtag > 0 ';
                 $params[$name] = "%$value%";
                 break;
             case 1: // Does not contain.
