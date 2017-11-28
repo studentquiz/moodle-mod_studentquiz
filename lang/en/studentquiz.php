@@ -196,11 +196,11 @@ $string['messageprovider:commentdeleted'] = 'Comment deleted notification';
 $string['messageprovider:minecommentdeleted'] = 'My comment deleted notification';
 
 // Change notification email.
-$string['emailchangesubject'] = 'Question has been modified: {$a->questionname}';
-$string['emailchangesmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->actorname}.';
-$string['emailchangebody'] = 'Dear {$a->recepientname},
+$string['emailchangedsubject'] = 'Question has been modified: {$a->questionname}';
+$string['emailchangedsmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->actorname}.';
+$string['emailchangedbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been modified by \'{$a->actorname}\' at \'{$a->questiontime}\'.
+Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been modified by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 
