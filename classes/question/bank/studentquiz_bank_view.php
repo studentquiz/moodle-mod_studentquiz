@@ -97,14 +97,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->set_filter_form_fields($this->is_anonym());
         $this->initialize_filter_form($pageurl);
         // Init search conditions with filterform state.
-        $this->searchconditions[] = new \core_question\bank\search\category_condition(
+        $cateorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
-        $this->searchconditions[] = new \mod_studentquiz\condition\studentquiz_condition(
-            $this->filterform,
-            $pagevars,
-            $cm,
-            $studentquiz
-            );
+        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition(
+            $this->filterform, $pagevars, $cm, $studentquiz);
+        $this->isfilteractive = $studentquizcondition->is_filter_active();
+        $this->searchconditions = array ($cateorycondition, $studentquizcondition);
     }
 
     /**
@@ -159,16 +157,24 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $output .= $this->filterform->render();
         }
 
-        $output .= '<form method="post" action="view.php">';
+        if (count($this->questions) > 0) {
+            $output .= '<form method="post" action="view.php">';
 
-        // Continues with list of questions.
-        $output .= $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
-            $this->baseurl, $cat, $this->cm,
-            null, $page, $perpage, $showhidden, $showquestiontext,
-            $this->contexts->having_cap('moodle/question:add'));
+            // Continues with list of questions.
+            $output .= $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
+                $this->baseurl, $cat, $this->cm,
+                null, $page, $perpage, $showhidden, $showquestiontext,
+                $this->contexts->having_cap('moodle/question:add'));
 
-        $output .= '</form>';
-
+            $output .= '</form>';
+        } else {
+            global $OUTPUT;
+            if ($this->isfilteractive) {
+                $output .= $OUTPUT->notification(get_string('no_questions_filter', 'studentquiz'), 'notifysuccess');
+            } else {
+                $output .= $OUTPUT->notification(get_string('no_questions_add', 'studentquiz'), 'notifysuccess');
+            }
+        }
         return $output;
     }
 
@@ -814,9 +820,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function load_questions($page, $perpage) {
         global $DB;
-        $DB->set_debug(true);
         $rs =  $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
-        $DB->set_debug(false);
 
         $counterquestions = 0;
         $numberofdisplayedquestions = 0;

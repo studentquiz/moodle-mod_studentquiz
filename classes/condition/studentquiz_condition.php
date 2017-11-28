@@ -49,6 +49,10 @@ class studentquiz_condition extends \core_question\bank\search\condition {
 
     protected $isfilteractive = false;
 
+    public function is_filter_active() {
+        return $this->isfilteractive;
+    }
+
     protected $istagfilteractive = false;
 
     public function is_tag_filter_active() {

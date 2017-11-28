@@ -63,6 +63,8 @@ $string['creator_anonym_firstname'] = 'Anonymous';
 $string['creator_anonym_lastname'] = 'Student';
 $string['no_questions_selected_message'] = 'Please select at least one question to start the quiz.';
 $string['progress_bar_caption'] = 'Your progress in this StudentQuiz activity';
+$string['no_questions_filter'] = 'None of the questions matched your filter criteria. Reset the filter to see all.';
+$string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel free to add some questions.';
 
 // Filters.
 $string['filter'] = 'Filter';
