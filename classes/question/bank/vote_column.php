@@ -20,6 +20,21 @@ defined('MOODLE_INTERNAL') || die();
 class vote_column extends \core_question\bank\column_base {
 
     /**
+     * Initialise Parameters for join
+     */
+    protected function init() {
+        global $DB, $USER;
+        $this->currentuserid = $USER->id;
+        $cmid = $this->qbank->get_most_specific_context()->instanceid;
+        // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // TODO: Exception handling lookup fails somehow.
+        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+        $this->studentquizid = $sq->id;
+        // TODO: Sanitize!
+    }
+
+
+    /**
      * Get column name
      * @return string column name
      */
@@ -60,7 +75,16 @@ class vote_column extends \core_question\bank\column_base {
     public function get_extra_joins() {
         return array('vo' => 'LEFT JOIN ('
         .'SELECT ROUND(SUM(vote)/COUNT(vote), 2) as vote'
-        .', questionid FROM {studentquiz_vote} GROUP BY questionid) vo ON vo.questionid = q.id');
+        .', questionid FROM {studentquiz_vote} GROUP BY questionid) vo ON vo.questionid = q.id',
+        'myvote' => 'LEFT JOIN ('
+            . 'SELECT '
+            . ' vote myvote, '
+            . ' q.id questionid'
+            . ' FROM {question} q'
+            . ' LEFT JOIN {studentquiz_vote} vote on q.id = vote.questionid'
+            . ' AND vote.userid = ' . $this->currentuserid
+            . ' ) myvote ON myvote.questionid = q.id'
+        );
     }
 
     /**
@@ -68,7 +92,7 @@ class vote_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('vo.vote');
+        return array('vo.vote', 'myvote.myvote');
     }
 
     /**

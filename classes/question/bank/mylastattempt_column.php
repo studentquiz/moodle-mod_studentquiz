@@ -20,20 +20,6 @@ defined('MOODLE_INTERNAL') || die();
 class mylastattempt_column extends \core_question\bank\column_base {
 
     /**
-     * Initialise Parameters for join
-     */
-    protected function init() {
-        global $DB, $USER;
-        $this->currentuserid = $USER->id;
-        $cmid = $this->qbank->get_most_specific_context()->instanceid;
-        // TODO: Get StudentQuiz id from infrastructure instead of DB!
-        // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
-        $this->studentquizid = $sq->id;
-        // TODO: Sanitize
-    }
-
-    /**
      * Get column name
      * @return string column name
      */
@@ -72,33 +58,7 @@ class mylastattempt_column extends \core_question\bank\column_base {
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        return array( 'mylastattempt' => 'LEFT JOIN ('
-            .'SELECT'
-                .' 	qa.questionid,'
-                .' 	qas.state mylastattempt'
-            .' FROM'
-                .' 	{studentquiz} sq '
-                .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
-                .' 	JOIN {question_usages} qu on qu.id = sqa.questionusageid '
-                .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
-                .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
-                .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
-            .' WHERE qasd.name = \'answer\''
-            .' AND qasd.id IN ('
-                .' 	SELECT MAX(qasd.id)'
-                .' 	FROM {studentquiz} sq '
-                .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
-                .' 	JOIN {question_usages} qu on qu.id = sqa.questionusageid '
-                .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
-                .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
-                .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
-                .' 	WHERE qasd.name = \'answer\''
-                .'  AND sq.id = ' . $this->studentquizid
-                .'  AND sqa.userid = ' . $this->currentuserid
-                .' 	GROUP BY qa.questionid'
-            .' )'
-            . ') mylatts ON mylatts.questionid = q.id'
-        );
+        return array( );
     }
 
     /**

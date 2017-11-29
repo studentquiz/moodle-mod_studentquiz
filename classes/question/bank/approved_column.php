@@ -43,16 +43,17 @@ class approved_column extends \core_question\bank\column_base {
     protected function display_content($question, $rowclasses) {
         $class = 'question-unapproved';
         $content = get_string('not_approved', 'studentquiz');
+        $title = get_string('approve', 'studentquiz');
 
         if (!empty($question->approved)) {
             $class = 'question-approved';
             $content = get_string('approved', 'studentquiz');
+            $title = get_string('unapprove', 'studentquiz');
         }
 
         if (question_has_capability_on($question, 'editall')) {
             $url = new \moodle_url($this->qbank->base_url(), array('approveselected' => $question->id, 'q' . $question->id => 1,
                                    'sesskey' => sesskey()));
-            $title = 'Approve';
 
             $content = '<a title="' . $title . '" href="' . $url . '" class="' . $class . '">' . $content . '</a>';
         }

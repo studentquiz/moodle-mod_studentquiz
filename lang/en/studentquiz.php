@@ -56,7 +56,10 @@ $string['approved'] = '✓';
 $string['not_approved'] = '✗';
 $string['lastattempt_right'] = '✓';
 $string['lastattempt_wrong'] = '✗';
-$string['approve'] = 'Un-/Approve';
+
+$string['approve'] = 'Approve';
+$string['unapprove'] = 'Unapprove';
+$string['approve_toggle'] = 'Un/Approve';
 $string['approveselectedscheck'] = 'Are you sure you want to un-/approve the following questions?<br /><br />{$a}';
 $string['questionsinuse'] = '(* Questions marked by an asterisk are already in use in some quizzes.)';
 $string['creator_anonym_firstname'] = 'Anonymous';

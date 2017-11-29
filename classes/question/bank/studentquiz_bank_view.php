@@ -24,9 +24,7 @@ require_once(__DIR__ . '/comments_column.php');
 require_once(__DIR__ . '/approved_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
 require_once(__DIR__ . '/myattempts_column.php');
-require_once(__DIR__ . '/mydifficulty_column.php');
 require_once(__DIR__ . '/mylastattempt_column.php');
-require_once(__DIR__ . '/myvote_column.php');
 require_once(__DIR__ . '/preview_column.php');
 
 /**
@@ -623,21 +621,19 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function wanted_columns() {
         global $CFG;
-        $CFG->questionbankcolumns = 'checkbox_column,question_type_column'
-            . ',question_name_column,mod_studentquiz\\bank\\question_text_row,edit_action_column,copy_action_column,'
-            . 'mod_studentquiz\\bank\\preview_column,delete_action_column,'
-            . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
-            . 'mod_studentquiz\\bank\\tag_column,'
+        $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
             . 'mod_studentquiz\\bank\\approved_column,'
             . 'mod_studentquiz\\bank\\practice_column,'
+            . 'question_name_column,'
+            . 'mod_studentquiz\\bank\\question_text_row,'
+            . 'edit_action_column,copy_action_column,'
+            . 'mod_studentquiz\\bank\\preview_column,'
+            . 'delete_action_column,'
+            . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
+            . 'mod_studentquiz\\bank\\tag_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
             . 'mod_studentquiz\\bank\\vote_column,'
-            . 'mod_studentquiz\\bank\\myvote_column,'
-            . 'mod_studentquiz\\bank\\comment_column,'
-            . 'mod_studentquiz\\bank\\myattempts_column,'
-            . 'mod_studentquiz\\bank\\mydifficulty_column,'
-            . 'mod_studentquiz\\bank\\mylastattempt_column';
-
+            . 'mod_studentquiz\\bank\\comment_column';
         return parent::wanted_columns();
     }
 

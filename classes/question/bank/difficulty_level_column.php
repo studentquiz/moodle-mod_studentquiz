@@ -20,6 +20,20 @@ defined('MOODLE_INTERNAL') || die();
  */
 class difficulty_level_column extends \core_question\bank\column_base {
 
+    /**
+     * Initialise Parameters for join
+     */
+    protected function init() {
+        global $DB, $USER;
+        $this->currentuserid = $USER->id;
+        $cmid = $this->qbank->get_most_specific_context()->instanceid;
+        // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // TODO: Exception handling lookup fails somehow.
+        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+        $this->studentquizid = $sq->id;
+        // TODO: Sanitize!
+    }
+
     protected $sqlparams =  array();
 
     /**
@@ -51,6 +65,14 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
+
+        $tests = array(
+            'quiza.studentquizid = ' . $this->studentquizid,
+            'quiza.userid = ' . $this->currentuserid,
+            'name=\'-submit\'',
+            '(state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
+        );
+
         return array('dl' => 'LEFT JOIN ('
             . 'SELECT ROUND(1 - (COALESCE(correct.num, 0) / total.num), 2) AS difficultylevel,'
             . 'qa.questionid'
@@ -70,7 +92,19 @@ class difficulty_level_column extends \core_question\bank\column_base {
             . ') total ON(total.questionid = qa.questionid)'
             . ' WHERE q.parent = 0'
             . ' GROUP BY qa.questionid, correct.num, total.num'
-            . ') dl ON dl.questionid = q.id');
+            . ') dl ON dl.questionid = q.id',
+            'mydiffs' => 'LEFT JOIN ('
+                . 'SELECT '
+                . ' ROUND(1-(sum(case state when \'gradedright\' then 1 else 0 end)/count(*)),2) as mydifficulty,'
+                . ' sum(case state when \'gradedright\' then 1 else 0 end) as mycorrectattempts,'
+                . ' questionid'
+                . ' FROM {studentquiz_attempt} quiza '
+                . ' JOIN {question_usages} qu ON qu.id = quiza.questionusageid '
+                . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+                . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+                . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+                . ' WHERE ' . implode(' AND ', $tests)
+                . ' GROUP BY qa.questionid) mydiffs ON mydiffs.questionid = q.id');
     }
 
     /**
@@ -78,7 +112,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array fieldname in array
      */
     public function get_required_fields() {
-        return array('dl.difficultylevel');
+        return array('dl.difficultylevel', 'mydiffs.mydifficulty', 'mydiffs.mycorrectattempts');
     }
 
     /**
