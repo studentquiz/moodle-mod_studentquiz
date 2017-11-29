@@ -86,7 +86,10 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'dl.difficultylevel';
+        return array(
+            'difficulty' => array('field' => 'dl.difficultylevel', 'title' => get_string('difficulty_level_column_name', 'studentquiz')),
+            'mydifficulty' => array('field' => 'mydiffs.mydifficulty', 'title' => get_string('mydifficulty_column_name', 'studentquiz'))
+        );
     }
 
     /**
@@ -103,10 +106,61 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->difficultylevel)) {
-            echo round(100 * $question->difficultylevel, 1) . ' %';
+        if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
+            echo \html_writer::span($this->render_difficultybar($question->difficultylevel, $question->mydifficulty),null,
+                array('title' =>
+                    get_string('difficulty_level_column_name', 'studentquiz') . ": " . $question->difficultylevel . " "
+                    .get_string('mydifficulty_column_name', 'studentquiz') . ": " . $question->mydifficulty));
         } else {
             echo get_string('no_difficulty_level', 'studentquiz');
         }
+    }
+
+    /**
+     * @param $average
+     * @param $mine
+     * @return string
+     */
+    private function render_difficultybar($average, $mine) {
+        $mine = floatval($mine);
+        $average = floatval($average);
+        $fillboltson = "#ffff00";
+        $fillboltsoff = "#fff";
+        $fillbaron = "#fff";
+        $fillbaroff = "#ffaaaa";
+
+        if($average > 0 && $average <=1) {
+            $width = round($average * 100, 0);
+        }else {
+            $width = 0;
+        }
+
+        if($mine>0 && $mine <= 1){
+            $bolts = ceil($mine * 5);
+        }else{
+            $bolts = 0;
+        }
+        $output = '';
+        $output .= '<svg width="101" height="21" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+                            <g>
+                              <title>Difficulty bar</title>
+                              <rect id="canvas_background" height="23" width="103" y="-1" x="-1"/>
+                              <g display="none" overflow="visible" y="0" x="0" height="100%" width="100%" id="canvasGrid">
+                               <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/>
+                              </g>
+                             </g>
+                             <g>
+                              <rect id="svg_6" height="20" width="100" y="0.397703" x="0.396847" fill-opacity="null" stroke-opacity="null" stroke-width="0.5" stroke="#000" fill="'.$fillbaron .'"/>
+                              <rect id="svg_7" height="20" width="' . $width . '" y="0.397703" x="0.396847" stroke-opacity="null" stroke-width="0.5" stroke="#000" fill="'. $fillbaroff .'"/>';
+        for($i = 1; $i<=$bolts; $i++){
+            $output .= '<path stroke="#000" id="svg_'.$i.'" d="m'.(($i * 20)-10).',1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z" stroke-width="1.5" fill="'.$fillboltson.'"/>';
+        }
+        for($i = $bolts+1; $i<=5; $i++){
+            $output .= '<path stroke="#000" id="svg_'.$i.'" d="m'.(($i * 20)-10).',1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z" stroke-width="1.5" fill="'.$fillboltsoff.'"/>';
+        }
+        $output .= '</g></svg>';
+        return $output;
+
     }
 }

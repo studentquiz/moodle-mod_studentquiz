@@ -65,7 +65,6 @@ class tag_column extends \core_question\bank\column_base {
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->tags) && !empty($question->tagarray)) {
-            echo $question->tags;
             foreach($question->tagarray as $tag) {
                 $tag = $this->render_tag($tag);
                 echo $tag;
