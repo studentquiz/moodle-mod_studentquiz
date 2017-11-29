@@ -589,12 +589,12 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             }
             if ($ur->userid == $userid) {
                 $userwasshown = true;
-            }else if($counter >= $maxdisplayonpage) {
+            }else if($counter > $maxdisplayonpage) {
                 $rank++;
                 continue;
             }
             $username = $ur->firstname . ' ' . $ur->lastname;
-            if ($report->is_anonym() && !$userid == $ur->userid) {
+            if ($report->is_anonym() && $userid != $ur->userid) {
                 $username = get_string('creator_anonym_firstname', 'studentquiz') . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
             }
             $celldata[] = array(
