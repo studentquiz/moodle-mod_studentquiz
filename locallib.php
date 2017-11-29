@@ -796,8 +796,8 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE(creators.countq, 0) * :questionquantifier  ' // questions created
         .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // questions approved
         .'+ COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 1),0) * :votequantifier  ' // voting
-        .'+ COALESCE(attempts.countright, 0) * :correctanswerquantifier  ' // correct answers
-        .'+ COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) * :incorrectanswerquantifier ' // incorrect answers
+        .'+ COALESCE(lastattempt.last_attempt_correct, 0) * :correctanswerquantifier  ' // correct answers
+        .'+ COALESCE(lastattempt.last_attempt_incorrect, 0) * :incorrectanswerquantifier ' // incorrect answers
         .' , 1) , 0) points, '
         // questions created
         .' COALESCE(creators.countq, 0) questions_created,'
@@ -812,7 +812,8 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) question_attempts_incorrect,'
         // last attempt
         .' COALESCE(lastattempt.last_attempt_exists, 0) last_attempt_exists,'
-        .' COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct';
+        .' COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct,'
+        .' COALESCE(lastattempt.last_attempt_incorrect, 0) last_attempt_incorrect';
 }
 
 /**
@@ -886,7 +887,8 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' SELECT'
         .' sqa.userid,'
         .' count(*) last_attempt_exists,'
-        .' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct'
+        .' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct,'
+        .' SUM(CASE WHEN qas.state = \'gradedwrong\' THEN 1 ELSE 0 END) last_attempt_incorrect'
         .' FROM {studentquiz} sq'
         .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
         .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'

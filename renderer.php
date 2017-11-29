@@ -604,8 +604,8 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 round($ur->questions_created * $report->get_quantifier_question(), 2),
                 round($ur->questions_approved * $report->get_quantifier_approved(), 2),
                 round($ur->votes_average * $report->get_quantifier_vote(), 2),
-                round($ur->question_attempts_correct * $report->get_quantifier_correctanswer(), 2),
-                round($ur->question_attempts_incorrect * $report->get_quantifier_incorrectanswer(), 2),
+                round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2),
+                round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
                 (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
             );
             $rowstyle[] = ($userid == $ur->userid)? array('class' => 'mod-studentquiz-summary-highlight'): array();
