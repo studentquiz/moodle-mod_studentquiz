@@ -742,8 +742,8 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
         // questions approved
         .' COALESCE(sum(approvals.countq), 0) questions_approved,'
         // questions rating received
-        .' COALESCE(votes.countv, 0) votes_received,'
-        .' COALESCE(COALESCE(sum(votes.sumv), 0) / COALESCE(sum(votes.countv), 0),0) votes_average,'
+        .' COALESCE(sum(votes.countv), 0) votes_received,'
+        .' COALESCE(COALESCE(sum(votes.sumv), 0) / COALESCE(sum(votes.countv), 1),0) votes_average,'
         // question attempts
         .' COALESCE(sum(attempts.counta), 0) question_attempts,'
         .' COALESCE(sum(attempts.countright), 0) question_attempts_correct,'
@@ -795,7 +795,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE ( ROUND('
         .' COALESCE(creators.countq, 0) * :questionquantifier  ' // questions created
         .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // questions approved
-        .'+ COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 0),0) * :votequantifier  ' // voting
+        .'+ COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 1),0) * :votequantifier  ' // voting
         .'+ COALESCE(attempts.countright, 0) * :correctanswerquantifier  ' // correct answers
         .'+ COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) * :incorrectanswerquantifier ' // incorrect answers
         .' , 1) , 0) points, '
@@ -805,7 +805,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE(approvals.countq, 0) questions_approved,'
         // questions rating received
         .' COALESCE(votes.countv, 0) votes_received,'
-        .' COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 0),0) votes_average,'
+        .' COALESCE(COALESCE(votes.sumv, 0) / COALESCE(votes.countv, 1),0) votes_average,'
         // question attempts
         .' COALESCE(attempts.counta, 0) question_attempts,'
         .' COALESCE(attempts.countright, 0) question_attempts_correct,'
@@ -910,7 +910,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' AND qas.state in (\'gradedright\', \'gradedwrong\')'
         // only count grading triggered by submits
         .' AND qasd.name = \'answer\''
-        .' group by userid'
+        .' group by sqa.userid'
         .' ) lastattempt ON lastattempt.userid = u.id'
         .' WHERE sq.coursemodule = :cmid3';
 }

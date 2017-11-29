@@ -573,14 +573,28 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         // Todo: Get Pagination from request parameters!
         $limitfrom = 0;
         $limitnum = 0;
+        $maxdisplayonpage = 10; // TODO: Make configurable.
 
         // Update rank offset to pagination.
         $rank = 1 + $limitfrom;
         $rankingresultset = $report->get_user_ranking_table($limitfrom, $limitnum);
         $numofquestions = $report->get_studentquiz_stats()->questions_created;
-        foreach ($rankingresultset as $ur) {
+        $counter = 0;
+        $userwasshown = false;
+        $userid = $report->get_user_id();
+        foreach($rankingresultset as $ur) {
+            $counter++;
+            if (($counter > $maxdisplayonpage) && $userwasshown) {
+                break;
+            }
+            if ($ur->userid == $userid) {
+                $userwasshown = true;
+            }else if($counter >= $maxdisplayonpage) {
+                $rank++;
+                continue;
+            }
             $username = $ur->firstname . ' ' . $ur->lastname;
-            if ($report->is_anonym() && !$report->is_loggedin_user($ur->userid)) {
+            if ($report->is_anonym() && !$userid == $ur->userid) {
                 $username = get_string('creator_anonym_firstname', 'studentquiz') . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
             }
             $celldata[] = array(
@@ -594,7 +608,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 round($ur->question_attempts_incorrect * $report->get_quantifier_incorrectanswer(), 2),
                 (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
             );
-            $rowstyle[] = $report->is_loggedin_user($ur->userid)? array('class' => 'mod-studentquiz-summary-highlight'): array();
+            $rowstyle[] = ($userid == $ur->userid)? array('class' => 'mod-studentquiz-summary-highlight'): array();
             $rank++;
         }
         $rankingresultset->close();
