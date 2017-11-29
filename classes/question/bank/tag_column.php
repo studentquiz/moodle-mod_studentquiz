@@ -75,7 +75,7 @@ class tag_column extends \core_question\bank\column_base {
     }
 
     private function render_tag($tag) {
-        return '<span role="listitem" data-value="HELLO" aria-selected="true" class="tag tag-success " style="font-size: 60%">'
+        return '<span role="listitem" data-value="HELLO" aria-selected="true" class="tag tag-success ">'
                 . (strlen($tag->rawname) > 10 ? (substr($tag->rawname,0,8) ."...") : $tag->rawname)
                 . '</span> ';
     }
@@ -121,6 +121,10 @@ class tag_column extends \core_question\bank\column_base {
     public function get_required_fields()
     {
         return array('tags.tags', 'tags.searchtag');
+    }
+
+    public function is_sortable() {
+        return 'tags.tags';
     }
 
 }
