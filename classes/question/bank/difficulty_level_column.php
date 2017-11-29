@@ -66,45 +66,35 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
 
-        $tests = array(
-            'quiza.studentquizid = ' . $this->studentquizid,
-            'quiza.userid = ' . $this->currentuserid,
-            'name=\'-submit\'',
-            '(state = \'gradedright\' OR state = \'gradedwrong\' OR state=\'gradedpartial\')'
-        );
-
         return array('dl' => 'LEFT JOIN ('
-            . 'SELECT ROUND(1 - (COALESCE(correct.num, 0) / total.num), 2) AS difficultylevel,'
-            . 'qa.questionid'
-            . ' FROM {question_attempts} qa JOIN {question} q ON q.id = qa.questionid'
-            . ' LEFT JOIN  ('
-            . ' SELECT COUNT(*) AS num, questionid'
-            . '  FROM {question_attempts} qa'
-            . '  JOIN {question} q ON q.id = qa.questionid'
-            . '  WHERE rightanswer = responsesummary'
-            . '  GROUP BY questionid'
-            . ') correct ON(correct.questionid = qa.questionid)'
-            . ' LEFT JOIN ('
-            . ' SELECT COUNT(*) AS num, questionid'
-            . '  FROM {question_attempts} qa JOIN {question} q ON q.id = qa.questionid'
-            . '  WHERE responsesummary IS NOT NULL'
-            . '  GROUP BY questionid'
-            . ') total ON(total.questionid = qa.questionid)'
-            . ' WHERE q.parent = 0'
-            . ' GROUP BY qa.questionid, correct.num, total.num'
-            . ') dl ON dl.questionid = q.id',
+                . 'SELECT '
+                . ' ROUND(1-(sum(case qas.state when \'gradedright\' then 1 else 0 end)/count(*)),2) as difficultylevel,'
+                . ' questionid'
+                . ' FROM {studentquiz_attempt} sqa '
+                . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid '
+                . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+                . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+                . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+                . ' WHERE sqa.studentquizid = ' . $this->studentquizid
+                . ' AND qasd.name=\'-submit\''
+                . ' AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
+                . ' GROUP BY qa.questionid) dl ON dl.questionid = q.id',
             'mydiffs' => 'LEFT JOIN ('
                 . 'SELECT '
                 . ' ROUND(1-(sum(case state when \'gradedright\' then 1 else 0 end)/count(*)),2) as mydifficulty,'
                 . ' sum(case state when \'gradedright\' then 1 else 0 end) as mycorrectattempts,'
                 . ' questionid'
-                . ' FROM {studentquiz_attempt} quiza '
-                . ' JOIN {question_usages} qu ON qu.id = quiza.questionusageid '
+                . ' FROM {studentquiz_attempt} sqa '
+                . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid '
                 . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
                 . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
                 . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-                . ' WHERE ' . implode(' AND ', $tests)
-                . ' GROUP BY qa.questionid) mydiffs ON mydiffs.questionid = q.id');
+                . ' WHERE sqa.userid = ' . $this->currentuserid
+                . ' AND sqa.studentquizid = ' . $this->studentquizid
+                . ' AND qasd.name=\'-submit\''
+                . ' AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
+                . ' GROUP BY qa.questionid) mydiffs ON mydiffs.questionid = q.id'
+        );
     }
 
     /**
