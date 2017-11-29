@@ -91,7 +91,7 @@ class tag_column extends \core_question\bank\column_base {
                 .' SELECT '
 			    .' ti.itemid questionid,'
 			    .' COUNT(*) tags,'
-			    .' SUM(CASE WHEN t.rawname LIKE :searchtag then 1 else 0 end) searchtag'
+			    .' SUM(CASE WHEN t.name LIKE :searchtag then 1 else 0 end) searchtag'
 		        .' FROM {tag} t '
                 .' JOIN {tag_instance} ti ON t.id = ti.tagid'
 		        .' WHERE ti.itemtype = \'question\''

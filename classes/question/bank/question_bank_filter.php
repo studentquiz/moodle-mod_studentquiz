@@ -124,7 +124,10 @@ class user_filter_tag extends user_filter_text {
         $name = 'searchtag';
 
         $operator = $data['operator'];
-        $value = $data['value'];
+
+        // Search is case insensitive!
+        $value = strtolower($data['value']);
+
         $field = $this->_field;
 
         // TODO: Ugly override for PoC.
