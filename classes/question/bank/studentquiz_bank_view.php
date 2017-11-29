@@ -23,8 +23,6 @@ require_once(__DIR__ . '/performances_column.php');
 require_once(__DIR__ . '/comments_column.php');
 require_once(__DIR__ . '/approved_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
-require_once(__DIR__ . '/myattempts_column.php');
-require_once(__DIR__ . '/mylastattempt_column.php');
 require_once(__DIR__ . '/preview_column.php');
 
 /**
@@ -623,7 +621,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $CFG;
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
             . 'mod_studentquiz\\bank\\approved_column,'
-            . 'mod_studentquiz\\bank\\practice_column,'
             . 'question_name_column,'
             . 'mod_studentquiz\\bank\\question_text_row,'
             . 'edit_action_column,copy_action_column,'
@@ -631,6 +628,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'delete_action_column,'
             . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
             . 'mod_studentquiz\\bank\\tag_column,'
+            . 'mod_studentquiz\\bank\\practice_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
             . 'mod_studentquiz\\bank\\vote_column,'
             . 'mod_studentquiz\\bank\\comment_column';

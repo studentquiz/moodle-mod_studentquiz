@@ -121,8 +121,8 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     public function is_sortable() {
         return array(
-            'difficulty' => array('field' => 'dl.difficultylevel', 'title' => get_string('difficulty_level_column_name', 'studentquiz')),
-            'mydifficulty' => array('field' => 'mydiffs.mydifficulty', 'title' => get_string('mydifficulty_column_name', 'studentquiz'))
+            'difficulty' => array('field' => 'dl.difficultylevel', 'title' => get_string('average_column_name', 'studentquiz')),
+            'mydifficulty' => array('field' => 'mydiffs.mydifficulty', 'title' => get_string('mine_column_name', 'studentquiz'))
         );
     }
 

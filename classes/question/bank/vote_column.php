@@ -101,8 +101,8 @@ class vote_column extends \core_question\bank\column_base {
      */
     public function is_sortable() {
         return array(
-            'vote' => array('field' => 'vo.vote', 'title' => get_string('vote_column_name', 'studentquiz')),
-            'myvote' => array('field' => 'myvote.myvote', 'title' => get_string('myvote_column_name', 'studentquiz'))
+            'vote' => array('field' => 'vo.vote', 'title' => get_string('average_column_name', 'studentquiz')),
+            'myvote' => array('field' => 'myvote.myvote', 'title' => get_string('mine_column_name', 'studentquiz'))
         );
 
     }

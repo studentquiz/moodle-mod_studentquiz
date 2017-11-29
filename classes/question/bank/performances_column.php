@@ -47,7 +47,7 @@ class practice_column extends \core_question\bank\column_base {
      * @return string column title
      */
     protected function get_title() {
-        return get_string('practice_column_name', 'studentquiz');
+        return get_string('myattempts_column_name', 'studentquiz');
     }
 
     /**
@@ -160,8 +160,8 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function is_sortable() {
         return array(
-            'myattempts' => array('field' => 'myatts.myattempts', 'title' => get_string('myattempts_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylatts.mylastattempt', 'title' => get_string('mylastattempt_column_name', 'studentquiz')),
+            'myattempts' => array('field' => 'myatts.myattempts', 'title' => get_string('number_column_name', 'studentquiz')),
+            'mylastattempt' => array('field' => 'mylatts.mylastattempt', 'title' => get_string('latest_column_name', 'studentquiz')),
         );
     }
 }

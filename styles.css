@@ -195,6 +195,19 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     width: 120px;
 }
 
+#categoryquestions th.practice .sorters,
+#categoryquestions th.difficultylevel .sorters,
+#categoryquestions th.votes .sorters {
+    font-weight: 400;
+    font-size: .8em;
+}
+
+
+#categoryquestions th .sorters {
+    font-weight: normal;
+    font-size: 0.8em;
+}
+
 /* behavior */
 .studentquiz_behaviour {
     margin: 0 0 10px 5px;
