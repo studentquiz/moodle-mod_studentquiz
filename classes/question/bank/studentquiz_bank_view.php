@@ -636,17 +636,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Fast filters.
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
-                get_string('filter_label_onlygood', 'studentquiz'),
+            \html_writer::span(get_string('filter_label_onlygood', 'studentquiz')),
                 false, 'vo.vote', array('vote', 'vote_op'), 1, 3);
         $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
-            get_string('filter_label_onlydifficult', 'studentquiz'),
+            \html_writer::span(get_string('filter_label_onlydifficult', 'studentquiz')),
             false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.5);
         $this->fields[] = new \toggle_filter_checkbox('onlynew',
-            get_string('filter_label_onlynew', 'studentquiz'),
+            \html_writer::span(get_string('filter_label_onlynew', 'studentquiz')),
             false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0);
 
         $this->fields[] = new \toggle_filter_checkbox('onlyapproved',
-            get_string('filter_label_onlyapproved', 'studentquiz'),
+            \html_writer::span(get_string('filter_label_onlyapproved', 'studentquiz')),
             false, 'ap.approved', array('approved', 'approved_op'), 1, 1);
 
         // Standard filters.
@@ -824,7 +824,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function load_questions($page, $perpage) {
         global $DB;
+        $DB->set_debug(true);
         $rs =  $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
+        $DB->set_debug(false);
 
         $counterquestions = 0;
         $numberofdisplayedquestions = 0;

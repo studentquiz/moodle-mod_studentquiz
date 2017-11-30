@@ -65,6 +65,30 @@
     float: none;
 }
 
+#page-mod-studentquiz-view label {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -moz-user-select: none;
+}
+#page-mod-studentquiz-view label [type="checkbox"] {
+    display: none;
+}
+#page-mod-studentquiz-view [type="checkbox"] + span {
+    display: inline-block;
+    background: #eee;
+    padding: 1em;
+    transition: all 0.4s ease;
+    border: 1px solid darkgray;
+    border-radius: 1em;
+}
+#page-mod-studentquiz-view :checked + span {
+    background: #4f4;
+    transition: all 0.4s ease;
+    border: 2px solid green;
+    display: inline-block;
+}
+
 #page-mod-studentquiz-view #page .quizattemptsummary td p {
     margin-top: 0;
 }
