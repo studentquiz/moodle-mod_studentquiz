@@ -280,10 +280,9 @@ class mod_studentquiz_report {
     }
 
     /**
-     * TODO: rename function and apply (there is duplicate method)
-     * @return bool studentquiz is set to anoymize ranking.
+     * @return bool studentquiz is set to anoymize
      */
-    public function is_anonym() {
+    public function is_anonymized() {
         if (!$this->studentquiz->anonymrank) {
             return false;
         }

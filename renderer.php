@@ -74,14 +74,23 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $bc;
     }
 
-    public function render_ranking_block($view) {
-        $ranking = $view->get_user_ranking_table(0, 10);
+    public function render_ranking_block($report) {
+        $ranking = $report->get_user_ranking_table(0, 10);
+        $currentuserid = $report->get_user_id();
+        $anonymname = get_string('creator_anonym_firstname', 'studentquiz') . ' '
+                        . get_string('creator_anonym_lastname', 'studentquiz');
+        $anonymise = $report->is_anonymized();
         $rows = array();
         $rank = 1;
         foreach($ranking as $row) {
-            $rows[] = \html_writer::div($rank . '. '
-                . $row->firstname . ' ' . $row->lastname
-                . ' &nbsp;<b>' . round($row->points) . '</b>');
+            if($currentuserid == $row->userid || !$anonymise) {
+                $name = $row->firstname .' ' . $row->lastname;
+            } else  {
+                $name = $anonymname;
+            }
+            $rows[] = \html_writer::div($rank . '. ' . $name .
+                html_writer::span(html_writer::tag('b' , round($row->points)),
+                    '', array('style' => 'float: right;')));
             $rank++;
         }
         $bc = new block_contents();
@@ -638,7 +647,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 continue;
             }
             $username = $ur->firstname . ' ' . $ur->lastname;
-            if ($report->is_anonym() && $userid != $ur->userid) {
+            if ($report->is_anonymized()) {
                 $username = get_string('creator_anonym_firstname', 'studentquiz') . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
             }
             $celldata[] = array(

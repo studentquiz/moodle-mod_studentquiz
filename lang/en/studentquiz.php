@@ -77,7 +77,7 @@ $string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel 
 $string['statistic_block_title'] = 'My Progress';
 $string['ranking_block_title'] = 'Ranking';
 $string['statistic_block_progress'] = 'There are {$a->total} questions available. You answered {$a->group} at least once and {$a->one} correctly on your last attempt.';
-$string['statistic_block_approvals'] = '{$a->total} of your {$a->one} created questions are approved.';
+$string['statistic_block_approvals'] = '{$a->one} of your {$a->total} created questions are approved.';
 
 // Filters.
 $string['filter'] = 'Filter';

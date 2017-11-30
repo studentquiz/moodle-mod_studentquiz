@@ -90,7 +90,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         parent::__construct($contexts, $pageurl, $course, $cm);
         $this->pagevars = $pagevars;
         $this->studentquiz = $studentquiz;
-        $this->set_filter_form_fields($this->is_anonym());
+        $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
         // Init search conditions with filterform state.
         $cateorycondition = new \core_question\bank\search\category_condition(
@@ -920,7 +920,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * TODO: rename function and apply (there is duplicate method)
      * @return bool studentquiz is set to anoymize ranking.
      */
-    public function is_anonym() {
+    public function is_anonymized() {
         if (!$this->studentquiz->anonymrank) {
             return false;
         }
