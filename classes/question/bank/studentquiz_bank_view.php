@@ -634,15 +634,37 @@ class studentquiz_bank_view extends \core_question\bank\view {
     private function set_filter_form_fields($anonymize = true) {
         $this->fields = array();
 
+        // Fast filters.
+        $this->fields[] = new \toggle_filter_checkbox('onlygood',
+                get_string('filter_label_onlygood', 'studentquiz'),
+                false, 'vo.vote', array('vote', 'vote_op'), 1, 3);
+        $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
+            get_string('filter_label_onlydifficult', 'studentquiz'),
+            false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.5);
+        $this->fields[] = new \toggle_filter_checkbox('onlynew',
+            get_string('filter_label_onlynew', 'studentquiz'),
+            false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0);
+
+        $this->fields[] = new \toggle_filter_checkbox('onlyapproved',
+            get_string('filter_label_onlyapproved', 'studentquiz'),
+            false, 'ap.approved', array('approved', 'approved_op'), 1, 1);
+
         // Standard filters.
-        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'),
-            false, 'vote');
-        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
-            false, 'difficultylevel');
         $this->fields[] = new \user_filter_tag('tagname', get_string('filter_label_tags', 'studentquiz'),
-            false, 'tagname');
+            true, 'tagname');
+
+        $this->fields[] = new \user_filter_simpleselect('approved', get_string('filter_label_approved', 'studentquiz'),
+            true, 'approved', array(
+                true => get_string('approved', 'studentquiz'),
+                false => get_string('not_approved', 'studentquiz')
+            ));
 
         // Advanced filters.
+        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'),
+            true, 'vote');
+        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
+            true, 'difficultylevel');
+
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'),
             true, 'practice');
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'),
@@ -661,11 +683,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
                 true, 'lastname');
         }
-        $this->fields[] = new \user_filter_simpleselect('approved', get_string('filter_label_approved', 'studentquiz'),
-            true, 'approved', array(
-                true => get_string('approved', 'studentquiz'),
-                false => get_string('not_approved', 'studentquiz')
-            ));
+
 
         $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');

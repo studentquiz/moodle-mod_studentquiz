@@ -70,7 +70,6 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
         foreach ($this->fields as $field) {
             $field->setupForm($mform);
         }
-
         $group = array();
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
         $group[] = $mform->createElement('submit', 'resetbutton', get_string('reset'));
@@ -106,6 +105,47 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
     }
 }
 
+class toggle_filter_checkbox extends user_filter_checkbox {
+
+    protected $operator;
+
+    protected $value;
+
+    /**
+     * A toggle filter applies adds a hard coded test to the filter set.
+     *
+     * @param string $name the name of the filter instance
+     * @param string $label the label of the filter instance
+     * @param boolean $advanced advanced form element flag
+     * @param mixed $field user table field/fields name for comparison
+     * @param array $disableelements name of fields which should be disabled if this checkbox is checked.
+     * @param int $operator key 0 : >=,
+     * @param mixed $value text or number for comparison
+     *
+     */
+    public function __construct($name, $label, $advanced, $field, $disableelements, $operator, $value) {
+        parent::__construct($name, $label, $advanced, $field, $disableelements);
+        $this->field   = $field;
+        $this->operator = $operator;
+        $this->value = $value;
+    }
+
+    public function get_sql_filter($data)
+    {
+        switch($this->operator) {
+            case 0:
+                $res = "($this->field IS null OR $this->field = 0)";
+                break;
+            case 1:
+                $res = "$this->field >= $this->value";
+                break;
+            default:
+                $res = '';
+        }
+        return array($res, array());
+    }
+}
+
 
 class user_filter_tag extends user_filter_text {
 
@@ -116,7 +156,6 @@ class user_filter_tag extends user_filter_text {
      */
     public function get_sql_filter($data)
     {
-        global $DB;
         static $counter = 0;
         $name = 'ex_tag' . $counter++;
 
