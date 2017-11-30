@@ -73,6 +73,12 @@ $string['progress_bar_caption'] = 'Your progress in this StudentQuiz activity';
 $string['no_questions_filter'] = 'None of the questions matched your filter criteria. Reset the filter to see all.';
 $string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel free to add some questions.';
 
+// Blocks
+$string['statistic_block_title'] = 'My Progress';
+$string['ranking_block_title'] = 'Ranking';
+$string['statistic_block_progress'] = 'There are {$a->total} questions available. You answered {$a->group} at least once and {$a->one} correctly on your last attempt.';
+$string['statistic_block_approvals'] = '{$a->total} of your {$a->one} created questions are approved.';
+
 // Filters.
 $string['filter'] = 'Filter';
 $string['filter_label_question'] = 'Question title';

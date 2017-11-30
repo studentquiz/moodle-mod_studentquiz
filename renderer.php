@@ -49,6 +49,50 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $cell;
     }
 
+    public function render_stat_block(mod_studentquiz_report $report) {
+        $userstats = $report->get_user_stats();
+        $sqstats = $report->get_studentquiz_stats();
+        $bc = new block_contents();
+        $bc->attributes['id'] = 'mod_studentquiz_statblock';
+        $bc->attributes['role'] = 'navigation';
+        $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
+        $bc->title = html_writer::span(get_string('statistic_block_title', 'studentquiz'));
+        $info1 = new stdClass();
+        $info1->total = $sqstats->questions_created;
+        $info1->group = $userstats->last_attempt_exists;
+        $info1->one = $userstats->last_attempt_correct;
+        $info2 = new stdClass();
+        $info2->total = $userstats->questions_created;
+        $info2->group = 0;
+        $info2->one = $userstats->questions_approved;
+        $bc->content =
+            html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
+            . html_writer::div(get_string('statistic_block_progress', 'studentquiz', $info1))
+            . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
+            . html_writer::div(get_string('statistic_block_approvals', 'studentquiz', $info2));
+
+        return $bc;
+    }
+
+    public function render_ranking_block($view) {
+        $ranking = $view->get_user_ranking_table(0, 10);
+        $rows = array();
+        $rank = 1;
+        foreach($ranking as $row) {
+            $rows[] = \html_writer::div($rank . '. '
+                . $row->firstname . ' ' . $row->lastname
+                . ' &nbsp;<b>' . round($row->points) . '</b>');
+            $rank++;
+        }
+        $bc = new block_contents();
+        $bc->attributes['id'] = 'mod_studentquiz_rankingblock';
+        $bc->attributes['role'] = 'navigation';
+        $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
+        $bc->title = html_writer::span(get_string('ranking_block_title', 'studentquiz'));
+        $bc->content = implode('', $rows);
+        return $bc;
+    }
+
     public function render_table_row($cells) {
         $row = new html_table_row();
         $row->cells = $cells;
@@ -67,7 +111,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * Return a svg representing a progress bar filling 100% of is containing element
-     * @param stdClass $info
+     * @param stdClass $info: total, group, one
      * @return string
      */
     public function render_progress_bar($info) {
@@ -78,11 +122,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $validInput = false;
         }
 
-        if (!isset($info->attempted)) {
+        if (!isset($info->group)) {
             $validInput = false;
         }
 
-        if (!isset($info->lastattemptcorrect)) {
+        if (!isset($info->one)) {
             $validInput = false;
         }
 
@@ -121,15 +165,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         }
 
         // Calculate Percentages to display.
-        $percent_attempted = round(100 * ($info->attempted / $info->total));
-        $percent_lastattemptcorrect = round(100 * ($info->lastattemptcorrect / $info->total));
+        $percent_group = round(100 * ($info->group / $info->total));
+        $percent_one = round(100 * ($info->one / $info->total));
 
         // Return stacked bars.
         $bars = array($barbackground);
         $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-            array('width' => $percent_attempted . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
+            array('width' => $percent_group . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
         $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-            array('width' => $percent_lastattemptcorrect . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
+            array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
         return html_writer::tag('svg', $defs . implode($bars), $svg_dims);
     }
 

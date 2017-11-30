@@ -752,10 +752,11 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
         .' COALESCE(sum(lastattempt.last_attempt_exists), 0) last_attempt_exists,'
         .' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct';
     $sql_joins = mod_studentquiz_helper_attempt_stat_joins();
-    return $DB->get_record_sql($sql_select.$sql_joins,
+    $rs = $DB->get_record_sql($sql_select.$sql_joins,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid
         ));
+    return $rs;
 }
 
 /**

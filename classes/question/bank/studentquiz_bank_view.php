@@ -824,9 +824,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function load_questions($page, $perpage) {
         global $DB;
-        $DB->set_debug(true);
         $rs =  $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
-        $DB->set_debug(false);
 
         $counterquestions = 0;
         $numberofdisplayedquestions = 0;

@@ -13,6 +13,7 @@
 require_once(dirname(dirname(__DIR__)).'/config.php');
 require_once(__DIR__ . '/viewlib.php');
 require_once(__DIR__.'/classes/event/studentquiz_questionbank_viewed.php');
+require_once(__DIR__.'/reportlib.php');
 
 // Get parameters.
 if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
@@ -59,6 +60,7 @@ if (data_submitted()) {
 
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id);
+$report = new mod_studentquiz_report($cmid);
 
 $PAGE->set_url($view->get_pageurl());
 $PAGE->set_title($view->get_title());
@@ -70,10 +72,14 @@ $view->process_actions();
 // Fire view event for completion API and event API
 mod_studentquiz_overview_viewed($course, $cm, $context);
 
-echo $OUTPUT->header();
-
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 
+$regions = $PAGE->blocks->get_regions();
+$PAGE->blocks->add_fake_block($renderer->render_stat_block($report), reset($regions));
+$regions = $PAGE->blocks->get_regions();
+$PAGE->blocks->add_fake_block($renderer->render_ranking_block($report), reset($regions));
+
+echo $OUTPUT->header();
 // Render view.
 echo $renderer->render_overview($view);
 
