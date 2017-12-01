@@ -50,7 +50,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     public function render_stat_block(mod_studentquiz_report $report) {
-        $userstats = $report->get_user_stats();
+        if(!$userstats = $report->get_user_stats()) {
+            $userstats->questions_created = 0;
+            $userstats->last_attempt_exists = 0;
+            $userstats->questions_approved = 0;
+            $userstats->last_attempt_correct = 0;
+        };
         $sqstats = $report->get_studentquiz_stats();
         $bc = new block_contents();
         $bc->attributes['id'] = 'mod_studentquiz_statblock';

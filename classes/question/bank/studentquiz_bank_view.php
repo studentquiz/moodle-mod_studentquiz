@@ -446,9 +446,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $output .= '<div class="createnewquestion">';
 
         $caption = get_string('createnewquestion', 'studentquiz');
-        if (!$this->has_questions_in_category()) {
-            $caption = get_string('createnewquestionfirst', 'studentquiz');
-        }
+
         if ($canadd) {
             $returnurl = new \moodle_url('/mod/studentquiz/view.php', array(
                 'id' => $this->studentquiz->coursemodule
