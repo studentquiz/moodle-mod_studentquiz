@@ -92,7 +92,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 html_writer::span(html_writer::tag('b' , round($row->points)),
                     '', array('style' => 'float: right;')));
             $rank++;
+            if($rank > 10) break;
         }
+        $ranking->close();
         $bc = new block_contents();
         $bc->attributes['id'] = 'mod_studentquiz_rankingblock';
         $bc->attributes['role'] = 'navigation';
