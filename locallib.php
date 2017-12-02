@@ -523,7 +523,7 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
         $seename = !$anonymize || $comment->userid == $userid;
 
         // Collect distinct anonymous author ids chronologically.
-        if (!$seename && !in_array($comment->userid, $authorids)) {
+        if (!in_array($comment->userid, $authorids)) {
             $authorids[] = $comment->userid;
         }
 
