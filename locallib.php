@@ -663,7 +663,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE ( ROUND('
         .' COALESCE(creators.countq, 0) * :questionquantifier  ' // questions created
         .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // questions approved
-        .'+ COALESCE(COALESCE(rates.sumv, 0) / COALESCE(rates.countv, 1),0) * :ratequantifier  ' // rating
+        .'+ COALESCE(COALESCE(rates.sumv, 0) / COALESCE(rates.countv, 1),0) * COALESCE(creators.countq, 0) * :ratequantifier  ' // rating
         .'+ COALESCE(lastattempt.last_attempt_correct, 0) * :correctanswerquantifier  ' // correct answers
         .'+ COALESCE(lastattempt.last_attempt_incorrect, 0) * :incorrectanswerquantifier ' // incorrect answers
         .' , 1) , 0) points, '
