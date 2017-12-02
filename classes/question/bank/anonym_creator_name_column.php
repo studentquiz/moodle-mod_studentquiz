@@ -39,13 +39,12 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
     public function init() {
         global $USER;
         $this->currentuserid = $USER->id;
-        // TODO: Get anonymrank from studentquiz
-        $this->anonymize = true;
         $this->anonymousname = get_string('creator_anonym_firstname', 'studentquiz')
             . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
     }
 
     protected function display_content($question, $rowclasses) {
+        $this->anonymize = $this->qbank->is_anonymized();
         $date = userdate($question->timecreated, get_string('strftimedatetime', 'langconfig'));
         if( $this->anonymize && $question->createdby != $this->currentuserid) {
             echo  \html_writer::tag('span', $this->anonymousname)

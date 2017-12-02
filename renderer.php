@@ -535,9 +535,9 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             ),
             array(
                 get_string('reportquiz_stats_own_votes_average', 'studentquiz'),
-                $userrankingstats->votes_average,
+                round($userrankingstats->votes_average, 2),
                 get_string('reportquiz_stats_all_votes_average', 'studentquiz'),
-                $studentquizstats->votes_average,
+                round($studentquizstats->votes_average, 2),
             ),
             array(
                 get_string('reportquiz_stats_own_question_attempts_correct', 'studentquiz'),
@@ -571,9 +571,9 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             ),
             array(
                 get_string('reportquiz_stats_own_progress', 'studentquiz'),
-                (100 * round($userrankingstats->last_attempt_correct / ($studentquizstats->questions_created), 1)) . ' %',
+                (100 * round($userrankingstats->last_attempt_correct / ($studentquizstats->questions_created), 2)) . ' %',
                 get_string('reportquiz_stats_all_progress', 'studentquiz'),
-                (100 * round(($studentquizstats->last_attempt_correct / $studentquizstats->questions_created / $studentquizstats->participants), 1)) . ' %',
+                (100 * round(($studentquizstats->last_attempt_correct / $studentquizstats->questions_created / $studentquizstats->participants), 2)) . ' %',
             )
         );
         $data = $this->render_table_data($celldata);

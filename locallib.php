@@ -519,15 +519,15 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
     $num = 0;
     foreach ($comments as $comment) {
 
-        // Collect distinct comment author ids chronologically.
-        if (!in_array($comment->userid, $authorids)) {
+        $canedit = $ismoderator || $comment->userid == $userid;
+        $seename = !$anonymize || $comment->userid == $userid;
+
+        // Collect distinct anonymous author ids chronologically.
+        if (!$seename && !in_array($comment->userid, $authorids)) {
             $authorids[] = $comment->userid;
         }
 
         $date = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
-
-        $canedit = $ismoderator || $comment->userid == $userid;
-        $seename = !$anonymize || $comment->userid == $userid;
 
         if ($seename) {
             $username = $comment->firstname . ' ' . $comment->lastname;
