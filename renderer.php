@@ -51,7 +51,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     public function render_stat_block($report) {
         // TODO: Refactor: use mod_studentquiz_report_record_type!
-        $userstats = new
         if(!$userstats = $report->get_user_stats()) {
             $userstats = new stdClass();
             $userstats->questions_created = 0;
