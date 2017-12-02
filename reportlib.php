@@ -14,6 +14,22 @@ require_once(__DIR__ . '/locallib.php');
 //require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
 //require_once($CFG->libdir . '/gradelib.php');
 
+
+class mod_studentquiz_report_record {
+    // 0: No participants, or user not found.
+    // 1: report record represents personalised results
+    // >1: report record represents group stats
+    public $numparticipants = 0;
+    public $points = 0;
+    public $questions_created = 0;
+    public $questions_approved = 0;
+    public $last_attempt_correct = 0;
+    public $last_attempt_incorrect = 0;
+    public $question_attempts = 0;
+    public $question_attempts_correct = 0;
+    public $question_attempts_incorrect = 0;
+}
+
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  * TODO: REFACTOR!

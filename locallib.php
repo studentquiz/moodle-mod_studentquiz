@@ -765,7 +765,8 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
  * @param int $cmid Course module id of the StudentQuiz considered.
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
  * @param int $userid
- * @return record of user ranking stats
+ * @return array of user ranking stats
+ * TODO: use mod_studentquiz_report_record type
  */
 function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
     global $DB;
@@ -921,38 +922,6 @@ function mod_studentquiz_helper_attempt_stat_joins() {
 }
 
 /**
- * @param $studentquizid
- * @param $userid
- * @return array
- * @deprecated
- * TODO: Add pagination!
- */
-function mod_studentquiz_get_user_attempts($studentquizid, $userid) {
-    global $DB;
-    return $DB->get_records('studentquiz_attempt',
-        array('studentquizid' => $studentquizid, 'userid' => $userid));
-}
-
-/**
- * @param $usageid
- * @param $total
- * @deprecated
- * TODO: We dont want to sum this in memory for each attempt for each user!
- */
-function mod_studentquiz_get_attempt_stats($usageid, &$total) {
-    $quba = question_engine::load_questions_usage_by_activity($usageid);
-    foreach ($quba->get_slots() as $slot) {
-        $fraction = $quba->get_question_fraction($slot);
-        $maxmarks = $quba->get_question_max_mark($slot);
-        $total->obtainedmarks += $fraction * $maxmarks;
-        if ($fraction > 0) {
-            ++$total->questionsright;
-        }
-        ++$total->questionsanswered;
-    }
-}
-
-/**
  * Lookup available question types.
  * @return array question types with identifier as key and name as value
  */
@@ -1104,17 +1073,6 @@ function mod_studentquiz_migrate_old_quiz_usage(int $course_id=null) {
         }
     }
 }
-
-
-function mod_studentquiz_count_questions($cmid) {
-    global $DB;
-    return $DB->count_records_sql(
-        'SELECT COUNT(*) FROM {question} q '
-            . ' LEFT JOIN {question_categories} qc ON q.category = qc.id'
-            . ' LEFT JOIN {context} c ON qc.contextid = c.id'
-            . ' WHERE c.instanceid = :cmid', array('cmid' => $cmid));
-}
-
 
 /**
  * This is a helper to ensure we have a studentquiz_question record for a specific question

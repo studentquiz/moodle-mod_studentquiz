@@ -49,8 +49,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $cell;
     }
 
-    public function render_stat_block(mod_studentquiz_report $report) {
+    public function render_stat_block($report) {
+        // TODO: Refactor: use mod_studentquiz_report_record_type!
+        $userstats = new
         if(!$userstats = $report->get_user_stats()) {
+            $userstats = new stdClass();
             $userstats->questions_created = 0;
             $userstats->last_attempt_exists = 0;
             $userstats->questions_approved = 0;
