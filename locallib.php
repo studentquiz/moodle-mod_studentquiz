@@ -565,140 +565,6 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
 }
 
 /**
- * gets the Stats of the user for the actual StudentQuiz
- * @param int $userid
- * @param int $cmid course module id of studentquiz activity
- * @return array
- * @deprecated
- * TODO: Refactor!
- */
-function mod_studentquiz_get_user_quiz_stats($userid, $cmid) {
-    global $DB;
-    $sql = 'select ( '
-        . '  SELECT count(1) '
-        . '  FROM {question} q '
-        . '    LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        . '    LEFT JOIN {context} c ON qc.contextid = c.id '
-        . '  WHERE c.instanceid = :cmid AND q.parent = 0 AND c.contextlevel = 70 '
-        . ') AS TotalNrOfQuestions, '
-        . '  (SELECT count(1) '
-        . '   FROM {question} q '
-        . '     LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        . '     LEFT JOIN {context} c ON qc.contextid = c.id '
-        . '   WHERE c.instanceid = :cmid2 AND q.parent = 0 AND c.contextlevel = 70 AND q.createdby = :userid '
-        . '  ) AS TotalUsersQuestions, '
-        . '  (select count(DISTINCT att.questionid) '
-        . '   from {question_attempt_steps} ats '
-        . '     left JOIN {question_attempts} att on att.id = ats.questionattemptid '
-        . '   WHERE ats.userid = :userid2 AND ats.state = \'gradedright\' '
-        . '         AND att.questionid in (SELECT q.id '
-        . '                            FROM {question} q '
-        . '                              LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        . '                              LEFT JOIN {context} c ON qc.contextid = c.id '
-        . '                            WHERE c.instanceid = :cmid3 AND c.contextlevel = 70)'
-        . '          AND ats.id IN (SELECT max(suatsmax.id)'
-        . '           FROM {question_attempt_steps} suatsmax LEFT JOIN {question_attempts} suattmax'
-        . '                 ON suatsmax.questionattemptid = suattmax.id'
-        . '             WHERE suatsmax.state IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\') AND'
-        . '                   suatsmax.userid = ats.userid'
-        . '             GROUP BY suattmax.questionid)) AS TotalRightAnswers ,'
-        . '     (select  COALESCE(round(avg(v.vote), 1), 0.0)'
-        . ' from {studentquiz_vote} v'
-        . ' where v.questionid in (SELECT q.id'
-        . '            FROM {question} q LEFT JOIN'
-        . '              {question_categories} qc'
-        . '                ON q.category = qc.id'
-        . '              LEFT JOIN {context} c'
-        . '                ON qc.contextid = c.id'
-        . '            WHERE c.instanceid = :cmid4 AND'
-        . '                  c.contextlevel = 70'
-        . '                  and q.createdby = :userid3)) as avgvotes,'
-        . ' (select COALESCE(sum(v.approved), 0)'
-        . ' from {studentquiz_question} v'
-        . ' WHERE v.questionid in (SELECT q.id'
-        . '            FROM {question} q LEFT JOIN'
-        . '              {question_categories} qc'
-        . '                ON q.category = qc.id'
-        . '              LEFT JOIN {context} c'
-        . '                ON qc.contextid = c.id'
-        . '            WHERE c.instanceid = :cmid5 AND'
-        . '                  c.contextlevel = 70'
-        . '                  and q.createdby = :userid4)) as numapproved ';
-    $record = $DB->get_record_sql($sql, array(
-        'cmid' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-        'cmid4' => $cmid, 'cmid5' => $cmid,
-        'userid' => $userid, 'userid2' => $userid, 'userid3' => $userid, 'userid4' => $userid));
-    return $record;
-}
-
-/**
- * Get all users in a course
- * @param int $courseid
- * @return array stdClass userid, courseid, firstname, lastname$
- * TODO: Refactor! We don't want to load all users of a course into memory ever.
- * @deprecated
- */
-function mod_studentquiz_get_all_users_in_course($courseid) {
-    global $DB;
-    $sql = 'SELECT u.id as userid, c.id as courseid, u.firstname, u.lastname'
-        . '     FROM {user} u'
-        . '     INNER JOIN {user_enrolments} ue ON ue.userid = u.id'
-        . '     INNER JOIN {enrol} e ON e.id = ue.enrolid'
-        . '     INNER JOIN {course} c ON e.courseid = c.id'
-        . '     WHERE c.id = :courseid';
-
-    return $DB->get_records_sql($sql, array(
-        'courseid' => $courseid
-    ));
-}
-
-/**
- * @param $userid
- * @return array usermaxmark usermark stuquizmaxmark
- * @deprecated TODO: We don't want to call this vor every user in the table!
- */
-function mod_studentquiz_get_user_quiz_grade($userid, $cmid) {
-    global $DB;
-    $sql = 'SELECT COALESCE(round(sum(sub.maxmark), 1), 0.0) as usermaxmark, '
-        .'         COALESCE(round(sum(sub.mark), 1), 0.0) usermark, '
-        .'         COALESCE((SELECT round(sum(q.defaultmark), 1) '
-        .'                   FROM {question} q '
-        .'                   LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        .'                   LEFT JOIN {context} c ON qc.contextid = c.id '
-        .'                   WHERE q.parent = 0 AND c.instanceid = :cmid'
-        .'                            AND c.contextlevel = 70), 0.0) as stuquizmaxmark '
-        .'   FROM ( '
-        .'         SELECT suatt.id, suatt.questionid, questionattemptid, max(fraction) as fraction, suatt.maxmark,  '
-        .'         max(fraction) * suatt.maxmark as mark '
-        .'         from {question_attempt_steps} suats '
-        .'         LEFT JOIN {question_attempts} suatt on suats.questionattemptid = suatt.id '
-        .'         WHERE state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\') '
-        .'            AND userid = :userid AND suatt.questionid'
-        .'              IN ('
-        .'               SELECT q.id '
-        .'               FROM {question} q '
-        .'               LEFT JOIN {question_categories} qc ON q.category = qc.id '
-        .'               LEFT JOIN {context} c ON qc.contextid = c.id '
-        .'               WHERE q.parent = 0 AND c.instanceid = :cmid2 AND c.contextlevel = 70'
-        .'              ) '
-        .'            AND suats.id '
-        .'              IN ('
-        .'                SELECT max(suatsmax.id)'
-        .'                FROM {question_attempt_steps} suatsmax'
-        .'                LEFT JOIN {question_attempts} suattmax ON suatsmax.questionattemptid = suattmax.id'
-        .'                where suatsmax.state '
-        .'                IN (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
-        .'                AND suatsmax.userid = suats.userid'
-        .'                GROUP BY suattmax.questionid'
-        .'               )'
-        .'  GROUP BY suatt.questionid, suatt.id, suatt.questionid, suatt.maxmark, suats.questionattemptid) as sub ';
-    $record = $DB->get_record_sql($sql, array(
-        'cmid' => $cmid, 'cmid2' => $cmid,
-        'userid' => $userid));
-    return $record;
-}
-
-/**
  * Get Paginated ranking data ordered (DESC) by points, questions_created, questions_approved, votes_average
  * @param int $cmid Course module id of the StudentQuiz considered.
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
@@ -912,7 +778,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' group by sqa.userid, questionid'
         .' )'
         .' WHERE sq.coursemodule = :cmid2'
-        .' AND qas.state in (\'gradedright\', \'gradedwrong\')'
+        .' AND qas.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
         // only count grading triggered by submits
         .' AND qasd.name = \'-submit\''
         .' group by sqa.userid'

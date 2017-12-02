@@ -42,7 +42,8 @@ $stopurl = new moodle_url('/mod/studentquiz/summary.php', array('cmid' => $cmid,
 // Get Current Question.
 $question = $questionusage->get_question($slot);
 // Navigatable?
-$hasnext = $slot < $questionusage->question_count();
+$questionscount = $questionusage->question_count();
+$hasnext = $slot < $questionscount;
 $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
@@ -111,15 +112,29 @@ $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
 $PAGE->set_url($actionurl);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
 $title = format_string($question->name);
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
+$PAGE->set_title($cm->name);
+$PAGE->set_heading($cm->name);
 $PAGE->set_context($context);
 echo $OUTPUT->header();
 
 
+
+
+$info = new stdClass();
+$info->total = $questionscount;
+$info->group = $slot;
+$info->one = 0;
+$texttotal = $questionscount . ' ' . get_string('questions', 'studentquiz');
+$html = '';
+
+$html .= html_writer::div($output->render_progress_bar($info, $texttotal), '', array('title' => $texttotal));
+
+// Render the question title
+$html .= html_writer::tag('h2', $title);
+
 // Start the question form.
 
-$html = html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
+$html .= html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
     'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 
 $html .= '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';
@@ -157,10 +172,12 @@ $html .= html_writer::end_tag('div');
 
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
+
 if ($canfinish && ($hasnext || !$hasanswered)) {
     $html .= html_writer::empty_tag('input',
         array('type' => 'submit', 'name' => 'finish', 'value' =>  get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
 }
+
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
@@ -178,6 +195,7 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('form');
+
 
 echo $html;
 

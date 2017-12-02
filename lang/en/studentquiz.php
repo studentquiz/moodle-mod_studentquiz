@@ -24,6 +24,7 @@ $string['pluginadministration'] = 'StudentQuiz Administration';
 
 // Labels and buttons.
 $string['vote_column_name'] = 'Rating';
+$string['questions'] = 'questions';
 $string['practice_column_name'] = 'Attempts';
 $string['comment_column_name'] = 'Comments';
 $string['difficulty_level_column_name'] = 'Difficulty';
@@ -60,6 +61,7 @@ $string['approved'] = '✓';
 $string['not_approved'] = '✗';
 $string['lastattempt_right'] = '✓';
 $string['lastattempt_wrong'] = '✗';
+$string['slot_of_slot'] = 'Question {$a->slot} of {$a->slots} in this set';
 
 $string['approve'] = 'Approve';
 $string['unapprove'] = 'Unapprove';

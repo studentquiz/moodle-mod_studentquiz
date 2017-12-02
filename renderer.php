@@ -131,9 +131,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Return a svg representing a progress bar filling 100% of is containing element
      * @param stdClass $info: total, group, one
+     * @param string $texttotal: text to be displayed in the center of the bar.
      * @return string
      */
-    public function render_progress_bar($info) {
+    public function render_progress_bar($info, $texttotal=null) {
 
         // Check input.
         $validInput = true;
@@ -150,12 +151,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         }
 
         // Stylings.
-        $rgb_stroke = 'rgb(100,100,100)';
+        $rgb_stroke = 'rgb(200,200,200)';
         $rgb_background = 'rgb(200,200,200)';
-        $rgb_green = 'rgb(0,255,0)';
-        $rgb_blue = 'rgb(0,0,255)';
-        $rgb_white = 'rgb(255,255,255)';
-        $bar_stroke = 'stroke-width:3;stroke:' . $rgb_stroke .';';
+        $rgb_green = 'rgb(40, 167, 69)';
+        $rgb_blue = 'rgb(0, 123, 255)';
+        $rgb_white = 'rgb(40, 167, 69)';
+        $bar_stroke = 'stroke-width:0.1;stroke:' . $rgb_stroke .';';
         $svg_dims = array('width' => '100%', 'height' => 20);
         $bar_dims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
         $id_blue = 'blue';
@@ -167,9 +168,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             array('offset' => '100%','style' => 'stop-color:' . $rgb_green . ';stop-opacity:1'));
         $stopColorBlue = html_writer::tag('stop', null,
             array('offset' => '100%','style' => 'stop-color:' . $rgb_blue . ';stop-opacity:1'));
-        $gradientBlue = html_writer::tag('radialGradient', $stopColorWhite . $stopColorBlue,
+        $gradientBlue = html_writer::tag('radialGradient', $stopColorBlue . $stopColorBlue,
             array_merge($gradient_dims, array('id' => $id_blue)));
-        $gradientGreen = html_writer::tag('radialGradient', $stopColorWhite . $stopColorGreen,
+        $gradientGreen = html_writer::tag('radialGradient', $stopColorGreen . $stopColorGreen,
             array_merge($gradient_dims, array('id' => $id_green)));
         $gradients = array($gradientBlue, $gradientGreen);
         $defs = html_writer::tag('defs', implode($gradients));
@@ -187,13 +188,21 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $percent_group = round(100 * ($info->group / $info->total));
         $percent_one = round(100 * ($info->one / $info->total));
 
+        if(!empty($texttotal)) {
+            $text = '
+             <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" 
+             font-size="12" id="svg_text" x="50%" y="50%" alignment-baseline="middle" text-anchor="middle" stroke-width="0" stroke="#000" fill="#000000">' . $texttotal . '</text>';
+        }else {
+            $text = '';
+        }
+
         // Return stacked bars.
         $bars = array($barbackground);
         $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
             array('width' => $percent_group . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
         $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
             array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
-        return html_writer::tag('svg', $defs . implode($bars), $svg_dims);
+        return html_writer::tag('svg', $defs . implode($bars) . $text, $svg_dims);
     }
 
 
@@ -273,8 +282,6 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
         $contents = '';
 
         $contents .= $this->heading(format_string($view->get_studentquiz_name()));
-
-        //$contents .= html_writer::tag('div', $this->render_progress_bar($view->get_progress_info()));
 
         $contents .= $this->render_select_qtype_form($view);
 
