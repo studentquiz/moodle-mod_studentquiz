@@ -67,8 +67,17 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
 
         $mform->addElement('header', 'filtertab', get_string('filter', 'studentquiz'));
         $mform->setExpanded('filtertab', true);
+        $fastfilters = array();
         foreach ($this->fields as $field) {
-            $field->setupForm($mform);
+            if($field instanceof toggle_filter_checkbox) {
+                $field->setupFormInGroup($mform, $fastfilters);
+            }
+        }
+        $mform->addGroup($fastfilters, 'fastfilters', get_string('filter_label_fast_filters', 'studentquiz'), ' ', false);
+        foreach ($this->fields as $field) {
+            if(!$field instanceof toggle_filter_checkbox) {
+                $field->setupForm($mform);
+            }
         }
         $group = array();
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
@@ -128,6 +137,21 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         $this->field   = $field;
         $this->operator = $operator;
         $this->value = $value;
+    }
+
+    public function setupFormInGroup(&$mform, &$group) {
+        $element = $mform->createElement('checkbox', $this->_name, $this->_label, '', 'class="toggle"');
+
+        if ($this->_advanced) {
+            $mform->setAdvanced($this->_name);
+        }
+        // Check if disable if options are set. if yes then set rules.
+        if (!empty($this->disableelements) && is_array($this->disableelements)) {
+            foreach ($this->disableelements as $disableelement) {
+                $mform->disabledIf($disableelement, $this->_name, 'checked');
+            }
+        }
+        $group[] = $element;
     }
 
     public function get_sql_filter($data)
@@ -268,5 +292,21 @@ class user_filter_number extends user_filter_text {
                 return '';
         }
         return array($res, $params);
+    }
+}
+
+/**
+ * Class user_filter_percent Users can enter a number of percent, database is queried for unit value.
+ */
+class user_filter_percent extends user_filter_number {
+    public function get_sql_filter($data) {
+        $val = round($data->value, 0);
+        if($val > 100 or $val < 0) {
+            return '';
+        }
+        if($val > 1) {
+            $data->value = $val / 100;
+        }
+        return parent::get_sql_filter($data);
     }
 }

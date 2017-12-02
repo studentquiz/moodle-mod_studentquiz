@@ -71,21 +71,22 @@
     user-select: none;
     -moz-user-select: none;
 }
-#page-mod-studentquiz-view label [type="checkbox"] {
+#page-mod-studentquiz-view label.toggle [type="checkbox"] {
     display: none;
 }
-#page-mod-studentquiz-view [type="checkbox"] + span {
+#page-mod-studentquiz-view [type="checkbox"].toggle + span {
     display: inline-block;
     background: #eee;
-    padding: 1em;
+    padding: 5px;
     transition: all 0.4s ease;
-    border: 1px solid darkgray;
-    border-radius: 1em;
+    margin-right: 5px;
+    border-radius: 4px;
+    border-bottom: 2px solid darkgray;
 }
-#page-mod-studentquiz-view :checked + span {
-    background: #4f4;
+#page-mod-studentquiz-view .toggle:checked + span {
     transition: all 0.4s ease;
-    border: 2px solid green;
+    color: #1177d1;
+    border-bottom: 2px solid #1177d1;
     display: inline-block;
 }
 

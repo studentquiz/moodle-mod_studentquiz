@@ -633,15 +633,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields = array();
 
         // Fast filters.
+        $this->fields[] = new \toggle_filter_checkbox('onlynew',
+            \html_writer::span(get_string('filter_label_onlynew', 'studentquiz')),
+            false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0);
+
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
             \html_writer::span(get_string('filter_label_onlygood', 'studentquiz')),
                 false, 'vo.rate', array('rate', 'rate_op'), 1, 3);
         $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
             \html_writer::span(get_string('filter_label_onlydifficult', 'studentquiz')),
             false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.5);
-        $this->fields[] = new \toggle_filter_checkbox('onlynew',
-            \html_writer::span(get_string('filter_label_onlynew', 'studentquiz')),
-            false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0);
 
         $this->fields[] = new \toggle_filter_checkbox('onlyapproved',
             \html_writer::span(get_string('filter_label_onlyapproved', 'studentquiz')),
@@ -660,7 +661,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Advanced filters.
         $this->fields[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
             true, 'rate');
-        $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
+        $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             true, 'difficultylevel');
 
         $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'),
@@ -681,7 +682,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
                 true, 'lastname');
         }
-
 
         $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
