@@ -312,9 +312,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      * @return string
      */
     public function render_select_qtype_form($view) {
-        $output = '';
-        $output .= $view->get_questionbank()->create_new_question_form($view->get_category_id(), true);
-        return html_writer::tag('div', $output);
+        return $view->get_questionbank()->create_new_question_form($view->get_category_id(), true);
     }
 }
 

@@ -443,7 +443,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $OUTPUT;
 
         $output = '';
-        $output .= '<div class="createnewquestion">';
 
         $caption = get_string('createnewquestion', 'studentquiz');
 
@@ -463,9 +462,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $allowedtypes = (empty($this->studentquiz->allowedqtypes))? 'ALL': $this->studentquiz->allowedqtypes;
             $allowedtypes = ($allowedtypes == 'ALL')? null: explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(
-                print_choose_qtype_to_add_form(array(), $allowedtypes, '',
-                array('id' => 'qtypechoicecontainer')
-            ));
+                print_choose_qtype_to_add_form(array(), $allowedtypes, true
+            ), '', array('id' => 'qtypechoicecontainer'));
             $output .= \html_writer::div(
                 $OUTPUT->render(new \single_button($url, $caption, 'get', true)) .
                 $qtypecontainer, 'createnewquestion'
@@ -473,7 +471,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         } else {
             $output .= get_string('nopermissionadd', 'question');
         }
-        $output .= '</div>';
         return $output;
     }
 
