@@ -83,11 +83,10 @@ function mod_studentquiz_get_quiz_module_id() {
 /**
  * Check if user has permission to see creator
  * @return bool
- * TODO: Define studentquiz capabilities and check against those only!
  */
 function mod_studentquiz_check_created_permission($cmid) {
     $context = context_module::instance($cmid);
-    return has_capability('moodle/question:editall', $context);
+    return has_capability('mod/studentquiz:manage', $context);
 }
 
 /**

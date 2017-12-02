@@ -381,19 +381,6 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
         new pix_icon('i/scales', '')), $beforekey);
 
     if (mod_studentquiz_check_created_permission($PAGE->cm->id)) {
-        $context = context_module::instance($PAGE->cm->id);
-        $category = question_get_default_category($context->id);
-        $cat = $category->id . ',' . $context->id;
-
-        $studentquiznode->add_node(navigation_node::create(get_string('nav_export', 'studentquiz'),
-            new moodle_url('/mod/studentquiz/export.php', array('cmid' => $PAGE->cm->id, 'cat' => $cat)),
-            navigation_node::TYPE_SETTING, null, 'mod_studentquiz_export',
-            new pix_icon('i/export', '')), $beforekey);
-        $studentquiznode->add_node(navigation_node::create(get_string('nav_import', 'studentquiz'),
-            new moodle_url('/mod/studentquiz/import.php', array('cmid' => $PAGE->cm->id, 'cat' => $cat)),
-            navigation_node::TYPE_SETTING, null, 'mod_studentquiz_import',
-            new pix_icon('i/import', '')), $beforekey);
-
         question_extend_settings_navigation($studentquiznode, $PAGE->cm->context)->trim_if_empty();
     }
 
