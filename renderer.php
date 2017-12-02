@@ -55,6 +55,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $userstats->last_attempt_exists = 0;
             $userstats->questions_approved = 0;
             $userstats->last_attempt_correct = 0;
+            $userstats->last_attempt_incorrect = 0;
         };
         $sqstats = $report->get_studentquiz_stats();
         $bc = new block_contents();
@@ -543,6 +544,24 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 $userrankingstats->question_attempts_correct,
                 get_string('reportquiz_stats_all_question_attempts_correct', 'studentquiz'),
                 $studentquizstats->question_attempts_correct
+            ),
+            array(
+                get_string('reportquiz_stats_own_question_attempts_incorrect', 'studentquiz'),
+                $userrankingstats->question_attempts_incorrect,
+                get_string('reportquiz_stats_all_question_attempts_incorrect', 'studentquiz'),
+                $studentquizstats->question_attempts_incorrect
+            ),
+            array(
+                get_string('reportquiz_stats_own_last_attempt_correct', 'studentquiz'),
+                $userrankingstats->last_attempt_correct,
+                get_string('reportquiz_stats_all_last_attempt_correct', 'studentquiz'),
+                $studentquizstats->last_attempt_correct
+            ),
+            array(
+                get_string('reportquiz_stats_own_last_attempt_incorrect', 'studentquiz'),
+                $userrankingstats->last_attempt_incorrect,
+                get_string('reportquiz_stats_all_last_attempt_incorrect', 'studentquiz'),
+                $studentquizstats->last_attempt_incorrect
             ),
             array(
                 get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
