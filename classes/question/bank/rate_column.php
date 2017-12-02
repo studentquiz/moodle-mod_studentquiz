@@ -1,6 +1,6 @@
 <?php
 /**
- * Representing vote column
+ * Representing rating column
  *
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
@@ -12,12 +12,12 @@ namespace mod_studentquiz\bank;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Represent vote column in studentquiz_bank_view
+ * Represent rate column in studentquiz_bank_view
  *
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class vote_column extends \core_question\bank\column_base {
+class rate_column extends \core_question\bank\column_base {
 
     /**
      * Initialise Parameters for join
@@ -39,7 +39,7 @@ class vote_column extends \core_question\bank\column_base {
      * @return string column name
      */
     public function get_name() {
-        return 'votes';
+        return 'rates';
     }
 
     /**
@@ -47,7 +47,7 @@ class vote_column extends \core_question\bank\column_base {
      * @return string column title
      */
     protected function get_title() {
-        return get_string('vote_column_name', 'studentquiz');
+        return get_string('rate_column_name', 'studentquiz');
     }
 
     /**
@@ -57,33 +57,32 @@ class vote_column extends \core_question\bank\column_base {
      */
     protected function display_content($question, $rowclasses) {
 
-        if (!empty($question->vote)) {
-               // echo $question->vote;
-            echo \html_writer::span($this->render_ratingbar($question->vote, $question->myvote), null,
+        if (!empty($question->rate)) {
+            echo \html_writer::span($this->render_ratingbar($question->rate, $question->myrate), null,
             array('title' =>
-                get_string('vote_column_name', 'studentquiz') . ": " . $question->vote . " "
-                .get_string('myvote_column_name', 'studentquiz') . ": " . $question->myvote));
+                get_string('rate_column_name', 'studentquiz') . ": " . $question->rate . " "
+                .get_string('myrate_column_name', 'studentquiz') . ": " . $question->myrate));
         } else {
-            echo get_string('no_votes', 'studentquiz');
+            echo get_string('no_rates', 'studentquiz');
         }
     }
 
     /**
-     * Get the left join for voteing
+     * Get the left join for rating
      * @return array modified select left join
      */
     public function get_extra_joins() {
         return array('vo' => 'LEFT JOIN ('
-        .'SELECT ROUND(SUM(vote)/COUNT(vote), 2) as vote'
-        .', questionid FROM {studentquiz_vote} GROUP BY questionid) vo ON vo.questionid = q.id',
-        'myvote' => 'LEFT JOIN ('
+        .'SELECT ROUND(SUM(rate)/COUNT(rate), 2) as rate'
+        .', questionid FROM {studentquiz_rate} GROUP BY questionid) vo ON vo.questionid = q.id',
+        'myrate' => 'LEFT JOIN ('
             . 'SELECT '
-            . ' vote myvote, '
+            . ' rate myrate, '
             . ' q.id questionid'
             . ' FROM {question} q'
-            . ' LEFT JOIN {studentquiz_vote} vote on q.id = vote.questionid'
-            . ' AND vote.userid = ' . $this->currentuserid
-            . ' ) myvote ON myvote.questionid = q.id'
+            . ' LEFT JOIN {studentquiz_rate} rate on q.id = rate.questionid'
+            . ' AND rate.userid = ' . $this->currentuserid
+            . ' ) myrate ON myrate.questionid = q.id'
         );
     }
 
@@ -92,7 +91,7 @@ class vote_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('vo.vote', 'myvote.myvote');
+        return array('vo.rate', 'myrate.myrate');
     }
 
     /**
@@ -101,8 +100,8 @@ class vote_column extends \core_question\bank\column_base {
      */
     public function is_sortable() {
         return array(
-            'vote' => array('field' => 'vo.vote', 'title' => get_string('average_column_name', 'studentquiz')),
-            'myvote' => array('field' => 'myvote.myvote', 'title' => get_string('mine_column_name', 'studentquiz'))
+            'rate' => array('field' => 'vo.rate', 'title' => get_string('average_column_name', 'studentquiz')),
+            'myrate' => array('field' => 'myrate.myrate', 'title' => get_string('mine_column_name', 'studentquiz'))
         );
 
     }

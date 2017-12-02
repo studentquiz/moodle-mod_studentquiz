@@ -27,9 +27,9 @@ class mod_studentquiz_generator extends testing_module_generator {
     protected $commentcount = 0;
 
     /**
-     * @var int keep track of how many StudentQuiz votes have been created.
+     * @var int keep track of how many StudentQuiz rate have been created.
      */
-    protected $votecount = 0;
+    protected $ratecount = 0;
 
 
     /**
@@ -40,7 +40,7 @@ class mod_studentquiz_generator extends testing_module_generator {
     public function reset() {
         $this->studentquizcount = 0;
         $this->commentcount = 0;
-        $this->votecount = 0;
+        $this->ratecount = 0;
         parent::reset();
     }
 
@@ -82,14 +82,14 @@ class mod_studentquiz_generator extends testing_module_generator {
     }
 
     /**
-     * Create StudentQuiz vote on question
+     * Create StudentQuiz rate on question
      * @param null $record
      * @return object
      */
-    public function create_vote($record = null) {
+    public function create_rate($record = null) {
         global $DB;
 
-        $this->votecount++;
+        $this->ratecount++;
 
         $record['id'] = $DB->insert_record('studentquiz_comment', $record);
         return (object) $record;

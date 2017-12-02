@@ -125,7 +125,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         switch($name){
             case 'difficultylevel':
                 return 'dl.';
-            case 'vote':
+            case 'rate':
                 return 'vo.';
             case 'practice':
                 return 'pr.';
@@ -142,8 +142,8 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 return 'mydiffs.';
             case 'myattempts':
                 return 'myatts.';
-            case 'myvote':
-                return 'myvote.';
+            case 'myrate':
+                return 'myrate.';
             case 'tags':
                 return 'tags.';
             case 'searchtag':

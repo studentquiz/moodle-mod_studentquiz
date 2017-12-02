@@ -352,7 +352,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                              question_display_options $options, $cmid,
                              $comments, $userid, $anonymize = true, $ismoderator = false) {
         global $CFG;
-        return html_writer::div($this->render_vote($question->id)
+        return html_writer::div($this->render_rate($question->id)
                 . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
             . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
             , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
@@ -364,11 +364,11 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * Generate some HTML to display rating options
      *
      * @param  int $questionid Question id
-     * @param  boolean $selected shows the selected vote
+     * @param  boolean $selected shows the selected rate
      * @param  boolean $readonly describes if rating is readonly
      * @return string HTML fragment
      */
-    protected function vote_choices($questionid, $selected, $readonly) {
+    protected function rate_choices($questionid, $selected, $readonly) {
         $attributes = array(
             'type' => 'radio',
             'name' => 'q' . $questionid,
@@ -386,18 +386,18 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         }
 
         $choices = '';
-        $votes = [5, 4, 3, 2, 1];
-        foreach ($votes as $vote) {
+        $rates = [5, 4, 3, 2, 1];
+        foreach ($rates as $rate) {
             $class = 'star-empty';
-            if ($vote <= $selected) {
+            if ($rate <= $selected) {
                 $class = 'star';
             }
-            $choices .= html_writer::span('', $rateable . $class, array('data-rate' => $vote, 'data-questionid' => $questionid));
+            $choices .= html_writer::span('', $rateable . $class, array('data-rate' => $rate, 'data-questionid' => $questionid));
         }
-        return get_string('vote_title', 'mod_studentquiz')
-            . $this->output->help_icon('vote_help', 'mod_studentquiz') . ': '
+        return get_string('rate_title', 'mod_studentquiz')
+            . $this->output->help_icon('rate_help', 'mod_studentquiz') . ': '
             . html_writer::div($choices, 'rating')
-            . html_writer::div(get_string('vote_error', 'mod_studentquiz'), 'hide error');
+            . html_writer::div(get_string('rate_error', 'mod_studentquiz'), 'hide error');
     }
 
     /**
@@ -431,17 +431,17 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @return string HTML fragment
      * @return string HTML fragment
      */
-    protected function render_vote($questionid) {
+    protected function render_rate($questionid) {
         global $DB, $USER;
 
         $value = -1; $readonly = false;
-        $vote = $DB->get_record('studentquiz_vote', array('questionid' => $questionid, 'userid' => $USER->id));
-        if ($vote !== false) {
-            $value = $vote->vote;
+        $rate = $DB->get_record('studentquiz_rate', array('questionid' => $questionid, 'userid' => $USER->id));
+        if ($rate !== false) {
+            $value = $rate->rate;
             $readonly = true;
         }
 
-        return html_writer::div($this->vote_choices($questionid, $value , $readonly), 'vote');
+        return html_writer::div($this->rate_choices($questionid, $value , $readonly), 'rate');
     }
 
     /**
@@ -543,10 +543,10 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 $studentquizstats->questions_approved,
             ),
             array(
-                get_string('reportquiz_stats_own_votes_average', 'studentquiz'),
-                round($userrankingstats->votes_average, 2),
-                get_string('reportquiz_stats_all_votes_average', 'studentquiz'),
-                round($studentquizstats->votes_average, 2),
+                get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
+                round($userrankingstats->rates_average, 2),
+                get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
+                round($studentquizstats->rates_average, 2),
             ),
             array(
                 get_string('reportquiz_stats_own_question_attempts_correct', 'studentquiz'),
@@ -615,19 +615,19 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $caption = get_string('reportrank_table_quantifier_caption', 'studentquiz');
         $celldata = array(
             array(get_string('settings_questionquantifier', 'studentquiz'),
-                round($report->get_quantifier_question(), 2),
+                $report->get_quantifier_question(),
                 'description' => get_string('settings_questionquantifier_help', 'studentquiz')),
             array(get_string('settings_approvedquantifier', 'studentquiz'),
-                round($report->get_quantifier_approved(), 2),
+                $report->get_quantifier_approved(),
                 'description' => get_string('settings_approvedquantifier_help', 'studentquiz')),
-            array('text' => get_string('settings_votequantifier', 'studentquiz'),
-                round($report->get_quantifier_vote(), 2),
-                'value' => get_string('settings_votequantifier_help', 'studentquiz')),
+            array('text' => get_string('settings_ratequantifier', 'studentquiz'),
+                $report->get_quantifier_rate(),
+                'value' => get_string('settings_ratequantifier_help', 'studentquiz')),
             array('text' => get_string('settings_correctanswerquantifier', 'studentquiz'),
-                round($report->get_quantifier_correctanswer(), 2),
+                $report->get_quantifier_correctanswer(),
                 'value' => get_string('settings_correctanswerquantifier_help', 'studentquiz')),
             array('text' => get_string('settings_incorrectanswerquantifier', 'studentquiz'),
-                round($report->get_quantifier_incorrectanswer(), 2),
+                $report->get_quantifier_incorrectanswer(),
                 'value' => get_string('settings_incorrectanswerquantifier_help', 'studentquiz'))
         );
         $data = $this->render_table_data($celldata);
@@ -649,7 +649,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         , get_string('reportrank_table_column_total_points', 'studentquiz')
         , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
         , get_string( 'reportrank_table_column_approvedquestions', 'studentquiz')
-        , get_string( 'reportrank_table_column_summeanvotes', 'studentquiz')
+        , get_string( 'reportrank_table_column_summeanrates', 'studentquiz')
         , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
         , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
         , get_string( 'reportrank_table_column_progress', 'studentquiz')
@@ -691,7 +691,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 round($ur->points, 2),
                 round($ur->questions_created * $report->get_quantifier_question(), 2),
                 round($ur->questions_approved * $report->get_quantifier_approved(), 2),
-                round($ur->votes_average * $report->get_quantifier_vote(), 2),
+                round($ur->rates_average * $report->get_quantifier_rate(), 2),
                 round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2),
                 round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
                 (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'

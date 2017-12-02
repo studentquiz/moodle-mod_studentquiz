@@ -97,8 +97,8 @@ switch($questionusage->get_question_attempt($slot)->get_state()) {
     default:
         $hasanswered = false;
 }
-// Is voted?
-$hasvoted = false;
+// Is rated?
+$hasrated = false;
 
 $options = new question_display_options();
 // TODO do they do anything? $headtags not used anywhere and question_engin..._js returns void.
@@ -143,7 +143,7 @@ $html .= '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid .
 // TODO, options?
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
-// Output the voting.
+// Output the rating.
 if ($hasanswered) {
     $comments = mod_studentquiz_get_comments_with_creators($question->id);
 
@@ -182,7 +182,7 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-right'));
-if ($hasanswered /*&& $voted*/) {
+if ($hasanswered && $hasrated) {
     if ($hasnext) {
         $html .= html_writer::empty_tag('input',
             array('type' => 'submit', 'name' => 'next', 'value' =>  get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));

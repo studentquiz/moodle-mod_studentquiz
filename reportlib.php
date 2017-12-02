@@ -87,7 +87,7 @@ class mod_studentquiz_report {
 
     /**
      * Personal stats for interaction with studentquiz:
-     * @return stdClass: numcomments, numvotes, avgvotes, numstarts
+     * @return stdClass: numcomments, numrates, avgrates, numstarts
      */
     protected $useractivitystats;
     public function get_useractivitystats() {
@@ -212,10 +212,10 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get the vote quantifier of this studentquiz
+     * Get the rate quantifier of this studentquiz
      */
-    public function get_quantifier_vote() {
-        return $this->studentquiz->votequantifier;
+    public function get_quantifier_rate() {
+        return $this->studentquiz->ratequantifier;
     }
 
     /**
@@ -238,7 +238,7 @@ class mod_studentquiz_report {
     public function get_quantifiers() {
         $quantifiers = new stdClass();
             $quantifiers->question = $this->studentquiz->questionquantifier;
-            $quantifiers->vote = $this->studentquiz->votequantifier;
+            $quantifiers->rate = $this->studentquiz->ratequantifier;
             $quantifiers->approved = $this->studentquiz->approvedquantifier;
             $quantifiers->correctanswer = $this->studentquiz->correctanswerquantifier;
             $quantifiers->incorrectanswer = $this->studentquiz->incorrectanswerquantifier;
@@ -277,7 +277,7 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Get Paginated ranking data ordered (DESC) by points, questions_created, questions_approved, votes_average
+     * Get Paginated ranking data ordered (DESC) by points, questions_created, questions_approved, rates_average
      * @param int $limitfrom return a subset of records, starting at this point (optional).
      * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
      * @return moodle_recordset of paginated ranking table

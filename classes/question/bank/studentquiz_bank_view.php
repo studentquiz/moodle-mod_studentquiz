@@ -16,7 +16,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ .'/../../../locallib.php');
 require_once(__DIR__ . '/question_bank_filter.php');
 require_once(__DIR__ . '/question_text_row.php');
-require_once(__DIR__ . '/vote_column.php');
+require_once(__DIR__ . '/rate_column.php');
 require_once(__DIR__ . '/difficulty_level_column.php');
 require_once(__DIR__ . '/tag_column.php');
 require_once(__DIR__ . '/performances_column.php');
@@ -620,7 +620,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             . 'mod_studentquiz\\bank\\tag_column,'
             . 'mod_studentquiz\\bank\\practice_column,'
             . 'mod_studentquiz\\bank\\difficulty_level_column,'
-            . 'mod_studentquiz\\bank\\vote_column,'
+            . 'mod_studentquiz\\bank\\rate_column,'
             . 'mod_studentquiz\\bank\\comment_column';
         return parent::wanted_columns();
     }
@@ -635,7 +635,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Fast filters.
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
             \html_writer::span(get_string('filter_label_onlygood', 'studentquiz')),
-                false, 'vo.vote', array('vote', 'vote_op'), 1, 3);
+                false, 'vo.rate', array('rate', 'rate_op'), 1, 3);
         $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
             \html_writer::span(get_string('filter_label_onlydifficult', 'studentquiz')),
             false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.5);
@@ -658,8 +658,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             ));
 
         // Advanced filters.
-        $this->fields[] = new \user_filter_number('vote', get_string('filter_label_votes', 'studentquiz'),
-            true, 'vote');
+        $this->fields[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
+            true, 'rate');
         $this->fields[] = new \user_filter_number('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             true, 'difficultylevel');
 
@@ -698,8 +698,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_number('mydifficulty', get_string('filter_label_mydifficulty', 'studentquiz'),
             true, 'mydifficulty');
 
-        $this->fields[] = new \user_filter_number('myvote', get_string('filter_label_myvote', 'studentquiz'),
-            true, 'myvote');
+        $this->fields[] = new \user_filter_number('myrate', get_string('filter_label_myrate', 'studentquiz'),
+            true, 'myrate');
     }
 
     /**

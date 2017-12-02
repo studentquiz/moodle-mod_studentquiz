@@ -29,13 +29,13 @@ define(['jquery'], function($) {
             });
 
             // Ajax request POST on CLICK for add rating.
-            $('.studentquiz_behaviour .vote .rating .rateable').off('click').on('click', function() {
+            $('.studentquiz_behaviour .rate .rating .rateable').off('click').on('click', function() {
                 var rate = $(this).attr('data-rate');
                 var $that = $(this);
                 var $cmidfield = $(this).closest('form').find('.cmid_field');
                 var cmid = $cmidfield.attr('value');
                 $.post($('#baseurlmoodle').val() + '/mod/studentquiz/save.php',
-                    {save: 'vote', cmid: cmid, questionid: $(this).attr('data-questionid'), sesskey: M.cfg.sesskey, rate: rate},
+                    {save: 'rate', cmid: cmid, questionid: $(this).attr('data-questionid'), sesskey: M.cfg.sesskey, rate: rate},
                     function() {
                         var $ratingStars = $that.closest('.rating').children('span');
                         $ratingStars.removeClass('star');
@@ -47,7 +47,7 @@ define(['jquery'], function($) {
                             }
                         });
 
-                        $('.studentquiz_behaviour > .vote > .error').addClass('hide');
+                        $('.studentquiz_behaviour > .rate > .error').addClass('hide');
                     });
             });
 
@@ -73,7 +73,7 @@ define(['jquery'], function($) {
                         return true;
                     }
 
-                    $('.studentquiz_behaviour > .vote > .error').removeClass('hide');
+                    $('.studentquiz_behaviour > .rate > .error').removeClass('hide');
                     return false;
                 } else {
                     $that.submit();

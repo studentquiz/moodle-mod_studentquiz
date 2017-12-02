@@ -90,13 +90,13 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setDefault('approvedquantifier',
             get_config('studentquiz', 'approved'));
 
-        // Field votequantifier.
-        $mform->addElement('text', 'votequantifier',
-            get_string('settings_votequantifier_label', 'studentquiz'));
-        $mform->setType('votequantifier', PARAM_INT);
-        $mform->addHelpButton('votequantifier', 'settings_votequantifier', 'studentquiz');
-        $mform->setDefault('votequantifier',
-            get_config('studentquiz', 'vote'));
+        // Field ratequantifier.
+        $mform->addElement('text', 'ratequantifier',
+            get_string('settings_ratequantifier_label', 'studentquiz'));
+        $mform->setType('ratequantifier', PARAM_INT);
+        $mform->addHelpButton('ratequantifier', 'settings_ratequantifier', 'studentquiz');
+        $mform->setDefault('ratequantifier',
+            get_config('studentquiz', 'rate'));
 
         // Field correctanswerquantifier.
         $mform->addElement('text', 'correctanswerquantifier',

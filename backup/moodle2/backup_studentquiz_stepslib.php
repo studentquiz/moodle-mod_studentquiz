@@ -33,7 +33,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         // Define the root element describing the StudentQuiz instance.
         $studentquiz = new backup_nested_element('studentquiz', array('id'), array(
             'coursemodule', 'name', 'intro', 'introformat', 'grade', 'anonymrank', 'quizpracticebehaviour',
-            'questionquantifier', 'approvedquantifier', 'votequantifier',
+            'questionquantifier', 'approvedquantifier', 'ratequantifier',
             'correctanswerquantifier', 'incorrectanswerquantifier',
             'allowedqtypes'
         ));
@@ -61,11 +61,11 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $progresses->add_child($progress);
         $studentquiz->add_child($progresses);
 
-        // Question -> User -> Vote.
-        $votes = new backup_nested_element('votes');
-        $vote = new backup_nested_element('vote', array('userid', 'questionid'), array('vote'));
-        $votes->add_child($vote);
-        $studentquiz->add_child($votes);
+        // Question -> User -> rate.
+        $rates = new backup_nested_element('rates');
+        $rate = new backup_nested_element('rate', array('userid', 'questionid'), array('rate'));
+        $rates->add_child($rate);
+        $studentquiz->add_child($rates);
 
         // Comment -> Question, User.
         $comments = new backup_nested_element('comments');
@@ -97,15 +97,15 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
             $progress->set_source_table( 'studentquiz_progress',
                 array('studentquizid' => backup::VAR_PARENTID));
 
-            // Only select votes to questions of this StudentQuiz.
-            $votesql = 'SELECT vote.*'
+            // Only select rates to questions of this StudentQuiz.
+            $ratesql = 'SELECT rate.*'
                 .'  FROM {studentquiz} sq'
                 .'  JOIN {context} con ON( con.instanceid = sq.coursemodule )'
                 .'  JOIN {question_categories} qc ON( qc.contextid = con.id )'
                 .'  LEFT JOIN {question} q ON (q.category = qc.id )'
-                .'  JOIN {studentquiz_vote} vote ON (vote.questionid = q.id)'
+                .'  JOIN {studentquiz_rate} rate ON (rate.questionid = q.id)'
                 .'  WHERE sq.id = :studentquizid';
-            $vote->set_source_sql($votesql, array('studentquizid' => backup::VAR_PARENTID));
+            $rate->set_source_sql($ratesql, array('studentquizid' => backup::VAR_PARENTID));
 
             // Only select comments to questions of this StudentQuiz.
             $commentsql = 'SELECT comment.*'
@@ -123,7 +123,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $progress->annotate_ids('question', 'questionid');
         $attempt->annotate_ids('user', 'userid');
         $question->annotate_ids('question', 'questionid');
-        $vote->annotate_ids('user', 'userid');
+        $rate->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'userid');
 
         // Define file annotations (we do not use itemid in this example).

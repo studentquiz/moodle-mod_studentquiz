@@ -236,7 +236,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Add votequantifier.
+        // Add ratequantifier.
         $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'approvedquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
@@ -292,7 +292,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Load current access definition for easier iteration.
         require_once(dirname(__DIR__) . '/db/access.php');
         // Load all contexts this has to be defined.
-        // Only system context needed, as by default it's inherited from there and if someone did an override, it's intentional.
+        // Only system context needed, as by default it's inherited from there and if someone did make an override, it's intentional.
         $context = context_system::instance();
         // Load the roles for easier name to id assignment
         $roleids = $DB->get_records_menu('role', null, '', 'shortname, id');
@@ -306,6 +306,45 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2017112602, 'studentquiz');
+    }
+
+    // Rename vote to rate in all occurences.
+    if ($oldversion < 2017120201) {
+        $table = new xmldb_table('studentquiz_vote');
+        $field = new xmldb_field('vote', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+
+        if($dbman->table_exists($table) && $dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'rate');
+        }
+
+        if ($dbman->table_exists($table)) {
+            $dbman->rename_table($table, 'studentquiz_rate');
+        }
+
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+
+        if($dbman->field_exists($table, $field)) {
+            $dbman->rename_field($table, $field, 'ratequantifier');
+        }
+
+        upgrade_mod_savepoint(true, 2017120201, 'studentquiz');
+    }
+
+    // Change all quantifier fields to int.
+    // Hint for history: these fields haven't been rolled out yet in type float
+    if ($oldversion < 2017120202) {
+        $table = new xmldb_table('studentquiz');
+
+        $fieldnames = array('questionquantifier', 'approvedquantifier', 'ratequantifier', 'correctanswerquantifier', 'incorrectanswerquantifier');
+        foreach($fieldnames as $fieldname) {
+            $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+            if($dbman->field_exists($table, $field)) {
+                $dbman->change_field_type($table, $field);
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2017120202, 'studentquiz');
     }
 
     return true;

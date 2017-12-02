@@ -212,7 +212,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #categoryquestions .iconcol {
     width: 12px;
 }
-#categoryquestions .votes,
+#categoryquestions .rates,
 #categoryquestions .difficultylevel,
 #categoryquestions .practice,
 #categoryquestions .comment {
@@ -221,7 +221,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 
 #categoryquestions th.practice .sorters,
 #categoryquestions th.difficultylevel .sorters,
-#categoryquestions th.votes .sorters {
+#categoryquestions th.rates .sorters {
     font-weight: 400;
     font-size: .8em;
 }
@@ -243,7 +243,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     margin-right: 15px;
 }
 
-.studentquiz_behaviour .vote {
+.studentquiz_behaviour .rate {
     margin-bottom: 20px;
 }
 
@@ -276,21 +276,21 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     margin: 0;
 }
 
-.studentquiz_behaviour .vote .rating {
+.studentquiz_behaviour .rate .rating {
     cursor: not-allowed;
     direction: rtl;
     display: inline-block;
     unicode-bidi: bidi-override;
 }
 
-.studentquiz_behaviour .vote .error {
+.studentquiz_behaviour .rate .error {
     color: red;
     font-weight: bold;
     margin-top: 5px;
 }
 
-.studentquiz_behaviour .vote .rating .rateable.star-empty:hover,
-.studentquiz_behaviour .vote .rating .rateable.star-empty:hover ~ .rateable.star-empty {
+.studentquiz_behaviour .rate .rating .rateable.star-empty:hover,
+.studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty {
     background-image: url([[pix:mod_studentquiz|star_icon]]);
 }
 
@@ -301,7 +301,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     width: 20px;
 }
 
-.studentquiz_behaviour .vote .rating .rateable {
+.studentquiz_behaviour .rate .rating .rateable {
     cursor: pointer;
 }
 

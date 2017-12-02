@@ -19,7 +19,7 @@
         <FIELD NAME="quizpracticebehaviour" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Displays the question behaviour selected by teachers"/>
         <FIELD NAME="questionquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with number of questions contributed"/>
         <FIELD NAME="approvedquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with the number of approved questions created"/>
-        <FIELD NAME="votequantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with average rating per question"/>
+        <FIELD NAME="ratequantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with average rating per question"/>
         <FIELD NAME="correctanswerquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with number of correct answers"/>
         <FIELD NAME="incorrectanswerquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with number of incorrect answers"/>
         <FIELD NAME="allowedqtypes" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" COMMENT="which question types are allowed"/>
@@ -32,10 +32,10 @@
         <INDEX NAME="coursemodule" UNIQUE="false" FIELDS="coursemodule"/>
       </INDEXES>
     </TABLE>
-    <TABLE NAME="studentquiz_vote" COMMENT="Store votes for questions">
+    <TABLE NAME="studentquiz_rate" COMMENT="Store rates for questions">
         <FIELDS>
             <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-            <FIELD NAME="vote" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+            <FIELD NAME="rate" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
             <FIELD NAME="questionid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of question"/>
             <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
         </FIELDS>

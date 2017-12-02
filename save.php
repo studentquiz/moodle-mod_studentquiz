@@ -3,9 +3,9 @@
  * Ajax requests to this script saves the ratings and comments.
  *
  * Require POST params:
- * "save" can be "vote" or "comment" (save type),
+ * "save" can be "rate" or "comment" (save type),
  * "questionid" is necessary for every request,
- * "rate" is necessary if the save type is "vote"
+ * "rate" is necessary if the save type is "rate"
  * "text" is necessary if the save type is "comment"
  *
  * @package    mod_studentquiz
@@ -48,7 +48,7 @@ $save = required_param('save', PARAM_NOTAGS);
 require_sesskey();
 
 switch($save) {
-    case 'vote': mod_studentquiz_save_vote($data);
+    case 'rate': mod_studentquiz_save_rate($data);
         break;
     case 'comment': mod_studentquiz_save_comment($data, $course, $module);
         break;
@@ -64,17 +64,18 @@ header('Content-Type: text/html; charset=utf-8');
  * @internal param $course
  * @internal param $module
  */
-function mod_studentquiz_save_vote($data) {
+function mod_studentquiz_save_rate($data) {
     global $DB, $USER;
 
-    $data->vote = required_param('rate', PARAM_INT);
+    $rate = required_param('rate', PARAM_INT);
 
-    $row = $DB->get_record('studentquiz_vote', array('userid' => $USER->id, 'questionid' => $data->questionid));
+    $row = $DB->get_record('studentquiz_rate', array('userid' => $USER->id, 'questionid' => $data->questionid));
     if ($row === false) {
-        $DB->insert_record('studentquiz_vote', $data);
+        $data->rate = $rate;
+        $DB->insert_record('studentquiz_rate', $data);
     } else {
-        $row->vote = $data->vote;
-        $DB->update_record('studentquiz_vote', $row);
+        $row->rate = $rate;
+        $DB->update_record('studentquiz_rate', $row);
     }
 }
 

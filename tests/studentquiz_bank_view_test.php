@@ -22,10 +22,10 @@ const QUESTION_NAME_OP_FILTER = 'name_op';
 const QUESTION_TAGNAME_FILTER = 'tagname';
 /** @var string tagname operation filter */
 const QUESTION_TAGNAME_OP_FILTER = 'tagname_op';
-/** @var string vote filter */
-const QUESTION_VOTE_FILTER = 'vote';
-/** @var string vote operation filter */
-const QUESTION_VOTE_OP_FILTER = 'vote_op';
+/** @var string rate filter */
+const QUESTION_RATE_FILTER = 'rate';
+/** @var string rate operation filter */
+const QUESTION_RATE_OP_FILTER = 'rate_op';
 /** @var string difficultylevel filter */
 const QUESTION_DIFFICULTYLEVEL_FILTER = 'difficultylevel';
 /** @var string diffcultylevel operation filter */
@@ -110,20 +110,20 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
             $DB->update_record('question', $question);
 
             $this->create_comment($question, $userid);
-            $this->create_vote($question, $userid);
+            $this->create_rate($question, $userid);
         }
     }
 
     /**
-     * Create question vote
+     * Create question rate
      * @param stdClass $question
      * @param int $userid
      */
-    protected function create_vote($question, $userid) {
-        $voterecord = new stdClass();
-        $voterecord->vote = 5;
-        $voterecord->questionid = $question->id;
-        $voterecord->userid = $userid;
+    protected function create_rate($question, $userid) {
+        $raterecord = new stdClass();
+        $raterecord->rate = 5;
+        $raterecord->questionid = $question->id;
+        $raterecord->userid = $userid;
     }
 
     /**
@@ -176,9 +176,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
 
     /**
-     * Test questionbank filter question vote
+     * Test questionbank filter question rate
      */
-    public function test_questionbank_filter_question_vote() {
+    public function test_questionbank_filter_question_rate() {
         $this->resetAfterTest(true);
 
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(

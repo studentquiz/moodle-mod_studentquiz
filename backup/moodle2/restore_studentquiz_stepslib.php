@@ -46,10 +46,10 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         // Add attempt data.
         $this->add_question_usages($attempt, $paths);
 
-        // Restore Votes.
-        $vote = new restore_path_element('vote',
-            '/activity/studentquiz/votes/vote');
-        $paths[] = $vote;
+        // Restore Rate.
+        $rate = new restore_path_element('rate',
+            '/activity/studentquiz/rates/rate');
+        $paths[] = $rate;
 
         // Restore Comments.
         $comment = new restore_path_element('comment',
@@ -87,7 +87,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->anonymrank)) $data->anonymrank = true;
         if (empty($data->questionquantifier)) $data->questionquantifier = get_config('studentquiz', 'addquestion');
         if (empty($data->approvedquantifier)) $data->approvedquantifier = get_config('studentquiz', 'approved');
-        if (empty($data->votequantifier)) $data->votequantifier = get_config('studentquiz', 'vote');
+        if (empty($data->ratequantifier)) $data->ratequantifier = get_config('studentquiz', 'rate');
         if (empty($data->correctanswerquantifier)) $data->correctanswerquantifier = get_config('studentquiz', 'correctanswered');
         if (empty($data->incorrectanswerquantifier)) $data->incorrectanswerquantifier = get_config('studentquiz', 'incorrectanswered');
         if (empty($data->allowedqtypes)) $data->allowedqtypes = 'ALL';
@@ -108,12 +108,12 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $this->currentattempt = clone($data);
     }
 
-    protected function process_vote($data) {
+    protected function process_rate($data) {
         global $DB;
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $newitemid = $DB->insert_record('studentquiz_vote', $data);
+        $newitemid = $DB->insert_record('studentquiz_rate', $data);
     }
 
     protected function process_comment($data) {
