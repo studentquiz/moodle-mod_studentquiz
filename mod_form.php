@@ -77,7 +77,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // Field questionquantifier.
         $mform->addElement('text', 'questionquantifier',
             get_string('settings_questionquantifier_label', 'studentquiz'));
-        $mform->setType('questionquantifier', PARAM_FLOAT);
+        $mform->setType('questionquantifier', PARAM_INT);
         $mform->addHelpButton('questionquantifier', 'settings_questionquantifier', 'studentquiz');
         $mform->setDefault('questionquantifier',
             get_config('studentquiz', 'addquestion'));
@@ -85,7 +85,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // Field approvedquantifier.
         $mform->addElement('text', 'approvedquantifier',
             get_string('settings_approvedquantifier_label', 'studentquiz'));
-        $mform->setType('approvedquantifier', PARAM_FLOAT);
+        $mform->setType('approvedquantifier', PARAM_INT);
         $mform->addHelpButton('approvedquantifier', 'settings_approvedquantifier', 'studentquiz');
         $mform->setDefault('approvedquantifier',
             get_config('studentquiz', 'approved'));
@@ -93,7 +93,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // Field votequantifier.
         $mform->addElement('text', 'votequantifier',
             get_string('settings_votequantifier_label', 'studentquiz'));
-        $mform->setType('votequantifier', PARAM_FLOAT);
+        $mform->setType('votequantifier', PARAM_INT);
         $mform->addHelpButton('votequantifier', 'settings_votequantifier', 'studentquiz');
         $mform->setDefault('votequantifier',
             get_config('studentquiz', 'vote'));
@@ -101,7 +101,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // Field correctanswerquantifier.
         $mform->addElement('text', 'correctanswerquantifier',
             get_string('settings_correctanswerquantifier_label', 'studentquiz'));
-        $mform->setType('correctanswerquantifier', PARAM_FLOAT);
+        $mform->setType('correctanswerquantifier', PARAM_INT);
         $mform->addHelpButton('correctanswerquantifier', 'settings_correctanswerquantifier', 'studentquiz');
         $mform->setDefault('correctanswerquantifier',
             get_config('studentquiz', 'correctanswered'));
@@ -109,7 +109,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // Field incorrectanswerquantifier.
         $mform->addElement('text', 'incorrectanswerquantifier',
             get_string('settings_incorrectanswerquantifier_label', 'studentquiz'));
-        $mform->setType('incorrectanswerquantifier', PARAM_FLOAT);
+        $mform->setType('incorrectanswerquantifier', PARAM_INT);
         $mform->addHelpButton('incorrectanswerquantifier', 'settings_incorrectanswerquantifier', 'studentquiz');
         $mform->setDefault('incorrectanswerquantifier',
             get_config('studentquiz', 'incorrectanswered'));

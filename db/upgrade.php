@@ -221,35 +221,35 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     // Add Ranking quantifiers on activity level.
-    if ($oldversion < 201711800) {
+    if ($oldversion < 2017111800) {
         $table = new xmldb_table('studentquiz');
 
         // Add questionquantifier.
-        $field = new xmldb_field('questionquantifier', XMLDB_TYPE_FLOAT, '8,2', null, XMLDB_NOTNULL, null, '0', 'quizpracticebehaviour');
+        $field = new xmldb_field('questionquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'quizpracticebehaviour');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add questionquantifier.
-        $field = new xmldb_field('approvedquantifier', XMLDB_TYPE_FLOAT, '8,2', null, XMLDB_NOTNULL, null, '0', 'questionquantifier');
+        $field = new xmldb_field('approvedquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'questionquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add votequantifier.
-        $field = new xmldb_field('votequantifier', XMLDB_TYPE_FLOAT, '8,2', null, XMLDB_NOTNULL, null, '0', 'approvedquantifier');
+        $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'approvedquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add correctanswerquantifier.
-        $field = new xmldb_field('correctanswerquantifier', XMLDB_TYPE_FLOAT, '8,2', null, XMLDB_NOTNULL, null, '0', 'votequantifier');
+        $field = new xmldb_field('correctanswerquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'votequantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add incorrectanswerquantifier.
-        $field = new xmldb_field('incorrectanswerquantifier', XMLDB_TYPE_FLOAT, '8,2', null, XMLDB_NOTNULL, null, '0', 'correctanswerquantifier');
+        $field = new xmldb_field('incorrectanswerquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'correctanswerquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
