@@ -74,6 +74,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private $studentquiz;
 
+    /**
+     * @var Currently viewing user id.
+     */
+    protected $userid;
+
 
     private $pagevars;
 
@@ -88,8 +93,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars) {
         parent::__construct($contexts, $pageurl, $course, $cm);
+        global $USER;
         $this->pagevars = $pagevars;
         $this->studentquiz = $studentquiz;
+        $this->userid = $USER->id;
         $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
         // Init search conditions with filterform state.
@@ -631,19 +638,34 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Fast filters.
         $this->fields[] = new \toggle_filter_checkbox('onlynew',
-            \html_writer::span(get_string('filter_label_onlynew', 'studentquiz')),
-            false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0);
-
-        $this->fields[] = new \toggle_filter_checkbox('onlygood',
-            \html_writer::span(get_string('filter_label_onlygood', 'studentquiz')),
-                false, 'vo.rate', array('rate', 'rate_op'), 1, 3);
-        $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
-            \html_writer::span(get_string('filter_label_onlydifficult', 'studentquiz')),
-            false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.5);
+            get_string('filter_label_onlynew', 'studentquiz'),
+            false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0,
+            get_string('filter_label_onlynew_help', 'studentquiz'));
 
         $this->fields[] = new \toggle_filter_checkbox('onlyapproved',
-            \html_writer::span(get_string('filter_label_onlyapproved', 'studentquiz')),
-            false, 'ap.approved', array('approved', 'approved_op'), 1, 1);
+            get_string('filter_label_onlyapproved', 'studentquiz'),
+            false, 'ap.approved', array('approved', 'approved_op'), 1, 1,
+            get_string('filter_label_onlyapproved_help', 'studentquiz'));
+
+        $this->fields[] = new \toggle_filter_checkbox('onlygood',
+            get_string('filter_label_onlygood', 'studentquiz'),
+                false, 'vo.rate', array('rate', 'rate_op'), 1, 3,
+            get_string('filter_label_onlygood_help', 'studentquiz', '3'));
+
+        $this->fields[] = new \toggle_filter_checkbox('onlymine',
+            get_string('filter_label_onlymine', 'studentquiz'),
+            false, 'q.createdby', array('createdby'), 2, $this->userid,
+            get_string('filter_label_onlymine_help', 'studentquiz'));
+
+        $this->fields[] = new \toggle_filter_checkbox('onlydifficultforme',
+            get_string('filter_label_onlydifficultforme', 'studentquiz'),
+            false, 'mydiffs.mydifficulty', array('mydifficulty', 'mydifficulty_op'), 1, 0.60,
+            get_string('filter_label_onlydifficultforme_help', 'studentquiz', '60'));
+
+        $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
+            get_string('filter_label_onlydifficult', 'studentquiz'),
+            false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.60,
+            get_string('filter_label_onlydifficult_help', 'studentquiz', '60'));
 
         // Standard filters.
         $this->fields[] = new \user_filter_tag('tagname', get_string('filter_label_tags', 'studentquiz'),

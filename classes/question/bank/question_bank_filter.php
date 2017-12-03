@@ -120,6 +120,8 @@ class toggle_filter_checkbox extends user_filter_checkbox {
 
     protected $value;
 
+    protected $helptext;
+
     /**
      * A toggle filter applies adds a hard coded test to the filter set.
      *
@@ -132,15 +134,18 @@ class toggle_filter_checkbox extends user_filter_checkbox {
      * @param mixed $value text or number for comparison
      *
      */
-    public function __construct($name, $label, $advanced, $field, $disableelements, $operator, $value) {
+    public function __construct($name, $label, $advanced, $field, $disableelements, $operator, $value, $helptext = '') {
         parent::__construct($name, $label, $advanced, $field, $disableelements);
         $this->field   = $field;
         $this->operator = $operator;
         $this->value = $value;
+        $this->helptext = $helptext;
     }
 
     public function setupFormInGroup(&$mform, &$group) {
-        $element = $mform->createElement('checkbox', $this->_name, $this->_label, '', 'class="toggle"');
+        $element = $mform->createElement('checkbox', $this->_name,
+            \html_writer::span($this->_label, '', array('title' => $this->helptext)),
+            '', 'class="toggle"');
 
         if ($this->_advanced) {
             $mform->setAdvanced($this->_name);
@@ -162,6 +167,9 @@ class toggle_filter_checkbox extends user_filter_checkbox {
                 break;
             case 1:
                 $res = "$this->field >= $this->value";
+                break;
+            case 2:
+                $res = "$this->field = $this->value";
                 break;
             default:
                 $res = '';
