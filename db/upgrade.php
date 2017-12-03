@@ -319,10 +319,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         if ($dbman->table_exists($table)) {
-            if(!$dbman->table_exists($tablenew)) {
+            if(!$dbman->table_exists($tablenew && $dbman->table_exists($table))) {
                 $dbman->rename_table($table, 'studentquiz_rate');
             }
-            $dbman->drop_table($table);
+            if($dbman->table_exists($table) && $dbman->table_exists($tablenew)) {
+                $dbman->drop_table($table);
+            }
         }
 
         $table = new xmldb_table('studentquiz');
