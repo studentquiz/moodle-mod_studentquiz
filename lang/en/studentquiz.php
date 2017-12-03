@@ -61,6 +61,7 @@ $string['not_approved'] = '✗';
 $string['lastattempt_right'] = '✓';
 $string['lastattempt_wrong'] = '✗';
 $string['slot_of_slot'] = 'Question {$a->slot} of {$a->slots} in this set';
+$string['questions'] = 'questions';
 
 $string['approve'] = 'Approve';
 $string['unapprove'] = 'Unapprove';

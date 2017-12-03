@@ -28,13 +28,7 @@ $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 global $USER;
 $userid = $USER->id;
 
-// TODO: Manage capabilities and events for studentquiz.
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
-/*
- $behavior = $questionusage->get_preferred_behaviour().
- $questionusage->get_question_attempt($slot)->
- $a = $questionusage->get_question_attempt($slot)->get_behaviour()->can_finish_during_attempt();
-*/
 
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
 $stopurl = new moodle_url('/mod/studentquiz/summary.php', array('cmid' => $cmid, 'id' => $attemptid));
@@ -117,12 +111,9 @@ $PAGE->set_heading($cm->name);
 $PAGE->set_context($context);
 echo $OUTPUT->header();
 
-
-
-
 $info = new stdClass();
 $info->total = $questionscount;
-$info->group = $slot;
+$info->group = max($slot - (!$hasanswered?1:0), 0);
 $info->one = 0;
 $texttotal = $questionscount . ' ' . get_string('questions', 'studentquiz');
 $html = '';
