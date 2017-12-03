@@ -538,69 +538,71 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
      * @return string quiz report data
      */
     public function view_stat_cards($studentquizstats, $userrankingstats) {
-        $align = array();
-        $size = array();
+        $align = array('left', 'right', '', 'left', 'right', '');
+        $size = array('300px', '40px', '77px', '300px', '40px', '*');
         $head = array(
             get_string('reportrank_table_column_yourstatus', 'studentquiz'),
             get_string('reportrank_table_column_value', 'studentquiz'),
+            ''
+            /* spacing */,
             get_string('reportrank_table_column_communitystatus', 'studentquiz'),
-            get_string('reportrank_table_column_value', 'studentquiz')
+            get_string('reportrank_table_column_value', 'studentquiz'), ''
         );
         $caption = get_string('reportrank_table_progress_caption', 'studentquiz');
         $celldata = array(
             array(
                 get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
-                $userrankingstats->questions_created,
+                $userrankingstats->questions_created, '',
                 get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
-                $studentquizstats->questions_created,
+                $studentquizstats->questions_created, ''
             ),
             array(
                 get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
-                $userrankingstats->questions_approved,
+                $userrankingstats->questions_approved, '',
                 get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
-                $studentquizstats->questions_approved,
+                $studentquizstats->questions_approved, ''
             ),
             array(
                 get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
-                round($userrankingstats->rates_average, 2),
+                round($userrankingstats->rates_average, 2), '',
                 get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
-                round($studentquizstats->rates_average, 2),
-            ),
-            array(
-                get_string('reportquiz_stats_own_question_attempts_correct', 'studentquiz'),
-                $userrankingstats->question_attempts_correct,
-                get_string('reportquiz_stats_all_question_attempts_correct', 'studentquiz'),
-                $studentquizstats->question_attempts_correct
-            ),
-            array(
-                get_string('reportquiz_stats_own_question_attempts_incorrect', 'studentquiz'),
-                $userrankingstats->question_attempts_incorrect,
-                get_string('reportquiz_stats_all_question_attempts_incorrect', 'studentquiz'),
-                $studentquizstats->question_attempts_incorrect
-            ),
-            array(
-                get_string('reportquiz_stats_own_last_attempt_correct', 'studentquiz'),
-                $userrankingstats->last_attempt_correct,
-                get_string('reportquiz_stats_all_last_attempt_correct', 'studentquiz'),
-                $studentquizstats->last_attempt_correct
-            ),
-            array(
-                get_string('reportquiz_stats_own_last_attempt_incorrect', 'studentquiz'),
-                $userrankingstats->last_attempt_incorrect,
-                get_string('reportquiz_stats_all_last_attempt_incorrect', 'studentquiz'),
-                $studentquizstats->last_attempt_incorrect
+                round($studentquizstats->rates_average, 2), ''
             ),
             array(
                 get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
-                $userrankingstats->question_attempts,
+                $userrankingstats->question_attempts, '',
                 get_string('reportquiz_stats_all_questions_answered', 'studentquiz'),
-                $studentquizstats->question_attempts,
+                $studentquizstats->question_attempts, ''
+            ),
+            array(
+                get_string('reportquiz_stats_own_question_attempts_correct', 'studentquiz'),
+                $userrankingstats->question_attempts_correct, '',
+                get_string('reportquiz_stats_all_question_attempts_correct', 'studentquiz'),
+                $studentquizstats->question_attempts_correct, ''
+            ),
+            array(
+                get_string('reportquiz_stats_own_question_attempts_incorrect', 'studentquiz'),
+                $userrankingstats->question_attempts_incorrect, '',
+                get_string('reportquiz_stats_all_question_attempts_incorrect', 'studentquiz'),
+                $studentquizstats->question_attempts_incorrect, ''
+            ),
+            array(
+                get_string('reportquiz_stats_own_last_attempt_correct', 'studentquiz'),
+                $userrankingstats->last_attempt_correct, '',
+                get_string('reportquiz_stats_all_last_attempt_correct', 'studentquiz'),
+                $studentquizstats->last_attempt_correct, ''
+            ),
+            array(
+                get_string('reportquiz_stats_own_last_attempt_incorrect', 'studentquiz'),
+                $userrankingstats->last_attempt_incorrect, '',
+                get_string('reportquiz_stats_all_last_attempt_incorrect', 'studentquiz'),
+                $studentquizstats->last_attempt_incorrect, ''
             ),
             array(
                 get_string('reportquiz_stats_own_progress', 'studentquiz'),
-                (100 * round($userrankingstats->last_attempt_correct / ($studentquizstats->questions_created), 2)) . ' %',
+                (100 * round($userrankingstats->last_attempt_correct / ($studentquizstats->questions_created), 2)) . ' %', '',
                 get_string('reportquiz_stats_all_progress', 'studentquiz'),
-                (100 * round(($studentquizstats->last_attempt_correct / $studentquizstats->questions_created / $studentquizstats->participants), 2)) . ' %',
+                (100 * round(($studentquizstats->last_attempt_correct / $studentquizstats->questions_created / $studentquizstats->participants), 2)) . ' %', ''
             )
         );
         $data = $this->render_table_data($celldata);
