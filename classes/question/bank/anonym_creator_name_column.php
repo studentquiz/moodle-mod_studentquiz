@@ -14,15 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
-namespace mod_studentquiz\bank;
-
 /**
  * A column type for the name of the question creator.
  *
- * @copyright  2009 Tim Hunt
+ * @package    mod_studentquiz
+ * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_studentquiz\bank;
 
 class anonym_creator_name_column extends \core_question\bank\creator_name_column {
 
