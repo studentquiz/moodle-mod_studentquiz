@@ -182,7 +182,7 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-right'));
-if ($hasanswered && $hasrated) {
+if ($hasanswered) { // And ~$hasrated, but done using javascript as not showing the next button seems not intuitive
     if ($hasnext) {
         $html .= html_writer::empty_tag('input',
             array('type' => 'submit', 'name' => 'next', 'value' =>  get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));

@@ -52,7 +52,7 @@ define(['jquery'], function($) {
             });
 
             // On CLICK check if student submitted result and has rated if not abort next and show error for rating.
-            $('.submitbtns input[name="next"]').off('click').on('click', function() {
+            $('input[name="next"]').off('click').on('click', function() {
                 var $that = $(this);
 
                 if (
@@ -123,7 +123,6 @@ define(['jquery'], function($) {
      * @param {int}    questionid Question id
      */
     function get_comment_list(questionid, $commentlist, cmid) {
-        // TODO baseurl not required anymore, since merge into main module
         var commentlisturl = $('#baseurlmoodle').val() + '/mod/studentquiz/comment_list.php?questionid=';
         commentlisturl += questionid + '&cmid=' + cmid + '&sesskey=' + M.cfg.sesskey;
         $.get(commentlisturl,
