@@ -479,39 +479,6 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
 
     /**
-     * Builds the quiz report table for the admin
-     * @param mod_studentquiz_report $report studentquiz_report class with necessary information
-     * @param array $usersdata
-     * @return string rank report table
-     */
-    public function view_stat_table($report, $usersdata) {
-        $caption = get_string('reportquiz_admin_title', 'studentquiz');
-        $align = array();
-        $size = array();
-        $head = array(
-            get_string('reportrank_table_column_fullname', 'studentquiz'),
-            get_string('reportquiz_total_questions_answered', 'studentquiz'),
-            get_string('reportquiz_total_questions_right', 'studentquiz'),
-            get_string('reportquiz_total_obtained_marks', 'studentquiz')
-        );
-        $celldata = array();
-        $rowstyle = array();
-
-        foreach ($usersdata as $user) {
-            $celldata[] = array(
-                $user->name,
-                $user->questionsanswered,
-                $user->questionsright,
-                $user->attemptedgrade . ' / ' . $user->maxgrade
-            );
-            $rowstyle[] = $report->is_loggedin_user($user->id)? array('class' => 'mod-studentquiz-summary-highlight'): array();
-        }
-
-        $data = $this->render_table_data($celldata, $rowstyle);
-        return $this->render_table($data, $size, $align, $head, $caption);
-    }
-
-    /**
      * Get quiz admin statistic view
      * $userid of viewing user
      * @param mod_studentquiz_report $report
@@ -524,10 +491,6 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             $report->get_studentquiz_stats(),
             $report->get_user_stats()
             );
-        // TODO: Refactor: Suggestion to remove this redundant table entirely
-        /*if($report->is_admin()) {
-            $output .= $this->view_stat_table($report, $report->get_user_stats());
-        }*/
         return $output;
     }
 
