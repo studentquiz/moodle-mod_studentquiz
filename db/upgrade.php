@@ -311,6 +311,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Rename vote to rate in all occurences.
     if ($oldversion < 2017120201) {
         $table = new xmldb_table('studentquiz_vote');
+        $tablenew = new xmldb_table('studentquiz_rate');
         $field = new xmldb_field('vote', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
 
         if($dbman->table_exists($table) && $dbman->field_exists($table, $field)) {
@@ -318,7 +319,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         if ($dbman->table_exists($table)) {
-            $dbman->rename_table($table, 'studentquiz_rate');
+            if(!$dbman->table_exists($tablenew)) {
+                $dbman->rename_table($table, 'studentquiz_rate');
+            }
+            $dbman->drop_table($table);
         }
 
         $table = new xmldb_table('studentquiz');
