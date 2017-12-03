@@ -149,10 +149,11 @@ class difficulty_level_column extends \core_question\bank\column_base {
     private function render_difficultybar($average, $mine) {
         $mine = floatval($mine);
         $average = floatval($average);
+
         $fillboltson = "#ffc107";
         $fillboltsoff = "#fff";
         $fillbaron = "#fff";
-        $fillbaroff = "#ffacac";
+        $fillbaroff = "#007bff";
 
         if($average > 0 && $average <=1) {
             $width = round($average * 100, 0);

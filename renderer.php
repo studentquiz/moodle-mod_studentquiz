@@ -171,9 +171,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         // Stylings.
         $rgb_stroke = 'rgb(200,200,200)';
-        $rgb_background = 'rgb(200,200,200)';
+        $rgb_background = 'rgb(255,193,7)';
         $rgb_green = 'rgb(40, 167, 69)';
-        $rgb_blue = 'rgb(0, 123, 255)';
+        $rgb_blue = 'rgb(220, 53, 69)';
         $rgb_white = 'rgb(40, 167, 69)';
         $bar_stroke = 'stroke-width:0.1;stroke:' . $rgb_stroke .';';
         $svg_dims = array('width' => '100%', 'height' => 20);

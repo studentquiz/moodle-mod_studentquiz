@@ -117,7 +117,7 @@ class rate_column extends \core_question\bank\column_base {
         $fillstarson = "#ffc107";
         $fillstarsoff = "#fff";
         $fillbaron = "#fff";
-        $fillbaroff = "#28a745";
+        $fillbaroff = "#007bff";
 
         if($average > 0 && $average <=5) {
             $width = round($average * 20, 0);

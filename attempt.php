@@ -114,8 +114,8 @@ echo $OUTPUT->header();
 
 $info = new stdClass();
 $info->total = $questionscount;
-$info->group = max($slot - (!$hasanswered?1:0), 0);
-$info->one = 0;
+$info->group = 0;
+$info->one = max($slot - (!$hasanswered?1:0), 0);
 $texttotal = $questionscount . ' ' . get_string('questions', 'studentquiz');
 $html = '';
 
