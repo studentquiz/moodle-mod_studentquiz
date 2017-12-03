@@ -78,8 +78,12 @@ $string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel 
 // Blocks
 $string['statistic_block_title'] = 'My Progress';
 $string['ranking_block_title'] = 'Ranking';
-$string['statistic_block_progress'] = 'There are {$a->total} questions available. You answered {$a->group} at least once and {$a->one} correctly on your last attempt.';
-$string['statistic_block_approvals'] = '{$a->one} of your {$a->total} created questions are approved.';
+$string['statistic_block_progress_never'] = 'Questions never answered';
+$string['statistic_block_progress_last_attempt_correct'] = 'Latest attempt correct';
+$string['statistic_block_progress_last_attempt_incorrect'] = 'Latest attempt incorrect';
+$string['statistic_block_progress_available'] = 'Questions available';
+$string['statistic_block_created'] = 'Questions created';
+$string['statistic_block_approvals'] = 'Questions approved';
 
 // Filters.
 $string['filter'] = 'Filter';
@@ -125,7 +129,7 @@ $string['settings_approvedquantifier_label'] = 'Points for each question approve
 $string['settings_approvedquantifier_help'] = 'Points received for each question approved.';
 $string['settings_ratequantifier'] = 'Rating quantifier';
 $string['settings_ratequantifier_label'] = 'Multiplier for the average of stars received for a question';
-$string['settings_ratequantifier_help'] = 'Points multiplier for each qustions average rating.';
+$string['settings_ratequantifier_help'] = 'Points multiplier for a qustion\'s average rating.';
 $string['settings_correctanswerquantifier'] = 'Correct answer quantifier';
 $string['settings_correctanswerquantifier_label'] = 'Points for each correct answer';
 $string['settings_correctanswerquantifier_help'] = 'Points received for answering a question correctly.';
@@ -134,7 +138,7 @@ $string['settings_incorrectanswerquantifier_label'] = 'Points for each wrong ans
 $string['settings_incorrectanswerquantifier_help'] = 'Points received for answering a question wrongly.';
 $string['settings_removeemptysections'] = 'Remove empty sections';
 $string['settings_removeemptysections_label'] = 'Remove empty sections at the end of the course';
-$string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a socalled orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
+$string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a so called orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
 $string['settings_removeqbehavior'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_label'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_help'] = 'This info should appear only once during update. We inform you that we detected our question behavior plugin StudentQuiz is installed. This plugin is not required anymore and thus we try to automatically remove it. If you still see this setting, please uninstall the question behavior plugin StudentQuiz manually <a href="{$a}">here</a>.';

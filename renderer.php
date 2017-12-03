@@ -75,10 +75,29 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $info2->one = $userstats->questions_approved;
         $bc->content =
             html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
-            . html_writer::div(get_string('statistic_block_progress', 'studentquiz', $info1))
+            . html_writer::div(
+                get_string('statistic_block_progress_never', 'studentquiz')
+                .html_writer::span('<b>' . ($sqstats->questions_created - $userstats->last_attempt_exists) .'</b>', '',
+                    array('style' => 'float: right;')))
+             . html_writer::div(
+                get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
+                .html_writer::span('<b>' .$userstats->last_attempt_correct .'</b>', '',
+                    array('style' => 'float: right;')))
+            . html_writer::div(
+                get_string('statistic_block_progress_last_attempt_incorrect', 'studentquiz')
+                .html_writer::span('<b>' .$userstats->last_attempt_incorrect .'</b>', '',
+                    array('style' => 'float: right;')))
+            . html_writer::div(
+                get_string('statistic_block_progress_available', 'studentquiz')
+                .html_writer::span('<b>' .$sqstats->questions_created .'</b>', '',
+                    array('style' => 'float: right;')))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
-            . html_writer::div(get_string('statistic_block_approvals', 'studentquiz', $info2));
-
+            . html_writer::div(get_string('statistic_block_created', 'studentquiz')
+                .html_writer::span('<b>' .$userstats->questions_created .'</b>','',
+                    array('style' => 'float: right;')))
+            . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
+                .html_writer::span('<b>' .$userstats->questions_approved .'</b>','',
+                    array('style' => 'float: right;')));
         return $bc;
     }
 

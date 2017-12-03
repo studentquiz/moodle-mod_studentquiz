@@ -31,7 +31,8 @@ $userid = $USER->id;
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
 
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
-$stopurl = new moodle_url('/mod/studentquiz/summary.php', array('cmid' => $cmid, 'id' => $attemptid));
+//$stopurl = new moodle_url('/mod/studentquiz/summary.php', array('cmid' => $cmid, 'id' => $attemptid));
+$stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid));
 
 // Get Current Question.
 $question = $questionusage->get_question($slot);
@@ -164,7 +165,7 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
 
-if ($canfinish && ($hasnext || !$hasanswered)) {
+if ($canfinish && ($hasnext || !$hasanswered)) { // ~has rated, but done using javascript.
     $html .= html_writer::empty_tag('input',
         array('type' => 'submit', 'name' => 'finish', 'value' =>  get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
 }
