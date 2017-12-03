@@ -667,9 +667,10 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $counter = 0;
         $userwasshown = false;
         $userid = $report->get_user_id();
+        $seeall = has_capability('mod/studentquiz:manage', $report->get_context();
         foreach($rankingresultset as $ur) {
             $counter++;
-            if (($counter > $maxdisplayonpage) && $userwasshown) {
+            if (($counter > $maxdisplayonpage) && $userwasshown && !$seeall) {
                 break;
             }
             if ($ur->userid == $userid) {
