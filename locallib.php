@@ -580,7 +580,7 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
     $res = $DB->get_recordset_sql($sql_select.$sql_joins.$sql_order,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-              'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid
+              'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         , 'questionquantifier' => $quantifiers->question
         , 'approvedquantifier' => $quantifiers->approved
         , 'ratequantifier' => $quantifiers->rate
@@ -608,7 +608,7 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
         .' COALESCE(sum(approvals.countq), 0) questions_approved,'
         // questions rating received
         .' COALESCE(sum(rates.countv), 0) rates_received,'
-        .' COALESCE(COALESCE(sum(rates.sumv), 0) / COALESCE(sum(rates.countv), 1),0) rates_average,'
+        .' COALESCE(avg(rates.avgv), 0) rates_average,'
         // question attempts
         .' COALESCE(count(1), 0) participated,'
         .' COALESCE(sum(attempts.counta), 0) question_attempts,'
@@ -621,7 +621,7 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
     $sql_joins = mod_studentquiz_helper_attempt_stat_joins();
     $rs = $DB->get_record_sql($sql_select.$sql_joins,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-            'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid
+            'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         ));
     return $rs;
 }
@@ -641,7 +641,7 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
     $sql_add_where = ' AND u.id = :userid ';
     return $DB->get_record_sql($sql_select.$sql_joins.$sql_add_where,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-            'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid
+            'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         , 'questionquantifier' => $quantifiers->question
         , 'approvedquantifier' => $quantifiers->approved
         , 'ratequantifier' => $quantifiers->rate
@@ -664,7 +664,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE ( ROUND('
         .' COALESCE(creators.countq, 0) * :questionquantifier  ' // questions created
         .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // questions approved
-        .'+ COALESCE(COALESCE(rates.sumv, 0) / COALESCE(rates.countv, 1),0) * COALESCE(creators.countq, 0) * :ratequantifier  ' // rating
+        .'+ COALESCE(rates.avgv, 0) * COALESCE(creators.countq, 0) * :ratequantifier  ' // rating
         .'+ COALESCE(lastattempt.last_attempt_correct, 0) * :correctanswerquantifier  ' // correct answers
         .'+ COALESCE(lastattempt.last_attempt_incorrect, 0) * :incorrectanswerquantifier ' // incorrect answers
         .' , 1) , 0) points, '
@@ -674,11 +674,11 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE(approvals.countq, 0) questions_approved,'
         // questions rating received
         .' COALESCE(rates.countv, 0) rates_received,'
-        .' COALESCE(COALESCE(rates.sumv, 0) / COALESCE(rates.countv, 1),0) rates_average,'
+        .' COALESCE(rates.avgv, 0) rates_average,'
         // question attempts
         .' COALESCE(attempts.counta, 0) question_attempts,'
         .' COALESCE(attempts.countright, 0) question_attempts_correct,'
-        .' COALESCE(COALESCE(attempts.counta, 0) - COALESCE(attempts.countright, 0),0) question_attempts_incorrect,'
+        .' COALESCE(attempts.countwrong, 0) question_attempts_incorrect,'
         // last attempt
         .' COALESCE(lastattempt.last_attempt_exists, 0) last_attempt_exists,'
         .' COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct,'
@@ -722,7 +722,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' ) approvals ON approvals.creator = u.id'
         // Rating for own questions received
         .' LEFT JOIN'
-        .' ( SELECT count(*) countv, sum(sqv.rate) sumv, q.createdby creator'
+        .' ( SELECT count(*) countv, avg(sqv.rate) avgv, sum(sqv.rate) sumv, q.createdby creator'
         .' FROM {studentquiz} sq'
         .' JOIN {context} con ON con.instanceid = sq.coursemodule'
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
@@ -744,8 +744,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
         .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
         .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-        .' WHERE sq.coursemodule = 3'
-        // Todo: Note: There are grading states by manual grading as well.
+        .' WHERE sq.coursemodule = :cmid7'
         .' AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
         // only count grading triggered by submits
         .' AND qasd.name = \'-submit\''

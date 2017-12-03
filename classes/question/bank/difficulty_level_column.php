@@ -68,7 +68,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
 
         return array('dl' => 'LEFT JOIN ('
                 . 'SELECT '
-                . ' ROUND(1-(sum(case qas.state when \'gradedright\' then 1 else 0 end)/count(*)),2) as difficultylevel,'
+                . ' ROUND(1-avg(case qas.state when \'gradedright\' then 1 else 0 end),2) as difficultylevel,'
                 . ' questionid'
                 . ' FROM {studentquiz_attempt} sqa '
                 . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid '
@@ -81,7 +81,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
                 . ' GROUP BY qa.questionid) dl ON dl.questionid = q.id',
             'mydiffs' => 'LEFT JOIN ('
                 . 'SELECT '
-                . ' ROUND(1-(sum(case state when \'gradedright\' then 1 else 0 end)/count(*)),2) as mydifficulty,'
+                . ' ROUND(1-avg(case state when \'gradedright\' then 1 else 0 end),2) as mydifficulty,'
                 . ' sum(case state when \'gradedright\' then 1 else 0 end) as mycorrectattempts,'
                 . ' questionid'
                 . ' FROM {studentquiz_attempt} sqa '

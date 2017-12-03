@@ -73,7 +73,7 @@ class rate_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         return array('vo' => 'LEFT JOIN ('
-        .'SELECT ROUND(SUM(rate)/COUNT(rate), 2) as rate'
+        .'SELECT ROUND(avg(rate), 2) as rate'
         .', questionid FROM {studentquiz_rate} GROUP BY questionid) vo ON vo.questionid = q.id',
         'myrate' => 'LEFT JOIN ('
             . 'SELECT '
