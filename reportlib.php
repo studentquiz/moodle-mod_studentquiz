@@ -79,7 +79,8 @@ class mod_studentquiz_report {
     protected $userrankingstats;
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
-            return $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->get_quantifiers(), $this->get_user_id());
+            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->get_quantifiers(), $this->get_user_id());
+            return $this->userrankingstats;
         }else{
             return $this->userrankingstats;
         }

@@ -51,14 +51,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     public function render_stat_block($report) {
         // TODO: Refactor: use mod_studentquiz_report_record_type!
-        if(!$userstats = $report->get_user_stats()) {
-            $userstats = new stdClass();
-            $userstats->questions_created = 0;
-            $userstats->last_attempt_exists = 0;
-            $userstats->questions_approved = 0;
-            $userstats->last_attempt_correct = 0;
-            $userstats->last_attempt_incorrect = 0;
-        };
+        $userstats = $report->get_user_stats();
         $sqstats = $report->get_studentquiz_stats();
         $bc = new block_contents();
         $bc->attributes['id'] = 'mod_studentquiz_statblock';

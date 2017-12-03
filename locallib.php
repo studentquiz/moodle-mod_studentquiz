@@ -639,7 +639,8 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
     $sql_select = mod_studentquiz_helper_attempt_stat_select();
     $sql_joins = mod_studentquiz_helper_attempt_stat_joins();
     $sql_add_where = ' AND u.id = :userid ';
-    return $DB->get_record_sql($sql_select.$sql_joins.$sql_add_where,
+    $DB->set_debug(false);
+    $rs = $DB->get_record_sql($sql_select.$sql_joins.$sql_add_where,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         , 'questionquantifier' => $quantifiers->question
@@ -649,6 +650,8 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
         , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
             , 'userid' => $userid
         ));
+    $DB->set_debug(false);
+    return $rs;
 }
 
 /**
