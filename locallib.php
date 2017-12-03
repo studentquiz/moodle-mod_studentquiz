@@ -610,6 +610,7 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
         .' COALESCE(sum(rates.countv), 0) rates_received,'
         .' COALESCE(COALESCE(sum(rates.sumv), 0) / COALESCE(sum(rates.countv), 1),0) rates_average,'
         // question attempts
+        .' COALESCE(count(1), 0) participated,'
         .' COALESCE(sum(attempts.counta), 0) question_attempts,'
         .' COALESCE(sum(attempts.countright), 0) question_attempts_correct,'
         .' COALESCE(sum(attempts.countwrong), 0) question_attempts_incorrect,'
