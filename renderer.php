@@ -78,15 +78,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
                 .html_writer::span('<b>' . ($sqstats->questions_created - $userstats->last_attempt_exists) .'</b>', '',
-                    array('style' => 'float: right;')))
+                    array('style' => 'float: right;color:#c8c8c8;')))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->last_attempt_correct .'</b>', '',
-                    array('style' => 'float: right;')))
+                    array('style' => 'float: right;color:#28A745;')))
             . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_incorrect', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->last_attempt_incorrect .'</b>', '',
-                    array('style' => 'float: right;')))
+                    array('style' => 'float: right;color:#007BFF;')))
             . html_writer::div(
                 get_string('statistic_block_progress_available', 'studentquiz')
                 .html_writer::span('<b>' .$sqstats->questions_created .'</b>', '',
@@ -97,7 +97,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                     array('style' => 'float: right;')))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->questions_approved .'</b>','',
-                    array('style' => 'float: right;')));
+                    array('style' => 'float: right;color:#28A745;')));
         return $bc;
     }
 
