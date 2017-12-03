@@ -281,9 +281,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     {
         $contents = '';
 
-        $contents .= $this->heading(format_string($view->get_studentquiz_name()));
-
-        $contents .= $this->render_select_qtype_form($view);
+        if (!optional_param('deleteselected', false, PARAM_BOOL) && !optional_param('approveselected', false, PARAM_BOOL)) {
+            $contents .= $this->heading(format_string($view->get_studentquiz_name()));
+            $contents .= $this->render_select_qtype_form($view);
+        }
 
         $contents .= $this->render_questionbank($view);
 
