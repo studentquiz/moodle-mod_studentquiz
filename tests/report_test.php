@@ -59,7 +59,7 @@ class mod_studentquiz_statistic_testcase extends advanced_testcase {
         $activity = $this->getDataGenerator()->create_module('studentquiz'
             , array('course' => $course->id),  array('anonymrank' => true));
         $this->context = context_module::instance($activity->cmid);
-        $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id)
+        $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
 
         // Create questions in questionbank
@@ -70,16 +70,20 @@ class mod_studentquiz_statistic_testcase extends advanced_testcase {
             array('TF3', 'truefalse'),
         );
         $questions = array();
-        foreach($layout as $item) {
+        foreach($layout as $key => $item) {
             list($name, $qtype) = $item;
             $questiondata = $questiongenerator->create_question($qtype, null,
-                array('name' => $name, 'category' => $studentquiz->categoryid));
-            $questions[$slot] = question_bank::make_question($questiondata);
+                array('name' => $name, 'category' => $this->studentquiz->categoryid));
+            $questions[$key] = question_bank::make_question($questiondata);
         }
 
+        // Load studentquiz view to ensure questions are in DB now ?
+        // $studentquizview = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $user->id);
 
-        /// HIER
+        // Load attempt data see to define
+        // question_attempt_db_test extends data_loading_method_test_base
 
+        // TOOD: Save attempt to DB -> load mod_studentquiz_report to query results
 
         // Create attempts
         foreach ($questions as $slot => $question) {
