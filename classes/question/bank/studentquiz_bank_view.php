@@ -558,8 +558,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
 
-        $pagingbar = $this->create_paging_bar($pageurl, $page, $perpage);
-
         $output .= '<fieldset class="invisiblefieldset" style="display: block;">';
         $output .=  '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         $output .=  "<input name='id' type='hidden' value='".$this->cm->id ."' />";
@@ -570,11 +568,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
-        $output .= $pagingbar;
+        $output .= $this->create_paging_bar($pageurl, $page, $perpage);
 
         $output .= $this->display_question_list_rows($page);
 
-        $output .= $pagingbar;
+        $output .= $this->create_paging_bar($pageurl, $page, $perpage);
 
         $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
