@@ -145,6 +145,8 @@ class mod_studentquiz_view {
 
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
+        $pagevars['qperpage'] = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
+        $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
 
         $this->pageurl = new moodle_url($thispageurl);
 

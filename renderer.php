@@ -331,8 +331,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     public function render_questionbank($view) {
         $pagevars = $view->get_qb_pagevar();
         return $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
-            $pagevars['cat'], false, $pagevars['showhidden'],
-            $pagevars['qbshowtext']);
+            $pagevars['cat'], false, $pagevars['showhidden'], $pagevars['qbshowtext']);
     }
 
     /**

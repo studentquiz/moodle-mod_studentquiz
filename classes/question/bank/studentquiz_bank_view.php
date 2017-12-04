@@ -104,6 +104,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param object $course
      * @param null|object $cm
      * @param object $studentquiz
+     * @param $pagevars
      */
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars) {
         parent::__construct($contexts, $pageurl, $course, $cm);
@@ -151,7 +152,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->build_query();
 
         // Get result set.
-        $questions = $this->load_questions($page, $perpage  );
+        $questions = $this->load_questions($page, $perpage);
 
         $tags = mod_studentquiz_get_tags_by_question_ids($this->displayedquestionsids);
 
@@ -176,6 +177,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         if (count($this->questions) > 0) {
             $output .= '<form method="post" action="view.php">';
+
+            // Allow sending form without explicit submit action, so input fields can refresh the page
+            $output .= \html_writer::empty_tag('input', array('type' => 'submit', 'style' => 'display:none;'));
 
             // Continues with list of questions.
             $output .= $this->display_question_list($this->contexts->having_one_edit_tab_cap($tabname),
@@ -498,12 +502,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
     /**
      * (Copy from parent class - modified several code snippets)
      * Display the controls at the bottom of the list of questions.
-     * @param int      $totalnumber Total number of questions that might be shown (if it was not for paging).
-     * @param bool     $recurse     Whether to include subcategories.
-     * @param stdClass $category    The question_category row from the database.
-     * @param context  $catcontext  The context of the category being displayed.
-     * @param array    $addcontexts contexts where the user is allowed to add new questions.
-     * @return html output
+     * @param int $totalnumber Total number of questions that might be shown (if it was not for paging).
+     * @param bool $recurse Whether to include subcategories.
+     * @param stdClass $category The question_category row from the database.
+     * @param \context|context $catcontext The context of the category being displayed.
+     * @param array $addcontexts contexts where the user is allowed to add new questions.
+     * @return string html output
      */
     protected function display_bottom_controls($totalnumber, $recurse, $category, \context $catcontext, array $addcontexts) {
         $output = '';
@@ -532,16 +536,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * (Copy from parent class - modified several code snippets)
      * Prints the table of questions in a category with interactions
      *
-     * @param array      $contexts    Not used!
-     * @param moodle_url $pageurl     The URL to reload this page.
-     * @param string     $categoryandcontext 'categoryID,contextID'.
-     * @param stdClass   $cm          Not used!
-     * @param bool       $recurse     Whether to include subcategories.
-     * @param int        $page        The number of the page to be displayed
-     * @param int        $perpage     Number of questions to show per page
-     * @param bool       $showhidden  whether deleted questions should be displayed.
-     * @param bool       $showquestiontext whether the text of each question should be shown in the list. Deprecated.
-     * @param array      $addcontexts contexts where the user is allowed to add new questions.
+     * @param array $contexts Not used!
+     * @param moodle_url $pageurl The URL to reload this page.
+     * @param string $categoryandcontext 'categoryID,contextID'.
+     * @param stdClass $cm Not used!
+     * @param bool|int $recurse Whether to include subcategories.
+     * @param int $page The number of the page to be displayed
+     * @param int $perpage Number of questions to show per page
+     * @param bool $showhidden whether deleted questions should be displayed.
+     * @param bool $showquestiontext whether the text of each question should be shown in the list. Deprecated.
+     * @param array $addcontexts contexts where the user is allowed to add new questions.
      * @return html output
      */
     protected function display_question_list($contexts, $pageurl, $categoryandcontext,
@@ -560,7 +564,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $output .=  '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
         $output .=  "<input name='id' type='hidden' value='".$this->cm->id ."' />";
         $output .=  "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->get_filtered_question_ids()) ."' />";
-        $output .=  \html_writer::input_hidden_params($this->baseurl);
+
+        // exclude qperpage as we have a page size selector now
+        $output .=  \html_writer::input_hidden_params($this->baseurl, array('qperpage'));
 
         $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
@@ -851,6 +857,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     /**
      * Load question from database
+     * @param int $page
+     * @param int $perpage
      * @return pqginated array of questions
      */
     private function load_questions($page, $perpage) {
@@ -859,16 +867,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $counterquestions = 0;
         $numberofdisplayedquestions = 0;
+        $showall = $this->pagevars['showall'];
         $rs->rewind();
 
         // Skip Questions on previous pages.
-        while($rs->valid() && $counterquestions < $page * $perpage) {
+        while($rs->valid() && !$showall && $counterquestions < $page * $perpage) {
             $rs->next();
             $counterquestions++;
         }
 
         // Reset and start from 0 if page was empty
-        if($counterquestions < $page * $perpage) {
+        if(!$showall && $counterquestions < $page * $perpage) {
             $rs->rewind();
         }
 
@@ -878,7 +887,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         //
         $questions = array();
         // Load questions
-        while($rs->valid() && $numberofdisplayedquestions < $perpage) {
+        while($rs->valid() && ($showall || $numberofdisplayedquestions < $perpage)) {
             $question = $rs->current();
             $numberofdisplayedquestions++;
             $counterquestions++;
@@ -910,39 +919,51 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param $pageurl
      * @param $page
      * @param $perpage
-     * @return array
+     * @return string html output
+     * @internal param $showall
      */
     private function create_paging_bar($pageurl, $page, $perpage) {
         global $OUTPUT;
 
+        $showall = $this->pagevars['showall'];
         $pageingurl = new \moodle_url('view.php');
         $pageingurl->params($this->baseurl->params());
 
         $pagingbar = new \paging_bar($this->totalnumber, $page, $perpage, $pageingurl);
         $pagingbar->pagevar = 'qpage';
-        $pagingshowall = '';
-        if ($this->totalnumber > DEFAULT_QUESTIONS_PER_PAGE) {
-            if ($perpage == DEFAULT_QUESTIONS_PER_PAGE) {
-                $url = new \moodle_url('view.php', array_merge($pageurl->params(),
-                    array('qperpage' => MAXIMUM_QUESTIONS_PER_PAGE)));
-                if ($this->totalnumber > MAXIMUM_QUESTIONS_PER_PAGE) {
-                    $showall = '<a href="' . $url . '">'
-                        . get_string('showperpage', 'moodle', MAXIMUM_QUESTIONS_PER_PAGE) . '</a>';
-                } else {
-                    $showall = '<a href="' . $url . '">' . get_string('showall', 'moodle', $this->totalnumber) . '</a>';
+        $pagingbaroutput = '';
+
+        if (!$showall) {
+            $url = new \moodle_url('view.php', array_merge($pageurl->params(),
+                array('showall' => true)));
+            if ($this->totalnumber > $perpage) {
+                if (empty($this->pagevars['showallprinted'])) {
+                    $content = \html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('pagesize', 'studentquiz'), 'class' => 'btn'));
+                    $content .= \html_writer::empty_tag('input', array('type' => 'text', 'name' => 'qperpage', 'value' => $perpage, 'class' => 'form-control'));
+                    $pagingbaroutput .= \html_writer::div($content, 'pull-right form-inline pagination');
+                    $this->pagevars['showallprinted'] = true;
                 }
-            } else {
+
+                $showalllink = '<a href="' . $url . '">' . get_string('showall', 'moodle', $this->totalnumber) . '</a>';
+                $pagingshowall = "<div class='paging'>{$showalllink}</div>";
+                $pagingbaroutput .= '<div class="categorypagingbarcontainer">';
+                $pagingbaroutput .= $OUTPUT->render($pagingbar);
+                $pagingbaroutput .= $pagingshowall;
+                $pagingbaroutput .= '</div>';
+            } elseif ($perpage > DEFAULT_QUESTIONS_PER_PAGE) {
                 $url = new \moodle_url('view.php', array_merge($pageurl->params(),
                     array('qperpage' => DEFAULT_QUESTIONS_PER_PAGE)));
-                $showall = '<a href="' . $url . '">' . get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE) . '</a>';
+                $showalllink = '<a href="' . $url . '">' . get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE) . '</a>';
+                $pagingshowall = "<div class='paging'>{$showalllink}</div>";
+                $pagingbaroutput .= $pagingshowall;
             }
-            $pagingshowall = "<div class='paging'>{$showall}</div>";
+        } else {
+            $url = new \moodle_url('view.php', array_merge($pageurl->params(),
+                array('qperpage' => $perpage)));
+            $showalllink = '<a href="' . $url . '">' . get_string('showperpage', 'moodle', $perpage) . '</a>';
+            $pagingshowall = "<div class='paging'>{$showalllink}</div>";
+            $pagingbaroutput .= $pagingshowall;
         }
-
-        $pagingbaroutput  = '<div class="categorypagingbarcontainer">';
-        $pagingbaroutput .= $OUTPUT->render($pagingbar);
-        $pagingbaroutput .= $pagingshowall;
-        $pagingbaroutput .= '</div>';
 
         return $pagingbaroutput;
     }

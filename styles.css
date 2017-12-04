@@ -1,25 +1,3 @@
-#page-mod-studentquiz-view .createnewquestion .singlebutton {
-    display: inline;
-}
-
-#page-mod-studentquiz-view .createnewquestion input[type="submit"] {
-    background: #005aa8 linear-gradient(to bottom, #0070a8, #0038a8) repeat-x;
-    border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-    color: #fff;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
-}
-
-#page-mod-studentquiz-view .createnewquestion input[type="submit"]:hover {
-    background-color: #0038a8;
-    color: #fff;
-}
-
-#page-mod-studentquiz-view .createnewquestion .singlebutton div,
-#page-mod-studentquiz-view .createnewquestion .singlebutton form {
-    display: inline;
-    margin-right: 0;
-}
-
 #page-mod-studentquiz-view #filterform {
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
@@ -312,4 +290,8 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 
 .studentquiz_behaviour .star-empty {
     background-image: url([[pix:mod_studentquiz|star_empty_icon]]);
+}
+
+#page-mod-studentquiz-view .pagination .form-control {
+    width: 60px;
 }
