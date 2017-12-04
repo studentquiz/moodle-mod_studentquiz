@@ -79,11 +79,14 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     if (!isset($studentquiz->anonymrank)) {
         $studentquiz->anonymrank = 0;
-    }
-    $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
-
-    if (isset($mform->anonymrank)) {
+    } else {
         $studentquiz->anonymrank = $mform->anonymrank;
+    }
+
+    if (!isset($studentquiz->allowedqtypes)) {
+        $studentquiz->allowedqtypes = 'ALL';
+    } else {
+        $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
     }
 
     if ((!isset($studentquiz->hiddensection))) {
