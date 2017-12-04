@@ -143,6 +143,7 @@ class mod_studentquiz_view {
             mod_studentquiz_add_question_capabilities($this->context);
         }
 
+        // TODO: This is the problematic redirect call for unittests
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
         $pagevars['qperpage'] = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);

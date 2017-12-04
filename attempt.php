@@ -84,6 +84,14 @@ if (data_submitted()) {
             redirect($actionurl);
         }
     } else if (optional_param('finish', null, PARAM_BOOL)) {
+        // There is submitted data. Process it.
+        $transaction = $DB->start_delegated_transaction();
+
+        $questionusage->finish_question($slot);
+
+        // TODO: Update tracking data --> studentquiz progress, studentquiz_attempt.
+        $transaction->allow_commit();
+
         question_engine::save_questions_usage_by_activity($questionusage);
         // TODO Trigger events?
         redirect($stopurl);

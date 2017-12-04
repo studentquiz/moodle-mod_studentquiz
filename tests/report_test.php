@@ -26,6 +26,8 @@ defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
+require_once($CFG->dirroot . '/mod/studentquiz/viewlib.php');
+require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 
 /**
  * Unit tests for mod/studentquiz/reportstat.php.
@@ -35,13 +37,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-class mod_studentquiz_statistic_testcase extends advanced_testcase {
-    /**
-     * @var studentquiz_view
-     */
-    private $report;
-    private $studentquiz;
-    private $cm;
+class mod_studentquiz_report_testcase extends advanced_testcase {
 
     /**
      * Setup test
@@ -51,16 +47,31 @@ class mod_studentquiz_statistic_testcase extends advanced_testcase {
         global $DB;
 
         // Setup activity
-        $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
-
-        $activity = $this->getDataGenerator()->create_module('studentquiz'
-            , array('course' => $course->id),  array('anonymrank' => true));
+        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+            'course' => $course->id,
+            'anonymrank' => true,
+            'questionquantifier' => 10,
+            'approvedquantifier' => 5,
+            'ratequantifier' => 3,
+            'correctanswerquantifier' => 2,
+            'incorrectanswerquantifier' => -1,
+        ));
         $this->context = context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
+        $this->report = new mod_studentquiz_report($activity->cmid);
+
+        // Create users
+        $usernames = array('Peter', 'Lisa', 'Sandra', 'Tobias', 'Gabi', 'Sepp');
+        $users = array();
+        foreach($usernames as $username) {
+            $user = $this->getDataGenerator()->create_user(array('firstname' => $username));
+            $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
+            $users[] = $user;
+        }
+        $this->users = $users;
 
         // Create questions in questionbank
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -69,81 +80,125 @@ class mod_studentquiz_statistic_testcase extends advanced_testcase {
             array('TF2', 'truefalse'),
             array('TF3', 'truefalse'),
         );
-        $questions = array();
-        foreach($layout as $key => $item) {
+        $questionids = array();
+        foreach($layout as $item) {
             list($name, $qtype) = $item;
-            $questiondata = $questiongenerator->create_question($qtype, null,
-                array('name' => $name, 'category' => $this->studentquiz->categoryid));
-            $questions[$key] = question_bank::make_question($questiondata);
+            $q = $questiongenerator->create_question($qtype, null, array(
+                'name' => $name,
+                'category' => $this->studentquiz->categoryid
+            ));
+            $questionids[] = $q->id;
+        }
+
+        // load questions
+        $questions = array();
+        foreach($questionids as $questionid) {
+            $questions[] = question_bank::load_question($questionid);
         }
 
         // Load studentquiz view to ensure questions are in DB now ?
-        // $studentquizview = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $user->id);
+        // TODO: Unable to do, as questionbank tries to redirect!
+        // $studentquizview = new mod_studentquiz_view($course, $this->context, $this->cm, $this->studentquiz, $user->id);
+        // var_dump($studentquizview->get_questionbank()->get_questions());
 
-        // Load attempt data see to define
-        // question_attempt_db_test extends data_loading_method_test_base
+        // Load attempt data
+        $attempt = mod_studentquiz_generate_attempt($questionids, $this->studentquiz, $users[0]->id);
+        $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid); // THIS internally does also load_from_records!
+
+        // Attention! Here userid = userid with attempt -> speciality studentquiz, just in case...
+        $records = new question_test_recordset(array(
+            array('questionattemptid', 'contextid', 'questionusageid', 'slot', 'behaviour',
+                                                                                                                     'questionid', 'variant', 'maxmark', 'minfraction', 'maxfraction', 'flagged',
+                                                                                                                                                                                'questionsummary', 'rightanswer', 'responsesummary', 'timemodified',
+                                                                                                                                                                                                        'attemptstepid', 'sequencenumber', 'state', 'fraction',
+                                                                                                                                                                                                                                         'timecreated', 'userid', 'name', 'value'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0, 'todo',              null, 1256233700, $users[0]->id,       null, null),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1, 'complete',          null, 1256233705, $users[0]->id,   'answer',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2, 'complete',          null, 1256233710, $users[0]->id,   'answer',  '0'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3, 'complete',          null, 1256233715, $users[0]->id,   'answer',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4, 'gradedright',  1.0000000, 1256233720, $users[0]->id,  '-finish',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, $users[0]->id, '-comment', 'Not good enough!'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, $users[0]->id,    '-mark',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, $users[0]->id, '-maxmark',  '2'),
+        ));
 
         // TOOD: Save attempt to DB -> load mod_studentquiz_report to query results
+        question_bank::start_unit_test();
+        $qa = question_attempt::load_from_records($records, $attempt->id, new question_usage_null_observer(), STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
+        question_bank::end_unit_test();
 
-        // Create attempts
-        foreach ($questions as $slot => $question) {
-            $newslot = $quba->add_question($question, $maxmark[$slot]);
-            if ($newslot != $slot) {
-                throw new coding_exception('Slot numbers have got confused.');
-            }
+        // probably not needed, but was a try
+        $questionusage->process_all_actions();
+        foreach($questionusage->get_slots() as $slot) {
+            $questionusage->finish_question($slot);
         }
 
-        /**
-         * STRUCTURE
-         */
+        // save to db, was the hope
+        question_engine::save_questions_usage_by_activity($questionusage);
 
+        /*
+        // Load attempt data 2. I believe this is to test without the DB, not the way around.
+        $records = new question_test_recordset(array(
+            array('questionattemptid', 'contextid', 'questionusageid', 'slot',
+                'behaviour', 'questionid', 'variant', 'maxmark', 'minfraction', 'maxfraction', 'flagged',
+                'questionsummary', 'rightanswer', 'responsesummary', 'timemodified',
+                'attemptstepid', 'sequencenumber', 'state', 'fraction',
+                'timecreated', 'userid', 'name', 'value'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0, 'todo',              null, 1256233700, 1,       null, null),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1, 'complete',          null, 1256233705, 1,   'answer',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2, 'complete',          null, 1256233710, 1,   'answer',  '0'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3, 'complete',          null, 1256233715, 1,   'answer',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4, 'gradedright',  1.0000000, 1256233720, 1,  '-finish',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, 1, '-comment', 'Not good enough!'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, 1,    '-mark',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, 1, '-maxmark',  '2'),
+        ));
 
-        $headings = array();
-        $slot = 1;
-        $lastpage = 0;
-        foreach ($layout as $item) {
-            if (is_string($item)) {
-                if (isset($headings[$lastpage + 1])) {
-                    throw new coding_exception('Sections cannot be empty.');
-                }
-                $headings[$lastpage + 1] = $item;
+        $question = test_question_maker::make_question('truefalse', 'true');
+        $question->id = -1;
 
-            } else {
-                list($name, $page, $qtype) = $item;
-                if ($page < 1 || !($page == $lastpage + 1 ||
-                        (!isset($headings[$lastpage + 1]) && $page == $lastpage))) {
-                    throw new coding_exception('Page numbers wrong.');
-                }
-                $q = $questiongenerator->create_question($qtype, null,
-                    array('name' => $name, 'category' => $cat->id));
+        question_bank::start_unit_test();
+        question_bank::load_test_question_data($question);
+        $qa = question_attempt::load_from_records($records, 1, new question_usage_null_observer(), 'deferredfeedback');
+        question_bank::end_unit_test();
+        */
+    }
 
-                quiz_add_quiz_question($q->id, $quiz, $page);
-                $lastpage = $page;
-            }
+    /*public function test_mod_studentquiz_get_user_ranking_table() {
+
+    }*/
+
+    /*public function test_mod_studentquiz_community_stats() {
+
+    }*/
+
+    public function test_mod_studentquiz_user_stats() {
+        $this->debugdb();
+
+        $recordset = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id);
+        var_dump($recordset);
+    }
+
+    public function tearDown() {
+        parent::tearDown();
+        $this->resetAfterTest();
+    }
+
+    private function debugdb($user=array()) {
+        global $DB;
+        $tables = array(/*'course_modules', */'studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts', 'question_attempt_steps', 'question_attempt_step_data');
+        $result = array();
+        //$result['user'] = $this->users;
+        $result['user'] = $this->users[0];
+        foreach($tables as $table) {
+            $result[$table] = $DB->get_records($table);
         }
+        var_dump($result);
+    }
+}
+/*
+        // QUIZ
 
-        $quizobj = new quiz($quiz, $cm, $course);
-        $structure = \mod_quiz\structure::create_for_quiz($quizobj);
-        if (isset($headings[1])) {
-            list($heading, $shuffle) = $this->parse_section_name($headings[1]);
-            $sections = $structure->get_sections();
-            $firstsection = reset($sections);
-            $structure->set_section_heading($firstsection->id, $heading);
-            $structure->set_section_shuffle($firstsection->id, $shuffle);
-            unset($headings[1]);
-        }
-
-        foreach ($headings as $startpage => $heading) {
-            list($heading, $shuffle) = $this->parse_section_name($heading);
-            $id = $structure->add_section_heading($startpage, $heading);
-            $structure->set_section_shuffle($id, $shuffle);
-        }
-
-        return $quizobj;
-
-        /**
-         * QUIZ
-         */
         $quizobj = quiz::create($quiz->id, $user1->id);
 
         // Start the attempt.
@@ -190,23 +245,4 @@ class mod_studentquiz_statistic_testcase extends advanced_testcase {
         $grades = quiz_get_user_grades($quiz, $user1->id);
         $grade = array_shift($grades);
         $this->assertEquals(100.0, $grade->rawgrade);
-
-    }
-
-    public function test_mod_studentquiz_get_user_ranking_table() {
-
-    }
-
-    public function test_mod_studentquiz_community_stats() {
-
-    }
-
-    public function test_mod_studentquiz_user_stats() {
-
-    }
-
-    public function tearDown() {
-        parent::tearDown();
-        $this->resetAfterTest();
-    }
-}
+*/

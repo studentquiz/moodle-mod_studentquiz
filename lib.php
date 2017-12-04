@@ -77,11 +77,8 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     // TODO unify parsing of submitted variables
 
-    if (!isset($studentquiz->anonymrank)) {
-        $studentquiz->anonymrank = 0;
-    } else {
-        $studentquiz->anonymrank = $mform->anonymrank;
-    }
+    if(!empty($mform->anonymrank)) $studentquiz->anonymrank = $mform->anonymrank;
+    if(empty($studentquiz->anonymrank)) $studentquiz->anonymrank = 0;
 
     if (!isset($studentquiz->allowedqtypes)) {
         $studentquiz->allowedqtypes = 'ALL';
