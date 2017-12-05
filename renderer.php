@@ -68,6 +68,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         // TODO: Refactor: use mod_studentquiz_report_record_type!
         $userstats = $report->get_user_stats();
         $sqstats = $report->get_studentquiz_stats();
+        if(!$userstats) {
+            $bc = new block_contents();
+            $bc->attributes['id'] = 'mod_studentquiz_statblock';
+            $bc->attributes['role'] = 'navigation';
+            $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
+            $bc->title = html_writer::span(get_string('statistic_block_title', 'studentquiz'));
+            $bc->content = get_string('please_enrole_message', 'studentquiz');
+            return $bc;
+        }
         $bc = new block_contents();
         $bc->attributes['id'] = 'mod_studentquiz_statblock';
         $bc->attributes['role'] = 'navigation';
@@ -493,10 +502,15 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
      */
     public function view_stat(mod_studentquiz_report $report) {
         $output = '';
-        $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'), 2, 'reportquiz_stats_heading');
+        $userstats = $report->get_user_stats();
+        if(!$userstats) {
+            global $OUTPUT;
+            $output .= $OUTPUT->notification(get_string('please_enrole_message', 'studentquiz'), 'notify');
+            $userstats = $report->get_zero_user_stats();
+        }
         $output .= $this->view_stat_cards(
             $report->get_studentquiz_stats(),
-            $report->get_user_stats()
+            $userstats
             );
         return $output;
     }

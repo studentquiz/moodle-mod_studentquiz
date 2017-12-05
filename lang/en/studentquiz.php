@@ -169,6 +169,7 @@ $string['settings_allowedqtypes_help'] = 'Here you specify the type of questions
 
 // Error messages.
 $string['needtoallowatleastoneqtype'] = 'You need to allow at least one question type';
+$string['please_enrole_message'] = 'Please enroll in this course to see your personal progress';
 
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';

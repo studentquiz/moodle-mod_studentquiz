@@ -102,6 +102,29 @@ class mod_studentquiz_report {
     }
 
     /**
+     * Returns a user stats record with all zero varlus
+     * @return stdClass
+     */
+    public function get_zero_user_stats() {
+        $r = new stdClass();
+        $r->userid = 0;
+        $r->firstname = get_string('creator_anonym_firstname', 'studentquiz');
+        $r->lastname = get_string('creator_anonym_lastname', 'studentquiz');;
+        $r->points = 0;
+        $r->questions_created = 0;
+        $r->questions_approved = 0;
+        $r->rates_received = 0;
+        $r->rates_average = 0;
+        $r->question_attempts = 0;
+        $r->question_attempts_correct = 0;
+        $r->question_attempts_incorrect = 0;
+        $r->last_attempt_exists = 0;
+        $r->last_attempt_correct = 0;
+        $r->last_attempt_incorrect = 0;
+        return $r;
+    }
+
+    /**
      * Personal stats for interaction with studentquiz:
      * @return stdClass: numcomments, numrates, avgrates, numstarts
      */
