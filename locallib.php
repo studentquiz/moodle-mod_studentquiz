@@ -775,7 +775,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' sqa.userid,'
         .' count(*) last_attempt_exists,'
         .' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct,'
-        .' SUM(CASE WHEN qas.state = \'gradedwrong\' THEN 1 WHEN qas.state = \'gradedpartial\' THEN 0 ELSE 0 END) last_attempt_incorrect'
+        .' SUM(CASE WHEN qas.state = \'gradedwrong\' THEN 1 WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) last_attempt_incorrect'
         .' FROM {studentquiz} sq'
         .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
         .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
