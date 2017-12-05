@@ -85,7 +85,8 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
             list($name, $qtype) = $item;
             $q = $questiongenerator->create_question($qtype, null, array(
                 'name' => $name,
-                'category' => $this->studentquiz->categoryid
+                'category' => $this->studentquiz->categoryid,
+                //'createdby' => $users[0]->id,
             ));
             $questionids[] = $q->id;
         }
@@ -105,6 +106,15 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         $attempt = mod_studentquiz_generate_attempt($questionids, $this->studentquiz, $users[0]->id);
         $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid); // THIS internally does also load_from_records!
 
+
+        $questions[0]->start_attempt(new question_attempt_step(array('answer' => '0'), time(), $users[0]->id), 1);
+        $questionusage->process_all_actions();
+        //$questions[0]->classify_response(array('answer' => '0'));
+        $questions[1]->start_attempt(new question_attempt_step(), 1);
+        //$questions[1]->classify_response(array('answer' => '1'));
+        $questions[2]->start_attempt(new question_attempt_step(), 1);
+        //$questions[2]->classify_response(array()); // = no response
+/*
         // Attention! Here userid = userid with attempt -> speciality studentquiz, just in case...
         $records = new question_test_recordset(array(
             array('questionattemptid', 'contextid', 'questionusageid', 'slot', 'behaviour',
@@ -126,9 +136,9 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         question_bank::start_unit_test();
         $qa = question_attempt::load_from_records($records, $attempt->id, new question_usage_null_observer(), STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
         question_bank::end_unit_test();
-
+*/
         // probably not needed, but was a try
-        $questionusage->process_all_actions();
+        // Exercise SUT - no exception yet.
         foreach($questionusage->get_slots() as $slot) {
             $questionusage->finish_question($slot);
         }
@@ -195,6 +205,32 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         }
         var_dump($result);
     }
+
+    /**
+     * Convert an array of data destined for one question to the equivalent POST data.
+     * @param array $data the data for the quetsion.
+     * @return array the complete post data.
+     */
+    // from question\engine\tests\questionusage_autosave_test.php
+    // TODO fix some $this usage to correct one
+    // usage:
+    //      $postdata = $this->response_data_to_post(array('answer' => 'obsolete response'));
+    //      $postdata[$this->quba->get_field_prefix($this->slot) . ':sequencecheck'] = $this->get_question_attempt()->get_sequence_check_count() - 1;
+    //      $this->quba->process_all_actions(null/*time()*/, $postdata);
+    //
+    protected function response_data_to_post($data) {
+        $prefix = $this->quba->get_field_prefix($this->slot);
+        $fulldata = array(
+            'slots' => $this->slot,
+            $prefix . ':sequencecheck' => $this->get_question_attempt()->get_sequence_check_count(),
+        );
+        foreach ($data as $name => $value) {
+            $fulldata[$prefix . $name] = $value;
+        }
+        return $fulldata;
+    }
+
+
 }
 /*
         // QUIZ
