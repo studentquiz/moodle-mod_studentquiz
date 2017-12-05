@@ -156,7 +156,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     public function render_table($data, $size, $align, $head, $caption) {
         $table = new html_table();
-        $table->caption = $caption;
+        if(!empty($caption)) {
+            $table->caption = $caption;
+        }
         $table->head = $head;
         $table->align = $align;
         $table->size = $size;
@@ -532,7 +534,6 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             get_string('reportrank_table_column_communitystatus', 'studentquiz'),
             get_string('reportrank_table_column_value', 'studentquiz'), ''
         );
-        $caption = get_string('reportrank_table_progress_caption', 'studentquiz');
 
         // Protect from zero division
         if (empty($studentquizstats->participated)) {
@@ -541,10 +542,10 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             $participated = $studentquizstats->participated;
         }
 
-        if(empty($studentquizstats->questions_created)) {
-            $questions_created = 1;
+        if(empty($studentquizstats->questions_available)) {
+            $questions_available = 1;
         } else {
-            $questions_created = $studentquizstats->questions_created;
+            $questions_available = $studentquizstats->questions_available;
         }
 
         $celldata = array(
@@ -555,56 +556,81 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 $studentquizstats->questions_available, ''
             ),
             array(
-                get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
-                $userrankingstats->questions_approved, '',
-                get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
-                $studentquizstats->questions_approved, ''
+                html_writer::span(
+                    get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
+                    '', array('title' =>
+                    get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))),
+                html_writer::span(
+                    $userrankingstats->questions_approved,
+                    '', array('title' =>
+                    get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))), '',
+                html_writer::span(
+                    get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
+                    '', array('title' =>
+                    get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))),
+                html_writer::span($studentquizstats->questions_approved,
+                    '', array('title' =>
+                    get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))), ''
             ),
             array(
+                html_writer::span(
                 get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
-                round($userrankingstats->rates_average, 2), '',
-                get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
-                round($studentquizstats->questions_average_rating, 2), ''
+                    '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))),
+                html_writer::span(
+                round($userrankingstats->rates_average, 2),
+                    '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))), '',
+                html_writer::span(
+                    get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))),
+                html_writer::span(
+                    round($studentquizstats->questions_average_rating, 2),
+                    '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))), ''
             ),
             array(
-                get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
-                $userrankingstats->question_attempts, '',
-                get_string('reportquiz_stats_all_questions_answered', 'studentquiz'),
-                round($studentquizstats->question_attempts / $participated, 2)
+                html_writer::span(
+                    get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz'))),
+                html_writer::span(
+                    $userrankingstats->question_attempts,
+                    '', array('title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz'))), '',
+                html_writer::span(
+                    get_string('reportquiz_stats_all_questions_answered', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz'))),
+                html_writer::span(round($studentquizstats->question_attempts / $participated, 2),
+                    '', array('title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz'))), ''
             ),
             array(
-                get_string('reportquiz_stats_own_question_attempts_correct', 'studentquiz'),
-                $userrankingstats->question_attempts_correct, '',
-                get_string('reportquiz_stats_all_question_attempts_correct', 'studentquiz'),
-                round($studentquizstats->question_attempts_correct / $participated, 2), ''
+                html_writer::span(
+                    get_string('reportquiz_stats_own_percentage_correct_answers', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz'))),
+                html_writer::span(
+                    (($userrankingstats->question_attempts > 0)?
+                    100 * round($userrankingstats->question_attempts_correct / $userrankingstats->question_attempts, 2) : 0) . ' %',
+                    '', array('title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz'))), '',
+                html_writer::span(
+                    get_string('reportquiz_stats_all_percentage_correct_answers', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))),
+                html_writer::span(
+                    (($studentquizstats->question_attempts > 0)?
+                100 * round($studentquizstats->question_attempts_correct / $studentquizstats->question_attempts, 2) : 0) . ' %',
+                    '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))), ''
             ),
             array(
-                get_string('reportquiz_stats_own_question_attempts_incorrect', 'studentquiz'),
-                $userrankingstats->question_attempts_incorrect, '',
-                get_string('reportquiz_stats_all_question_attempts_incorrect', 'studentquiz'),
-                round($studentquizstats->question_attempts_incorrect / $participated, 2),
-            ),
-            array(
-                get_string('reportquiz_stats_own_last_attempt_correct', 'studentquiz'),
-                $userrankingstats->last_attempt_correct, '',
-                get_string('reportquiz_stats_all_last_attempt_correct', 'studentquiz'),
-                $studentquizstats->last_attempt_correct / $participated, ''
-            ),
-            array(
-                get_string('reportquiz_stats_own_last_attempt_incorrect', 'studentquiz'),
-                $userrankingstats->last_attempt_incorrect, '',
-                get_string('reportquiz_stats_all_last_attempt_incorrect', 'studentquiz'),
-                round($studentquizstats->last_attempt_incorrect / $participated, 2), ''
-            ),
-            array(
-                get_string('reportquiz_stats_own_progress', 'studentquiz'),
-                (100 * round($userrankingstats->last_attempt_correct / ($questions_created), 2)) . ' %', '',
-                get_string('reportquiz_stats_all_progress', 'studentquiz'),
-                (100 * round(($studentquizstats->last_attempt_correct / $questions_created / $studentquizstats->participants), 2)) . ' %', ''
+                html_writer::span(
+                    get_string('reportquiz_stats_own_progress', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))),
+                html_writer::span((100 * round($userrankingstats->last_attempt_correct / ($questions_available), 2)) . ' %',
+                    '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))), '',
+                html_writer::span(
+                    get_string('reportquiz_stats_all_progress', 'studentquiz'),
+                    '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))),
+                html_writer::span(
+                    (100 * round(($studentquizstats->last_attempt_correct / ($questions_available * $participated)), 2)) . ' %',
+                    '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))), ''
             )
         );
         $data = $this->render_table_data($celldata);
-        return $this->render_table($data, $size, $align, $head, $caption);
+        return $this->render_table($data, $size, $align, $head, null);
     }
 }
 

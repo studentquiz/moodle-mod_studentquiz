@@ -188,13 +188,16 @@ $string['reportquiz_admin_title'] = 'Student statistics';
 
 // Report stat.
 $string['reportquiz_stats_title'] = 'Statistics';
-$string['reportrank_table_progress_caption'] = 'Current progress';
-$string['reportquiz_stats_all_questions_created'] = 'Number of questions in this quiz';
+$string['reportquiz_stats_all_questions_created'] = 'Number of questions in this StudentQuiz';
 $string['reportquiz_stats_own_questions_created'] = 'Number of questions you have contributed';
 $string['reportquiz_stats_all_questions_approved'] = 'Number of approved questions';
+$string['reportquiz_stats_all_questions_approved_help'] = 'Teachers can approve questions to verify correctness. This is the number of all approved questions within this StudentQuiz.';
 $string['reportquiz_stats_own_questions_approved'] = 'Number of your approved questions';
+$string['reportquiz_stats_own_questions_approved_help'] = 'Teachers can approve questions to verify correctness. This is the number of your approved questions within this StudentQuiz.';
 $string['reportquiz_stats_own_rates_average'] = 'Your received rating average';
+$string['reportquiz_stats_own_rates_average_help'] = 'The rating of each question is the average of stars it received from the community.  Example: You created the questions A and B. If your question A was rated 3 stars by the community and your question B was rated 4 stars, then your received rating average is 3.5.';
 $string['reportquiz_stats_all_rates_average'] = 'Rating average of all questions';
+$string['reportquiz_stats_all_rates_average_help'] = 'The rating of each question is the average of stars it received from the community.  Example: The community created 4 questions. If  question A was rated 3 stars by the community, question B = 4 stars, question C = 2 stars and question D = 5 stars, then the rating average of all questions is 3.5.';
 $string['reportquiz_stats_own_question_attempts_correct'] = 'Total of your correct answers';
 $string['reportquiz_stats_all_question_attempts_correct'] = 'Community average of correct answers';
 $string['reportquiz_stats_own_question_attempts_incorrect'] = 'Total of your incorrect answers';
@@ -204,11 +207,20 @@ $string['reportquiz_stats_all_last_attempt_correct'] = 'Community average of las
 $string['reportquiz_stats_own_last_attempt_incorrect'] = 'Number of your last incorrect answers';
 $string['reportquiz_stats_all_last_attempt_incorrect'] = 'Community average of last incorrect answers';
 $string['reportquiz_stats_own_questions_answered'] = 'Total of all your answers';
+$string['reportquiz_stats_own_questions_answered'] = 'Total of all your answers';
+$string['reportquiz_stats_own_questions_answered_help'] = 'Number of all your given answers within this StudentQuiz.';
 $string['reportquiz_stats_all_questions_answered'] = 'Community average of all answers';
+$string['reportquiz_stats_all_questions_answered_help'] = 'Average number of answers given by all community members.';
+$string['reportquiz_stats_own_percentage_correct_answers'] = 'Percentage of your correct answers';
+$string['reportquiz_stats_own_percentage_correct_answers_help'] = 'Percentage of all your correct answers from the set of all your given answers in this StudentQuiz. Partly correct answers count as wrong answers.';
+$string['reportquiz_stats_all_percentage_correct_answers'] = 'Community percentage of correct answers';
+$string['reportquiz_stats_all_percentage_correct_answers_help'] = 'Sum of correct answers / sum of all answers.';
 $string['reportrank_table_column_yourstatus'] = 'Personal Statistics';
 $string['reportrank_table_column_communitystatus'] = 'Community Statistics';
 $string['reportquiz_stats_own_progress'] = 'Personal Progress';
+$string['reportquiz_stats_own_progress_help'] = 'Percentage of your last correct answers from the set of all questions within this StudentQuiz. Partly correct answers count as wrong answers.';
 $string['reportquiz_stats_all_progress'] = 'Average Community Progress ';
+$string['reportquiz_stats_all_progress_help'] = 'Average community progress based on all community members.';
 $string['reportrank_table_column_value'] = 'Value';
 
 // Report rank.
