@@ -466,6 +466,7 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
 /**
  * @param module_context context
  * TODO: Refactor! This check not only checks but also updates!
+ * @deprecated
  */
 function mod_studentquiz_check_question_category($context) {
     global $DB;
@@ -591,9 +592,10 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
     global $DB;
     $sql_select = mod_studentquiz_helper_attempt_stat_select();
     $sql_joins = mod_studentquiz_helper_attempt_stat_joins();
+    $sql_statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
     $sql_order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
-    $res = $DB->get_recordset_sql($sql_select.$sql_joins.$sql_order,
+    $res = $DB->get_recordset_sql($sql_select.$sql_joins.$sql_statsbycat.$sql_order,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
               'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         , 'questionquantifier' => $quantifiers->question
@@ -654,8 +656,9 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
     $sql_select = mod_studentquiz_helper_attempt_stat_select();
     $sql_joins = mod_studentquiz_helper_attempt_stat_joins();
     $sql_add_where = ' AND u.id = :userid ';
+    $sql_statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
     $DB->set_debug(false);
-    $rs = $DB->get_record_sql($sql_select.$sql_joins.$sql_add_where,
+    $rs = $DB->get_record_sql($sql_select.$sql_joins.$sql_add_where.$sql_statsbycat,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         , 'questionquantifier' => $quantifiers->question
@@ -675,9 +678,29 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
  */
 function mod_studentquiz_helper_attempt_stat_select() {
     return 'SELECT '
+        .' statspercategory.userid userid,'
+        .' statspercategory.firstname firstname,'
+        .' statspercategory.lastname lastname,'
+        // Aggregate values over all categories in cm context
+        // Note: Max() of equals is faster than Sum() of groups
+        // See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
+        .' MAX(points) points,'
+        .' MAX(questions_created) questions_created,'
+        .' MAX(questions_approved) questions_approved,'
+        .' MAX(rates_received) rates_received,'
+        .' MAX(rates_average) rates_average,'
+        .' MAX(question_attempts) question_attempts,'
+        .' MAX(question_attempts_correct) question_attempts_correct,'
+        .' MAX(question_attempts_incorrect) question_attempts_incorrect,'
+        .' MAX(last_attempt_exists) last_attempt_exists,'
+        .' MAX(last_attempt_correct) last_attempt_correct,'
+        .' MAX(last_attempt_incorrect) last_attempt_incorrect'
+        // Select for each question category in context
+        .' FROM ( SELECT '
         .' u.id userid,'
         .' u.firstname firstname,'
         .' u.lastname lastname,'
+        .' qc.id category, '
         // calculate points
         .' COALESCE ( ROUND('
         .' COALESCE(creators.countq, 0) * :questionquantifier  ' // questions created
@@ -762,7 +785,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .'      ) avgratingperquestion'
         .'  GROUP BY createdby'
         .' ) rates ON rates.createdby = u.id'
-        // question attempts: sum of number of graded attempts per questoin
+        // question attempts: sum of number of graded attempts per question
         .' LEFT JOIN'
         .' ('
         .' SELECT count(*) counta,'

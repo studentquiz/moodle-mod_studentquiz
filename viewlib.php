@@ -109,9 +109,6 @@ class mod_studentquiz_view {
 
         $this->userid = $userid;
 
-        // TODO: Refactor this category fix! It should be removed.
-        $this->check_question_category();
-
         // TODO: Refactor!
         $this->load_questionbank();
     }
