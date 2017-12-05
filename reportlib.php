@@ -76,13 +76,37 @@ class mod_studentquiz_report {
     protected $userid;
 
     /**
+     * @var int Number of questions available in this StudentQuiz.
+     * This includes all questions created by not enrolled people
+     * And questions in child categories
+     */
+    protected $availablequestions;
+    public function get_available_questions() {
+        return $this->availablequestions;
+    }
+
+    /**
+     * @var int Number of questions available in this StudentQuiz.
+     * This includes all questions created by not enrolled people
+     * And questions in child categories
+     */
+    protected $enrolledusers;
+    public function get_enrolled_users() {
+        return $this->enrolledusers;
+    }
+
+    /**
      * Overall Stats of the studentquiz
      * @return stdClass
      */
     protected $studentquizstats;
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
-            return $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->get_quantifiers());
+            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->get_quantifiers());
+            $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id());
+            $this->studentquizstats->questions_available = $this->questionstats->questions_available;
+            $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;
+            return $this->studentquizstats;
         }else {
             return $this->studentquizstats;
         }
@@ -154,6 +178,7 @@ class mod_studentquiz_report {
 
         $this->context = context_module::instance($this->cm->id);
         $this->userid = $USER->id;
+        $this->availablequestions = mod_studentquiz_count_questions($cmid);
     }
 
     /**

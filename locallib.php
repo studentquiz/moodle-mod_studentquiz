@@ -1031,3 +1031,55 @@ function mod_studentquiz_get_tags_by_question_ids($ids)
     }
     return $result;
 }
+
+function mod_studentquiz_count_questions($cmid) {
+    global $DB;
+    $DB->set_debug(false);
+    $rs = $DB->count_records_sql('SELECT count(*) FROM {studentquiz} sq'
+        // get this Studentquiz Question category
+        .' JOIN {context} con ON con.instanceid = sq.coursemodule'
+        .' JOIN {question_categories} qc ON qc.contextid = con.id'
+        // only enrolled users
+        .' JOIN {question} q ON q.category = qc.id'
+        .'  WHERE q.hidden = 0 AND sq.coursemodule = :cmid', array('cmid' => $cmid));
+    $DB->set_debug(false);
+    return $rs;
+}
+
+/**
+ * This query collects aggregated information about the questions in this StudentQuiz.
+ *
+ * @param $cmid
+ * @throws dml_exception
+ */
+function mod_studentquiz_question_stats($cmid) {
+    global $DB;
+    $DB->set_debug(true);
+    $sql = 'SELECT count(*) questions_available, 
+                   avg(rating.avg_rating) as average_rating,
+                   sum(sqq.approved) as questions_approved 
+            FROM {studentquiz} sq'
+        // get this Studentquiz Question category
+        .' JOIN {context} con ON con.instanceid = sq.coursemodule'
+        .' JOIN {question_categories} qc ON qc.contextid = con.id'
+        // only enrolled users
+        .' JOIN {question} q ON q.category = qc.id'
+        .' JOIN {studentquiz_question} sqq on sqq.questionid = q.id'
+        .' LEFT JOIN (
+            SELECT 
+                q.id questionid,
+                coalesce(avg(sqr.rate),0) avg_rating
+            FROM {studentquiz} sq
+             JOIN {context} con ON con.instanceid = sq.coursemodule
+             JOIN {question_categories} qc ON qc.contextid = con.id
+             JOIN {question} q ON q.category = qc.id
+             LEFT JOIN {studentquiz_rate} sqr ON sqr.questionid = q.id    
+            WHERE sq.coursemodule = :cmid2
+            GROUP BY q.id
+        ) rating on rating.questionid = q.id'
+        .' WHERE q.hidden = 0 and sq.coursemodule = :cmid1'
+        ;
+    $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
+    $DB->set_debug(false);
+    return $rs;
+}

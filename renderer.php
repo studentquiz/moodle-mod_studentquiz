@@ -83,7 +83,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
         $bc->title = html_writer::span(get_string('statistic_block_title', 'studentquiz'));
         $info1 = new stdClass();
-        $info1->total = $sqstats->questions_created;
+        $info1->total = $sqstats->questions_available;
         $info1->group = $userstats->last_attempt_exists;
         $info1->one = $userstats->last_attempt_correct;
         $info2 = new stdClass();
@@ -94,7 +94,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span('<b>' . ($sqstats->questions_created - $userstats->last_attempt_exists) .'</b>', '',
+                .html_writer::span('<b>' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>', '',
                     array('style' => 'float: right;color:#f0ad4e;')))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
@@ -106,7 +106,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                     array('style' => 'float: right;color:#d9534f;')))
             . html_writer::div(
                 get_string('statistic_block_progress_available', 'studentquiz')
-                .html_writer::span('<b>' .$sqstats->questions_created .'</b>', '',
+                .html_writer::span('<b>' .$sqstats->questions_available .'</b>', '',
                     array('style' => 'float: right;')))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_created', 'studentquiz')
@@ -552,7 +552,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
                 $userrankingstats->questions_created, '',
                 get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
-                $studentquizstats->questions_created, ''
+                $studentquizstats->questions_available, ''
             ),
             array(
                 get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
@@ -564,7 +564,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
                 round($userrankingstats->rates_average, 2), '',
                 get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
-                round($studentquizstats->rates_average, 2), ''
+                round($studentquizstats->questions_average_rating, 2), ''
             ),
             array(
                 get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
