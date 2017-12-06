@@ -567,10 +567,21 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
 
         $celldata = array(
             array(
-                get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
-                $userrankingstats->questions_created, '',
-                get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
-                $studentquizstats->questions_available, ''
+                html_writer::span(
+                    get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
+                    '', array('title' =>
+                    get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))),
+                html_writer::span(
+                    $userrankingstats->questions_created,
+                    '', array('title' =>
+                    get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))), '',
+                html_writer::span(
+                    get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
+                    '', array('title' =>
+                    get_string('reportquiz_stats_all_questions_created', 'studentquiz'))),
+                html_writer::span($studentquizstats->questions_available,
+                    '', array('title' =>
+                    get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
             ),
             array(
                 html_writer::span(
@@ -734,17 +745,24 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $seeall = has_capability('mod/studentquiz:manage', $report->get_context());
         foreach($rankingresultset as $ur) {
             $counter++;
-            if (($counter > $maxdisplayonpage) && $userwasshown && !$seeall) {
-                break;
-            }
-            if ($ur->userid == $userid) {
-                $userwasshown = true;
-            }else if($counter > $maxdisplayonpage) {
-                $rank++;
-                continue;
+            if(!$seeall) {
+                if($counter > $maxdisplayonpage) {
+                    if(!$userwasshown) {
+                        if ($ur->userid == $userid) {
+                            // Display current user ranking.
+                            $userwasshown = true;
+                        } else {
+                            // We continue to scroll through the set to find our current user.
+                            continue;
+                        }
+                    } else {
+                        // Our job is done.
+                        break;
+                    }
+                }
             }
             $username = $ur->firstname . ' ' . $ur->lastname;
-            if ($report->is_anonymized()) {
+            if ($report->is_anonymized() && $ur->userid != $userid) {
                 $username = get_string('creator_anonym_firstname', 'studentquiz') . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
             }
             $celldata[] = array(
