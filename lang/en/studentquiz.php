@@ -39,6 +39,7 @@ $string['pluginadministration'] = 'StudentQuiz Administration';
 
 // Labels and buttons.
 $string['rate_column_name'] = 'Rating';
+$string['rate_all_column_name'] = 'Community Rating';
 $string['practice_column_name'] = 'Attempts';
 $string['comment_column_name'] = 'Comments';
 $string['difficulty_level_column_name'] = 'Difficulty';
@@ -50,6 +51,7 @@ $string['average_column_name'] = 'Average';
 $string['mine_column_name'] = 'Mine';
 $string['myattempts_column_name'] = 'My Attempts';
 $string['mydifficulty_column_name'] = 'My Difficulty';
+$string['difficulty_all_column_name'] = 'Community Difficulty';
 $string['mylastattempt_column_name'] = 'My Last Attempt';
 $string['myrate_column_name'] = 'My Rating';
 $string['start_quiz_button'] = 'Start Quiz';
@@ -206,7 +208,6 @@ $string['reportquiz_stats_own_last_attempt_correct'] = 'Number of your last corr
 $string['reportquiz_stats_all_last_attempt_correct'] = 'Community average of last correct answers';
 $string['reportquiz_stats_own_last_attempt_incorrect'] = 'Number of your last incorrect answers';
 $string['reportquiz_stats_all_last_attempt_incorrect'] = 'Community average of last incorrect answers';
-$string['reportquiz_stats_own_questions_answered'] = 'Total of all your answers';
 $string['reportquiz_stats_own_questions_answered'] = 'Total of all your answers';
 $string['reportquiz_stats_own_questions_answered_help'] = 'Number of all your given answers within this StudentQuiz.';
 $string['reportquiz_stats_all_questions_answered'] = 'Community average of all answers';

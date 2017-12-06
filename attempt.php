@@ -142,7 +142,7 @@ $info->one = max($slot - (!$hasanswered?1:0), 0);
 $texttotal = $questionscount . ' ' . get_string('questions', 'studentquiz');
 $html = '';
 
-$html .= html_writer::div($output->render_progress_bar($info, $texttotal), '', array('title' => $texttotal));
+$html .= html_writer::div($output->render_progress_bar($info, $texttotal, true), '', array('title' => $texttotal));
 
 // Render the question title
 $html .= html_writer::tag('h2', $title);

@@ -92,10 +92,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $info2->one = $userstats->questions_approved;
         $bc->content =
             html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
-            . html_writer::div(
-                get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span('<b>' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>', '',
-                    array('style' => 'float: right;color:#f0ad4e;')))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->last_attempt_correct .'</b>', '',
@@ -105,16 +101,20 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 .html_writer::span('<b>' .$userstats->last_attempt_incorrect .'</b>', '',
                     array('style' => 'float: right;color:#d9534f;')))
             . html_writer::div(
+                get_string('statistic_block_progress_never', 'studentquiz')
+                .html_writer::span('<b>' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>', '',
+                    array('style' => 'float: right;color:#f0ad4e;')))
+            . html_writer::div(
                 get_string('statistic_block_progress_available', 'studentquiz')
                 .html_writer::span('<b>' .$sqstats->questions_available .'</b>', '',
                     array('style' => 'float: right;')))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
-            . html_writer::div(get_string('statistic_block_created', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->questions_created .'</b>','',
-                    array('style' => 'float: right;')))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->questions_approved .'</b>','',
-                    array('style' => 'float: right;color:#28A745;')));
+                    array('style' => 'float: right;color:#28A745;')))
+            . html_writer::div(get_string('statistic_block_created', 'studentquiz')
+                .html_writer::span('<b>' .$userstats->questions_created .'</b>','',
+                    array('style' => 'float: right;')));
         return $bc;
     }
 
@@ -170,9 +170,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * Return a svg representing a progress bar filling 100% of is containing element
      * @param stdClass $info: total, group, one
      * @param string $texttotal: text to be displayed in the center of the bar.
+     * @param bool bicolor: only bicolor color scheme.
      * @return string
      */
-    public function render_progress_bar($info, $texttotal=null) {
+    public function render_progress_bar($info, $texttotal=null, $bicolor=false) {
 
         // Check input.
         $validInput = true;
@@ -190,32 +191,42 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         // Stylings.
         $rgb_stroke = 'rgb(200,200,200)';
-        $rgb_background = 'rgb(255,193,7)';
+        $rgb_yellow = 'rgb(255,193,7)';
         $rgb_green = 'rgb(40, 167, 69)';
-        $rgb_blue = 'rgb(220, 53, 69)';
-        $rgb_white = 'rgb(40, 167, 69)';
+        $rgb_blue = 'rgb(2, 117, 216)';
+        $rgb_red = 'rgb(220, 53, 69)';
+        $rgb_grey = 'rgb(200, 200, 200)';
         $bar_stroke = 'stroke-width:0.1;stroke:' . $rgb_stroke .';';
         $svg_dims = array('width' => '100%', 'height' => 20);
         $bar_dims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
         $id_blue = 'blue';
         $id_green = 'green';
+        $id_red = 'red';
         $gradient_dims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
-        $stopColorWhite = html_writer::tag('stop', null,
-            array('offset' => '0%', 'style' => 'stop-color:' . $rgb_white .';stop-opacity:1'));
         $stopColorGreen = html_writer::tag('stop', null,
             array('offset' => '100%','style' => 'stop-color:' . $rgb_green . ';stop-opacity:1'));
+        $stopColorRed = html_writer::tag('stop', null,
+            array('offset' => '100%','style' => 'stop-color:' . $rgb_red . ';stop-opacity:1'));
         $stopColorBlue = html_writer::tag('stop', null,
             array('offset' => '100%','style' => 'stop-color:' . $rgb_blue . ';stop-opacity:1'));
         $gradientBlue = html_writer::tag('radialGradient', $stopColorBlue . $stopColorBlue,
             array_merge($gradient_dims, array('id' => $id_blue)));
+        $gradientRed = html_writer::tag('radialGradient', $stopColorRed . $stopColorRed,
+            array_merge($gradient_dims, array('id' => $id_red)));
         $gradientGreen = html_writer::tag('radialGradient', $stopColorGreen . $stopColorGreen,
             array_merge($gradient_dims, array('id' => $id_green)));
-        $gradients = array($gradientBlue, $gradientGreen);
+        $gradients = array($gradientRed, $gradientGreen, $gradientBlue);
         $defs = html_writer::tag('defs', implode($gradients));
 
+
         // Background bar.
-        $barbackground = html_writer::tag('rect', null, array_merge($bar_dims,
-            array('width' => '100%', 'style' => $bar_stroke . 'fill:' . $rgb_background)));
+        if($bicolor) {
+            $barbackground = html_writer::tag('rect', null, array_merge($bar_dims,
+                array('width' => '100%', 'style' => $bar_stroke . 'fill:' . $rgb_grey )));
+        } else {
+            $barbackground = html_writer::tag('rect', null, array_merge($bar_dims,
+                array('width' => '100%', 'style' => $bar_stroke . 'fill:' . $rgb_yellow)));
+        }
 
         // Return empty bar if no questions are in StudentQuiz.
         if( !$validInput || $info->total <= 0) {
@@ -229,17 +240,22 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         if(!empty($texttotal)) {
             $text = '
              <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" 
-             font-size="12" id="svg_text" x="50%" y="50%" alignment-baseline="middle" text-anchor="middle" stroke-width="0" stroke="#000" fill="#000000">' . $texttotal . '</text>';
+             font-size="12" font-weight="bold" id="svg_text" x="50%" y="50%" alignment-baseline="middle" text-anchor="middle" stroke-width="0" stroke="#000" fill="#000000">' . $texttotal . '</text>';
         }else {
             $text = '';
         }
 
         // Return stacked bars.
         $bars = array($barbackground);
-        $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-            array('width' => $percent_group . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
-        $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-            array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
+        if($bicolor) {
+            $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
+                array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
+        } else {
+            $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
+                array('width' => $percent_group . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_red .')')));
+            $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
+                array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
+        }
         return html_writer::tag('svg', $defs . implode($bars) . $text, $svg_dims);
     }
 

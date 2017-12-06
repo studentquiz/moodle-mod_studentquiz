@@ -667,8 +667,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
             get_string('filter_label_onlygood', 'studentquiz'),
-                false, 'vo.rate', array('rate', 'rate_op'), 1, 3,
-            get_string('filter_label_onlygood_help', 'studentquiz', '3'));
+                false, 'vo.rate', array('rate', 'rate_op'), 1, 4,
+            get_string('filter_label_onlygood_help', 'studentquiz', '4'));
 
         $this->fields[] = new \toggle_filter_checkbox('onlymine',
             get_string('filter_label_onlymine', 'studentquiz'),
