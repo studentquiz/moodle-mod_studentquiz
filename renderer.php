@@ -520,6 +520,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
      */
     public function view_stat(mod_studentquiz_report $report) {
         $output = '';
+        $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'));
         $userstats = $report->get_user_stats();
         if(!$userstats) {
             global $OUTPUT;
@@ -667,8 +668,8 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      * TODO: proper docs
      */
     public function view_quantifier_information($report) {
-        $align = array('left', 'left');
-        $size = array('', '', '');
+        $align = array('left', 'right', 'left');
+        $size = array('250px', '50px', '');
         $head = array(get_string('reportrank_table_column_quantifier_name', 'studentquiz')
         , get_string('reportrank_table_column_factor', 'studentquiz')
         , get_string('reportrank_table_column_description', 'studentquiz'));
@@ -683,12 +684,12 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             array('text' => get_string('settings_ratequantifier', 'studentquiz'),
                 $report->get_quantifier_rate(),
                 'value' => get_string('settings_ratequantifier_help', 'studentquiz')),
-            array('text' => get_string('settings_correctanswerquantifier', 'studentquiz'),
+            array('text' => get_string('settings_lastcorrectanswerquantifier', 'studentquiz'),
                 $report->get_quantifier_correctanswer(),
-                'value' => get_string('settings_correctanswerquantifier_help', 'studentquiz')),
-            array('text' => get_string('settings_incorrectanswerquantifier', 'studentquiz'),
+                'value' => get_string('settings_lastcorrectanswerquantifier_help', 'studentquiz')),
+            array('text' => get_string('settings_lastincorrectanswerquantifier', 'studentquiz'),
                 $report->get_quantifier_incorrectanswer(),
-                'value' => get_string('settings_incorrectanswerquantifier_help', 'studentquiz'))
+                'value' => get_string('settings_lastincorrectanswerquantifier_help', 'studentquiz'))
         );
         $data = $this->render_table_data($celldata);
         return $this->render_table($data, $size, $align, $head, $caption);
@@ -710,8 +711,8 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
         , get_string( 'reportrank_table_column_approvedquestions', 'studentquiz')
         , get_string( 'reportrank_table_column_summeanrates', 'studentquiz')
-        , get_string( 'reportrank_table_column_correctanswers', 'studentquiz')
-        , get_string( 'reportrank_table_column_incorrectanswers', 'studentquiz')
+        , get_string( 'reportrank_table_column_lastcorrectanswers', 'studentquiz')
+        , get_string( 'reportrank_table_column_lastincorrectanswers', 'studentquiz')
         , get_string( 'reportrank_table_column_progress', 'studentquiz')
         );
         $caption = get_string('reportrank_table_title', 'studentquiz');
