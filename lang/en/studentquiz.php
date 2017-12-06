@@ -167,7 +167,7 @@ $string['settings_lastincorrectanswerquantifier_label'] = 'Points for latest wro
 $string['settings_lastincorrectanswerquantifier_help'] = 'Points received  for anwering a question wrong or partially wrong on last attempt';
 $string['settings_removeemptysections'] = 'Remove empty sections';
 $string['settings_removeemptysections_label'] = 'Remove empty sections at the end of the course';
-$string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a so called orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the moodle import creates until 999 sections, even if there are no such sections described in the export file. Uncheck this option, if you encounter side effects because of this. You\'ll have to delete then the unwanted sections yourself.';
+$string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a so called orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the Moodle import creates up to 999 sections, even if there are no such sections described in the export file. Check this option if you want StudentQuiz to clean up unnecessary sections caused by former StudentQuiz versions.';
 $string['settings_removeqbehavior'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_label'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_help'] = 'This info should appear only once during update. We inform you that we detected our question behavior plugin StudentQuiz is installed. This plugin is not required anymore and thus we try to automatically remove it. If you still see this setting, please uninstall the question behavior plugin StudentQuiz manually <a href="{$a}">here</a>.';
