@@ -81,6 +81,10 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      */
     private $cat;
     /**
+     * @var studentquiz
+     */
+    private $studentquiz;
+    /**
      * @var question generator
      */
     private $questiongenerator;
@@ -100,13 +104,15 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id, $studentrole->id);
 
-        $studentquiz = $this->getDataGenerator()->create_module('studentquiz', array('course' => $this->course->id)
+        $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz', array('course' => $this->course->id)
             ,  array('anonymrank' => true));
-        $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
+        $this->cm = get_coursemodule_from_id('studentquiz', $this->studentquiz->cmid);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->ctx = context_module::instance($this->cm->id);
-        $this->cat = $this->questiongenerator->create_question_category($this->ctx);
+        $catrecord = new stdClass();
+        $catrecord->contextid = $this->ctx->id;
+        $this->cat = $this->questiongenerator->create_question_category($catrecord);
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
 
         $this->create_random_questions(20, $user->id);
@@ -160,11 +166,21 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     public function test_questionbank_empty_filter() {
         $this->resetAfterTest(true);
 
+        // Hard coded.
+        $pagevars = array(
+            'recurse' => true,
+            'cat' => $this->cat->id . ',' . $this->ctx->id,
+            'showall' => 0,
+            'showallprinted' => 0,
+        );
+
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             new question_edit_contexts(context_module::instance($this->cm->id))
             , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
             , $this->course
-            , $this->cm);
+            , $this->cm
+            , $this->studentquiz
+            , $pagevars);
 
         $this->displayqb($questionbank);
         $this->assertEquals(20, count($questionbank->get_questions()));
@@ -179,11 +195,21 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->set_filter(QUESTION_NAME_FILTER, 'Question 1');
         $this->set_filter(QUESTION_NAME_OP_FILTER, '0');
 
+        // Hard coded.
+        $pagevars = array(
+            'recurse' => true,
+            'cat' => $this->cat->id . ',' . $this->ctx->id,
+            'showall' => 0,
+            'showallprinted' => 0,
+        );
+
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             new question_edit_contexts(context_module::instance($this->cm->id))
             , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
             , $this->course
-            , $this->cm);
+            , $this->cm
+            , $this->studentquiz
+            , $pagevars);
 
         $this->displayqb($questionbank);
         $this->assertEquals(11, count($questionbank->get_questions()));
@@ -196,11 +222,21 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     public function test_questionbank_filter_question_rate() {
         $this->resetAfterTest(true);
 
+        // Hard coded.
+        $pagevars = array(
+            'recurse' => true,
+            'cat' => $this->cat->id . ',' . $this->ctx->id,
+            'showall' => 0,
+            'showallprinted' => 0,
+        );
+
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             new question_edit_contexts(context_module::instance($this->cm->id))
             , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
             , $this->course
-            , $this->cm);
+            , $this->cm
+            , $this->studentquiz
+            , $pagevars);
 
         $this->displayqb($questionbank);
         $this->assertEquals(20, count($questionbank->get_questions()));

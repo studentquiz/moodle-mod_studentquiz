@@ -118,7 +118,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $cateorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
         $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition(
-            $this->filterform, $pagevars, $cm, $studentquiz);
+            $this->filterform);
         $this->isfilteractive = $studentquizcondition->is_filter_active();
         $this->searchconditions = array ($cateorycondition, $studentquizcondition);
     }

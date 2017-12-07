@@ -313,7 +313,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Load current access definition for easier iteration.
         require_once(dirname(__DIR__) . '/db/access.php');
         // Load all contexts this has to be defined.
-        // Only system context needed, as by default it's inherited from there and if someone did make an override, it's intentional.
+        // Only system context needed, as by default it's inherited from there.
+        // if someone did make an override, it's intentional.
         $context = context_system::instance();
         // Load the roles for easier name to id assignment.
         $roleids = $DB->get_records_menu('role', null, '', 'shortname, id');
@@ -363,7 +364,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017120202) {
         $table = new xmldb_table('studentquiz');
 
-        $fieldnames = array('questionquantifier', 'approvedquantifier', 'ratequantifier', 'correctanswerquantifier', 'incorrectanswerquantifier');
+        $fieldnames = array('questionquantifier', 'approvedquantifier', 'ratequantifier',
+            'correctanswerquantifier', 'incorrectanswerquantifier');
         foreach ($fieldnames as $fieldname) {
             $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
             if ($dbman->field_exists($table, $field)) {
