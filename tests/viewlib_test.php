@@ -49,20 +49,20 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     protected function setUp() {
         global $DB;
         $user = $this->getDataGenerator()->create_user();
+        // Login as this user.
+        $this->setUser($user);
         $course = $this->getDataGenerator()->create_course();
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         $studentquiz = $this->getDataGenerator()->create_module('studentquiz'
             , array('course' => $course->id),  array('anonymrank' => true));
+
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
-
-        $this->viewlib = new mod_studentquiz_view($this->cm->id);
-    }
-
-    public function test_generate_quiz_with_filtered_ids() {
-        $result = $this->viewlib->generate_quiz_with_filtered_ids("q1 1");
-        self::assertFalse($result);
+        // $course, $context, $cm, $studentquiz, $userid
+        $context = context_module::instance($this->cm->id);
+        $this->viewlib = new mod_studentquiz_view($course, $context, $this->cm,
+            $studentquiz, $user->id);
     }
 
     public function test_has_question_ids() {
@@ -83,7 +83,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
 
     public function test_get_title() {
         $result = $this->viewlib->get_title();
-        self::assertEquals('Edit questions', $result);
+        self::assertEquals('StudentQuiz: studentquiz 0', $result);
     }
 
     /**
@@ -109,27 +109,6 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
      */
 
     public function test_get_standard_quiz_setup() {
-
-    }
-
-    public function test_get_question_ids() {
-        $result = $this->invoke_method($this->viewlib, 'get_question_ids', array(null));
-        self::assertFalse($result);
-
-        $testdata = array('q1' => '', 'q2' => '', 'q3' => '', 'q4' => '');
-        $result = $this->invoke_method($this->viewlib, 'get_question_ids', array($testdata));
-        self::assertEquals(4, count($result));
-    }
-
-    public function test_get_prefixed_question_ids() {
-        $testdata = array('q1' => '', 'q2' => '', 'q3' => '', 'q4' => '');
-        $emptyarray = array();
-        $result = $this->invoke_method($this->viewlib, 'get_prefixed_question_ids', array($emptyarray));
-        self::assertTrue(empty($result));
-        $result = $this->invoke_method($this->viewlib, 'get_prefixed_question_ids', array(['aa' => '']));
-        self::assertTrue(empty($result));
-        $result = $this->invoke_method($this->viewlib, 'get_prefixed_question_ids', array($testdata));
-        self::assertEquals(4, count($result));
 
     }
 

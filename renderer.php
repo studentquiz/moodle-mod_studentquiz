@@ -55,7 +55,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $rows;
     }
 
-    public function render_table_cell(string $text, array $attributes=array()) {
+    public function render_table_cell($text, array $attributes=array()) {
         $cell = new html_table_cell();
         $cell->text = $text;
         if (!empty($attributes)) {

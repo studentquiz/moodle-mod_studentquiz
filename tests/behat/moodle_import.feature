@@ -1,11 +1,11 @@
 @mod @mod_studentquiz
-Feature: Import course's contents into another course
+Feature: Import course's with StudentQuiz contents into another course
   In order to move and copy studentquiz between courses
   As a teacher
   I need to import a course contents into another course
 
   @javascript
-  Scenario: Import course's contents containing studentquiz into another course
+  Scenario: Import course's contents containing StudentQuiz into another course
     Given the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
