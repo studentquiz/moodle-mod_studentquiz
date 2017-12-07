@@ -114,14 +114,6 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Check whether the question category is set and set it if it isn't.
-     * @deprecated
-     */
-    private function check_question_category() {
-        return mod_studentquiz_check_question_category($this->context);
-    }
-
-    /**
      * Loads the question custom bank view
      */
     private function load_questionbank() {

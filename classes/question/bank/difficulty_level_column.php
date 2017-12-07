@@ -145,16 +145,19 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
+        $nodifficultylevel = get_string('no_difficulty_level', 'studentquiz');
+        $difficultytitle = get_string('difficulty_all_column_name', 'studentquiz');
+        $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
         if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
-            echo \html_writer::span($this->render_difficultybar($question->difficultylevel, $question->mydifficulty), null,
-                array('title' => get_string('difficulty_all_column_name', 'studentquiz') . ": "
-                    . (100 * round($question->difficultylevel, 2)) . "% "
-                    .(!empty($question->mydifficulty)
-                        ? get_string('mydifficulty_column_name', 'studentquiz') . ": "
-                        . (100 * round($question->mydifficulty, 2)) . '%' : '')
-                ));
+            $title = $difficultytitle . ": " . (100 * round($question->difficultylevel, 2)) . "% ";
+            if (!empty($question->mydifficulty)) {
+                $title .= $mydifficultytitle . ": " . (100 * round($question->mydifficulty, 2)) . '%';
+            }
+            echo \html_writer::span(
+                $this->render_difficultybar($question->difficultylevel, $question->mydifficulty),
+                null,  array('title' => $title ));
         } else {
-            echo get_string('no_difficulty_level', 'studentquiz');
+            echo $nodifficultylevel;
         }
     }
 

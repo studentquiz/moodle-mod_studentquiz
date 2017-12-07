@@ -82,7 +82,7 @@ class mod_studentquiz_report {
     protected $studentquizstats;
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
-            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->get_quantifiers());
+            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id());
             $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id());
             $this->studentquizstats->questions_available = $this->questionstats->questions_available;
             $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;

@@ -115,7 +115,6 @@ function mod_studentquiz_check_created_permission($cmid) {
  */
 
 function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module) {
-    global $CFG;
 
     // Prepare message.
     $time = new DateTime('now', core_date::get_user_timezone_object());
@@ -220,10 +219,9 @@ function mod_studentquiz_notify_comment_deleted($comment, $course, $module) {
  * @param int $questionid ID of the student's questions.
  * @param stdClass $course course object
  * @param stdClass $module course module object
- * @param string $othercapability
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_event_notification_question($event, $questionid, $course, $module, $othercapability='') {
+function mod_studentquiz_event_notification_question($event, $questionid, $course, $module) {
     global $DB, $USER;
 
     $question = $DB->get_record('question', array('id' => $questionid), 'id, name, timemodified, createdby, modifiedby');
@@ -613,7 +611,7 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
  * @return moodle_recordset of paginated ranking table
  */
-function mod_studentquiz_community_stats($cmid, $quantifiers) {
+function mod_studentquiz_community_stats($cmid) {
     global $DB;
     $select = 'SELECT '
         .' count(*) participants,'

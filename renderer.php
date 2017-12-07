@@ -578,8 +578,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                     '', array(
                         'title' => get_string('reportquiz_stats_all_questions_created', 'studentquiz'))),
                 html_writer::span($studentquizstats->questions_available,
-                    '', array('title' =>
-                    get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
+                    '', array('title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
             ),
             array(
                 html_writer::span(
@@ -638,7 +637,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                     '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))),
                 html_writer::span(
                     (($studentquizstats->question_attempts > 0) ?
-                100 * round($studentquizstats->question_attempts_correct / $studentquizstats->question_attempts, 2) : 0) . ' %',
+                    100 * round($studentquizstats->question_attempts_correct / $studentquizstats->question_attempts, 2) : 0) . ' %',
                     '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))), ''
             ),
             array(

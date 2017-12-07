@@ -240,31 +240,36 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table = new xmldb_table('studentquiz');
 
         // Add questionquantifier.
-        $field = new xmldb_field('questionquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'quizpracticebehaviour');
+        $field = new xmldb_field('questionquantifier', XMLDB_TYPE_INTEGER, '10', null,
+            XMLDB_NOTNULL, null, '0', 'quizpracticebehaviour');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add questionquantifier.
-        $field = new xmldb_field('approvedquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'questionquantifier');
+        $field = new xmldb_field('approvedquantifier', XMLDB_TYPE_INTEGER, '10', null,
+            XMLDB_NOTNULL, null, '0', 'questionquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add ratequantifier.
-        $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'approvedquantifier');
+        $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null,
+            XMLDB_NOTNULL, null, '0', 'approvedquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add correctanswerquantifier.
-        $field = new xmldb_field('correctanswerquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'votequantifier');
+        $field = new xmldb_field('correctanswerquantifier', XMLDB_TYPE_INTEGER, '10', null,
+            XMLDB_NOTNULL, null, '0', 'votequantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Add incorrectanswerquantifier.
-        $field = new xmldb_field('incorrectanswerquantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'correctanswerquantifier');
+        $field = new xmldb_field('incorrectanswerquantifier', XMLDB_TYPE_INTEGER, '10', null,
+            XMLDB_NOTNULL, null, '0', 'correctanswerquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -286,7 +291,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Add allowed qtypes field for the activity.
     if ($oldversion < 2017111904) {
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('allowedqtypes', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'incorrectanswerquantifier');
+        $field = new xmldb_field('allowedqtypes', XMLDB_TYPE_TEXT, 'medium', null,
+            null, null, null, 'incorrectanswerquantifier');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -296,7 +302,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // Migrate old quiz activity data into new data structure.
     if ($oldversion < 2017112406) {
-        // this is also used in import, so it had to be extracted.
+        // This is also used in import, so it had to be extracted.
         mod_studentquiz_migrate_old_quiz_usage();
 
         upgrade_mod_savepoint(true, 2017112406, 'studentquiz');
@@ -309,7 +315,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Load all contexts this has to be defined.
         // Only system context needed, as by default it's inherited from there and if someone did make an override, it's intentional.
         $context = context_system::instance();
-        // Load the roles for easier name to id assignment
+        // Load the roles for easier name to id assignment.
         $roleids = $DB->get_records_menu('role', null, '', 'shortname, id');
         // And finally update them for every context.
         foreach ($capabilities as $capname => $capability) {
