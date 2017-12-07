@@ -80,7 +80,6 @@ $string['lastattempt_wrong'] = '✗';
 $string['slot_of_slot'] = 'Question {$a->slot} of {$a->slots} in this set';
 $string['questions'] = 'questions';
 $string['pagesize'] = 'Page size:';
-
 $string['approve'] = 'Approve';
 $string['unapprove'] = 'Unapprove';
 $string['approve_toggle'] = 'Un/Approve';
@@ -93,7 +92,7 @@ $string['progress_bar_caption'] = 'Your progress in this StudentQuiz activity';
 $string['no_questions_filter'] = 'None of the questions matched your filter criteria. Reset the filter to see all.';
 $string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel free to add some questions.';
 
-// Blocks
+// Blocks.
 $string['statistic_block_title'] = 'My Progress';
 $string['ranking_block_title'] = 'Ranking';
 $string['statistic_block_progress_never'] = 'Questions never answered';
@@ -321,7 +320,7 @@ The comment is: \'{$a->commenttext}\'
 
 You can review this question at: {$a->questionurl}.';
 
-// Comment deleted notification email for question author
+// Comment deleted notification email for question author.
 $string['emailcommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
 $string['emailcommentdeletedsmall'] = 'The comment to your question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailcommentdeletedbody'] = 'Dear {$a->recepientname},
@@ -332,7 +331,7 @@ The comment was: \'{$a->commenttext}\'
 
 You can review this question at: {$a->questionurl}.';
 
-// Comment deleted notification email for comment author
+// Comment deleted notification email for comment author.
 $string['emailminecommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
 $string['emailminecommentdeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailminecommentdeletedbody'] = 'Dear {$a->recepientname},

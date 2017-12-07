@@ -75,8 +75,11 @@ class rate_column extends \core_question\bank\column_base {
         if (!empty($question->rate)) {
             echo \html_writer::span($this->render_ratingbar($question->rate, $question->myrate), null,
             array('title' =>
-                get_string('rate_all_column_name', 'studentquiz') . ": " . round($question->rate, 2) . " "
-                .(!empty($question->myrate)?get_string('myrate_column_name', 'studentquiz') . ": " . round($question->myrate, 2):'')));
+                get_string('rate_all_column_name', 'studentquiz') . ": "
+                    . round($question->rate, 2) . " "
+                .(!empty($question->myrate) ?
+                    get_string('myrate_column_name', 'studentquiz') . ": "
+                    . round($question->myrate, 2) : '')));
         } else {
             echo get_string('no_rates', 'studentquiz');
         }
@@ -134,34 +137,38 @@ class rate_column extends \core_question\bank\column_base {
         $fillbaron = "#fff";
         $fillbaroff = "#007bff";
 
-        if($average > 0 && $average <=5) {
+        if ($average > 0 && $average <= 5) {
             $width = round($average * 20, 0);
-        }else {
+        } else {
             $width = 1;
         }
 
-        if($mine>0 && $mine <= 5){
+        if ($mine > 0 && $mine <= 5){
             $stars = $mine;
-        }else{
+        } else {
             $stars = 0;
         }
 
         $output = '';
-        $output .= '<svg width="101" height="21" xmlns="http://www.w3.org/2000/svg">
-                    <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
-                    <g>
-                      <title>Rating bar</title>
-                     </g>
-                     <g>
-                      <rect id="svg_6" height="20" width="100" rx="5" ry="5" y="0.397703" x="0.396847" fill-opacity="null" stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'.$fillbaron .'"/>
-                      <rect id="svg_7" height="20" width="' . $width . '" rx="5" ry="5" y="0.397703" x="0.396847" stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'. $fillbaroff .'"/>';
-                    for($i = 1; $i<=$stars; $i++){
-                        $output .= '<path stroke="#000" id="svg_'.$i.'" d="m'.(($i * 20)-15).',8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z" stroke-width="0.5" fill="'.$fillstarson.'"/>';
-                    }
-                    for($i = $stars+1; $i<=5; $i++){
-                        $output .= '<path stroke="#868e96" id="svg_'.$i.'" d="m'.(($i * 20)-15).',8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z" stroke-width="0.5" fill="'.$fillstarsoff.'"/>';
-                    }
-            $output .= '</g></svg>';
+        $output .= '<svg width="101" height="21" xmlns="http://www.w3.org/2000/svg">'
+                .'<!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->'
+                .'<g><title>Rating bar</title></g>'
+                .'<g>'
+                .'<rect id="svg_6" height="20" width="100" rx="5" ry="5" y="0.397703" x="0.396847" '
+                .' fill-opacity="null" stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'.$fillbaron .'"/>'
+                .'<rect id="svg_7" height="20" width="' . $width . '" rx="5" ry="5" y="0.397703" x="0.396847"'
+                .' stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'. $fillbaroff .'"/>';
+        $starpath = ',8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,'
+                    .'5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z';
+        for($i = 1; $i<=$stars; $i++){
+            $output .= '<path stroke="#000" id="svg_'.$i.'" d="m'.(($i * 20)-15).$starpath.'"'
+                    .' stroke-width="0.5" fill="'.$fillstarson.'"/>';
+        }
+        for($i = $stars+1; $i<=5; $i++){
+            $output .= '<path stroke="#868e96" id="svg_'.$i.'"'
+                    .' d="m'.(($i * 20)-15).$starpath.'" stroke-width="0.5" fill="'.$fillstarsoff.'"/>';
+        }
+        $output .= '</g></svg>';
         return $output;
     }
 }

@@ -81,7 +81,7 @@ $capabilities = array(
             'manager'        => CAP_ALLOW,
         ),
     ),
-    // Ability to preview questions other than mine
+    // Ability to preview questions other than mine.
     'mod/studentquiz:previewothers' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -110,7 +110,7 @@ $capabilities = array(
             'manager'        => CAP_ALLOW,
         ),
     ),
-    // Notifications
+    // Notifications.
     'mod/studentquiz:emailnotifychanged' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

@@ -41,11 +41,11 @@ $context = context_module::instance($cmid);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 // TODO: has capability when anonymized?
 $anonymize = $studentquiz->anonymrank;
-if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
     $anonymize = false;
 }
 $ismoderator = false;
-if(mod_studentquiz_check_created_permission($cmid)) {
+if (mod_studentquiz_check_created_permission($cmid)) {
     $ismoderator = true;
 }
 

@@ -50,8 +50,8 @@ class tag_column extends \core_question\bank\column_base {
 
     public function set_searchconditions($searchconditions) {
         $this->searchconditions = $searchconditions;
-        foreach($searchconditions as $searchcondition) {
-            if(method_exists($searchcondition, 'is_tag_filter_active')) {
+        foreach ($searchconditions as $searchcondition) {
+            if (method_exists($searchcondition, 'is_tag_filter_active')) {
                 $this->tagfilteractive = $searchcondition->is_tag_filter_active();
             }
         }
@@ -80,7 +80,7 @@ class tag_column extends \core_question\bank\column_base {
      */
     protected function display_content($question, $rowclasses) {
         if (!empty($question->tags) && !empty($question->tagarray)) {
-            foreach($question->tagarray as $tag) {
+            foreach ($question->tagarray as $tag) {
                 $tag = $this->render_tag($tag);
                 echo $tag;
             }
@@ -91,7 +91,7 @@ class tag_column extends \core_question\bank\column_base {
 
     private function render_tag($tag) {
         return '<span role="listitem" data-value="HELLO" aria-selected="true" class="tag tag-success ">'
-                . (strlen($tag->rawname) > 10 ? (substr($tag->rawname,0,8) ."...") : $tag->rawname)
+                . (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) ."...") : $tag->rawname)
                 . '</span> ';
     }
 
@@ -100,16 +100,16 @@ class tag_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        if($this->tagfilteractive) {
+        if ($this->tagfilteractive) {
             return array('tags' => 'LEFT JOIN ('
                 .' SELECT '
-			    .' ti.itemid questionid,'
-			    .' COUNT(*) tags,'
-			    .' SUM(CASE WHEN t.name LIKE :searchtag then 1 else 0 end) searchtag'
-		        .' FROM {tag} t '
+                .' ti.itemid questionid,'
+                .' COUNT(*) tags,'
+                .' SUM(CASE WHEN t.name LIKE :searchtag then 1 else 0 end) searchtag'
+                .' FROM {tag} t '
                 .' JOIN {tag_instance} ti ON t.id = ti.tagid'
-		        .' WHERE ti.itemtype = \'question\''
-		        .' GROUP BY	questionid'
+                .' WHERE ti.itemtype = \'question\''
+                .' GROUP BY	questionid'
                 . ') tags ON tags.questionid = q.id ');
         } else {
             return array('tags' => 'LEFT JOIN ('
@@ -128,18 +128,15 @@ class tag_column extends \core_question\bank\column_base {
     /**
      * Return parameter for
      */
-    public function get_sqlparams()
-    {
+    public function get_sqlparams() {
             return array();
     }
 
-    public function get_required_fields()
-    {
+    public function get_required_fields() {
         return array('tags.tags', 'tags.searchtag');
     }
 
     public function is_sortable() {
         return 'tags.tags';
     }
-
 }

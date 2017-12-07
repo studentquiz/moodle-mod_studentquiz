@@ -156,9 +156,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $tags = mod_studentquiz_get_tags_by_question_ids($this->displayedquestionsids);
 
-        // Annotate questions with
+        // Annotate questions with tags.
         foreach ($questions as $question) {
-            if(array_key_exists($question->id, $tags)) {
+            if (array_key_exists($question->id, $tags)) {
                 $question->tagarray = $tags[$question->id];
             } else {
                 $question->tagarray = null;
@@ -178,7 +178,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (count($this->questions) > 0) {
             $output .= '<form method="post" action="view.php">';
 
-            // Allow sending form without explicit submit action, so input fields can refresh the page
+            // Allow sending form without explicit submit action, so input fields can refresh the page.
             $output .= \html_writer::empty_tag('input', array('type' => 'submit', 'style' => 'display:none;'));
 
             // Continues with list of questions.
@@ -212,7 +212,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (optional_param('approveselected', false, PARAM_BOOL)) {
             // If teacher has already confirmed the action.
             if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
-                // TODO: What? Security by obscurity? Needs a look closer, probably best by using the capability :manage
+                // TODO: What? Security by obscurity? Needs a look closer, probably best by using the capability :manage!
                 $approveselected = required_param('approveselected', PARAM_RAW);
                 if ($confirm == md5($approveselected)) {
                     if ($questionlist = explode(',', $approveselected)) {
@@ -241,7 +241,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $tocontext = \context::instance_by_id($contextid);
             require_capability('moodle/question:add', $tocontext);
             $rawdata = (array) data_submitted();
-            // TODO: Seen that somewhere else, extract in common function
+            // TODO: Seen that somewhere else, extract in common function!
             $questionids = array();
             foreach (array_keys($rawdata) as $key) {  // Parse input for question ids.
                 if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
@@ -397,7 +397,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * \core_question\bank\search\condition filters.
      */
     protected function build_query() {
-        // Hard coded setup
+        // Hard coded setup.
         $params = array();
         $joins = array();
         $fields = array('q.hidden', 'q.category', 'q.timecreated', 'q.createdby');
@@ -434,10 +434,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Build the where clause and load params from search conditions.
         foreach ($this->searchconditions as $searchcondition) {
-            if(!empty($searchcondition->where())) {
+            if (!empty($searchcondition->where())) {
                 $tests[] = $searchcondition->where();
             }
-            if(!empty($searchcondition->params())) {
+            if (!empty($searchcondition->params())) {
                 $params = array_merge($params, $searchcondition->params());
             }
         }
@@ -476,7 +476,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 'id' => $this->studentquiz->coursemodule
             ));
             $params = array(
-                // TODO: MAGIC CONSTANT
+                // TODO: MAGIC CONSTANT!
                 'returnurl' => $returnurl->out_as_local_url(false),
                 'category' => $categoryid,
                 'cmid' => $this->studentquiz->coursemodule,
@@ -484,8 +484,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
             $url = new \moodle_url('/question/addquestion.php', $params);
 
-            $allowedtypes = (empty($this->studentquiz->allowedqtypes))? 'ALL': $this->studentquiz->allowedqtypes;
-            $allowedtypes = ($allowedtypes == 'ALL')? null: explode(',', $allowedtypes);
+            $allowedtypes = (empty($this->studentquiz->allowedqtypes)) ? 'ALL' : $this->studentquiz->allowedqtypes;
+            $allowedtypes = ($allowedtypes == 'ALL') ? null : explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(
                 print_choose_qtype_to_add_form(array(), $allowedtypes, true
             ), '', array('id' => 'qtypechoicecontainer'));
@@ -559,12 +559,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $catcontext = \context::instance_by_id($contextid);
 
         $output .= '<fieldset class="invisiblefieldset" style="display: block;">';
-        $output .=  '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-        $output .=  "<input name='id' type='hidden' value='".$this->cm->id ."' />";
-        $output .=  "<input name='filtered_question_ids' type='hidden' value='". implode(',', $this->get_filtered_question_ids()) ."' />";
+        $output .= '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
+        $output .= "<input name='id' type='hidden' value='".$this->cm->id ."' />";
+        $output .= "<input name='filtered_question_ids' type='hidden' value='"
+            . implode(',', $this->get_filtered_question_ids()) ."' />";
 
-        // exclude qperpage as we have a page size selector now
-        $output .=  \html_writer::input_hidden_params($this->baseurl, array('qperpage'));
+        // Exclude qperpage as we have a page size selector now.
+        $output .= \html_writer::input_hidden_params($this->baseurl, array('qperpage'));
 
         $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
@@ -576,7 +577,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= $this->display_bottom_controls($this->totalnumber , $recurse, $category, $catcontext, $addcontexts);
 
-        $output .=  '</fieldset>';
+        $output .= '</fieldset>';
 
         $output .= $this->display_javascript_snippet();
 
@@ -585,14 +586,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     protected function display_javascript_snippet() {
         $output = '';
-        $output .=  '<script>';
+        $output .= '<script>';
         // Select all questions.
-        $output .=  'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
+        $output .= 'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
                 for (var i=0; i<el.length; i++) {
                   el[i].checked = true;
               }';
         // Change both move-to dropdown box at when selection changes.
-        $output .=  'var elements = document.getElementsByName(\'category\');
+        $output .= 'var elements = document.getElementsByName(\'category\');
               for(e in elements) {
                 elements[e].onchange = function() {
                   var elms = document.getElementsByName(\'category\');
@@ -603,17 +604,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
                   }
                 }
               }';
-        $output .=  '</script>';
+        $output .= '</script>';
         return $output;
     }
 
     protected function display_question_list_rows() {
         $output = '';
-        $output .=  '<div class="categoryquestionscontainer">';
+        $output .= '<div class="categoryquestionscontainer">';
         ob_start();
         $this->start_table();
         $rowcount = 0;
-        foreach($this->questions as $question) {
+        foreach ($this->questions as $question) {
             $this->print_table_row($question, $rowcount);
             $rowcount++;
         }
@@ -861,7 +862,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function load_questions($page, $perpage) {
         global $DB;
-        $rs =  $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
+        $rs = $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
 
         $counterquestions = 0;
         $numberofdisplayedquestions = 0;
@@ -869,23 +870,21 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $rs->rewind();
 
         // Skip Questions on previous pages.
-        while($rs->valid() && !$showall && $counterquestions < $page * $perpage) {
+        while ($rs->valid() && !$showall && $counterquestions < $page * $perpage) {
             $rs->next();
             $counterquestions++;
         }
 
-        // Reset and start from 0 if page was empty
+        // Reset and start from 0 if page was empty.
         if(!$showall && $counterquestions < $page * $perpage) {
             $rs->rewind();
         }
 
-        //
-        // Unfortunately we cant just render the questions directly, because we need
-        // To annotate tags first.
-        //
+        // Unfortunately we cant just render the questions directly.
+        // We need to annotate tags first.
         $questions = array();
-        // Load questions
-        while($rs->valid() && ($showall || $numberofdisplayedquestions < $perpage)) {
+        // Load questions.
+        while ($rs->valid() && ($showall || $numberofdisplayedquestions < $perpage)) {
             $question = $rs->current();
             $numberofdisplayedquestions++;
             $counterquestions++;
@@ -895,7 +894,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Iterate to end.
-        while($rs->valid()) {
+        while ($rs->valid()) {
             $rs->next();
             $counterquestions++;
         }
@@ -936,29 +935,34 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 array('showall' => true)));
             if ($this->totalnumber > $perpage) {
                 if (empty($this->pagevars['showallprinted'])) {
-                    $content = \html_writer::empty_tag('input', array('type' => 'submit', 'value' => get_string('pagesize', 'studentquiz'), 'class' => 'btn'));
-                    $content .= \html_writer::empty_tag('input', array('type' => 'text', 'name' => 'qperpage', 'value' => $perpage, 'class' => 'form-control'));
+                    $content = \html_writer::empty_tag('input', array('type' => 'submit', 'value' =>
+                        get_string('pagesize', 'studentquiz'), 'class' => 'btn'));
+                    $content .= \html_writer::empty_tag('input', array('type' => 'text', 'name' => 'qperpage',
+                        'value' => $perpage, 'class' => 'form-control'));
                     $pagingbaroutput .= \html_writer::div($content, 'pull-right form-inline pagination');
                     $this->pagevars['showallprinted'] = true;
                 }
 
-                $showalllink = '<a href="' . $url . '">' . get_string('showall', 'moodle', $this->totalnumber) . '</a>';
+                $showalllink = '<a href="' . $url . '">'
+                    . get_string('showall', 'moodle', $this->totalnumber) . '</a>';
                 $pagingshowall = "<div class='paging'>{$showalllink}</div>";
                 $pagingbaroutput .= '<div class="categorypagingbarcontainer">';
                 $pagingbaroutput .= $OUTPUT->render($pagingbar);
                 $pagingbaroutput .= $pagingshowall;
                 $pagingbaroutput .= '</div>';
-            } elseif ($perpage > DEFAULT_QUESTIONS_PER_PAGE) {
+            } else if ($perpage > DEFAULT_QUESTIONS_PER_PAGE) {
                 $url = new \moodle_url('view.php', array_merge($pageurl->params(),
                     array('qperpage' => DEFAULT_QUESTIONS_PER_PAGE)));
-                $showalllink = '<a href="' . $url . '">' . get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE) . '</a>';
+                $showalllink = '<a href="' . $url . '">'
+                    . get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE) . '</a>';
                 $pagingshowall = "<div class='paging'>{$showalllink}</div>";
                 $pagingbaroutput .= $pagingshowall;
             }
         } else {
             $url = new \moodle_url('view.php', array_merge($pageurl->params(),
                 array('qperpage' => $perpage)));
-            $showalllink = '<a href="' . $url . '">' . get_string('showperpage', 'moodle', $perpage) . '</a>';
+            $showalllink = '<a href="' . $url . '">'
+                . get_string('showperpage', 'moodle', $perpage) . '</a>';
             $pagingshowall = "<div class='paging'>{$showalllink}</div>";
             $pagingbaroutput .= $pagingshowall;
         }
@@ -975,7 +979,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             return false;
         }
         $context = \context_module::instance($this->studentquiz->coursemodule);
-        if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+        if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
             return false;
         }
         // Instance is anonymized and isn't allowed to unhide that.

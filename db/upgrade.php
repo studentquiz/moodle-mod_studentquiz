@@ -163,7 +163,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017110600, 'studentquiz');
     }
 
-    // Introduce table studentquiz_progress
+    // Introduce table studentquiz_progress.
     if ($oldversion < 2017110701) {
 
         // Setup a new table.
@@ -191,13 +191,13 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017110701, 'studentquiz');
     }
 
-    // Introduce table studentquiz_attempt
+    // Introduce table studentquiz_attempt.
     if ($oldversion < 2017111001) {
 
         // Setup a new table.
         $table = new xmldb_table('studentquiz_attempt');
 
-        // Adding fields to table studentquiz_attempt
+        // Adding fields to table studentquiz_attempt.
         $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
         $table->add_field('studentquizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
@@ -329,15 +329,15 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $tablenew = new xmldb_table('studentquiz_rate');
         $field = new xmldb_field('vote', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
 
-        if($dbman->table_exists($table) && $dbman->field_exists($table, $field)) {
+        if ($dbman->table_exists($table) && $dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'rate');
         }
 
         if ($dbman->table_exists($table)) {
-            if(!$dbman->table_exists($tablenew) && $dbman->table_exists($table)) {
+            if (!$dbman->table_exists($tablenew) && $dbman->table_exists($table)) {
                 $dbman->rename_table($table, 'studentquiz_rate');
             }
-            if($dbman->table_exists($table) && $dbman->table_exists($tablenew)) {
+            if ($dbman->table_exists($table) && $dbman->table_exists($tablenew)) {
                 $dbman->drop_table($table);
             }
         }
@@ -345,7 +345,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
 
-        if($dbman->field_exists($table, $field)) {
+        if ($dbman->field_exists($table, $field)) {
             $dbman->rename_field($table, $field, 'ratequantifier');
         }
 
@@ -353,14 +353,14 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     // Change all quantifier fields to int.
-    // Hint for history: these fields haven't been rolled out yet in type float
+    // Hint for history: these fields haven't been rolled out yet in type float.
     if ($oldversion < 2017120202) {
         $table = new xmldb_table('studentquiz');
 
         $fieldnames = array('questionquantifier', 'approvedquantifier', 'ratequantifier', 'correctanswerquantifier', 'incorrectanswerquantifier');
-        foreach($fieldnames as $fieldname) {
+        foreach ($fieldnames as $fieldname) {
             $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
-            if($dbman->field_exists($table, $field)) {
+            if ($dbman->field_exists($table, $field)) {
                 $dbman->change_field_type($table, $field);
             }
         }
