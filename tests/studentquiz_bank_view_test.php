@@ -223,20 +223,14 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->resetAfterTest(true);
 
         // Hard coded.
-        $pagevars = array(
-            'recurse' => true,
+        $pagevars = array( 'recurse' => true,
             'cat' => $this->cat->id . ',' . $this->ctx->id,
-            'showall' => 0,
-            'showallprinted' => 0,
-        );
+            'showall' => 0, 'showallprinted' => 0 );
 
         $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             new question_edit_contexts(context_module::instance($this->cm->id))
             , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
-            , $this->course
-            , $this->cm
-            , $this->studentquiz
-            , $pagevars);
+            , $this->course, $this->cm, $this->studentquiz, $pagevars);
 
         $this->displayqb($questionbank);
         $this->assertEquals(20, count($questionbank->get_questions()));

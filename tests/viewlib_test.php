@@ -70,8 +70,10 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
         self::assertFalse($result);
     }
 
-    // Not testable, because of redirect, that is not allowed in testings and unmockable.
+    // Is testable with setUser in setup to mock login.
+    // that is not allowed in testings and unmockable.
     public function test_show_questionbank() {
+
     }
 
     public function test_get_viewurl() {
