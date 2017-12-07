@@ -180,8 +180,8 @@ $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-left'));
 if ($hasprevious) {
     $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'previous', 'value' =>
-            get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+        array('type' => 'submit', 'name' => 'previous',
+            'value' => get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
 }
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
@@ -192,8 +192,8 @@ $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
 // Not has rated, is done using javascript.
 if ($canfinish && ($hasnext || !$hasanswered)) {
     $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'finish', 'value' =>
-            get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
+        array('type' => 'submit', 'name' => 'finish',
+            'value' => get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
 }
 
 $html .= html_writer::end_tag('div');
@@ -205,12 +205,12 @@ $html .= html_writer::start_tag('div', array('class' => 'pull-right'));
 if ($hasanswered) {
     if ($hasnext) {
         $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'next', 'value' =>
-                get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+            array('type' => 'submit', 'name' => 'next',
+                'value' => get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));
     } else { // Finish instead of next on the last question.
         $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'finish', 'value' =>
-                get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+            array('type' => 'submit', 'name' => 'finish',
+                'value' => get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-primary'));
     }
 }
 $html .= html_writer::end_tag('div');

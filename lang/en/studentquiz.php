@@ -305,7 +305,7 @@ $string['emailunapprovedsubject'] = 'Question approval has been revoked: {$a->qu
 $string['emailunapprovedsmall'] = 'The approval of your question \'{$a->questionname}\' has been revoked by {$a->actorname}.';
 $string['emailunapprovedbody'] = 'Dear {$a->recepientname},
 
-The approval of your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been revoked by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
+The approval of your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been revoked by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 
@@ -314,7 +314,7 @@ $string['emailcommentaddedsubject'] = 'Question has been commented: {$a->questio
 $string['emailcommentaddedsmall'] = 'Your question \'{$a->questionname}\' has been commented by {$a->username}.';
 $string['emailcommentaddedbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been commented by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been commented by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 The comment is: \'{$a->commenttext}\'
 
@@ -325,7 +325,7 @@ $string['emailcommentdeletedsubject'] = 'Comment has been deleted to question: {
 $string['emailcommentdeletedsmall'] = 'The comment to your question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailcommentdeletedbody'] = 'Dear {$a->recepientname},
 
-The comment on \'{$a->commenttime}\' to your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
+The comment on \'{$a->commenttime}\' to your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 The comment was: \'{$a->commenttext}\'
 
@@ -336,7 +336,7 @@ $string['emailminecommentdeletedsubject'] = 'Comment has been deleted to questio
 $string['emailminecommentdeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailminecommentdeletedbody'] = 'Dear {$a->recepientname},
 
-Your comment on \'{$a->commenttime}\' to the question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'. 
+Your comment on \'{$a->commenttime}\' to the question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 The comment was: \'{$a->commenttext}\'
 

@@ -147,11 +147,10 @@ class difficulty_level_column extends \core_question\bank\column_base {
     protected function display_content($question, $rowclasses) {
         if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
             echo \html_writer::span($this->render_difficultybar($question->difficultylevel, $question->mydifficulty), null,
-                array('title' =>
-                    get_string('difficulty_all_column_name', 'studentquiz') . ": "
+                array('title' => get_string('difficulty_all_column_name', 'studentquiz') . ": "
                     . (100 * round($question->difficultylevel, 2)) . "% "
-                    .(!empty($question->mydifficulty) ?
-                        get_string('mydifficulty_column_name', 'studentquiz') . ": "
+                    .(!empty($question->mydifficulty)
+                        ? get_string('mydifficulty_column_name', 'studentquiz') . ": "
                         . (100 * round($question->mydifficulty, 2)) . '%' : '')
                 ));
         } else {

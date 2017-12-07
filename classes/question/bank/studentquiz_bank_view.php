@@ -935,8 +935,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 array('showall' => true)));
             if ($this->totalnumber > $perpage) {
                 if (empty($this->pagevars['showallprinted'])) {
-                    $content = \html_writer::empty_tag('input', array('type' => 'submit', 'value' =>
-                        get_string('pagesize', 'studentquiz'), 'class' => 'btn'));
+                    $content = \html_writer::empty_tag('input', array('type' => 'submit',
+                        'value' => get_string('pagesize', 'studentquiz'), 'class' => 'btn'));
                     $content .= \html_writer::empty_tag('input', array('type' => 'text', 'name' => 'qperpage',
                         'value' => $perpage, 'class' => 'form-control'));
                     $pagingbaroutput .= \html_writer::div($content, 'pull-right form-inline pagination');

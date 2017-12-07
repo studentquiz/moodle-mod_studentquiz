@@ -567,16 +567,16 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             array(
                 html_writer::span(
                     get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
-                    '', array('title' =>
-                    get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))),
+                    '', array(
+                        'title' => get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))),
                 html_writer::span(
                     $userrankingstats->questions_created,
-                    '', array('title' =>
-                    get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))), '',
+                    '', array(
+                        'title' => get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
-                    '', array('title' =>
-                    get_string('reportquiz_stats_all_questions_created', 'studentquiz'))),
+                    '', array(
+                        'title' => get_string('reportquiz_stats_all_questions_created', 'studentquiz'))),
                 html_writer::span($studentquizstats->questions_available,
                     '', array('title' =>
                     get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
@@ -584,19 +584,19 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             array(
                 html_writer::span(
                     get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
-                    '', array('title' =>
-                    get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))),
+                    '', array(
+                        'title' => get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))),
                 html_writer::span(
                     $userrankingstats->questions_approved,
-                    '', array('title' =>
-                    get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))), '',
+                    '', array(
+                        'title' => get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
-                    '', array('title' =>
-                    get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))),
+                    '', array(
+                        'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))),
                 html_writer::span($studentquizstats->questions_approved,
-                    '', array('title' =>
-                    get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))), ''
+                    '', array(
+                        'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))), ''
             ),
             array(
                 html_writer::span(
@@ -630,14 +630,14 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                     get_string('reportquiz_stats_own_percentage_correct_answers', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz'))),
                 html_writer::span(
-                    (($userrankingstats->question_attempts > 0)?
+                    (($userrankingstats->question_attempts > 0) ?
                     100 * round($userrankingstats->question_attempts_correct / $userrankingstats->question_attempts, 2) : 0) . ' %',
                     '', array('title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_percentage_correct_answers', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))),
                 html_writer::span(
-                    (($studentquizstats->question_attempts > 0)?
+                    (($studentquizstats->question_attempts > 0) ?
                 100 * round($studentquizstats->question_attempts_correct / $studentquizstats->question_attempts, 2) : 0) . ' %',
                     '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))), ''
             ),
@@ -667,7 +667,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      * TODO: proper docs
      */
     public function view_rank($report) {
-       return $this->heading(get_string('reportrank_title', 'studentquiz'))
+        return $this->heading(get_string('reportrank_title', 'studentquiz'))
                     . $this->view_quantifier_information($report)
                     . $this->view_rank_table($report);
     }

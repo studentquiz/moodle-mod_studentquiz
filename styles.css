@@ -56,8 +56,8 @@
 
 #page-mod-studentquiz-view input[type="checkbox"].toggle + span {
     background: #eee;
-    border-radius: 4px;
     border-bottom: 2px solid darkgray;
+    border-radius: 4px;
     display: inline-block;
     margin-right: 5px;
     padding: 5px;
@@ -65,8 +65,8 @@
 }
 
 #page-mod-studentquiz-view .toggle:checked + span {
-    color: #1177d1;
     border-bottom: 2px solid #1177d1;
+    color: #1177d1;
     display: inline-block;
     transition: all 0.4s ease;
 }
@@ -204,14 +204,14 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #categoryquestions th.practice .sorters,
 #categoryquestions th.difficultylevel .sorters,
 #categoryquestions th.rates .sorters {
-    font-weight: 400;
     font-size: .8em;
+    font-weight: 400;
 }
 
 
 #categoryquestions th .sorters {
-    font-weight: normal;
     font-size: 0.8em;
+    font-weight: normal;
 }
 
 /* behavior */
@@ -271,6 +271,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     margin-top: 5px;
 }
 
+.studentquiz_behaviour .star,
 .studentquiz_behaviour .rate .rating .rateable.star-empty:hover,
 .studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty {
     background-image: url([[pix:mod_studentquiz|star_icon]]);
@@ -285,10 +286,6 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 
 .studentquiz_behaviour .rate .rating .rateable {
     cursor: pointer;
-}
-
-.studentquiz_behaviour .star {
-    background-image: url([[pix:mod_studentquiz|star_icon]]);
 }
 
 .studentquiz_behaviour .star-empty {
