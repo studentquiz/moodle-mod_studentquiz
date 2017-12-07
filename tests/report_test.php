@@ -113,7 +113,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         // TODO $questions[1]->classify_response(array('answer' => '1'));  ?
         $questions[2]->start_attempt(new question_attempt_step(), 1);
         // TODO $questions[2]->classify_response(array()); // = no response ?
-        /**
+        /*
          *
          Attention! Here userid = userid with attempt -> speciality studentquiz, just in case...
          $records = new question_test_recordset(array(
@@ -157,7 +157,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         // save to db, was the hope
         question_engine::save_questions_usage_by_activity($questionusage);
 
-        /**
+        /*
          * Load attempt data 2. I believe this is to test without the DB, not the way around.
         $records = new question_test_recordset(array(
             array('questionattemptid', 'contextid', 'questionusageid', 'slot',
@@ -201,7 +201,6 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
     }
 
     public function test_mod_studentquiz_user_stats() {
-        $this->debugdb();
         $userstats = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id);
         $this->assertEquals(2, $userstats->questions_created);
     }
@@ -213,14 +212,12 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
 
     private function debugdb($user=array()) {
         global $DB;
-        $tables = array(/*'course_modules', */'studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts', 'question_attempt_steps', 'question_attempt_step_data');
+        $tables = array('studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts', 'question_attempt_steps', 'question_attempt_step_data');
         $result = array();
-        //$result['user'] = $this->users;
         $result['user'] = $this->users[0];
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $result[$table] = $DB->get_records($table);
         }
-        var_dump($result);
     }
 
     /**
@@ -228,13 +225,12 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
      * @param array $data the data for the quetsion.
      * @return array the complete post data.
      */
-    // from question\engine\tests\questionusage_autosave_test.php
-    // TODO fix some $this usage to correct one
-    // usage:
-    //      $postdata = $this->response_data_to_post(array('answer' => 'obsolete response'));
-    //      $postdata[$this->quba->get_field_prefix($this->slot) . ':sequencecheck'] = $this->get_question_attempt()->get_sequence_check_count() - 1;
-    //      $this->quba->process_all_actions(null/*time()*/, $postdata);
-    //
+    // From question\engine\tests\questionusage_autosave_test.php.
+    // TODO fix some $this usage to correct one!
+    // Usage:
+    // Post data: $postdata = $this->response_data_to_post(array('answer' => 'obsolete response'));.
+    // Post data: $postdata[$this->quba->get_field_prefix($this->slot) . ':sequencecheck'] = $this->get_question_attempt()->get_sequence_check_count() - 1;.
+    // Question Usage: $this->quba->process_all_actions(null/*time()*/, $postdata);.
     protected function response_data_to_post($data) {
         $prefix = $this->quba->get_field_prefix($this->slot);
         $fulldata = array(

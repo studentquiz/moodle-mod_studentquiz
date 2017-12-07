@@ -69,7 +69,7 @@ class mod_studentquiz_generator extends testing_module_generator {
         $record = (object)(array)$record;
 
         // TODO for behats I think this is the reason for studentquiz 0!
-        if(!isset($record->name)) {
+        if (!isset($record->name)) {
             $record->name = 'studentquiz ' . $this->studentquizcount;
         }
 

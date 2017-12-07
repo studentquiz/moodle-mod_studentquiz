@@ -192,7 +192,8 @@ $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
 // Not has rated, is done using javascript.
 if ($canfinish && ($hasnext || !$hasanswered)) {
     $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'finish', 'value' =>  get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
+        array('type' => 'submit', 'name' => 'finish', 'value' =>
+            get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
 }
 
 $html .= html_writer::end_tag('div');

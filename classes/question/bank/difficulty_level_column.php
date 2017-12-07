@@ -179,7 +179,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
             $width = 0;
         }
 
-        if ($mine > 0 && $mine <= 1){
+        if ($mine > 0 && $mine <= 1) {
             $bolts = ceil($mine * 5);
         } else {
             $bolts = 0;
@@ -196,11 +196,11 @@ class difficulty_level_column extends \core_question\bank\column_base {
         $boltpath = ',1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,'
                  .  '-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z';
         for ($i = 1; $i <= $bolts; $i++) {
-            $output .= '<path stroke="'.$fillboltson.'" id="svg_'.$i.'" d="m'.(($i * 20)-12).$boltpath.'"'
+            $output .= '<path stroke="'.$fillboltson.'" id="svg_'.$i.'" d="m'.(($i * 20) - 12).$boltpath.'"'
                     . ' stroke-width="0.5" fill="'.$fillboltson.'"/>';
         }
         for ($i = $bolts + 1; $i <= 5; $i++) {
-            $output .= '<path stroke="#868e96" id="svg_'.$i.'" d="m'.(($i * 20)-12).$boltpath.'"'
+            $output .= '<path stroke="#868e96" id="svg_'.$i.'" d="m'.(($i * 20) - 12).$boltpath.'"'
                     .  ' stroke-width="0.5" fill="'.$fillboltsoff.'"/>';
         }
         $output .= '</g></svg>';

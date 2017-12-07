@@ -33,9 +33,6 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-namespace mod_studentquiz\bank;
-
 class preview_column extends \core_question\bank\preview_action_column {
 
     protected $renderer;

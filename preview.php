@@ -97,7 +97,7 @@ if ($question) {
 
     $options = new question_display_options();
 
-    // Output
+    // Output.
     $title = get_string('previewquestion', 'question', format_string($question->name));
     $headtags = question_engine::initialise_js() . $quba->render_question_head_html($slot);
 } else {
@@ -111,7 +111,7 @@ $PAGE->set_url($actionurl);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
 
 echo $OUTPUT->header();
-if($question) {
+if ($question) {
     echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
         'enctype' => 'multipart/form-data', 'id' => 'responseform'));
     echo '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';

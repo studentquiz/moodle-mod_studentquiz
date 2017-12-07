@@ -143,7 +143,7 @@ class rate_column extends \core_question\bank\column_base {
             $width = 1;
         }
 
-        if ($mine > 0 && $mine <= 5){
+        if ($mine > 0 && $mine <= 5) {
             $stars = $mine;
         } else {
             $stars = 0;
@@ -160,13 +160,13 @@ class rate_column extends \core_question\bank\column_base {
                 .' stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'. $fillbaroff .'"/>';
         $starpath = ',8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,'
                     .'5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z';
-        for($i = 1; $i<=$stars; $i++){
-            $output .= '<path stroke="#000" id="svg_'.$i.'" d="m'.(($i * 20)-15).$starpath.'"'
+        for ($i = 1; $i <= $stars; $i++){
+            $output .= '<path stroke="#000" id="svg_'.$i.'" d="m'.(($i * 20) - 15).$starpath.'"'
                     .' stroke-width="0.5" fill="'.$fillstarson.'"/>';
         }
-        for($i = $stars+1; $i<=5; $i++){
+        for ($i = $stars + 1; $i <= 5; $i++){
             $output .= '<path stroke="#868e96" id="svg_'.$i.'"'
-                    .' d="m'.(($i * 20)-15).$starpath.'" stroke-width="0.5" fill="'.$fillstarsoff.'"/>';
+                    .' d="m'.(($i * 20) - 15).$starpath.'" stroke-width="0.5" fill="'.$fillstarsoff.'"/>';
         }
         $output .= '</g></svg>';
         return $output;

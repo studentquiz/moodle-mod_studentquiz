@@ -43,7 +43,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $rows = array();
         foreach ($celldata as $num => $row) {
             $cells = array();
-            foreach( $row as $cell) {
+            foreach ($row as $cell) {
                 if (!empty($rowattributes[$num])) {
                     $cells[] = $this->render_table_cell($cell, $rowattributes[$num]);
                 } else {
@@ -90,8 +90,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $info2->total = $userstats->questions_created;
         $info2->group = 0;
         $info2->one = $userstats->questions_approved;
-        $bc->content =
-            html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
+        $bc->content = html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->last_attempt_correct .'</b>', '',
@@ -136,7 +135,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 html_writer::span(html_writer::tag('b' , round($row->points)),
                     '', array('style' => 'float: right;')));
             $rank++;
-            if($rank > 10) {
+            if ($rank > 10) {
                 break;
             }
         }
@@ -551,7 +550,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             get_string('reportrank_table_column_value', 'studentquiz'), ''
         );
 
-        // Protect from zero division
+        // Protect from zero division.
         if (empty($studentquizstats->participated)) {
             $participated = 1;
         } else {
@@ -669,8 +668,8 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      */
     public function view_rank($report) {
        return $this->heading(get_string('reportrank_title', 'studentquiz'))
-                . $this->view_quantifier_information($report)
-                . $this->view_rank_table($report);
+                    . $this->view_quantifier_information($report)
+                    . $this->view_rank_table($report);
     }
 
     /**
@@ -771,7 +770,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 round($ur->points, 2),
                 round($ur->questions_created * $report->get_quantifier_question(), 2),
                 round($ur->questions_approved * $report->get_quantifier_approved(), 2),
-                round($ur->rates_average * $ur->questions_created* $report->get_quantifier_rate(), 2),
+                round($ur->rates_average * $ur->questions_created * $report->get_quantifier_rate(), 2),
                 round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2),
                 round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
                 (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'

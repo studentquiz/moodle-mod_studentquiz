@@ -876,7 +876,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Reset and start from 0 if page was empty.
-        if(!$showall && $counterquestions < $page * $perpage) {
+        if (!$showall && $counterquestions < $page * $perpage) {
             $rs->rewind();
         }
 

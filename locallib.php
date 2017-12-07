@@ -385,7 +385,7 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     // TODO: Check if this is instance id from studentquiz table.
     $attempt->studentquizid = $studentquiz->id;
 
-    // Add questions to usage
+    // Add questions to usage.
     shuffle($ids);
     $usageorder = array();
     foreach ($ids as $i => $questionid) {
@@ -623,7 +623,7 @@ function mod_studentquiz_community_stats($cmid, $quantifiers) {
         .' COALESCE(sum(creators.countq), 0) questions_created,'
         // Questions approved.
         .' COALESCE(sum(approvals.countq), 0) questions_approved,'
-        // Questions rating received
+        // Questions rating received.
         .' COALESCE(sum(rates.countv), 0) rates_received,'
         .' COALESCE(avg(rates.avgv), 0) rates_average,'
         // Question attempts.
@@ -999,10 +999,10 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
  * This is a helper to ensure we have a studentquiz_question record for a specific question
  * @param int $id question id
  */
-function mod_studentquiz_ensure_studentquiz_question_record($id){
+function mod_studentquiz_ensure_studentquiz_question_record($id) {
     global $DB;
     // Check if record exist.
-    if (!$DB->count_records('studentquiz_question', array('questionid' => $id)) )  {
+    if (!$DB->count_records('studentquiz_question', array('questionid' => $id)) ) {
         $DB->insert_record('studentquiz_question', array('questionid' => $id, 'approved' => 0));
     }
 }
@@ -1015,7 +1015,9 @@ function mod_studentquiz_get_tags_by_question_ids($ids) {
     global $DB;
 
     // Return an empty array for empty selection.
-    if(empty($ids)) return array();
+    if (empty($ids)) {
+        return array();
+    }
 
     list($insql, $params) = $DB->get_in_or_equal($ids);
     $result = array();
@@ -1024,8 +1026,8 @@ function mod_studentquiz_get_tags_by_question_ids($ids) {
         . ' FROM {tag} t JOIN {tag_instance} ti ON ti.tagid = t.id '
         . ' WHERE ti.itemtype = \'question\' AND ti.itemid '
         . $insql, $params);
-    foreach ($tags as $tag){
-        if (empty($result[$tag->itemid])){
+    foreach ($tags as $tag) {
+        if (empty($result[$tag->itemid])) {
             $result[$tag->itemid] = array();
         }
         $result[$tag->itemid][] = $tag;
@@ -1037,10 +1039,10 @@ function mod_studentquiz_count_questions($cmid) {
     global $DB;
     $DB->set_debug(false);
     $rs = $DB->count_records_sql('SELECT count(*) FROM {studentquiz} sq'
-        // get this Studentquiz Question category
+        // Get this Studentquiz Question category.
         .' JOIN {context} con ON con.instanceid = sq.coursemodule'
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
-        // only enrolled users
+        // Only enrolled users.
         .' JOIN {question} q ON q.category = qc.id'
         .'  WHERE q.hidden = 0 AND sq.coursemodule = :cmid', array('cmid' => $cmid));
     $DB->set_debug(false);

@@ -199,8 +199,7 @@ class user_filter_tag extends user_filter_text {
      * @param array $data filter settings
      * @return array sql string and $params
      */
-    public function get_sql_filter($data)
-    {
+    public function get_sql_filter($data) {
         static $counter = 0;
         $name = 'ex_tag' . $counter++;
 
