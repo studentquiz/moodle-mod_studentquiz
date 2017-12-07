@@ -15,6 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Representing anonym creator column
+ *
+ * @package    mod_studentquiz
+ * @copyright  2017 HSR (http://www.hsr.ch)
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+
+namespace mod_studentquiz\bank;
+
+defined('MOODLE_INTERNAL') || die();
+
+/**
  * A column type for the name of the question creator.
  *
  * @package    mod_studentquiz
@@ -26,7 +38,6 @@ namespace mod_studentquiz\bank;
 
 class anonym_creator_name_column extends \core_question\bank\creator_name_column {
 
-    // Current userid
     protected $currentuserid;
 
     protected $anonymize;
@@ -46,7 +57,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
     protected function display_content($question, $rowclasses) {
         $this->anonymize = $this->qbank->is_anonymized();
         $date = userdate($question->timecreated, get_string('strftimedatetime', 'langconfig'));
-        if( $this->anonymize && $question->createdby != $this->currentuserid) {
+        if ( $this->anonymize && $question->createdby != $this->currentuserid) {
             echo  \html_writer::tag('span', $this->anonymousname)
                         . '<br>' . \html_writer::tag('span', $date, array('class' => 'date'));
         } else {

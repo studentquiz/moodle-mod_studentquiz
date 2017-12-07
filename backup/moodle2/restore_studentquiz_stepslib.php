@@ -93,19 +93,39 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $data->coursemodule = $this->get_mappingid('course_module', $data->coursemodule);
         $oldid = $data->id;
 
-        if (empty($data->timecreated)) $data->timecreated = time();
-        if (empty($data->timemodified)) $data->timemodified = time();
-        if ($data->grade < 0) $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
+        if (empty($data->timecreated)) {
+            $data->timecreated = time();
+        }
+        if (empty($data->timemodified)) {
+            $data->timemodified = time();
+        }
+        if ($data->grade < 0) {
+            $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
+        }
         if (empty($data->quizpracticebehaviour) || $data->quizpracticebehaviour == STUDENTQUIZ_BEHAVIOUR) {
             $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
         }
-        if (empty($data->anonymrank)) $data->anonymrank = true;
-        if (empty($data->questionquantifier)) $data->questionquantifier = get_config('studentquiz', 'addquestion');
-        if (empty($data->approvedquantifier)) $data->approvedquantifier = get_config('studentquiz', 'approved');
-        if (empty($data->ratequantifier)) $data->ratequantifier = get_config('studentquiz', 'rate');
-        if (empty($data->correctanswerquantifier)) $data->correctanswerquantifier = get_config('studentquiz', 'correctanswered');
-        if (empty($data->incorrectanswerquantifier)) $data->incorrectanswerquantifier = get_config('studentquiz', 'incorrectanswered');
-        if (empty($data->allowedqtypes)) $data->allowedqtypes = 'ALL';
+        if (empty($data->anonymrank)) {
+            $data->anonymrank = true;
+        }
+        if (empty($data->questionquantifier)) {
+            $data->questionquantifier = get_config('studentquiz', 'addquestion');
+        }
+        if (empty($data->approvedquantifier)) {
+            $data->approvedquantifier = get_config('studentquiz', 'approved');
+        }
+        if (empty($data->ratequantifier)) {
+            $data->ratequantifier = get_config('studentquiz', 'rate');
+        }
+        if (empty($data->correctanswerquantifier)) {
+            $data->correctanswerquantifier = get_config('studentquiz', 'correctanswered');
+        }
+        if (empty($data->incorrectanswerquantifier)) {
+            $data->incorrectanswerquantifier = get_config('studentquiz', 'incorrectanswered');
+        }
+        if (empty($data->allowedqtypes)) {
+            $data->allowedqtypes = 'ALL';
+        }
 
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);

@@ -46,7 +46,7 @@ $userid = $USER->id;
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
 
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
-//$stopurl = new moodle_url('/mod/studentquiz/summary.php', array('cmid' => $cmid, 'id' => $attemptid));
+// Reroute this to attempt summary page if desired.
 $stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid));
 
 // Get Current Question.
@@ -138,13 +138,13 @@ echo $OUTPUT->header();
 $info = new stdClass();
 $info->total = $questionscount;
 $info->group = 0;
-$info->one = max($slot - (!$hasanswered?1:0), 0);
+$info->one = max($slot - (!$hasanswered ? 1 : 0), 0);
 $texttotal = $questionscount . ' ' . get_string('questions', 'studentquiz');
 $html = '';
 
 $html .= html_writer::div($output->render_progress_bar($info, $texttotal, true), '', array('title' => $texttotal));
 
-// Render the question title
+// Render the question title.
 $html .= html_writer::tag('h2', $title);
 
 // Start the question form.
@@ -163,11 +163,11 @@ if ($hasanswered) {
     $comments = mod_studentquiz_get_comments_with_creators($question->id);
 
     $anonymize = $studentquiz->anonymrank;
-    if(has_capability('mod/studentquiz:unhideanonymous', $context)) {
+    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
         $anonymize = false;
     }
     $ismoderator = false;
-    if(mod_studentquiz_check_created_permission($cmid)) {
+    if (mod_studentquiz_check_created_permission($cmid)) {
         $ismoderator = true;
     }
 
@@ -180,7 +180,8 @@ $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-left'));
 if ($hasprevious) {
     $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'previous', 'value' =>  get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+        array('type' => 'submit', 'name' => 'previous', 'value' =>
+            get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
 }
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
@@ -188,7 +189,8 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
 
-if ($canfinish && ($hasnext || !$hasanswered)) { // ~has rated, but done using javascript.
+// Not has rated, is done using javascript.
+if ($canfinish && ($hasnext || !$hasanswered)) {
     $html .= html_writer::empty_tag('input',
         array('type' => 'submit', 'name' => 'finish', 'value' =>  get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
 }
@@ -197,13 +199,17 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-right'));
-if ($hasanswered) { // And ~$hasrated, but done using javascript as not showing the next button seems not intuitive
+
+// And not hasrated, but done using javascript as not showing the next button seems not intuitive.
+if ($hasanswered) {
     if ($hasnext) {
         $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'next', 'value' =>  get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+            array('type' => 'submit', 'name' => 'next', 'value' =>
+                get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));
     } else { // Finish instead of next on the last question.
         $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'finish', 'value' => get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+            array('type' => 'submit', 'name' => 'finish', 'value' =>
+                get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-primary'));
     }
 }
 $html .= html_writer::end_tag('div');

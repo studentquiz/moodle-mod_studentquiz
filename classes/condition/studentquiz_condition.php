@@ -97,13 +97,13 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 $sqldata = $field->get_sql_filter($data);
 
                 // Disable filtering by firstname if anonymized
-                // TODO: Check with anonymrank setting of studentquiz record and capability
+                // TODO: Check with anonymrank setting of studentquiz record and capability!
                 if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
                     continue;
                 }
 
                 // Disable filtering by firstname if anonymized
-                // TODO: Check with anonymrank setting of studentquiz record and capability
+                // TODO: Check with anonymrank setting of studentquiz record and capability!
                 if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
                     continue;
                 }

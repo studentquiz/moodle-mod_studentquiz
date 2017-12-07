@@ -83,13 +83,13 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
         $mform->setExpanded('filtertab', true);
         $fastfilters = array();
         foreach ($this->fields as $field) {
-            if($field instanceof toggle_filter_checkbox) {
-                $field->setupFormInGroup($mform, $fastfilters);
+            if ($field instanceof toggle_filter_checkbox) {
+                $field->setup_form_in_group($mform, $fastfilters);
             }
         }
         $mform->addGroup($fastfilters, 'fastfilters', get_string('filter_label_fast_filters', 'studentquiz'), ' ', false);
         foreach ($this->fields as $field) {
-            if(!$field instanceof toggle_filter_checkbox) {
+            if (!$field instanceof toggle_filter_checkbox) {
                 $field->setupForm($mform);
             }
         }
@@ -156,7 +156,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         $this->helptext = $helptext;
     }
 
-    public function setupFormInGroup(&$mform, &$group) {
+    public function setup_form_in_group(&$mform, &$group) {
         $element = $mform->createElement('checkbox', $this->_name,
             \html_writer::span($this->_label, '', array('title' => $this->helptext)),
             '', 'class="toggle"');
@@ -173,8 +173,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         $group[] = $element;
     }
 
-    public function get_sql_filter($data)
-    {
+    public function get_sql_filter($data) {
         switch($this->operator) {
             case 0:
                 $res = "($this->field IS null OR $this->field = 0)";
@@ -205,7 +204,7 @@ class user_filter_tag extends user_filter_text {
         static $counter = 0;
         $name = 'ex_tag' . $counter++;
 
-        // TODO Override for PoC
+        // TODO Override for PoC.
         $name = 'searchtag';
 
         $operator = $data['operator'];
@@ -323,10 +322,10 @@ class user_filter_number extends user_filter_text {
 class user_filter_percent extends user_filter_number {
     public function get_sql_filter($data) {
         $val = round($data->value, 0);
-        if($val > 100 or $val < 0) {
+        if ($val > 100 or $val < 0) {
             return '';
         }
-        if($val > 1) {
+        if ($val > 1) {
             $data->value = $val / 100;
         }
         return parent::get_sql_filter($data);

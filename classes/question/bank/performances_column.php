@@ -71,12 +71,6 @@ class practice_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->practice)) {
-            // echo $question->practice;
-        } else {
-            // echo get_string('no_practice', 'studentquiz');
-        }
-
         if (!empty($question->myattempts)) {
             echo $question->myattempts;
         } else {
@@ -174,8 +168,10 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function is_sortable() {
         return array(
-            'myattempts' => array('field' => 'myatts.myattempts', 'title' => get_string('number_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylatts.mylastattempt', 'title' => get_string('latest_column_name', 'studentquiz')),
+            'myattempts' => array('field' => 'myatts.myattempts', 'title' =>
+                get_string('number_column_name', 'studentquiz')),
+            'mylastattempt' => array('field' => 'mylatts.mylastattempt', 'title' =>
+                get_string('latest_column_name', 'studentquiz')),
         );
     }
 }

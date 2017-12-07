@@ -63,7 +63,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $attempts->add_child($attempt);
         $studentquiz->add_child($attempts);
 
-        // StudentQuiz -> Question
+        // StudentQuiz -> Question.
         $questions = new backup_nested_element('questions');
         $question = new backup_nested_element('question', array('questionid'), array('approved'));
         $questions->add_child($question);
@@ -84,10 +84,9 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // Comment -> Question, User.
         $comments = new backup_nested_element('comments');
-        $comment = new backup_nested_element('comment', array('questionid', 'userid','id'), array('comment', 'created'));
+        $comment = new backup_nested_element('comment', array('questionid', 'userid', 'id'), array('comment', 'created'));
         $comments->add_child($comment);
         $studentquiz->add_child($comments);
-
 
         // Define data sources.
         $studentquiz->set_source_table('studentquiz',
