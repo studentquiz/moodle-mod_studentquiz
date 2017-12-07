@@ -66,15 +66,12 @@ class mod_studentquiz_generator extends testing_module_generator {
      * @return stdClass
      */
     public function create_instance($record = null, array $options = null) {
-        global $CFG;
-        //require_once("$CFG->dirroot/mod/studentquiz/locallib.php");
-
         $record = (object)(array)$record;
-        //var_dump($record);
-        /*TODO for behats I think this is the reason for studentquiz 0
+
+        // TODO for behats I think this is the reason for studentquiz 0!
         if(!isset($record->name)) {
             $record->name = 'studentquiz ' . $this->studentquizcount;
-        }*/
+        }
 
         return parent::create_instance($record, (array)$options);
     }

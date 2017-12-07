@@ -140,7 +140,7 @@ class mod_studentquiz_view {
             mod_studentquiz_add_question_capabilities($this->context);
         }
 
-        // TODO: This is the problematic redirect call for unittests
+        // TODO: This is the problematic redirect call for unittests!
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
         $pagevars['qperpage'] = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
@@ -150,7 +150,7 @@ class mod_studentquiz_view {
 
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
-            // Ensure we have a studentquiz_question record
+            // Ensure we have a studentquiz_question record.
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged);
             mod_studentquiz_notify_changed($lastchanged, $this->course, $this->cm);
             redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));

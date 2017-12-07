@@ -28,7 +28,7 @@ require_once(dirname(dirname(__DIR__)).'/config.php');
 require_once($CFG->dirroot . '/mod/quiz/locallib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
-// TODO: more and more I believe we can omit all questionbank relevant overrides
+// TODO: more and more I believe we can omit all questionbank relevant overrides!
 
 list($thispageurl, $contexts, $cmid, $cm, $quiz, $pagevars)
     = question_edit_setup('editq', '/mod/studentquiz/view.php', true);

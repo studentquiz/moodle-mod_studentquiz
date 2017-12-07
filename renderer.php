@@ -41,9 +41,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function render_table_data(array $celldata, array $rowattributes=array()) {
         $rows = array();
-        foreach($celldata as $num => $row){
+        foreach ($celldata as $num => $row) {
             $cells = array();
-            foreach($row as $cell){
+            foreach( $row as $cell) {
                 if (!empty($rowattributes[$num])) {
                     $cells[] = $this->render_table_cell($cell, $rowattributes[$num]);
                 } else {
@@ -58,7 +58,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function render_table_cell(string $text, array $attributes=array()) {
         $cell = new html_table_cell();
         $cell->text = $text;
-        if(!empty($attributes)) {
+        if (!empty($attributes)) {
             $cell->attributes = $attributes;
         }
         return $cell;
@@ -68,7 +68,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         // TODO: Refactor: use mod_studentquiz_report_record_type!
         $userstats = $report->get_user_stats();
         $sqstats = $report->get_studentquiz_stats();
-        if(!$userstats) {
+        if (!$userstats) {
             $bc = new block_contents();
             $bc->attributes['id'] = 'mod_studentquiz_statblock';
             $bc->attributes['role'] = 'navigation';
@@ -110,10 +110,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                     array('style' => 'float: right;')))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->questions_approved .'</b>','',
+                .html_writer::span('<b>' .$userstats->questions_approved .'</b>', '',
                     array('style' => 'float: right;color:#28A745;')))
             . html_writer::div(get_string('statistic_block_created', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->questions_created .'</b>','',
+                .html_writer::span('<b>' .$userstats->questions_created .'</b>', '',
                     array('style' => 'float: right;')));
         return $bc;
     }
@@ -126,17 +126,19 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $anonymise = $report->is_anonymized();
         $rows = array();
         $rank = 1;
-        foreach($ranking as $row) {
-            if($currentuserid == $row->userid || !$anonymise) {
+        foreach ($ranking as $row) {
+            if ($currentuserid == $row->userid || !$anonymise) {
                 $name = $row->firstname .' ' . $row->lastname;
-            } else  {
+            } else {
                 $name = $anonymname;
             }
             $rows[] = \html_writer::div($rank . '. ' . $name .
                 html_writer::span(html_writer::tag('b' , round($row->points)),
                     '', array('style' => 'float: right;')));
             $rank++;
-            if($rank > 10) break;
+            if($rank > 10) {
+                break;
+            }
         }
         $ranking->close();
         $bc = new block_contents();
@@ -156,7 +158,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     public function render_table($data, $size, $align, $head, $caption) {
         $table = new html_table();
-        if(!empty($caption)) {
+        if (!empty($caption)) {
             $table->caption = $caption;
         }
         $table->head = $head;
@@ -176,87 +178,86 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function render_progress_bar($info, $texttotal=null, $bicolor=false) {
 
         // Check input.
-        $validInput = true;
+        $validinput = true;
         if (!isset($info->total)) {
-            $validInput = false;
+            $validinput = false;
         }
 
         if (!isset($info->group)) {
-            $validInput = false;
+            $validinput = false;
         }
 
         if (!isset($info->one)) {
-            $validInput = false;
+            $validinput = false;
         }
 
         // Stylings.
-        $rgb_stroke = 'rgb(200,200,200)';
-        $rgb_yellow = 'rgb(255,193,7)';
-        $rgb_green = 'rgb(40, 167, 69)';
-        $rgb_blue = 'rgb(2, 117, 216)';
-        $rgb_red = 'rgb(220, 53, 69)';
-        $rgb_grey = 'rgb(200, 200, 200)';
-        $bar_stroke = 'stroke-width:0.1;stroke:' . $rgb_stroke .';';
-        $svg_dims = array('width' => '100%', 'height' => 20);
-        $bar_dims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
-        $id_blue = 'blue';
-        $id_green = 'green';
-        $id_red = 'red';
-        $gradient_dims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
-        $stopColorGreen = html_writer::tag('stop', null,
-            array('offset' => '100%','style' => 'stop-color:' . $rgb_green . ';stop-opacity:1'));
-        $stopColorRed = html_writer::tag('stop', null,
-            array('offset' => '100%','style' => 'stop-color:' . $rgb_red . ';stop-opacity:1'));
-        $stopColorBlue = html_writer::tag('stop', null,
-            array('offset' => '100%','style' => 'stop-color:' . $rgb_blue . ';stop-opacity:1'));
-        $gradientBlue = html_writer::tag('radialGradient', $stopColorBlue . $stopColorBlue,
-            array_merge($gradient_dims, array('id' => $id_blue)));
-        $gradientRed = html_writer::tag('radialGradient', $stopColorRed . $stopColorRed,
-            array_merge($gradient_dims, array('id' => $id_red)));
-        $gradientGreen = html_writer::tag('radialGradient', $stopColorGreen . $stopColorGreen,
-            array_merge($gradient_dims, array('id' => $id_green)));
-        $gradients = array($gradientRed, $gradientGreen, $gradientBlue);
+        $rgbstroke = 'rgb(200, 200, 200)';
+        $rgbyellow = 'rgb(255, 193, 7)';
+        $rgbgreen = 'rgb(40, 167, 69)';
+        $rgbblue = 'rgb(2, 117, 216)';
+        $rgbred = 'rgb(220, 53, 69)';
+        $rgbgrey = 'rgb(200, 200, 200)';
+        $barstroke = 'stroke-width:0.1;stroke:' . $rgbstroke .';';
+        $svgdims = array('width' => '100%', 'height' => 20);
+        $bardims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
+        $idblue = 'blue';
+        $idgreen = 'green';
+        $idred = 'red';
+        $gradientdims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
+        $stopcolorgreen = html_writer::tag('stop', null,
+            array('offset' => '100%', 'style' => 'stop-color:' . $rgbgreen . ';stop-opacity:1'));
+        $stopcolorred = html_writer::tag('stop', null,
+            array('offset' => '100%', 'style' => 'stop-color:' . $rgbred . ';stop-opacity:1'));
+        $stopcolorblue = html_writer::tag('stop', null,
+            array('offset' => '100%', 'style' => 'stop-color:' . $rgbblue . ';stop-opacity:1'));
+        $gradientblue = html_writer::tag('radialGradient', $stopcolorblue . $stopcolorblue,
+            array_merge($gradientdims, array('id' => $idblue)));
+        $gradientred = html_writer::tag('radialGradient', $stopcolorred . $stopcolorred,
+            array_merge($gradientdims, array('id' => $idred)));
+        $gradientgreen = html_writer::tag('radialGradient', $stopcolorgreen . $stopcolorgreen,
+            array_merge($gradientdims, array('id' => $idgreen)));
+        $gradients = array($gradientred, $gradientgreen, $gradientblue);
         $defs = html_writer::tag('defs', implode($gradients));
 
-
         // Background bar.
-        if($bicolor) {
-            $barbackground = html_writer::tag('rect', null, array_merge($bar_dims,
-                array('width' => '100%', 'style' => $bar_stroke . 'fill:' . $rgb_grey )));
+        if ($bicolor) {
+            $barbackground = html_writer::tag('rect', null, array_merge($bardims,
+                array('width' => '100%', 'style' => $barstroke . 'fill:' . $rgbgrey )));
         } else {
-            $barbackground = html_writer::tag('rect', null, array_merge($bar_dims,
-                array('width' => '100%', 'style' => $bar_stroke . 'fill:' . $rgb_yellow)));
+            $barbackground = html_writer::tag('rect', null, array_merge($bardims,
+                array('width' => '100%', 'style' => $barstroke . 'fill:' . $rgbyellow)));
         }
 
         // Return empty bar if no questions are in StudentQuiz.
-        if( !$validInput || $info->total <= 0) {
-            return html_writer::tag('svg', $barbackground, $svg_dims);
+        if (!$validinput || $info->total <= 0) {
+            return html_writer::tag('svg', $barbackground, $svgdims);
         }
 
         // Calculate Percentages to display.
-        $percent_group = round(100 * ($info->group / $info->total));
-        $percent_one = round(100 * ($info->one / $info->total));
+        $percentgroup = round(100 * ($info->group / $info->total));
+        $percentone = round(100 * ($info->one / $info->total));
 
-        if(!empty($texttotal)) {
-            $text = '
-             <text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif" 
-             font-size="12" font-weight="bold" id="svg_text" x="50%" y="50%" alignment-baseline="middle" text-anchor="middle" stroke-width="0" stroke="#000" fill="#000000">' . $texttotal . '</text>';
-        }else {
+        if (!empty($texttotal)) {
+            $text = '<text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif"'
+             .' font-size="12" font-weight="bold" id="svg_text" x="50%" y="50%" alignment-baseline="middle"'
+             .' text-anchor="middle" stroke-width="0" stroke="#000" fill="#000000">' . $texttotal . '</text>';
+        } else {
             $text = '';
         }
 
         // Return stacked bars.
         $bars = array($barbackground);
-        if($bicolor) {
-            $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-                array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_blue .')')));
+        if ($bicolor) {
+            $bars[] = html_writer::tag('rect', null, array_merge($bardims,
+                array('width' => $percentone . '%', 'style' => $barstroke . 'fill:url(#' . $idblue .')')));
         } else {
-            $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-                array('width' => $percent_group . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_red .')')));
-            $bars[] = html_writer::tag('rect', null, array_merge($bar_dims,
-                array('width' => $percent_one . '%', 'style' => $bar_stroke . 'fill:url(#' . $id_green .')')));
+            $bars[] = html_writer::tag('rect', null, array_merge($bardims,
+                array('width' => $percentgroup . '%', 'style' => $barstroke . 'fill:url(#' . $idred .')')));
+            $bars[] = html_writer::tag('rect', null, array_merge($bardims,
+                array('width' => $percentone . '%', 'style' => $barstroke . 'fill:url(#' . $idgreen .')')));
         }
-        return html_writer::tag('svg', $defs . implode($bars) . $text, $svg_dims);
+        return html_writer::tag('svg', $defs . implode($bars) . $text, $svgdims);
     }
 
 
@@ -281,7 +282,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         }
 
         $image = $this->pix_icon('t/preview', $alt, '', array('class' => 'iconsmall'));
-        //$link = question_preview_url($questionid, null, null, null, null, $context);
         $params = array('cmid' => $context->instanceid, 'questionid' => $question->id);
         $link = new moodle_url('/mod/studentquiz/preview.php', $params);
         $action = new popup_action('click', $link, 'questionpreview',
@@ -331,8 +331,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      * @param studentquiz_view $view studentquiz_view class with the necessary information
      * @return string formatted html
      */
-    public function render_overview($view)
-    {
+    public function render_overview($view) {
         $contents = '';
 
         if (!optional_param('deleteselected', false, PARAM_BOOL) && !optional_param('approveselected', false, PARAM_BOOL)) {
@@ -405,7 +404,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                              $comments, $userid, $anonymize = true, $ismoderator = false) {
         global $CFG;
         return html_writer::div($this->render_rate($question->id)
-                . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
+            . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
             . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
             , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
             . html_writer::start_div('none')
@@ -522,7 +521,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
         $output = '';
         $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'));
         $userstats = $report->get_user_stats();
-        if(!$userstats) {
+        if (!$userstats) {
             global $OUTPUT;
             $output .= $OUTPUT->notification(get_string('please_enrole_message', 'studentquiz'), 'notify');
             $userstats = $report->get_zero_user_stats();
@@ -559,10 +558,10 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
             $participated = $studentquizstats->participated;
         }
 
-        if(empty($studentquizstats->questions_available)) {
-            $questions_available = 1;
+        if (empty($studentquizstats->questions_available)) {
+            $questionsavailable = 1;
         } else {
-            $questions_available = $studentquizstats->questions_available;
+            $questionsavailable = $studentquizstats->questions_available;
         }
 
         $celldata = array(
@@ -647,13 +646,13 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 html_writer::span(
                     get_string('reportquiz_stats_own_progress', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))),
-                html_writer::span((100 * round($userrankingstats->last_attempt_correct / ($questions_available), 2)) . ' %',
+                html_writer::span((100 * round($userrankingstats->last_attempt_correct / ($questionsavailable), 2)) . ' %',
                     '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_progress', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))),
                 html_writer::span(
-                    (100 * round(($studentquizstats->last_attempt_correct / ($questions_available * $participated)), 2)) . ' %',
+                    (100 * round(($studentquizstats->last_attempt_correct / ($questionsavailable * $participated)), 2)) . ' %',
                     '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))), ''
             )
         );
@@ -743,11 +742,11 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $userwasshown = false;
         $userid = $report->get_user_id();
         $seeall = has_capability('mod/studentquiz:manage', $report->get_context());
-        foreach($rankingresultset as $ur) {
+        foreach ($rankingresultset as $ur) {
             $counter++;
-            if(!$seeall) {
-                if($counter > $maxdisplayonpage) {
-                    if(!$userwasshown) {
+            if (!$seeall) {
+                if ($counter > $maxdisplayonpage) {
+                    if (!$userwasshown) {
                         if ($ur->userid == $userid) {
                             // Display current user ranking.
                             $userwasshown = true;
@@ -763,7 +762,8 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             }
             $username = $ur->firstname . ' ' . $ur->lastname;
             if ($report->is_anonymized() && $ur->userid != $userid) {
-                $username = get_string('creator_anonym_firstname', 'studentquiz') . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
+                $username = get_string('creator_anonym_firstname', 'studentquiz') . ' '
+                    . get_string('creator_anonym_lastname', 'studentquiz');
             }
             $celldata[] = array(
                 $rank,
@@ -776,7 +776,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
                 (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
             );
-            $rowstyle[] = ($userid == $ur->userid)? array('class' => 'mod-studentquiz-summary-highlight'): array();
+            $rowstyle[] = ($userid == $ur->userid) ? array('class' => 'mod-studentquiz-summary-highlight') : array();
             $rank++;
         }
         $rankingresultset->close();

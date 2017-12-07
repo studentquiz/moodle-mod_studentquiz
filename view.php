@@ -84,7 +84,7 @@ $PAGE->set_heading($COURSE->fullname);
 // Process actions.
 $view->process_actions();
 
-// Fire view event for completion API and event API
+// Fire view event for completion API and event API.
 mod_studentquiz_overview_viewed($course, $cm, $context);
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');

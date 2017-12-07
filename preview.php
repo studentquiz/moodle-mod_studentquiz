@@ -53,7 +53,6 @@ try {
     $question = question_bank::load_question($questionid);
     // There is no capability check on previewothers, because he can gotten the link for review by notification.
     // If this should be limited also here, you need to implement some sort of onetime token for the link in the notification.
-    //question_require_capability_on($question, 'use');
 } catch (dml_missing_record_exception $e) {
     $question = null;
 }
@@ -62,13 +61,13 @@ try {
 $actionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $cmid, 'questionid' => $questionid));
 $previewid = optional_param('previewid', 0, PARAM_INT);
 
-if($question) {
+if ($question) {
     if ($previewid) {
         $actionurl = new moodle_url($actionurl, array('previewid' => $previewid));
         $quba = question_engine::load_questions_usage_by_activity($previewid);
         $slot = $quba->get_first_question_number();
 
-        // Process submitted data
+        // Process submitted data.
         if (data_submitted()) {
             $quba->process_all_actions();
 
@@ -80,7 +79,7 @@ if($question) {
         }
     } else {
         // Prepare Question for preview.
-        // Keep core_question_preview so core question module cares about cleaning them up
+        // Keep core_question_preview so core question module cares about cleaning them up.
         $quba = question_engine::make_questions_usage_by_activity(
             'core_question_preview', context_user::instance($USER->id));
         $quba->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
@@ -123,9 +122,8 @@ if($question) {
     $PAGE->requires->strings_for_js(array(
         'closepreview',
     ), 'question');
-    //$PAGE->requires->yui_module('moodle-question-preview', 'M.question.preview.init');
 
-    // studentquiz part
+    // StudentQuiz renderers.
     $comments = mod_studentquiz_get_comments_with_creators($question->id);
 
     $anonymize = $studentquiz->anonymrank;

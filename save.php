@@ -108,7 +108,7 @@ function mod_studentquiz_save_comment($data, $course, $module) {
     $text = required_param('text', PARAM_TEXT);
 
     $data->comment = $text;
-    //TODO Why manually date instead of moodle's Datetime API?
+    // TODO Why manually date instead of moodle's Datetime API?
     $data->created = usertime(time(), usertimezone());
 
     $DB->insert_record('studentquiz_comment', $data);

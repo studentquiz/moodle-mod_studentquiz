@@ -46,7 +46,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
     protected function setUp() {
         global $DB;
 
-        // Setup activity
+        // Setup activity.
         $course = $this->getDataGenerator()->create_course();
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $activity = $this->getDataGenerator()->create_module('studentquiz', array(
@@ -63,17 +63,17 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
         $this->report = new mod_studentquiz_report($activity->cmid);
 
-        // Create users
+        // Create users.
         $usernames = array('Peter', 'Lisa', 'Sandra', 'Tobias', 'Gabi', 'Sepp');
         $users = array();
-        foreach($usernames as $username) {
+        foreach ($usernames as $username) {
             $user = $this->getDataGenerator()->create_user(array('firstname' => $username));
             $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
             $users[] = $user;
         }
         $this->users = $users;
 
-        // Create questions in questionbank
+        // Create questions in questionbank.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $layout = array(
             array('TF1', 'truefalse'),
@@ -81,19 +81,19 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
             array('TF3', 'truefalse'),
         );
         $questionids = array();
-        foreach($layout as $item) {
+        foreach ($layout as $item) {
             list($name, $qtype) = $item;
             $q = $questiongenerator->create_question($qtype, null, array(
                 'name' => $name,
                 'category' => $this->studentquiz->categoryid,
-                //'createdby' => $users[0]->id,
+                // Set further properties like created by here.
             ));
             $questionids[] = $q->id;
         }
 
-        // load questions
+        // Load questions.
         $questions = array();
-        foreach($questionids as $questionid) {
+        foreach ($questionids as $questionid) {
             $questions[] = question_bank::load_question($questionid);
         }
 
@@ -106,64 +106,82 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         $attempt = mod_studentquiz_generate_attempt($questionids, $this->studentquiz, $users[0]->id);
         $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid); // THIS internally does also load_from_records!
 
-
         $questions[0]->start_attempt(new question_attempt_step(array('answer' => '0'), time(), $users[0]->id), 1);
         $questionusage->process_all_actions();
-        //$questions[0]->classify_response(array('answer' => '0'));
+        // TODO $questions[0]->classify_response(array('answer' => '0')); ?
         $questions[1]->start_attempt(new question_attempt_step(), 1);
-        //$questions[1]->classify_response(array('answer' => '1'));
+        // TODO $questions[1]->classify_response(array('answer' => '1'));  ?
         $questions[2]->start_attempt(new question_attempt_step(), 1);
-        //$questions[2]->classify_response(array()); // = no response
-/*
-        // Attention! Here userid = userid with attempt -> speciality studentquiz, just in case...
-        $records = new question_test_recordset(array(
-            array('questionattemptid', 'contextid', 'questionusageid', 'slot', 'behaviour',
-                                                                                                                     'questionid', 'variant', 'maxmark', 'minfraction', 'maxfraction', 'flagged',
-                                                                                                                                                                                'questionsummary', 'rightanswer', 'responsesummary', 'timemodified',
-                                                                                                                                                                                                        'attemptstepid', 'sequencenumber', 'state', 'fraction',
-                                                                                                                                                                                                                                         'timecreated', 'userid', 'name', 'value'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0, 'todo',              null, 1256233700, $users[0]->id,       null, null),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1, 'complete',          null, 1256233705, $users[0]->id,   'answer',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2, 'complete',          null, 1256233710, $users[0]->id,   'answer',  '0'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3, 'complete',          null, 1256233715, $users[0]->id,   'answer',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4, 'gradedright',  1.0000000, 1256233720, $users[0]->id,  '-finish',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, $users[0]->id, '-comment', 'Not good enough!'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, $users[0]->id,    '-mark',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, $users[0]->id, '-maxmark',  '2'),
+        // TODO $questions[2]->classify_response(array()); // = no response ?
+        /**
+         *
+         Attention! Here userid = userid with attempt -> speciality studentquiz, just in case...
+         $records = new question_test_recordset(array(
+            array('questionattemptid', 'contextid', 'questionusageid', 'slot', 'behaviour',         'timecreated', 'userid', 'name', 'value'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0, 'todo',
+                      null, 1256233700, $users[0]->id,       null, null),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1, 'complete',
+                 null, 1256233705, $users[0]->id,   'answer',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2, 'complete',
+                  null, 1256233710, $users[0]->id,   'answer',  '0'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+               $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3, 'complete',
+                  null, 1256233715, $users[0]->id,   'answer',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4, 'gradedright',
+                1.0000000, 1256233720, $users[0]->id,  '-finish',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial',
+                0.5000000, 1256233790, $users[0]->id, '-comment', 'Not good enough!'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial',
+                0.5000000, 1256233790, $users[0]->id,    '-mark',  '1'),
+            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial',
+                0.5000000, 1256233790, $users[0]->id, '-maxmark',  '2'),
         ));
-
-        // TOOD: Save attempt to DB -> load mod_studentquiz_report to query results
+        TODO: Save attempt to DB -> load mod_studentquiz_report to query results
         question_bank::start_unit_test();
         $qa = question_attempt::load_from_records($records, $attempt->id, new question_usage_null_observer(), STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
         question_bank::end_unit_test();
-*/
-        // probably not needed, but was a try
+        */
+        // Probably not needed, but was a try.
         // Exercise SUT - no exception yet.
-        foreach($questionusage->get_slots() as $slot) {
+        foreach ($questionusage->get_slots() as $slot) {
             $questionusage->finish_question($slot);
         }
 
         // save to db, was the hope
         question_engine::save_questions_usage_by_activity($questionusage);
 
-        /*
-        // Load attempt data 2. I believe this is to test without the DB, not the way around.
+        /**
+         * Load attempt data 2. I believe this is to test without the DB, not the way around.
         $records = new question_test_recordset(array(
             array('questionattemptid', 'contextid', 'questionusageid', 'slot',
                 'behaviour', 'questionid', 'variant', 'maxmark', 'minfraction', 'maxfraction', 'flagged',
                 'questionsummary', 'rightanswer', 'responsesummary', 'timemodified',
                 'attemptstepid', 'sequencenumber', 'state', 'fraction',
                 'timecreated', 'userid', 'name', 'value'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0, 'todo',              null, 1256233700, 1,       null, null),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1, 'complete',          null, 1256233705, 1,   'answer',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2, 'complete',          null, 1256233710, 1,   'answer',  '0'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3, 'complete',          null, 1256233715, 1,   'answer',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4, 'gradedright',  1.0000000, 1256233720, 1,  '-finish',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, 1, '-comment', 'Not good enough!'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, 1,    '-mark',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial', 0.5000000, 1256233790, 1, '-maxmark',  '2'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0,
+                'todo',              null, 1256233700, 1,       null, null),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1,
+                'complete',          null, 1256233705, 1,   'answer',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2,
+                'complete',          null, 1256233710, 1,   'answer',  '0'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3,
+                'complete',          null, 1256233715, 1,   'answer',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4,
+                'gradedright',  1.0000000, 1256233720, 1,  '-finish',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5,
+                'mangrpartial', 0.5000000, 1256233790, 1, '-comment', 'Not good enough!'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5,
+                'mangrpartial', 0.5000000, 1256233790, 1,    '-mark',  '1'),
+            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5,
+                'mangrpartial', 0.5000000, 1256233790, 1, '-maxmark',  '2'),
         ));
-
         $question = test_question_maker::make_question('truefalse', 'true');
         $question->id = -1;
 
@@ -174,19 +192,18 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         */
     }
 
-    /*public function test_mod_studentquiz_get_user_ranking_table() {
+    public function test_mod_studentquiz_get_user_ranking_table() {
+        $this->assertTrue(false);
+    }
 
-    }*/
-
-    /*public function test_mod_studentquiz_community_stats() {
-
-    }*/
+    public function test_mod_studentquiz_community_stats() {
+        $this->assertTrue(false);
+    }
 
     public function test_mod_studentquiz_user_stats() {
         $this->debugdb();
-
-        $recordset = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id);
-        var_dump($recordset);
+        $userstats = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id);
+        $this->assertEquals(2, $userstats->questions_created);
     }
 
     public function tearDown() {

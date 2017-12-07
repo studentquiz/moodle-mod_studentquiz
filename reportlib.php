@@ -24,26 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/locallib.php');
-//require_once($CFG->dirroot . '/mod/quiz/renderer.php');
-//require_once($CFG->dirroot . '/mod/quiz/attemptlib.php');
-//require_once($CFG->dirroot . '/mod/quiz/accessmanager.php');
-//require_once($CFG->libdir . '/gradelib.php');
-
-
-class mod_studentquiz_report_record {
-    // 0: No participants, or user not found.
-    // 1: report record represents personalised results
-    // >1: report record represents group stats
-    public $numparticipants = 0;
-    public $points = 0;
-    public $questions_created = 0;
-    public $questions_approved = 0;
-    public $last_attempt_correct = 0;
-    public $last_attempt_incorrect = 0;
-    public $question_attempts = 0;
-    public $question_attempts_correct = 0;
-    public $question_attempts_incorrect = 0;
-}
 
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
@@ -118,9 +98,10 @@ class mod_studentquiz_report {
     protected $userrankingstats;
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
-            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->get_quantifiers(), $this->get_user_id());
+            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(),
+                $this->get_quantifiers(), $this->get_user_id());
             return $this->userrankingstats;
-        }else{
+        } else {
             return $this->userrankingstats;
         }
     }
@@ -133,7 +114,7 @@ class mod_studentquiz_report {
         $r = new stdClass();
         $r->userid = 0;
         $r->firstname = get_string('creator_anonym_firstname', 'studentquiz');
-        $r->lastname = get_string('creator_anonym_lastname', 'studentquiz');;
+        $r->lastname = get_string('creator_anonym_lastname', 'studentquiz');
         $r->points = 0;
         $r->questions_created = 0;
         $r->questions_approved = 0;
@@ -366,7 +347,7 @@ class mod_studentquiz_report {
         if (!$this->studentquiz->anonymrank) {
             return false;
         }
-        if(has_capability('mod/studentquiz:unhideanonymous', $this->get_context())) {
+        if (has_capability('mod/studentquiz:unhideanonymous', $this->get_context())) {
             return false;
         }
         // Instance is anonymized and isn't allowed to unhide that.
