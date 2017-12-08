@@ -1061,7 +1061,7 @@ function mod_studentquiz_count_questions($cmid) {
  */
 function mod_studentquiz_question_stats($cmid) {
     global $DB;
-    $DB->set_debug(true);
+    $DB->set_debug(false);
     $sql = 'SELECT count(*) questions_available,'
        .'          avg(rating.avg_rating) as average_rating,'
        .'          sum(sqq.approved) as questions_approved'
