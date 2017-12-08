@@ -926,8 +926,8 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
 
         foreach ($studentquizzes as $studentquiz) {
 
-            $oldquizzes = $DB->get_records_sql('
-                select q.id, cm.id as cmid, cm.section as sectionid, c.id as contextid, qu.id as qusageid
+            $oldusages = $DB->get_records_sql('
+                select qu.id as qusageid, q.id, cm.id as cmid, cm.section as sectionid, c.id as contextid
                 from {quiz} q
                 inner join {course_modules} cm on q.id = cm.instance
                 inner join {context} c on cm.id = c.instanceid
@@ -943,15 +943,15 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
             ));
 
             // For each old quiz we need to move the question usage.
-            foreach ($oldquizzes as $oldquiz) {
+            foreach ($oldusages as $oldusage) {
                 $DB->set_field('question_usages', 'component', 'mod_studentquiz',
-                    array('id' => $oldquiz->qusageid));
+                    array('id' => $oldusage->qusageid));
                 $DB->set_field('question_usages', 'contextid', $studentquiz->contextid,
-                    array('id' => $oldquiz->qusageid));
+                    array('id' => $oldusage->qusageid));
                 $DB->set_field('question_usages', 'preferredbehaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                    array('id' => $oldquiz->qusageid));
+                    array('id' => $oldusage->qusageid));
                 $DB->set_field('question_attempts', 'behaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                    array('questionusageid' => $oldquiz->qusageid));
+                    array('questionusageid' => $oldusage->qusageid));
 
                 // Now we need each user as own attempt.
                 $userids = $DB->get_fieldset_sql('
@@ -960,20 +960,20 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
                     inner join {question_attempts} qa on qas.questionattemptid = qa.id
                     where qa.questionusageid = :qusageid
                 ', array(
-                    'qusageid' => $oldquiz->qusageid
+                    'qusageid' => $oldusage->qusageid
                 ));
                 foreach ($userids as $userid) {
                     $DB->insert_record('studentquiz_attempt', (object)array(
                         'studentquizid' => $studentquiz->id,
                         'userid' => $userid,
-                        'questionusageid' => $oldquiz->qusageid,
+                        'questionusageid' => $oldusage->qusageid,
                         'categoryid' => $studentquiz->categoryid,
                     ));
                 }
                 // So that quiz doesn't remove the question usages.
-                $DB->delete_records('quiz_attempts', array('quiz' => $oldquiz->id));
+                $DB->delete_records('quiz_attempts', array('quiz' => $oldusage->id));
                 // And delete the quiz finally.
-                quiz_delete_instance($oldquiz->id);
+                quiz_delete_instance($oldusage->id);
             }
         }
 
