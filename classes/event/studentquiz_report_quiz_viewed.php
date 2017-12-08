@@ -59,4 +59,22 @@ class studentquiz_report_quiz_viewed extends \core\event\base {
     public function get_url() {
         return new \moodle_url('/mod/studentquiz/reportstat.php', array('id' => $this->objectid));
     }
+
+    /**
+     * This is used when restoring course logs where it is required that we
+     * map the objectid to it's new value in the new course.
+     * @return array the name of the restore mapping the objectid links to
+     */
+    public static function get_objectid_mapping() {
+        return array('db' => 'studentquiz', 'restore' => 'studentquiz');
+    }
+
+    /**
+     * This is used when restoring course logs where it is required that we
+     * map the information in 'other' to it's new value in the new course.
+     * @return array|bool an array of other values and their corresponding mapping
+     */
+    public static function get_other_mapping() {
+        return false;
+    }
 }
