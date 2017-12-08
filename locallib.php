@@ -634,10 +634,12 @@ function mod_studentquiz_community_stats($cmid) {
         .' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct,'
         .' COALESCE(sum(lastattempt.last_attempt_incorrect), 0) last_attempt_incorrect';
     $joins = mod_studentquiz_helper_attempt_stat_joins();
+    $DB->set_debug(false);
     $rs = $DB->get_record_sql($select.$joins,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         ));
+    $DB->set_debug(false);
     return $rs;
 }
 
@@ -1059,7 +1061,7 @@ function mod_studentquiz_count_questions($cmid) {
  */
 function mod_studentquiz_question_stats($cmid) {
     global $DB;
-    $DB->set_debug(false);
+    $DB->set_debug(true);
     $sql = 'SELECT count(*) questions_available,'
        .'          avg(rating.avg_rating) as average_rating,'
        .'          sum(sqq.approved) as questions_approved'
@@ -1069,7 +1071,7 @@ function mod_studentquiz_question_stats($cmid) {
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
         // Only enrolled users.
         .' JOIN {question} q ON q.category = qc.id'
-        .' JOIN {studentquiz_question} sqq on sqq.questionid = q.id'
+        .' LEFT JOIN {studentquiz_question} sqq on sqq.questionid = q.id'
         .' LEFT JOIN ('
         .'  SELECT'
         .'      q.id questionid,'
