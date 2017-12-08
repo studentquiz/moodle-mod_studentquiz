@@ -22,13 +22,10 @@ Feature: Import course's with StudentQuiz contents into another course
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
     And the following "questions" exist:
       | questioncategory          | qtype | name                       | questiontext                  |
-      | Default for studentquiz 0 | essay | Test question to be copied | Write about whatever you want |
+      | Default for StudentQuiz 1 | essay | Test question to be copied | Write about whatever you want |
     When I log in as "teacher1"
     And I import "Course 1" course into "Course 2" course using this options:
-    Then I should see "studentquiz 0"
-    # Todo default category seems not ready yet, tried fixing using
-    # locallib.php mod_studentquiz_add_default_question_category()
-    # but this is not the right approach yet
-    #And I follow "studentquiz 0"
-    #And I should see "Create new question"
-    #And I click on "Start Quiz" "button"
+    Then I should see "StudentQuiz 1"
+    And I follow "StudentQuiz 1"
+    And I should see "Create new question"
+    And I click on "Start Quiz" "button"

@@ -23,4 +23,4 @@ Feature: Activities can be created
       | Description      | Test quiz description |
     And I am on "Course 1" course homepage
     And I follow "Test quiz name"
-    Then I should see "Create first question"
+    Then I should see "Create new question"

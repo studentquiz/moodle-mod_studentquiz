@@ -20,10 +20,10 @@ Feature: Quizzes can be startet
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
     And the following "questions" exist:
       | questioncategory          | qtype | name                       | questiontext                  |
-      | Default for studentquiz 0 | essay | Test question to be copied | Write about whatever you want |
+      | Default for StudentQuiz 1 | essay | Test question to be copied | Write about whatever you want |
     When I log in as "student1"
     And I am on "Course 1" course homepage
-    And I follow "studentquiz 0"
+    And I follow "StudentQuiz 1"
     Then I should see "Create new question"
     And I click on "Start Quiz" "button"
 
@@ -44,8 +44,8 @@ Feature: Quizzes can be startet
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
     And the following "questions" exist:
       | questioncategory          | qtype | name                       | questiontext                  |
-      | Default for studentquiz 0 | essay | Test question to be copied | Write about whatever you want |
+      | Default for StudentQuiz 1 | essay | Test question to be copied | Write about whatever you want |
     And I am on "Course 1" course homepage
-    And I follow "studentquiz 0"
+    And I follow "StudentQuiz 1"
     And I should see "Create new question"
     And I click on "Start Quiz" "button"
