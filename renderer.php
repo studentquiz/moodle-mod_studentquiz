@@ -605,7 +605,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                     get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
                     '', array(
                         'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))),
-                html_writer::span($commstats->questions_approved,
+                html_writer::span($commstats->questions_questions_approved,
                     '', array(
                         'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))), ''
             ),

@@ -86,6 +86,7 @@ class mod_studentquiz_report {
             $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id());
             $this->studentquizstats->questions_available = $this->questionstats->questions_available;
             $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;
+            $this->studentquizstats->questions_questions_approved = $this->questionstats->questions_approved;
             return $this->studentquizstats;
         } else {
             return $this->studentquizstats;
