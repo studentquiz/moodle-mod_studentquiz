@@ -73,16 +73,19 @@ class rate_column extends \core_question\bank\column_base {
     protected function display_content($question, $rowclasses) {
         $myratingtitle = get_string('myrate_column_name', 'studentquiz');
         $ratingtitle = get_string('rate_all_column_name', 'studentquiz');
+        $notavailable = get_string('no_rates', 'studentquiz');
 
         if (!empty($question->rate) || !empty($question->myrate)) {
             $title = $ratingtitle . ": " . round($question->rate, 2) . " ";
             if (!empty($question->myrate)) {
                 $title .= $myratingtitle . ": " . round($question->myrate, 2);
+            } else {
+                $title .= $myratingtitle . ": " . $notavailable;
             }
             echo \html_writer::span($this->render_ratingbar($question->rate, $question->myrate), null,
                 array('title' => $title));
         } else {
-            echo get_string('no_rates', 'studentquiz');
+            echo $notavailable;
         }
     }
 
