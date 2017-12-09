@@ -43,7 +43,7 @@
     float: none;
 }
 
-#page-mod-studentquiz-view label {
+#page-mod-studentquiz-view input[type="checkbox"].toggle label {
     cursor: pointer;
     position: relative;
     user-select: none;
@@ -55,7 +55,7 @@
 }
 
 #page-mod-studentquiz-view input[type="checkbox"].toggle + span,
-#page-mod-studentquiz-view input[type="checkbox"].toggle + label span{
+#page-mod-studentquiz-view input[type="checkbox"].toggle + label span {
     background: #eee;
     border-bottom: 2px solid darkgray;
     border-radius: 4px;
@@ -66,7 +66,7 @@
 }
 
 #page-mod-studentquiz-view .toggle:checked + span,
-#page-mod-studentquiz-view .toggle:checked + label span{
+#page-mod-studentquiz-view .toggle:checked + label span {
     border-bottom: 2px solid #1177d1;
     color: #1177d1;
     display: inline-block;
