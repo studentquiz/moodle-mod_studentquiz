@@ -151,9 +151,9 @@ class difficulty_level_column extends \core_question\bank\column_base {
         if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
             $title = $difficultytitle . ": " . (100 * round($question->difficultylevel, 2)) . "% ";
             if (!empty($question->mydifficulty)) {
-                $title .= $mydifficultytitle . ": " . (100 * round($question->mydifficulty, 2)) . '%';
+                $title .= ", " . $mydifficultytitle . ": " . (100 * round($question->mydifficulty, 2)) . '%';
             } else {
-                $title .= $mydifficultytitle . ": " . $nodifficultylevel;
+                $title .= ", " . $mydifficultytitle . ": " . $nodifficultylevel;
             }
             echo \html_writer::span(
                 $this->render_difficultybar($question->difficultylevel, $question->mydifficulty),

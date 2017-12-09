@@ -78,9 +78,9 @@ class rate_column extends \core_question\bank\column_base {
         if (!empty($question->rate) || !empty($question->myrate)) {
             $title = $ratingtitle . ": " . round($question->rate, 2) . " ";
             if (!empty($question->myrate)) {
-                $title .= $myratingtitle . ": " . round($question->myrate, 2);
+                $title .= ", " . $myratingtitle . ": " . round($question->myrate, 2);
             } else {
-                $title .= $myratingtitle . ": " . $notavailable;
+                $title .= ", " . $myratingtitle . ": " . $notavailable;
             }
             echo \html_writer::span($this->render_ratingbar($question->rate, $question->myrate), null,
                 array('title' => $title));

@@ -737,7 +737,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $maxdisplayonpage = 10; // TODO: Make configurable.
 
         // Update rank offset to pagination.
-        $rank = 1 + $limitfrom;
+        $rank = $limitfrom;
         $rankingresultset = $report->get_user_ranking_table($limitfrom, $limitnum);
         $numofquestions = $report->get_studentquiz_stats()->questions_available;
         $counter = 0;
@@ -745,6 +745,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $userid = $report->get_user_id();
         $seeall = has_capability('mod/studentquiz:manage', $report->get_context());
         foreach ($rankingresultset as $ur) {
+            $rank++;
             $counter++;
             if (!$seeall) {
                 if ($counter > $maxdisplayonpage) {
@@ -779,7 +780,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
             );
             $rowstyle[] = ($userid == $ur->userid) ? array('class' => 'mod-studentquiz-summary-highlight') : array();
-            $rank++;
         }
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
