@@ -587,7 +587,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
                     '', array(
-                        'title' => get_string('reportquiz_stats_all_questions_created', 'studentquiz'))),
+                        'title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))),
                 html_writer::span( intval($commstats->questions_available),
                     '', array('title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
             ),
