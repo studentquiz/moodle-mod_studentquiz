@@ -197,6 +197,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function after_restore() {
         global $DB;
 
+        echo 'Start: ' . date('Y-m-d H:i:s');
         // Import old Core Quiz Data (question attempts) to studentquiz.
         // This is the case, when the orphaned section can be found.
         $orphanedsection = $DB->get_record('course_sections', array(
@@ -205,7 +206,6 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         ));
 
         if ($orphanedsection !== false) {
-
             mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
 
             // Then remove empty sections if it's empty, if the admin allows us.
@@ -239,5 +239,6 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                 }
             }
         }
+        echo 'End: ' . date('Y-m-d H:i:s');
     }
 }
