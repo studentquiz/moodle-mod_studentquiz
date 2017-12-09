@@ -927,7 +927,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
         foreach ($studentquizzes as $studentquiz) {
 
             $oldusages = $DB->get_records_sql('
-                select qu.id as qusageid, q.id, cm.id as cmid, cm.section as sectionid, c.id as contextid
+                select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid
                 from {quiz} q
                 inner join {course_modules} cm on q.id = cm.instance
                 inner join {context} c on cm.id = c.instanceid
@@ -942,8 +942,10 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
                 'name' => $studentquiz->name
             ));
 
+            $oldquizzes = array();
             // For each old quiz we need to move the question usage.
             foreach ($oldusages as $oldusage) {
+                $oldquizzes[$oldusage->quizid] = true;
                 $DB->set_field('question_usages', 'component', 'mod_studentquiz',
                     array('id' => $oldusage->qusageid));
                 $DB->set_field('question_usages', 'contextid', $studentquiz->contextid,
@@ -970,8 +972,12 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
                         'categoryid' => $studentquiz->categoryid,
                     ));
                 }
+            }
+
+            // Cleanup quizzes as we have migrated the question usages now
+            foreach(array_keys($oldquizzes) as $quizid) {
                 // So that quiz doesn't remove the question usages.
-                $DB->delete_records('quiz_attempts', array('quiz' => $oldusage->id));
+                $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
                 // And delete the quiz finally.
                 quiz_delete_instance($oldusage->id);
             }
