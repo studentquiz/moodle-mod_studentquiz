@@ -54,7 +54,7 @@ const QUESTION_LASTNAME_FILTER = 'lastname';
 /** @var string lastname operation filter */
 const QUESTION_LASTNAME_OP_FILTER = 'lastname_op';
 /** @var string question default name */
-const QUESTION_DEFAUT_NAME = 'Question';
+const QUESTION_DEFAULT_NAME = 'Question';
 
 /**
  * Unit tests for (some of) mod/studentquiz/viewlib.php.
@@ -94,7 +94,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     private $studentquizgenerator;
 
     /**
-     * Setup testing
+     * Setup testing scenario
+     * One user, one studentquiz in one course.
      * @throws coding_exception
      */
     protected function setUp() {
@@ -104,15 +105,16 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $studentrole = $DB->get_record('role', array('shortname' => 'student'));
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id, $studentrole->id);
 
-        $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz', array('course' => $this->course->id)
-            ,  array('anonymrank' => true));
-        $this->cm = get_coursemodule_from_id('studentquiz', $this->studentquiz->cmid);
+        $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz',
+            array('course' => $this->course->id),  array('anonymrank' => true));
+        $this->cm = get_coursemodule_from_instance('studentquiz', $this->studentquiz->id);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->ctx = context_module::instance($this->cm->id);
-        $catrecord = new stdClass();
-        $catrecord->contextid = $this->ctx->id;
-        $this->cat = $this->questiongenerator->create_question_category($catrecord);
+
+        // Retrieve created category by context.
+        $this->cat = $DB->get_record('question_categories', array('contextid' => $this->ctx->id));
+
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
 
         $this->create_random_questions(20, $user->id);
@@ -127,7 +129,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         global $DB;
         for ($i = 0; $i < $count; ++$i) {
             $question = $this->questiongenerator->create_question('description', null, array('category' => $this->cat->id));
-            $question->name = QUESTION_DEFAUT_NAME . ' ' . $i;
+            $question->name = QUESTION_DEFAULT_NAME . ' ' . $i;
             $DB->update_record('question', $question);
 
             $this->create_comment($question, $userid);
