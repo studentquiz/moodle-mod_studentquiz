@@ -66,8 +66,8 @@ define(['jquery'], function($) {
                     });
             });
 
-            // On CLICK check if student submitted result and has rated if not abort next and show error for rating.
-            $('input[name="next"]').off('click').on('click', function() {
+            // On CLICK check if student submitted result and has rated if not abort and show error for rating.
+            $('input[name="next"], input[name="previous"], input[name="finish"]').off('click').on('click', function() {
                 var $that = $(this);
 
                 if (
@@ -95,38 +95,6 @@ define(['jquery'], function($) {
                     return true;
                 }
             });
-
-            // On CLICK check if student submitted result and has rated if not abort finish and show error for rating.
-            $('input[name="finish"]').off('click').on('click', function() {
-                var $that = $(this);
-
-                if (
-                    !$('.im-controls input[type="submit"]').length ||
-                    $('.im-controls input[type="submit"]').filter(function() {
-                        return this.name.match(/^q.+\-submit$/);
-                    }).is(':disabled')
-                ) {
-                    var has_rated = false;
-                    $('.rating span').each(function() {
-                        if ($(this).hasClass('star')) {
-                            has_rated = true;
-                        }
-                    });
-
-                    if (has_rated) {
-                        $that.submit();
-                        return true;
-                    }
-
-                    $('.studentquiz_behaviour > .rate > .error').removeClass('hide');
-                    return false;
-                } else {
-                    $that.submit();
-                    return true;
-                }
-            });
-
-            bind_buttons();
         }
     };
 
