@@ -81,9 +81,11 @@ function mod_studentquiz_flip_approved($questionid) {
     global $DB;
 
     $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-
-    // TODO: Handle record not found!
-    $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+    if($approved === false) { // this question has no row yet
+        $DB->insert_record('studentquiz_question', (object)array('approved' => true, 'questionid' => $questionid));
+    } else {
+        $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+    }
 }
 
 /**
