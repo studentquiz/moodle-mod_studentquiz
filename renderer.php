@@ -581,15 +581,14 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                     get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
                     '', array(
                         'title' => get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))),
-                html_writer::span(
-                    $userstats->questions_created,
+                html_writer::span( intval($userstats->questions_created),
                     '', array(
                         'title' => get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
                     '', array(
                         'title' => get_string('reportquiz_stats_all_questions_created', 'studentquiz'))),
-                html_writer::span($commstats->questions_available,
+                html_writer::span( intval($commstats->questions_available),
                     '', array('title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
             ),
             array(
@@ -597,15 +596,14 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                     get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
                     '', array(
                         'title' => get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))),
-                html_writer::span(
-                    $userstats->questions_approved,
+                html_writer::span( intval($userstats->questions_approved),
                     '', array(
                         'title' => get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
                     '', array(
                         'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))),
-                html_writer::span($commstats->questions_questions_approved,
+                html_writer::span( intval($commstats->questions_questions_approved),
                     '', array(
                         'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))), ''
             ),
@@ -613,8 +611,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 html_writer::span(
                 get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))),
-                html_writer::span(
-                round($userstats->rates_average, 2),
+                html_writer::span( round($userstats->rates_average, 2),
                     '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
@@ -627,13 +624,12 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 html_writer::span(
                     get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz'))),
-                html_writer::span(
-                    $userstats->question_attempts,
+                html_writer::span( intval($userstats->question_attempts),
                     '', array('title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_answered', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz'))),
-                html_writer::span(round($commstats->question_attempts / $participated, 2),
+                html_writer::span( round($commstats->question_attempts / $participated, 2),
                     '', array('title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz'))), ''
             ),
             array(
@@ -652,13 +648,13 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
                 html_writer::span(
                     get_string('reportquiz_stats_own_progress', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))),
-                html_writer::span((100 * round($userstats->last_attempt_correct / ($questionsavailable), 2)) . ' %',
+                html_writer::span(intval(100 * round($userstats->last_attempt_correct / ($questionsavailable), 2)) . ' %',
                     '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_progress', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))),
                 html_writer::span(
-                    (100 * round(($commstats->last_attempt_correct / ($questionsavailable * $participated)), 2)) . ' %',
+                    intval(100 * round(($commstats->last_attempt_correct / ($questionsavailable * $participated)), 2)) . ' %',
                     '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))), ''
             )
         );
