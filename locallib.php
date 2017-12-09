@@ -81,9 +81,11 @@ function mod_studentquiz_flip_approved($questionid) {
     global $DB;
 
     $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-
-    // TODO: Handle record not found!
-    $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+    if($approved === false) { // this question has no row yet
+        $DB->insert_record('studentquiz_question', (object)array('approved' => true, 'questionid' => $questionid));
+    } else {
+        $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+    }
 }
 
 /**
@@ -939,13 +941,13 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseid=null) {
                 inner join {context} c on cm.id = c.instanceid
                 inner join {modules} m on cm.module = m.id
                 inner join {question_usages} qu on c.id = qu.contextid
-                where m.name = :modulename
+                where ' . $DB->sql_like('m.name', ':modulename', false) . ' 
                 and cm.course = :course
                 and q.name = :name
             ', array(
                 'modulename' => 'quiz',
                 'course' => $courseid,
-                'name' => $studentquiz->name
+                'name' => $studentquiz->name . '%'
             ));
 
             // For each old quiz question usage we need to move it to studentquiz.
