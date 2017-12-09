@@ -50,11 +50,12 @@
     -moz-user-select: none;
 }
 
-#page-mod-studentquiz-view label.toggle input[type="checkbox"] {
+#page-mod-studentquiz-view input[type="checkbox"].toggle {
     display: none;
 }
 
-#page-mod-studentquiz-view input[type="checkbox"].toggle + span {
+#page-mod-studentquiz-view input[type="checkbox"].toggle + span,
+#page-mod-studentquiz-view input[type="checkbox"].toggle + label span{
     background: #eee;
     border-bottom: 2px solid darkgray;
     border-radius: 4px;
@@ -64,7 +65,8 @@
     transition: all 0.4s ease;
 }
 
-#page-mod-studentquiz-view .toggle:checked + span {
+#page-mod-studentquiz-view .toggle:checked + span,
+#page-mod-studentquiz-view .toggle:checked + label span{
     border-bottom: 2px solid #1177d1;
     color: #1177d1;
     display: inline-block;
