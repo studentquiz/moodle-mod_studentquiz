@@ -196,7 +196,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
      */
     protected function after_restore() {
         global $DB;
-/*
+
         // Import old Core Quiz Data (question attempts) to studentquiz.
         // This is the case, when the orphaned section can be found.
         $orphanedsection = $DB->get_record('course_sections', array(
@@ -238,6 +238,6 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                     );
                 }
             }
-        }*/
+        }
     }
 }
