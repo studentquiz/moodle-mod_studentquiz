@@ -743,7 +743,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         // Update rank offset to pagination.
         $rank = 1 + $limitfrom;
         $rankingresultset = $report->get_user_ranking_table($limitfrom, $limitnum);
-        $numofquestions = $report->get_studentquiz_stats()->questions_created;
+        $numofquestions = $report->get_studentquiz_stats()->questions_available;
         $counter = 0;
         $userwasshown = false;
         $userid = $report->get_user_id();
