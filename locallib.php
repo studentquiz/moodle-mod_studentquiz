@@ -890,9 +890,10 @@ function mod_studentquiz_add_question_capabilities($context) {
 /**
  * @param int|null $courseid
  */
-function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
+function mod_studentquiz_migrate_old_quiz_usage(int $courseid=null) {
     global $DB;
 
+    // If we haven't gotten a courseid, migration is meant to whole moodle instance.
     $courseids = array();
     if (!empty($courseid)) {
         $courseids[] = $courseid;
@@ -909,7 +910,11 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
         ));
     }
 
+    // Step into each course so they operate independent from each other.
     foreach ($courseids as $courseid) {
+        $oldquizzes = array();
+
+        // For each course we need to find the studentquizzes.
         $studentquizzes = $DB->get_records_sql('
             select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
             from {studentquiz} s
@@ -926,6 +931,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
 
         foreach ($studentquizzes as $studentquiz) {
 
+            // Each studentquiz wants the question attempt id, which can be found inside the matching quizzes.
             $oldusages = $DB->get_records_sql('
                 select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid
                 from {quiz} q
@@ -942,8 +948,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
                 'name' => $studentquiz->name
             ));
 
-            $oldquizzes = array();
-            // For each old quiz we need to move the question usage.
+            // For each old quiz question usage we need to move it to studentquiz.
             foreach ($oldusages as $oldusage) {
                 $oldquizzes[$oldusage->quizid] = true;
                 $DB->set_field('question_usages', 'component', 'mod_studentquiz',
@@ -973,14 +978,14 @@ function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
                     ));
                 }
             }
+        }
 
-            // Cleanup quizzes as we have migrated the question usages now
-            foreach(array_keys($oldquizzes) as $quizid) {
-                // So that quiz doesn't remove the question usages.
-                $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
-                // And delete the quiz finally.
-                quiz_delete_instance($oldusage->id);
-            }
+        // Cleanup quizzes as we have migrated the question usages now.
+        foreach(array_keys($oldquizzes) as $quizid) {
+            // So that quiz doesn't remove the question usages.
+            $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
+            // And delete the quiz finally.
+            quiz_delete_instance($quizid);
         }
 
         // Try to clean up sections. Need to be exactly as created by v2.0.3 and before. Otherwise manual removal needed as it
