@@ -667,12 +667,15 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
 
     /**
      * @param $report
-     * TODO: proper docs
      */
     public function view_rank($report) {
-        return $this->heading(get_string('reportrank_title', 'studentquiz'))
-                    . $this->view_quantifier_information($report)
-                    . $this->view_rank_table($report);
+        if (has_capability('studentquiz:manage')) {
+            $title = $this->heading(get_string('reportrank_title_for_manager', 'studentquiz'));
+        } else {
+            $title = $this->heading(get_string('reportrank_title', 'studentquiz'));
+        }
+        return $title . $this->view_quantifier_information($report)
+            . $this->view_rank_table($report);
     }
 
     /**
@@ -742,6 +745,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $numofquestions = $report->get_studentquiz_stats()->questions_available;
         $counter = 0;
         $userwasshown = false;
+        $separatorwasshown = false;
         $userid = $report->get_user_id();
         $seeall = has_capability('mod/studentquiz:manage', $report->get_context());
         foreach ($rankingresultset as $ur) {
@@ -754,8 +758,19 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                             // Display current user ranking.
                             $userwasshown = true;
                         } else {
-                            // We continue to scroll through the set to find our current user.
-                            continue;
+                            if (!$separatorwasshown) {
+                                // Display an empty row to visually distance from top maxdisplayonpage.
+                                $rank--;
+                                $counter--;
+                                $celldata[] = array('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;',
+                                    '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;');
+                                $rowstyle[] = array('class' => 'mod-studentquiz-summary-separator');
+                                $separatorwasshown = true;
+                                continue;
+                            } else {
+                                // We continue to scroll through the set to find our current user.
+                                continue;
+                            }
                         }
                     } else {
                         // Our job is done.

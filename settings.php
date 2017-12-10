@@ -33,36 +33,36 @@ if ($ADMIN->fulltree) {
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/addquestion',
-        get_string('settings_questionquantifier_label', 'studentquiz'),
+        get_string('settings_questionquantifier', 'studentquiz'),
         get_string('settings_questionquantifier_help', 'studentquiz'),
         10, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/approved',
-        get_string('settings_approvedquantifier_label', 'studentquiz'),
+        get_string('settings_approvedquantifier', 'studentquiz'),
         get_string('settings_approvedquantifier_help', 'studentquiz'),
         5, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/rate',
-        get_string('settings_ratequantifier_label', 'studentquiz'),
+        get_string('settings_ratequantifier', 'studentquiz'),
         get_string('settings_ratequantifier_help', 'studentquiz'),
         3, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/correctanswered',
-        get_string('settings_correctanswerquantifier_label', 'studentquiz'),
-        get_string('settings_correctanswerquantifier_help', 'studentquiz'),
+        get_string('settings_lastcorrectanswerquantifier', 'studentquiz'),
+        get_string('settings_lastcorrectanswerquantifier_help', 'studentquiz'),
         2, PARAM_INT
     ));
 
     $settings->add(new admin_setting_configtext(
         'studentquiz/incorrectanswered',
-        get_string('settings_incorrectanswerquantifier_label', 'studentquiz'),
-        get_string('settings_incorrectanswerquantifier_help', 'studentquiz'),
+        get_string('settings_lastincorrectanswerquantifier', 'studentquiz'),
+        get_string('settings_lastincorrectanswerquantifier_help', 'studentquiz'),
         -1, PARAM_INT
     ));
 
