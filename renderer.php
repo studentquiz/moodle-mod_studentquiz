@@ -762,8 +762,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                         } else {
                             if (!$separatorwasshown) {
                                 // Display an empty row to visually distance from top maxdisplayonpage.
-                                $rank--;
-                                $counter--;
                                 $celldata[] = array('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;',
                                     '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;');
                                 $rowstyle[] = array('class' => 'mod-studentquiz-summary-separator');
