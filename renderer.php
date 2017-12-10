@@ -669,12 +669,8 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      * @param $report
      */
     public function view_rank($report) {
-        if (has_capability('studentquiz:manage')) {
-            $title = $this->heading(get_string('reportrank_title_for_manager', 'studentquiz'));
-        } else {
-            $title = $this->heading(get_string('reportrank_title', 'studentquiz'));
-        }
-        return $title . $this->view_quantifier_information($report)
+        return $this->heading(get_string('reportrank_title', 'studentquiz'))
+            . $this->view_quantifier_information($report)
             . $this->view_rank_table($report);
     }
 
@@ -730,7 +726,13 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         , get_string( 'reportrank_table_column_lastincorrectanswers', 'studentquiz')
         , get_string( 'reportrank_table_column_progress', 'studentquiz')
         );
-        $caption = get_string('reportrank_table_title', 'studentquiz');
+
+        if (has_capability('mod/studentquiz:manage', $report->get_context())) {
+            $caption = get_string('reportrank_table_title_for_manager', 'studentquiz');
+        } else {
+            $caption = get_string('reportrank_table_title', 'studentquiz');
+        }
+
         $celldata = array();
         $rowstyle = array();
 

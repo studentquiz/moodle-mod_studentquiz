@@ -518,7 +518,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $output .= '<strong>&nbsp;' . get_string('withselected', 'question') . ':</strong><br />';
 
         if ($this->has_questions_in_category()) {
-            $output .= '<input class="btn btn-primary form-submit" type=""submit" name="startquiz" value="'
+            $output .= '<input class="btn btn-primary form-submit" type="submit" name="startquiz" value="'
                  . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
         }
 
