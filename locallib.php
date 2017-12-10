@@ -81,7 +81,8 @@ function mod_studentquiz_flip_approved($questionid) {
     global $DB;
 
     $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-    if($approved === false) { // this question has no row yet
+    if ($approved === false) {
+        // This question has no row in yet, maybe due to category move or import.
         $DB->insert_record('studentquiz_question', (object)array('approved' => true, 'questionid' => $questionid));
     } else {
         $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
@@ -897,7 +898,7 @@ function mod_studentquiz_add_question_capabilities($context) {
 /**
  * @param int|null $courseid
  */
-function mod_studentquiz_migrate_old_quiz_usage(int $courseid=null) {
+function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
     global $DB;
 
     // If we haven't gotten a courseid, migration is meant to whole moodle instance.
@@ -939,17 +940,16 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseid=null) {
         foreach ($studentquizzes as $studentquiz) {
 
             // Each studentquiz wants the question attempt id, which can be found inside the matching quizzes.
-            $oldusages = $DB->get_records_sql('
-                select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid
-                from {quiz} q
-                inner join {course_modules} cm on q.id = cm.instance
-                inner join {context} c on cm.id = c.instanceid
-                inner join {modules} m on cm.module = m.id
-                inner join {question_usages} qu on c.id = qu.contextid
-                where ' . $DB->sql_like('m.name', ':modulename', false) . ' 
-                and cm.course = :course
-                and q.name = :name
-            ', array(
+            $oldusages = $DB->get_records_sql(
+            '  select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid'
+                .'  from {quiz} q'
+                .'  inner join {course_modules} cm on q.id = cm.instance'
+                .'  inner join {context} c on cm.id = c.instanceid'
+                .'  inner join {modules} m on cm.module = m.id'
+                .'  inner join {question_usages} qu on c.id = qu.contextid'
+                .'  where ' . $DB->sql_like('m.name', ':modulename', false)
+                .'  and cm.course = :course'
+                .'  and q.name = :name', array(
                 'modulename' => 'quiz',
                 'course' => $courseid,
                 'name' => $studentquiz->name . '%'
@@ -968,14 +968,14 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseid=null) {
                     array('questionusageid' => $oldusage->qusageid));
 
                 // Now we need each user as own attempt.
-                $userids = $DB->get_fieldset_sql('
-                    select distinct qas.userid
-                    from {question_attempt_steps} qas
-                    inner join {question_attempts} qa on qas.questionattemptid = qa.id
-                    where qa.questionusageid = :qusageid
-                ', array(
+                $userids = $DB->get_fieldset_sql(
+                 'select distinct qas.userid'
+                 .' from {question_attempt_steps} qas'
+                 .' inner join {question_attempts} qa on qas.questionattemptid = qa.id'
+                 .' where qa.questionusageid = :qusageid',
+                 array(
                     'qusageid' => $oldusage->qusageid
-                ));
+                 ));
                 foreach ($userids as $userid) {
                     $DB->insert_record('studentquiz_attempt', (object)array(
                         'studentquizid' => $studentquiz->id,

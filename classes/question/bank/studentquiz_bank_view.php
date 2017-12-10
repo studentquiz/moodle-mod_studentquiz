@@ -529,11 +529,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         if ($canmoveall) {
-           $output .= '<input type="submit" class="btn" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
-           ob_start();
-           question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
-           $output .= ob_get_contents();
-           ob_end_clean();
+            $output .= '<input type="submit" class="btn" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
+            ob_start();
+            question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
+            $output .= ob_get_contents();
+            ob_end_clean();
         }
 
         $output .= "</div>\n";
