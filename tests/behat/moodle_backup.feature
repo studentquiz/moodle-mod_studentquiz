@@ -27,14 +27,14 @@ Feature: Backup and restore of moodle exports
       | user     | course   | role    |
       | student1 | <course> | student |
     And I log in as "student1"
-    And I am on "Moodle Development" course homepage
-    And I follow "StudentQuiz"
+    And I am on "<course>" course homepage
+    And I follow "<studentquiz>"
     And I should see "Create new question"
-    And I click on "Start Quiz" "button"
+    And "Start Quiz" "button" should exist
     # TODO: These backups have good data selection, we could test for existence and correctness of these
     # TODO: A scenario with the new studentquiz so other datas could be tested too
 
     Examples:
-      | file                                          | course     |
-      | backup-moodle2-course-one-moodle_31_sq203.mbz | Course One |
-      | backup-moodle2-course-two-moodle_31_sq203.mbz | Course Two |
+      | file                                          | course     | studentquiz   |
+      | backup-moodle2-course-one-moodle_31_sq203.mbz | Course One | StudentQuiz 1 |
+      | backup-moodle2-course-two-moodle_31_sq203.mbz | Course Two | StudentQuiz 3 |

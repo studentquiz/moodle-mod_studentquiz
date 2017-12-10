@@ -25,7 +25,7 @@ Feature: Navigation to the pages
     And I follow "StudentQuiz 1"
 
   Scenario: See the main page
-    When I navigate to "StudentQuiz" node in "Course administration"
+    When I navigate to "StudentQuiz" in current page administration
     Then I should see "Create new question"
     # Main view, some columns should be fine
     And I should see "Filter"
@@ -37,20 +37,20 @@ Feature: Navigation to the pages
     And I should see "Ranking"
 
   Scenario: See the statistics page
-    When I navigate to "Statistics" node in "Course administration"
+    When I navigate to "Statistics" in current page administration
     Then I should see "Personal Statistics"
     Then I should see "Community Statistics"
     Then I should see "Personal Progress"
 
   Scenario: See the statistics page
-    When I navigate to "Ranking" node in "Course administration"
+    When I navigate to "Ranking" in current page administration
     Then I should see "How your points are calculated"
     Then I should see "Question quantifier"
     Then I should see "Student ranking"
     Then I should see "Total Points"
 
   Scenario: See the questionbank
-    When I navigate to "Question Bank" node in "Course administration"
+    When I navigate to "Question bank" in current page administration
     Then I should see "Questions"
     Then I should see "Categories"
     Then I should see "Import"

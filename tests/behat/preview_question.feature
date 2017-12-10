@@ -19,8 +19,8 @@ Feature: Preview a question as a student
       | activity    | name          | intro              | course | idnumber       |
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
     And the following "questions" exist:
-      | questioncategory          | qtype     | name                          | createdby |
-      | Default for StudentQuiz 1 | numerical | Test question to be previewed | student1  |
+      | questioncategory          | qtype     | name                          |
+      | Default for StudentQuiz 1 | numerical | Test question to be previewed |
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
