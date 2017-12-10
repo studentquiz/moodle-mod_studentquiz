@@ -896,123 +896,169 @@ function mod_studentquiz_add_question_capabilities($context) {
 }
 
 /**
- * @param int|null $courseid
+ * Migrate old StudentQuiz quiz usages to new data-logic.
+ * Old Studentquiz created quiz instances for each "Run Quiz", while the new StudentQuiz uses the question-engine directly.
+ * StudentQuiz <= 2.0.3 stored the quizzes in section 999 (and a import creates empty sections in between).
+ * StudentQuiz <= 2.1.0 was not dependent on a section 999, but instead the teacher could choose in which section they are.
+ *
+ * This function must be usable for the restore and the plugin update process. In the restore we can get a courseid,
+ * and a studentquizid. In the plugin update we have nothing, so all affected courses must be considered and checked.
+ *
+ * This task is basically the following:
+ * MIGRATION.
+ * - Find out if there is an orphaned section.
+ * - For each studentquiz activity.
+ * - Find all question-usages for each user in the quizzes matching the studentquiz name.
+ * - Each question-usage must now be moved into a new studentquiz attempt table row.
+ * CLEANUP.
+ * - Find the last nonempty section not beeing the above orphaned section.
+ * - Remove all sections with number bigger than the found one.
+ *
+ * Hint: To save time during these processes, the old quizzes are not yet removed, the cronjob has gotten this step
+ *
+ * @param int|null $courseorigid
  */
-function mod_studentquiz_migrate_old_quiz_usage($courseid=null) {
+function mod_studentquiz_migrate_old_quiz_usage(int $courseorigid=null) {
     global $DB;
 
     // If we haven't gotten a courseid, migration is meant to whole moodle instance.
     $courseids = array();
-    if (!empty($courseid)) {
-        $courseids[] = $courseid;
+    if (!empty($courseorigid)) {
+        $courseids[] = $courseorigid;
     } else {
-        $courseids = $DB->get_fieldset_sql(
-            'select distinct cm.course'
-            .' from {course_modules} cm'
-            .' inner join {context} c on cm.id = c.instanceid'
-            .' inner join {question_categories} cats on cats.contextid = c.id'
-            .' inner join {modules} m on cm.module = m.id'
-            .' where m.name = :modulename',
-        array(
+        $courseids = $DB->get_fieldset_sql('
+            select distinct cm.course
+            from {course_modules} cm
+            inner join {context} c on cm.id = c.instanceid
+            inner join {question_categories} cats on cats.contextid = c.id
+            inner join {modules} m on cm.module = m.id
+            where m.name = :modulename
+        ', array(
             'modulename' => 'studentquiz'
         ));
     }
 
     // Step into each course so they operate independent from each other.
     foreach ($courseids as $courseid) {
-        $oldquizzes = array();
-
-        // For each course we need to find the studentquizzes.
-        $studentquizzes = $DB->get_records_sql('
-            select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
-            from {studentquiz} s
-            inner join {course_modules} cm on s.id = cm.instance
-            inner join {context} c on cm.id = c.instanceid
-            inner join {question_categories} cats on cats.contextid = c.id
-            inner join {modules} m on cm.module = m.id
-            where m.name = :modulename
-            and cm.course = :course
+        // Import old Core Quiz Data (question attempts) to studentquiz.
+        // This is the case, when orphaned section(s) can be found.
+        $orphanedsectionids = $DB->get_fieldset_sql('
+            select id
+            from {course_sections}
+            where course = :course
+            and name = :name
         ', array(
-            'modulename' => 'studentquiz',
-            'course' => $courseid
+            'course' => $courseid,
+            'name' => STUDENTQUIZ_COURSE_SECTION_NAME
         ));
 
-        foreach ($studentquizzes as $studentquiz) {
+        if ($orphanedsectionids !== false) {
+            $oldquizzes = array();
 
-            // Each studentquiz wants the question attempt id, which can be found inside the matching quizzes.
-            $oldusages = $DB->get_records_sql(
-            '  select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid'
-                .'  from {quiz} q'
-                .'  inner join {course_modules} cm on q.id = cm.instance'
-                .'  inner join {context} c on cm.id = c.instanceid'
-                .'  inner join {modules} m on cm.module = m.id'
-                .'  inner join {question_usages} qu on c.id = qu.contextid'
-                .'  where ' . $DB->sql_like('m.name', ':modulename', false)
-                .'  and cm.course = :course'
-                .'  and q.name = :name', array(
-                'modulename' => 'quiz',
-                'course' => $courseid,
-                'name' => $studentquiz->name . '%'
+            // For each course we need to find the studentquizzes.
+            $studentquizzes = $DB->get_records_sql('
+                select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
+                from {studentquiz} s
+                inner join {course_modules} cm on s.id = cm.instance
+                inner join {context} c on cm.id = c.instanceid
+                inner join {question_categories} cats on cats.contextid = c.id
+                inner join {modules} m on cm.module = m.id
+                where m.name = :modulename
+                and cm.course = :course
+            ', array(
+                'modulename' => 'studentquiz',
+                'course' => $courseid
             ));
 
-            // For each old quiz question usage we need to move it to studentquiz.
-            foreach ($oldusages as $oldusage) {
-                $oldquizzes[$oldusage->quizid] = true;
-                $DB->set_field('question_usages', 'component', 'mod_studentquiz',
-                    array('id' => $oldusage->qusageid));
-                $DB->set_field('question_usages', 'contextid', $studentquiz->contextid,
-                    array('id' => $oldusage->qusageid));
-                $DB->set_field('question_usages', 'preferredbehaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                    array('id' => $oldusage->qusageid));
-                $DB->set_field('question_attempts', 'behaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                    array('questionusageid' => $oldusage->qusageid));
+            foreach ($studentquizzes as $studentquiz) {
 
-                // Now we need each user as own attempt.
-                $userids = $DB->get_fieldset_sql(
-                 'select distinct qas.userid'
-                 .' from {question_attempt_steps} qas'
-                 .' inner join {question_attempts} qa on qas.questionattemptid = qa.id'
-                 .' where qa.questionusageid = :qusageid',
-                 array(
-                    'qusageid' => $oldusage->qusageid
-                 ));
-                foreach ($userids as $userid) {
-                    $DB->insert_record('studentquiz_attempt', (object)array(
-                        'studentquizid' => $studentquiz->id,
-                        'userid' => $userid,
-                        'questionusageid' => $oldusage->qusageid,
-                        'categoryid' => $studentquiz->categoryid,
+                // Each studentquiz wants the question attempt id, which can be found inside the matching quizzes.
+                $oldusages = $DB->get_records_sql('
+                    select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid
+                    from {quiz} q
+                    inner join {course_modules} cm on q.id = cm.instance
+                    inner join {context} c on cm.id = c.instanceid
+                    inner join {modules} m on cm.module = m.id
+                    inner join {question_usages} qu on c.id = qu.contextid
+                    where m.name = :modulename 
+                    and cm.course = :course
+                    and ' . $DB->sql_like('q.name', ':name', false) . '
+                ', array(
+                    'modulename' => 'quiz',
+                    'course' => $courseid,
+                    'name' => $studentquiz->name . '%'
+                ));
+
+                // For each old question usage we need to move it to studentquiz.
+                foreach ($oldusages as $oldusage) {
+                    $oldquizzes[$oldusage->quizid] = true;
+                    $DB->set_field('question_usages', 'component', 'mod_studentquiz',
+                        array('id' => $oldusage->qusageid));
+                    $DB->set_field('question_usages', 'contextid', $studentquiz->contextid,
+                        array('id' => $oldusage->qusageid));
+                    $DB->set_field('question_usages', 'preferredbehaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                        array('id' => $oldusage->qusageid));
+                    $DB->set_field('question_attempts', 'behaviour', STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
+                        array('questionusageid' => $oldusage->qusageid));
+
+                    // Now we need each user as own attempt.
+                    $userids = $DB->get_fieldset_sql('
+                        select distinct qas.userid
+                        from {question_attempt_steps} qas
+                        inner join {question_attempts} qa on qas.questionattemptid = qa.id
+                        where qa.questionusageid = :qusageid
+                    ', array(
+                        'qusageid' => $oldusage->qusageid
                     ));
+                    foreach ($userids as $userid) {
+                        $DB->insert_record('studentquiz_attempt', (object)array(
+                            'studentquizid' => $studentquiz->id,
+                            'userid' => $userid,
+                            'questionusageid' => $oldusage->qusageid,
+                            'categoryid' => $studentquiz->categoryid,
+                        ));
+                    }
                 }
             }
-        }
 
-        // Cleanup quizzes as we have migrated the question usages now.
-        foreach(array_keys($oldquizzes) as $quizid) {
-            // So that quiz doesn't remove the question usages.
-            $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
-            // And delete the quiz finally.
-            quiz_delete_instance($quizid);
-        }
+            // Cleanup quizzes as we have migrated the question usages now.
+            foreach (array_keys($oldquizzes) as $quizid) {
+                // So that quiz doesn't remove the question usages.
+                $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
+                // THIS STEP HAS BEEN MOVED TO CRONJOB (And delete the quiz finally.).
+                //quiz_delete_instance($quizid);
+            }
 
-        // Try to clean up sections. Need to be exactly as created by v2.0.3 and before. Otherwise manual removal needed as it
-        // can't be detected properly.
-        $oldsections = $DB->get_fieldset_sql('  SELECT s.id'
-              .'  FROM {course_sections} s'
-              .'  left join {course_modules} m on s.id = m.section'
-              .'  where s.course = :course'
-              .'  and m.id is NULL'
-              .'  and s.name = :sectionname'
-              .'  and s.summary = :sectionsummary', array(
-            'course' => $courseid,
-            'sectionname' => STUDENTQUIZ_COURSE_SECTION_NAME,
-            'sectionsummary' => STUDENTQUIZ_COURSE_SECTION_SUMMARY
-        ));
-        foreach ($oldsections as $sectionid) {
-            $DB->delete_records('course_sections', array(
-                    'id' => $sectionid
-                )
-            );
+            // So lookup the last non-empty section first.
+            $orphanedsectionids[] = 0; // Force multiple entries, so next command makes a IN statement in every case
+            list($insql, $inparams) = $DB->get_in_or_equal($orphanedsectionids, SQL_PARAMS_NAMED, 'section');
+
+            $lastnonemptysection = $DB->get_record_sql('
+                SELECT MAX(s.section) as max_section
+                   FROM {course_sections} s
+                   left join {course_modules} m on s.id = m.section
+                   where s.course = :course
+                   and s.id NOT ' . $insql . '
+                   and (
+                       m.id is not NULL
+                       or s.name <> :sectionname
+                       or s.summary <> :sectionsummary
+                   )
+            ', array_merge($inparams, array(
+                'course' => $courseid,
+                'sectionname' => '',
+                'sectionsummary' => ''
+            )));
+            if ($lastnonemptysection !== false) {
+                // And remove all these useless sections.
+                $DB->delete_records_select('course_sections',
+                    'course = :course AND section > :nonemptysection',
+                    array(
+                        'course' => $courseid,
+                        'nonemptysection' => $lastnonemptysection->max_section
+                    )
+                );
+            }
         }
     }
 }

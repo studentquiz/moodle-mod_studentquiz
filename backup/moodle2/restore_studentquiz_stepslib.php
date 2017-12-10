@@ -192,53 +192,10 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     }
 
     /**
-     * Post-execution actions per whole restore
+     * Post-execution actions per activity after whole restore
      */
     protected function after_restore() {
-        global $DB;
-
-        echo 'Start: ' . date('Y-m-d H:i:s');
-        // Import old Core Quiz Data (question attempts) to studentquiz.
-        // This is the case, when the orphaned section can be found.
-        $orphanedsection = $DB->get_record('course_sections', array(
-            'course' => $this->get_courseid(),
-            'name' => STUDENTQUIZ_COURSE_SECTION_NAME
-        ));
-
-        if ($orphanedsection !== false) {
-            mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
-
-            // Then remove empty sections if it's empty, if the admin allows us.
-            if (get_config('studentquiz', 'removeemptysections')) {
-                // So lookup the last non-empty section first.
-                $lastnonemptysection = $DB->get_record_sql(
-                    'SELECT MAX(s.section) as max_section' .
-                    '   FROM {course_sections} s' .
-                    '   left join {course_modules} m on s.id = m.section ' .
-                    '   where s.course = :course' .
-                    '   and s.section <> :section' .
-                    '   and (' .
-                    '       m.id is not NULL' .
-                    '       or s.name <> :sectionname' .
-                    '       or s.summary <> :sectionsummary' .
-                    '   )', array(
-                    'section' => STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER,
-                    'course' => $this->get_courseid(),
-                    'sectionname' => '',
-                    'sectionsummary' => ''
-                ));
-                if ($lastnonemptysection !== false) {
-                    // And remove all these useless sections.
-                    $success = $DB->delete_records_select('course_sections',
-                        'course = :course AND section > :nonemptysection',
-                        array(
-                            'course' => $this->get_courseid(),
-                            'nonemptysection' => $lastnonemptysection->max_section
-                        )
-                    );
-                }
-            }
-        }
-        echo 'End: ' . date('Y-m-d H:i:s');
+        // Migrate old quiz usage if needed (the function does the checking).
+        mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
     }
 }
