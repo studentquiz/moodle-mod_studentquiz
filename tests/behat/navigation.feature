@@ -1,0 +1,58 @@
+@mod @mod_studentquiz
+Feature: Navigation to the pages
+  In order no navigate within the studentquiz
+  As a teacher
+  I need to be able to see the different pages and the question bank
+
+  Background:
+    Given the following "courses" exist:
+      | fullname | shortname | category |
+      | Course 1 | C1        | 0        |
+    And the following "users" exist:
+      | username | firstname | lastname | email                |
+      | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
+    And the following "course enrolments" exist:
+      | user     | course | role           |
+      | teacher1 | C1     | editingteacher |
+    And the following "activities" exist:
+      | activity    | name          | intro              | course | idnumber       |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
+    And the following "questions" exist:
+      | questioncategory          | qtype | name          | questiontext                  |
+      | Default for StudentQuiz 1 | essay | Test question | Write about whatever you want |
+    And I log in as "teacher1"
+    And I am on "Course 1" course homepage
+    And I follow "StudentQuiz 1"
+
+  Scenario: See the main page
+    When I navigate to "StudentQuiz" node in "Course administration"
+    Then I should see "Create new question"
+    # Main view, some columns should be fine
+    And I should see "Filter"
+    And I should see "Difficulty"
+    And I should see "Rating"
+    And I should see "Comments"
+    # Block sidebar
+    And I should see "My Progress"
+    And I should see "Ranking"
+
+  Scenario: See the statistics page
+    When I navigate to "Statistics" node in "Course administration"
+    Then I should see "Personal Statistics"
+    Then I should see "Community Statistics"
+    Then I should see "Personal Progress"
+
+  Scenario: See the statistics page
+    When I navigate to "Ranking" node in "Course administration"
+    Then I should see "How your points are calculated"
+    Then I should see "Question quantifier"
+    Then I should see "Student ranking"
+    Then I should see "Total Points"
+
+  Scenario: See the questionbank
+    When I navigate to "Question Bank" node in "Course administration"
+    Then I should see "Questions"
+    Then I should see "Categories"
+    Then I should see "Import"
+    Then I should see "Export"
+    Then I should see "Select a category:"

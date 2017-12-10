@@ -14,7 +14,7 @@ Feature: Backup and restore of moodle exports
     And I log in as "admin"
 
   @javascript @_file_upload
-  Scenario Outline: Restore various moodle version backups containing studentquiz activity
+  Scenario Outline: Restore moodle backups containing old StudentQuiz activity
     When I am on "Course 1" course homepage
     And I navigate to "Restore" node in "Course administration"
     And I press "Manage backup files"
@@ -24,18 +24,17 @@ Feature: Backup and restore of moodle exports
     And "//*[contains(@href, '#section-999')]" "xpath_element" should not exist
     And I log out
     Then the following "course enrolments" exist:
-      | user     | course | role           |
-      | student1 | MDK     | student       |
+      | user     | course   | role    |
+      | student1 | <course> | student |
     And I log in as "student1"
     And I am on "Moodle Development" course homepage
-    And I follow "Backup and Restore StudentQuiz Test"
+    And I follow "StudentQuiz"
     And I should see "Create new question"
-    # The following creates a new quiz instance, because there is no existing quiz in the backup with the full question set.
     And I click on "Start Quiz" "button"
+    # TODO: These backups have good data selection, we could test for existence and correctness of these
+    # TODO: A scenario with the new studentquiz so other datas could be tested too
 
     Examples:
-      | file                                             |
-      | backup-moodle2-course_moodle30_sq203_nofiles.mbz |
-      | backup-moodle2-course_moodle31_sq203_nofiles.mbz |
-      | backup-moodle2-course_moodle32_sq203_nofiles.mbz |
-      | backup-moodle2-course_moodle33_sq203_nofiles.mbz |
+      | file                                          | course     |
+      | backup-moodle2-course-one-moodle_31_sq203.mbz | Course One |
+      | backup-moodle2-course-two-moodle_31_sq203.mbz | Course Two |
