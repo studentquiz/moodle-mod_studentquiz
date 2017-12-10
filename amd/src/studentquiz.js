@@ -95,6 +95,9 @@ define(['jquery'], function($) {
                     return true;
                 }
             });
+
+            // Bind the show more and show less buttons
+            bind_buttons();
         }
     };
 

@@ -44,10 +44,10 @@ Feature: Navigation to the pages
 
   Scenario: See the statistics page
     When I navigate to "Ranking" in current page administration
-    Then I should see "How your points are calculated"
-    Then I should see "Question quantifier"
-    Then I should see "Student ranking"
+    Then I should see "Created question factor"
+    Then I should see "Latest correct answer factor"
     Then I should see "Total Points"
+    Then I should see "Personal progress"
 
   Scenario: See the questionbank
     When I navigate to "Question bank" in current page administration
