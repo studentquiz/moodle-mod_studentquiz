@@ -310,6 +310,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
  * @return int|false as for {@link message_send()}.
  */
 function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
+    global $CFG;
     // Recipient info for template.
     $data->useridnumber = $recipient->idnumber;
     $data->username     = fullname($recipient);
@@ -320,7 +321,11 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
     $eventdata->component         = 'mod_studentquiz';
     $eventdata->name              = $event;
     $eventdata->notification      = 1;
-    $eventdata->courseid          = $data->courseid;
+
+    // Courseid only for moodle >= 32
+    if ($CFG->version >= 2017120500) {
+        $eventdata->courseid = $data->courseid;
+    }
 
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;
