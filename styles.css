@@ -146,6 +146,18 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     border-color: #bce8f1;
 }
 
+#page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav .col-md-4 {
+    box-sizing: border-box;
+    float: left;
+    width: 33.33333%;
+}
+
+#page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav:after {
+    display: table;
+    clear: both;
+    content: '';
+}
+
 .quizattemptcounts {
     clear: left;
     display: inline;

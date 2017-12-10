@@ -170,13 +170,15 @@ if ($hasanswered) {
 }
 
 // Finish the question form.
-$html .= html_writer::start_tag('div', array('class' => 'row'));
+$html .= html_writer::start_tag('div', array('class' => 'mod-studentquiz-attempt-nav row'));
 $html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
 $html .= html_writer::start_tag('div', array('class' => 'pull-left'));
 if ($hasprevious) {
     $html .= html_writer::empty_tag('input',
         array('type' => 'submit', 'name' => 'previous',
             'value' => get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+} else {
+    $html .= '&nbsp;';
 }
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
