@@ -323,7 +323,7 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
     $eventdata->notification      = 1;
 
     // Courseid only for moodle >= 32
-    if ($CFG->version >= 2017120500) {
+    if ($CFG->version >= 2016120500) {
         $eventdata->courseid = $data->courseid;
     }
 
