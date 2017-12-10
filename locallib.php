@@ -952,7 +952,7 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseorigid=null) {
             'name' => STUDENTQUIZ_COURSE_SECTION_NAME
         ));
 
-        if ($orphanedsectionids !== false) {
+        if (!empty($orphanedsectionids)) {
             $oldquizzes = array();
 
             // For each course we need to find the studentquizzes.
@@ -1049,6 +1049,7 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseorigid=null) {
                 'sectionname' => '',
                 'sectionsummary' => ''
             )));
+
             if ($lastnonemptysection !== false) {
                 // And remove all these useless sections.
                 $DB->delete_records_select('course_sections',
