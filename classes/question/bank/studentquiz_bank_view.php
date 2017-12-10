@@ -511,14 +511,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function display_bottom_controls($totalnumber, $recurse, $category, \context $catcontext, array $addcontexts) {
         $output = '';
-        $caneditall = has_capability('moodle/question:editall', $catcontext);
-        $canmoveall = has_capability('moodle/question:moveall', $catcontext);
+        $caneditall = has_capability('mod/studentquiz:manage', $catcontext);
+        $canmoveall = has_capability('mod/studentquiz:manage', $catcontext);
 
         $output .= '<div class="modulespecificbuttonscontainer">';
         $output .= '<strong>&nbsp;' . get_string('withselected', 'question') . ':</strong><br />';
 
         if ($this->has_questions_in_category()) {
-            $output .= '<input class="btn btn-primary form-submit" type="submit" name="startquiz" value="'
+            $output .= '<input class="btn btn-primary form-submit" type=""submit" name="startquiz" value="'
                  . get_string('start_quiz_button', 'studentquiz') . "\" />\n";
         }
 
@@ -526,6 +526,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $output .= '<input type="submit" class="btn" name="approveselected" value="'
                     . get_string('approve_toggle', 'studentquiz') . "\" />\n";
             $output .= '<input type="submit" class="btn" name="deleteselected" value="' . get_string('delete') . "\" />\n";
+        }
+
+        if ($canmoveall) {
+           $output .= '<input type="submit" class="btn" name="move" value="' . get_string('moveto', 'question') . "\" />\n";
+           ob_start();
+           question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
+           $output .= ob_get_contents();
+           ob_end_clean();
         }
 
         $output .= "</div>\n";
