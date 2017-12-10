@@ -421,7 +421,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     protected function rate_choices($questionid, $selected, $readonly) {
         $attributes = array(
             'type' => 'radio',
-            'name' => 'q' . $questionid,
+            'name' => 'q' . $questionid
         );
 
         if ($readonly) {
@@ -444,7 +444,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             }
             $choices .= html_writer::span('', $rateable . $class, array('data-rate' => $rate, 'data-questionid' => $questionid));
         }
-        return get_string('rate_title', 'mod_studentquiz')
+        return html_writer::tag('label', get_string('rate_title', 'mod_studentquiz'), array('for' => 'rate_field'))
             . $this->output->help_icon('rate_help', 'mod_studentquiz') . ': '
             . html_writer::div($choices, 'rating')
             . html_writer::div(get_string('rate_error', 'mod_studentquiz'), 'hide error');
@@ -457,11 +457,11 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @return string HTML fragment
      */
     protected function comment_form($questionid, $cmid) {
-        return html_writer::tag('p', get_string('add_comment', 'mod_studentquiz')
-                . $this->output->help_icon('comment_help', 'mod_studentquiz') . ':')
+        return html_writer::tag('label', get_string('add_comment', 'mod_studentquiz'), array('for' => 'add_comment_field'))
+            . $this->output->help_icon('comment_help', 'mod_studentquiz') . ':'
             . html_writer::tag('p', html_writer::tag(
                 'textarea', '',
-                array('class' => 'add_comment_field', 'name' => 'q' . $questionid)))
+                array('id' => 'add_comment_field', 'class' => 'add_comment_field', 'name' => 'q' . $questionid)))
             . html_writer::tag('p', html_writer::tag(
                 'button',
                 get_string('add_comment', 'mod_studentquiz'),

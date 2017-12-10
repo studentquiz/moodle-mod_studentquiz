@@ -28,4 +28,4 @@ Feature: Import course's with StudentQuiz contents into another course
     Then I should see "StudentQuiz 1"
     And I follow "StudentQuiz 1"
     And I should see "Create new question"
-    And I click on "Start Quiz" "button"
+    And "Start Quiz" "button" should exist

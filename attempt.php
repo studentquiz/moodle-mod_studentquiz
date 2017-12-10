@@ -57,15 +57,12 @@ $hasnext = $slot < $questionscount;
 $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
-
-
 if (data_submitted()) {
+    // There should be no question data if he has already answered them, as the fields are disabled.
     if (optional_param('next', null, PARAM_BOOL)) {
         // There is submitted data. Process it.
         $transaction = $DB->start_delegated_transaction();
-
         $questionusage->finish_question($slot);
-
         // TODO: Update tracking data --> studentquiz progress, studentquiz_attempt.
         $transaction->allow_commit();
 
@@ -84,25 +81,23 @@ if (data_submitted()) {
             redirect($actionurl);
         }
     } else if (optional_param('finish', null, PARAM_BOOL)) {
-        // There is submitted data. Process it.
         $transaction = $DB->start_delegated_transaction();
-
         $questionusage->finish_question($slot);
-
         // TODO: Update tracking data --> studentquiz progress, studentquiz_attempt.
         $transaction->allow_commit();
 
-        question_engine::save_questions_usage_by_activity($questionusage);
         // TODO Trigger events?
         redirect($stopurl);
     } else {
+        // On every submission save the attempt.
         $questionusage->process_all_actions();
+        // We save the attempts always to db, as there is no finish/submission step expected for the user.
         question_engine::save_questions_usage_by_activity($questionusage);
         redirect($actionurl);
     }
 }
 
-// Hast answered?
+// Has answered?
 $hasanswered = false;
 switch($questionusage->get_question_attempt($slot)->get_state()) {
     case question_state::$gradedpartial:
