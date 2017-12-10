@@ -40,16 +40,17 @@ Feature: Quizzes can be startet
     And the following "activities" exist:
       | activity    | name          | intro              | course | idnumber       |
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
-    # The order of the questions is descending, so initialize backwards
     And the following "questions" exist:
-      | questioncategory          | qtype        | name            | template                      |
-      | Default for StudentQuiz 1 | numerical    | Can finish?     |                               |
-      | Default for StudentQuiz 1 | multichoice  | Can previous?   | two_of_four                   |
-      | Default for StudentQuiz 1 | truefalse    | Can next?       |                               |
+      | questioncategory          | qtype       | name             | template    |
+      | Default for StudentQuiz 1 | truefalse   | 1. Can next?     |             |
+      | Default for StudentQuiz 1 | multichoice | 2. Can previous? | two_of_four |
+      | Default for StudentQuiz 1 | numerical   | 3. Can finish?   |             |
     And I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
     And I should see "Create new question"
+    # To sort the question table by question name
+    And I click on "Question" "link"
     And I click on "Start Quiz" "button"
     # QUESTION 1 mainly
     Then I should see "Can next?"
