@@ -93,19 +93,19 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->content = html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->last_attempt_correct .'</b>', '',
+                .html_writer::span('<b class="stat last-attempt-correct">' .$userstats->last_attempt_correct .'</b>', '',
                     array('style' => 'float: right;color:#5cb85c;')))
             . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_incorrect', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->last_attempt_incorrect .'</b>', '',
+                .html_writer::span('<b class="stat last-attempt-incorrect">' .$userstats->last_attempt_incorrect .'</b>', '',
                     array('style' => 'float: right;color:#d9534f;')))
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span('<b>' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>', '',
+                .html_writer::span('<b class="stat never-answered">' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>', '',
                     array('style' => 'float: right;color:#f0ad4e;')))
             . html_writer::div(
                 get_string('statistic_block_progress_available', 'studentquiz')
-                .html_writer::span('<b>' .$sqstats->questions_available .'</b>', '',
+                .html_writer::span('<b class="stat questions-available">' .$sqstats->questions_available .'</b>', '',
                     array('style' => 'float: right;')))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
