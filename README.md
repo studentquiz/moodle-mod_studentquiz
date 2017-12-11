@@ -30,6 +30,10 @@ StudentQuiz is available in the [Moodle plugins directory](https://moodle.org/pl
 
 The simplest way to install the StudentQuiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
 
+## Upgrade
+
+For changes and instructions please read the [Release Notes](https://github.com/frankkoch/moodle-mod_studentquiz/releases).
+
 ## Documentation
 
 You can find manuals for each role in the [manuals directory](https://github.com/frankkoch/moodle-mod_studentquiz/tree/master/manuals). 
@@ -49,7 +53,7 @@ Refer to the Moodle release notes for the minimum requirements for PHP and the d
 
 Please help translate StudentQuiz into your language on [AMOS](https://lang.moodle.org/local/amos/).
 
-Feel free to submit code changes as [Pull Request](https://github.com/frankkoch/moodle-mod_studentquiz/pulls) or discuss changes and help people and universities around the world in our [Issue Tracker](https://github.com/frankkoch/moodle-mod_studentquiz/issues).
+Feel free to submit code changes as [Pull Request](https://github.com/frankkoch/moodle-mod_studentquiz/pulls) or help people and universities around the world in our [Issue Tracker](https://github.com/frankkoch/moodle-mod_studentquiz/issues).
 
 ## License
 
