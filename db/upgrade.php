@@ -38,6 +38,13 @@ require_once(dirname(__DIR__) . '/locallib.php');
  *
  * @param int $oldversion
  * @return bool
+ * @throws ddl_change_structure_exception
+ * @throws ddl_exception
+ * @throws ddl_field_missing_exception
+ * @throws ddl_table_missing_exception
+ * @throws dml_exception
+ * @throws downgrade_exception
+ * @throws upgrade_exception
  */
 function xmldb_studentquiz_upgrade($oldversion) {
     global $DB;
@@ -235,43 +242,50 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017111300, 'studentquiz');
     }
 
-    // Add Ranking quantifiers on activity level.
+    // Add Ranking quantifiers on activity level. Before migration set useful default values.
     if ($oldversion < 2017111800) {
         $table = new xmldb_table('studentquiz');
 
-        // Add questionquantifier.
-        $field = new xmldb_field('questionquantifier', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0', 'quizpracticebehaviour');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        $definitions = array(
+            array(
+                'name' => 'questionquantifier',
+                'previous' => 'quizpracticebehaviour',
+                'default' => '10',
+            ), array(
+                'name' => 'approvedquantifier',
+                'previous' => 'questionquantifier',
+                'default' => '5',
+            ), array(
+                'name' => 'votequantifier',
+                'previous' => 'approvedquantifier',
+                'default' => '3',
+            ), array(
+                'name' => 'correctanswerquantifier',
+                'previous' => 'votequantifier',
+                'default' => '2',
+            ), array(
+                'name' => 'incorrectanswerquantifier',
+                'previous' => 'correctanswerquantifier',
+                'default' => '-1',
+            ),
+        );
+
+        // Add column and set useful default values during creation.
+        foreach ($definitions as $definition) {
+            $field = new xmldb_field($definition['name'], XMLDB_TYPE_INTEGER, '10', null,
+                XMLDB_NOTNULL, null, $definition['default'], $definition['previous']);
+            if (!$dbman->field_exists($table, $field)) {
+                $dbman->add_field($table, $field);
+            }
         }
 
-        // Add questionquantifier.
-        $field = new xmldb_field('approvedquantifier', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0', 'questionquantifier');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add ratequantifier.
-        $field = new xmldb_field('votequantifier', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0', 'approvedquantifier');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add correctanswerquantifier.
-        $field = new xmldb_field('correctanswerquantifier', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0', 'votequantifier');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        // Add incorrectanswerquantifier.
-        $field = new xmldb_field('incorrectanswerquantifier', XMLDB_TYPE_INTEGER, '10', null,
-            XMLDB_NOTNULL, null, '0', 'correctanswerquantifier');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+        // Now revert default to 0 for consistency with install.xml.
+        foreach ($definitions as $definition) {
+            $field = new xmldb_field($definition['name'], XMLDB_TYPE_INTEGER, '10', null,
+                XMLDB_NOTNULL, null, '0', $definition['previous']);
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->change_field_type($table, $field);
+            }
         }
 
         upgrade_mod_savepoint(true, 2017111800, 'studentquiz');
