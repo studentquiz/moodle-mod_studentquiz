@@ -280,7 +280,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         // Set the correct default values for the StudentQuiz instances.
-        foreach($definitions as $definition) {
+        foreach ($definitions as $definition) {
             $DB->set_field('studentquiz', $definition['name'], $definition['default']);
         }
 
