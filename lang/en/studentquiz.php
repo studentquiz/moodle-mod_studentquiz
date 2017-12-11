@@ -158,9 +158,6 @@ $string['settings_lastcorrectanswerquantifier_help'] = 'Points for each correct 
 $string['settings_lastincorrectanswerquantifier'] = 'Latest wrong answer factor';
 $string['settings_lastincorrectanswerquantifier_label'] = 'Points for latest wrong answers';
 $string['settings_lastincorrectanswerquantifier_help'] = 'Points for each wrong or partially wrong answer on the last attempt';
-$string['settings_removeemptysections'] = 'Remove empty sections';
-$string['settings_removeemptysections_label'] = 'Remove empty sections at the end of the course';
-$string['settings_removeemptysections_help'] = 'StudentQuiz 2.0.3 and prior used a so called orphaned section (hidden Topic) with number 999. Since Moodle 3.3 the Moodle import creates up to 999 sections, even if there are no such sections described in the export file. Check this option if you want StudentQuiz to clean up unnecessary sections caused by former StudentQuiz versions.';
 $string['settings_removeqbehavior'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_label'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_removeqbehavior_help'] = 'This info should appear only once during update. We inform you that we detected our question behavior plugin StudentQuiz is installed. This plugin is not required anymore and thus we try to automatically remove it. If you still see this setting, please uninstall the question behavior plugin StudentQuiz manually <a href="{$a}">here</a>.';
@@ -175,8 +172,6 @@ $string['please_enrole_message'] = 'Please enroll in this course to see your per
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';
 $string['rankingsettingsdescription'] = 'The values you set here define the ranking default values that are used in the settings form when you create a new studentquiz.';
-$string['importsettingsheader'] = 'Import settings';
-$string['importsettingsdescription'] = 'Here you set various settings to change the behavior of imports';
 
 // Report Dashboard.
 $string['reportquiz_total_attempt'] = 'Times user run the quiz';
@@ -245,6 +240,9 @@ $string['reportrank_table_column_progress'] = 'Personal progress';
 $string['reportrank_table_column_quantifier_name'] = 'Name';
 $string['reportrank_table_column_factor'] = 'Factor';
 $string['reportrank_table_column_description'] = 'Description';
+
+// Task.
+$string['task_delete_quiz_after_migration'] = 'Delete quiz activities after data migration from an import or plugin update';
 
 // Permission.
 $string['studentquiz:addinstance'] = 'Add new instance for StudentQuiz';
