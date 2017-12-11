@@ -79,17 +79,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('anonymrank', 'settings_anonymous', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
 
-        // Select question behaviour.
-        // TODO: There's no studentquiz behavior anymore. We could offer a selection.
+        // Select question behaviour. Removed in v3.0.0, unless a use-case needs this option.
+        // Since there's no studentquiz behavior anymore, we could offer a selection.
         // But they have to be of type feedback (or support non-feedback behavior).
-        // This setting as it is is missleading, we should extract "rate and comment" to it's own field.
-        // And then update all usages of that to it.
-        $mform->addElement('advcheckbox', 'quizpracticebehaviour',
-            get_string('settings_quizpracticebehaviour_label', 'studentquiz')
-            , null, null, array(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR, STUDENTQUIZ_BEHAVIOUR));
-        $mform->setType('quizpracticebehaviour', PARAM_RAW);
-        $mform->addHelpButton('quizpracticebehaviour', 'settings_quizpracticebehaviour', 'studentquiz');
-        $mform->setDefault('quizpracticebehaviour', STUDENTQUIZ_BEHAVIOUR);
 
         // Field questionquantifier.
         $mform->addElement('text', 'questionquantifier',
