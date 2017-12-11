@@ -15,12 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* Defines tasks for the studentquiz module.
-*
-* @package   mod_studentquiz
-* @copyright 2017 HSR (http://www.hsr.ch)
-* @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ * Defines tasks for the studentquiz module.
+ *
+ * @package   mod_studentquiz
+ * @copyright 2017 HSR (http://www.hsr.ch)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 defined('MOODLE_INTERNAL') || die();
 
