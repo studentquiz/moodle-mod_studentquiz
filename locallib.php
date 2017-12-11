@@ -755,7 +755,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' JOIN {context} con ON con.instanceid = sq.coursemodule'
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
         .' JOIN {question} q on q.category = qc.id'
-        .' WHERE q.hidden = 0 AND sq.coursemodule = :cmid4'
+        .' WHERE q.hidden = 0 AND q.parent = 0 AND sq.coursemodule = :cmid4'
         .' GROUP BY creator'
         .' ) creators ON creators.creator = u.id'
         // Approved questions.
@@ -766,7 +766,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
         .' JOIN {question} q on q.category = qc.id'
         .' JOIN {studentquiz_question} sqq ON q.id = sqq.questionid'
-        .' where q.hidden = 0 AND sqq.approved = 1 AND sq.coursemodule = :cmid5'
+        .' where q.hidden = 0 AND q.parent = 0 AND sqq.approved = 1 AND sq.coursemodule = :cmid5'
         .' group by creator'
         .' ) approvals ON approvals.creator = u.id'
         // Average of Average Rating of own questions.
@@ -787,7 +787,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .'      JOIN {question} q on q.category = qc.id'
         .'      JOIN {studentquiz_rate} sqv on q.id = sqv.questionid'
         .'      WHERE'
-        .'          q.hidden = 0'
+        .'          q.hidden = 0 AND q.parent = 0'
         .'          and sq.coursemodule = :cmid6'
         .'      GROUP BY q.id, q.createdby'
         .'      ) avgratingperquestion'
@@ -1112,7 +1112,7 @@ function mod_studentquiz_count_questions($cmid) {
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
         // Only enrolled users.
         .' JOIN {question} q ON q.category = qc.id'
-        .'  WHERE q.hidden = 0 AND sq.coursemodule = :cmid', array('cmid' => $cmid));
+        .'  WHERE q.hidden = 0 AND q.parent = 0 AND sq.coursemodule = :cmid', array('cmid' => $cmid));
     $DB->set_debug(false);
     return $rs;
 }
@@ -1148,7 +1148,7 @@ function mod_studentquiz_question_stats($cmid) {
         .'  WHERE sq.coursemodule = :cmid2'
         .'  GROUP BY q.id'
         .' ) rating on rating.questionid = q.id'
-        .' WHERE q.hidden = 0 and sq.coursemodule = :cmid1';
+        .' WHERE q.hidden = 0 and q.parent = 0 and sq.coursemodule = :cmid1';
     $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
     $DB->set_debug(false);
     return $rs;
