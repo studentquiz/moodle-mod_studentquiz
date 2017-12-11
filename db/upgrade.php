@@ -273,19 +273,15 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Add column and set useful default values during creation.
         foreach ($definitions as $definition) {
             $field = new xmldb_field($definition['name'], XMLDB_TYPE_INTEGER, '10', null,
-                XMLDB_NOTNULL, null, $definition['default'], $definition['previous']);
+                XMLDB_NOTNULL, null, '0', $definition['previous']);
             if (!$dbman->field_exists($table, $field)) {
                 $dbman->add_field($table, $field);
             }
         }
 
-        // Now revert default to 0 for consistency with install.xml.
-        foreach ($definitions as $definition) {
-            $field = new xmldb_field($definition['name'], XMLDB_TYPE_INTEGER, '10', null,
-                XMLDB_NOTNULL, null, '0', $definition['previous']);
-            if ($dbman->field_exists($table, $field)) {
-                $dbman->change_field_type($table, $field);
-            }
+        // Set the correct default values for the StudentQuiz instances.
+        foreach($definitions as $definition) {
+            $DB->set_field('studentquiz', $definition['name'], $definition['default']);
         }
 
         upgrade_mod_savepoint(true, 2017111800, 'studentquiz');
