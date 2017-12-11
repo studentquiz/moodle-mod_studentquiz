@@ -101,8 +101,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                     array('style' => 'float: right;color:#d9534f;')))
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span('<b class="stat never-answered">' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>', '',
-                    array('style' => 'float: right;color:#f0ad4e;')))
+                .html_writer::span(
+                    '<b class="stat never-answered">' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>',
+                    '', array('style' => 'float: right;color:#f0ad4e;')))
             . html_writer::div(
                 get_string('statistic_block_progress_available', 'studentquiz')
                 .html_writer::span('<b class="stat questions-available">' .$sqstats->questions_available .'</b>', '',

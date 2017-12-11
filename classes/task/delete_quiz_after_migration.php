@@ -24,11 +24,12 @@
 
 namespace mod_studentquiz\task;
 
+defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 class delete_quiz_after_migration extends \core\task\scheduled_task {
     public function get_name() {
-        // Shown in admin screens
         return get_string('task_delete_quiz_after_migration', 'mod_studentquiz');
     }
 
@@ -38,7 +39,8 @@ class delete_quiz_after_migration extends \core\task\scheduled_task {
     public function execute() {
         global $DB;
 
-        // Search the db if there is an orphaned quiz, this quiz has the same name as an studentquiz and is in the same course, but is in no section anymore.
+        // Search if there is an orphaned quiz, which has the same name as an studentquiz and is in the same course,
+        // but is in no section anymore.
         $orphanedquiz = $DB->get_record_sql('
         select
             q.id as quizid,
@@ -61,13 +63,13 @@ class delete_quiz_after_migration extends \core\task\scheduled_task {
         and q.name like concat(s.name, \'%\')
         order by
             cms.course,
-            s.id, 
+            s.id,
             q.id
         limit 1
         ');
 
-        // We have found a orphaned quiz, remove it
-        if($orphanedquiz !== false) {
+        // We have found a orphaned quiz, remove it.
+        if ($orphanedquiz !== false) {
             quiz_delete_instance($orphanedquiz->quizid);
         }
     }

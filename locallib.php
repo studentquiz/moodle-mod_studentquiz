@@ -323,7 +323,7 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
     $eventdata->name              = $event;
     $eventdata->notification      = 1;
 
-    // Courseid only for moodle >= 32
+    // Courseid only for moodle >= 3.2.
     if ($CFG->version >= 2016120500) {
         $eventdata->courseid = $data->courseid;
     }
@@ -918,7 +918,7 @@ function mod_studentquiz_add_question_capabilities($context) {
  *
  * @param int|null $courseorigid
  */
-function mod_studentquiz_migrate_old_quiz_usage(int $courseorigid=null) {
+function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
     global $DB;
 
     // If we haven't gotten a courseid, migration is meant to whole moodle instance.
@@ -980,7 +980,7 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseorigid=null) {
                     inner join {context} c on cm.id = c.instanceid
                     inner join {modules} m on cm.module = m.id
                     inner join {question_usages} qu on c.id = qu.contextid
-                    where m.name = :modulename 
+                    where m.name = :modulename
                     and cm.course = :course
                     and ' . $DB->sql_like('q.name', ':name', false) . '
                 ', array(
@@ -1025,12 +1025,11 @@ function mod_studentquiz_migrate_old_quiz_usage(int $courseorigid=null) {
             foreach (array_keys($oldquizzes) as $quizid) {
                 // So that quiz doesn't remove the question usages.
                 $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
-                // THIS STEP HAS BEEN MOVED TO CRONJOB (And delete the quiz finally.).
-                //quiz_delete_instance($quizid);
+                // Quiz deletion over classes/task/delete_quiz_after_migration.php.
             }
 
             // So lookup the last non-empty section first.
-            $orphanedsectionids[] = 0; // Force multiple entries, so next command makes a IN statement in every case
+            $orphanedsectionids[] = 0; // Force multiple entries, so next command makes a IN statement in every case.
             list($insql, $inparams) = $DB->get_in_or_equal($orphanedsectionids, SQL_PARAMS_NAMED, 'section');
 
             $lastnonemptysection = $DB->get_record_sql('

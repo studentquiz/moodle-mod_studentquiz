@@ -59,7 +59,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
             , array('course' => $course->id),  array('anonymrank' => true));
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
-        // $course, $context, $cm, $studentquiz, $userid
+        // Satisfy codechecker: $course $context $cm $studentquiz $userid.
         $context = context_module::instance($this->cm->id);
         $this->viewlib = new mod_studentquiz_view($course, $context, $this->cm,
             $studentquiz, $user->id);
