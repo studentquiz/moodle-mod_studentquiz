@@ -2,33 +2,35 @@
 
 [![Build Status](https://travis-ci.org/frankkoch/moodle-mod_studentquiz.svg?branch=master)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz "Travis")
 
-Students like preparatory questions for exams. However, it’s hard
-to provide a large quantity of questions for all the self-assessments
-and exams. That’s why the University of Applied Sciences Rapperswil
-developed the Moodle plugin StudentQuiz. StudentQuiz enables students
-to collaboratively create their own question pools within Moodle.
-Even if an individual student contributes just a few questions, a large
-cohort could easily build up an extensive question pool.
+Students like self-assessments in order to prepare for exams. However, 
+it’s hard to provide all the many questions needed. That’s one reason 
+why the [University of Applied Sciences Rapperswil](https://www.hsr.ch/de/) developed the 
+Moodle plugin StudentQuiz. StudentQuiz enables students to collaboratively 
+create their own question pools within Moodle. Even if an individual student 
+contributes a few questions only, a large cohort could easily build up an 
+extensive question pool.
 
-In StudentQuiz, students can filter questions into quizzes, and they
-can rate and comment on questions while working through the quizzes.
-StudentQuiz collects usage data, and assigns points to students for
-creating questions and giving right answers. The created questions
-become part of the Moodle question bank and can be reused in other
-Moodle quizzes.
+In StudentQuiz, students can filter questions into quizzes, and they can rate 
+and comment on questions while working through the quizzes. StudentQuiz 
+collects usage data for each question and ranks students based on their 
+contribution and performance within the quizzes. A personal learning assistance 
+feature displays the individual progress and compares it with the community 
+average. The created questions become part of the Moodle question bank and can 
+be reused in other Moodle quizzes.
 
-## Demo
+A teacher can configure:
+- whether StudentQuiz runs anonymously or displays student names.
+- whether students can rate and comment on questions.
+- what questions types are allowed to be added to the pool.
+- the number of points assigned to questions contributed and answers given. 
 
-Find out more in our short [introduction video](https://tube.switch.ch/videos/637cda8a).
-We hope that StudentQuiz finds your interest.
-
-You can also try it out without installing on the [StudentQuiz Demo Page](http://studentquiz.hsr.ch/)
+There are more benefits of using StudentQuiz. Find out in our 15 minutes 
+[introduction video](https://tube.switch.ch/videos/637cda8a).
 
 ## Installation
 
-StudentQuiz is available in the [Moodle plugins directory](https://moodle.org/plugins/mod_studentquiz).
-
-The simplest way to install the StudentQuiz is by going to the *Site administration -> Plugins -> Install plugins* page. 
+Download StudentQuiz from the [Moodle Plugin Directory](https://moodle.org/plugins/mod_studentquiz) and install by going to the *Site administration -> Plugins -> Install plugins* page. 
+You can try StudentQuiz without installing on the [StudentQuiz Demo Page](http://studentquiz.hsr.ch/).
 
 ## Upgrade
 
