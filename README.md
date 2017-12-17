@@ -25,7 +25,7 @@ A teacher can configure:
 - the number of points assigned to questions contributed and answers given. 
 
 There are more benefits of using StudentQuiz. Find out in our 15 minutes 
-[introduction video](https://tube.switch.ch/videos/637cda8a).
+[introduction video](https://tube.switch.ch/videos/33da1b63).
 
 ## Installation
 
