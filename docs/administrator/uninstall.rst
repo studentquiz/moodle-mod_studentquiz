@@ -1,0 +1,4 @@
+Uninstall
+=========
+
+Some text here.
