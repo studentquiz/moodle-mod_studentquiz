@@ -8,7 +8,7 @@ Question bank
 
 As a teacher, you get access to all question bank functions using the question bank in the StudentQuiz activity.
 
-.. image:: questionbank.png
+.. image:: ../_images/questionbank.png
 	:align: center
 
 Its main purpose is to get overview of all questions, for importing or exporting whole sets of questions and possibly to move around questions between categories. This view should not be used to edit questions, as it won’t notify students of the applied changes.

@@ -12,8 +12,4 @@ and upgrades as well as the process of an uninstalling StudentQuiz.
    install
    upgrade
    configure
-   restore
    uninstall
-   
-   
-   

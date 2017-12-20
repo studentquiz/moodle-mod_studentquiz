@@ -2,24 +2,24 @@
 Configure
 =========
 
----------------------------
-Create StudentQuiz Activity
----------------------------
+-----------------------------
+Create a StudentQuiz Activity
+-----------------------------
 
 Creating a StudentQuiz activity has no difference to other activities. Go to your course
 and press on the “Turn editing on” button. Choose your topic where you want the
 new Student-Quiz activity and press “+ Add an activity or resource” on the right side.
 
-.. image:: add_activity.png
+.. image:: ../_images/add_activity.png
 	:align: center
 
 Choose StudentQuiz and press “Add”. Give a name to the new activity. The Advanced settings is important. You have some options that you can configure
 
-------------------------------
-Configure StudentQuiz Activity
-------------------------------
+--------------------------------
+Configure a StudentQuiz Activity
+--------------------------------
 
-.. image:: configure_activity.png
+.. image:: ../_images/configure_activity.png
 	:align: center
 
 Make students anonymous

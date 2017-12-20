@@ -1,8 +1,8 @@
 Install
 =======
 
-The Student-Quiz plugin depends on the Quiz plugin which is installed as default in
-Moodle. The simplest way to install the plugin is by going to the Site administration ->
-Plugins -> Install plugins page.
+Download StudentQuiz from the `Moodle Plugin Directory`_ and install by going to the 'Site administration -> Plugins -> Install' plugins page.
+You can try StudentQuiz without installing on the `StudentQuiz Demo Page`_.
 
-Important: The zip and the folder name in the zip have to be named “Studentquiz”. 
+.. _Moodle Plugin Directory: https://moodle.org/plugins/mod_studentquiz
+.. _StudentQuiz Demo Page: http://studentquiz.hsr.ch
