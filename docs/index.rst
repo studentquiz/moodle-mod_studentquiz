@@ -14,9 +14,9 @@ students with a variety of question types, StudentQuiz moves one step further al
 students to contribute to the pool of questions related to the course.
 StudentQuiz can be configured to award points for contribution and participation
 by students and allows techers to moderate the question pool by approving or
-deleting unsuitable or wrong question. The complementary question behavior
-plugin enables Students to rate and optionally comment the questions they answered,
-awarding the creator of the question with additional points.
+deleting unsuitable or wrong question. StudentQuiz enables students to rate and
+optionally comment the questions they answered, awarding the creator of the question
+with additional points.
 
 StudentQuiz provides comprehensive filters to let students focus on the questions,
 they need to work the hardest on.
