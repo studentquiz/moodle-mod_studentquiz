@@ -3,7 +3,7 @@ Moodle Plugin StudentQuiz
 =========================
 
 This documentation is meant for everyone interested in the usage, management, 
-and development of the StudentQuiz Moodle Plugin
+and development of the StudentQuiz Moodle Plugin.
 
 ------------
 Introduction
