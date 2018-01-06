@@ -36,7 +36,17 @@ See: [https://pip.pypa.io/en/stable/installing/](https://pip.pypa.io/en/stable/i
 See 
 [http://www.sphinx-doc.org/en/stable/install.html](http://www.sphinx-doc.org/en/stable/install.html) for more information about installing sphinx.
 
-### Build & display locally
+
+### Work on the documentation using Sphinx Autobuild
+
+If you are working on the documentation, navigate to the docs folder and use:
+
+	cd <your-git-repo>/docs
+	sphinx-autobuild . _build/html/ -B
+
+to continously update the build in the browser (It will automatically open your browser to the correct local html site).
+
+### Build the documentation locally
 
 Open the command prompt in the studentquiz directory. 
 
@@ -54,13 +64,6 @@ The output is written to the folder `_build/html`.
 
 Open `_build/html/index.html` with your browser to see the result.
 	
-
-If you are working on the documentation use
-	
-    sphinx-autobuild . _build/html/ -B
-	
-to continously update the build in the browser.
-
 
 ### Commit & Push
 When ever you are happy with your local result, commit & push your changes.
