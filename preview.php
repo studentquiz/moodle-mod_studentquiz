@@ -53,6 +53,12 @@ try {
     $question = question_bank::load_question($questionid);
     // There is no capability check on previewothers, because he can gotten the link for review by notification.
     // If this should be limited also here, you need to implement some sort of onetime token for the link in the notification.
+
+    // But we have to check if the question is really from this module, limit questions to categories used in this module.
+    $allowedcategories = question_categorylist($studentquiz->categoryid);
+    if(!in_array($question->category, $allowedcategories)) {
+        $question = null;
+    }
 } catch (dml_missing_record_exception $e) {
     $question = null;
 }

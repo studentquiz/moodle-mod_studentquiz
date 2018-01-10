@@ -392,11 +392,15 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     $attempt->studentquizid = $studentquiz->id;
 
     // Add questions to usage.
-    shuffle($ids);
+    // Don't shuffle($ids) as per requirement for now.
     $usageorder = array();
+    $allowedcategories = question_categorylist($studentquiz->categoryid);
     foreach ($ids as $i => $questionid) {
         $questiondata = question_bank::load_question($questionid);
-        $usageorder[$i] = $questionusage->add_question($questiondata);
+        // We have to check if the question is really from this module, limit questions to categories used in this module.
+        if(in_array($questiondata->category, $allowedcategories)) {
+            $usageorder[$i] = $questionusage->add_question($questiondata);
+        }
     }
 
     // Persistence.
