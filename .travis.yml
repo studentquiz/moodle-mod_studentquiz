@@ -1,6 +1,6 @@
 language: php
 
-sudo: false
+sudo: required
 
 notifications:
   email: false
@@ -14,7 +14,7 @@ addons:
        # can be omitted because mustache is not in use
   #    - oracle-java8-installer
   #    - oracle-java8-set-default
-  #    - chromium-chromedriver
+      - chromium-chromedriver
 
 cache:
   directories:
@@ -96,9 +96,9 @@ script:
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci jshint; fi
   - if [ $MPCIV == '2' ]; then moodle-plugin-ci phpunit --coverage-text; fi # output code coverage in MPCIV 2
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci phpunit; fi
-  #- if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
+  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
   #TODO: Swap between firefox and chrome using environment info
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
+  #- if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
   - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat || true; fi # currently not working at all
   #- java -jar moodle/selenium.jar &
   #- if [ $MPCIV == '1' ]; then php moodle/vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi
