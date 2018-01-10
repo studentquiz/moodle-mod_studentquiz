@@ -56,7 +56,7 @@ try {
 
     // But we have to check if the question is really from this module, limit questions to categories used in this module.
     $allowedcategories = question_categorylist($studentquiz->categoryid);
-    if(!in_array($question->category, $allowedcategories)) {
+    if (!in_array($question->category, $allowedcategories)) {
         $question = null;
     }
 } catch (dml_missing_record_exception $e) {

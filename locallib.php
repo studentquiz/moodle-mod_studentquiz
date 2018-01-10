@@ -398,7 +398,7 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     foreach ($ids as $i => $questionid) {
         $questiondata = question_bank::load_question($questionid);
         // We have to check if the question is really from this module, limit questions to categories used in this module.
-        if(in_array($questiondata->category, $allowedcategories)) {
+        if (in_array($questiondata->category, $allowedcategories)) {
             $usageorder[$i] = $questionusage->add_question($questiondata);
         }
     }
