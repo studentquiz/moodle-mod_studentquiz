@@ -1,6 +1,7 @@
+.. _student_score:
+
 Score
 =====
-.. _student_score:
 
 The StudentQuiz provides students with two different reports which can be viewed in the navigation:
 

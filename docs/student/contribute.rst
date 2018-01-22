@@ -1,3 +1,5 @@
+.. _student_contribute:
+
 Contribute
 ==========
 
