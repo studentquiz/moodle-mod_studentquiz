@@ -326,13 +326,13 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Only system context needed, as by default it's inherited from there.
         // if someone did make an override, it's intentional.
         $context = context_system::instance();
-        // Load the roles for easier name to id assignment.
-        $roleids = $DB->get_records_menu('role', null, '', 'shortname, id');
         // And finally update them for every context.
         foreach ($capabilities as $capname => $capability) {
             if (!empty($capability['archetypes'])) {
-                foreach ($capability['archetypes'] as $role => $captype) {
-                    role_change_permission($roleids[$role], $context, $capname, $captype);
+                foreach ($capability['archetypes'] as $archetype => $captype) {
+                    foreach(get_archetype_roles($archetype) as $role) {
+                        role_change_permission($role->id, $context, $capname, $captype);
+                    }
                 }
             }
         }
