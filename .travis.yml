@@ -7,13 +7,13 @@ notifications:
 
 addons:
   postgresql: "9.3"
+  mariadb: "10.0"
   firefox: "47.0.1"
-  #chrome: stable
   apt:
     packages:
-       # can be omitted because mustache is not in use
-  #    - oracle-java8-installer
-  #    - oracle-java8-set-default
+      # can be omitted because mustache is not in use
+      #- oracle-java8-installer
+      #- oracle-java8-set-default
       - chromium-chromedriver
 
 cache:
@@ -43,9 +43,13 @@ matrix:
     # Moodle 3.1 doesn't support php7.1
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_31_STABLE DB=pgsql
+    # Moodle 3.4 doesn't support php5.6
     - php: 5.6
       env: MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
   include:
+    # Also the master once wih pgsql
+    - php: 7.2
+      env: MOODLE_BRANCH=master DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 5.6
       env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mysqli
@@ -55,6 +59,19 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mysqli
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
+    - php: 7.2
+      env: MOODLE_BRANCH=master DB=mysqli
+    # Some MySQL as backend with various PHP versions, but just some to save matrix slots
+    - php: 5.6
+      env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mariadb
+    - php: 7.0
+      env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mariadb
+    - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mariadb
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mariadb
+    - php: 7.2
+      env: MOODLE_BRANCH=master DB=mariadb
 
 before_install:
   - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=1; else MPCIV=2; fi
