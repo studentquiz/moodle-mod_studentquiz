@@ -124,7 +124,7 @@ class practice_column extends \core_question\bank\column_base {
                 .'  AND sq.id = ' . $this->studentquizid
                 .'  AND sqa.userid = ' . $this->currentuserid
                 .'  AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
-            . ' GROUP BY qa.questionid) myatts ON myatts.questionid = q.id',
+            . ' GROUP BY qa.questionid) myatts ON myatts.questionid = q.id'/*,
             'mylastattempt' => 'LEFT JOIN ('
                 .'SELECT'
                 .' 	qa.questionid,'
@@ -150,7 +150,7 @@ class practice_column extends \core_question\bank\column_base {
                 .'  AND sqa.userid = ' . $this->currentuserid
                 .'  AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
                 .' 	GROUP BY qa.questionid)'
-                . ') mylatts ON mylatts.questionid = q.id'
+                . ') mylatts ON mylatts.questionid = q.id'*/
             );
     }
 
@@ -159,12 +159,12 @@ class practice_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('pr.practice', 'myatts.myattempts', 'mylatts.mylastattempt');
+        return array('pr.practice', 'myatts.myattempts'/*, 'mylatts.mylastattempt'*/);
     }
 
     /**
      * Get sql sortable name
-     * @return string field name
+     * @return array field name
      */
     public function is_sortable() {
         return array(
