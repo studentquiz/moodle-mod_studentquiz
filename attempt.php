@@ -33,8 +33,10 @@ $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
 
 $cm = get_coursemodule_from_instance('studentquiz', $attempt->studentquizid);
 $cmid = $cm->id;
+$course = $DB->get_record('course', array('id' => $cm->course));
 
-require_login($cm->course, false, $cm);
+var_dump(array('cm' => $cm, 'course' => $course));
+//require_login($cm->course, false, $cm);
 
 $context = context_module::instance($cm->id);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
