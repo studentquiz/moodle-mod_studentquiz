@@ -20,7 +20,7 @@ If none has contributed any question yet, you only see a button to add a new que
 .. image:: ../_images/empty_studentquiz.png
 	:align: center
 
-See contribute_ for more information about contributing a question.
+See :ref:`contribute <student_contribute>` for more information about contributing a question.
 
 As soon as more than one question was contributed before, the question bank
 displays all of them on the bottom half of the view.
@@ -86,7 +86,4 @@ Your teacher might have given you some guidelines based on what criteria you sho
 
 The author of the question will recieve award points based on your rating.
 
-See score_ to learn more about the award points.
-
-.. _contribute:
-.. _score:
+See :ref:`score <student_score>`  to learn more about the award points.

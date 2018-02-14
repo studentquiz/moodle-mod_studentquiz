@@ -1,6 +1,7 @@
+.. _student_score:
+
 Score
 =====
-.. _student_score:
 
 The StudentQuiz provides students with two different reports which can be viewed in the navigation:
 
@@ -18,7 +19,7 @@ The statistics report gives you an overview of your progress and your community 
 Ranking
 -------
 
-The rank table is used to motivate the students to challenge each other.
+The rank table is used to motivate students to challenge each other.
 
 .. image:: ../_images/ranking.png
 	:align: center

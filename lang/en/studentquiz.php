@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 // General plugin strings.
 $string['modulename'] = 'StudentQuiz';
 $string['modulenameplural'] = 'StudentQuizzes';
-$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/manuals/User-Manual.pdf">student manual</a>.';
+$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://studentquiz.hsr.ch/docs/">StudentQuiz documentation</a>.';
 $string['studentquizname'] = 'StudentQuiz Name';
 $string['studentquizname_help'] = 'The name of this StudentQuiz Activity';
 $string['studentquiz'] = 'studentquiz';
