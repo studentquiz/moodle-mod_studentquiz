@@ -26,17 +26,27 @@ require_once(dirname(dirname(dirname(__FILE__))) . '/config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(dirname(__FILE__) . '/locallib.php');
 
+// Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
+
+// Load course and course module requested.
+if ($cmid) {
+    if (!$cm = get_coursemodule_from_id('studentquiz', $cmid)) {
+        print_error('invalidcoursemodule');
+    }
+    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
+        print_error('coursemisconf');
+    }
+} else {
+    print_error('invalidcoursemodule');
+}
+
+// Authentication check.
+require_login($cm->course, false, $cm);
+
 $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
-
-$cm = get_coursemodule_from_instance('studentquiz', $attempt->studentquizid);
-$cmid = $cm->id;
-$course = $DB->get_record('course', array('id' => $cm->course));
-
-var_dump(array('cm' => $cm, 'course' => $course));
-//require_login($cm->course, false, $cm);
 
 $context = context_module::instance($cm->id);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
