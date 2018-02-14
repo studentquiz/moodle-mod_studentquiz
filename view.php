@@ -48,7 +48,6 @@ if ($cmid) {
 }
 
 // Authentication check.
-var_dump(array('cm' => $cm, 'course' => $course));
 require_login($cm->course, false, $cm);
 
 // Load context.
