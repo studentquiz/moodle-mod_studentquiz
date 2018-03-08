@@ -41,7 +41,10 @@ class practice_column extends \core_question\bank\column_base {
 
         global $DB, $USER;
         $this->currentuserid = $USER->id;
-        $cmid = $this->qbank->get_most_specific_context()->instanceid;
+        // Build context, categoryid and cmid here for use later.
+        $context = $this->qbank->get_most_specific_context();
+        $this->categoryid = question_get_default_category($context->id)->id;
+        $cmid = $context->instanceid;
         // TODO: Get StudentQuiz id from infrastructure instead of DB!
         // TODO: Exception handling lookup fails somehow.
         $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
@@ -106,7 +109,8 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
 
-        $tests = array('qa.responsesummary IS NOT NULL');
+        // Add outer WHERE tests here to limit the dataset to just the module question category.
+        $tests = array('qa.responsesummary IS NOT NULL', 'q.parent = 0', 'q.hidden = 0', 'q.category = ' . $this->categoryid);
         return array('pr' => 'LEFT JOIN ('
             . 'SELECT COUNT(questionid) as practice'
             . ', questionid FROM {question_attempts} qa JOIN {question} q ON qa.questionid = q.id'
