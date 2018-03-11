@@ -330,7 +330,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         foreach ($capabilities as $capname => $capability) {
             if (!empty($capability['archetypes'])) {
                 foreach ($capability['archetypes'] as $archetype => $captype) {
-                    foreach(get_archetype_roles($archetype) as $role) {
+                    foreach (get_archetype_roles($archetype) as $role) {
                         role_change_permission($role->id, $context, $capname, $captype);
                     }
                 }
