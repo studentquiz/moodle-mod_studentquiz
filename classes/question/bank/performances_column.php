@@ -124,7 +124,7 @@ class practice_column extends \core_question\bank\column_base {
                 .'  AND sq.id = ' . $this->studentquizid
                 .'  AND sqa.userid = ' . $this->currentuserid
                 .'  AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
-            . ' GROUP BY qa.questionid) myatts ON myatts.questionid = q.id'/*,
+            . ' GROUP BY qa.questionid) myatts ON myatts.questionid = q.id',
             'mylastattempt' => 'LEFT JOIN ('
                 .'SELECT'
                 .' 	qa.questionid,'
@@ -136,21 +136,22 @@ class practice_column extends \core_question\bank\column_base {
                 .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
                 .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
                 .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
+                .'  INNER JOIN ('
+                .' 	 SELECT MAX(qasd.id) maxqasdid'
+                .' 	 FROM {studentquiz} sq '
+                .' 	 JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
+                .' 	 JOIN {question_usages} qu on qu.id = sqa.questionusageid '
+                .' 	 JOIN {question_attempts} qa on qa.questionusageid = qu.id '
+                .' 	 LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
+                .' 	 LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
+                .' 	 WHERE qasd.name = \'-submit\''
+                .'   AND sq.id = ' . $this->studentquizid
+                .'   AND sqa.userid = ' . $this->currentuserid
+                .'   AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
+                .'   GROUP BY qa.questionid'
+                .'  ) qasdmax on qasd.id = qasdmax.maxqasdid'
                 .' WHERE qasd.name = \'-submit\''
-                .' AND qasd.id IN ('
-                .' 	SELECT MAX(qasd.id)'
-                .' 	FROM {studentquiz} sq '
-                .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
-                .' 	JOIN {question_usages} qu on qu.id = sqa.questionusageid '
-                .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
-                .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
-                .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
-                .' 	WHERE qasd.name = \'-submit\''
-                .'  AND sq.id = ' . $this->studentquizid
-                .'  AND sqa.userid = ' . $this->currentuserid
-                .'  AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
-                .' 	GROUP BY qa.questionid)'
-                . ') mylatts ON mylatts.questionid = q.id'*/
+                . ') mylatts ON mylatts.questionid = q.id'
             );
     }
 
@@ -159,7 +160,7 @@ class practice_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('pr.practice', 'myatts.myattempts'/*, 'mylatts.mylastattempt'*/);
+        return array('pr.practice', 'myatts.myattempts', 'mylatts.mylastattempt');
     }
 
     /**
