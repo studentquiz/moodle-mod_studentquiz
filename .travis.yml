@@ -64,12 +64,20 @@ matrix:
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 5.6
       env: MOODLE_BRANCH=MOODLE_31_STABLE DB=mariadb
+      addons:
+          mariadb: 10.2
     - php: 7.0
       env: MOODLE_BRANCH=MOODLE_32_STABLE DB=mariadb
+      addons:
+          mariadb: 10.2
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_33_STABLE DB=mariadb
+      addons:
+          mariadb: 10.2
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mariadb
+      addons:
+          mariadb: 10.2
     - php: 7.2
       env: MOODLE_BRANCH=master DB=mariadb
 
