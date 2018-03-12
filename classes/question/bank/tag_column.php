@@ -41,6 +41,18 @@ class tag_column extends \core_question\bank\column_base {
     protected $tagfilteractive;
 
     /**
+     * Initialise Parameters for join
+     */
+    protected function init() {
+
+        global $DB;
+
+        // Build context and categoryid here for use later.
+        $context = $this->qbank->get_most_specific_context();
+        $this->categoryid = question_get_default_category($context->id)->id;
+    }
+
+    /**
      * Get column name
      * @return string
      */
@@ -107,7 +119,9 @@ class tag_column extends \core_question\bank\column_base {
                 .' COUNT(*) tags,'
                 .' SUM(CASE WHEN t.name LIKE :searchtag then 1 else 0 end) searchtag'
                 .' FROM {tag} t '
-                .' JOIN {tag_instance} ti ON t.id = ti.tagid'
+                .' JOIN {tag_instance} ti ON (t.id = ti.tagid'
+                .' AND ti.itemid IN (SELECT id FROM {question} q'
+                .'                    WHERE q.category = ' . $this->categoryid . '))'
                 .' WHERE ti.itemtype = \'question\''
                 .' GROUP BY	questionid'
                 . ') tags ON tags.questionid = q.id ');
@@ -118,7 +132,9 @@ class tag_column extends \core_question\bank\column_base {
                 .' COUNT(*) tags,'
                 .' 0 searchtag'
                 .' FROM {tag} t '
-                .' JOIN {tag_instance} ti ON t.id = ti.tagid'
+                .' JOIN {tag_instance} ti ON (t.id = ti.tagid'
+                .' AND ti.itemid IN (SELECT id FROM {question} q'
+                .'                    WHERE q.category = ' . $this->categoryid . '))'
                 .' WHERE ti.itemtype = \'question\''
                 .' GROUP BY	questionid'
                 . ') tags ON tags.questionid = q.id ');
