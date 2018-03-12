@@ -46,7 +46,7 @@ Supported and tested with:
 
 * Moodle 3.1, 3.2, 3.3, 3.4
 * PHP 5.6, 7.0, 7.1, 7.2
-* Databases: MySQL, PostgreSQL
+* Databases: MySQL, MariaDB, PostgreSQL
 * Browsers: Firefox, Chrome
 
 Refer to the Moodle release notes for the minimum requirements for PHP and the databases. Other modern browsers should be compatible too, it's just not tested or developed against them explicitly.
