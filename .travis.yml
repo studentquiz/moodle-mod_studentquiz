@@ -7,7 +7,6 @@ notifications:
 
 addons:
   postgresql: "9.3"
-  mariadb: "10.0"
   firefox: "47.0.1"
   apt:
     packages:
