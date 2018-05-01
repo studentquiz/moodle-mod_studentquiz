@@ -113,11 +113,11 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     // Add default module context question category.
     question_make_default_categories(array($context));
 
-    //TODO: we probably can skip all these steps
-    //$questioncategory->name .= $studentquiz->name;
-    //TODO: test this, since moodle 35 there's always a 'top' category, so parent can't be 0 anymore, works also with <35? check this
-    //$questioncategory->parent = 0;
-    //$DB->update_record('question_categories', $questioncategory);
+    // TODO: we probably can skip all these steps.
+    // $questioncategory->name .= $studentquiz->name;
+    // TODO: test this, since moodle 35 there's always a 'top' category, so parent can't be 0 anymore, works also with <35? check this.
+    // $questioncategory->parent = 0;
+    // $DB->update_record('question_categories', $questioncategory);
 
     return $studentquiz->id;
 }
