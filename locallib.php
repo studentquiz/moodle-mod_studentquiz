@@ -344,25 +344,6 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
 }
 
 /**
- * Creates a new default category for StudentQuiz
- * @param $context
- * @param string $name Append the name of the module if the context hasn't it yet.
- * @return stdClass The default category - the category in the course context
- * @internal param stdClass $contexts The context objects for this context and all parent contexts.
- */
-function mod_studentquiz_add_default_question_category($context, $name='') {
-    global $DB;
-
-    $questioncategory = question_make_default_categories(array($context));
-    if ($name !== '') {
-        $questioncategory->name .= $name;
-    }
-    $questioncategory->parent = -1;
-    $DB->update_record('question_categories', $questioncategory);
-    return $questioncategory;
-}
-
-/**
  * Generate an attempt with question usage
  * @param array $ids of question ids to be used in this attempt
  * @param stdClass $studentquiz generating this attempt
@@ -470,35 +451,6 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
         return false;
     }
     return $ids;
-}
-
-/**
- * @param module_context context
- * TODO: Refactor! This check not only checks but also updates!
- * @deprecated
- */
-function mod_studentquiz_check_question_category($context) {
-    global $DB;
-    $questioncategory = $DB->get_record('question_categories', array('contextid' => $context->id));
-
-    if ($questioncategory->parent != -1) {
-        return;
-    }
-
-    $parentqcategory = $DB->get_records('question_categories',
-        array('contextid' => $context->get_parent_context()->id, 'parent' => 0));
-    // If there are multiple parents category with parent == 0, use the one with the lowest id.
-    if (!empty($parentqcategory)) {
-        $questioncategory->parent = reset($parentqcategory)->id;
-
-        foreach ($parentqcategory as $category) {
-            if ($questioncategory->parent > $category->id) {
-                $questioncategory->parent = $category->id;
-            }
-        }
-        // TODO: Why is this update necessary?
-        $DB->update_record('question_categories', $questioncategory);
-    }
 }
 
 /**
@@ -960,6 +912,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             $oldquizzes = array();
 
             // For each course we need to find the studentquizzes.
+            $DB->set_debug(true);
             $studentquizzes = $DB->get_records_sql('
                 select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
                 from {studentquiz} s
