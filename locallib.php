@@ -581,9 +581,9 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
     if (count($comments) > 2) {
         $output .= html_writer::div(
             html_writer::tag('button', get_string('show_more', $modname),
-                array('type' => 'button', 'class' => 'show_more'))
+                array('type' => 'button', 'class' => 'show_more btn btn-secondary'))
             . html_writer::tag('button', get_string('show_less', $modname)
-                , array('type' => 'button', 'class' => 'show_less hidden')), 'button_controls'
+                , array('type' => 'button', 'class' => 'show_less btn btn-secondary hidden')), 'button_controls'
         );
     }
 
