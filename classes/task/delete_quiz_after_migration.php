@@ -50,13 +50,13 @@ class delete_quiz_after_migration extends \core\task\scheduled_task {
             s.id as studentquizid,
             s.name as studentquizname,
             cms.course as studentquizcourseid
-        from mdl_modules ms
-        inner join mdl_course_modules cms on ms.id = cms.module
-        inner join mdl_studentquiz s on cms.instance = s.id
-        left join mdl_course_modules cmq on cms.course = cmq.course
-        inner join mdl_quiz q on cmq.instance = q.id
-        inner join mdl_modules mq on cmq.module = mq.id
-        left join mdl_course_sections csq on cmq.section = csq.id
+        from {modules} ms
+        inner join {course_modules} cms on ms.id = cms.module
+        inner join {studentquiz} s on cms.instance = s.id
+        left join {course_modules} cmq on cms.course = cmq.course
+        inner join {quiz} q on cmq.instance = q.id
+        inner join {modules} mq on cmq.module = mq.id
+        left join {course_sections} csq on cmq.section = csq.id
         where ms.name = \'studentquiz\'
         and mq.name = \'quiz\'
         and csq.id is null
