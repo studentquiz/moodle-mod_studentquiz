@@ -462,11 +462,11 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             . $this->output->help_icon('comment_help', 'mod_studentquiz') . ':'
             . html_writer::tag('p', html_writer::tag(
                 'textarea', '',
-                array('id' => 'add_comment_field', 'class' => 'add_comment_field', 'name' => 'q' . $questionid)))
+                array('id' => 'add_comment_field', 'class' => 'add_comment_field form-control', 'name' => 'q' . $questionid)))
             . html_writer::tag('p', html_writer::tag(
                 'button',
                 get_string('add_comment', 'mod_studentquiz'),
-                array('type' => 'button', 'class' => 'add_comment'))
+                array('type' => 'button', 'class' => 'add_comment btn btn-secondary'))
             )
             . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid));
     }
