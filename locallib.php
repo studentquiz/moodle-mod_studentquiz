@@ -924,11 +924,13 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
                 left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
                 where m.name = :modulename
                 and cm.course = :course
-                and up.name = "top"
-                or (
-                    up.id is null
-                    and qc.name <> "top"
-                )
+                and (
+                    up.name = "top"
+	                or (
+	                    up.id is null
+	                    and qc.name <> "top"
+	                )
+	            )
             ', array(
                 'modulename' => 'studentquiz',
                 'course' => $courseid
