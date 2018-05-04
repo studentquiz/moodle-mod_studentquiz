@@ -912,7 +912,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             $oldquizzes = array();
 
             // For each course we need to find the studentquizzes.
-            $DB->set_debug(true);
+            $DB->set_debug(false);
             $studentquizzes = $DB->get_records_sql('
                 select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
                 from {studentquiz} s
