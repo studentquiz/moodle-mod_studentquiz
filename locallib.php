@@ -886,7 +886,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             select distinct cm.course
             from {course_modules} cm
             inner join {context} c on cm.id = c.instanceid
-            inner join {question_categories} cats on cats.contextid = c.id
+            inner join {question_categories} qc on qc.contextid = c.id
             inner join {modules} m on cm.module = m.id
             where m.name = :modulename
         ', array(
@@ -912,16 +912,23 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             $oldquizzes = array();
 
             // For each course we need to find the studentquizzes.
+            // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists
             $DB->set_debug(false);
             $studentquizzes = $DB->get_records_sql('
-                select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
+                select s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid
                 from {studentquiz} s
                 inner join {course_modules} cm on s.id = cm.instance
                 inner join {context} c on cm.id = c.instanceid
-                inner join {question_categories} cats on cats.contextid = c.id
+                inner join {question_categories} qc on qc.contextid = c.id
                 inner join {modules} m on cm.module = m.id
+                left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
                 where m.name = :modulename
                 and cm.course = :course
+                and up.name = "top"
+                or (
+                    up.id is null
+                    and qc.name <> "top"
+                )
             ', array(
                 'modulename' => 'studentquiz',
                 'course' => $courseid
