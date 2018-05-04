@@ -197,5 +197,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function after_restore() {
         // Migrate old quiz usage if needed (the function does the checking).
         mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
+        // Fix wrong parent in question categories if applicable
+        mod_studentquiz_fix_wrong_parent_in_question_categories();
     }
 }
