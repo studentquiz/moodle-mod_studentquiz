@@ -925,16 +925,17 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
                 where m.name = :modulename
                 and cm.course = :course
                 and (
-                    qc.name = :topname
+                    qc.name = :topname1
 	                or (
 	                    up.id is null
-	                    and qc.name <> :topname
+	                    and qc.name <> :topname2
 	                )
 	            )
             ', array(
                 'modulename' => 'studentquiz',
                 'course' => $courseid,
-                'topname' => 'top'
+                'topname1' => 'top',
+                'topname2' => 'top'
             ));
 
             foreach ($studentquizzes as $studentquiz) {
