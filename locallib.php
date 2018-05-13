@@ -1155,18 +1155,22 @@ function mod_studentquiz_fix_wrong_parent_in_question_categories() {
             $DB->set_field('question_categories', 'parent', $topcat->id, array('id' => $currentcat->id));
         }
     } else {
-        $DB->execute('
-            update {question_categories} qc
+        $categorieswithoutparent = $DB->get_records_sql('
+            select qc.id, qc.contextid, qc.name, qc.parent
+            from {question_categories} qc
             inner join {context} c on qc.contextid = c.id
             inner join {course_modules} cm on c.instanceid = cm.id
             inner join {modules} m on cm.module = m.id
             left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
-            set qc.parent = 0
             where m.name = :modulename
             and up.id is null
             and qc.parent <> 0
         ', array(
                 'modulename' => 'studentquiz'
         ));
+        foreach ($categorieswithoutparent as $currentcat) {
+            // now set the parent to 0
+            $DB->set_field('question_categories', 'parent', 0, array('id' => $currentcat->id));
+        }
     }
 }
