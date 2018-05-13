@@ -925,15 +925,16 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
                 where m.name = :modulename
                 and cm.course = :course
                 and (
-                    up.name = "top"
+                    qc.name = :topname
 	                or (
 	                    up.id is null
-	                    and qc.name <> "top"
+	                    and qc.name <> :topname
 	                )
 	            )
             ', array(
                 'modulename' => 'studentquiz',
-                'course' => $courseid
+                'course' => $courseid,
+                'topname' => 'top'
             ));
 
             foreach ($studentquizzes as $studentquiz) {
@@ -1142,9 +1143,10 @@ function mod_studentquiz_fix_wrong_parent_in_question_categories() {
             left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
             where m.name = :modulename
             and up.name is null
-            and qc.name <> "top"
+            and qc.name <> :topname
         ', array(
-            'modulename' => 'studentquiz'
+            'modulename' => 'studentquiz',
+            'topname' => 'top'
         ));
         foreach($categorieswithouttop as $currentcat) {
             $topcat = question_get_top_category($currentcat->contextid, true);
