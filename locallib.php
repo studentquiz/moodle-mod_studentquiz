@@ -1148,7 +1148,7 @@ function mod_studentquiz_fix_wrong_parent_in_question_categories() {
             'modulename' => 'studentquiz',
             'topname' => 'top'
         ));
-        foreach($categorieswithouttop as $currentcat) {
+        foreach ($categorieswithouttop as $currentcat) {
             $topcat = question_get_top_category($currentcat->contextid, true);
             // now set the parent to the newly created top id
             $DB->set_field('question_categories', 'parent', $topcat->id, array('id' => $currentcat->id));
