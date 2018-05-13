@@ -1123,30 +1123,47 @@ function mod_studentquiz_question_stats($cmid) {
 /**
  * Fix parent of question categories of StudentQuiz.
  * Old Studentquiz have the parent of question categories not equalling to 0 for various reasons, but they should.
- * In Moodle < 3.5 there is no "top" parent category, so the question category itself has to be corrected.
- * In Moodle >= 3.5 there is a new "top" parent category, which has to be corrected.
+ * In Moodle < 3.5 there is no "top" parent category, so the question category itself has to be corrected if it's not 0.
+ * In Moodle >= 3.5 there is a new "top" parent category, so the question category of StudentQuiz has to have that as parent.
  * See https://tracker.moodle.org/browse/MDL-61132 and its diff.
  *
  * This function must be usable for the restore and the plugin update process.
- *
- * Only affect the topmost category, that means the category in question has a parent not matching to a category in his context.
- * When we universally check the topmost category then we don't have to distinguish the new "top" category system.
- * There's no need for change if this category already has the parent 0.
  */
 function mod_studentquiz_fix_wrong_parent_in_question_categories() {
     global $DB;
 
-    $DB->execute('
-        update {question_categories} qc
-        inner join {context} c on qc.contextid = c.id
-        inner join {course_modules} cm on c.instanceid = cm.id
-        inner join {modules} m on cm.module = m.id
-        left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
-        set qc.parent = 0
-        where m.name = :modulename
-        and up.id is null
-        and qc.parent <> 0
-    ', array(
-        'modulename' => 'studentquiz'
-    ));
+    if (function_exists('question_get_top_category')) { // We have a moodle with "top" category feature
+        $categorieswithouttop = $DB->get_records_sql('
+            select qc.id, qc.contextid, qc.name, qc.parent
+            from {question_categories} qc
+            inner join {context} c on qc.contextid = c.id
+            inner join {course_modules} cm on c.instanceid = cm.id
+            inner join {modules} m on cm.module = m.id
+            left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
+            where m.name = :modulename
+            and up.name is null
+            and qc.name <> "top"
+        ', array(
+            'modulename' => 'studentquiz'
+        ));
+        foreach($categorieswithouttop as $currentcat) {
+            $topcat = question_get_top_category($currentcat->contextid, true);
+            // now set the parent to the newly created top id
+            $DB->set_field('question_categories', 'parent', $topcat->id, array('id' => $currentcat->id));
+        }
+    } else {
+        $DB->execute('
+            update {question_categories} qc
+            inner join {context} c on qc.contextid = c.id
+            inner join {course_modules} cm on c.instanceid = cm.id
+            inner join {modules} m on cm.module = m.id
+            left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
+            set qc.parent = 0
+            where m.name = :modulename
+            and up.id is null
+            and qc.parent <> 0
+        ', array(
+                'modulename' => 'studentquiz'
+        ));
+    }
 }

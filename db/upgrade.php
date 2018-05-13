@@ -386,11 +386,11 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017120202, 'studentquiz');
     }
 
-    if ($oldversion < 2018050400) {
+    if ($oldversion < 2018051300) {
         // Fix wrong parent in question categories if applicable
         mod_studentquiz_fix_wrong_parent_in_question_categories();
 
-        upgrade_mod_savepoint(true, 2018050400, 'studentquiz');
+        upgrade_mod_savepoint(true, 2018051300, 'studentquiz');
     }
 
     return true;
