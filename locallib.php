@@ -344,25 +344,6 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
 }
 
 /**
- * Creates a new default category for StudentQuiz
- * @param $context
- * @param string $name Append the name of the module if the context hasn't it yet.
- * @return stdClass The default category - the category in the course context
- * @internal param stdClass $contexts The context objects for this context and all parent contexts.
- */
-function mod_studentquiz_add_default_question_category($context, $name='') {
-    global $DB;
-
-    $questioncategory = question_make_default_categories(array($context));
-    if ($name !== '') {
-        $questioncategory->name .= $name;
-    }
-    $questioncategory->parent = -1;
-    $DB->update_record('question_categories', $questioncategory);
-    return $questioncategory;
-}
-
-/**
  * Generate an attempt with question usage
  * @param array $ids of question ids to be used in this attempt
  * @param stdClass $studentquiz generating this attempt
@@ -470,35 +451,6 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
         return false;
     }
     return $ids;
-}
-
-/**
- * @param module_context context
- * TODO: Refactor! This check not only checks but also updates!
- * @deprecated
- */
-function mod_studentquiz_check_question_category($context) {
-    global $DB;
-    $questioncategory = $DB->get_record('question_categories', array('contextid' => $context->id));
-
-    if ($questioncategory->parent != -1) {
-        return;
-    }
-
-    $parentqcategory = $DB->get_records('question_categories',
-        array('contextid' => $context->get_parent_context()->id, 'parent' => 0));
-    // If there are multiple parents category with parent == 0, use the one with the lowest id.
-    if (!empty($parentqcategory)) {
-        $questioncategory->parent = reset($parentqcategory)->id;
-
-        foreach ($parentqcategory as $category) {
-            if ($questioncategory->parent > $category->id) {
-                $questioncategory->parent = $category->id;
-            }
-        }
-        // TODO: Why is this update necessary?
-        $DB->update_record('question_categories', $questioncategory);
-    }
 }
 
 /**
@@ -934,7 +886,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             select distinct cm.course
             from {course_modules} cm
             inner join {context} c on cm.id = c.instanceid
-            inner join {question_categories} cats on cats.contextid = c.id
+            inner join {question_categories} qc on qc.contextid = c.id
             inner join {modules} m on cm.module = m.id
             where m.name = :modulename
         ', array(
@@ -960,18 +912,30 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             $oldquizzes = array();
 
             // For each course we need to find the studentquizzes.
+            // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists
+            $DB->set_debug(false);
             $studentquizzes = $DB->get_records_sql('
-                select s.id, s.name, cm.id as cmid, c.id as contextid, cats.id as categoryid
+                select s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid
                 from {studentquiz} s
                 inner join {course_modules} cm on s.id = cm.instance
                 inner join {context} c on cm.id = c.instanceid
-                inner join {question_categories} cats on cats.contextid = c.id
+                inner join {question_categories} qc on qc.contextid = c.id
                 inner join {modules} m on cm.module = m.id
+                left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
                 where m.name = :modulename
                 and cm.course = :course
+                and (
+                    qc.name = :topname1
+	                or (
+	                    up.id is null
+	                    and qc.name <> :topname2
+	                )
+	            )
             ', array(
                 'modulename' => 'studentquiz',
-                'course' => $courseid
+                'course' => $courseid,
+                'topname1' => 'top',
+                'topname2' => 'top'
             ));
 
             foreach ($studentquizzes as $studentquiz) {
@@ -1156,4 +1120,57 @@ function mod_studentquiz_question_stats($cmid) {
     $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
     $DB->set_debug(false);
     return $rs;
+}
+
+/**
+ * Fix parent of question categories of StudentQuiz.
+ * Old Studentquiz have the parent of question categories not equalling to 0 for various reasons, but they should.
+ * In Moodle < 3.5 there is no "top" parent category, so the question category itself has to be corrected if it's not 0.
+ * In Moodle >= 3.5 there is a new "top" parent category, so the question category of StudentQuiz has to have that as parent.
+ * See https://tracker.moodle.org/browse/MDL-61132 and its diff.
+ *
+ * This function must be usable for the restore and the plugin update process.
+ */
+function mod_studentquiz_fix_wrong_parent_in_question_categories() {
+    global $DB;
+
+    if (function_exists('question_get_top_category')) { // We have a moodle with "top" category feature
+        $categorieswithouttop = $DB->get_records_sql('
+            select qc.id, qc.contextid, qc.name, qc.parent
+            from {question_categories} qc
+            inner join {context} c on qc.contextid = c.id
+            inner join {course_modules} cm on c.instanceid = cm.id
+            inner join {modules} m on cm.module = m.id
+            left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
+            where m.name = :modulename
+            and up.name is null
+            and qc.name <> :topname
+        ', array(
+            'modulename' => 'studentquiz',
+            'topname' => 'top'
+        ));
+        foreach ($categorieswithouttop as $currentcat) {
+            $topcat = question_get_top_category($currentcat->contextid, true);
+            // now set the parent to the newly created top id
+            $DB->set_field('question_categories', 'parent', $topcat->id, array('id' => $currentcat->id));
+        }
+    } else {
+        $categorieswithoutparent = $DB->get_records_sql('
+            select qc.id, qc.contextid, qc.name, qc.parent
+            from {question_categories} qc
+            inner join {context} c on qc.contextid = c.id
+            inner join {course_modules} cm on c.instanceid = cm.id
+            inner join {modules} m on cm.module = m.id
+            left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
+            where m.name = :modulename
+            and up.id is null
+            and qc.parent <> 0
+        ', array(
+                'modulename' => 'studentquiz'
+        ));
+        foreach ($categorieswithoutparent as $currentcat) {
+            // now set the parent to 0
+            $DB->set_field('question_categories', 'parent', 0, array('id' => $currentcat->id));
+        }
+    }
 }

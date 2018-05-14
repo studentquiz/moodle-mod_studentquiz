@@ -102,17 +102,22 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
-
     $context = context_module::instance($studentquiz->coursemodule);
 
     // Leverage add capabilities to add questions in StudentQuiz context.
     mod_studentquiz_add_question_capabilities($context);
 
-    // Add default category.
-    $questioncategory = question_make_default_categories(array($context));
-    $questioncategory->name .= $studentquiz->name;
-    $questioncategory->parent = 0;
-    $DB->update_record('question_categories', $questioncategory);
+    // early update context in database so default categories know where the instance can be found
+    $DB->set_field('course_modules', 'instance', $studentquiz->id, array('id' => $context->instanceid));
+
+    // Add default module context question category.
+    question_make_default_categories(array($context));
+
+    // TODO: we probably can skip all these steps.
+    // $questioncategory->name .= $studentquiz->name;
+    // TODO: test this, since moodle 35 there's always a 'top' category, so parent can't be 0 anymore, works also with <35? check this.
+    // $questioncategory->parent = 0;
+    // $DB->update_record('question_categories', $questioncategory);
 
     return $studentquiz->id;
 }

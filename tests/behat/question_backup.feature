@@ -32,4 +32,4 @@ Feature: Backup and restore of studentquizzes
     #The "Import" button is not the only clickable item with a text beginning with "Import", so need to specify exactly
     And I click on "#id_submitbutton" "css_element"
     Then I wait until the page is ready
-    And I should see "Importing 323 questions from file"
+    And I should see "Importing 11 questions from file"

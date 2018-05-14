@@ -143,10 +143,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param bool $recurse
      * @param bool $showhidden
      * @param bool $showquestiontext
+     * @param array $tagids
      * @return html output
      */
     public function display($tabname, $page, $perpage, $cat,
-                            $recurse, $showhidden, $showquestiontext) {
+                            $recurse, $showhidden, $showquestiontext, $tagids = []) {
         $output = '';
 
         $this->build_query();
