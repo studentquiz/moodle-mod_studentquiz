@@ -113,7 +113,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->ctx = context_module::instance($this->cm->id);
 
         // Retrieve created category by context.
-        $this->cat = $DB->get_record('question_categories', array('contextid' => $this->ctx->id));
+        $this->cat = question_get_default_category($this->ctx->id);
 
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
 

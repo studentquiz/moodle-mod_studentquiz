@@ -913,7 +913,6 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
 
             // For each course we need to find the studentquizzes.
             // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists
-            $DB->set_debug(false);
             $studentquizzes = $DB->get_records_sql('
                 select s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid
                 from {studentquiz} s
