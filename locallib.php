@@ -925,7 +925,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
                 where m.name = :modulename
                 and cm.course = :course
                 and (
-                    qc.name = :topname1
+                    up.name = :topname1
 	                or (
 	                    up.id is null
 	                    and qc.name <> :topname2
