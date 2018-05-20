@@ -147,7 +147,11 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
     $data->recepientusername = $recepient->username;
 
     // User who triggered the noticication.
-    $data->actorname     = fullname($actor);
+    if ($anonymrank = 0) {   // Check instance settings whether this instance is anonymous or not
+        $data->actorname     = fullname($actor);
+    } else {  // This instance uses anonymous questions, so the actorname should be anonymized
+	$data->actorname     = "Anonymous";
+    }
     $data->actorusername = $recepient->username;
     return $data;
 }
