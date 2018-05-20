@@ -846,7 +846,7 @@ function mod_studentquiz_ensure_question_capabilities($context) {
         'moodle/question:tagmine'
     );
     foreach ($capabilities as $capability) {
-        if (!has_capability('moodle/question:add', $context)) {
+        if (!has_capability($capability, $context)) {
             foreach ($roles as $role) {
                 assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
             }
