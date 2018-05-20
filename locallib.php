@@ -913,8 +913,9 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
 
             // For each course we need to find the studentquizzes.
             // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists
+            $DB->set_debug(true);
             $studentquizzes = $DB->get_records_sql('
-                select s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid
+                select LEFT(UUID(), 8) as random, s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid, qc.name as categoryname, qc.parent
                 from {studentquiz} s
                 inner join {course_modules} cm on s.id = cm.instance
                 inner join {context} c on cm.id = c.instanceid
@@ -936,6 +937,8 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
                 'topname1' => 'top',
                 'topname2' => 'top'
             ));
+            $DB->set_debug(false);
+            var_dump($studentquizzes);
 
             foreach ($studentquizzes as $studentquiz) {
 
