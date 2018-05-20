@@ -848,7 +848,7 @@ function mod_studentquiz_ensure_question_capabilities($context) {
     foreach ($capabilities as $capability) {
         // Unfortunately Moodle doesn't allow us to check for capabilities in advance, so we have to check, if the capability
         // we want to set, really exists
-        if (!get_capability_info($capability)) {
+        if (get_capability_info($capability) !== null) {
             if (!has_capability($capability, $context)) {
                 foreach ($roles as $role) {
                     assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
