@@ -830,7 +830,7 @@ function mod_studentquiz_get_question_types() {
  * @param stdClass $context of the studentquiz activity
  * @return true or exception
  */
-function mod_studentquiz_add_question_capabilities($context) {
+function mod_studentquiz_ensure_question_capabilities($context) {
     $archtyperoles = array('student', 'teacher');
     $roles = array();
     foreach ($archtyperoles as $archtyperole) {
@@ -842,10 +842,14 @@ function mod_studentquiz_add_question_capabilities($context) {
         'moodle/question:add',
         'moodle/question:usemine',
         'moodle/question:viewmine',
-        'moodle/question:editmine');
+        'moodle/question:editmine',
+        'moodle/question:tagmine'
+    );
     foreach ($capabilities as $capability) {
-        foreach ($roles as $role) {
-            assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
+        if (!has_capability('moodle/question:add', $context)) {
+            foreach ($roles as $role) {
+                assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
+            }
         }
     }
     return true;

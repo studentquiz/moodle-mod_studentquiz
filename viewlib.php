@@ -128,9 +128,9 @@ class mod_studentquiz_view {
         $_GET["qbshowtext"] = 0;
 
         // Ensure capabilities are set to load question bank.
-        if (!has_capability('moodle/question:add', $this->context)) {
-            mod_studentquiz_add_question_capabilities($this->context);
-        }
+        // When there are changes to the required capabilities for different moodles, the capabilities have to be corrected
+        // TODO: We should fix these with the updates and restore functions (analog fix question category etc.)
+        mod_studentquiz_ensure_question_capabilities($this->context);
 
         // TODO: This is the problematic redirect call for unittests!
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
