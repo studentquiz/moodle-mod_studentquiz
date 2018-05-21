@@ -118,7 +118,7 @@ function mod_studentquiz_check_created_permission($cmid) {
  */
 
 function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module) {
-
+    global $DB;
     // Prepare message.
     $time = new DateTime('now', core_date::get_user_timezone_object());
 
@@ -147,7 +147,16 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
     $data->recepientusername = $recepient->username;
 
     // User who triggered the noticication.
-    $data->actorname     = fullname($actor);
+    // We need to check module settings for anonymity preference before logging the actorname
+    $anonymrank = $DB->get_field('studentquiz', 'anonymrank', array('coursemodule' => $module->id));
+    
+    // if anonymity is off, then set the actor name otherwise set it to Anonymous
+    if ($anonymrank == 0) {
+        $data->actorname     = fullname($actor);
+        return $data;
+    } else {
+        $data->actorname     = 'Anonymous';
+    }
     $data->actorusername = $recepient->username;
     return $data;
 }
