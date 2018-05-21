@@ -831,6 +831,8 @@ function mod_studentquiz_get_question_types() {
  * @return true or exception
  */
 function mod_studentquiz_ensure_question_capabilities($context) {
+    global $CFG;
+
     $archtyperoles = array('student', 'teacher');
     $roles = array();
     foreach ($archtyperoles as $archtyperole) {
@@ -842,18 +844,16 @@ function mod_studentquiz_ensure_question_capabilities($context) {
         'moodle/question:add',
         'moodle/question:usemine',
         'moodle/question:viewmine',
-        'moodle/question:editmine',
-        'moodle/question:tagmine'
+        'moodle/question:editmine'
     );
+    if ($CFG->version >= 2018051700) { // Moodle 3.5+
+        $capabilities[] = 'moodle/question:tagmine';
+    }
     foreach ($capabilities as $capability) {
-        // Unfortunately Moodle doesn't allow us to check for capabilities in advance, so we have to check, if the capability
-        // we want to set, really exists
-        if (get_capability_info($capability) !== null) {
-            if (!has_capability($capability, $context)) {
-                foreach ($roles as $role) {
-                    assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
-                }
-            }
+        // TODO: Enforcing capabilities shouldn't be required that hard, but we had issues in unit-tests
+        // see https://travis-ci.org/frankkoch/moodle-mod_studentquiz/builds/381355375
+        foreach ($roles as $role) {
+            assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
         }
     }
     return true;
