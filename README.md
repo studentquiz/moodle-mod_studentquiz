@@ -44,7 +44,7 @@ You can find manuals for each role in the [manuals website](https://docs.moodle.
 
 Supported and tested with:
 
-* Moodle 3.1, 3.2, 3.3, 3.4
+* Moodle 3.1, 3.2, 3.3, 3.4, 3.5
 * PHP 5.6, 7.0, 7.1, 7.2
 * Databases: MySQL, MariaDB, PostgreSQL
 * Browsers: Firefox, Chrome
