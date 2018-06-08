@@ -346,3 +346,6 @@ $string['rate_help'] = 'Rate this question';
 $string['rate_error'] = 'Please Rate';
 $string['comment_help'] = 'Write a comment';
 $string['comment_help_help'] = 'Write a comment to the question';
+
+$string['ratingbar_title'] = 'Rating bar';
+$string['difficulty_title'] = 'Difficulty bar';

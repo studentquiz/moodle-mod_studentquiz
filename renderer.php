@@ -298,6 +298,396 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return html_writer::div($errormessage, 'error');
     }
 
+    /**
+     * Render the content of creator column.
+     *
+     * @param $anonymize
+     * @param $question
+     * @param $currentuserid
+     * @param $anonymousname
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_anonym_creator_name_column($anonymize, $question, $currentuserid, $anonymousname, $rowclasses) {
+        $output = '';
+
+        $date = userdate($question->timecreated, get_string('strftimedatetime', 'langconfig'));
+        if ($anonymize && $question->createdby != $currentuserid) {
+            $output .= html_writer::tag('span', $anonymousname);
+            $output .= html_writer::empty_tag('br');
+            $output .= html_writer::tag('span', $date, ['class' => 'date']);
+        } else {
+            if (!empty($question->creatorfirstname) && !empty($question->creatorlastname)) {
+                $u = new stdClass();
+                $u = username_load_fields_from_object($u, $question, 'creator');
+                $output .= fullname($u);
+                $output .= html_writer::empty_tag('br');
+                $output .= html_writer::tag('span', $date, ['class' => 'date']);
+            }
+        }
+
+        return $output;
+    }
+
+    /**
+     * Render the content of approve column.
+     *
+     * @param $question
+     * @param $baseurl
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_approved_column($question, $baseurl, $rowclasses) {
+        $class = 'question-unapproved';
+        $content = get_string('not_approved', 'studentquiz');
+        $title = get_string('approve', 'studentquiz');
+
+        if (!empty($question->approved)) {
+            $class = 'question-approved';
+            $content = get_string('approved', 'studentquiz');
+            $title = get_string('unapprove', 'studentquiz');
+        }
+
+        if (question_has_capability_on($question, 'editall')) {
+            $url = new moodle_url($baseurl, [
+                    'approveselected' => $question->id,
+                    'q' . $question->id => 1,
+                    'sesskey' => sesskey()
+            ]);
+            $content = html_writer::tag('a', $content, ['href' => $url, 'title' => $title, 'class' => $class]);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Render the content of comment column.
+     *
+     * @param $question
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_comment_column($question, $rowclasses) {
+        $output = '';
+        if (!empty($question->comment)) {
+            $output .= $question->comment;
+        } else {
+            $output .= get_string('no_comment', 'studentquiz');
+        }
+        return $output;
+    }
+
+    /**
+     * Render the content of difficulty level column.
+     *
+     * @param $question
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_difficulty_level_column($question, $rowclasses) {
+        $output = '';
+
+        $nodifficultylevel = get_string('no_difficulty_level', 'studentquiz');
+        $difficultytitle = get_string('difficulty_all_column_name', 'studentquiz');
+        $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
+        if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
+            $title = $difficultytitle . ': ' . (100 * round($question->difficultylevel, 2)) . '% ';
+            if (!empty($question->mydifficulty)) {
+                $title .= ', ' . $mydifficultytitle . ': ' . (100 * round($question->mydifficulty, 2)) . '%';
+            } else {
+                $title .= ', ' . $mydifficultytitle . ': ' . $nodifficultylevel;
+            }
+            $output .= html_writer::span($this->render_difficultybar($question->difficultylevel, $question->mydifficulty), null,
+                    ['title' => $title]);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Render the difficulty bar.
+     *
+     * @param $average
+     * @param $mine
+     * @param string $fillboltson
+     * @param string $fillboltsoff
+     * @param string $fillbaron
+     * @param string $fillbaroff
+     * @return string
+     */
+    public function render_difficultybar($average, $mine, $fillboltson = '#ffc107', $fillboltsoff = '#fff', $fillbaron = '#fff',
+            $fillbaroff = '#007bff') {
+        $output = '';
+
+        $mine = floatval($mine);
+        $average = floatval($average);
+
+        if ($average > 0 && $average <= 1) {
+            $width = round($average * 100, 0);
+        } else {
+            $width = 0;
+        }
+
+        if ($mine > 0 && $mine <= 1) {
+            $bolts = ceil($mine * 5);
+        } else {
+            $bolts = 0;
+        }
+
+        $output .= html_writer::start_tag('svg', [
+                'width' => 101,
+                'height' => 21,
+                'xmlns' => 'http://www.w3.org/2000/svg'
+        ]);
+        $output .= html_writer::tag('svg', html_writer::tag('title', get_string('difficulty_title', 'studentquiz')));
+        $output .= html_writer::start_tag('g');
+        $output .= $this->render_fill_bar('svg_6', $fillbaron);
+        $output .= $this->render_fill_bar('svg_7', $fillbaroff, $width);
+
+        $boltpath = ',1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,'
+                . '-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z';
+
+        for ($i = 1; $i <= $bolts; $i++) {
+            $output .= $this->render_fill_bolt($fillboltson, $i, $boltpath, $fillboltson);
+        }
+
+        for ($i = $bolts + 1; $i <= 5; $i++) {
+            $output .= $this->render_fill_bolt('#868e96', $i, $boltpath, $fillboltsoff);
+        }
+        $output .= html_writer::end_tag('g');
+        $output .= html_writer::end_tag('svg');
+
+        return $output;
+    }
+
+    /**
+     * Render the content of practice column.
+     *
+     * @param $question
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_practice_column($question, $rowclasses) {
+        $output = '';
+
+        if (!empty($question->myattempts)) {
+            $output .= $question->myattempts;
+        } else {
+            $output .= get_string('no_myattempts', 'studentquiz');
+        }
+
+        $output .= '&nbsp;|&nbsp;';
+
+        if (!empty($question->mylastattempt)) {
+            // TODO: Refactor magic constant.
+            if ($question->mylastattempt == 'gradedright') {
+                $output .= get_string('lastattempt_right', 'studentquiz');
+            } else {
+                $output .= get_string('lastattempt_wrong', 'studentquiz');
+            }
+        } else {
+            $output .= get_string('no_mylastattempt', 'studentquiz');
+        }
+
+        return $output;
+    }
+
+    /**
+     * Render the content of rate column.
+     *
+     * @param $question
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_rate_column($question, $rowclasses) {
+        $output = '';
+
+        $myratingtitle = get_string('myrate_column_name', 'studentquiz');
+        $ratingtitle = get_string('rate_all_column_name', 'studentquiz');
+        $notavailable = get_string('no_rates', 'studentquiz');
+
+        if (!empty($question->rate) || !empty($question->myrate)) {
+            $title = $ratingtitle . ': ' . round($question->rate, 2) . ' ';
+            if (!empty($question->myrate)) {
+                $title .= ', ' . $myratingtitle . ': ' . round($question->myrate, 2);
+            } else {
+                $title .= ', ' . $myratingtitle . ': ' . $notavailable;
+            }
+            $output .= html_writer::span($this->render_ratingbar($question->rate, $question->myrate), null,
+                    ['title' => $title]);
+        } else {
+            $output .= $notavailable;
+        }
+
+        return $output;
+    }
+
+    /**
+     * Renders a svg bar
+     * @param number $average float between 1 to 5 for backgroud bar.
+     * @param int $mine between 1 to 5 for number of stars to be yellow
+     */
+    private function render_ratingbar($average, $mine, $fillstarson = '#ffc107', $fillstarsoff = '#fff', $fillbaron = '#fff',
+            $fillbaroff = '#007bff') {
+        $output = '';
+
+        $mine = intval($mine);
+        $average = floatval($average);
+
+        if ($average > 0 && $average <= 5) {
+            $width = round($average * 20, 0);
+        } else {
+            $width = 1;
+        }
+
+        if ($mine > 0 && $mine <= 5) {
+            $stars = $mine;
+        } else {
+            $stars = 0;
+        }
+
+        $output .= html_writer::start_tag('svg', [
+                'width' => 101,
+                'height' => 21,
+                'xmlns' => 'http://www.w3.org/2000/svg'
+        ]);
+        $output .= html_writer::tag('svg', html_writer::tag('title', get_string('ratingbar_title', 'studentquiz')));
+        $output .= html_writer::start_tag('g');
+        $output .= $this->render_fill_bar('svg_6', $fillbaron);
+        $output .= $this->render_fill_bar('svg_7', $fillbaroff, $width);
+
+        $starpath = ',8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,'
+                .'5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z';
+        for ($i = 1; $i <= $stars; $i++) {
+            $output .= $this->render_fill_star('#000', $i, $starpath, $fillstarson);
+        }
+        for ($i = $stars + 1; $i <= 5; $i++) {
+            $output .= $this->render_fill_star('#868e96', $i, $starpath, $fillstarsoff);
+        }
+        $output .= html_writer::end_tag('g');
+        $output .= html_writer::end_tag('svg');
+
+        return $output;
+    }
+
+    /**
+     * Render the content of tag column.
+     *
+     * @param $question
+     * @param $rowclasses
+     * @return string
+     */
+    public function render_tag_column($question, $rowclasses) {
+        $output = '';
+
+        if (!empty($question->tags) && !empty($question->tagarray)) {
+            foreach ($question->tagarray as $tag) {
+                $tag = $this->render_tag($tag);
+                $output .= $tag;
+            }
+        } else {
+            $output .= get_string('no_tags', 'studentquiz');
+        }
+
+        return $output;
+    }
+
+    /**
+     * Render tag element.
+     *
+     * @param $tag
+     * @return string
+     */
+    private function render_tag($tag) {
+        $output = '';
+
+        $output .= html_writer::tag('span', (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) . '...') : $tag->rawname), [
+                'role' => 'listitem',
+                'data-value' => 'HELLO',
+                'aria-selected' => 'true',
+                'class' => 'tag tag-success '
+        ]);
+
+        $output .= '&nbsp;';
+
+        return $output;
+    }
+
+    /**
+     * Render fill bar.
+     *
+     * @param $id
+     * @param $fill
+     * @param int $width
+     * @return string
+     */
+    private function render_fill_bar($id, $fill, $width = 100) {
+        $output = '';
+
+        $output .= html_writer::empty_tag('rect', [
+                'id' => $id,
+                'height' => 20,
+                'width' => $width,
+                'x' => 0.396847,
+                'y' => 0.397703,
+                'rx' => 5,
+                'ry' => 5,
+                'fill-opacity' => null,
+                'stroke-opacity' => null,
+                'stroke-width' => 0.5,
+                'stroke' => '#868e96',
+                'fill' => $fill
+        ]);
+
+        return $output;
+    }
+
+    /**
+     * Render bolt icon.
+     *
+     * @param $stroke
+     * @param $id
+     * @param $boltpath
+     * @param $fill
+     * @return string
+     */
+    private function render_fill_bolt($stroke, $id, $boltpath, $fill) {
+        $output = '';
+
+        $output .= html_writer::empty_tag('path', [
+                'stroke' => $stroke,
+                'id' => 'svg_' . $id,
+                'd' => 'm' . (($id * 20) - 12) . $boltpath,
+                'stroke-width' => 0.5,
+                'fill' => $fill
+        ]);
+
+        return $output;
+    }
+
+    /**
+     * Render start icon.
+     *
+     * @param $stroke
+     * @param $id
+     * @param $starpath
+     * @param $fill
+     * @return string
+     */
+    private function render_fill_star($stroke, $id, $starpath, $fill) {
+        $output = '';
+
+        $output .= html_writer::empty_tag('path', [
+                'stroke' => $stroke,
+                'id' => 'svg_' . $id,
+                'd' => 'm' . (($id * 20) - 15) . $starpath,
+                'stroke-width' => 0.5,
+                'fill' => $fill
+        ]);
+
+        return $output;
+    }
+
 }
 
 
@@ -367,6 +757,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     public function render_select_qtype_form($view) {
         return $view->get_questionbank()->create_new_question_form($view->get_category_id(), true);
     }
+
 }
 
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {

@@ -40,16 +40,19 @@ class tag_column extends \core_question\bank\column_base {
 
     protected $tagfilteractive;
 
+    protected $renderer;
+
     /**
      * Initialise Parameters for join
      */
     protected function init() {
 
-        global $DB;
+        global $DB, $PAGE;
 
         // Build context and categoryid here for use later.
         $context = $this->qbank->get_most_specific_context();
         $this->categoryid = question_get_default_category($context->id)->id;
+        $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
     /**
@@ -91,20 +94,8 @@ class tag_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->tags) && !empty($question->tagarray)) {
-            foreach ($question->tagarray as $tag) {
-                $tag = $this->render_tag($tag);
-                echo $tag;
-            }
-        } else {
-            echo get_string('no_tags', 'studentquiz');
-        }
-    }
-
-    private function render_tag($tag) {
-        return '<span role="listitem" data-value="HELLO" aria-selected="true" class="tag tag-success ">'
-                . (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) ."...") : $tag->rawname)
-                . '</span> ';
+        $output = $this->renderer->render_tag_column($question, $rowclasses);
+        echo $output;
     }
 
     /**

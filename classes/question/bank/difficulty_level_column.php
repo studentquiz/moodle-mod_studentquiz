@@ -35,11 +35,13 @@ defined('MOODLE_INTERNAL') || die();
  */
 class difficulty_level_column extends \core_question\bank\column_base {
 
+    protected $renderer;
+
     /**
      * Initialise Parameters for join
      */
     protected function init() {
-        global $DB, $USER;
+        global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
         // TODO: Get StudentQuiz id from infrastructure instead of DB!
@@ -47,6 +49,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
         $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
         $this->studentquizid = $sq->id;
         // TODO: Sanitize!
+        $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
     protected $sqlparams = array();
@@ -145,70 +148,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $nodifficultylevel = get_string('no_difficulty_level', 'studentquiz');
-        $difficultytitle = get_string('difficulty_all_column_name', 'studentquiz');
-        $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
-        if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
-            $title = $difficultytitle . ": " . (100 * round($question->difficultylevel, 2)) . "% ";
-            if (!empty($question->mydifficulty)) {
-                $title .= ", " . $mydifficultytitle . ": " . (100 * round($question->mydifficulty, 2)) . '%';
-            } else {
-                $title .= ", " . $mydifficultytitle . ": " . $nodifficultylevel;
-            }
-            echo \html_writer::span(
-                $this->render_difficultybar($question->difficultylevel, $question->mydifficulty),
-                null,  array('title' => $title ));
-        } else {
-            echo $nodifficultylevel;
-        }
-    }
-
-    /**
-     * @param $average
-     * @param $mine
-     * @return string
-     */
-    private function render_difficultybar($average, $mine) {
-        $mine = floatval($mine);
-        $average = floatval($average);
-
-        $fillboltson = "#ffc107";
-        $fillboltsoff = "#fff";
-        $fillbaron = "#fff";
-        $fillbaroff = "#007bff";
-
-        if ($average > 0 && $average <= 1) {
-            $width = round($average * 100, 0);
-        } else {
-            $width = 0;
-        }
-
-        if ($mine > 0 && $mine <= 1) {
-            $bolts = ceil($mine * 5);
-        } else {
-            $bolts = 0;
-        }
-        $output = '';
-        $output .= '<svg width="101" height="21" xmlns="http://www.w3.org/2000/svg">'
-                 . '<!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->'
-                 . '<g><title>Difficulty bar</title></g>'
-                 . '<g>'
-                 . '<rect id="svg_6" height="20" width="100" y="0.397703" rx="5" ry="5" x="0.396847"'
-                 . '      fill-opacity="null" stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'.$fillbaron .'"/>'
-                 . '<rect id="svg_7" height="20" width="' . $width . '" rx="5" ry="5" y="0.397703" x="0.396847"'
-                 . '      stroke-opacity="null" stroke-width="0.5" stroke="#868e96" fill="'. $fillbaroff .'"/>';
-        $boltpath = ',1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,'
-                 .  '-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z';
-        for ($i = 1; $i <= $bolts; $i++) {
-            $output .= '<path stroke="'.$fillboltson.'" id="svg_'.$i.'" d="m'.(($i * 20) - 12).$boltpath.'"'
-                    . ' stroke-width="0.5" fill="'.$fillboltson.'"/>';
-        }
-        for ($i = $bolts + 1; $i <= 5; $i++) {
-            $output .= '<path stroke="#868e96" id="svg_'.$i.'" d="m'.(($i * 20) - 12).$boltpath.'"'
-                    .  ' stroke-width="0.5" fill="'.$fillboltsoff.'"/>';
-        }
-        $output .= '</g></svg>';
-        return $output;
-
+        $output = $this->renderer->render_difficulty_level_column($question, $rowclasses);
+        echo $output;
     }
 }

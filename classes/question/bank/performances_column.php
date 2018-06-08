@@ -34,12 +34,14 @@ defined('MOODLE_INTERNAL') || die();
  */
 class practice_column extends \core_question\bank\column_base {
 
+    protected $renderer;
+
     /**
      * Initialise Parameters for join
      */
     protected function init() {
 
-        global $DB, $USER;
+        global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         // Build context, categoryid and cmid here for use later.
         $context = $this->qbank->get_most_specific_context();
@@ -50,6 +52,7 @@ class practice_column extends \core_question\bank\column_base {
         $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
         $this->studentquizid = $sq->id;
         // TODO: Sanitize!
+        $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
     /**
@@ -74,24 +77,8 @@ class practice_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->myattempts)) {
-            echo $question->myattempts;
-        } else {
-            echo get_string('no_myattempts', 'studentquiz');
-        }
-
-        echo ' | ';
-
-        if (!empty($question->mylastattempt)) {
-            // TODO: Refactor magic constant.
-            if ($question->mylastattempt == 'gradedright') {
-                echo get_string('lastattempt_right', 'studentquiz');
-            } else {
-                echo get_string('lastattempt_wrong', 'studentquiz');
-            }
-        } else {
-            echo get_string('no_mylastattempt', 'studentquiz');
-        }
+        $output = $this->renderer->render_practice_column($question, $rowclasses);
+        echo $output;
     }
 
     /**

@@ -41,28 +41,23 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
 
     protected $anonymousname;
 
+    protected $renderer;
+
     /**
      * Loads config of current userid and can see
      */
     public function init() {
-        global $USER;
+        global $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $this->anonymousname = get_string('creator_anonym_firstname', 'studentquiz')
             . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
+        $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
     protected function display_content($question, $rowclasses) {
         $this->anonymize = $this->qbank->is_anonymized();
-        $date = userdate($question->timecreated, get_string('strftimedatetime', 'langconfig'));
-        if ( $this->anonymize && $question->createdby != $this->currentuserid) {
-            echo  \html_writer::tag('span', $this->anonymousname)
-                        . '<br>' . \html_writer::tag('span', $date, array('class' => 'date'));
-        } else {
-            if (!empty($question->creatorfirstname) && !empty($question->creatorlastname)) {
-                $u = new \stdClass();
-                $u = username_load_fields_from_object($u, $question, 'creator');
-                echo fullname($u) . '<br>' . \html_writer::tag('span', $date, array('class' => 'date'));
-            }
-        }
+        $output = $this->renderer->render_anonym_creator_name_column(
+                $this->anonymize, $question, $this->currentuserid, $this->anonymousname, $rowclasses);
+        echo $output;
     }
 }

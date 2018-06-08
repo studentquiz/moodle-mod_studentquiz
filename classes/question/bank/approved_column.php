@@ -34,6 +34,16 @@ defined('MOODLE_INTERNAL') || die();
  */
 class approved_column extends \core_question\bank\column_base {
 
+    protected $renderer;
+
+    /**
+     * Initialise
+     */
+    public function init() {
+        global $PAGE;
+        $this->renderer = $PAGE->get_renderer('mod_studentquiz');
+    }
+
     /**
      * Get column name
      * @return string column name
@@ -56,24 +66,8 @@ class approved_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $class = 'question-unapproved';
-        $content = get_string('not_approved', 'studentquiz');
-        $title = get_string('approve', 'studentquiz');
-
-        if (!empty($question->approved)) {
-            $class = 'question-approved';
-            $content = get_string('approved', 'studentquiz');
-            $title = get_string('unapprove', 'studentquiz');
-        }
-
-        if (question_has_capability_on($question, 'editall')) {
-            $url = new \moodle_url($this->qbank->base_url(), array('approveselected' => $question->id, 'q' . $question->id => 1,
-                                   'sesskey' => sesskey()));
-
-            $content = '<a title="' . $title . '" href="' . $url . '" class="' . $class . '">' . $content . '</a>';
-        }
-
-        echo $content;
+        $output = $this->renderer->render_approved_column($question, $this->qbank->base_url(), $rowclasses);
+        echo $output;
     }
 
     /**
