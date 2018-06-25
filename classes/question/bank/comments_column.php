@@ -34,6 +34,16 @@ defined('MOODLE_INTERNAL') || die();
  */
 class comment_column extends \core_question\bank\column_base {
 
+    protected $renderer;
+
+    /**
+     * Initialise
+     */
+    public function init() {
+        global $PAGE;
+        $this->renderer = $PAGE->get_renderer('mod_studentquiz');
+    }
+
     /**
      * Get column name
      * @return string column name
@@ -56,11 +66,8 @@ class comment_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        if (!empty($question->comment)) {
-            echo $question->comment;
-        } else {
-            echo get_string('no_comment', 'studentquiz');
-        }
+        $output = $this->renderer->render_comment_column($question, $rowclasses);
+        echo $output;
     }
 
     /**
