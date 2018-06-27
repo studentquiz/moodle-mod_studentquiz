@@ -110,10 +110,6 @@ class rate_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return array(
-            'rate' => array('field' => 'vo.rate', 'title' => get_string('average_column_name', 'studentquiz')),
-            'myrate' => array('field' => 'myrate.myrate', 'title' => get_string('mine_column_name', 'studentquiz'))
-        );
-
+        return $this->renderer->get_is_sortable_rate_column();
     }
 }

@@ -527,7 +527,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param number $average float between 1 to 5 for backgroud bar.
      * @param int $mine between 1 to 5 for number of stars to be yellow
      */
-    private function render_ratingbar($average, $mine, $fillstarson = '#ffc107', $fillstarsoff = '#fff', $fillbaron = '#fff',
+    public function render_ratingbar($average, $mine, $fillstarson = '#ffc107', $fillstarsoff = '#fff', $fillbaron = '#fff',
             $fillbaroff = '#007bff') {
         $output = '';
 
@@ -598,7 +598,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param $tag
      * @return string
      */
-    private function render_tag($tag) {
+    public function render_tag($tag) {
         $output = '';
 
         $output .= html_writer::tag('span', (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) . '...') : $tag->rawname), [
@@ -621,7 +621,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param int $width
      * @return string
      */
-    private function render_fill_bar($id, $fill, $width = 100) {
+    public function render_fill_bar($id, $fill, $width = 100) {
         $output = '';
 
         $output .= html_writer::empty_tag('rect', [
@@ -651,7 +651,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param $fill
      * @return string
      */
-    private function render_fill_bolt($stroke, $id, $boltpath, $fill) {
+    public function render_fill_bolt($stroke, $id, $boltpath, $fill) {
         $output = '';
 
         $output .= html_writer::empty_tag('path', [
@@ -674,7 +674,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param $fill
      * @return string
      */
-    private function render_fill_star($stroke, $id, $starpath, $fill) {
+    public function render_fill_star($stroke, $id, $starpath, $fill) {
         $output = '';
 
         $output .= html_writer::empty_tag('path', [
@@ -686,6 +686,89 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         ]);
 
         return $output;
+    }
+
+    /**
+     * Render the content of question name column.
+     *
+     * @param $question
+     * @param $rowclasses
+     * @param $labelfor
+     * @return string
+     */
+    public function render_question_name_column($question, $rowclasses, $labelfor) {
+        $output = '';
+
+        if ($labelfor) {
+            $output .= html_writer::start_tag('label', ['for' => $labelfor]);
+        }
+        $output .= format_string($question->name);
+        if ($labelfor) {
+            $output .= html_writer::end_tag('label');
+        }
+
+        return $output;
+    }
+
+    /**
+     * Allow to config which columns will be use for Question table.
+     *
+     */
+    public function init_question_table_wanted_columns() {
+        global $CFG;
+        $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
+                . 'mod_studentquiz\\bank\\approved_column,'
+                . 'mod_studentquiz\\bank\\question_name_column,'
+                . 'mod_studentquiz\\bank\\question_text_row,'
+                . 'mod_studentquiz\\bank\\preview_column,'
+                . 'edit_action_column,'
+                . 'delete_action_column,'
+                . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
+                . 'mod_studentquiz\\bank\\tag_column,'
+                . 'mod_studentquiz\\bank\\practice_column,'
+                . 'mod_studentquiz\\bank\\difficulty_level_column,'
+                . 'mod_studentquiz\\bank\\rate_column,'
+                . 'mod_studentquiz\\bank\\comment_column';
+    }
+
+    /**
+     * Get sortable fields for difficulty level column.
+     *
+     * @return array
+     */
+    public function get_is_sortable_difficulty_level_column() {
+        return [
+                'difficulty' => [
+                        'field' => 'dl.difficultylevel',
+                        'title' => get_string('average_column_name', 'studentquiz'),
+                        'tip' => get_string('average_column_name', 'studentquiz')
+                ],
+                'mydifficulty' => [
+                        'field' => 'mydiffs.mydifficulty',
+                        'title' => get_string('mine_column_name', 'studentquiz'),
+                        'tip' => get_string('mine_column_name', 'studentquiz')
+                ]
+        ];
+    }
+
+    /**
+     * Get sortable fields for rate column.
+     *
+     * @return array
+     */
+    public function get_is_sortable_rate_column() {
+        return [
+                'rate' => [
+                        'field' => 'vo.rate',
+                        'title' => get_string('average_column_name', 'studentquiz'),
+                        'tip' => get_string('average_column_name', 'studentquiz')
+                ],
+                'myrate' => [
+                        'field' => 'myrate.myrate',
+                        'title' => get_string('mine_column_name', 'studentquiz'),
+                        'tip' => get_string('mine_column_name', 'studentquiz')
+                ]
+        ];
     }
 
 }
