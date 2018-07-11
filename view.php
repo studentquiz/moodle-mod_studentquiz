@@ -90,10 +90,7 @@ $view->process_actions();
 // Fire view event for completion API and event API.
 mod_studentquiz_overview_viewed($course, $cm, $context);
 
-$regions = $PAGE->blocks->get_regions();
-$PAGE->blocks->add_fake_block($renderer->render_stat_block($report), reset($regions));
-$regions = $PAGE->blocks->get_regions();
-$PAGE->blocks->add_fake_block($renderer->render_ranking_block($report), reset($regions));
+$renderer->add_fake_block($report);
 
 echo $OUTPUT->header();
 // Render view.

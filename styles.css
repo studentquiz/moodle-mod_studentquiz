@@ -310,3 +310,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #page-mod-studentquiz-view .pagination .form-control {
     width: 60px;
 }
+
+#page-mod-studentquiz-view .modulespecificbuttonscontainer input.btn {
+    margin-right: 5px;
+}

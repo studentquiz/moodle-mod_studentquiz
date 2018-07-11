@@ -841,6 +841,248 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
         return $view->get_questionbank()->create_new_question_form($view->get_category_id(), true);
     }
 
+    /**
+     * Add Stat block and Ranking block to page.
+     *
+     * @param mod_studentquiz_report $report
+     * @param string $region
+     */
+    public function add_fake_block(mod_studentquiz_report $report, $region = null) {
+        if (empty($region)) {
+            $regions = $this->page->blocks->get_regions();
+            $region = reset($regions);
+        }
+        $this->page->blocks->add_fake_block($this->render_stat_block($report), $region);
+        $this->page->blocks->add_fake_block($this->render_ranking_block($report), $region);
+    }
+
+    /**
+     * Render filter form for questions table.
+     *
+     * @param mod_studentquiz_question_bank_filter_form $filterform
+     * @return string
+     */
+    public function render_filter_form(mod_studentquiz_question_bank_filter_form $filterform) {
+        return $filterform->render();
+    }
+
+    /**
+     * Render no questions notification.
+     *
+     * @param bool $isfilteractive
+     * @return string
+     */
+    public function render_no_questions_notification($isfilteractive) {
+        if ($isfilteractive) {
+            return $this->output->notification(get_string('no_questions_filter', 'studentquiz'), 'notifysuccess');
+        }
+        return $this->output->notification(get_string('no_questions_add', 'studentquiz'), 'notifysuccess');
+    }
+
+    /**
+     * Render questions table form.
+     *
+     * @param $questionslist
+     */
+    public function render_question_form($questionslist) {
+        $output = '';
+
+        $output .= html_writer::start_tag('form', [
+                'method' => 'post',
+                'action' => 'view.php'
+        ]);
+        $output .= html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
+        $output .= $questionslist;
+        $output .= html_writer::end_tag('form');
+
+        return $output;
+    }
+
+    public function display_javascript_snippet() {
+        $output = '';
+        $output .= html_writer::start_tag('script');
+        // Select all questions.
+        $output .= 'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
+                for (var i=0; i<el.length; i++) {
+                  el[i].checked = true;
+              }';
+        // Change both move-to dropdown box at when selection changes.
+        $output .= 'var elements = document.getElementsByName(\'category\');
+              for(e in elements) {
+                elements[e].onchange = function() {
+                  var elms = document.getElementsByName(\'category\');
+                  for(el in elms) {
+                    if(typeof elms[el] !== \'undefined\' && elms[el] !== this) {
+                      elms[el].value = this.value;
+                    }
+                  }
+                }
+              }';
+        $output .= html_writer::end_tag('script');
+        return $output;
+    }
+
+    /**
+     * Display the controls at the bottom of the list of questions.
+     *
+     * @param $catcontext
+     * @param $hasquestionincategory
+     * @param $addcontexts
+     * @param $category
+     * @return string
+     */
+    public function render_control_buttons($catcontext, $hasquestionincategory, $addcontexts, $category) {
+        $output = '';
+        $caneditall = has_capability('mod/studentquiz:manage', $catcontext);
+        $canmoveall = has_capability('mod/studentquiz:manage', $catcontext);
+
+        $output .= html_writer::start_div('modulespecificbuttonscontainer');
+        $output .= html_writer::tag('strong', '&nbsp;' . get_string('withselected', 'question') . ':');
+        $output .= html_writer::empty_tag('br');
+
+        if ($hasquestionincategory) {
+            $output .= html_writer::empty_tag('input', [
+                'class' => 'btn btn-primary form-submit',
+                'type' => 'submit',
+                'name' => 'startquiz',
+                'value' => get_string('start_quiz_button', 'studentquiz')
+            ]);
+        }
+
+        if ($caneditall) {
+            $output .= html_writer::empty_tag('input', [
+                    'class' => 'btn',
+                    'type' => 'submit',
+                    'name' => 'approveselected',
+                    'value' => get_string('approve_toggle', 'studentquiz')
+            ]);
+            $output .= html_writer::empty_tag('input', [
+                    'class' => 'btn',
+                    'type' => 'submit',
+                    'name' => 'deleteselected',
+                    'value' => get_string('delete')
+            ]);
+        }
+
+        if ($canmoveall) {
+            $output .= html_writer::empty_tag('input', [
+                    'class' => 'btn',
+                    'type' => 'submit',
+                    'name' => 'move',
+                    'value' => get_string('moveto', 'question')
+            ]);
+            ob_start();
+            question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
+            $output .= ob_get_contents();
+            ob_end_clean();
+        }
+
+        $output .= html_writer::end_div();
+
+        return $output;
+    }
+
+    /**
+     * Display the pagination bar for Questions table.
+     *
+     * @param $pagevars
+     * @param $baseurl
+     * @param $totalnumber
+     * @param $page
+     * @param $perpage
+     * @param $pageurl
+     * @return string
+     */
+    public function render_pagination_bar($pagevars, $baseurl, $totalnumber, $page, $perpage, $pageurl) {
+        $showall = $pagevars['showall'];
+        $pageingurl = new \moodle_url('view.php');
+        $pageingurl->params($baseurl->params());
+        $pagingbar = new \paging_bar($totalnumber, $page, $perpage, $pageingurl);
+        $pagingbar->pagevar = 'qpage';
+
+        $pagingbaroutput = '';
+        if (!$showall) {
+            $url = new \moodle_url('view.php', array_merge($pageurl->params(),
+                    ['showall' => true]));
+            if ($totalnumber > $perpage) {
+                if (empty($pagevars['showallprinted'])) {
+                    $content = \html_writer::empty_tag('input', [
+                            'type' => 'submit',
+                            'value' => get_string('pagesize', 'studentquiz'),
+                            'class' => 'btn'
+                    ]);
+                    $content .= \html_writer::empty_tag('input', [
+                            'type' => 'text',
+                            'name' => 'qperpage',
+                            'value' => $perpage,
+                            'class' => 'form-control'
+                    ]);
+                    $pagingbaroutput .= \html_writer::div($content, 'pull-right form-inline pagination');
+                    $pagevars['showallprinted'] = true;
+                }
+                $showalllink = html_writer::link($url, get_string('showall', 'moodle', $totalnumber));
+                $pagingshowall = html_writer::div($showalllink, 'paging');
+                $pagingbaroutput .= html_writer::start_div('categorypagingbarcontainer');
+                $pagingbaroutput .= $this->output->render($pagingbar);
+                $pagingbaroutput .= $pagingshowall;
+                $pagingbaroutput .= html_writer::end_div();
+            } else {
+                if ($perpage > DEFAULT_QUESTIONS_PER_PAGE) {
+                    $url = new \moodle_url('view.php', array_merge($pageurl->params(), ['qperpage' => DEFAULT_QUESTIONS_PER_PAGE]));
+                    $showalllink = html_writer::link($url, get_string('showperpage', 'moodle', DEFAULT_QUESTIONS_PER_PAGE));
+                    $pagingshowall = html_writer::div($showalllink, 'paging');
+                    $pagingbaroutput .= $pagingshowall;
+                }
+            }
+        } else {
+            $url = new \moodle_url('view.php', array_merge($pageurl->params(), ['qperpage' => $perpage]));
+            $showalllink = html_writer::link($url, get_string('showperpage', 'moodle', $perpage));
+            $pagingshowall = html_writer::div($showalllink, 'paging');
+            $pagingbaroutput .= $pagingshowall;
+        }
+
+        return $pagingbaroutput;
+    }
+
+    /**
+     * Generate hidden fields for Questions table form.
+     *
+     * @param $cmid
+     * @param $filterquestionids
+     * @param $baseurl
+     * @return string
+     */
+    public function render_hidden_field($cmid, $filterquestionids, $baseurl) {
+        $output = '';
+
+        $output .= $this->generate_hidden_input('sesskey', sesskey());
+        $output .= $this->generate_hidden_input('id', $cmid);
+        $output .= $this->generate_hidden_input('filtered_question_ids', implode(',', $filterquestionids));
+
+        $output .= \html_writer::input_hidden_params($baseurl, ['qperpage']);
+
+        return $output;
+    }
+
+    /**
+     * Generate hidden field by given name and value.
+     *
+     * @param $name
+     * @param $value
+     * @return string
+     */
+    private function generate_hidden_input($name, $value) {
+        $output = '';
+
+        $output .= html_writer::empty_tag('input', [
+                'type' => 'hidden',
+                'name' => $name,
+                'value' => $value
+        ]);
+
+        return $output;
+    }
+
 }
 
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
