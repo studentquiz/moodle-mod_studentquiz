@@ -349,3 +349,34 @@ $string['comment_help_help'] = 'Write a comment to the question';
 
 $string['ratingbar_title'] = 'Rating bar';
 $string['difficulty_title'] = 'Difficulty bar';
+
+// Privacy.
+$string['privacy:metadata:studentquiz_rate'] = 'Store rates for questions.';
+$string['privacy:metadata:studentquiz_rate:rate'] = 'Rate for the question.';
+$string['privacy:metadata:studentquiz_rate:questionid'] = 'ID of the question.';
+$string['privacy:metadata:studentquiz_rate:userid'] = 'ID of the user.';
+
+$string['privacy:metadata:studentquiz_progress'] = 'Store progress information of student with this question.';
+$string['privacy:metadata:studentquiz_progress:questionid'] = 'ID of the question.';
+$string['privacy:metadata:studentquiz_progress:userid'] = 'ID of the user.';
+$string['privacy:metadata:studentquiz_progress:studentquizid'] = 'ID of the StudentQuiz.';
+$string['privacy:metadata:studentquiz_progress:lastanswercorrect'] = '0: last answer was wrong or undefined, 1: last answer was correct.';
+$string['privacy:metadata:studentquiz_progress:attempts'] = 'Number of attempts to answer this question.';
+$string['privacy:metadata:studentquiz_progress:correctattempts'] = 'Number of correct answers.';
+
+$string['privacy:metadata:studentquiz_comment'] = 'Store comments for questions.';
+$string['privacy:metadata:studentquiz_comment:comment'] = 'Comment of the question.';
+$string['privacy:metadata:studentquiz_comment:questionid'] = 'ID of the question.';
+$string['privacy:metadata:studentquiz_comment:userid'] = 'ID of the user.';
+$string['privacy:metadata:studentquiz_comment:created'] = 'Time created time comment.';
+
+$string['privacy:metadata:studentquiz_practice'] = 'Store quiz practices.';
+$string['privacy:metadata:studentquiz_practice:quizcoursemodule'] = 'Quiz course module.';
+$string['privacy:metadata:studentquiz_practice:studentquizcoursemodule'] = 'StudentQuiz course module.';
+$string['privacy:metadata:studentquiz_practice:userid'] = 'ID of the user.';
+
+$string['privacy:metadata:studentquiz_attempt'] = 'Represents a users attempt to answer a set of questions.';
+$string['privacy:metadata:studentquiz_attempt:studentquizid'] = 'ID of the StudentQuiz.';
+$string['privacy:metadata:studentquiz_attempt:userid'] = 'ID of the user.';
+$string['privacy:metadata:studentquiz_attempt:questionusageid'] = 'ID of the question usage.';
+$string['privacy:metadata:studentquiz_attempt:categoryid'] = 'ID of the category.';
