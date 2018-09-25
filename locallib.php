@@ -793,6 +793,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
         .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
         .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+        .' JOIN {question} qq ON qq.id = qa.questionid'
         .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
         .' WHERE sq.coursemodule = :cmid1'
         .'   AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'

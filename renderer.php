@@ -90,6 +90,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $info2->total = $userstats->questions_created;
         $info2->group = 0;
         $info2->one = $userstats->questions_approved;
+        $unanswered_questions = $sqstats->questions_available - $userstats->last_attempt_exists;
         $bc->content = html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
@@ -102,7 +103,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
                 .html_writer::span(
-                    '<b class="stat never-answered">' . ($sqstats->questions_available - $userstats->last_attempt_exists) .'</b>',
+                    '<b class="stat never-answered">' . ($unanswered_questions) .'</b>',
                     '', array('style' => 'float: right;color:#f0ad4e;')))
             . html_writer::div(
                 get_string('statistic_block_progress_available', 'studentquiz')
