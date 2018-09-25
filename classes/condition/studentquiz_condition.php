@@ -48,13 +48,15 @@ class studentquiz_condition extends \core_question\bank\search\condition {
        in sync.
     */
 
-    public function __construct($filterform) {
+    public function __construct($cm, $filterform) {
+        $this->cm = $cm;
         $this->filterform = $filterform;
         $this->tests = array();
         $this->params = array();
         $this->init();
     }
 
+    protected $cm;
     // Search condition depends on filterform.
     protected $filterform;
 
