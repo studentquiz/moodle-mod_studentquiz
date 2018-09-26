@@ -557,6 +557,7 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
     $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
     $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
+    $DB->set_debug(false);
     $res = $DB->get_recordset_sql($select.$joins.$statsbycat.$order,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
               'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
@@ -566,6 +567,7 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
         , 'correctanswerquantifier' => $quantifiers->correctanswer
         , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
         ), $limitfrom, $limitnum);
+    $DB->set_debug(false);
     return $res;
 }
 
@@ -669,7 +671,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' COALESCE ( ROUND('
         .' COALESCE(creators.countq, 0) * :questionquantifier  ' // Questions created.
         .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // Questions approved.
-        .'+ COALESCE(rates.avgv, 0) * COALESCE(creators.countq, 0) * :ratequantifier  ' // Rating.
+        .'+ COALESCE(rates.avgv, 0) * (COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0)) * :ratequantifier  ' // Rating.
         .'+ COALESCE(lastattempt.last_attempt_correct, 0) * :correctanswerquantifier  ' // Correct answers.
         .'+ COALESCE(lastattempt.last_attempt_incorrect, 0) * :incorrectanswerquantifier ' // Incorrect answers.
         .' , 1) , 0) points, '
@@ -730,18 +732,20 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .' (SELECT'
         .'    createdby,'
         .'    AVG(avg_rate_perq) avgv,'
-        .'    SUM(num_rate_perq) countv'
+        .'    SUM(num_rate_perq) countv,'
+        .'    SUM(question_not_rated) not_rated_questions'
         .'  FROM ('
         .'      SELECT'
         .'          q.id,'
         .'          q.createdby createdby,'
         .'          AVG(sqv.rate) avg_rate_perq,'
-        .'          COUNT(sqv.rate) num_rate_perq'
+        .'          COUNT(sqv.rate) num_rate_perq,'
+        .'          MAX(IF(sqv.id is null, 1, 0)) question_not_rated'
         .'      FROM {studentquiz} sq'
         .'      JOIN {context} con on con.instanceid = sq.coursemodule'
         .'      JOIN {question_categories} qc on qc.contextid = con.id'
         .'      JOIN {question} q on q.category = qc.id'
-        .'      JOIN {studentquiz_rate} sqv on q.id = sqv.questionid'
+        .'      LEFT JOIN {studentquiz_rate} sqv on q.id = sqv.questionid'
         .'      WHERE'
         .'          q.hidden = 0 AND q.parent = 0'
         .'          and sq.coursemodule = :cmid6'
