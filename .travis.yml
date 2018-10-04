@@ -73,7 +73,7 @@ before_install:
   - if [ $MPCIV == '2' ]; then nvm install 8.9; nvm use 8.9; fi
   # moodle-plugin-ci installation
   - cd ../..
-  - composer create-project -n --no-dev --prefer-dist moodlerooms/moodle-plugin-ci ci ^$MPCIV
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^$MPCIV
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   # chromedriver
   #- chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
@@ -84,7 +84,7 @@ install:
   - moodle-plugin-ci install
   # change firefox to chrome for older moodles
   #- if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
-  #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/moodlerooms/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
+  #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/blackboard-open-source/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
   #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "firefox", "wd_host" => "http://localhost:4444/wd/hub",], "chrome" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
   #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
   #- cat moodle/config.php
