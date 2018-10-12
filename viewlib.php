@@ -86,6 +86,10 @@ class mod_studentquiz_view {
      */
     protected $questionbank;
 
+    /** @var  mod_studentquiz_report */
+    protected $report;
+
+
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param course course
@@ -93,9 +97,10 @@ class mod_studentquiz_view {
      * @param cm course module
      * @param stdClass studentquiz loaded studentquiz
      * @param int loaded userid
+     * @param mod_studentquiz_report
      * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
-    public function __construct($course, $context, $cm, $studentquiz, $userid) {
+    public function __construct($course, $context, $cm, $studentquiz, $userid, $report) {
 
         $this->cm = $cm;
 
@@ -106,6 +111,8 @@ class mod_studentquiz_view {
         $this->category = question_get_default_category($this->context->id);
 
         $this->studentquiz = $studentquiz;
+
+        $this->report = $report;
 
         $this->userid = $userid;
 
@@ -151,7 +158,7 @@ class mod_studentquiz_view {
         $this->qbpagevar = $pagevars;
 
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars);
+            $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
     }
 
     /**

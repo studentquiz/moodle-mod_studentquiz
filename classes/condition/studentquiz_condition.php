@@ -48,17 +48,22 @@ class studentquiz_condition extends \core_question\bank\search\condition {
        in sync.
     */
 
-    public function __construct($cm, $filterform) {
+
+    public function __construct($cm, $filterform, $report) {
         $this->cm = $cm;
         $this->filterform = $filterform;
         $this->tests = array();
         $this->params = array();
+        $this->report = $report;
         $this->init();
     }
 
     protected $cm;
     // Search condition depends on filterform.
     protected $filterform;
+
+    /** @var  \mod_studentquiz_report */
+    protected $report;
 
     protected $tests;
 
@@ -99,14 +104,12 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 $sqldata = $field->get_sql_filter($data);
 
                 // Disable filtering by firstname if anonymized
-                // TODO: Check with anonymrank setting of studentquiz record and capability!
-                if ($field->_name == 'firstname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
+                if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) || !$this->report->is_anonymized())) {
                     continue;
                 }
 
                 // Disable filtering by firstname if anonymized
-                // TODO: Check with anonymrank setting of studentquiz record and capability!
-                if ($field->_name == 'lastname' && !mod_studentquiz_check_created_permission($this->cm->id)) {
+                if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) || !$this->report->is_anonymized())) {
                     continue;
                 }
 

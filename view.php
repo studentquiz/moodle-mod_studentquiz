@@ -77,8 +77,9 @@ $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 $renderer->init_question_table_wanted_columns();
 
 // Load view.
-$view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id);
 $report = new mod_studentquiz_report($cmid);
+$view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
+
 
 $PAGE->set_url($view->get_pageurl());
 $PAGE->set_title($view->get_title());
