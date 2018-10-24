@@ -292,7 +292,9 @@ function studentquiz_cron () {
  * @return array
  */
 function studentquiz_get_extra_capabilities() {
-    return array();
+    global $CFG;
+    require_once($CFG->libdir . '/questionlib.php');
+    return question_get_all_capabilities();
 }
 
 /* File API */
