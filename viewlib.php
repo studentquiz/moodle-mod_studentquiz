@@ -286,7 +286,7 @@ class mod_studentquiz_view {
 
     /**
      * Get activity context
-     * @return int
+     * @return context
      */
     public function get_context() {
         return $this->context;
@@ -321,7 +321,7 @@ class mod_studentquiz_view {
 class mod_studentquiz_view_exception extends moodle_exception {
     /**
      * moodle_studentquiz_view_exception constructor.
-     * @param string $view
+     * @param mod_studentquiz_view $view
      * @param string $errorcode
      * @param null $a
      * @param string $link

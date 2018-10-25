@@ -831,36 +831,31 @@ function mod_studentquiz_get_question_types() {
 /**
  * Add capabilities to teacher (Non editing teacher) and
  * Student roles in the context of this context
- * @param stdClass $context of the studentquiz activity
- * @return true or exception
+ *
+ * @param context $context of the studentquiz activity
  */
 function mod_studentquiz_ensure_question_capabilities($context) {
     global $CFG;
 
-    $archtyperoles = array('student', 'teacher');
-    $roles = array();
-    foreach ($archtyperoles as $archtyperole) {
-        foreach (get_archetype_roles($archtyperole) as $role) {
-            $roles[] = $role;
-        }
-    }
-    $capabilities = array(
+    $neededcapabilities = array(
         'moodle/question:add',
         'moodle/question:usemine',
         'moodle/question:viewmine',
         'moodle/question:editmine'
     );
     if ($CFG->version >= 2018051700) { // Moodle 3.5+
-        $capabilities[] = 'moodle/question:tagmine';
+        $neededcapabilities[] = 'moodle/question:tagmine';
     }
-    foreach ($capabilities as $capability) {
-        // TODO: Enforcing capabilities shouldn't be required that hard, but we had issues in unit-tests
-        // see https://travis-ci.org/frankkoch/moodle-mod_studentquiz/builds/381355375
-        foreach ($roles as $role) {
-            assign_capability($capability, CAP_ALLOW, $role->id, $context->id, false);
+
+    // Get the ids of all the roles that can submit questions in this activity.
+    list($roleids) = get_roles_with_cap_in_context($context, 'mod/studentquiz:submit');
+    foreach ($roleids as $roleid) {
+        // If needed, add an override for each question capability.
+        foreach ($neededcapabilities as $capability) {
+            // This function only creates an override if needed.
+            role_change_permission($roleid, $context, $capability, CAP_ALLOW);
         }
     }
-    return true;
 }
 
 /**
