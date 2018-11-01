@@ -652,6 +652,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         // See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
         .' MAX(points) points,'
         .' MAX(questions_created) questions_created,'
+        .' MAX(questions_created_and_rated) questions_created_and_rated,'
         .' MAX(questions_approved) questions_approved,'
         .' MAX(rates_received) rates_received,'
         .' MAX(rates_average) rates_average,'
@@ -677,6 +678,8 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' , 1) , 0) points, '
         // Questions created.
         .' COALESCE(creators.countq, 0) questions_created,'
+        // Questions created and rated
+        .' COALESCE(COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0), 0) questions_created_and_rated,'
         // Questions approved.
         .' COALESCE(approvals.countq, 0) questions_approved,'
         // Questions rating received.

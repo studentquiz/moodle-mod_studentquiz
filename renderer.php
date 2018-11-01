@@ -1502,15 +1502,15 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                     . get_string('creator_anonym_lastname', 'studentquiz');
             }
             $celldata[] = array(
-                $rank,
-                $username,
-                round($ur->points, 2),
-                round($ur->questions_created * $report->get_quantifier_question(), 2),
-                round($ur->questions_approved * $report->get_quantifier_approved(), 2),
-                round($ur->rates_average * $ur->questions_created * $report->get_quantifier_rate(), 2),
-                round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2),
-                round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
-                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
+                $rank, // Row: Rank
+                $username, // Row: Fullname
+                round($ur->points, 2), // Row: Total Points
+                round($ur->questions_created * $report->get_quantifier_question(), 2), // Points for questions created
+                round($ur->questions_approved * $report->get_quantifier_approved(), 2), // Points for approved questions
+                round($ur->rates_average * $ur->questions_created_and_rated * $report->get_quantifier_rate(), 2), // Points for stars received
+                round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2), // Points for latest correct attemps
+                round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2), // Points for latest wrong attemps
+                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %' // Personal Progress
             );
             $rowstyle[] = ($userid == $ur->userid) ? array('class' => 'mod-studentquiz-summary-highlight') : array();
         }
