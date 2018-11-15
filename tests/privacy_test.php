@@ -469,11 +469,12 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 , $questionparams));
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_comment} WHERE questionid {$questionsql}"
                 , $questionparams));
-        // Skipped for now. Reasons:
-        // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
-        // (2) this table is currently not used
-        // $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
-        //        , $questionparams));
+        /* Skipped for now. Reasons:
+         * (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
+         * (2) this table is currently not used
+         * $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
+         *        , $questionparams));
+         */
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_practice} WHERE studentquizcoursemodule = :cmid", [
                 'cmid' => $this->studentquiz[0]->coursemodule
@@ -491,11 +492,12 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 , $questionparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_comment} WHERE questionid {$questionsql}"
                 , $questionparams));
-        // Skipped for now. Reasons:
-        // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
-        // (2) this table is currently not used
-        // $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
-        //        , $questionparams));
+        /* Skipped for now. Reasons:
+         * (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
+         * (2) this table is currently not used
+         * $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
+         *        , $questionparams));
+         */
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_practice} WHERE studentquizcoursemodule = :cmid", [
                 'cmid' => $this->studentquiz[1]->coursemodule

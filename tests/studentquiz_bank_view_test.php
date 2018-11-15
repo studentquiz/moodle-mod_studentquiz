@@ -98,9 +98,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * @throws mod_studentquiz_view_exception
      * @throws moodle_exception
      */
-    public function run_questionbank()
-    {
-// Hard coded.
+    public function run_questionbank() {
+        // Hard coded.
         $pagevars = array(
             'recurse' => true,
             'cat' => $this->cat->id . ',' . $this->ctx->id,
