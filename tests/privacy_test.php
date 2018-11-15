@@ -323,7 +323,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
-/*
+        /*
         $progresses = $data->progresses;
         $this->assertCount(1, $progresses);
         $this->assertEquals((object) [
@@ -472,7 +472,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
-        //$this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
+        // $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
         //        , $questionparams));
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_practice} WHERE studentquizcoursemodule = :cmid", [
@@ -494,7 +494,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
-        //$this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
+        // $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_progress} WHERE questionid {$questionsql}"
         //        , $questionparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_practice} WHERE studentquizcoursemodule = :cmid", [
@@ -546,9 +546,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
+
         // $this->assertFalse($DB->record_exists('studentquiz_progress', $params));
-
-
         // Check personal data belong to second user still existed.
         $params = ['userid' => $this->users[1]->id];
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);

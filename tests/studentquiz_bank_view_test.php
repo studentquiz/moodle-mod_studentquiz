@@ -94,6 +94,32 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     private $studentquizgenerator;
 
     /**
+     * @return \mod_studentquiz\question\bank\studentquiz_bank_view
+     * @throws mod_studentquiz_view_exception
+     * @throws moodle_exception
+     */
+    public function run_questionbank()
+    {
+// Hard coded.
+        $pagevars = array(
+            'recurse' => true,
+            'cat' => $this->cat->id . ',' . $this->ctx->id,
+            'showall' => 0,
+            'showallprinted' => 0,
+        );
+
+        $report = new mod_studentquiz_report($this->cm->id);
+        $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
+            new question_edit_contexts(context_module::instance($this->cm->id))
+            , new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
+            , $this->course
+            , $this->cm
+            , $this->studentquiz
+            , $pagevars, $report);
+        return $questionbank;
+    }
+
+    /**
      * Setup testing scenario
      * One user, one studentquiz in one course.
      * @throws coding_exception
@@ -167,23 +193,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      */
     public function test_questionbank_empty_filter() {
         $this->resetAfterTest(true);
-
-        // Hard coded.
-        $pagevars = array(
-            'recurse' => true,
-            'cat' => $this->cat->id . ',' . $this->ctx->id,
-            'showall' => 0,
-            'showallprinted' => 0,
-        );
-
-        $report = new mod_studentquiz_report($this->cm->id);
-        $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            new question_edit_contexts(context_module::instance($this->cm->id))
-            , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
-            , $this->course
-            , $this->cm
-            , $this->studentquiz
-            , $pagevars,$report);
+        $questionbank = $this->run_questionbank();
 
         $this->displayqb($questionbank);
         $this->assertEquals(20, count($questionbank->get_questions()));
@@ -199,22 +209,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->set_filter(QUESTION_NAME_OP_FILTER, '0');
 
         // Hard coded.
-        $pagevars = array(
-            'recurse' => true,
-            'cat' => $this->cat->id . ',' . $this->ctx->id,
-            'showall' => 0,
-            'showallprinted' => 0,
-        );
-
-        $report = new mod_studentquiz_report($this->cm->id);
-        $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            new question_edit_contexts(context_module::instance($this->cm->id))
-            , new moodle_url('/mod/studentquiz/view.php' , array('cmid' => $this->cm->id))
-            , $this->course
-            , $this->cm
-            , $this->studentquiz
-            , $pagevars
-            , $report);
+        $questionbank = $this->run_questionbank();
 
         $this->displayqb($questionbank);
         $this->assertEquals(11, count($questionbank->get_questions()));
