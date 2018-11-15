@@ -743,7 +743,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .'          q.createdby createdby,'
         .'          AVG(sqv.rate) avg_rate_perq,'
         .'          COUNT(sqv.rate) num_rate_perq,'
-        .'          MAX(IF(sqv.id is null, 1, 0)) question_not_rated'
+        .'          MAX(CASE WHEN sqv.id is null then 1 else 0 end) question_not_rated'
         .'      FROM {studentquiz} sq'
         .'      JOIN {context} con on con.instanceid = sq.coursemodule'
         .'      JOIN {question_categories} qc on qc.contextid = con.id'

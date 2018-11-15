@@ -61,8 +61,9 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
         // Satisfy codechecker: $course $context $cm $studentquiz $userid.
         $context = context_module::instance($this->cm->id);
+        $report = new mod_studentquiz_report($this->cm->id);
         $this->viewlib = new mod_studentquiz_view($course, $context, $this->cm,
-            $studentquiz, $user->id);
+            $studentquiz, $user->id, $report);
     }
 
     public function test_has_question_ids() {
