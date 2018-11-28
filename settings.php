@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+require_once(__DIR__ . '/locallib.php');
+
 if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
         'studentquiz/ratingsettings',
@@ -76,5 +78,25 @@ if ($ADMIN->fulltree) {
             '1'
         ));
     }
+
+    $settings->add(new admin_setting_heading(
+            'studentquiz/defaultquestiontypessettings',
+            get_string('defaultquestiontypessettingsheader', 'studentquiz'),
+            ''
+    ));
+
+    // Get all question types available on system.
+    $qtypes = mod_studentquiz_get_question_types();
+    // Replace all value to 1 for default value without foreach loop.
+    $defaultqtypes = array_map(function($val) {
+        return 1;
+    }, $qtypes);
+
+    $settings->add(new admin_setting_configmulticheckbox('studentquiz/defaultqtypes',
+            get_string('settings_qtypes_default_new_activity', 'studentquiz'),
+            '',
+            $defaultqtypes,
+            $qtypes
+    ));
 
 }
