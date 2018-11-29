@@ -164,6 +164,7 @@ $string['settings_removeqbehavior_help'] = 'This info should appear only once du
 $string['settings_allowallqtypes'] = 'Allow all question types';
 $string['settings_allowedqtypes'] = 'Allowed question types';
 $string['settings_allowedqtypes_help'] = 'Here you specify the type of questions that are allowed';
+$string['settings_qtypes_default_new_activity'] = 'The following are default for a new activity';
 
 // Error messages.
 $string['needtoallowatleastoneqtype'] = 'You need to allow at least one question type';
@@ -172,6 +173,7 @@ $string['please_enrole_message'] = 'Please enroll in this course to see your per
 // Admin settings.
 $string['rankingsettingsheader'] = 'Ranking settings';
 $string['rankingsettingsdescription'] = 'The values you set here define the ranking default values that are used in the settings form when you create a new studentquiz.';
+$string['defaultquestiontypessettingsheader'] = 'Default question types';
 
 // Report Dashboard.
 $string['reportquiz_total_attempt'] = 'Times user run the quiz';

@@ -46,6 +46,13 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         global $CFG;
 
         $mform = $this->_form;
+        $defaultqtypes = [];
+        $defaultqtypesdefined = false;
+        if ($qtypesdata = get_config('studentquiz', 'defaultqtypes')) {
+            // Default question types already defined in Administration setting.
+            $defaultqtypesdefined = true;
+            $defaultqtypes = explode(',', $qtypesdata);
+        }
 
         // Adding the "general" fieldset, where all the common settings are showed.
         $mform->addElement('header', 'general', get_string('general', 'form'));
@@ -128,8 +135,17 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $allowedgroup[] =& $mform->createElement('checkbox', "ALL", '', get_string('settings_allowallqtypes', 'studentquiz'));
         foreach (mod_studentquiz_get_question_types() as $qtype => $name) {
             $allowedgroup[] =& $mform->createElement('checkbox', $qtype, '', $name);
+            if ($defaultqtypesdefined && in_array($qtype, $defaultqtypes)) {
+                // Default question types already defined in Administration setting.
+                // This question type was enable by default in Administration setting.
+                $mform->setDefault("allowedqtypes[" . $qtype . "]", 1);
+            }
         }
-        $mform->setDefault("allowedqtypes[ALL]", 1);
+        if (!$defaultqtypesdefined) {
+            // Default question types was not defined in Administration setting.
+            // Set to ALL question types by default.
+            $mform->setDefault("allowedqtypes[ALL]", 1);
+        }
         $mform->addGroup($allowedgroup, 'allowedqtypes', get_string('settings_allowedqtypes', 'studentquiz'));
         $mform->disabledIf('allowedqtypes', "allowedqtypes[ALL]", 'checked');
         $mform->addHelpButton('allowedqtypes', 'settings_allowedqtypes', 'studentquiz');
