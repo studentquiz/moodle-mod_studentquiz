@@ -557,7 +557,6 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
     $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
     $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
-    $DB->set_debug(false);
     $res = $DB->get_recordset_sql($select.$joins.$statsbycat.$order,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
               'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
@@ -567,7 +566,6 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
         , 'correctanswerquantifier' => $quantifiers->correctanswer
         , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
         ), $limitfrom, $limitnum);
-    $DB->set_debug(false);
     return $res;
 }
 
@@ -600,12 +598,10 @@ function mod_studentquiz_community_stats($cmid) {
         .' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct,'
         .' COALESCE(sum(lastattempt.last_attempt_incorrect), 0) last_attempt_incorrect';
     $joins = mod_studentquiz_helper_attempt_stat_joins();
-    $DB->set_debug(false);
     $rs = $DB->get_record_sql($select.$joins,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
         ));
-    $DB->set_debug(false);
     return $rs;
 }
 
@@ -623,7 +619,6 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
     $joins = mod_studentquiz_helper_attempt_stat_joins();
     $addwhere = ' AND u.id = :userid ';
     $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
-    $DB->set_debug(false);
     $rs = $DB->get_record_sql($select.$joins.$addwhere.$statsbycat,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
@@ -634,7 +629,6 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
         , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
             , 'userid' => $userid
         ));
-    $DB->set_debug(false);
     return $rs;
 }
 
@@ -831,6 +825,8 @@ function mod_studentquiz_get_question_types() {
     }
     return $returntypes;
 }
+
+
 
 /**
  * Add capabilities to teacher (Non editing teacher) and
@@ -1088,7 +1084,6 @@ function mod_studentquiz_get_tags_by_question_ids($ids) {
 
 function mod_studentquiz_count_questions($cmid) {
     global $DB;
-    $DB->set_debug(false);
     $rs = $DB->count_records_sql('SELECT count(*) FROM {studentquiz} sq'
         // Get this Studentquiz Question category.
         .' JOIN {context} con ON con.instanceid = sq.coursemodule'
@@ -1096,7 +1091,6 @@ function mod_studentquiz_count_questions($cmid) {
         // Only enrolled users.
         .' JOIN {question} q ON q.category = qc.id'
         .'  WHERE q.hidden = 0 AND q.parent = 0 AND sq.coursemodule = :cmid', array('cmid' => $cmid));
-    $DB->set_debug(false);
     return $rs;
 }
 
@@ -1108,7 +1102,6 @@ function mod_studentquiz_count_questions($cmid) {
  */
 function mod_studentquiz_question_stats($cmid) {
     global $DB;
-    $DB->set_debug(false);
     $sql = 'SELECT count(*) questions_available,'
        .'          avg(rating.avg_rating) as average_rating,'
        .'          sum(sqq.approved) as questions_approved'
@@ -1133,7 +1126,6 @@ function mod_studentquiz_question_stats($cmid) {
         .' ) rating on rating.questionid = q.id'
         .' WHERE q.hidden = 0 and q.parent = 0 and sq.coursemodule = :cmid1';
     $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
-    $DB->set_debug(false);
     return $rs;
 }
 
