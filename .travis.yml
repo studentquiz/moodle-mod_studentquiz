@@ -35,6 +35,7 @@ php:
 env:
   - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
 
 matrix:
   exclude:
@@ -50,6 +51,8 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
 
 before_install:
   - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=1; else MPCIV=2; fi
