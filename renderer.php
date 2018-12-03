@@ -380,27 +380,20 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * Render the content of difficulty level column.
+     * The svg image is renderer later using javascript.
+     * See render_bar_javascript_snippet()
      *
      * @param $question
      * @param $rowclasses
      * @return string
      */
     public function render_difficulty_level_column($question, $rowclasses) {
-        $output = '';
-
-        $nodifficultylevel = get_string('no_difficulty_level', 'studentquiz');
-        $difficultytitle = get_string('difficulty_all_column_name', 'studentquiz');
-        $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
-        if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
-            $title = $difficultytitle . ': ' . (100 * round($question->difficultylevel, 2)) . '% ';
-            if (!empty($question->mydifficulty)) {
-                $title .= ', ' . $mydifficultytitle . ': ' . (100 * round($question->mydifficulty, 2)) . '%';
-            } else {
-                $title .= ', ' . $mydifficultytitle . ': ' . $nodifficultylevel;
-            }
-            $output .= html_writer::span($this->render_difficultybar($question->difficultylevel, $question->mydifficulty), null,
-                    ['title' => $title]);
-        }
+        $output = html_writer::tag("span", "",
+            array(
+                "class" => "mod_studentquiz_difficulty",
+                "data-difficultylevel" => $question->difficultylevel,
+                "data-mydifficulty" => $question->mydifficulty
+            ));
 
         return $output;
     }
@@ -495,6 +488,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
     /**
      * Render the content of rate column.
+     * The svg image is renderer later using javascript.
+     * See render_bar_javascript_snippet()
      *
      * @param $question
      * @param $rowclasses
@@ -503,22 +498,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function render_rate_column($question, $rowclasses) {
         $output = '';
 
-        $myratingtitle = get_string('myrate_column_name', 'studentquiz');
-        $ratingtitle = get_string('rate_all_column_name', 'studentquiz');
-        $notavailable = get_string('no_rates', 'studentquiz');
-
-        if (!empty($question->rate) || !empty($question->myrate)) {
-            $title = $ratingtitle . ': ' . round($question->rate, 2) . ' ';
-            if (!empty($question->myrate)) {
-                $title .= ', ' . $myratingtitle . ': ' . round($question->myrate, 2);
-            } else {
-                $title .= ', ' . $myratingtitle . ': ' . $notavailable;
-            }
-            $output .= html_writer::span($this->render_ratingbar($question->rate, $question->myrate), null,
-                    ['title' => $title]);
-        } else {
-            $output .= $notavailable;
-        }
+        $output .= html_writer::tag("span", "",
+            array(
+                "class"=>"mod_studentquiz_ratingbar",
+                "data-rate" => $question->rate,
+                "data-myrate" => $question->myrate
+            ));
 
         return $output;
     }
@@ -921,6 +906,112 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
                 }
               }';
         $output .= html_writer::end_tag('script');
+        return $output;
+    }
+
+    /**
+     * Returns javascript for rendering difficulty and rating svg
+     *
+     * @return string (javascript)
+     */
+    public function render_bar_javascript_snippet() {
+        $output = <<<EOT
+    boltbase = ",1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z";
+    starbase = ",8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z";
+
+    function getNode(n, v) {
+        n = document.createElementNS("http://www.w3.org/2000/svg", n);
+        for (var p in v)
+            n.setAttributeNS(null, p.replace(/[A-Z]/g, function(m, p, o, s) { return "-" + m.toLowerCase(); }), v[p]);
+        return n
+    }
+
+    function getBoltOrStar(svg, m, filled, base) {
+        var fillcolor = "#ffc107";
+        if(!filled) {
+            fillcolor = "#fff";
+        }
+        var r = getNode("path", {stroke:"#868e96", fill: fillcolor, d: "m" + m + base});
+        svg.appendChild(r);
+    }
+
+    function addBackground(svg, level) {
+        var r = getNode('rect', { x: 0.396847, y: 0.397703, rx: 5, ry: 5, width: 100, height: 20, "stroke-width": 0.5, fill:'#fff', stroke:"#868e96"});
+        svg.appendChild(r);
+
+        var r = getNode('rect', { x: 0.396847, y: 0.397703, rx: 5, ry: 5, width: level, height: 20, "stroke-width": 0.5, fill: '#007bff', stroke:"#868e96"});
+        svg.appendChild(r);
+    }
+
+    function createStarBar(mine, average) {
+        var svg = getNode("svg", {width: 101, height: 21 });
+        var g = getNode("g", {});
+        svg.appendChild(g);
+        addBackground(g, average * 20);
+        var stars = mine * 5;
+        for(var i = 5; i <= 85; i = i + 20) {
+            var makestar = false;
+            if(stars > 0) {
+                makestar = true;
+            }
+            getBoltOrStar(g, i, makestar, starbase);
+            stars = stars - 1;
+        }
+        return svg;
+    }
+
+    function createBoltBar(mine, average) {
+        var svg = getNode("svg", {width: 101, height: 21});
+        var g = getNode("g", {});
+        svg.appendChild(g);
+        addBackground(g, average * 100);
+        var bolts = mine * 5;
+        for(var i = 8; i <= 88; i = i + 20) {
+            var makebolt = false;
+            if(bolts > 0) {
+                makebolt = true;
+            }
+            getBoltOrStar(g, i, makebolt, boltbase);
+            bolts = bolts - 1;
+        }
+        return svg;
+    }
+
+
+    require(['jquery'], function($) {
+        $(".mod_studentquiz_difficulty").each(function(){
+        var difficultylevel = $(this).data("difficultylevel");
+        var mydifficulty = $(this).data("mydifficulty");
+            if(difficultylevel === undefined && mydifficulty === undefined) {
+                $(this).append("n.a.");
+            }else{
+                if(difficultylevel === undefined) {
+                    difficultylevel = 0;
+                }
+                if(mydifficulty === undefined) {
+                    mydifficulty = 0;
+                }
+                $(this).append(createBoltBar(difficultylevel,mydifficulty));
+            }
+        });
+        $(".mod_studentquiz_ratingbar").each(function(){
+        var rate = $(this).data("rate");
+        var myrate = $(this).data("myrate");
+            if(rate === undefined && myrate === undefined) {
+                $(this).append("n.a.");
+            }else{
+                if(rate === undefined) {
+                    difficultylevel = 0;
+                }
+                if(myrate === undefined) {
+                    mydifficulty = 0;
+                }
+                $(this).append(createStarBar(rate,myrate));
+            }
+        });
+    });
+    
+EOT;
         return $output;
     }
 
