@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
-    protected $cached_question_preview_link_image;
+    protected $cachedquestionpreviewlinkimage;
 
     /**
      * TODO: document blocks missing everywhere here
@@ -273,24 +273,23 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param bool $showlabel if true, show the word 'Preview' after the icon.
      *      If false, just show the icon.
      */
-    public function question_preview_link($question, $context, $showlabel, $preview_text) {
-        //$preview_text = get_string('preview');
+    public function question_preview_link($question, $context, $showlabel, $previewtext) {
         if ($showlabel) {
             $alt = '';
-            $label = ' ' . $preview_text;
+            $label = ' ' . $previewtext;
             $attributes = array();
         } else {
-            $alt = $preview_text;
+            $alt = $previewtext;
             $label = '';
             $attributes = array('title' => $alt);
         }
-        if($this->cached_question_preview_link_image == null) {
-            $this->cached_question_preview_link_image = $this->pix_icon('t/preview', $alt, '', array('class' => 'iconsmall'));
+        if ($this->cachedquestionpreviewlinkimage == null) {
+            $this->cachedquestionpreviewlinkimage = $this->pix_icon('t/preview', $alt, '', array('class' => 'iconsmall'));
         }
         $params = array('cmid' => $context->instanceid, 'questionid' => $question->id);
         $link = new moodle_url('/mod/studentquiz/preview.php', $params);
         $action = new popup_action('click', $link, 'questionpreview', question_preview_popup_params());
-        return $this->action_link($link, $this->cached_question_preview_link_image . $label, $action, $attributes);
+        return $this->action_link($link, $this->cachedquestionpreviewlinkimage . $label, $action, $attributes);
     }
 
     /**
