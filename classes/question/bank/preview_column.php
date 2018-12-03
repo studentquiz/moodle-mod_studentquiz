@@ -37,6 +37,7 @@ class preview_column extends \core_question\bank\preview_action_column {
 
     protected $renderer;
     protected $context;
+    protected $preview_text;
 
     /**
      * Loads config of current userid and can see
@@ -45,6 +46,7 @@ class preview_column extends \core_question\bank\preview_action_column {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
         $this->context = $this->qbank->get_most_specific_context();
+        $this->preview_text = get_string('preview');
     }
 
     /**
@@ -54,7 +56,7 @@ class preview_column extends \core_question\bank\preview_action_column {
      */
     protected function display_content($question, $rowclasses) {
         if ($this->can_preview($question)) {
-            echo $this->renderer->question_preview_link($question, $this->context, false);
+            echo $this->renderer->question_preview_link($question, $this->context, false, $this->preview_text);
         }
     }
 
