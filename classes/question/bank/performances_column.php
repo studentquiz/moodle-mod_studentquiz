@@ -138,7 +138,7 @@ class practice_column extends \core_question\bank\column_base {
                 .' 	 WHERE qasd.name = \'-submit\''
                 .'   AND sq.id = ' . $this->studentquizid
                 .'   AND sqa.userid = ' . $this->currentuserid
-                .'   AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
+                .'   AND qas.fraction is not null'
                 .'   GROUP BY qa.questionid'
                 .'  ) qasdmax on qasd.id = qasdmax.maxqasdid'
                 .' WHERE qasd.name = \'-submit\''
