@@ -496,11 +496,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_rate_column($question, $rowclasses) {
-        $output = '';
-
-        $output .= html_writer::tag("span", "",
+        $output = html_writer::tag("span", "",
             array(
-                "class"=>"mod_studentquiz_ratingbar",
+                "class" => "mod_studentquiz_ratingbar",
                 "data-rate" => $question->rate,
                 "data-myrate" => $question->myrate
             ));
@@ -916,8 +914,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      */
     public function render_bar_javascript_snippet() {
         $output = <<<EOT
-    boltbase = ",1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,-5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z";
-    starbase = ",8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z";
+    boltbase = ",1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,-5.48006l1.81184,\
+    -0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z";
+    starbase = ",8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,5.081501l-4.327403,\
+    -3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z";
 
     function getNode(n, v) {
         n = document.createElementNS("http://www.w3.org/2000/svg", n);
@@ -1010,7 +1010,6 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
             }
         });
     });
-    
 EOT;
         return $output;
     }
