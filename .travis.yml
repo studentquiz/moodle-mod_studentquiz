@@ -28,9 +28,9 @@ cache:
 # Moodle 3.4: php7.0, php7.1, php7.2 (exp)
 # lim: limited, exp: expected
 php:
- - 5.6
  - 7.0
  - 7.1
+ - 7.2
 
 env:
   - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
@@ -38,13 +38,6 @@ env:
   - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
 
 matrix:
-  exclude:
-    # Moodle 3.4 doesn't support < php7
-    - php: 5.6
-      env: MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
-    # Moodle 3.5 doesn't support < php7
-    - php: 5.6
-      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
   include:
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 7.2
