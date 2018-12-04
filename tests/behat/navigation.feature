@@ -56,3 +56,13 @@ Feature: Navigation to the pages
     Then I should see "Import"
     Then I should see "Export"
     Then I should see "Select a category:"
+
+  Scenario: Check that the More link exist in My Progress and Ranking block
+    When I navigate to "StudentQuiz" in current page administration
+    Then "More" "link" should exist in the "#mod_studentquiz_statblock" "css_element"
+    And I click on "More" "link" in the "#mod_studentquiz_statblock" "css_element"
+    And I should see "Statistics"
+    And I follow "StudentQuiz 1"
+    And "More" "link" should exist in the "#mod_studentquiz_rankingblock" "css_element"
+    And I click on "More" "link" in the "#mod_studentquiz_rankingblock" "css_element"
+    And I should see "Ranking"

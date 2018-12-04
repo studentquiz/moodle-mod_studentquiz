@@ -54,6 +54,7 @@ $string['mydifficulty_column_name'] = 'My Difficulty';
 $string['difficulty_all_column_name'] = 'Community Difficulty';
 $string['mylastattempt_column_name'] = 'My Last Attempt';
 $string['myrate_column_name'] = 'My Rating';
+$string['more'] = 'More';
 $string['start_quiz_button'] = 'Start Quiz';
 $string['review_button'] = 'Review';
 $string['finish_button'] = 'Finish';

@@ -314,3 +314,8 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #page-mod-studentquiz-view .modulespecificbuttonscontainer input.btn {
     margin-right: 5px;
 }
+
+#page-mod-studentquiz-view #mod_studentquiz_statblock .report_more_url,
+#page-mod-studentquiz-view #mod_studentquiz_rankingblock .report_more_url {
+    text-align: right;
+}
