@@ -125,6 +125,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $anonymname = get_string('creator_anonym_firstname', 'studentquiz') . ' '
                         . get_string('creator_anonym_lastname', 'studentquiz');
         $anonymise = $report->is_anonymized();
+        $studentquiz = mod_studentquiz_load_studentquiz($report->get_cm_id(), $this->page->context->id);
+        // We need to check this instead of using $report->is_anonymized()
+        // because we want to apply this text regardless of role.
+        $blocktitle = $studentquiz->anonymrank ? get_string('ranking_block_title_anonymised', 'studentquiz') :
+                get_string('ranking_block_title', 'studentquiz');
         $rows = array();
         $rank = 1;
         foreach ($ranking as $row) {
@@ -146,7 +151,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->attributes['id'] = 'mod_studentquiz_rankingblock';
         $bc->attributes['role'] = 'navigation';
         $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
-        $bc->title = html_writer::span(get_string('ranking_block_title', 'studentquiz'));
+        $bc->title = html_writer::span($blocktitle);
         $bc->content = implode('', $rows);
         return $bc;
     }
