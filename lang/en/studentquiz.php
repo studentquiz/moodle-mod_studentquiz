@@ -95,6 +95,7 @@ $string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel 
 // Blocks.
 $string['statistic_block_title'] = 'My Progress';
 $string['ranking_block_title'] = 'Ranking';
+$string['ranking_block_title_anonymised'] = 'Ranking (anonymised)';
 $string['statistic_block_progress_never'] = 'Questions never answered';
 $string['statistic_block_progress_last_attempt_correct'] = 'Latest attempt correct';
 $string['statistic_block_progress_last_attempt_incorrect'] = 'Latest attempt wrong';
