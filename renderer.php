@@ -70,6 +70,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         // TODO: Refactor: use mod_studentquiz_report_record_type!
         $userstats = $report->get_user_stats();
         $sqstats = $report->get_studentquiz_stats();
+        $cmid = $report->get_cm_id();
         if (!$userstats) {
             $bc = new block_contents();
             $bc->attributes['id'] = 'mod_studentquiz_statblock';
@@ -118,6 +119,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             . html_writer::div(get_string('statistic_block_created', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->questions_created .'</b>', '',
                     array('style' => 'float: right;')));
+
+        // Add More link to Stat block.
+        $reporturl = new moodle_url('/mod/studentquiz/reportstat.php', ['id' => $cmid]);
+        $readmorelink = $this->render_report_more_link($reporturl);
+        $bc->content .= $readmorelink;
+
         return $bc;
     }
 
@@ -132,6 +139,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         // because we want to apply this text regardless of role.
         $blocktitle = $studentquiz->anonymrank ? get_string('ranking_block_title_anonymised', 'studentquiz') :
                 get_string('ranking_block_title', 'studentquiz');
+        $cmid = $report->get_cm_id();
         $rows = array();
         $rank = 1;
         foreach ($ranking as $row) {
@@ -155,6 +163,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
         $bc->title = html_writer::span($blocktitle);
         $bc->content = implode('', $rows);
+
+        // Add More link to Ranking block.
+        $reporturl = new moodle_url('/mod/studentquiz/reportrank.php', ['id' => $cmid]);
+        $readmorelink = $this->render_report_more_link($reporturl);
+        $bc->content .= $readmorelink;
+
         return $bc;
     }
 
@@ -760,6 +774,20 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                         'tip' => get_string('mine_column_name', 'studentquiz')
                 ]
         ];
+    }
+
+    /**
+     * Get report read more link.
+     *
+     * @param moodle_url $url Url to the report.
+     * @return string Html string of read more link.
+     */
+    public function render_report_more_link($url) {
+        $output = html_writer::start_div('report_more_url');
+        $output .= html_writer::link($url, get_string('more', 'studentquiz'));
+        $output .= html_writer::end_div();
+
+        return $output;
     }
 
 }
