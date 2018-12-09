@@ -301,9 +301,9 @@ class user_filter_number extends user_filter_text {
                 $params[$name2] = $value;
                 break;
             case 2: // Equal to.
-                $res = $DB->sql_equal($field, ":$name1", false, false)
+                $res = $DB->sql_equal($field, ":$name1", true, false)
                         . " OR ($field IS NULL AND " .
-                        $DB->sql_equal("0", ":$name2", false, false) . ")";
+                        $DB->sql_equal("0", ":$name2", true, false) . ")";
                 $params[$name1] = $value;
                 $params[$name2] = $value;
                 break;
