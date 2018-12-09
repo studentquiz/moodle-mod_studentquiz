@@ -304,8 +304,8 @@ class user_filter_number extends user_filter_text {
                 $res = $DB->sql_equal($field, ":$name1", true, false)
                         . " OR ($field IS NULL AND " .
                         $DB->sql_equal("0", ":$name2", true, false) . ")";
-                $params[$name1] = $value;
-                $params[$name2] = $value;
+                $params[$name1] = floatval($value);
+                $params[$name2] = floatval($value);
                 break;
             default:
                 return '';
