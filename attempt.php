@@ -121,10 +121,19 @@ switch($questionusage->get_question_attempt($slot)->get_state()) {
     default:
         $hasanswered = false;
 }
+
 // Is rated?
 $hasrated = false;
 
 $options = new question_display_options();
+
+
+if ($question->qtype instanceof qtype_description
+    || $question->qtype instanceof qtype_essay) {
+    $hasanswered = true;
+    $options->readonly = true;
+}
+
 // TODO do they do anything? $headtags not used anywhere and question_engin..._js returns void.
 $headtags = '';
 $headtags .= $questionusage->render_question_head_html($slot);
@@ -161,7 +170,6 @@ $html .= html_writer::start_tag('form', array('method' => 'post', 'action' => $a
 $html .= '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';
 
 // Output the question.
-// TODO, options?
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the rating.

@@ -817,13 +817,19 @@ function mod_studentquiz_helper_attempt_stat_joins() {
 function mod_studentquiz_get_question_types() {
     $types = question_bank::get_creatable_qtypes();
     $returntypes = array();
-
+    // Don't allow Question type essay anymore
+    unset($types["essay"]);
     foreach ($types as $name => $qtype) {
         if ($name != 'randomsamatch') {
             $returntypes[$name] = $qtype->local_name();
         }
     }
     return $returntypes;
+}
+
+function mod_studentquiz_get_question_types_keys() {
+    $types = mod_studentquiz_get_question_types();
+    return array_keys($types);
 }
 
 

@@ -487,7 +487,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $url = new \moodle_url('/question/addquestion.php', $params);
 
             $allowedtypes = (empty($this->studentquiz->allowedqtypes)) ? 'ALL' : $this->studentquiz->allowedqtypes;
-            $allowedtypes = ($allowedtypes == 'ALL') ? null : explode(',', $allowedtypes);
+            $allowedtypes = ($allowedtypes == 'ALL') ? mod_studentquiz_get_question_types_keys() : explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(
                 print_choose_qtype_to_add_form(array(), $allowedtypes, true
             ), '', array('id' => 'qtypechoicecontainer'));
