@@ -393,5 +393,43 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018051300, 'studentquiz');
     }
 
+    if($oldversion < 2018121101) {
+        // Repair table studentquiz_progress
+        $table = new xmldb_table('studentquiz_progress');
+
+        // Adding fields to table studentquiz_progress.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('studentquizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('lastanswercorrect', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, 0);
+        $table->add_field('attempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+        $table->add_field('correctattempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
+
+        // Add key.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, array('studentquizid'), 'studentquiz', array('id'));
+
+        if($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        // Conditionally launch create table for studentquiz_progress.
+        $dbman->create_table($table);
+
+        $table = new xmldb_table('studentquiz_attempt');
+        $field = new xmldb_field('ids', XMLDB_TYPE_TEXT, 'medium', null, null, null, null);
+
+        // Add field intro.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+
+        upgrade_mod_savepoint(true, 2018121101, 'studentquiz');
+    }
+
     return true;
 }

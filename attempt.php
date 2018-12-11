@@ -56,6 +56,19 @@ $userid = $USER->id;
 
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
 
+$slots = $questionusage->get_slots();
+
+$questionids = explode(",",$attempt->ids);
+$originalnumofquestionids = count($questionids);
+
+if(!in_array($slot, $slots)) {
+    mod_studentquiz_add_question_to_attempt($questionusage, $studentquiz, $questionids, $slot-1);
+    if(count($questionids) != $originalnumofquestionids) {
+        $attempt->ids = implode(",", $questionids);
+        $DB->update_record('studentquiz_attempt', $attempt);
+    }
+}
+
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
 // Reroute this to attempt summary page if desired.
 $stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid));
@@ -63,7 +76,7 @@ $stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid));
 // Get Current Question.
 $question = $questionusage->get_question($slot);
 // Navigatable?
-$questionscount = $questionusage->question_count();
+$questionscount = count($questionids);
 $hasnext = $slot < $questionscount;
 $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);

@@ -372,29 +372,44 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     // TODO: Check if this is instance id from studentquiz table.
     $attempt->studentquizid = $studentquiz->id;
 
-    // Add questions to usage.
-    // Don't shuffle($ids) as per requirement for now.
-    $usageorder = array();
-    $allowedcategories = question_categorylist($studentquiz->categoryid);
-    foreach ($ids as $i => $questionid) {
-        $questiondata = question_bank::load_question($questionid);
-        // We have to check if the question is really from this module, limit questions to categories used in this module.
-        if (in_array($questiondata->category, $allowedcategories)) {
-            $usageorder[$i] = $questionusage->add_question($questiondata);
-        }
-    }
-
-    // Persistence.
-    // TODO: Is it necessary to start all questions here, or just the current one?
-    $questionusage->start_all_questions();
+    // Add first question to usage
+    mod_studentquiz_add_question_to_attempt($questionusage, $studentquiz, $ids);
 
     question_engine::save_questions_usage_by_activity($questionusage);
 
     $attempt->questionusageid = $questionusage->get_id();
+    $attempt->ids = implode(",",$ids);
 
     $attempt->id = $DB->insert_record('studentquiz_attempt', $attempt);
 
     return $attempt;
+}
+
+/**
+ * @param $questionusage question_usage_by_activity
+ * @param $studentquiz stdClass $studentquiz generating this attempt
+ * @param $questionids array $ids of question ids to be used in this attempt
+ * @throws coding_exception
+ */
+function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, &$questionids, $lastslost = 0) {
+    $allowedcategories = question_categorylist($studentquiz->categoryid);
+    $i = $lastslost;
+    $addedquestions = 0;
+    while($addedquestions <= 0 && $i < count($questionids)) {
+        $questiondata = question_bank::load_question($questionids[$i]);
+        if (in_array($questiondata->category, $allowedcategories)) {
+            $questionusage->add_question($questiondata);
+            $addedquestions++;
+        }else{
+            unset($questionids[$i]);
+            $questionids = array_values($questionids);
+        }
+        $i++;
+    }
+
+    if($addedquestions == 0) throw new moodle_exception("Could not load any valid question for attempt", "studentquiz");
+
+    $questionusage->start_question($i);
 }
 
 
