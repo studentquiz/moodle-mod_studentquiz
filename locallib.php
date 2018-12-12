@@ -372,13 +372,13 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     // TODO: Check if this is instance id from studentquiz table.
     $attempt->studentquizid = $studentquiz->id;
 
-    // Add first question to usage
+    // Add first question to usage.
     mod_studentquiz_add_question_to_attempt($questionusage, $studentquiz, $ids);
 
     question_engine::save_questions_usage_by_activity($questionusage);
 
     $attempt->questionusageid = $questionusage->get_id();
-    $attempt->ids = implode(",",$ids);
+    $attempt->ids = implode(",", $ids);
 
     $attempt->id = $DB->insert_record('studentquiz_attempt', $attempt);
 
@@ -395,19 +395,21 @@ function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, 
     $allowedcategories = question_categorylist($studentquiz->categoryid);
     $i = $lastslost;
     $addedquestions = 0;
-    while($addedquestions <= 0 && $i < count($questionids)) {
+    while ($addedquestions <= 0 && $i < count($questionids)) {
         $questiondata = question_bank::load_question($questionids[$i]);
         if (in_array($questiondata->category, $allowedcategories)) {
             $questionusage->add_question($questiondata);
             $addedquestions++;
-        }else{
+        } else {
             unset($questionids[$i]);
             $questionids = array_values($questionids);
         }
         $i++;
     }
 
-    if($addedquestions == 0) throw new moodle_exception("Could not load any valid question for attempt", "studentquiz");
+    if ($addedquestions == 0) {
+        throw new moodle_exception("Could not load any valid question for attempt", "studentquiz");
+    }
 
     $questionusage->start_question($i);
 }
@@ -687,7 +689,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
         .' , 1) , 0) points, '
         // Questions created.
         .' COALESCE(creators.countq, 0) questions_created,'
-        // Questions created and rated
+        // Questions created and rated.
         .' COALESCE(COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0), 0) questions_created_and_rated,'
         // Questions approved.
         .' COALESCE(approvals.countq, 0) questions_approved,'
@@ -832,7 +834,7 @@ function mod_studentquiz_helper_attempt_stat_joins() {
 function mod_studentquiz_get_question_types() {
     $types = question_bank::get_creatable_qtypes();
     $returntypes = array();
-    // Don't allow Question type essay anymore
+    // Don't allow Question type essay anymore.
     unset($types["essay"]);
     foreach ($types as $name => $qtype) {
         if ($name != 'randomsamatch') {
@@ -864,7 +866,7 @@ function mod_studentquiz_ensure_question_capabilities($context) {
         'moodle/question:viewmine',
         'moodle/question:editmine'
     );
-    if ($CFG->version >= 2018051700) { // Moodle 3.5+
+    if ($CFG->version >= 2018051700) { // Moodle 3.5+.
         $neededcapabilities[] = 'moodle/question:tagmine';
     }
 
@@ -940,7 +942,7 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             $oldquizzes = array();
 
             // For each course we need to find the studentquizzes.
-            // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists
+            // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists.
             $studentquizzes = $DB->get_records_sql('
                 select s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid, qc.name as categoryname, qc.parent
                 from {studentquiz} s

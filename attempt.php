@@ -58,12 +58,12 @@ $questionusage = question_engine::load_questions_usage_by_activity($attempt->que
 
 $slots = $questionusage->get_slots();
 
-$questionids = explode(",",$attempt->ids);
+$questionids = explode(",", $attempt->ids);
 $originalnumofquestionids = count($questionids);
 
-if(!in_array($slot, $slots)) {
-    mod_studentquiz_add_question_to_attempt($questionusage, $studentquiz, $questionids, $slot-1);
-    if(count($questionids) != $originalnumofquestionids) {
+if (!in_array($slot, $slots)) {
+    mod_studentquiz_add_question_to_attempt($questionusage, $studentquiz, $questionids, $slot - 1);
+    if (count($questionids) != $originalnumofquestionids) {
         $attempt->ids = implode(",", $questionids);
         $DB->update_record('studentquiz_attempt', $attempt);
     }

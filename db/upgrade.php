@@ -393,7 +393,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018051300, 'studentquiz');
     }
 
-    if($oldversion < 2018121101) {
+    if ($oldversion < 2018121101) {
         // Repair table studentquiz_progress
         $table = new xmldb_table('studentquiz_progress');
 
@@ -412,7 +412,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
         $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, array('studentquizid'), 'studentquiz', array('id'));
 
-        if($dbman->table_exists($table)) {
+        if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
         }
 
@@ -426,7 +426,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
-
 
         upgrade_mod_savepoint(true, 2018121101, 'studentquiz');
     }
