@@ -127,13 +127,7 @@ if (data_submitted()) {
             $updatestudentquizprogress = true;
             if($studentquizprogress == false) {
                 $updatestudentquizprogress = false;
-                $studentquizprogress = new stdClass();
-                $studentquizprogress->questionid = $q->id;
-                $studentquizprogress->userid = $userid;
-                $studentquizprogress->studentquizid = $studentquiz->id;
-                $studentquizprogress->lastanswercorrect = 0;
-                $studentquizprogress->attempts = 0;
-                $studentquizprogress->correctattempts = 0;
+                $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
             }
 
             $studentquizprogress->attempts += 1;

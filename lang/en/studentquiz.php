@@ -384,3 +384,10 @@ $string['privacy:metadata:studentquiz_attempt:studentquizid'] = 'ID of the Stude
 $string['privacy:metadata:studentquiz_attempt:userid'] = 'ID of the user.';
 $string['privacy:metadata:studentquiz_attempt:questionusageid'] = 'ID of the question usage.';
 $string['privacy:metadata:studentquiz_attempt:categoryid'] = 'ID of the category.';
+
+$string['migrate_studentquiz'] = 'Migrate Userdata';
+$string['migrate_ask'] = 'StudentQuiz has implemented aggregated values to increase the performance. Before automatically migrating all data
+existing StudentQuiz instances can be migrated manually. In case of an error this process can be reverted by setting the aggregated field in the studentquiz table for
+the specific instance to zero.';
+$string['migrate_already_done'] = 'This studentquiz instance already uses aggregated values!';
+$string['migrated_successful'] = 'This studentquiz instance has been migrated successfully!';

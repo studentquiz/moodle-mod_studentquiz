@@ -64,12 +64,28 @@ const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 function mod_studentquiz_load_studentquiz($cmid, $contextid) {
     global $DB;
     if ($studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $cmid))) {
-        if ($studentquiz->category = question_get_default_category($contextid)) {
-            $studentquiz->categoryid = $studentquiz->category->id;
+        if($contextid !== false) {
+            if ($studentquiz->category = question_get_default_category($contextid)) {
+                $studentquiz->categoryid = $studentquiz->category->id;
+                return $studentquiz;
+            }
+        }else{
             return $studentquiz;
         }
     }
     return false;
+}
+
+function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $studentquizid, $lastanswercorrect = 0, $attempts = 0, $correctattempts = 0) {
+    $studentquizprogress = new stdClass();
+    $studentquizprogress->questionid = $questionid;
+    $studentquizprogress->userid = $userid;
+    $studentquizprogress->studentquizid = $studentquizid;
+    $studentquizprogress->lastanswercorrect = $lastanswercorrect;
+    $studentquizprogress->attempts = $attempts;
+    $studentquizprogress->correctattempts = $correctattempts;
+
+    return $studentquizprogress;
 }
 
 /**
@@ -87,6 +103,51 @@ function mod_studentquiz_flip_approved($questionid) {
     } else {
         $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
     }
+}
+
+function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquizid) {
+    global $DB;
+
+    $records = $DB->get_recordset_sql(mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_sql($studentquizid));
+
+    $studentquizprogresses = array();
+
+    foreach($records as $r) {
+        $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class(
+            $r->questionid_, $r->userid_, $r->studentquizid, $r->lastanswercorrect == 'gradedright' ? 1 : 0, $r->attempts, $r->correctattempts);
+        array_push($studentquizprogresses, $studentquizprogress);
+    }
+
+
+    return $studentquizprogresses;
+}
+
+function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_sql($studentquizid) {
+    $sql = <<<EOL
+Select 
+q.id as questionid_,
+qas.userid as userid_,
+s.id as studentquizid,
+COUNT(qas.id) as attempts,
+SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) as correctattempts,
+(Select qas1.state
+From {question} q1
+join {question_attempts} qa1 ON qa1.questionid = q1.id
+join {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
+where qas1.fraction is not null and q1.id = questionid_ and qas1.userid = userid_
+order by qas1.id DESC limit 1) AS lastanswercorrect
+From {question} q
+JOIN {question_categories} qc ON qc.id = q.category
+JOIN {context} co ON co.id = qc.contextid
+join {course_modules} cm ON cm.id = co.instanceid
+join {studentquiz} s ON s.coursemodule = cm.id
+join {question_attempts} qa ON qa.questionid = q.id
+join {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+where s.id = $studentquizid and qas.state != 'todo'
+group by q.id,qas.userid
+EOL;
+
+    return $sql;
 }
 
 /**
