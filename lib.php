@@ -100,6 +100,9 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
         $studentquiz->hiddensection = $mform->hiddensection;
     }
 
+    // New StudentQuiz instances use the aggregated mode.
+    $studentquiz->aggregated = 1;
+
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
     $context = context_module::instance($studentquiz->coursemodule);

@@ -430,5 +430,19 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2018121101, 'studentquiz');
     }
 
+    if ($oldversion < 2018121102) {
+        // Repair table studentquiz_progress
+
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('aggregated', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        // Add field intro.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2018121102, 'studentquiz');
+    }
+
     return true;
 }

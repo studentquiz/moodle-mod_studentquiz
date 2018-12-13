@@ -567,10 +567,10 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
  * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
  * @return moodle_recordset of paginated ranking table
  */
-function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom = 0, $limitnum = 0) {
+function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $aggregated, $limitfrom = 0, $limitnum = 0) {
     global $DB;
     $select = mod_studentquiz_helper_attempt_stat_select();
-    $joins = mod_studentquiz_helper_attempt_stat_joins();
+    $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated);
     $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
     $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
@@ -592,7 +592,7 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $limitfrom 
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
  * @return moodle_recordset of paginated ranking table
  */
-function mod_studentquiz_community_stats($cmid) {
+function mod_studentquiz_community_stats($cmid, $aggregated) {
     global $DB;
     $select = 'SELECT '
         .' count(*) participants,'
@@ -614,7 +614,7 @@ function mod_studentquiz_community_stats($cmid) {
         .' COALESCE(sum(lastattempt.last_attempt_exists), 0) last_attempt_exists,'
         .' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct,'
         .' COALESCE(sum(lastattempt.last_attempt_incorrect), 0) last_attempt_incorrect';
-    $joins = mod_studentquiz_helper_attempt_stat_joins();
+    $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated);
     $rs = $DB->get_record_sql($select.$joins,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
@@ -630,10 +630,10 @@ function mod_studentquiz_community_stats($cmid) {
  * @return array of user ranking stats
  * TODO: use mod_studentquiz_report_record type
  */
-function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
+function mod_studentquiz_user_stats($cmid, $quantifiers, $userid,$aggregated) {
     global $DB;
     $select = mod_studentquiz_helper_attempt_stat_select();
-    $joins = mod_studentquiz_helper_attempt_stat_joins();
+    $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated);
     $addwhere = ' AND u.id = :userid ';
     $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
     $rs = $DB->get_record_sql($select.$joins.$addwhere.$statsbycat,
@@ -710,8 +710,9 @@ function mod_studentquiz_helper_attempt_stat_select() {
  * @return string
  * TODO: Refactor: There must be a better way to do this!
  */
-function mod_studentquiz_helper_attempt_stat_joins() {
-    return ' FROM {studentquiz} sq'
+function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
+
+    $sql = ' FROM {studentquiz} sq'
         // Get this Studentquiz Question category.
         .' JOIN {context} con ON con.instanceid = sq.coursemodule'
         .' JOIN {question_categories} qc ON qc.contextid = con.id'
@@ -766,65 +767,92 @@ function mod_studentquiz_helper_attempt_stat_joins() {
         .'      GROUP BY q.id, q.createdby'
         .'      ) avgratingperquestion'
         .'  GROUP BY createdby'
-        .' ) rates ON rates.createdby = u.id'
+        .' ) rates ON rates.createdby = u.id';
+        if($aggregated) {
+            $sql .= ' LEFT JOIN (SELECT'
+                . ' sp.userid,'
+                . ' COUNT(*) last_attempt_exists,'
+                . ' SUM(lastanswercorrect) last_attempt_correct,'
+                . ' SUM(1 - lastanswercorrect) last_attempt_incorrect'
+                . ' FROM'
+                . ' {studentquiz_progress} AS sp'
+                . ' JOIN {studentquiz} sq ON sq.id = sp.studentquizid'
+                . ' WHERE'
+                . ' sq.coursemodule = :cmid2'
+                . ' GROUP BY sp.userid) lastattempt ON lastattempt.userid = u.id'
+                . ' LEFT JOIN (SELECT'
+                . ' SUM(attempts) counta,'
+                . ' SUM(correctattempts) countright,'
+                . ' SUM(attempts - correctattempts) countwrong,'
+                . ' sp.userid userid'
+                . ' FROM'
+                . ' {studentquiz_progress} AS sp'
+                . ' JOIN {studentquiz} sq ON sq.id = sp.studentquizid'
+                . ' WHERE'
+                . ' sq.coursemodule = :cmid1'
+                . ' GROUP BY sp.userid) attempts ON attempts.userid = u.id';
+        }else{
+            $sql .= ' LEFT JOIN'
+            .' ('
+            .' SELECT count(*) counta,'
+            .' SUM(CASE WHEN state = \'gradedright\' THEN 1 ELSE 0 END) countright,'
+            .' SUM(CASE WHEN qas.state = \'gradedwrong\' THEN 1 WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) countwrong,'
+            .' sqa.userid userid'
+            .' FROM {studentquiz} sq'
+            .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
+            .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
+            .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+            .' WHERE sq.coursemodule = :cmid7'
+            .' AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
+            // Only count grading triggered by submits.
+            .' AND qasd.name = \'-submit\''
+            .' group by sqa.userid'
+            .' ) attempts ON attempts.userid = u.id'
+            // Latest attempts.
+            .' LEFT JOIN'
+            .' ('
+            .' SELECT'
+            .' sqa.userid,'
+            .' count(*) last_attempt_exists,'
+            .' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct,'
+            .' SUM(CASE '
+            .'        WHEN qas.state = \'gradedwrong\' THEN 1'
+            .'        WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) last_attempt_incorrect'
+            .' FROM {studentquiz} sq'
+            .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
+            .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
+            .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            .' LEFT JOIN {question_attempt_step_data} qasd ON'
+            .' qasd.attemptstepid = qas.id and'
+            .' qasd.id in ('
+            // SELECT only latest states (its a constant result).
+            .' SELECT max(qasd.id) latest_grading_event'
+            .' FROM {studentquiz} sq'
+            .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
+            .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
+            .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
+            .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
+            .' JOIN {question} qq ON qq.id = qa.questionid'
+            .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
+            .' WHERE sq.coursemodule = :cmid1'
+            .'   AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
+            .'   AND qasd.name = \'-submit\''
+            .' group by sqa.userid, questionid'
+            .' )'
+            .' WHERE sq.coursemodule = :cmid2'
+            .' AND qas.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
+            // Only count grading triggered by submits.
+            .' AND qasd.name = \'-submit\''
+            .' group by sqa.userid'
+            .' ) lastattempt ON lastattempt.userid = u.id';
+        }
         // Question attempts: sum of number of graded attempts per question.
-        .' LEFT JOIN'
-        .' ('
-        .' SELECT count(*) counta,'
-        .' SUM(CASE WHEN state = \'gradedright\' THEN 1 ELSE 0 END) countright,'
-        .' SUM(CASE WHEN qas.state = \'gradedwrong\' THEN 1 WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) countwrong,'
-        .' sqa.userid userid'
-        .' FROM {studentquiz} sq'
-        .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
-        .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-        .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-        .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-        .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-        .' WHERE sq.coursemodule = :cmid7'
-        .' AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
-        // Only count grading triggered by submits.
-        .' AND qasd.name = \'-submit\''
-        .' group by sqa.userid'
-        .' ) attempts ON attempts.userid = u.id'
-        // Latest attempts.
-        .' LEFT JOIN'
-        .' ('
-        .' SELECT'
-        .' sqa.userid,'
-        .' count(*) last_attempt_exists,'
-        .' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct,'
-        .' SUM(CASE '
-        .'        WHEN qas.state = \'gradedwrong\' THEN 1'
-        .'        WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) last_attempt_incorrect'
-        .' FROM {studentquiz} sq'
-        .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
-        .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-        .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-        .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-        .' LEFT JOIN {question_attempt_step_data} qasd ON'
-        .' qasd.attemptstepid = qas.id and'
-        .' qasd.id in ('
-        // SELECT only latest states (its a constant result).
-        .' SELECT max(qasd.id) latest_grading_event'
-        .' FROM {studentquiz} sq'
-        .' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
-        .' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-        .' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-        .' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-        .' JOIN {question} qq ON qq.id = qa.questionid'
-        .' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-        .' WHERE sq.coursemodule = :cmid1'
-        .'   AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
-        .'   AND qasd.name = \'-submit\''
-        .' group by sqa.userid, questionid'
-        .' )'
-        .' WHERE sq.coursemodule = :cmid2'
-        .' AND qas.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
-        // Only count grading triggered by submits.
-        .' AND qasd.name = \'-submit\''
-        .' group by sqa.userid'
-        .' ) lastattempt ON lastattempt.userid = u.id'
-        .' WHERE sq.coursemodule = :cmid3';
+        $sql .= ' WHERE sq.coursemodule = :cmid3';
+
+        return $sql;
 }
 
 /**
