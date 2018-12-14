@@ -99,9 +99,10 @@ class practice_column extends \core_question\bank\column_base {
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        if($this->studentquiz->aggregated) {
-            return array('sp' => 'LEFT JOIN {studentquiz_progress} AS sp ON sp.questionid = q.id AND sp.userid = '. $this->currentuserid . ' AND sp.studentquizid = ' . $this->studentquizid);
-        }else{
+        if ($this->studentquiz->aggregated) {
+            return array('sp' => 'LEFT JOIN {studentquiz_progress} sp ON sp.questionid = q.id AND sp.userid = '. $this->currentuserid
+                . ' AND sp.studentquizid = ' . $this->studentquizid);
+        } else {
             // Add outer WHERE tests here to limit the dataset to just the module question category.
             $tests = array('qa.responsesummary IS NOT NULL', 'q.parent = 0', 'q.hidden = 0', 'q.category = ' . $this->categoryid);
             return array('pr' => 'LEFT JOIN ('
@@ -158,9 +159,9 @@ class practice_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        if($this->studentquiz->aggregated) {
+        if ($this->studentquiz->aggregated) {
             return array('sp.attempts practice', 'sp.attempts as myattempts', '(CASE WHEN sp.lastanswercorrect = 1 THEN \'gradedright\' ELSE \'gradedwrong\' END) mylastattempt');
-        }else{
+        } else {
             return array('pr.practice', 'myatts.myattempts', 'mylatts.mylastattempt');
         }
     }

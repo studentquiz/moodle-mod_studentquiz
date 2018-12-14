@@ -119,13 +119,14 @@ if (data_submitted()) {
         question_engine::save_questions_usage_by_activity($questionusage);
 
         // Only add studentquiz_progress information, if it is a studentquiz aggregated type
-        if($studentquiz->aggregated) {
+        if ($studentquiz->aggregated) {
             $qa = $questionusage->get_question_attempt($slot);
             $q = $questionusage->get_question($slot);
 
-            $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id, 'userid' => $userid, 'studentquizid' => $studentquiz->id));
+            $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
+                'userid' => $userid, 'studentquizid' => $studentquiz->id));
             $updatestudentquizprogress = true;
-            if($studentquizprogress == false) {
+            if ($studentquizprogress == false) {
                 $updatestudentquizprogress = false;
                 $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
             }
@@ -146,9 +147,9 @@ if (data_submitted()) {
                     break;
             }
 
-            if($updatestudentquizprogress) {
+            if ($updatestudentquizprogress) {
                 $DB->update_record('studentquiz_progress', $studentquizprogress);
-            }else{
+            } else {
                 $studentquizprogress->id = $DB->insert_record('studentquiz_progress', $studentquizprogress, true);
             }
         }

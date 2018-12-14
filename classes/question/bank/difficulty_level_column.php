@@ -86,13 +86,13 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        if($this->studentquiz->aggregated) {
+        if ($this->studentquiz->aggregated) {
             return array('dl' => 'LEFT JOIN ('
                 . ' SELECT ROUND(1 - AVG(correctattempts / attempts), 2) AS difficultylevel, questionid '
                 . ' FROM {studentquiz_progress} '
                 . ' WHERE studentquizid = ' . $this->studentquizid . ' '
                 . ' GROUP BY questionid) dl ON dl.questionid = q.id');
-        }else{
+        } else {
             return array('dl' => 'LEFT JOIN ('
                 . 'SELECT '
                 . ' ROUND(1-avg(case qas.state when \'gradedright\' then 1 else 0 end),2) as difficultylevel,'
@@ -130,9 +130,9 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array fieldname in array
      */
     public function get_required_fields() {
-        if($this->studentquiz->aggregated) {
+        if ($this->studentquiz->aggregated) {
             return array('dl.difficultylevel', 'ROUND(1 - (sp.correctattempts / sp.attempts),2) mydifficulty', '(sp.correctattempts) mycorrectattempts');
-        }else{
+        } else {
             return array('dl.difficultylevel', 'mydiffs.mydifficulty', 'mydiffs.mycorrectattempts');
         }
     }

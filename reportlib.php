@@ -329,7 +329,8 @@ class mod_studentquiz_report {
      * @return moodle_recordset of paginated ranking table
      */
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
-        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->get_quantifiers(), $this->studentquiz->aggregated,0, $limitfrom, $limitnum);
+        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->get_quantifiers(),
+            $this->studentquiz->aggregated,0, $limitfrom, $limitnum);
     }
 
     /**

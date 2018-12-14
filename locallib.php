@@ -829,7 +829,7 @@ function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
         .'      ) avgratingperquestion'
         .'  GROUP BY createdby'
         .' ) rates ON rates.createdby = u.id';
-        if($aggregated) {
+        if ($aggregated) {
             $sql .= ' LEFT JOIN (SELECT'
                 . ' sp.userid,'
                 . ' COUNT(*) last_attempt_exists,'
