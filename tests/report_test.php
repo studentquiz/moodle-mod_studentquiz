@@ -201,7 +201,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
     }
 
     public function test_mod_studentquiz_user_stats() {
-        $userstats = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id);
+        $userstats = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id, 0);
         $this->assertEquals(0, $userstats->questions_created);
     }
 
