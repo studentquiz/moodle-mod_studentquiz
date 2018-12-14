@@ -785,8 +785,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
  * @return string
  * TODO: Refactor: There must be a better way to do this!
  */
-function mod_studentquiz_helper_attempt_stat_joins($aggregated)
-{
+function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
     $sql = ' FROM {studentquiz} sq'
         // Get this Studentquiz Question category.
         . ' JOIN {context} con ON con.instanceid = sq.coursemodule'
