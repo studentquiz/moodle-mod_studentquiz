@@ -412,7 +412,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $nodifficultylevel = get_string('no_difficulty_level', 'studentquiz');
         $difficultytitle = get_string('difficulty_all_column_name', 'studentquiz');
         $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
-
+        $title = "";
         if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
             $title = $difficultytitle . ': ' . (100 * round($question->difficultylevel, 2)) . '% ';
             if (!empty($question->mydifficulty)) {
@@ -534,6 +534,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $myratingtitle = get_string('myrate_column_name', 'studentquiz');
         $ratingtitle = get_string('rate_all_column_name', 'studentquiz');
         $notavailable = get_string('no_rates', 'studentquiz');
+        $title = "";
         if (!empty($question->rate) || !empty($question->myrate)) {
             $title = $ratingtitle . ': ' . round($question->rate, 2) . ' ';
             if (!empty($question->myrate)) {
