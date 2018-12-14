@@ -409,11 +409,25 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_difficulty_level_column($question, $rowclasses) {
+        $nodifficultylevel = get_string('no_difficulty_level', 'studentquiz');
+        $difficultytitle = get_string('difficulty_all_column_name', 'studentquiz');
+        $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
+
+        if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
+            $title = $difficultytitle . ': ' . (100 * round($question->difficultylevel, 2)) . '% ';
+            if (!empty($question->mydifficulty)) {
+                $title .= ', ' . $mydifficultytitle . ': ' . (100 * round($question->mydifficulty, 2)) . '%';
+            } else {
+                $title .= ', ' . $mydifficultytitle . ': ' . $nodifficultylevel;
+            }
+        }
+
         $output = html_writer::tag("span", "",
             array(
                 "class" => "mod_studentquiz_difficulty",
                 "data-difficultylevel" => $question->difficultylevel,
-                "data-mydifficulty" => $question->mydifficulty
+                "data-mydifficulty" => $question->mydifficulty,
+                "title" => $title
             ));
 
         return $output;
@@ -517,11 +531,24 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_rate_column($question, $rowclasses) {
+        $myratingtitle = get_string('myrate_column_name', 'studentquiz');
+        $ratingtitle = get_string('rate_all_column_name', 'studentquiz');
+        $notavailable = get_string('no_rates', 'studentquiz');
+        if (!empty($question->rate) || !empty($question->myrate)) {
+            $title = $ratingtitle . ': ' . round($question->rate, 2) . ' ';
+            if (!empty($question->myrate)) {
+                $title .= ', ' . $myratingtitle . ': ' . round($question->myrate, 2);
+            } else {
+                $title .= ', ' . $myratingtitle . ': ' . $notavailable;
+            }
+        }
+
         $output = html_writer::tag("span", "",
             array(
                 "class" => "mod_studentquiz_ratingbar",
                 "data-rate" => $question->rate,
-                "data-myrate" => $question->myrate
+                "data-myrate" => $question->myrate,
+                "title" => $title
             ));
 
         return $output;
