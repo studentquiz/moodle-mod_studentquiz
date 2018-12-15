@@ -410,7 +410,7 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
 
         global $studentquiz;
         if (isset($studentquiz) && $studentquiz->aggregated == 0) {
-            $studentquiznode->add_node(navigation_node::create(get_string('migrate_studentquiz', 'studentquiz'),
+            $studentquiznode->add_node(navigation_node::create(get_string('migrate_studentquiz_short', 'studentquiz'),
                 new moodle_url('/mod/studentquiz/migrate.php', array('id' => $PAGE->cm->id)),
                 navigation_node::TYPE_CUSTOM, null, 'mod_studentquiz_migrate',
                 null, $beforekey));

@@ -385,10 +385,10 @@ $string['privacy:metadata:studentquiz_attempt:userid'] = 'ID of the user.';
 $string['privacy:metadata:studentquiz_attempt:questionusageid'] = 'ID of the question usage.';
 $string['privacy:metadata:studentquiz_attempt:categoryid'] = 'ID of the category.';
 
-$string['migrate_studentquiz_short'] = 'Migrate Data';
-$string['migrate_studentquiz'] = 'Migrate question attempt into StudentQuiz progress';
-$string['migrate_ask'] = 'StudentQuiz has implemented aggregated values to increase the performance. Before automatically migrating all data
-existing StudentQuiz instances can be migrated manually. In case of an error this process can be reverted by setting the aggregated field in the studentquiz table for
-the specific instance to zero.';
-$string['migrate_already_done'] = 'This studentquiz instance already uses aggregated values!';
-$string['migrated_successful'] = 'This studentquiz instance has been migrated successfully!';
+$string['migrate_studentquiz_short'] = 'Migrate StudentQuiz Activity prior to V3.2.1';
+$string['migrate_studentquiz'] = 'Migrate StudentQuiz questions prior to version 3.2.1 to the faster version with aggregated values';
+$string['migrate_ask'] = 'Starting StudentQuiz version 3.2.1 the computation of aggregates has changed in order to increase performance. 
+If you have Activities created with older versions of StudentQuiz, you can migrate them into the new version. 
+This migration can be inverted by setting the field aggregated in the table studentquiz to 0.';
+$string['migrate_already_done'] = 'This StudentQuiz Activity is already using aggregated values!';
+$string['migrated_successful'] = 'This StudentQuiz Activity has been migrated successfully!';
