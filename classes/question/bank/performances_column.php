@@ -160,7 +160,7 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function get_required_fields() {
         if ($this->studentquiz->aggregated) {
-            return array('sp.attempts practice', 'sp.attempts as myattempts', '(CASE WHEN sp.attempts is null THEN \'\' ELSE 
+            return array('sp.attempts practice', 'sp.attempts as myattempts', '(CASE WHEN sp.attempts is null THEN \'\' ELSE
             CASE WHEN sp.lastanswercorrect = 1 THEN \'gradedright\' ELSE \'gradedwrong\' END END) mylastattempt');
         } else {
             return array('pr.practice', 'myatts.myattempts', 'mylatts.mylastattempt');

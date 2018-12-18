@@ -387,7 +387,7 @@ $string['privacy:metadata:studentquiz_attempt:categoryid'] = 'ID of the category
 
 $string['migrate_studentquiz_short'] = 'Speed-up this question set';
 $string['migrate_studentquiz'] = 'Migrate StudentQuiz questions prior to version 3.2.1 to the faster version with aggregated values';
-$string['migrate_ask'] = 'The speed of StudentQuiz improved with version 3.2.1, but this question set is still based on a prior version. 
+$string['migrate_ask'] = 'The speed of StudentQuiz improved with version 3.2.1, but this question set is still based on a prior version.
 Questions and quizzes will be loaded faster if you run this speed-up migration. You will experience faster loading; nothing else will change.';
 $string['migrate_already_done'] = 'Nothing was done because this activity has been migrated already!';
 $string['migrated_successful'] = 'This activity has been migrated successfully!';
