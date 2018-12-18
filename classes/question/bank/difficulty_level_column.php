@@ -142,7 +142,11 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return $this->renderer->get_is_sortable_difficulty_level_column();
+        if ($this->studentquiz->aggregated) {
+            return $this->renderer->get_is_sortable_difficulty_level_column(true);
+        } else {
+            return $this->renderer->get_is_sortable_difficulty_level_column(false);
+        }
     }
 
     /**

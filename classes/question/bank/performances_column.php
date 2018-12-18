@@ -173,9 +173,9 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function is_sortable() {
         return array(
-            'myattempts' => array('field' => 'myatts.myattempts',
+            'myattempts' => array('field' => $this->studentquiz->aggregated ? 'myattempts' : 'myatts.myattempts',
                 'title' => get_string('number_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylatts.mylastattempt',
+            'mylastattempt' => array('field' => $this->studentquiz->aggregated ? 'mylastattempt' : 'mylatts.mylastattempt',
                 'title' => get_string('latest_column_name', 'studentquiz')),
         );
     }

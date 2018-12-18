@@ -769,7 +769,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      *
      * @return array
      */
-    public function get_is_sortable_difficulty_level_column() {
+    public function get_is_sortable_difficulty_level_column($aggregated) {
         return [
                 'difficulty' => [
                         'field' => 'dl.difficultylevel',
@@ -777,7 +777,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                         'tip' => get_string('average_column_name', 'studentquiz')
                 ],
                 'mydifficulty' => [
-                        'field' => 'mydiffs.mydifficulty',
+                        'field' => $aggregated ? 'mydifficulty' : 'mydiffs.mydifficulty',
                         'title' => get_string('mine_column_name', 'studentquiz'),
                         'tip' => get_string('mine_column_name', 'studentquiz')
                 ]
