@@ -1018,7 +1018,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
                 makestar = true;
             }
             getBoltOrStar(g, i, makestar, starbase);
-            stars = stars - 1;
+            stars = stars - 5;
         }
         return svg;
     }
