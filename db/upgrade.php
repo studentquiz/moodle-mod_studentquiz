@@ -443,6 +443,13 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2018121102, 'studentquiz');
     }
+    if ($oldversion < 2018121800) {
+        $table = new xmldb_table('studentquiz_progress');
+
+        $dbman->add_key($table, new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, array('questionid','userid','studentquizid')));
+
+        upgrade_mod_savepoint(true, 2018121800, 'studentquiz');
+    }
 
     return true;
 }
