@@ -431,7 +431,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Default sorting.
         if (empty($sorts)) {
-            $sorts[] = 'q.timecreated DESC';
+            $sorts[] = 'q.timecreated DESC,q.id ASC';
         }
 
         // Build the where clause and load params from search conditions.
