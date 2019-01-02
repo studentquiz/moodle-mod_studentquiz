@@ -150,6 +150,17 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->disabledIf('allowedqtypes', "allowedqtypes[ALL]", 'checked');
         $mform->addHelpButton('allowedqtypes', 'settings_allowedqtypes', 'studentquiz');
 
+        // Availability.
+        $mform->addElement('header', 'availability', get_string('availability', 'moodle'));
+        $mform->addElement('date_time_selector', 'opensubmissionfrom',
+                get_string('settings_availability_open_submission_from', 'studentquiz'), ['optional' => true]);
+        $mform->addElement('date_time_selector', 'closesubmissionfrom',
+                get_string('settings_availability_close_submission_from', 'studentquiz'), ['optional' => true]);
+        $mform->addElement('date_time_selector', 'openansweringfrom',
+                get_string('settings_availability_open_answering_from', 'studentquiz'), ['optional' => true]);
+        $mform->addElement('date_time_selector', 'closeansweringfrom',
+                get_string('settings_availability_close_answering_from', 'studentquiz'), ['optional' => true]);
+
         // Add standard elements, common to all modules.
         $this->standard_coursemodule_elements();
 
@@ -182,6 +193,14 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $errors = array();
         if (!isset($data['allowedqtypes'])) {
             $errors['allowedqtypes'] = get_string('needtoallowatleastoneqtype', 'studentquiz');
+        }
+        if ($data['opensubmissionfrom'] > 0 && $data['closesubmissionfrom'] > 0 &&
+                $data['opensubmissionfrom'] >= $data['closesubmissionfrom']) {
+            $errors['closesubmissionfrom'] = get_string('submissionendbeforestart', 'studentquiz');
+        }
+        if ($data['openansweringfrom'] > 0 && $data['closeansweringfrom'] > 0 &&
+                $data['openansweringfrom'] >= $data['closeansweringfrom']) {
+            $errors['closeansweringfrom'] = get_string('answeringndbeforestart', 'studentquiz');
         }
         return $errors;
     }

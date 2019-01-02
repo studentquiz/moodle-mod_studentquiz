@@ -491,10 +491,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $qtypecontainer = \html_writer::div(
                 print_choose_qtype_to_add_form(array(), $allowedtypes, true
             ), '', array('id' => 'qtypechoicecontainer'));
-            $output .= \html_writer::div(
-                $OUTPUT->render(new \single_button($url, $caption, 'get', true)) .
-                $qtypecontainer, 'createnewquestion'
-            );
+            $questionsubmissionbutton = new \single_button($url, $caption, 'get', true);
+
+            list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
+                    $this->studentquiz->closesubmissionfrom, 'submission');
+
+            $questionsubmissionbutton->disabled = !$questionsubmissionallow;
+            $output .= \html_writer::div($OUTPUT->render($questionsubmissionbutton) . $qtypecontainer, 'createnewquestion');
+
+            if (!empty($message)) {
+                $output .= $this->renderer->render_availability_message($message, 'mod_studentquiz_submission_info');
+            }
         } else {
             $output .= get_string('nopermissionadd', 'question');
         }
