@@ -1301,3 +1301,32 @@ function mod_studentquiz_fix_wrong_parent_in_question_categories() {
         }
     }
 }
+
+/**
+ * Check that StudentQuiz is allowing answering or not.
+ *
+ * @param int $openform Open date
+ * @param int $closefrom Close date
+ * @param string $type submission or answering
+ * @return array Message and Allow or not
+ */
+function mod_studentquiz_check_availability($openform, $closefrom, $type) {
+    $message = '';
+    $availabilityallow = true;
+
+    if (time() < $openform) {
+        $availabilityallow = false;
+        $message = get_string('before_' . $type . '_start_date', 'studentquiz',
+                userdate($openform, get_string('strftimedatetimeshort', 'langconfig')));
+    } else if (time() < $closefrom) {
+        $message = get_string('before_' . $type . '_end_date', 'studentquiz',
+                userdate($closefrom, get_string('strftimedatetimeshort', 'langconfig')));
+    }
+    if ($closefrom && time() >= $closefrom) {
+        $availabilityallow = false;
+        $message = get_string('after_' . $type . '_end_date', 'studentquiz',
+                userdate($closefrom, get_string('strftimedatetimeshort', 'langconfig')));
+    }
+
+    return [$message, $availabilityallow];
+}

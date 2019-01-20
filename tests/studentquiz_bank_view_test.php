@@ -99,6 +99,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * @throws moodle_exception
      */
     public function run_questionbank() {
+        global $PAGE;
+        $PAGE->set_url(new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
+        $PAGE->set_context($this->ctx);
         // Hard coded.
         $pagevars = array(
             'recurse' => true,

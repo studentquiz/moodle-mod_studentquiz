@@ -24,6 +24,10 @@
         <FIELD NAME="incorrectanswerquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with number of incorrect answers"/>
         <FIELD NAME="allowedqtypes" TYPE="text" LENGTH="medium" NOTNULL="true" SEQUENCE="false" COMMENT="which question types are allowed"/>
         <FIELD NAME="aggregated" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Property if studentquiz instance is using aggregated values"/>
+        <FIELD NAME="opensubmissionfrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, then users cannot create questions to the StudentQuiz until the specified date"/>
+        <FIELD NAME="closesubmissionfrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, users cannot create questions to the StudentQuiz after the specified date"/>
+        <FIELD NAME="openansweringfrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, then users cannot attempt questions until the specified date"/>
+        <FIELD NAME="closeansweringfrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, users cannot attempt questions after the specified date"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

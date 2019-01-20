@@ -1095,13 +1095,23 @@ EOT;
         $output .= html_writer::tag('strong', '&nbsp;' . get_string('withselected', 'question') . ':');
         $output .= html_writer::empty_tag('br');
 
+        $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
+        list($message, $answeringallow) = mod_studentquiz_check_availability(
+                $studentquiz->openansweringfrom, $studentquiz->closeansweringfrom, 'answering');
+
         if ($hasquestionincategory) {
-            $output .= html_writer::empty_tag('input', [
-                'class' => 'btn btn-primary form-submit',
-                'type' => 'submit',
-                'name' => 'startquiz',
-                'value' => get_string('start_quiz_button', 'studentquiz')
-            ]);
+            $params = [
+                    'class' => 'btn btn-primary form-submit',
+                    'type' => 'submit',
+                    'name' => 'startquiz',
+                    'value' => get_string('start_quiz_button', 'studentquiz')
+            ];
+
+            if (!$answeringallow) {
+                $params['disabled'] = 'disabled';
+            }
+
+            $output .= html_writer::empty_tag('input', $params);
         }
 
         if ($caneditall) {
@@ -1132,6 +1142,9 @@ EOT;
             ob_end_clean();
         }
 
+        if (!empty($message)) {
+            $output .= $this->render_availability_message($message, 'mod_studentquiz_answering_info');
+        }
         $output .= html_writer::end_div();
 
         return $output;
@@ -1234,6 +1247,24 @@ EOT;
                 'name' => $name,
                 'value' => $value
         ]);
+
+        return $output;
+    }
+
+    /**
+     * Render the availability message
+     *
+     * @param string $message Message to show
+     * @param string $class Class of the message
+     * @return string HTML string
+     */
+    public function render_availability_message($message, $class) {
+        $output = '';
+
+        if (!empty($message)) {
+            $icon = new \pix_icon('info', get_string('info'), 'studentquiz');
+            $output = \html_writer::div($this->output->render($icon) . $message, $class);
+        }
 
         return $output;
     }
