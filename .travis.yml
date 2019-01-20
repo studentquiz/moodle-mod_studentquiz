@@ -11,9 +11,9 @@ addons:
   #chrome: stable
   apt:
     packages:
-       # can be omitted because mustache is not in use
-  #    - oracle-java8-installer
-  #    - oracle-java8-set-default
+      # can be omitted because mustache is not in use
+      # - oracle-java8-installer
+      # - oracle-java8-set-default
       - chromium-chromedriver
 
 cache:
@@ -26,7 +26,9 @@ cache:
 # Moodle 3.2: php5.6, php7.0 (lim), php7.1 (lim)
 # Moodle 3.3: php5.6, php7.0 (lim), php7.1 (lim)
 # Moodle 3.4: php7.0, php7.1, php7.2 (exp)
-# lim: limited, exp: expected
+# Moodle 3.5: php7.0, php7.1, php7.2 (exp)
+# Moodle 3.6: php7.0, php7.1, php7.2 (exp), php7.3 (dev)
+# lim: limited, exp: expected, dev: non-production
 php:
  - 7.0
  - 7.1
@@ -48,16 +50,15 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
 
 before_install:
-  - if [ $MOODLE_BRANCH == 'MOODLE_31_STABLE' ]; then MPCIV=1; else MPCIV=2; fi
   # php settings
-  - phpenv config-rm xdebug.ini
   - echo "upload_max_filesize=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-  # moodle dependencies
-  - if [ $MPCIV == '2' ]; then nvm install 8.9; nvm use 8.9; fi
-  # moodle-plugin-ci installation
+  # moodle-plugin-ci installation (https://github.com/blackboard-open-source/moodle-plugin-ci/blob/master/.travis.dist.yml)
+  - phpenv config-rm xdebug.ini
+  - nvm install 8.9
+  - nvm use 8.9
   - cd ../..
-  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^$MPCIV
+  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
   # chromedriver
   #- chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
@@ -66,30 +67,16 @@ before_install:
 
 install:
   - moodle-plugin-ci install
-  # change firefox to chrome for older moodles
-  #- if [ $MPCIV == '1' ]; then sed -i 's/firefox/chrome/' moodle/config.php; fi
-  #- if [ $MPCIV == '1' ]; then curl https://raw.githubusercontent.com/blackboard-open-source/moodle-plugin-ci/2.1.1/src/Command/BehatCommand.php > ci/src/Command/BehatCommand.php ; fi
-  #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "firefox", "wd_host" => "http://localhost:4444/wd/hub",], "chrome" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
-  #- if [ $MPCIV == '1' ]; then moodle-plugin-ci add-config '$CFG->behat_profiles = ["default" => ["browser" => "chrome", "wd_host" => "http://localhost:4444/wd/hub",],];'; fi
-  #- cat moodle/config.php
 
 script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
   - moodle-plugin-ci codechecker
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci validate; fi
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci savepoints; fi
-  #- if [ $MPCIV == '2' ]; then moodle-plugin-ci; fi mustache #currently no mustache relevant files, so we can also save the oracle packages
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci grunt; fi
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci csslint; fi
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci shifter; fi
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci jshint; fi
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci phpunit --coverage-text; fi # output code coverage in MPCIV 2
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci phpunit; fi
-  - if [ $MPCIV == '2' ]; then moodle-plugin-ci behat --profile chrome; fi
-  #TODO: Swap between firefox and chrome using environment info
-  #- if [ $MPCIV == '2' ]; then moodle-plugin-ci behat; fi # is profile firefox
-  - if [ $MPCIV == '1' ]; then moodle-plugin-ci behat || true; fi # currently not working at all
-  #- java -jar moodle/selenium.jar &
-  #- if [ $MPCIV == '1' ]; then php moodle/vendor/bin/behat --config $(pwd)/moodledata/behat_moodledata/behatrun/behat/behat.yml; fi
+  - moodle-plugin-ci validate
+  - moodle-plugin-ci savepoints
+  #- moodle-plugin-ci mustache #currently no mustache relevant files, so we can also omit the java packages above
+  - moodle-plugin-ci grunt
+  - moodle-plugin-ci phpunit --coverage-text
+  - moodle-plugin-ci behat --profile chrome
+  - moodle-plugin-ci behat # with firefox
