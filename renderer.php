@@ -1064,10 +1064,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
                 $(this).append("n.a.");
             }else{
                 if(rate === undefined) {
-                    difficultylevel = 0;
+                    rate = 0;
                 }
                 if(myrate === undefined) {
-                    mydifficulty = 0;
+                    myrate = 0;
                 }
                 $(this).append(createStarBar(myrate,rate));
             }
