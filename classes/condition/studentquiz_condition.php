@@ -49,18 +49,21 @@ class studentquiz_condition extends \core_question\bank\search\condition {
     */
 
 
-    public function __construct($cm, $filterform, $report) {
+    public function __construct($cm, $filterform, $report, $studentquiz) {
         $this->cm = $cm;
         $this->filterform = $filterform;
         $this->tests = array();
         $this->params = array();
         $this->report = $report;
+        $this->studentquiz = $studentquiz;
         $this->init();
     }
 
     protected $cm;
     // Search condition depends on filterform.
     protected $filterform;
+
+    protected $studentquiz;
 
     /** @var  \mod_studentquiz_report */
     protected $report;
@@ -127,14 +130,38 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 }
 
                 if (is_array($sqldata)) {
-                    $sqldata[0] = str_replace($field->_name,
-                        $this->get_sql_table_prefix($field->_name) . $field->_name, $sqldata[0]);
+                    $sqldata[0] = str_replace($field->_name,$this->get_sql_field($field->_name)
+                        , $sqldata[0]);
+                    $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
                     $this->tests[] = '((' . $sqldata[0] . '))';
                     $this->params = array_merge($this->params, $sqldata[1]);
                 }
             }
         }
     }
+
+    private function get_special_sql($sqldata, $name) {
+        if(substr($sqldata, 0, 12) === 'mydifficulty') {
+            return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $sqldata);
+        }
+        if($name == "onlynew") {
+            return str_replace('myattempts', 'sp.attempts', $sqldata);
+        }
+        return $sqldata;
+    }
+
+    private function get_sql_field($name) {
+        if($this->studentquiz->aggregated) {
+            if(substr($name, 0, 12) === 'mydifficulty') {
+                return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $name);
+            }
+            if(substr($name, 0, 10) === 'myattempts') {
+                return 'sp.attempts';
+            }
+        }
+        return $this->get_sql_table_prefix($name) . $name;
+    }
+
 
     /**
      * Get the sql table prefix

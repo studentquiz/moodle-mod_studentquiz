@@ -128,7 +128,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Init search conditions with filterform state.
         $cateorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
-        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform, $this->report);
+        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform, $this->report, $studentquiz);
         $this->isfilteractive = $studentquizcondition->is_filter_active();
         $this->searchconditions = array ($cateorycondition, $studentquizcondition);
         $this->renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
@@ -575,7 +575,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Fast filters.
         $this->fields[] = new \toggle_filter_checkbox('onlynew',
             get_string('filter_label_onlynew', 'studentquiz'),
-            false, 'myatts.myattempts', array('myattempts', 'myattempts_op'), 0, 0,
+            false, 'myattempts', array('myattempts', 'myattempts_op'), 0, 0,
             get_string('filter_label_onlynew_help', 'studentquiz'));
 
         $this->fields[] = new \toggle_filter_checkbox('onlyapproved',
@@ -595,8 +595,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $this->fields[] = new \toggle_filter_checkbox('onlydifficultforme',
             get_string('filter_label_onlydifficultforme', 'studentquiz'),
-            false, 'mydiffs.mydifficulty', array('mydifficulty', 'mydifficulty_op'), 1, 0.60,
+            false, 'mydifficulty', array('mydifficulty', 'mydifficulty_op'), 1, 0.60,
             get_string('filter_label_onlydifficultforme_help', 'studentquiz', '60'));
+
 
         $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
             get_string('filter_label_onlydifficult', 'studentquiz'),
