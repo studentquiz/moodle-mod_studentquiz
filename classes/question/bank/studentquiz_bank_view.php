@@ -598,7 +598,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             false, 'mydifficulty', array('mydifficulty', 'mydifficulty_op'), 1, 0.60,
             get_string('filter_label_onlydifficultforme_help', 'studentquiz', '60'));
 
-
         $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
             get_string('filter_label_onlydifficult', 'studentquiz'),
             false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.60,

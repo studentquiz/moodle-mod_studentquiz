@@ -130,7 +130,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 }
 
                 if (is_array($sqldata)) {
-                    $sqldata[0] = str_replace($field->_name,$this->get_sql_field($field->_name)
+                    $sqldata[0] = str_replace($field->_name, $this->get_sql_field($field->_name)
                         , $sqldata[0]);
                     $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
                     $this->tests[] = '((' . $sqldata[0] . '))';
@@ -141,21 +141,21 @@ class studentquiz_condition extends \core_question\bank\search\condition {
     }
 
     private function get_special_sql($sqldata, $name) {
-        if(substr($sqldata, 0, 12) === 'mydifficulty') {
+        if (substr($sqldata, 0, 12) === 'mydifficulty') {
             return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $sqldata);
         }
-        if($name == "onlynew") {
+        if ($name == "onlynew") {
             return str_replace('myattempts', 'sp.attempts', $sqldata);
         }
         return $sqldata;
     }
 
     private function get_sql_field($name) {
-        if($this->studentquiz->aggregated) {
-            if(substr($name, 0, 12) === 'mydifficulty') {
+        if ($this->studentquiz->aggregated) {
+            if (substr($name, 0, 12) === 'mydifficulty') {
                 return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $name);
             }
-            if(substr($name, 0, 10) === 'myattempts') {
+            if (substr($name, 0, 10) === 'myattempts') {
                 return 'sp.attempts';
             }
         }
