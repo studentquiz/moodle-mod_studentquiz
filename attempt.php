@@ -87,7 +87,6 @@ if (data_submitted()) {
         // There is submitted data. Process it.
         $transaction = $DB->start_delegated_transaction();
         $questionusage->finish_question($slot);
-        // TODO: Update tracking data --> studentquiz progress, studentquiz_attempt.
         $transaction->allow_commit();
 
         if ($hasnext) {
@@ -107,10 +106,8 @@ if (data_submitted()) {
     } else if (optional_param('finish', null, PARAM_BOOL)) {
         $transaction = $DB->start_delegated_transaction();
         $questionusage->finish_question($slot);
-        // TODO: Update tracking data --> studentquiz progress, studentquiz_attempt.
         $transaction->allow_commit();
 
-        // TODO Trigger events?
         redirect($stopurl);
     } else {
         // On every submission save the attempt.

@@ -487,6 +487,8 @@ function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, 
     }
 
     $questionusage->start_question($i);
+
+    question_engine::save_questions_usage_by_activity($questionusage);
 }
 
 
