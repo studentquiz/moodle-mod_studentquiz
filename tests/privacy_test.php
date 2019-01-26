@@ -95,6 +95,11 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     protected $subcontext;
 
     /**
+     * @var string
+     */
+    protected $component = 'studentquiz';
+
+    /**
      * Set up data required for the test case.
      *
      * @throws dml_exception
@@ -124,15 +129,18 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
 
         $cmid1 = $generator->create_module('studentquiz', $studentquizdata)->cmid;
         $cmid2 = $generator->create_module('studentquiz', $studentquizdata)->cmid;
+        $cmid3 = $generator->create_module('studentquiz', $studentquizdata)->cmid;
 
         $this->studentquiz = [
                 mod_studentquiz_load_studentquiz($cmid1, context_module::instance($cmid1)->id),
                 mod_studentquiz_load_studentquiz($cmid2, context_module::instance($cmid2)->id),
+                mod_studentquiz_load_studentquiz($cmid3, context_module::instance($cmid3)->id),
         ];
 
         $this->contexts = [
                 context_module::instance($this->studentquiz[0]->coursemodule),
-                context_module::instance($this->studentquiz[1]->coursemodule)
+                context_module::instance($this->studentquiz[1]->coursemodule),
+                context_module::instance($this->studentquiz[2]->coursemodule)
         ];
 
         // Create questions for StudentQuiz.
@@ -562,6 +570,185 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
         // $this->assertTrue($DB->record_exists('studentquiz_progress', $params));
+    }
+
+    /**
+     * Test get users in context with question condition (User created or
+     * modified).
+     *
+     * @throws coding_exception
+     */
+    public function test_get_users_in_context_question() {
+        // Create question for first user, check only one user return for this context.
+        self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid,
+                $this->users[0]);
+
+        $userlist = new \core_privacy\local\request\userlist($this->contexts[2], $this->component);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+
+        $this->assertCount(1, $userlist);
+        $this->assertEquals([$this->users[0]->id], $userlist->get_userids());
+
+        // Create question for second user, check two users return for this context.
+        self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid,
+                $this->users[1]);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$this->users[0]->id, $this->users[1]->id], $userlist->get_userids());
+    }
+
+    /**
+     * Test get users in context with question's rating condition.
+     *
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function test_get_users_in_context_rating() {
+        // Another user create question, then first user rate it.
+        $anotheruser = $this->getDataGenerator()->create_user();
+
+        $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
+        $this->create_rate($question->id, $this->users[0]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($this->contexts[2], $this->component);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$anotheruser->id, $this->users[0]->id], $userlist->get_userids());
+
+        // Second student rate on another user question.
+        $this->create_rate($question->id, $this->users[1]->id);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+        $this->assertCount(3, $userlist);
+        $this->assertEquals([$anotheruser->id, $this->users[0]->id, $this->users[1]->id ], $userlist->get_userids());
+    }
+
+    /**
+     * Test get users in context with question's comment condition.
+     *
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function test_get_users_in_context_comment() {
+        // Another user create question, then first user comment it.
+        $anotheruser = $this->getDataGenerator()->create_user();
+
+        $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
+        $this->create_comment($question->id, $this->users[0]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($this->contexts[2], $this->component);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$anotheruser->id, $this->users[0]->id], $userlist->get_userids());
+
+        // Second student comment on another user question.
+        $this->create_comment($question->id, $this->users[1]->id);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+        $this->assertCount(3, $userlist);
+        $this->assertEquals([$anotheruser->id, $this->users[0]->id, $this->users[1]->id ], $userlist->get_userids());
+    }
+
+    /**
+     * Test get users in context with practice condition.
+     *
+     * @throws dml_exception
+     */
+    public function test_get_users_in_context_practice() {
+        // Create practice for the first user.
+        $this->create_practice($this->studentquiz[2]->coursemodule, $this->users[0]->id);
+
+        $userlist = new \core_privacy\local\request\userlist($this->contexts[2], $this->component);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+
+        $this->assertCount(1, $userlist);
+        $this->assertEquals([$this->users[0]->id], $userlist->get_userids());
+
+        // Create practice for the second user.
+        $this->create_practice($this->studentquiz[2]->coursemodule, $this->users[1]->id);
+        mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$this->users[0]->id, $this->users[1]->id ], $userlist->get_userids());
+    }
+
+    /**
+     * Test get users in context with question's attempt condition.
+     *
+     * @throws dml_exception
+     */
+    public function test_get_users_in_context_attempt() {
+        // Create attempt for the first user
+        $this->create_attempt($this->studentquiz[2]->id, $this->users[0]->id, $this->studentquiz[2]->categoryid);
+
+        $userlist = new \core_privacy\local\request\userlist($this->contexts[2], $this->component);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+
+        $this->assertCount(1, $userlist);
+        $this->assertEquals([$this->users[0]->id], $userlist->get_userids());
+
+        // Create attempt for the second student.
+        $this->create_attempt($this->studentquiz[2]->id, $this->users[1]->id, $this->studentquiz[2]->categoryid);
+        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$this->users[0]->id, $this->users[1]->id], $userlist->get_userids());
+    }
+
+    /**
+     * Test delete data for users from one context.
+     *
+     * @throws coding_exception
+     * @throws dml_exception
+     */
+    public function test_delete_data_for_users() {
+        global $DB;
+
+        $guestid = guest_user()->id;
+
+        $approveduserlist = new \core_privacy\local\request\approved_userlist($this->contexts[0], 'mod_studentquiz', [
+            $this->users[0]->id
+        ]);
+
+        \mod_studentquiz\privacy\provider::delete_data_for_users($approveduserlist);
+
+        // Check question owner of deleting user is change to guest.
+        $questions = $DB->get_records('question');
+        $this->assertEquals($guestid, $questions[$this->questions[0]->id]->createdby);
+        $this->assertEquals($guestid, $questions[$this->questions[0]->id]->modifiedby);
+        $this->assertEquals($guestid, $questions[$this->questions[1]->id]->createdby);
+        $this->assertEquals($guestid, $questions[$this->questions[1]->id]->modifiedby);
+        $this->assertEquals($this->users[0]->id, $questions[$this->questions[2]->id]->createdby);
+        $this->assertEquals($this->users[0]->id, $questions[$this->questions[2]->id]->modifiedby);
+        $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
+        $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->modifiedby);
+
+        // Check personal data of other tables are deleted for first user and first context.
+        $sqlparams = ['userid' => $this->users[0]->id];
+
+        $practices = $DB->get_records('studentquiz_practice', $sqlparams);
+        $this->assertCount(1, $practices);
+        $this->assertArrayHasKey($this->practices[1]->id, $practices);
+
+        $rates = $DB->get_records('studentquiz_rate', $sqlparams);
+        $this->assertCount(1, $rates);
+        $this->assertArrayHasKey($this->rates[3]->id, $rates);
+
+        $attempts = $DB->get_records('studentquiz_attempt', $sqlparams);
+        $this->assertCount(1, $attempts);
+        $this->assertArrayHasKey($this->attempts[2]->id, $attempts);
+
+        $comments = $DB->get_records('studentquiz_comment', $sqlparams);
+        $this->assertCount(1, $comments);
+        $this->assertArrayHasKey($this->comments[3]->id, $comments);
+
+        // Test data belong to the second user still exist.
+        $sqlparams = ['userid' => $this->users[1]->id];
+        $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
+        $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->modifiedby);
+        $this->assertTrue($DB->record_exists('studentquiz_practice', $sqlparams));
+        $this->assertTrue($DB->record_exists('studentquiz_rate', $sqlparams));
+        $this->assertTrue($DB->record_exists('studentquiz_attempt', $sqlparams));
+        $this->assertTrue($DB->record_exists('studentquiz_comment', $sqlparams));
     }
 
     /**
