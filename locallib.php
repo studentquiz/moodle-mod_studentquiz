@@ -951,8 +951,6 @@ function mod_studentquiz_get_question_types_keys() {
     return array_keys($types);
 }
 
-
-
 /**
  * Add capabilities to teacher (Non editing teacher) and
  * Student roles in the context of this context

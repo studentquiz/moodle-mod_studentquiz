@@ -124,29 +124,23 @@ class mod_studentquiz_view {
      * Loads the question custom bank view
      */
     private function load_questionbank() {
-
-        // Workaround to get permission to use questionbank.
-        // TODO: Refactor!
-        $_GET['cmid'] = $this->get_cm_id();
-        $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-
-        // Hide question text.
-        // TODO: Refactor!
-        $_GET["qbshowtext"] = 0;
-
         // Ensure capabilities are set to load question bank.
         // When there are changes to the required capabilities for different moodles, the capabilities have to be corrected
         // TODO: We should fix these with the updates and restore functions (analog fix question category etc.)
         mod_studentquiz_ensure_question_capabilities($this->context);
 
-        // TODO: This is the problematic redirect call for unittests!
+        // Get edit question link setup
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
         $pagevars['qperpage'] = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
+        $pagevars['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
 
         $this->pageurl = new moodle_url($thispageurl);
 
+        // Trigger notification if user got returned from the question edit form.
+        // TODO: Shouldn't this be somewhere outside of load_questionbank(), as this is clearly not relevant for showing the
+        // question bank?
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
             // Ensure we have a studentquiz_question record.
