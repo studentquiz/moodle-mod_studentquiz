@@ -226,13 +226,9 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      */
     protected function displayqb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
         $cat = $this->cat->id . "," . $this->ctx->id;
-        ob_start();
         $questionbank->display('questions', $qpage, $qperpage,
             $cat, $recurse, $showhidden,
             $qbshowtext);
-        $output = ob_get_contents();
-        ob_end_clean();
-        return $output;
     }
 
     /**
@@ -243,5 +239,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     protected function set_filter($which, $value) {
         $_POST[$which] = $value;
         $_POST["submitbutton"] = "Filter";
+        // session key is required, otherwise it won't try to load and filter POSTed data
+        $_POST["_qf__mod_studentquiz_question_bank_filter_form"] = "1";
+        $_POST["sesskey"] = sesskey();
     }
 }

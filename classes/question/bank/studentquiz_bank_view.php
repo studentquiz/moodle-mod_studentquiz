@@ -682,7 +682,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * Load question from database
      * @param int $page
      * @param int $perpage
-     * @return pqginated array of questions
+     * @return paginated array of questions
      */
     private function load_questions($page, $perpage) {
         global $DB;
