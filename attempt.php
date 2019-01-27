@@ -204,7 +204,7 @@ $info = new stdClass();
 $info->total = $questionscount;
 $info->group = 0;
 $info->one = max($slot - (!$hasanswered ? 1 : 0), 0);
-$texttotal = $questionscount . ' ' . get_string('questions', 'studentquiz');
+$texttotal = get_string('num_questions', 'studentquiz', $questionscount);
 $html = '';
 
 $html .= html_writer::div($output->render_progress_bar($info, $texttotal, true), '', array('title' => $texttotal));

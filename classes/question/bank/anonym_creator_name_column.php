@@ -49,8 +49,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
     public function init() {
         global $USER, $PAGE;
         $this->currentuserid = $USER->id;
-        $this->anonymousname = get_string('creator_anonym_firstname', 'studentquiz')
-            . ' ' . get_string('creator_anonym_lastname', 'studentquiz');
+        $this->anonymousname = get_string('creator_anonym_fullname', 'studentquiz');
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 

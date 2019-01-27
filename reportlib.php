@@ -114,8 +114,6 @@ class mod_studentquiz_report {
     public function get_zero_user_stats() {
         $r = new stdClass();
         $r->userid = 0;
-        $r->firstname = get_string('creator_anonym_firstname', 'studentquiz');
-        $r->lastname = get_string('creator_anonym_lastname', 'studentquiz');
         $r->points = 0;
         $r->questions_created = 0;
         $r->questions_approved = 0;

@@ -546,14 +546,13 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
 }
 
 /**
- * Returns comment records joined with their user first & lastname
+ * Returns comment records
  * @param int $questionid
  */
 function mod_studentquiz_get_comments_with_creators($questionid) {
     global $DB;
 
-    $sql = 'SELECT co.*, u.firstname, u.lastname FROM {studentquiz_comment} co'
-            .' JOIN {user} u on u.id = co.userid'
+    $sql = 'SELECT co.* FROM {studentquiz_comment} co'
             .' WHERE co.questionid = :questionid'
             .' ORDER BY co.created ASC';
 
@@ -564,8 +563,7 @@ function mod_studentquiz_get_comments_with_creators($questionid) {
 /**
  * Generate some HTML to render comments
  *
- * @param array $comments from studentquiz_coments joind with user.firstname, user.lastname on comment.userid
- *        ordered by comment->created ASC
+ * @param array $comments from studentquiz_coments ordered by comment->created ASC
  * @param int $userid, viewing user id
  * @param bool $anonymize Display or hide other author names
  * @param bool $ismoderator True renders edit buttons to all comments false, only those for createdby userid
@@ -583,6 +581,7 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
     }
 
     $authorids = array();
+    $authors = array();
 
     $num = 0;
     foreach ($comments as $comment) {
@@ -593,14 +592,15 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
         // Collect distinct anonymous author ids chronologically.
         if (!in_array($comment->userid, $authorids)) {
             $authorids[] = $comment->userid;
+            $authors[] = user_get_users_by_id(array($comment->userid))[$comment->userid];
         }
 
         $date = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
         if ($seename) {
-            $username = $comment->firstname . ' ' . $comment->lastname;
+            $username = fullname($authors[array_search($comment->userid, $authorids)]);
         } else {
-            $username = get_string('creator_anonym_firstname', 'studentquiz')
+            $username = get_string('creator_anonym_fullname', 'studentquiz')
                 . ' #' . (1 + array_search($comment->userid, $authorids));
         }
 
@@ -646,7 +646,7 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $aggregated
     global $DB;
     $select = mod_studentquiz_helper_attempt_stat_select();
     $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated);
-    $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
+    $statsbycat = ' ) statspercategory GROUP BY userid';
     $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
     $res = $DB->get_recordset_sql($select.$joins.$statsbycat.$order,
@@ -710,7 +710,7 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid, $aggregated) {
     $select = mod_studentquiz_helper_attempt_stat_select();
     $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated);
     $addwhere = ' AND u.id = :userid ';
-    $statsbycat = ' ) statspercategory GROUP BY userid, firstname, lastname';
+    $statsbycat = ' ) statspercategory GROUP BY userid';
     $rs = $DB->get_record_sql($select.$joins.$addwhere.$statsbycat,
         array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
             'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
@@ -731,8 +731,6 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid, $aggregated) {
 function mod_studentquiz_helper_attempt_stat_select() {
     return 'SELECT '
         .' statspercategory.userid userid,'
-        .' statspercategory.firstname firstname,'
-        .' statspercategory.lastname lastname,'
         // Aggregate values over all categories in cm context.
         // Note: Max() of equals is faster than Sum() of groups.
         // See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
@@ -751,8 +749,6 @@ function mod_studentquiz_helper_attempt_stat_select() {
         // Select for each question category in context.
         .' FROM ( SELECT '
         .' u.id userid,'
-        .' u.firstname firstname,'
-        .' u.lastname lastname,'
         .' qc.id category, '
         // Calculate points.
         .' COALESCE ( ROUND('
