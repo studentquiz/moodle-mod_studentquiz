@@ -173,11 +173,6 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         }
     }
 
-    /*
-    *
-    *
-     * */
-
     /**
      * @Return an SQL fragment to be ANDed into the WHERE clause to filter which questions are shown.
      * @return string SQL fragment. Must use named parameters.
