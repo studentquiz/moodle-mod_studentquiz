@@ -135,7 +135,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (Copy from parent class - modified several code snippets)
      * Shows the question bank editing interface.
      *
      * The function also processes a number of actions:
@@ -202,7 +201,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (Copy from parent class - modified several code snippets)
      * process action buttons
      *
      * Check for commands on this page and modify variables as necessary.
@@ -305,8 +303,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (Copy from parent class - modified several code snippets)
-     *
      * Confirmation on process action if needed
      * @return boolean
      */
@@ -393,8 +389,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (Copy from parent class - modified several code snippets)
-     *
      * Create the SQL query to retrieve the indicated questions, based on
      * \core_question\bank\search\condition filters.
      */
@@ -502,7 +496,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * (Copy from parent class - modified several code snippets)
      * Prints the table of questions in a category with interactions
      *
      * @param array $contexts Not used!
