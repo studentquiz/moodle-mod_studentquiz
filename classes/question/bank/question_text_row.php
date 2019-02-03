@@ -62,8 +62,7 @@ class question_text_row extends \core_question\bank\row_base {
     }
 
     /**
-     * (Copy from parent class - modified several code snippets)
-     * Output this column.
+     * Override parent function to don't show content
      * @param object $question the row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
