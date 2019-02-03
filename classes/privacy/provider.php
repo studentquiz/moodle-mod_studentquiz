@@ -69,7 +69,6 @@ class provider implements
                 'questionid' => 'privacy:metadata:studentquiz_rate:questionid',
                 'userid' => 'privacy:metadata:studentquiz_rate:userid'
         ], 'privacy:metadata:studentquiz_rate');
-
         $collection->add_database_table('studentquiz_progress', [
                 'questionid' => 'privacy:metadata:studentquiz_progress:questionid',
                 'userid' => 'privacy:metadata:studentquiz_progress:userid',
