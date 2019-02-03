@@ -131,8 +131,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function render_ranking_block($report) {
         $ranking = $report->get_user_ranking_table(0, 10);
         $currentuserid = $report->get_user_id();
-        $anonymname = get_string('creator_anonym_firstname', 'studentquiz') . ' '
-                        . get_string('creator_anonym_lastname', 'studentquiz');
+        $anonymname = get_string('creator_anonym_fullname', 'studentquiz');
         $anonymise = $report->is_anonymized();
         $studentquiz = mod_studentquiz_load_studentquiz($report->get_cm_id(), $this->page->context->id);
         // We need to check this instead of using $report->is_anonymized()
@@ -144,7 +143,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $rank = 1;
         foreach ($ranking as $row) {
             if ($currentuserid == $row->userid || !$anonymise) {
-                $name = $row->firstname .' ' . $row->lastname;
+                $author = user_get_users_by_id(array($row->userid))[$row->userid];
+                $name = fullname($author);
             } else {
                 $name = $anonymname;
             }
@@ -339,13 +339,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $output .= html_writer::empty_tag('br');
             $output .= html_writer::tag('span', $date, ['class' => 'date']);
         } else {
-            if (!empty($question->creatorfirstname) && !empty($question->creatorlastname)) {
-                $u = new stdClass();
-                $u = username_load_fields_from_object($u, $question, 'creator');
-                $output .= fullname($u);
-                $output .= html_writer::empty_tag('br');
-                $output .= html_writer::tag('span', $date, ['class' => 'date']);
-            }
+            $author = user_get_users_by_id(array($question->createdby))[$question->createdby];
+            $output .= fullname($author);
+            $output .= html_writer::empty_tag('br');
+            $output .= html_writer::tag('span', $date, ['class' => 'date']);
         }
 
         return $output;
@@ -1274,7 +1271,7 @@ EOT;
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate some HTML to display comment list
-     * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
+     * @param array $comments comments ordered by createdby ASC
      * @param int $userid viewing user id
      * @param bool $anonymize users can't see other comment authors user names except ismoderator
      * @param bool $ismoderator can delete all comments, can see all usernames
@@ -1294,7 +1291,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      *
      * @param question_definition $question the current question.
      * @param question_display_options $options controls what should and should not be displayed.
-     * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
+     * @param array $comments comments ordered by createdby ASC
      * @param int $userid viewing user id
      * @param bool $anonymize users can't see other comment authors user names except ismoderator
      * @param bool $ismoderator can delete all comments, can see all usernames
@@ -1377,7 +1374,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * Generate some HTML to display rating
      *
      * @param  int $questionid Question id
-     * @param array $comments comments joined by user.firstname and user.lastname, ordered by createdby ASC
+     * @param array $comments comments ordered by createdby ASC
      * @param int $userid viewing user id
      * @param bool $anonymize users can't see other comment authors user names except ismoderator
      * @param bool $ismoderator can delete all comments, can see all usernames
@@ -1681,10 +1678,10 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                     }
                 }
             }
-            $username = $ur->firstname . ' ' . $ur->lastname;
+            $author = user_get_users_by_id(array($ur->userid))[$ur->userid];
+            $username = fullname($author);
             if ($report->is_anonymized() && $ur->userid != $userid) {
-                $username = get_string('creator_anonym_firstname', 'studentquiz') . ' '
-                    . get_string('creator_anonym_lastname', 'studentquiz');
+                $username = get_string('creator_anonym_fullname', 'studentquiz');
             }
             $celldata[] = array(
                 $rank, // Row: Rank
