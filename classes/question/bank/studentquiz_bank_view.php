@@ -33,7 +33,7 @@ require_once(__DIR__ . '/question_text_row.php');
 require_once(__DIR__ . '/rate_column.php');
 require_once(__DIR__ . '/difficulty_level_column.php');
 require_once(__DIR__ . '/tag_column.php');
-require_once(__DIR__ . '/performances_column.php');
+require_once(__DIR__ . '/practice_column.php');
 require_once(__DIR__ . '/comments_column.php');
 require_once(__DIR__ . '/approved_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
