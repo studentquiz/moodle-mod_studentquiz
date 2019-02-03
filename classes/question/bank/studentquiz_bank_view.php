@@ -664,118 +664,25 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     private function initialize_filter_form($pageurl) {
         $this->isfilteractive = false;
-        $this->set_filter_post_data();
 
-        $reset = optional_param('resetbutton', false, PARAM_ALPHA);
-        if ($reset) {
-            $this->reset_filter();
+        // If reset button was pressed, redirect the user again to the page.
+        // This means all submitted data is intentionally lost and thus the form clean again.
+        if (optional_param('resetbutton', false, PARAM_ALPHA)) {
+            redirect($pageurl);
         }
 
-        $createdby = optional_param('createdby', false, PARAM_INT);
-        if ($createdby) {
-            $this->set_createdby_user_id();
-        }
-
-        $this->modify_base_url();
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(),
             array('cmid' => $this->cm->id)
         );
-        $this->filterform->set_defaults();
-    }
-
-    /**
-     * Set data for filter recognition
-     */
-    private function set_filter_post_data() {
-        foreach ($this->fields as $field) {
-            if (isset($_GET[$field->_name])) {
-                $_POST[$field->_name] = $_GET[$field->_name];
-            }
-
-            if (isset($_GET[$field->_name . '_op'])) {
-                $_POST[$field->_name . '_op'] = $_GET[$field->_name . '_op'];
-            }
-        }
-
-        if (isset($_POST['timecreated_sdt'])) {
-            $_POST['timecreated_sdt']['enabled'] = '1';
-            $_POST['timecreated_sdt']['day'] = $_GET['timecreated_sdt_day'];
-            $_POST['timecreated_sdt']['month'] = $_GET['timecreated_sdt_month'];
-            $_POST['timecreated_sdt']['year'] = $_GET['timecreated_sdt_year'];
-        }
-
-        if (isset($_POST['timecreated_edt'])) {
-            $_POST['timecreated_edt']['enabled'] = '1';
-            $_POST['timecreated_edt']['day'] = $_GET['timecreated_edt_day'];
-            $_POST['timecreated_edt']['month'] = $_GET['timecreated_edt_month'];
-            $_POST['timecreated_edt']['year'] = $_GET['timecreated_edt_year'];
-        }
-
-        if (isset($_GET['createdby'])) {
-            $_POST['createdby'] = '1';
-        }
-    }
-
-    /**
-     * Reset the filter
-     */
-    private function reset_filter() {
-        foreach ($this->fields as $field) {
-            $_POST[$field->_name] = '';
-            $_POST[$field->_name . '_op'] = '0';
-        }
-
-        unset($_POST['timecreated_sdt']);
-        unset($_POST['timecreated_edt']);
-        unset($_POST['createdby']);
-    }
-
-    /**
-     * Set createby POST data
-     */
-    private function set_createdby_user_id() {
-        global $USER;
-        $_POST['createdby'] = $USER->id;
-    }
-
-    /**
-     * Modify base url for ordering
-     */
-    private function modify_base_url() {
-        foreach ($this->fields as $field) {
-            if (isset($_POST[$field->_name])) {
-                $this->baseurl->param($field->_name, $_POST[$field->_name]);
-            }
-
-            if (isset($_POST[$field->_name . '_op'])) {
-                $this->baseurl->param($field->_name . '_op', $_POST[$field->_name . '_op']);
-            }
-        }
-
-        if (isset($_POST['timecreated_sdt'])) {
-            $this->baseurl->param('timecreated_sdt_day', $_POST['timecreated_sdt']['day']);
-            $this->baseurl->param('timecreated_sdt_month', $_POST['timecreated_sdt']['month']);
-            $this->baseurl->param('timecreated_sdt_year', $_POST['timecreated_sdt']['year']);
-        }
-
-        if (isset($_POST['timecreated_edt'])) {
-            $this->baseurl->param('timecreated_edt_day', $_POST['timecreated_edt']['day']);
-            $this->baseurl->param('timecreated_edt_month', $_POST['timecreated_edt']['month']);
-            $this->baseurl->param('timecreated_edt_year', $_POST['timecreated_edt']['year']);
-        }
-
-        if (isset($_POST['createdby'])) {
-            $this->baseurl->param('createdby', $_POST['createdby']);
-        }
     }
 
     /**
      * Load question from database
      * @param int $page
      * @param int $perpage
-     * @return pqginated array of questions
+     * @return paginated array of questions
      */
     private function load_questions($page, $perpage) {
         global $DB;

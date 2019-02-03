@@ -84,9 +84,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         return $this->istagfilteractive;
     }
 
-
     protected function init() {
-
         if ($adddata = $this->filterform->get_data()) {
 
             $this->tests = array();

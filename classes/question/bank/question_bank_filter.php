@@ -102,30 +102,6 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
         $mform->setType('cmid', PARAM_RAW);
     }
 
-    /**
-     * Set form defaults
-     */
-    public function set_defaults() {
-        $submission = array();
-        foreach ($this->fields as $field) {
-            if (isset($_POST[$field->_name])) {
-                $submission[$field->_name] = $_POST[$field->_name];
-            }
-            if (isset($_POST[$field->_name . '_op'])) {
-                $submission[$field->_name . '_op'] = $_POST[$field->_name . '_op'];
-            }
-        }
-        if (isset($_POST['timecreated_sdt'])) {
-            $submission['timecreated_sdt'] = $_POST['timecreated_sdt'];
-        }
-        if (isset($_POST['timecreated_edt'])) {
-            $submission['timecreated_edt'] = $_POST['timecreated_edt'];
-        }
-        if (isset($_POST['createdby'])) {
-            $submission['createdby'] = $_POST['createdby'];
-        }
-        $this->_form->updateSubmission($submission, array());
-    }
 }
 
 class toggle_filter_checkbox extends user_filter_checkbox {

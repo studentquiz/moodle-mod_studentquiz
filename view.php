@@ -33,6 +33,9 @@ require_once(__DIR__.'/reportlib.php');
 // Get parameters.
 if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cmid = required_param('id', PARAM_INT);
+    // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'],
+    // but moodle allows to view a mod page with parameter id in place of cmid.
+    $_GET['cmid'] = $cmid;
 }
 
 // Load course and course module requested.

@@ -59,6 +59,9 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
             , array('course' => $course->id),  array('anonymrank' => true));
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
+        // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'].
+        $_GET['cmid'] = $this->cm->id;
+
         // Satisfy codechecker: $course $context $cm $studentquiz $userid.
         $context = context_module::instance($this->cm->id);
         $report = new mod_studentquiz_report($this->cm->id);
