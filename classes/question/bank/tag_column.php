@@ -103,7 +103,7 @@ class tag_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        $searchtag = ($this->tagfilteractive) ? "SUM(CASE WHEN t.name LIKE :searchtag then 1 else 0 end)" : "0";
+        $searchtag = ($this->tagfilteractive) ? "SUM(CASE WHEN t.name LIKE :searchtag THEN 1 ELSE 0 END)" : "0";
         return array('tags' => "LEFT JOIN (
                                             SELECT ti.itemid AS questionid, COUNT(*) AS tags, " . $searchtag . " AS searchtag
                                               FROM {tag} t

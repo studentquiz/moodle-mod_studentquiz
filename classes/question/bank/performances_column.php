@@ -151,7 +151,7 @@ class practice_column extends \core_question\bank\column_base {
                                                         WHERE qasd.name = '-submit'
                                                               AND sq.id = " . $this->studentquizid . "
                                                               AND sqa.userid = " . $this->currentuserid . "
-                                                              AND qas.fraction is not null
+                                                              AND qas.fraction IS NOT NULL
                                                      GROUP BY qa.questionid
                                                      ) qasdmax ON qasd.id = qasdmax.maxqasdid
                                                WHERE qasd.name = '-submit'
@@ -167,13 +167,13 @@ class practice_column extends \core_question\bank\column_base {
         if ($this->studentquiz->aggregated) {
             return array('sp.attempts practice', 'sp.attempts AS myattempts',
                 "(
-                   CASE WHEN sp.attempts is null
+                   CASE WHEN sp.attempts IS NULL
                         THEN ''
                         ELSE CASE WHEN sp.lastanswercorrect = 1
                                   THEN 'gradedright'
                                   ELSE 'gradedwrong'
-                                   END
-                         END
+                        END
+                   END
                  ) AS mylastattempt");
         } else {
             return array('pr.practice', 'myatts.myattempts', 'mylatts.mylastattempt');
