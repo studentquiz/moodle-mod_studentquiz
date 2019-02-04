@@ -25,10 +25,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(__DIR__)).'/config.php');
+require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/viewlib.php');
-require_once(__DIR__.'/classes/event/studentquiz_questionbank_viewed.php');
-require_once(__DIR__.'/reportlib.php');
+require_once(__DIR__ . '/classes/event/studentquiz_questionbank_viewed.php');
+require_once(__DIR__ . '/reportlib.php');
 
 // Get parameters.
 if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {

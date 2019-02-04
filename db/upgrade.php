@@ -31,7 +31,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(dirname(__DIR__) . '/locallib.php');
+require_once(__DIR__ . '/../locallib.php');
 
 /**
  * Execute StudentQuiz upgrade from the given old version
@@ -321,7 +321,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Update capabilities list and permission types, to make sure the defaults are set after this upgrade.
     if ($oldversion < 2017112602) {
         // Load current access definition for easier iteration.
-        require_once(dirname(__DIR__) . '/db/access.php');
+        require_once(__DIR__ . '/../db/access.php');
         // Load all contexts this has to be defined.
         // Only system context needed, as by default it's inherited from there.
         // if someone did make an override, it's intentional.

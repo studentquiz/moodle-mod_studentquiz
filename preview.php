@@ -120,7 +120,7 @@ echo $OUTPUT->header();
 if ($question) {
     echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
         'enctype' => 'multipart/form-data', 'id' => 'responseform'));
-    echo '<input type="hidden" class="cmid_field" name="cmid" value="' . $cmid . '" />';
+    echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field'));
 
     echo $quba->render_question($slot, $options, 'i');
 

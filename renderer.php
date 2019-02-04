@@ -261,9 +261,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $percentone = round(100 * ($info->one / $info->total));
 
         if (!empty($texttotal)) {
-            $text = '<text xml:space="preserve" text-anchor="start" font-family="Helvetica, Arial, sans-serif"'
-             .' font-size="12" font-weight="bold" id="svg_text" x="50%" y="50%" alignment-baseline="middle"'
-             .' text-anchor="middle" stroke-width="0" stroke="#000" fill="#000000">' . $texttotal . '</text>';
+            $text = html_writer::tag('text', $texttotal, array('xml:space' => 'preserve', 'text-anchor' => 'start', 'font-family' => 'Helvetica, Arial, sans-serif',
+            'font-size' => '12', 'font-weight' => 'bold', 'id' => 'svg_text', 'x' => '50%', 'y' => '50%', 'alignment-baseline' => 'middle', 'text-anchor' => 'middle',
+            'stroke-width' => '0', 'stroke' => '#000', 'fill' => '#000'));
         } else {
             $text = '';
         }

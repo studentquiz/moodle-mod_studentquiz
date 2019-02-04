@@ -349,7 +349,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             if (optional_param('deleteselected', false, PARAM_BOOL)) {
                 // Add an explanation about questions in use.
                 if ($inuse) {
-                    $questionnames .= '<br />'.get_string('questionsinuse', 'question');
+                    $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'question');
                 }
 
                 $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
@@ -361,7 +361,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             } else if (optional_param('approveselected', false, PARAM_BOOL)) {
                 // Add an explanation about questions in use.
                 if ($inuse) {
-                    $questionnames .= '<br />'.get_string('questionsinuse', 'studentquiz');
+                    $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'studentquiz');
                 }
 
                 $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'confirm' => md5($questionlist),
@@ -549,7 +549,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
     protected function display_question_list_rows() {
         $output = '';
-        $output .= '<div class="categoryquestionscontainer">';
+        $output .= \html_writer::start_div('categoryquestionscontainer');
         ob_start();
         $this->start_table();
         $rowcount = 0;
@@ -561,7 +561,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->end_table();
         $output .= ob_get_contents();
         ob_end_clean();
-        $output .= "</div>\n";
+        $output .= \html_writer::end_div();
         return $output;
     }
 
