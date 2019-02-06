@@ -100,57 +100,62 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         if ($this->studentquiz->aggregated) {
-            return array('sp' => 'LEFT JOIN {studentquiz_progress} sp ON sp.questionid = q.id AND sp.userid = '. $this->currentuserid
-                . ' AND sp.studentquizid = ' . $this->studentquizid);
+            return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.questionid = q.id
+                                        AND sp.userid = " . $this->currentuserid . "
+                                        AND sp.studentquizid = " . $this->studentquizid);
         } else {
-            // Add outer WHERE tests here to limit the dataset to just the module question category.
-            $tests = array('qa.responsesummary IS NOT NULL', 'q.parent = 0', 'q.hidden = 0', 'q.category = ' . $this->categoryid);
-            return array('pr' => 'LEFT JOIN ('
-                . 'SELECT COUNT(questionid) as practice'
-                . ', questionid FROM {question_attempts} qa JOIN {question} q ON qa.questionid = q.id'
-                . ' WHERE ' . implode(' AND ', $tests)
-                . ' GROUP BY qa.questionid) pr ON pr.questionid = q.id',
-                'myatts' => 'LEFT JOIN ('
-                    . 'SELECT COUNT(*) myattempts, questionid'
-                    .' FROM	{studentquiz} sq '
-                    .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
-                    . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-                    . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-                    . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-                    . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-                    . ' WHERE qasd.name = \'-submit\''
-                    .'  AND sq.id = ' . $this->studentquizid
-                    .'  AND sqa.userid = ' . $this->currentuserid
-                    .'  AND (qas.state = \'gradedright\' OR qas.state = \'gradedwrong\' OR qas.state=\'gradedpartial\')'
-                    . ' GROUP BY qa.questionid) myatts ON myatts.questionid = q.id',
-                'mylastattempt' => 'LEFT JOIN ('
-                    .'SELECT'
-                    .' 	qa.questionid,'
-                    .' 	qas.state mylastattempt'
-                    .' FROM'
-                    .' 	{studentquiz} sq '
-                    .' 	JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
-                    .' 	JOIN {question_usages} qu on qu.id = sqa.questionusageid '
-                    .' 	JOIN {question_attempts} qa on qa.questionusageid = qu.id '
-                    .' 	LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
-                    .' 	LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
-                    .'  INNER JOIN ('
-                    .' 	 SELECT MAX(qasd.id) maxqasdid'
-                    .' 	 FROM {studentquiz} sq '
-                    .' 	 JOIN {studentquiz_attempt} sqa on sqa.studentquizid = sq.id'
-                    .' 	 JOIN {question_usages} qu on qu.id = sqa.questionusageid '
-                    .' 	 JOIN {question_attempts} qa on qa.questionusageid = qu.id '
-                    .' 	 LEFT JOIN {question_attempt_steps} qas on qas.questionattemptid = qa.id'
-                    .' 	 LEFT JOIN {question_attempt_step_data} qasd on qasd.attemptstepid = qas.id'
-                    .' 	 WHERE qasd.name = \'-submit\''
-                    .'   AND sq.id = ' . $this->studentquizid
-                    .'   AND sqa.userid = ' . $this->currentuserid
-                    .'   AND qas.fraction is not null'
-                    .'   GROUP BY qa.questionid'
-                    .'  ) qasdmax on qasd.id = qasdmax.maxqasdid'
-                    .' WHERE qasd.name = \'-submit\''
-                    . ') mylatts ON mylatts.questionid = q.id'
-            );
+            return array('pr' => "LEFT JOIN (
+                                              SELECT COUNT(questionid) AS practice, questionid
+                                                FROM {question_attempts} qa
+                                                JOIN {question} q ON qa.questionid = q.id
+                                               WHERE qa.responsesummary IS NOT NULL
+                                                     AND q.parent = 0
+                                                     AND q.hidden = 0
+                                                     AND q.category = " . $this->categoryid . "
+                                            GROUP BY qa.questionid
+                                            ) pr ON pr.questionid = q.id",
+                     'myatts' => "LEFT JOIN (
+                                              SELECT COUNT(*) AS myattempts, questionid
+                                                FROM {studentquiz} sq
+                                                JOIN {studentquiz_attempt} sqa ON sqa.studentquizid = sq.id
+                                                JOIN {question_usages} qu ON qu.id = sqa.questionusageid
+                                                JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                                                JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+                                           LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+                                               WHERE qasd.name = '-submit'
+                                                     AND sq.id = " . $this->studentquizid . "
+                                                     AND sqa.userid = " . $this->currentuserid . "
+                                                     AND (
+                                                           qas.state = 'gradedright'
+                                                           OR qas.state = 'gradedwrong'
+                                                           OR qas.state='gradedpartial'
+                                                         )
+                                            GROUP BY qa.questionid
+                                            ) myatts ON myatts.questionid = q.id",
+              'mylastattempt' => "LEFT JOIN (
+                                              SELECT qa.questionid, qas.state mylastattempt
+                                                FROM {studentquiz} sq
+                                                JOIN {studentquiz_attempt} sqa ON sqa.studentquizid = sq.id
+                                                JOIN {question_usages} qu ON qu.id = sqa.questionusageid
+                                                JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                                           LEFT JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+                                           LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+                                          INNER JOIN (
+                                                       SELECT MAX(qasd.id) maxqasdid
+                                                         FROM {studentquiz} sq
+                                                         JOIN {studentquiz_attempt} sqa ON sqa.studentquizid = sq.id
+                                                         JOIN {question_usages} qu ON qu.id = sqa.questionusageid
+                                                         JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                                                    LEFT JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+                                                    LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+                                                        WHERE qasd.name = '-submit'
+                                                              AND sq.id = " . $this->studentquizid . "
+                                                              AND sqa.userid = " . $this->currentuserid . "
+                                                              AND qas.fraction IS NOT NULL
+                                                     GROUP BY qa.questionid
+                                                     ) qasdmax ON qasd.id = qasdmax.maxqasdid
+                                               WHERE qasd.name = '-submit'
+                                            ) mylatts ON mylatts.questionid = q.id");
         }
     }
 
@@ -160,8 +165,16 @@ class practice_column extends \core_question\bank\column_base {
      */
     public function get_required_fields() {
         if ($this->studentquiz->aggregated) {
-            return array('sp.attempts practice', 'sp.attempts as myattempts', '(CASE WHEN sp.attempts is null THEN \'\' ELSE
-            CASE WHEN sp.lastanswercorrect = 1 THEN \'gradedright\' ELSE \'gradedwrong\' END END) mylastattempt');
+            return array('sp.attempts practice', 'sp.attempts AS myattempts',
+                "(
+                   CASE WHEN sp.attempts IS NULL
+                        THEN ''
+                        ELSE CASE WHEN sp.lastanswercorrect = 1
+                                  THEN 'gradedright'
+                                  ELSE 'gradedwrong'
+                        END
+                   END
+                 ) AS mylastattempt");
         } else {
             return array('pr.practice', 'myatts.myattempts', 'mylatts.mylastattempt');
         }

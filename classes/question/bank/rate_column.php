@@ -83,18 +83,17 @@ class rate_column extends \core_question\bank\column_base {
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        return array('vo' => 'LEFT JOIN ('
-        .'SELECT ROUND(avg(rate), 2) as rate'
-        .', questionid FROM {studentquiz_rate} GROUP BY questionid) vo ON vo.questionid = q.id',
-        'myrate' => 'LEFT JOIN ('
-            . 'SELECT '
-            . ' rate myrate, '
-            . ' q.id questionid'
-            . ' FROM {question} q'
-            . ' LEFT JOIN {studentquiz_rate} rate on q.id = rate.questionid'
-            . ' AND rate.userid = ' . $this->currentuserid
-            . ' ) myrate ON myrate.questionid = q.id'
-        );
+        return array('vo' => "LEFT JOIN (
+                                          SELECT ROUND(avg(rate), 2) AS rate, questionid
+                                            FROM {studentquiz_rate}
+                                        GROUP BY questionid
+                                        ) vo ON vo.questionid = q.id",
+                 'myrate' => "LEFT JOIN (
+                                          SELECT rate AS myrate, q.id AS questionid
+                                            FROM {question} q
+                                       LEFT JOIN {studentquiz_rate} rate ON q.id = rate.questionid
+                                                 AND rate.userid = " . $this->currentuserid . "
+                                        ) myrate ON myrate.questionid = q.id");
     }
 
     /**

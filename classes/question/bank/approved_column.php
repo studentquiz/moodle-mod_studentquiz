@@ -75,7 +75,10 @@ class approved_column extends \core_question\bank\column_base {
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        return array('ap' => ' LEFT JOIN (SELECT questionid, approved FROM {studentquiz_question}) ap ON ap.questionid = q.id');
+        return array('ap' => " LEFT JOIN (
+                                           SELECT questionid, approved
+                                             FROM {studentquiz_question}
+                                         ) ap ON ap.questionid = q.id");
     }
 
     /**

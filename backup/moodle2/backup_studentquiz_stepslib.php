@@ -93,13 +93,13 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
             array('id' => backup::VAR_ACTIVITYID, 'coursemodule' => backup::VAR_MODID));
 
         // StudentQuiz Question meta of this StudentQuiz.
-        $questionsql = 'SELECT question.*'
-            .'  FROM {studentquiz} sq'
-            .'  JOIN {context} con ON( con.instanceid = sq.coursemodule )'
-            .'  JOIN {question_categories} qc ON( qc.contextid = con.id )'
-            .'  LEFT JOIN {question} q ON (q.category = qc.id )'
-            .'  JOIN {studentquiz_question} question ON (question.questionid = q.id)'
-            .'  WHERE sq.id = :studentquizid';
+        $questionsql = "SELECT question.*
+                          FROM {studentquiz} sq
+                          JOIN {context} con ON con.instanceid = sq.coursemodule
+                          JOIN {question_categories} qc ON qc.contextid = con.id
+                     LEFT JOIN {question} q ON q.category = qc.id
+                          JOIN {studentquiz_question} question ON question.questionid = q.id
+                         WHERE sq.id = :studentquizid";
         $question->set_source_sql($questionsql, array('studentquizid' => backup::VAR_PARENTID));
 
         // Define data sources with user data.
@@ -112,23 +112,23 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                 array('studentquizid' => backup::VAR_PARENTID));
 
             // Only select rates to questions of this StudentQuiz.
-            $ratesql = 'SELECT rate.*'
-                .'  FROM {studentquiz} sq'
-                .'  JOIN {context} con ON( con.instanceid = sq.coursemodule )'
-                .'  JOIN {question_categories} qc ON( qc.contextid = con.id )'
-                .'  LEFT JOIN {question} q ON (q.category = qc.id )'
-                .'  JOIN {studentquiz_rate} rate ON (rate.questionid = q.id)'
-                .'  WHERE sq.id = :studentquizid';
+            $ratesql = "SELECT rate.*
+                          FROM {studentquiz} sq
+                          JOIN {context} con ON con.instanceid = sq.coursemodule
+                          JOIN {question_categories} qc ON qc.contextid = con.id
+                     LEFT JOIN {question} q ON q.category = qc.id
+                          JOIN {studentquiz_rate} rate ON rate.questionid = q.id
+                         WHERE sq.id = :studentquizid";
             $rate->set_source_sql($ratesql, array('studentquizid' => backup::VAR_PARENTID));
 
             // Only select comments to questions of this StudentQuiz.
-            $commentsql = 'SELECT comment.*'
-                .'  FROM {studentquiz} sq'
-                .'  JOIN {context} con ON( con.instanceid = sq.coursemodule )'
-                .'  JOIN {question_categories} qc ON( qc.contextid = con.id )'
-                .'  LEFT JOIN {question} q ON (q.category = qc.id )'
-                .'  JOIN {studentquiz_comment} comment ON (comment.questionid = q.id)'
-                .'  WHERE sq.id = :studentquizid';
+            $commentsql = "SELECT comment.*
+                             FROM {studentquiz} sq
+                             JOIN {context} con ON con.instanceid = sq.coursemodule
+                             JOIN {question_categories} qc ON qc.contextid = con.id
+                        LEFT JOIN {question} q ON q.category = qc.id
+                             JOIN {studentquiz_comment} comment ON comment.questionid = q.id
+                            WHERE sq.id = :studentquizid";
             $comment->set_source_sql($commentsql, array('studentquizid' => backup::VAR_PARENTID));
         }
 

@@ -199,7 +199,7 @@ class user_filter_tag extends user_filter_text {
                 $params[$name] = "%$value%";
                 break;
             case 1: // Does not contain.
-                $res = ' (searchtag = 0 or searchtag is null) ';
+                $res = ' (searchtag = 0 OR searchtag IS NULL) ';
                 $params[$name] = "%$value%";
                 break;
             case 2: // Equal to.
@@ -215,7 +215,7 @@ class user_filter_tag extends user_filter_text {
                 $params[$name] = "%$value";
                 break;
             case 5: // Empty.
-                $res = ' (tags = 0 or tags is null) ';
+                $res = ' (tags = 0 OR tags IS NULL) ';
                 $params[$name] = "-ignore-";
                 break;
             default:

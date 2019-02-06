@@ -138,29 +138,29 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
  *
  */
 function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_sql($studentquizid) {
-    $sql = <<<EOL
-Select
-q.id as questionid_,
-qas.userid as userid_,
-s.id as studentquizid,
-COUNT(qas.id) as attempts,
-SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) as correctattempts,
-(Select qas1.state
-From {question} q1
-join {question_attempts} qa1 ON qa1.questionid = q1.id
-join {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
-where qas1.fraction is not null and q1.id = questionid_ and qas1.userid = userid_
-order by qas1.id DESC limit 1) AS lastanswercorrect
-From {question} q
-JOIN {question_categories} qc ON qc.id = q.category
-JOIN {context} co ON co.id = qc.contextid
-join {course_modules} cm ON cm.id = co.instanceid
-join {studentquiz} s ON s.coursemodule = cm.id
-join {question_attempts} qa ON qa.questionid = q.id
-join {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-where s.id = $studentquizid and qas.state != 'todo'
-group by q.id,qas.userid
-EOL;
+    $sql = "SELECT q.id AS questionid_, qas.userid AS userid_, s.id AS studentquizid, COUNT(qas.id) AS attempts,
+                   SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) AS correctattempts,
+                   (
+                     SELECT qas1.state
+                       FROM {question} q1
+                       JOIN {question_attempts} qa1 ON qa1.questionid = q1.id
+                       JOIN {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
+                      WHERE qas1.fraction IS NOT NULL
+                            AND q1.id = questionid_
+                            AND qas1.userid = userid_
+                   ORDER BY qas1.id DESC
+                      LIMIT 1
+                   ) AS lastanswercorrect
+              FROM {question} q
+              JOIN {question_categories} qc ON qc.id = q.category
+              JOIN {context} co ON co.id = qc.contextid
+              JOIN {course_modules} cm ON cm.id = co.instanceid
+              JOIN {studentquiz} s ON s.coursemodule = cm.id
+              JOIN {question_attempts} qa ON qa.questionid = q.id
+              JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+              WHERE s.id = $studentquizid
+                    AND qas.state != 'todo'
+          GROUP BY q.id,qas.userid";
     return $sql;
 }
 
@@ -554,9 +554,10 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
 function mod_studentquiz_get_comments_with_creators($questionid) {
     global $DB;
 
-    $sql = 'SELECT co.* FROM {studentquiz_comment} co'
-            .' WHERE co.questionid = :questionid'
-            .' ORDER BY co.created ASC';
+    $sql = "SELECT co.* 
+              FROM {studentquiz_comment} co
+              WHERE co.questionid = :questionid
+            ORDER BY co.created ASC";
 
     return $DB->get_records_sql($sql, array( 'questionid' => $questionid));
 }
@@ -731,52 +732,60 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid, $aggregated) {
  * TODO: Refactor: There must be a better way to do this!
  */
 function mod_studentquiz_helper_attempt_stat_select() {
-    return 'SELECT '
-        .' statspercategory.userid userid,'
-        // Aggregate values over all categories in cm context.
-        // Note: Max() of equals is faster than Sum() of groups.
-        // See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
-        .' MAX(points) points,'
-        .' MAX(questions_created) questions_created,'
-        .' MAX(questions_created_and_rated) questions_created_and_rated,'
-        .' MAX(questions_approved) questions_approved,'
-        .' MAX(rates_received) rates_received,'
-        .' MAX(rates_average) rates_average,'
-        .' MAX(question_attempts) question_attempts,'
-        .' MAX(question_attempts_correct) question_attempts_correct,'
-        .' MAX(question_attempts_incorrect) question_attempts_incorrect,'
-        .' MAX(last_attempt_exists) last_attempt_exists,'
-        .' MAX(last_attempt_correct) last_attempt_correct,'
-        .' MAX(last_attempt_incorrect) last_attempt_incorrect'
-        // Select for each question category in context.
-        .' FROM ( SELECT '
-        .' u.id userid,'
-        .' qc.id category, '
-        // Calculate points.
-        .' COALESCE ( ROUND('
-        .' COALESCE(creators.countq, 0) * :questionquantifier  ' // Questions created.
-        .'+ COALESCE(approvals.countq, 0) * :approvedquantifier  ' // Questions approved.
-        .'+ COALESCE(rates.avgv, 0) * (COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0)) * :ratequantifier  ' // Rating.
-        .'+ COALESCE(lastattempt.last_attempt_correct, 0) * :correctanswerquantifier  ' // Correct answers.
-        .'+ COALESCE(lastattempt.last_attempt_incorrect, 0) * :incorrectanswerquantifier ' // Incorrect answers.
-        .' , 1) , 0) points, '
-        // Questions created.
-        .' COALESCE(creators.countq, 0) questions_created,'
-        // Questions created and rated.
-        .' COALESCE(COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0), 0) questions_created_and_rated,'
-        // Questions approved.
-        .' COALESCE(approvals.countq, 0) questions_approved,'
-        // Questions rating received.
-        .' COALESCE(rates.countv, 0) rates_received,'
-        .' COALESCE(rates.avgv, 0) rates_average,'
-        // Question attempts.
-        .' COALESCE(attempts.counta, 0) question_attempts,'
-        .' COALESCE(attempts.countright, 0) question_attempts_correct,'
-        .' COALESCE(attempts.countwrong, 0) question_attempts_incorrect,'
-        // Last attempt.
-        .' COALESCE(lastattempt.last_attempt_exists, 0) last_attempt_exists,'
-        .' COALESCE(lastattempt.last_attempt_correct, 0) last_attempt_correct,'
-        .' COALESCE(lastattempt.last_attempt_incorrect, 0) last_attempt_incorrect';
+    return "SELECT statspercategory.userid AS userid, statspercategory.firstname AS firstname,
+                   statspercategory.lastname AS lastname,
+                   -- Aggregate values over all categories in cm context.
+                   -- Note: Max() of equals is faster than Sum() of groups.
+                   -- See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
+                   MAX(points) AS points, MAX(questions_created) AS questions_created,
+                   MAX(questions_created_and_rated) AS questions_created_and_rated, MAX(questions_approved) AS questions_approved,
+                   MAX(rates_received) AS rates_received, MAX(rates_average) AS rates_average,
+                   MAX(question_attempts) AS question_attempts, MAX(question_attempts_correct) AS question_attempts_correct,
+                   MAX(question_attempts_incorrect) AS question_attempts_incorrect,
+                   MAX(last_attempt_exists) AS last_attempt_exists, MAX(last_attempt_correct) AS last_attempt_correct,
+                   MAX(last_attempt_incorrect) AS last_attempt_incorrect
+              -- Select for each question category in context.
+              FROM (
+                     SELECT u.id AS userid, qc.id AS category,
+                            -- Calculate points.
+                            COALESCE (
+                                       ROUND (
+                                               -- Questions created.
+                                               COALESCE(creators.countq, 0) * :questionquantifier +
+                                               -- Questions approved.
+                                               COALESCE(approvals.countq, 0) * :approvedquantifier +
+                                               -- Rating.
+                                               COALESCE(rates.avgv, 0) * (COALESCE(creators.countq, 0) -
+                                                   COALESCE(rates.not_rated_questions, 0)) * :ratequantifier +
+                                               -- Correct answers.
+                                               COALESCE(lastattempt.last_attempt_correct, 0) * :correctanswerquantifier +
+                                               -- Incorrect answers.
+                                               COALESCE(lastattempt.last_attempt_incorrect, 0) * :incorrectanswerquantifier,
+                                               1
+                                             ),
+                                       0
+                                     ) AS points,
+                            -- Questions created.
+                            COALESCE(creators.countq, 0) AS questions_created,
+                            -- Questions created and rated.
+                            COALESCE(COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0),
+                                0) AS questions_created_and_rated,
+                            -- Questions approved.
+                            COALESCE(approvals.countq, 0) AS questions_approved,
+                            -- Questions rating received.
+                            COALESCE(rates.countv, 0) AS rates_received,
+                            COALESCE(rates.avgv, 0) AS rates_average,
+                            -- Question attempts.
+                            COALESCE(attempts.counta, 0) AS question_attempts,
+                            COALESCE(attempts.countright, 0) AS question_attempts_correct,
+                            COALESCE(attempts.countwrong, 0) AS question_attempts_incorrect,
+                            -- Last attempt.
+                            COALESCE(lastattempt.last_attempt_exists, 0) AS last_attempt_exists,
+                            COALESCE(lastattempt.last_attempt_correct, 0) AS last_attempt_correct,
+                            COALESCE(lastattempt.last_attempt_incorrect, 0) AS last_attempt_incorrect
+               -- WARNING: the trailing ) is intentionally missing, found in mod_studentquiz_user_stats var statsbycat
+               -- Following newline is intentional because this string is concatenated
+           ";
 }
 
 /**
@@ -784,145 +793,135 @@ function mod_studentquiz_helper_attempt_stat_select() {
  * TODO: Refactor: There must be a better way to do this!
  */
 function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
-    $sql = ' FROM {studentquiz} sq'
-        // Get this Studentquiz Question category.
-        . ' JOIN {context} con ON con.instanceid = sq.coursemodule'
-        . ' JOIN {question_categories} qc ON qc.contextid = con.id'
-        // Only enrolled users.
-        . ' JOIN {course} c ON c.id = sq.course'
-        . ' JOIN {enrol} e ON e.courseid = c.id'
-        . ' JOIN {user_enrolments} ue ON ue.enrolid = e.id'
-        . ' JOIN {user} u ON ue.userid = u.id'
-        // Question created by user.
-        . ' LEFT JOIN'
-        . ' ( SELECT count(*) countq, q.createdby creator'
-        . ' FROM {studentquiz} sq'
-        . ' JOIN {context} con ON con.instanceid = sq.coursemodule'
-        . ' JOIN {question_categories} qc ON qc.contextid = con.id'
-        . ' JOIN {question} q on q.category = qc.id'
-        . ' WHERE q.hidden = 0 AND q.parent = 0 AND sq.coursemodule = :cmid4'
-        . ' GROUP BY creator'
-        . ' ) creators ON creators.creator = u.id'
-        // Approved questions.
-        . ' LEFT JOIN'
-        . ' ( SELECT count(*) countq, q.createdby creator'
-        . ' FROM {studentquiz} sq'
-        . ' JOIN {context} con ON con.instanceid = sq.coursemodule'
-        . ' JOIN {question_categories} qc ON qc.contextid = con.id'
-        . ' JOIN {question} q on q.category = qc.id'
-        . ' JOIN {studentquiz_question} sqq ON q.id = sqq.questionid'
-        . ' where q.hidden = 0 AND q.parent = 0 AND sqq.approved = 1 AND sq.coursemodule = :cmid5'
-        . ' group by creator'
-        . ' ) approvals ON approvals.creator = u.id'
-        // Average of Average Rating of own questions.
-        . ' LEFT JOIN'
-        . ' (SELECT'
-        . '    createdby,'
-        . '    AVG(avg_rate_perq) avgv,'
-        . '    SUM(num_rate_perq) countv,'
-        . '    SUM(question_not_rated) not_rated_questions'
-        . '  FROM ('
-        . '      SELECT'
-        . '          q.id,'
-        . '          q.createdby createdby,'
-        . '          AVG(sqv.rate) avg_rate_perq,'
-        . '          COUNT(sqv.rate) num_rate_perq,'
-        . '          MAX(CASE WHEN sqv.id is null then 1 else 0 end) question_not_rated'
-        . '      FROM {studentquiz} sq'
-        . '      JOIN {context} con on con.instanceid = sq.coursemodule'
-        . '      JOIN {question_categories} qc on qc.contextid = con.id'
-        . '      JOIN {question} q on q.category = qc.id'
-        . '      LEFT JOIN {studentquiz_rate} sqv on q.id = sqv.questionid'
-        . '      WHERE'
-        . '          q.hidden = 0 AND q.parent = 0'
-        . '          and sq.coursemodule = :cmid6'
-        . '      GROUP BY q.id, q.createdby'
-        . '      ) avgratingperquestion'
-        . '  GROUP BY createdby'
-        . ' ) rates ON rates.createdby = u.id';
+    $sql = " FROM {studentquiz} sq
+             -- Get this Studentquiz Question category.
+             JOIN {context} con ON con.instanceid = sq.coursemodule
+             JOIN {question_categories} qc ON qc.contextid = con.id
+             -- Only enrolled users.
+             JOIN {course} c ON c.id = sq.course
+             JOIN {enrol} e ON e.courseid = c.id
+             JOIN {user_enrolments} ue ON ue.enrolid = e.id
+             JOIN {user} u ON ue.userid = u.id
+        -- Question created by user.
+        LEFT JOIN (
+                    SELECT count(*) AS countq, q.createdby AS creator
+                      FROM {studentquiz} sq
+                      JOIN {context} con ON con.instanceid = sq.coursemodule
+                      JOIN {question_categories} qc ON qc.contextid = con.id
+                      JOIN {question} q ON q.category = qc.id
+                     WHERE q.hidden = 0
+                           AND q.parent = 0
+                           AND sq.coursemodule = :cmid4
+                  GROUP BY creator
+                  ) creators ON creators.creator = u.id
+        -- Approved questions.
+        LEFT JOIN (
+                    SELECT count(*) AS countq, q.createdby AS creator
+                      FROM {studentquiz} sq
+                      JOIN {context} con ON con.instanceid = sq.coursemodule
+                      JOIN {question_categories} qc ON qc.contextid = con.id
+                      JOIN {question} q ON q.category = qc.id
+                      JOIN {studentquiz_question} sqq ON q.id = sqq.questionid
+                      WHERE q.hidden = 0
+                            AND q.parent = 0
+                            AND sqq.approved = 1
+                            AND sq.coursemodule = :cmid5
+                   GROUP BY creator
+                   ) approvals ON approvals.creator = u.id
+        -- Average of Average Rating of own questions.
+        LEFT JOIN (
+                    SELECT createdby, AVG(avg_rate_perq) AS avgv, SUM(num_rate_perq) AS countv,
+                           SUM(question_not_rated) AS not_rated_questions
+                      FROM (
+                             SELECT q.id, q.createdby AS createdby, AVG(sqv.rate) AS avg_rate_perq,
+                                    COUNT(sqv.rate) AS num_rate_perq,
+                                    MAX(CASE WHEN sqv.id IS NULL THEN 1 ELSE 0 END) AS question_not_rated
+                               FROM {studentquiz} sq
+                               JOIN {context} con ON con.instanceid = sq.coursemodule
+                               JOIN {question_categories} qc ON qc.contextid = con.id
+                               JOIN {question} q ON q.category = qc.id
+                          LEFT JOIN {studentquiz_rate} sqv ON q.id = sqv.questionid
+                              WHERE q.hidden = 0
+                                    AND q.parent = 0
+                                    AND sq.coursemodule = :cmid6
+                           GROUP BY q.id, q.createdby
+                           ) avgratingperquestion
+                  GROUP BY createdby
+                  ) rates ON rates.createdby = u.id";
     if ($aggregated) {
-        $sql .= ' LEFT JOIN (SELECT'
-            . ' sp.userid,'
-            . ' COUNT(*) last_attempt_exists,'
-            . ' SUM(lastanswercorrect) last_attempt_correct,'
-            . ' SUM(1 - lastanswercorrect) last_attempt_incorrect'
-            . ' FROM'
-            . ' {studentquiz_progress} AS sp'
-            . ' JOIN {studentquiz} sq ON sq.id = sp.studentquizid'
-            . ' WHERE'
-            . ' sq.coursemodule = :cmid2'
-            . ' GROUP BY sp.userid) lastattempt ON lastattempt.userid = u.id'
-            . ' LEFT JOIN (SELECT'
-            . ' SUM(attempts) counta,'
-            . ' SUM(correctattempts) countright,'
-            . ' SUM(attempts - correctattempts) countwrong,'
-            . ' sp.userid userid'
-            . ' FROM'
-            . ' {studentquiz_progress} AS sp'
-            . ' JOIN {studentquiz} sq ON sq.id = sp.studentquizid'
-            . ' WHERE'
-            . ' sq.coursemodule = :cmid1'
-            . ' GROUP BY sp.userid) attempts ON attempts.userid = u.id';
+        $sql .= "
+        LEFT JOIN (
+                    SELECT sp.userid, COUNT(*) AS last_attempt_exists, SUM(lastanswercorrect) AS last_attempt_correct,
+                           SUM(1 - lastanswercorrect) AS last_attempt_incorrect
+                      FROM {studentquiz_progress} sp
+                      JOIN {studentquiz} sq ON sq.id = sp.studentquizid
+                     WHERE sq.coursemodule = :cmid2
+                  GROUP BY sp.userid
+                  ) lastattempt ON lastattempt.userid = u.id
+        LEFT JOIN (
+                    SELECT SUM(attempts) AS counta, SUM(correctattempts) AS countright,
+                           SUM(attempts - correctattempts) AS countwrong, sp.userid AS userid
+                      FROM {studentquiz_progress} sp
+                      JOIN {studentquiz} sq ON sq.id = sp.studentquizid
+                     WHERE sq.coursemodule = :cmid1
+                  GROUP BY sp.userid
+                  ) attempts ON attempts.userid = u.id";
     } else {
-        $sql .= ' LEFT JOIN'
-            . ' ('
-            . ' SELECT count(*) counta,'
-            . ' SUM(CASE WHEN state = \'gradedright\' THEN 1 ELSE 0 END) countright,'
-            . ' SUM(CASE WHEN qas.state = \'gradedwrong\' THEN 1 WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) countwrong,'
-            . ' sqa.userid userid'
-            . ' FROM {studentquiz} sq'
-            . ' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
-            . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-            . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-            . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-            . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-            . ' WHERE sq.coursemodule = :cmid7'
-            . ' AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
-            // Only count grading triggered by submits.
-            . ' AND qasd.name = \'-submit\''
-            . ' group by sqa.userid'
-            . ' ) attempts ON attempts.userid = u.id'
-            // Latest attempts.
-            . ' LEFT JOIN'
-            . ' ('
-            . ' SELECT'
-            . ' sqa.userid,'
-            . ' count(*) last_attempt_exists,'
-            . ' SUM(CASE WHEN qas.state = \'gradedright\' THEN 1 ELSE 0 END) last_attempt_correct,'
-            . ' SUM(CASE '
-            . '        WHEN qas.state = \'gradedwrong\' THEN 1'
-            . '        WHEN qas.state = \'gradedpartial\' THEN 1 ELSE 0 END) last_attempt_incorrect'
-            . ' FROM {studentquiz} sq'
-            . ' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
-            . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-            . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-            . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-            . ' LEFT JOIN {question_attempt_step_data} qasd ON'
-            . ' qasd.attemptstepid = qas.id and'
-            . ' qasd.id in ('
-            // SELECT only latest states (its a constant result).
-            . ' SELECT max(qasd.id) latest_grading_event'
-            . ' FROM {studentquiz} sq'
-            . ' JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid'
-            . ' JOIN {question_usages} qu ON qu.id = sqa.questionusageid'
-            . ' JOIN {question_attempts} qa ON qa.questionusageid = qu.id'
-            . ' JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id'
-            . ' JOIN {question} qq ON qq.id = qa.questionid'
-            . ' LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id'
-            . ' WHERE sq.coursemodule = :cmid1'
-            . '   AND qas.state in (\'gradedright\', \'gradedwrong\', \'gradedpartial\')'
-            . '   AND qasd.name = \'-submit\''
-            . ' group by sqa.userid, questionid'
-            . ' )'
-            . ' WHERE sq.coursemodule = :cmid2'
-            . ' AND qas.state in (\'gradedright\', \'gradedpartial\', \'gradedwrong\')'
-            // Only count grading triggered by submits.
-            . ' AND qasd.name = \'-submit\''
-            . ' group by sqa.userid'
-            . ' ) lastattempt ON lastattempt.userid = u.id';
+        $sql .= "
+        LEFT JOIN (
+                    SELECT count(*) AS counta, SUM(CASE WHEN state = 'gradedright' THEN 1 ELSE 0 END) AS countright,
+                           SUM(CASE WHEN qas.state = 'gradedwrong' THEN 1 WHEN qas.state = 'gradedpartial' THEN 1 ELSE 0 END)
+                               AS countwrong,
+                           sqa.userid AS userid
+                      FROM {studentquiz} sq
+                      JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid
+                      JOIN {question_usages} qu ON qu.id = sqa.questionusageid
+                      JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                      JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+                 LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+                     WHERE sq.coursemodule = :cmid7
+                           AND qas.state IN ('gradedright', 'gradedwrong', 'gradedpartial')
+                           -- Only count grading triggered by submits.
+                           AND qasd.name = '-submit'
+                 GROUP BY sqa.userid
+                 ) attempts ON attempts.userid = u.id
+        -- Latest attempts.
+        LEFT JOIN (
+                    SELECT sqa.userid, count(*) AS last_attempt_exists,
+                           SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) AS last_attempt_correct,
+                           SUM(CASE WHEN qas.state = 'gradedwrong' THEN 1 WHEN qas.state = 'gradedpartial' THEN 1 ELSE 0 END)
+                               AS last_attempt_incorrect
+                      FROM {studentquiz} sq
+                      JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid
+                      JOIN {question_usages} qu ON qu.id = sqa.questionusageid
+                      JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                      JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+                 LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+                           AND qasd.id IN (
+                                            -- SELECT only latest states (its a constant result).
+                                            SELECT max(qasd.id) AS latest_grading_event
+                                              FROM {studentquiz} sq
+                                              JOIN {studentquiz_attempt} sqa ON sq.id = sqa.studentquizid
+                                              JOIN {question_usages} qu ON qu.id = sqa.questionusageid
+                                              JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                                              JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+                                              JOIN {question} qq ON qq.id = qa.questionid
+                                         LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
+                                             WHERE sq.coursemodule = :cmid1
+                                                   AND qas.state IN ('gradedright', 'gradedwrong', 'gradedpartial')
+                                                   AND qasd.name = '-submit'
+                                          GROUP BY sqa.userid, questionid
+                                          )
+                     WHERE sq.coursemodule = :cmid2
+                           AND qas.state IN ('gradedright', 'gradedpartial', 'gradedwrong')
+                           -- Only count grading triggered by submits.
+                           AND qasd.name = '-submit'
+                  GROUP BY sqa.userid
+                  ) lastattempt ON lastattempt.userid = u.id";
     }
     // Question attempts: sum of number of graded attempts per question.
-    $sql .= ' WHERE sq.coursemodule = :cmid3';
+    $sql .= "
+            WHERE sq.coursemodule = :cmid3";
 
     return $sql;
 }
@@ -1010,28 +1009,26 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
     if (!empty($courseorigid)) {
         $courseids[] = $courseorigid;
     } else {
-        $courseids = $DB->get_fieldset_sql('
-            select distinct cm.course
-            from {course_modules} cm
-            inner join {context} c on cm.id = c.instanceid
-            inner join {question_categories} qc on qc.contextid = c.id
-            inner join {modules} m on cm.module = m.id
-            where m.name = :modulename
-        ', array(
+        $sql = "SELECT DISTINCT cm.course
+                  FROM {course_modules} cm
+            INNER JOIN {context} c ON cm.id = c.instanceid
+            INNER JOIN {question_categories} qc ON qc.contextid = c.id
+            INNER JOIN {modules} m ON cm.module = m.id
+                 WHERE m.name = :modulename";
+        $courseids = $DB->get_fieldset_sql($sql, array(
             'modulename' => 'studentquiz'
         ));
     }
 
     // Step into each course so they operate independent from each other.
     foreach ($courseids as $courseid) {
-        // Import old Core Quiz Data (question attempts) to studentquiz.
+        // Import old core quiz data (question attempts) to studentquiz.
         // This is the case, when orphaned section(s) can be found.
-        $orphanedsectionids = $DB->get_fieldset_sql('
-            select id
-            from {course_sections}
-            where course = :course
-            and name = :name
-        ', array(
+        $sql = "SELECT id
+                  FROM {course_sections}
+                  WHERE course = :course
+                        AND name = :name";
+        $orphanedsectionids = $DB->get_fieldset_sql($sql, array(
             'course' => $courseid,
             'name' => STUDENTQUIZ_COURSE_SECTION_NAME
         ));
@@ -1041,24 +1038,24 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
 
             // For each course we need to find the studentquizzes.
             // "up" section: Only get the topmost category of that studentquiz, which isn't "top" if that one exists.
-            $studentquizzes = $DB->get_records_sql('
-                select s.id, s.name, cm.id as cmid, c.id as contextid, qc.id as categoryid, qc.name as categoryname, qc.parent
-                from {studentquiz} s
-                inner join {course_modules} cm on s.id = cm.instance
-                inner join {context} c on cm.id = c.instanceid
-                inner join {question_categories} qc on qc.contextid = c.id
-                inner join {modules} m on cm.module = m.id
-                left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
-                where m.name = :modulename
-                and cm.course = :course
-                and (
-                    up.name = :topname1
-	                or (
-	                    up.id is null
-	                    and qc.name <> :topname2
-	                )
-	            )
-            ', array(
+            $sql = "SELECT s.id, s.name, cm.id AS cmid, c.id AS contextid, qc.id AS categoryid, qc.name AS categoryname, qc.parent
+                      FROM {studentquiz} s
+                INNER JOIN {course_modules} cm ON s.id = cm.instance
+                INNER JOIN {context} c ON cm.id = c.instanceid
+                INNER JOIN {question_categories} qc ON qc.contextid = c.id
+                INNER JOIN {modules} m ON cm.module = m.id
+                 LEFT JOIN {question_categories} up ON qc.contextid = up.contextid
+                           AND qc.parent = up.id
+                     WHERE m.name = :modulename
+                           AND cm.course = :course
+                           AND (
+                                 up.name = :topname1
+                                 OR (
+                                      up.id IS NULL
+                                      AND qc.name <> :topname2
+                                    )
+                               )";
+            $studentquizzes = $DB->get_records_sql($sql, array(
                 'modulename' => 'studentquiz',
                 'course' => $courseid,
                 'topname1' => 'top',
@@ -1068,17 +1065,16 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             foreach ($studentquizzes as $studentquiz) {
 
                 // Each studentquiz wants the question attempt id, which can be found inside the matching quizzes.
-                $oldusages = $DB->get_records_sql('
-                    select qu.id as qusageid, q.id as quizid, cm.id as cmid, cm.section as sectionid, c.id as contextid
-                    from {quiz} q
-                    inner join {course_modules} cm on q.id = cm.instance
-                    inner join {context} c on cm.id = c.instanceid
-                    inner join {modules} m on cm.module = m.id
-                    inner join {question_usages} qu on c.id = qu.contextid
-                    where m.name = :modulename
-                    and cm.course = :course
-                    and ' . $DB->sql_like('q.name', ':name', false) . '
-                ', array(
+                $sql = "SELECT qu.id AS qusageid, q.id AS quizid, cm.id AS cmid, cm.section AS sectionid, c.id AS contextid
+                         FROM {quiz} q
+                   INNER JOIN {course_modules} cm ON q.id = cm.instance
+                   INNER JOIN {context} c ON cm.id = c.instanceid
+                   INNER JOIN {modules} m ON cm.module = m.id
+                   INNER JOIN {question_usages} qu ON c.id = qu.contextid
+                        WHERE m.name = :modulename
+                              AND cm.course = :course
+                              AND " . $DB->sql_like('q.name', ':name', false);
+                $oldusages = $DB->get_records_sql($sql, array(
                     'modulename' => 'quiz',
                     'course' => $courseid,
                     'name' => $studentquiz->name . '%'
@@ -1097,12 +1093,11 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
                         array('questionusageid' => $oldusage->qusageid));
 
                     // Now we need each user as own attempt.
-                    $userids = $DB->get_fieldset_sql('
-                        select distinct qas.userid
-                        from {question_attempt_steps} qas
-                        inner join {question_attempts} qa on qas.questionattemptid = qa.id
-                        where qa.questionusageid = :qusageid
-                    ', array(
+                    $sql = "SELECT DISTINCT qas.userid
+                              FROM {question_attempt_steps} qas
+                        INNER JOIN {question_attempts} qa ON qas.questionattemptid = qa.id
+                             WHERE qa.questionusageid = :qusageid";
+                    $userids = $DB->get_fieldset_sql($sql, array(
                         'qusageid' => $oldusage->qusageid
                     ));
                     foreach ($userids as $userid) {
@@ -1127,18 +1122,17 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             $orphanedsectionids[] = 0; // Force multiple entries, so next command makes a IN statement in every case.
             list($insql, $inparams) = $DB->get_in_or_equal($orphanedsectionids, SQL_PARAMS_NAMED, 'section');
 
-            $lastnonemptysection = $DB->get_record_sql('
-                SELECT MAX(s.section) as max_section
-                   FROM {course_sections} s
-                   left join {course_modules} m on s.id = m.section
-                   where s.course = :course
-                   and s.id NOT ' . $insql . '
-                   and (
-                       m.id is not NULL
-                       or s.name <> :sectionname
-                       or s.summary <> :sectionsummary
-                   )
-            ', array_merge($inparams, array(
+            $sql = "SELECT MAX(s.section) AS max_section
+                      FROM {course_sections} s
+                 LEFT JOIN {course_modules} m ON s.id = m.section
+                     WHERE s.course = :course
+                           AND s.id NOT " . $insql . "
+                           AND (
+                                 m.id IS NOT NULL
+                                 OR s.name <> :sectionname
+                                 OR s.summary <> :sectionsummary
+                               )";
+            $lastnonemptysection = $DB->get_record_sql($sql, array_merge($inparams, array(
                 'course' => $courseid,
                 'sectionname' => '',
                 'sectionsummary' => ''
@@ -1184,11 +1178,11 @@ function mod_studentquiz_get_tags_by_question_ids($ids) {
 
     list($insql, $params) = $DB->get_in_or_equal($ids);
     $result = array();
-    $tags = $DB->get_records_sql(
-        'SELECT ti.id id, t.id tagid, t.name, t.rawname, ti.itemid '
-        . ' FROM {tag} t JOIN {tag_instance} ti ON ti.tagid = t.id '
-        . ' WHERE ti.itemtype = \'question\' AND ti.itemid '
-        . $insql, $params);
+    $sql = "SELECT ti.id AS id, t.id AS tagid, t.name, t.rawname, ti.itemid
+              FROM {tag} t
+              JOIN {tag_instance} ti ON ti.tagid = t.id
+             WHERE ti.itemtype = 'question' AND ti.itemid " . $insql;
+    $tags = $DB->get_records_sql($sql, $params);
     foreach ($tags as $tag) {
         if (empty($result[$tag->itemid])) {
             $result[$tag->itemid] = array();
@@ -1200,13 +1194,17 @@ function mod_studentquiz_get_tags_by_question_ids($ids) {
 
 function mod_studentquiz_count_questions($cmid) {
     global $DB;
-    $rs = $DB->count_records_sql('SELECT count(*) FROM {studentquiz} sq'
-        // Get this Studentquiz Question category.
-        .' JOIN {context} con ON con.instanceid = sq.coursemodule'
-        .' JOIN {question_categories} qc ON qc.contextid = con.id'
-        // Only enrolled users.
-        .' JOIN {question} q ON q.category = qc.id'
-        .'  WHERE q.hidden = 0 AND q.parent = 0 AND sq.coursemodule = :cmid', array('cmid' => $cmid));
+    $sql = "SELECT COUNT(*)
+              FROM {studentquiz} sq
+              -- Get this StudentQuiz question category.
+              JOIN {context} con ON con.instanceid = sq.coursemodule
+              JOIN {question_categories} qc ON qc.contextid = con.id
+              -- Only enrolled users.
+              JOIN {question} q ON q.category = qc.id
+             WHERE q.hidden = 0
+                   AND q.parent = 0
+                   AND sq.coursemodule = :cmid";
+    $rs = $DB->count_records_sql($sql, array('cmid' => $cmid));
     return $rs;
 }
 
@@ -1218,36 +1216,36 @@ function mod_studentquiz_count_questions($cmid) {
  */
 function mod_studentquiz_question_stats($cmid) {
     global $DB;
-    $sql = 'SELECT count(*) questions_available,'
-       .'          avg(rating.avg_rating) as average_rating,'
-       .'          sum(sqq.approved) as questions_approved'
-       .'   FROM {studentquiz} sq'
-        // Get this Studentquiz Question category.
-        .' JOIN {context} con ON con.instanceid = sq.coursemodule'
-        .' JOIN {question_categories} qc ON qc.contextid = con.id'
-        // Only enrolled users.
-        .' JOIN {question} q ON q.category = qc.id'
-        .' LEFT JOIN {studentquiz_question} sqq on sqq.questionid = q.id'
-        .' LEFT JOIN ('
-        .'  SELECT'
-        .'      q.id questionid,'
-        .'      coalesce(avg(sqr.rate),0) avg_rating'
-        .'  FROM {studentquiz} sq'
-        .'   JOIN {context} con ON con.instanceid = sq.coursemodule'
-        .'   JOIN {question_categories} qc ON qc.contextid = con.id'
-        .'   JOIN {question} q ON q.category = qc.id'
-        .'   LEFT JOIN {studentquiz_rate} sqr ON sqr.questionid = q.id'
-        .'  WHERE sq.coursemodule = :cmid2'
-        .'  GROUP BY q.id'
-        .' ) rating on rating.questionid = q.id'
-        .' WHERE q.hidden = 0 and q.parent = 0 and sq.coursemodule = :cmid1';
+    $sql = "SELECT COUNT(*) AS questions_available,
+                   AVG(rating.avg_rating) AS average_rating,
+                   SUM(sqq.approved) AS questions_approved
+              FROM {studentquiz} sq
+              -- Get this StudentQuiz question category.
+              JOIN {context} con ON con.instanceid = sq.coursemodule
+              JOIN {question_categories} qc ON qc.contextid = con.id
+              -- Only enrolled users.
+              JOIN {question} q ON q.category = qc.id
+         LEFT JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+         LEFT JOIN (
+                     SELECT q.id AS questionid, COALESCE(AVG(sqr.rate),0) AS avg_rating
+                       FROM {studentquiz} sq
+                       JOIN {context} con ON con.instanceid = sq.coursemodule
+                       JOIN {question_categories} qc ON qc.contextid = con.id
+                       JOIN {question} q ON q.category = qc.id
+                  LEFT JOIN {studentquiz_rate} sqr ON sqr.questionid = q.id
+                      WHERE sq.coursemodule = :cmid2
+                   GROUP BY q.id
+                   ) rating ON rating.questionid = q.id
+             WHERE q.hidden = 0
+                   AND q.parent = 0
+                   AND sq.coursemodule = :cmid1";
     $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
     return $rs;
 }
 
 /**
  * Fix parent of question categories of StudentQuiz.
- * Old Studentquiz have the parent of question categories not equalling to 0 for various reasons, but they should.
+ * Old StudentQuiz had the parent of question categories not equalling to 0 for various reasons, but they should.
  * In Moodle < 3.5 there is no "top" parent category, so the question category itself has to be corrected if it's not 0.
  * In Moodle >= 3.5 there is a new "top" parent category, so the question category of StudentQuiz has to have that as parent.
  * See https://tracker.moodle.org/browse/MDL-61132 and its diff.
@@ -1257,42 +1255,42 @@ function mod_studentquiz_question_stats($cmid) {
 function mod_studentquiz_fix_wrong_parent_in_question_categories() {
     global $DB;
 
-    if (function_exists('question_get_top_category')) { // We have a moodle with "top" category feature
-        $categorieswithouttop = $DB->get_records_sql('
-            select qc.id, qc.contextid, qc.name, qc.parent
-            from {question_categories} qc
-            inner join {context} c on qc.contextid = c.id
-            inner join {course_modules} cm on c.instanceid = cm.id
-            inner join {modules} m on cm.module = m.id
-            left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
-            where m.name = :modulename
-            and up.name is null
-            and qc.name <> :topname
-        ', array(
+    if (function_exists('question_get_top_category')) { // We have a moodle with "top" category feature.
+        $sql = "SELECT qc.id, qc.contextid, qc.name, qc.parent
+                  FROM {question_categories} qc
+            INNER JOIN {context} c ON qc.contextid = c.id
+            INNER JOIN {course_modules} cm ON c.instanceid = cm.id
+            INNER JOIN {modules} m ON cm.module = m.id
+             LEFT JOIN {question_categories} up ON qc.contextid = up.contextid
+                       AND qc.parent = up.id
+                 WHERE m.name = :modulename
+                       AND up.name IS NULL
+                       AND qc.name <> :topname";
+        $categorieswithouttop = $DB->get_records_sql($sql, array(
             'modulename' => 'studentquiz',
             'topname' => 'top'
         ));
         foreach ($categorieswithouttop as $currentcat) {
             $topcat = question_get_top_category($currentcat->contextid, true);
-            // now set the parent to the newly created top id
+            // Now set the parent to the newly created top id.
             $DB->set_field('question_categories', 'parent', $topcat->id, array('id' => $currentcat->id));
         }
     } else {
-        $categorieswithoutparent = $DB->get_records_sql('
-            select qc.id, qc.contextid, qc.name, qc.parent
-            from {question_categories} qc
-            inner join {context} c on qc.contextid = c.id
-            inner join {course_modules} cm on c.instanceid = cm.id
-            inner join {modules} m on cm.module = m.id
-            left join {question_categories} up on qc.contextid = up.contextid and qc.parent = up.id
-            where m.name = :modulename
-            and up.id is null
-            and qc.parent <> 0
-        ', array(
+        $sql = "SELECT qc.id, qc.contextid, qc.name, qc.parent
+                  FROM {question_categories} qc
+            INNER JOIN {context} c ON qc.contextid = c.id
+            INNER JOIN {course_modules} cm ON c.instanceid = cm.id
+            INNER JOIN {modules} m ON cm.module = m.id
+             LEFT JOIN {question_categories} up ON qc.contextid = up.contextid
+                       AND qc.parent = up.id
+                 WHERE m.name = :modulename
+                       AND up.id IS NULL
+                       AND qc.parent <> 0";
+        $categorieswithoutparent = $DB->get_records_sql($sql, array(
                 'modulename' => 'studentquiz'
         ));
         foreach ($categorieswithoutparent as $currentcat) {
-            // now set the parent to 0
+            // Now set the parent to 0.
             $DB->set_field('question_categories', 'parent', 0, array('id' => $currentcat->id));
         }
     }

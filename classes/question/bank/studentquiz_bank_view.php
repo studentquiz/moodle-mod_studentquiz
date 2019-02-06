@@ -251,11 +251,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
             if ($questionids) {
                 list($usql, $params) = $DB->get_in_or_equal($questionids);
-                $questions = $DB->get_records_sql("
-                        SELECT q.*, c.contextid
-                        FROM {question} q
-                        JOIN {question_categories} c ON c.id = q.category
-                        WHERE q.id {$usql}", $params);
+                $sql = "SELECT q.*, c.contextid
+                          FROM {question} q
+                          JOIN {question_categories} c ON c.id = q.category
+                         WHERE q.id {$usql}";
+                $questions = $DB->get_records_sql($sql, $params);
                 foreach ($questions as $question) {
                     question_require_capability_on($question, 'move');
                 }

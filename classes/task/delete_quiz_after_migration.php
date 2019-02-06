@@ -41,32 +41,22 @@ class delete_quiz_after_migration extends \core\task\scheduled_task {
 
         // Search if there is an orphaned quiz, which has the same name as an studentquiz and is in the same course,
         // but is in no section anymore.
-        $orphanedquiz = $DB->get_record_sql('
-        select
-            q.id as quizid,
-            q.name as quizname,
-            cmq.course as quizcourseid,
-            csq.id as quizsectionid,
-            s.id as studentquizid,
-            s.name as studentquizname,
-            cms.course as studentquizcourseid
-        from {modules} ms
-        inner join {course_modules} cms on ms.id = cms.module
-        inner join {studentquiz} s on cms.instance = s.id
-        left join {course_modules} cmq on cms.course = cmq.course
-        inner join {quiz} q on cmq.instance = q.id
-        inner join {modules} mq on cmq.module = mq.id
-        left join {course_sections} csq on cmq.section = csq.id
-        where ms.name = \'studentquiz\'
-        and mq.name = \'quiz\'
-        and csq.id is null
-        and q.name like concat(s.name, \'%\')
-        order by
-            cms.course,
-            s.id,
-            q.id
-        limit 1
-        ');
+        $sql = "SELECT q.id AS quizid, q.name AS quizname, cmq.course AS quizcourseid, csq.id AS quizsectionid,
+                       s.id AS studentquizid, s.name AS studentquizname, cms.course AS studentquizcourseid
+                  FROM {modules} ms
+            INNER JOIN {course_modules} cms ON ms.id = cms.module
+            INNER JOIN {studentquiz} s ON cms.instance = s.id
+             LEFT JOIN {course_modules} cmq ON cms.course = cmq.course
+            INNER JOIN {quiz} q ON cmq.instance = q.id
+            INNER JOIN {modules} mq ON cmq.module = mq.id
+             LEFT JOIN {course_sections} csq ON cmq.section = csq.id
+                 WHERE ms.name = 'studentquiz'
+                       AND mq.name = 'quiz'
+                       AND csq.id IS NULL
+                       AND q.name LIKE concat(s.name, '%')
+              ORDER BY cms.course, s.id, q.id
+                 LIMIT 1";
+        $orphanedquiz = $DB->get_record_sql($sql);
 
         // We have found a orphaned quiz, remove it.
         if ($orphanedquiz !== false) {
