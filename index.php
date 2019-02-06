@@ -22,8 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(__DIR__)).'/config.php');
-require_once(__DIR__ .'/lib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/lib.php');
 
 $id = required_param('id', PARAM_INT);
 if (!$course = $DB->get_record('course', array('id' => $id))) {
@@ -95,10 +95,10 @@ foreach ($studentquizzes as $studentquiz) {
     // Link to the instance.
     $class = '';
     if (!$studentquiz->visible) {
-        $class = ' class="dimmed"';
+        $class = 'dimmed';
     }
-    $data[] = "<a$class href=\"view.php?id=$studentquiz->coursemodule\">" .
-        format_string($studentquiz->name, true) . '</a>';
+    $data[] = html_writer::tag('a', format_string($studentquiz->name, true), array(
+        'href' => "view.php?id=" . $studentquiz->coursemodule, 'class' => $class));
 
     $table->data[] = $data;
 } // End of loop over studentquiz instances.

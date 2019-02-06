@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/lib/formslib.php');
-require_once($CFG->dirroot.'/user/filters/text.php');
-require_once($CFG->dirroot.'/user/filters/date.php');
+require_once($CFG->dirroot . '/lib/formslib.php');
+require_once($CFG->dirroot . '/user/filters/text.php');
+require_once($CFG->dirroot . '/user/filters/date.php');
 
 /**
  * Question bank filter form intance

@@ -22,9 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(dirname(dirname(__DIR__)).'/config.php');
-require_once(__DIR__.'/reportlib.php');
-require_once(__DIR__.'/classes/event/studentquiz_report_quiz_viewed.php');
+require_once(__DIR__ . '/../../config.php');
+require_once(__DIR__ . '/reportlib.php');
+require_once(__DIR__ . '/classes/event/studentquiz_report_quiz_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
 if (!$cmid) {
