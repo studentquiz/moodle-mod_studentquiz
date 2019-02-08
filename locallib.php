@@ -732,7 +732,7 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid, $aggregated) {
  * TODO: Refactor: There must be a better way to do this!
  */
 function mod_studentquiz_helper_attempt_stat_select() {
-    return "SELECT statspercategory.userid AS userid, 
+    return "SELECT statspercategory.userid AS userid,
                    -- Aggregate values over all categories in cm context.
                    -- Note: Max() of equals is faster than Sum() of groups.
                    -- See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
