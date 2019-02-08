@@ -554,7 +554,7 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
 function mod_studentquiz_get_comments_with_creators($questionid) {
     global $DB;
 
-    $sql = "SELECT co.* 
+    $sql = "SELECT co.*
               FROM {studentquiz_comment} co
               WHERE co.questionid = :questionid
             ORDER BY co.created ASC";
@@ -732,8 +732,7 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid, $aggregated) {
  * TODO: Refactor: There must be a better way to do this!
  */
 function mod_studentquiz_helper_attempt_stat_select() {
-    return "SELECT statspercategory.userid AS userid, statspercategory.firstname AS firstname,
-                   statspercategory.lastname AS lastname,
+    return "SELECT statspercategory.userid AS userid, 
                    -- Aggregate values over all categories in cm context.
                    -- Note: Max() of equals is faster than Sum() of groups.
                    -- See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
