@@ -139,11 +139,13 @@ class studentquiz_condition extends \core_question\bank\search\condition {
     }
 
     private function get_special_sql($sqldata, $name) {
-        if (substr($sqldata, 0, 12) === 'mydifficulty') {
-            return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $sqldata);
-        }
-        if ($name == "onlynew") {
-            return str_replace('myattempts', 'sp.attempts', $sqldata);
+        if ($this->studentquiz->aggregated) {
+            if (substr($sqldata, 0, 12) === 'mydifficulty') {
+                return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $sqldata);
+            }
+            if ($name == "onlynew") {
+                return str_replace('myattempts', 'sp.attempts', $sqldata);
+            }
         }
         return $sqldata;
     }
