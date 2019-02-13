@@ -112,9 +112,9 @@ class difficulty_level_column extends \core_question\bank\column_base {
                                             GROUP BY qa.questionid
                                             ) dl ON dl.questionid = q.id",
                     'mydiffs' => "LEFT JOIN (
-                                              SELECT ROUND(1-avg(case state when \'gradedright\' then 1 else 0 end),2)
+                                              SELECT ROUND(1-avg(case state when 'gradedright' then 1 else 0 end),2)
                                                          AS mydifficulty,
-                                                     sum(case state when \'gradedright\' then 1 else 0 end) AS mycorrectattempts,
+                                                     sum(case state when 'gradedright' then 1 else 0 end) AS mycorrectattempts,
                                                      questionid
                                                 FROM {studentquiz_attempt} sqa
                                                 JOIN {question_usages} qu ON qu.id = sqa.questionusageid

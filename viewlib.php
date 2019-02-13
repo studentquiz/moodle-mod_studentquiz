@@ -129,6 +129,8 @@ class mod_studentquiz_view {
         // TODO: We should fix these with the updates and restore functions (analog fix question category etc.)
         mod_studentquiz_ensure_question_capabilities($this->context);
 
+        $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
+
         // Get edit question link setup
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
