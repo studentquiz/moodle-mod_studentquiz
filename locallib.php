@@ -493,7 +493,7 @@ function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, 
 
 
 /**
- * Trigger Report viewed Event
+ * Trigger report viewed event.
  */
 function mod_studentquiz_report_viewed($cmid, $context) {
     // TODO: How about $cmid from $context?
@@ -507,7 +507,7 @@ function mod_studentquiz_report_viewed($cmid, $context) {
 }
 
 /**
- * Trigger Completion api and view Event
+ * Trigger completion api and view event.
  *
  * @param  stdClass $course     course object
  * @param  stdClass $cm         course module object
@@ -526,6 +526,37 @@ function mod_studentquiz_overview_viewed($course, $cm, $context) {
     // Completion.
     $completion = new completion_info($course);
     $completion->set_module_viewed($cm);
+}
+
+/**
+ * Trigger instance list viewed event.
+ *
+ * @param  stdClass $context    context object
+ */
+function mod_studentquiz_instancelist_viewed($context) {
+
+    $params = array(
+        'context' => $context
+    );
+
+    $event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
+    $event->trigger();
+}
+
+/**
+ * Trigger report rank viewed event.
+ *
+ * @param  stdClass $context    context object
+ */
+function mod_studentquiz_reportrank_viewed($cmid, $context) {
+
+    $params = array(
+        'objectid' => $cmid,
+        'context' => $context
+    );
+
+    $event = \mod_studentquiz\event\studentquiz_report_rank_viewed::create($params);
+    $event->trigger();
 }
 
 /**

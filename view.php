@@ -27,7 +27,6 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/viewlib.php');
-require_once(__DIR__ . '/classes/event/studentquiz_questionbank_viewed.php');
 require_once(__DIR__ . '/reportlib.php');
 
 // Get parameters.
@@ -91,8 +90,6 @@ $PAGE->set_heading($COURSE->fullname);
 // Process actions.
 $view->process_actions();
 
-// Fire view event for completion API and event API.
-mod_studentquiz_overview_viewed($course, $cm, $context);
 
 $renderer->add_fake_block($report);
 
@@ -104,3 +101,5 @@ $PAGE->requires->js_init_code($renderer->render_bar_javascript_snippet(), true);
 
 echo $OUTPUT->footer();
 
+// Trigger completion api and view event.
+mod_studentquiz_overview_viewed($course, $cm, $context);
