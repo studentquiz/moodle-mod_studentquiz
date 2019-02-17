@@ -90,6 +90,8 @@ $PAGE->set_heading($COURSE->fullname);
 // Process actions.
 $view->process_actions();
 
+// Trigger completion.
+mod_studentquiz_completion($course, $cm);
 
 $renderer->add_fake_block($report);
 
@@ -101,5 +103,5 @@ $PAGE->requires->js_init_code($renderer->render_bar_javascript_snippet(), true);
 
 echo $OUTPUT->footer();
 
-// Trigger completion api and view event.
-mod_studentquiz_overview_viewed($course, $cm, $context);
+// Trigger overview viewed event.
+mod_studentquiz_overview_viewed($cm->id, $context);
