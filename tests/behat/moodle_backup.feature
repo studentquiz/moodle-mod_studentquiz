@@ -37,4 +37,3 @@ Feature: Backup and restore of moodle exports
     Examples:
       | file                                          | course     | studentquiz   |
       | backup-moodle2-course-one-moodle_31_sq203.mbz | Course One | StudentQuiz 1 |
-      | backup-moodle2-course-two-moodle_31_sq203.mbz | Course Two | StudentQuiz 3 |
