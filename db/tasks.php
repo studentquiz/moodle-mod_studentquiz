@@ -24,14 +24,4 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
-        'classname' => 'mod_studentquiz\task\delete_quiz_after_migration',
-        'blocking' => 0,
-        'minute' => '*',
-        'hour' => '*',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*'
-    )
-);
+$tasks = array();

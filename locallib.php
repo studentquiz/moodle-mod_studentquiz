@@ -30,7 +30,6 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
-require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 /** @var string default quiz behaviour */
 const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
@@ -1114,7 +1113,6 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
             foreach (array_keys($oldquizzes) as $quizid) {
                 // So that quiz doesn't remove the question usages.
                 $DB->delete_records('quiz_attempts', array('quiz' => $quizid));
-                // Quiz deletion over classes/task/delete_quiz_after_migration.php.
             }
 
             // So lookup the last non-empty section first.
