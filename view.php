@@ -38,26 +38,15 @@ if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     $_GET['cmid'] = $cmid;
 }
 
-// Load course and course module requested.
-if ($cmid) {
-    if (!$cm = get_coursemodule_from_id('studentquiz', $cmid)) {
-        print_error('invalidcoursemodule');
-    }
-    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-        print_error('coursemisconf');
-    }
-} else {
-    print_error('invalidcoursemodule');
-}
+// TODO: make course-, context- and login-check in a better starting class (not magically hidden in "report").
+// And when doing that, offer course, context and studentquiz object over it, which all following actions can use.
+$report = new mod_studentquiz_report($cmid);
+require_login($report->get_course(), false, $report->get_coursemodule());
 
-// Authentication check.
-require_login($cm->course, false, $cm);
-
-// Load context.
-$context = context_module::instance($cm->id);
-
-// Load studentquiz.
-$studentquiz = mod_studentquiz_load_studentquiz($cm->id, $context->id);
+$course = $report->get_course();
+$context = $report->get_context();
+$cm = $report->get_coursemodule();
+$studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
 // Redirect if we have received valid POST data.
 if (data_submitted()) {
@@ -80,9 +69,7 @@ $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 $renderer->init_question_table_wanted_columns();
 
 // Load view.
-$report = new mod_studentquiz_report($cmid);
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
-
 
 $PAGE->set_url($view->get_pageurl());
 $PAGE->set_title($view->get_title());
