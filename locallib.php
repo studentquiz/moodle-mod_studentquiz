@@ -1323,3 +1323,63 @@ function mod_studentquiz_check_availability($openform, $closefrom, $type) {
 
     return [$message, $availabilityallow];
 }
+
+/**
+ * Saves question rating.
+ *
+ * // TODO:
+ * @param  stdClass $data requires userid, questionid, rate
+ * @internal param $course
+ * @internal param $module
+ */
+function mod_studentquiz_save_rate($data) {
+    global $DB, $USER;
+
+    $row = $DB->get_record('studentquiz_rate', array('userid' => $USER->id, 'questionid' => $data->questionid));
+    if ($row === false) {
+        $DB->insert_record('studentquiz_rate', $data);
+    } else {
+        $DB->update_record('studentquiz_rate', $row);
+    }
+}
+
+/**
+ * Saves question comment.
+ *
+ * // TODO:
+ * @param  stdClass $data requires userid, questionid, comment
+ * @param $course
+ * @param $module
+ */
+function mod_studentquiz_save_comment($data, $course, $module) {
+    global $DB;
+
+    $data->created = usertime(time(), usertimezone());
+    $DB->insert_record('studentquiz_comment', $data);
+    mod_studentquiz_notify_comment_added($data, $course, $module);
+}
+
+/**
+ * Deletes question comment.
+ *
+ * // TODO:
+ * @param  stdClass $data requires commentid
+ * @param $course
+ * @param $module
+ * @return bool success
+ */
+function mod_studentquiz_delete_comment($commentid, $course, $module) {
+    global $DB, $USER;
+
+    $success = false;
+    $comment = $DB->get_record('studentquiz_comment', array('id' => $commentid));
+    // The manager is allowed to delete any comment and additionally sends a notification.
+    if (mod_studentquiz_check_created_permission($module->id)) {
+        $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid));
+        mod_studentquiz_notify_comment_deleted($comment, $course, $module);
+    } else {
+        // Only the student can delete his own comment.
+        $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid, 'userid' => $USER->id));
+    }
+    return $success;
+}
