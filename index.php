@@ -32,12 +32,6 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 $coursecontext = context_course::instance($id);
 require_login($course);
 
-$params = array(
-    'context' => $coursecontext
-);
-$event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
-$event->trigger();
-
 $strname = get_string('modulenameplural', 'mod_studentquiz');
 $PAGE->set_url('/mod/studentquiz/index.php', array('id' => $id));
 $PAGE->navbar->add($strname);
@@ -108,3 +102,6 @@ echo html_writer::table($table);
 
 // Finish the page.
 echo $OUTPUT->footer();
+
+// Trigger instance list viewed event.
+mod_studentquiz_instancelist_viewed($coursecontext);
