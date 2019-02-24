@@ -490,9 +490,50 @@ function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, 
     question_engine::save_questions_usage_by_activity($questionusage);
 }
 
+/**
+ * Trigger completion.
+ *
+ * @param  stdClass $course     course object
+ * @param  stdClass $cm         course module object
+ */
+function mod_studentquiz_completion($course, $cm) {
+    $completion = new completion_info($course);
+    $completion->set_module_viewed($cm);
+}
 
 /**
- * Trigger Report viewed Event
+ * Trigger overview viewed event.
+ *
+ * @param int      $cmid       course module id
+ * @param stdClass $context    context object
+ */
+function mod_studentquiz_overview_viewed($cmid, $context) {
+    $params = array(
+        'objectid' => $cmid,
+        'context' => $context
+    );
+    $event = \mod_studentquiz\event\course_module_viewed::create($params);
+    $event->trigger();
+}
+
+/**
+ * Trigger instance list viewed event.
+ *
+ * @param stdClass $context    context object
+ */
+function mod_studentquiz_instancelist_viewed($context) {
+    $params = array(
+        'context' => $context
+    );
+    $event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
+    $event->trigger();
+}
+
+/**
+ * Trigger report viewed event.
+ *
+ * @param int      $cmid       course module id
+ * @param stdClass $context    context object
  */
 function mod_studentquiz_report_viewed($cmid, $context) {
     // TODO: How about $cmid from $context?
@@ -500,31 +541,23 @@ function mod_studentquiz_report_viewed($cmid, $context) {
         'objectid' => $cmid,
         'context' => $context
     );
-
     $event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
     $event->trigger();
 }
 
 /**
- * Trigger Completion api and view Event
+ * Trigger report rank viewed event.
  *
- * @param  stdClass $course     course object
- * @param  stdClass $cm         course module object
- * @param  stdClass $context    context object
+ * @param stdClass $cmid       course module id
+ * @param stdClass $context    context object
  */
-function mod_studentquiz_overview_viewed($course, $cm, $context) {
-
+function mod_studentquiz_reportrank_viewed($cmid, $context) {
     $params = array(
-        'objectid' => $cm->id,
+        'objectid' => $cmid,
         'context' => $context
     );
-
-    $event = \mod_studentquiz\event\course_module_viewed::create($params);
+    $event = \mod_studentquiz\event\studentquiz_report_rank_viewed::create($params);
     $event->trigger();
-
-    // Completion.
-    $completion = new completion_info($course);
-    $completion->set_module_viewed($cm);
 }
 
 /**
@@ -853,7 +886,8 @@ function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
                            SUM(1 - lastanswercorrect) AS last_attempt_incorrect
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
-                     WHERE sq.coursemodule = :cmid2
+                      JOIN {question} q ON q.id = sp.questionid
+                     WHERE sq.coursemodule = :cmid2 and q.hidden = 0
                   GROUP BY sp.userid
                   ) lastattempt ON lastattempt.userid = u.id
         LEFT JOIN (
@@ -861,7 +895,8 @@ function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
                            SUM(attempts - correctattempts) AS countwrong, sp.userid AS userid
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
-                     WHERE sq.coursemodule = :cmid1
+                      JOIN {question} q ON q.id = sp.questionid
+                     WHERE sq.coursemodule = :cmid1 and q.hidden = 0
                   GROUP BY sp.userid
                   ) attempts ON attempts.userid = u.id";
     } else {
@@ -1320,4 +1355,64 @@ function mod_studentquiz_check_availability($openform, $closefrom, $type) {
     }
 
     return [$message, $availabilityallow];
+}
+
+/**
+ * Saves question rating.
+ *
+ * // TODO:
+ * @param  stdClass $data requires userid, questionid, rate
+ * @internal param $course
+ * @internal param $module
+ */
+function mod_studentquiz_save_rate($data) {
+    global $DB, $USER;
+
+    $row = $DB->get_record('studentquiz_rate', array('userid' => $USER->id, 'questionid' => $data->questionid));
+    if ($row === false) {
+        $DB->insert_record('studentquiz_rate', $data);
+    } else {
+        $DB->update_record('studentquiz_rate', $row);
+    }
+}
+
+/**
+ * Saves question comment.
+ *
+ * // TODO:
+ * @param  stdClass $data requires userid, questionid, comment
+ * @param $course
+ * @param $module
+ */
+function mod_studentquiz_save_comment($data, $course, $module) {
+    global $DB;
+
+    $data->created = usertime(time(), usertimezone());
+    $DB->insert_record('studentquiz_comment', $data);
+    mod_studentquiz_notify_comment_added($data, $course, $module);
+}
+
+/**
+ * Deletes question comment.
+ *
+ * // TODO:
+ * @param  stdClass $data requires commentid
+ * @param $course
+ * @param $module
+ * @return bool success
+ */
+function mod_studentquiz_delete_comment($commentid, $course, $module) {
+    global $DB, $USER;
+
+    $success = false;
+    $comment = $DB->get_record('studentquiz_comment', array('id' => $commentid));
+    // The manager is allowed to delete any comment and additionally sends a notification.
+    if (mod_studentquiz_check_created_permission($module->id)) {
+        $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid));
+        mod_studentquiz_notify_comment_deleted($comment, $course, $module);
+    } else {
+        // Only the student can delete his own comment.
+        $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid, 'userid' => $USER->id));
+    }
+    return $success;
 }
