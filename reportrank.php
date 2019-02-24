@@ -24,7 +24,6 @@
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/reportlib.php');
-require_once(__DIR__ . '/classes/event/studentquiz_report_rank_viewed.php');
 
 $cmid = optional_param('id', 0, PARAM_INT);
 if (!$cmid) {
@@ -33,13 +32,6 @@ if (!$cmid) {
 
 $report = new mod_studentquiz_report($cmid);
 require_login($report->get_course(), false, $report->get_coursemodule());
-
-$params = array(
-    'objectid' => $report->get_cm_id(),
-    'context' => $report->get_context()
-);
-$event = \mod_studentquiz\event\studentquiz_report_rank_viewed::create($params);
-$event->trigger();
 
 $PAGE->set_title($report->get_ranking_title());
 $PAGE->set_heading($report->get_heading());
@@ -53,3 +45,6 @@ echo $OUTPUT->header();
 echo $output->view_rank($report);
 
 echo $OUTPUT->footer();
+
+// Trigger report rank viewed event.
+mod_studentquiz_reportrank_viewed($report->get_cm_id(), $report->get_context());

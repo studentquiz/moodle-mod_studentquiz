@@ -491,9 +491,50 @@ function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, 
     question_engine::save_questions_usage_by_activity($questionusage);
 }
 
+/**
+ * Trigger completion.
+ *
+ * @param  stdClass $course     course object
+ * @param  stdClass $cm         course module object
+ */
+function mod_studentquiz_completion($course, $cm) {
+    $completion = new completion_info($course);
+    $completion->set_module_viewed($cm);
+}
 
 /**
- * Trigger Report viewed Event
+ * Trigger overview viewed event.
+ *
+ * @param int      $cmid       course module id
+ * @param stdClass $context    context object
+ */
+function mod_studentquiz_overview_viewed($cmid, $context) {
+    $params = array(
+        'objectid' => $cmid,
+        'context' => $context
+    );
+    $event = \mod_studentquiz\event\course_module_viewed::create($params);
+    $event->trigger();
+}
+
+/**
+ * Trigger instance list viewed event.
+ *
+ * @param stdClass $context    context object
+ */
+function mod_studentquiz_instancelist_viewed($context) {
+    $params = array(
+        'context' => $context
+    );
+    $event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
+    $event->trigger();
+}
+
+/**
+ * Trigger report viewed event.
+ *
+ * @param int      $cmid       course module id
+ * @param stdClass $context    context object
  */
 function mod_studentquiz_report_viewed($cmid, $context) {
     // TODO: How about $cmid from $context?
@@ -501,31 +542,23 @@ function mod_studentquiz_report_viewed($cmid, $context) {
         'objectid' => $cmid,
         'context' => $context
     );
-
     $event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
     $event->trigger();
 }
 
 /**
- * Trigger Completion api and view Event
+ * Trigger report rank viewed event.
  *
- * @param  stdClass $course     course object
- * @param  stdClass $cm         course module object
- * @param  stdClass $context    context object
+ * @param stdClass $cmid       course module id
+ * @param stdClass $context    context object
  */
-function mod_studentquiz_overview_viewed($course, $cm, $context) {
-
+function mod_studentquiz_reportrank_viewed($cmid, $context) {
     $params = array(
-        'objectid' => $cm->id,
+        'objectid' => $cmid,
         'context' => $context
     );
-
-    $event = \mod_studentquiz\event\course_module_viewed::create($params);
+    $event = \mod_studentquiz\event\studentquiz_report_rank_viewed::create($params);
     $event->trigger();
-
-    // Completion.
-    $completion = new completion_info($course);
-    $completion->set_module_viewed($cm);
 }
 
 /**
