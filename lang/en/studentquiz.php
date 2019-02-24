@@ -256,9 +256,6 @@ $string['reportrank_table_column_quantifier_name'] = 'Name';
 $string['reportrank_table_column_factor'] = 'Factor';
 $string['reportrank_table_column_description'] = 'Description';
 
-// Task.
-$string['task_delete_quiz_after_migration'] = 'Delete quiz activities after data migration from an import or plugin update';
-
 // Permission.
 $string['studentquiz:addinstance'] = 'Add new instance for StudentQuiz';
 $string['studentquiz:view'] = 'View questions on StudentQuiz';
