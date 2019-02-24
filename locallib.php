@@ -887,7 +887,8 @@ function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
                            SUM(1 - lastanswercorrect) AS last_attempt_incorrect
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
-                     WHERE sq.coursemodule = :cmid2
+                      JOIN {question} q ON q.id = sp.questionid
+                     WHERE sq.coursemodule = :cmid2 and q.hidden = 0
                   GROUP BY sp.userid
                   ) lastattempt ON lastattempt.userid = u.id
         LEFT JOIN (
@@ -895,7 +896,8 @@ function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
                            SUM(attempts - correctattempts) AS countwrong, sp.userid AS userid
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
-                     WHERE sq.coursemodule = :cmid1
+                      JOIN {question} q ON q.id = sp.questionid
+                     WHERE sq.coursemodule = :cmid1 and q.hidden = 0
                   GROUP BY sp.userid
                   ) attempts ON attempts.userid = u.id";
     } else {
