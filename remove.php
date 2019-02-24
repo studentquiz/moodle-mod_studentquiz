@@ -47,21 +47,6 @@ if ($cmid) {
 require_login($module->course, false, $module);
 require_sesskey();
 
-header('Content-Type: text/html; charset=utf-8');
+mod_studentquiz_delete_comment($commentid, $course, $module);
 
-$comment = $DB->get_record('studentquiz_comment', array('id' => $commentid));
-// TODO strange return 401?
-if (mod_studentquiz_check_created_permission($cmid)) {
-    // In this case an manager has deleted the comment.
-    mod_studentquiz_notify_comment_deleted($comment, $course, $module);
-    $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid));
-    if (!$success) {
-        return http_response_code(401);
-    }
-} else {
-    // TODO: we could add here the same notification command, but it would here delete his own comment, just made in a strange way.
-    $success = $DB->delete_records('studentquiz_comment', array('id' => $commentid, 'userid' => $USER->id));
-    if (!$success) {
-        return http_response_code(401);
-    }
-}
+header('Content-Type: text/html; charset=utf-8');
