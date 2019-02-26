@@ -204,10 +204,13 @@ table#categoryquestions {
     text-align: left;
     white-space: nowrap;
 }
-#categoryquestions tr.checkbox,
+#categoryquestions th.checkbox,
 #categoryquestions td.checkbox {
     padding-left: 10px;
     padding-right: 7px;
+}
+#categoryquestions .qtype {
+    width: auto;
 }
 #categoryquestions .questionname {
     min-width: 180px;

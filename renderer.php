@@ -629,17 +629,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_tag($tag) {
-        $output = '';
-
-        $output .= html_writer::tag('span', (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) . '...') : $tag->rawname), [
+        $output = html_writer::tag('span', (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) . '...') : $tag->rawname), [
                 'role' => 'listitem',
                 'data-value' => 'HELLO',
                 'aria-selected' => 'true',
                 'class' => 'tag tag-success '
         ]);
-
-        $output .= '&nbsp;';
-
+        $output .= ' ';
         return $output;
     }
 
