@@ -53,10 +53,18 @@ class comment_column extends \core_question\bank\column_base {
     }
 
     /**
-     * Get title
+     * Get title to return the very short column name
      * @return string column title
      */
     protected function get_title() {
+        return get_string('comment_veryshort', 'studentquiz');
+    }
+
+    /**
+     * Get title tip to return the full column name
+     * @return string column title
+     */
+    protected function get_title_tip() {
         return get_string('comment_column_name', 'studentquiz');
     }
 

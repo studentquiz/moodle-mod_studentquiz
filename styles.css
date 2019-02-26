@@ -197,23 +197,28 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 .question-unapproved {
     color: #7b1400;
 }
+table#categoryquestions {
+    table-layout: auto;
+}
 #categoryquestions .header {
     text-align: left;
+    white-space: nowrap;
+}
+#categoryquestions tr.checkbox,
+#categoryquestions td.checkbox {
+    padding-left: 10px;
+    padding-right: 7px;
 }
 #categoryquestions .questionname {
-    white-space: normal;
-}
-#categoryquestions .approved {
-    width: 70px;
+    min-width: 180px;
 }
 #categoryquestions .iconcol {
     width: 12px;
 }
 #categoryquestions .rates,
 #categoryquestions .difficultylevel,
-#categoryquestions .practice,
-#categoryquestions .comment {
-    width: 120px;
+#categoryquestions .practice {
+    width: 115px;
 }
 
 #categoryquestions th.practice .sorters,
@@ -222,12 +227,23 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     font-size: .8em;
     font-weight: 400;
 }
-
-
 #categoryquestions th .sorters {
     font-size: 0.8em;
     font-weight: normal;
 }
+#categoryquestions td.difficultylevel,
+#categoryquestions td.rates {
+    padding-top: 7px;
+}
+#categoryquestions td.questionname,
+#categoryquestions td.creatorname {
+    white-space: normal;
+    line-height: 1em;
+}
+#categoryquestions td.qtype .icon {
+    margin-right: 0;
+}
+
 
 /* behavior */
 .studentquiz_behaviour {
@@ -318,4 +334,9 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 #page-mod-studentquiz-view #mod_studentquiz_statblock .report_more_url,
 #page-mod-studentquiz-view #mod_studentquiz_rankingblock .report_more_url {
     text-align: right;
+}
+#mod_studentquiz_statblock .card-text.content > div,
+#mod_studentquiz_rankingblock .card-text.content > div {
+    display: flex;
+    justify-content: space-between;
 }
