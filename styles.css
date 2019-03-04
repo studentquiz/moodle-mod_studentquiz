@@ -146,6 +146,10 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
     border-color: #bce8f1;
 }
 
+#page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav {
+    margin-bottom: 20px;
+}
+
 #page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav .col-md-4 {
     box-sizing: border-box;
     float: left;
@@ -269,7 +273,7 @@ table#categoryquestions {
     width: 100%;
 }
 
-.studentquiz_behaviour .comment_list div {
+.studentquiz_behaviour .comment_list > div {
     border-bottom: 1px solid #fff;
     border-top: 1px solid #eee;
     padding: 15px 0;
@@ -281,7 +285,6 @@ table#categoryquestions {
     position: absolute;
     right: 0;
     text-decoration: underline;
-    top: 0;
 }
 
 .studentquiz_behaviour .comment_list div span.remove_action:hover {

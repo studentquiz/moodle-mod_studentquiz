@@ -221,18 +221,7 @@ $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the rating.
 if ($hasanswered) {
-    $comments = mod_studentquiz_get_comments_with_creators($question->id);
-
-    $anonymize = $studentquiz->anonymrank;
-    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
-        $anonymize = false;
-    }
-    $ismoderator = false;
-    if (mod_studentquiz_check_created_permission($cmid)) {
-        $ismoderator = true;
-    }
-
-    $html .= $output->feedback($question, $options, $cmid, $comments, $userid, $anonymize, $ismoderator);
+    $html .= $output->render_rate($question->id);
 }
 
 // Finish the question form.
@@ -279,6 +268,23 @@ if ($hasanswered) {
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
+
+// Output the comments.
+if ($hasanswered) {
+    $comments = mod_studentquiz_get_comments_with_creators($question->id);
+
+    $anonymize = $studentquiz->anonymrank;
+    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
+        $anonymize = false;
+    }
+    $ismoderator = false;
+    if (mod_studentquiz_check_created_permission($cmid)) {
+        $ismoderator = true;
+    }
+
+    $html .= $output->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator);
+}
+
 $html .= html_writer::end_tag('form');
 
 

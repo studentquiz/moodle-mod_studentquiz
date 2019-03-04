@@ -1269,13 +1269,14 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * Generate some HTML to display comment list
      * @param array $comments comments ordered by createdby ASC
      * @param int $userid viewing user id
+     * @param int $cmid course module id
      * @param bool $anonymize users can't see other comment authors user names except ismoderator
      * @param bool $ismoderator can delete all comments, can see all usernames
      * @return string HTML fragment
      * TODO: move mod_studentquiz_comment_renderer in here!
      */
-    public function comment_list($comments, $userid, $anonymize = true, $ismoderator = false) {
-        return mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismoderator);
+    public function comment_list($comments, $userid, $cmid, $anonymize = true, $ismoderator = false) {
+        return mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize, $ismoderator);
     }
 
     /**
@@ -1298,12 +1299,8 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                              question_display_options $options, $cmid,
                              $comments, $userid, $anonymize = true, $ismoderator = false) {
         global $CFG;
-        return html_writer::div($this->render_rate($question->id)
-            . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator), 'studentquiz_behaviour')
-            . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'baseurlmoodle'
-            , 'id' => 'baseurlmoodle', 'value' => $CFG->wwwroot))
-            . html_writer::start_div('none')
-            . html_writer::start_div('none');
+        return $this->render_rate($question->id)
+            . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator);
     }
 
     /**
@@ -1343,7 +1340,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         return html_writer::tag('label', get_string('rate_title', 'mod_studentquiz'), array('for' => 'rate_field'))
             . $this->output->help_icon('rate_help', 'mod_studentquiz') . ': '
             . html_writer::div($choices, 'rating')
-            . html_writer::div(get_string('rate_error', 'mod_studentquiz'), 'hide error');
+            . html_writer::div(get_string('rate_error', 'mod_studentquiz'), 'hide error rate_error');
     }
 
     /**
@@ -1358,6 +1355,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             . html_writer::tag('p', html_writer::tag(
                 'textarea', '',
                 array('id' => 'add_comment_field', 'class' => 'add_comment_field form-control', 'name' => 'q' . $questionid)))
+                . html_writer::div(get_string('comment_error_hint', 'mod_studentquiz'), 'hide error comment_error')
             . html_writer::tag('p', html_writer::tag(
                 'button',
                 get_string('add_comment', 'mod_studentquiz'),
@@ -1377,7 +1375,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @return string HTML fragment
      * @return string HTML fragment
      */
-    protected function render_rate($questionid) {
+    public function render_rate($questionid) {
         global $DB, $USER;
 
         $value = -1; $readonly = false;
@@ -1387,7 +1385,10 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $readonly = true;
         }
 
-        return html_writer::div($this->rate_choices($questionid, $value , $readonly), 'rate');
+        return html_writer::div(
+            html_writer::div($this->rate_choices($questionid, $value , $readonly), 'rate'),
+            'studentquiz_behaviour'
+        );
     }
 
     /**
@@ -1396,11 +1397,18 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @param  int $questionid Question id
      * @return string HTML fragment
      */
-    protected function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false) {
+    public function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false) {
+        
         return html_writer::div(
-            $this->comment_form($questionid, $cmid)
-            . html_writer::div($this->comment_list($comments, $userid, $anonymize, $ismoderator),
-                'comment_list'), 'comments');
+            html_writer::div(
+                $this->comment_form($questionid, $cmid)
+                . html_writer::div(
+                    $this->comment_list($comments, $userid, $cmid, $anonymize, $ismoderator),
+                    'comment_list'
+                ),
+                'comments'),
+            'studentquiz_behaviour'
+        );
     }
 }
 

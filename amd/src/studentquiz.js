@@ -28,6 +28,8 @@ define(['jquery'], function($) {
         initialise: function() {
             // Ajax request POST on CLICK for add comment.
             $('.studentquiz_behaviour .add_comment').off('click').on('click', function() {
+                // Uncomment if it should be prevented to close the window without saving
+                // disablePreventUnload();
                 var $comments = $(this).closest('.comments');
                 var $field = $comments.find('.add_comment_field');
                 var questionid = $field.attr('name').substr(1);
@@ -35,21 +37,27 @@ define(['jquery'], function($) {
                 var cmid = $cmidfield.attr('value');
                 var $commentlist = $comments.children('.comment_list');
 
-                $.post($('#baseurlmoodle').val() + '/mod/studentquiz/save.php',
+                $.post(M.cfg.wwwroot + '/mod/studentquiz/save.php',
                     {save: 'comment', cmid: cmid, questionid: questionid, sesskey: M.cfg.sesskey, text: $field.val()},
                     function() {
                         $field.val('');
-                        get_comment_list(questionid, $commentlist, cmid);
-                    });
+                        getCommentList(questionid, $commentlist, cmid);
+                    }
+                ).always(function() {
+                    // Uncomment if it should be prevented to close the window without saving
+                    // ensurePreventUnload();
+                });
             });
 
             // Ajax request POST on CLICK for add rating.
             $('.studentquiz_behaviour .rate .rating .rateable').off('click').on('click', function() {
+                // Uncomment if it should be prevented to close the window without saving
+                // disablePreventUnload();
                 var rate = $(this).attr('data-rate');
                 var $that = $(this);
                 var $cmidfield = $(this).closest('form').find('.cmid_field');
                 var cmid = $cmidfield.attr('value');
-                $.post($('#baseurlmoodle').val() + '/mod/studentquiz/save.php',
+                $.post(M.cfg.wwwroot + '/mod/studentquiz/save.php',
                     {save: 'rate', cmid: cmid, questionid: $(this).attr('data-questionid'), sesskey: M.cfg.sesskey, rate: rate},
                     function() {
                         var $ratingStars = $that.closest('.rating').children('span');
@@ -62,8 +70,12 @@ define(['jquery'], function($) {
                             }
                         });
 
-                        $('.studentquiz_behaviour > .rate > .error').addClass('hide');
-                    });
+                        $('.studentquiz_behaviour > .rate > .rate_error').addClass('hide');
+                    }
+                ).always(function() {
+                    // Uncomment if it should be prevented to close the window without saving
+                    // ensurePreventUnload();
+                });
             });
 
             // On CLICK check if student submitted result and has rated if not abort and show error for rating.
@@ -73,22 +85,22 @@ define(['jquery'], function($) {
                 if (
                     !$('.im-controls input[type="submit"]').length ||
                     $('.im-controls input[type="submit"]').filter(function() {
-                        return this.name.match(/^q.+\-submit$/);
+                        return this.name.match(/^q.+-submit$/);
                     }).is(':disabled')
                 ) {
-                    var has_rated = false;
+                    var hasRated = false;
                     $('.rating span').each(function() {
                         if ($(this).hasClass('star')) {
-                            has_rated = true;
+                            hasRated = true;
                         }
                     });
 
-                    if (has_rated) {
+                    if (hasRated) {
                         $that.submit();
                         return true;
                     }
 
-                    $('.studentquiz_behaviour > .rate > .error').removeClass('hide');
+                    $('.studentquiz_behaviour > .rate > .rate_error').removeClass('hide');
                     return false;
                 } else {
                     $that.submit();
@@ -96,55 +108,98 @@ define(['jquery'], function($) {
                 }
             });
 
+            $('.add_comment_field').on('keyup', ensurePreventUnload);
+
             // Bind the show more and show less buttons
-            bind_buttons();
+            bindButtons();
         }
     };
 
     /**
      * Binding action buttons after refresh comment list.
      */
-    function bind_buttons() {
-        $('.studentquiz_behaviour .show_more').off('click').on('click', function() {
-            $('.studentquiz_behaviour .comment_list div').removeClass('hidden');
-            $(this).addClass('hidden');
-            $('.studentquiz_behaviour .show_less').removeClass('hidden');
-        });
-
-        $('.studentquiz_behaviour .show_less').off('click').on('click', function() {
-            $('.studentquiz_behaviour .comment_list div').each(function(index) {
-                if (index > 1 && !$(this).hasClass('button_controls')) {
-                    $(this).addClass('hidden');
-                }
-            });
-
-            $(this).addClass('hidden');
-            $('.studentquiz_behaviour .show_more').removeClass('hidden');
-        });
-
+    function bindButtons() {
+        // Uncomment if it should be prevented to close the window without saving
+        // disablePreventUnload();
         $('.studentquiz_behaviour .remove_action').off('click').on('click', function() {
             var $cmidfield = $(this).closest('form').find('.cmid_field');
             var cmid = $cmidfield.attr('value');
             var questionid = $(this).attr('data-question_id');
             var $commentlist = $(this).closest('.comments').children('.comment_list');
             $.post($('#baseurlmoodle').val() + '/mod/studentquiz/remove.php',
-                {id: $(this).attr('data-id'), cmid: cmid, sesskey: M.cfg.sesskey}, function() {
-                    get_comment_list(questionid, $commentlist, cmid);
-                });
+                {id: $(this).attr('data-id'), cmid: cmid, sesskey: M.cfg.sesskey},
+                function() {
+                    getCommentList(questionid, $commentlist, cmid);
+                }
+            ).always(function() {
+                // Uncomment if it should be prevented to close the window without saving
+                // ensurePreventUnload();
+            });
         });
     }
 
     /**
      * Ajax request GET to get comment list
-     * @param {int}    questionid Question id
+     * @param {int}           questionid Question id
+     * @param {jQueryElement} $commentlist jQuery HtmlElement for comments list div
+     * @param {int}           cmid course module id
      */
-    function get_comment_list(questionid, $commentlist, cmid) {
+    function getCommentList(questionid, $commentlist, cmid) {
         var commentlisturl = $('#baseurlmoodle').val() + '/mod/studentquiz/comment_list.php?questionid=';
         commentlisturl += questionid + '&cmid=' + cmid + '&sesskey=' + M.cfg.sesskey;
         $.get(commentlisturl,
             function(data) {
                 $commentlist.html(data);
-                bind_buttons();
-            });
+                bindButtons();
+            }
+        );
+    }
+
+    /**
+     * Kindly ask to prevent leaving page when there's a unsaved comment
+     * 
+     * It seems to be pretty browser specific how the beforeunload event is processed. Observations when event was set:
+     * Chrome: Allows POSTing data (via) but prevents navigating since they're also
+     *   form submissions, and also prevents closing of the window and navigating using other links
+     * Firefox: Whatever you try to do, POSTing or navigating, always prevents it, even when returning nothing or void.
+     *   Unknown what the expected behaviour by spec should be. All proposed solutions were all not working...
+     * 
+     * That's why we need to carefully enable and disable the beforeunload event. Rule of thumb is, enable whenever
+     * the comment box is not empty, but disable whenever a quiz interaction button is pressed (add comment,
+     * quiz navigation)
+     * Whenever the action is done, it should be enabled again, if the comment textarea is still not empty.
+     * 
+     * Note: Only in preview is the commenting visible without answering the question. If someone has filled the
+     * textarea and afterwards answers the question, he'll get the dialogue, which is fine.
+     */
+
+    /**
+     * Enable the unload prevention conditionally by comment textarea
+     */
+    function ensurePreventUnload() {
+        if ($('.add_comment_field').val() != "") {
+            enablePreventUnload();
+        } else {
+            disablePreventUnload();
+        }
+    }
+
+    /**
+     * Set the beforeunload event.
+     */
+    function enablePreventUnload() {
+        // Kindly warn user when he tries to leave page while he has still input in the comment textarea
+        $(window).on('beforeunload', function() {
+            $('.studentquiz_behaviour > .comments > .comment_error').removeClass('hide');
+            return true;
+        });
+    }
+
+    /**
+     * Remove the beforeunload event.
+     */
+    function disablePreventUnload() {
+        $('.studentquiz_behaviour > .comments > .comment_error').addClass('hide');
+        $(window).off('beforeunload');
     }
 });

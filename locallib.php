@@ -600,12 +600,13 @@ function mod_studentquiz_get_comments_with_creators($questionid) {
  *
  * @param array $comments from studentquiz_coments ordered by comment->created ASC
  * @param int $userid, viewing user id
+ * @param int $cmid, course module id
  * @param bool $anonymize Display or hide other author names
  * @param bool $ismoderator True renders edit buttons to all comments false, only those for createdby userid
  * @return string HTML fragment
  * TODO: Render function should move to renderers!
  */
-function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismoderator) {
+function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize, $ismoderator) {
 
     $output = '';
 
@@ -618,17 +619,18 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
     $authorids = array();
     $authors = array();
 
-    $num = 0;
+    // Collect distinct anonymous author ids chronologically.
     foreach ($comments as $comment) {
-
-        $canedit = $ismoderator || $comment->userid == $userid;
-        $seename = !$anonymize || $comment->userid == $userid;
-
-        // Collect distinct anonymous author ids chronologically.
         if (!in_array($comment->userid, $authorids)) {
             $authorids[] = $comment->userid;
             $authors[] = user_get_users_by_id(array($comment->userid))[$comment->userid];
         }
+    }
+
+    // Output comments in chronically reverse order.
+    foreach (array_reverse($comments) as $comment) {
+        $canedit = $ismoderator || $comment->userid == $userid;
+        $seename = !$anonymize || $comment->userid == $userid;
 
         $date = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
@@ -639,30 +641,22 @@ function mod_studentquiz_comment_renderer($comments, $userid, $anonymize, $ismod
                 . ' #' . (1 + array_search($comment->userid, $authorids));
         }
 
+        $editspan = '';
         if ($canedit) {
             $editspan = html_writer::span('remove', 'remove_action',
                 array(
                     'data-id' => $comment->id,
                     'data-question_id' => $comment->questionid
                 ));
-        } else {
-            $editspan = '';
         }
 
         $output .= html_writer::div( $editspan
             . html_writer::tag('p', $date . ' | ' . $username)
-            . html_writer::tag('p', $comment->comment),
-            ($num >= 2) ? 'hidden' : ''
-        );
-        $num++;
-    }
-
-    if (count($comments) > 2) {
-        $output .= html_writer::div(
-            html_writer::tag('button', get_string('show_more', $modname),
-                array('type' => 'button', 'class' => 'show_more btn btn-secondary'))
-            . html_writer::tag('button', get_string('show_less', $modname)
-                , array('type' => 'button', 'class' => 'show_less btn btn-secondary hidden')), 'button_controls'
+            . format_text(
+                $comment->comment,
+                FORMAT_MOODLE,
+                array('context' => $cmid)
+            )
         );
     }
 
