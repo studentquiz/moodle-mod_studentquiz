@@ -184,6 +184,7 @@ body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
 
 .error {
     color: #f00;
+    font-weight: bold;
 }
 .mod-studentquiz-summary-highlight {
     background-color: #d9edf7;
@@ -303,8 +304,6 @@ table#categoryquestions {
 }
 
 .studentquiz_behaviour .rate .error {
-    color: red;
-    font-weight: bold;
     margin-top: 5px;
 }
 
