@@ -28,8 +28,7 @@ define(['jquery'], function($) {
         initialise: function() {
             // Ajax request POST on CLICK for add comment.
             $('.studentquiz_behaviour .add_comment').off('click').on('click', function() {
-                // Uncomment if it should be prevented to close the window without saving
-                // disablePreventUnload();
+                disablePreventUnload();
                 var $comments = $(this).closest('.comments');
                 var $field = $comments.find('.add_comment_field');
                 var questionid = $field.attr('name').substr(1);
@@ -44,15 +43,13 @@ define(['jquery'], function($) {
                         getCommentList(questionid, $commentlist, cmid);
                     }
                 ).always(function() {
-                    // Uncomment if it should be prevented to close the window without saving
-                    // ensurePreventUnload();
+                    ensurePreventUnload();
                 });
             });
 
             // Ajax request POST on CLICK for add rating.
             $('.studentquiz_behaviour .rate .rating .rateable').off('click').on('click', function() {
-                // Uncomment if it should be prevented to close the window without saving
-                // disablePreventUnload();
+                disablePreventUnload();
                 var rate = $(this).attr('data-rate');
                 var $that = $(this);
                 var $cmidfield = $(this).closest('form').find('.cmid_field');
@@ -73,8 +70,7 @@ define(['jquery'], function($) {
                         $('.studentquiz_behaviour > .rate > .rate_error').addClass('hide');
                     }
                 ).always(function() {
-                    // Uncomment if it should be prevented to close the window without saving
-                    // ensurePreventUnload();
+                    ensurePreventUnload();
                 });
             });
 
@@ -108,8 +104,7 @@ define(['jquery'], function($) {
                 }
             });
 
-            // Uncomment if it should be prevented to close the window without saving
-            // $('.add_comment_field').on('keyup', ensurePreventUnload);
+            $('.add_comment_field').on('keyup', ensurePreventUnload);
 
             // Bind the show more and show less buttons
             bindButtons();
@@ -120,8 +115,7 @@ define(['jquery'], function($) {
      * Binding action buttons after refresh comment list.
      */
     function bindButtons() {
-        // Uncomment if it should be prevented to close the window without saving
-        // disablePreventUnload();
+        disablePreventUnload();
         $('.studentquiz_behaviour .remove_action').off('click').on('click', function() {
             var $cmidfield = $(this).closest('form').find('.cmid_field');
             var cmid = $cmidfield.attr('value');
@@ -133,8 +127,7 @@ define(['jquery'], function($) {
                     getCommentList(questionid, $commentlist, cmid);
                 }
             ).always(function() {
-                // Uncomment if it should be prevented to close the window without saving
-                // ensurePreventUnload();
+                ensurePreventUnload();
             });
         });
     }
@@ -177,33 +170,30 @@ define(['jquery'], function($) {
     /**
      * Enable the unload prevention conditionally by comment textarea
      */
-    // Uncomment if it should be prevented to close the window without saving
-    // function ensurePreventUnload() {
-    //     if ($('.add_comment_field').val() != "") {
-    //         enablePreventUnload();
-    //     } else {
-    //         disablePreventUnload();
-    //     }
-    // }
+    function ensurePreventUnload() {
+        if ($('.add_comment_field').val() != "") {
+            enablePreventUnload();
+        } else {
+            disablePreventUnload();
+        }
+    }
 
     /**
      * Set the beforeunload event.
      */
-    // Uncomment if it should be prevented to close the window without saving
-    // function enablePreventUnload() {
-    //     // Kindly warn user when he tries to leave page while he has still input in the comment textarea
-    //     $(window).on('beforeunload', function() {
-    //         $('.studentquiz_behaviour > .comments > .comment_error').removeClass('hide');
-    //         return true;
-    //     });
-    // }
+    function enablePreventUnload() {
+        // Kindly warn user when he tries to leave page while he has still input in the comment textarea
+        $(window).on('beforeunload', function() {
+            $('.studentquiz_behaviour > .comments > .comment_error').removeClass('hide');
+            return true;
+        });
+    }
 
     /**
      * Remove the beforeunload event.
      */
-    // Uncomment if it should be prevented to close the window without saving
-    // function disablePreventUnload() {
-    //     $('.studentquiz_behaviour > .comments > .comment_error').addClass('hide');
-    //     $(window).off('beforeunload');
-    // }
+    function disablePreventUnload() {
+        $('.studentquiz_behaviour > .comments > .comment_error').addClass('hide');
+        $(window).off('beforeunload');
+    }
 });
