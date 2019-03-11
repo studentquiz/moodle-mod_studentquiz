@@ -28,7 +28,6 @@ define(['jquery'], function($) {
         initialise: function() {
             // Ajax request POST on CLICK for add comment.
             $('.studentquiz_behaviour .add_comment').off('click').on('click', function() {
-                disablePreventUnload();
                 var $comments = $(this).closest('.comments');
                 var $field = $comments.find('.add_comment_field');
                 var questionid = $field.attr('name').substr(1);
@@ -40,16 +39,14 @@ define(['jquery'], function($) {
                     {save: 'comment', cmid: cmid, questionid: questionid, sesskey: M.cfg.sesskey, text: $field.val()},
                     function() {
                         $field.val('');
+                        $field.trigger("keyup");
                         getCommentList(questionid, $commentlist, cmid);
                     }
-                ).always(function() {
-                    ensurePreventUnload();
-                });
+                );
             });
 
             // Ajax request POST on CLICK for add rating.
             $('.studentquiz_behaviour .rate .rating .rateable').off('click').on('click', function() {
-                disablePreventUnload();
                 var rate = $(this).attr('data-rate');
                 var $that = $(this);
                 var $cmidfield = $(this).closest('form').find('.cmid_field');
@@ -69,9 +66,7 @@ define(['jquery'], function($) {
 
                         $('.studentquiz_behaviour > .rate > .rate_error').addClass('hide');
                     }
-                ).always(function() {
-                    ensurePreventUnload();
-                });
+                );
             });
 
             // On CLICK check if student submitted result and has rated if not abort and show error for rating.
@@ -115,20 +110,17 @@ define(['jquery'], function($) {
      * Binding action buttons after refresh comment list.
      */
     function bindButtons() {
-        disablePreventUnload();
         $('.studentquiz_behaviour .remove_action').off('click').on('click', function() {
             var $cmidfield = $(this).closest('form').find('.cmid_field');
             var cmid = $cmidfield.attr('value');
             var questionid = $(this).attr('data-question_id');
             var $commentlist = $(this).closest('.comments').children('.comment_list');
-            $.post($('#baseurlmoodle').val() + '/mod/studentquiz/remove.php',
+            $.post(M.cfg.wwwroot + '/mod/studentquiz/remove.php',
                 {id: $(this).attr('data-id'), cmid: cmid, sesskey: M.cfg.sesskey},
                 function() {
                     getCommentList(questionid, $commentlist, cmid);
                 }
-            ).always(function() {
-                ensurePreventUnload();
-            });
+            );
         });
     }
 
@@ -139,7 +131,7 @@ define(['jquery'], function($) {
      * @param {int}           cmid course module id
      */
     function getCommentList(questionid, $commentlist, cmid) {
-        var commentlisturl = $('#baseurlmoodle').val() + '/mod/studentquiz/comment_list.php?questionid=';
+        var commentlisturl = M.cfg.wwwroot + '/mod/studentquiz/comment_list.php?questionid=';
         commentlisturl += questionid + '&cmid=' + cmid + '&sesskey=' + M.cfg.sesskey;
         $.get(commentlisturl,
             function(data) {
@@ -151,17 +143,6 @@ define(['jquery'], function($) {
 
     /**
      * Kindly ask to prevent leaving page when there's a unsaved comment
-     * 
-     * It seems to be pretty browser specific how the beforeunload event is processed. Observations when event was set:
-     * Chrome: Allows POSTing data (via) but prevents navigating since they're also
-     *   form submissions, and also prevents closing of the window and navigating using other links
-     * Firefox: Whatever you try to do, POSTing or navigating, always prevents it, even when returning nothing or void.
-     *   Unknown what the expected behaviour by spec should be. All proposed solutions were all not working...
-     * 
-     * That's why we need to carefully enable and disable the beforeunload event. Rule of thumb is, enable whenever
-     * the comment box is not empty, but disable whenever a quiz interaction button is pressed (add comment,
-     * quiz navigation)
-     * Whenever the action is done, it should be enabled again, if the comment textarea is still not empty.
      * 
      * Note: Only in preview is the commenting visible without answering the question. If someone has filled the
      * textarea and afterwards answers the question, he'll get the dialogue, which is fine.

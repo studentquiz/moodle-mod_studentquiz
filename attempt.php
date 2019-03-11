@@ -87,15 +87,6 @@ if (data_submitted()) {
         $transaction = $DB->start_delegated_transaction();
         $questionusage->finish_question($slot);
         $transaction->allow_commit();
-
-        $comment = optional_param('q'.$question->id, "", PARAM_TEXT);
-        if ($comment != "") {
-            $data = new \stdClass();
-            $data->userid = $USER->id;
-            $data->questionid = $question->id;
-            $data->comment = $comment;
-            mod_studentquiz_save_comment($data, $course, $cm);
-        }
     }
 
     // There should be no question data if he has already answered them, as the fields are disabled.
