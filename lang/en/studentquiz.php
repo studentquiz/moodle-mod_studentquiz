@@ -28,6 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['add_comment'] = 'Add comment';
+$string['abort_button'] = 'Abort';
 $string['after_answering_end_date'] = 'This StudentQuiz closed for answering on {$a}.';
 $string['after_submission_end_date'] = 'This StudentQuiz closed for question submission on {$a}.';
 $string['answeringndbeforestart'] = 'Answering deadline can not be specified before the open for answering date';

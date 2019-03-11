@@ -40,11 +40,6 @@ Feature: Quizzes can be startet
     And the following "activities" exist:
       | activity    | name          | intro              | course | idnumber       |
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
-    #And the following "questions" exist:
-    #  | questioncategory          | qtype       | name             | template    |
-    #  | Default for StudentQuiz 1 | truefalse   | 1. Can next?     |             |
-    #  | Default for StudentQuiz 1 | multichoice | 2. Can previous? | two_of_four |
-    #  | Default for StudentQuiz 1 | numerical   | 3. Can finish?   |             |
     And the following "questions" exist:
       | questioncategory          | qtype       | name             | template    |
       | Default for StudentQuiz 1 | truefalse   | Exampe question  |             |
@@ -63,44 +58,41 @@ Feature: Quizzes can be startet
     # QUESTION 1 mainly
     #Then I should see "Can next?"
     Then I should see "1" in the ".qno" "css_element"
-    And I should not see "Please Rate"
+    And I should not see "Please rate"
     # Can't navigate before answering question
     And "Previous" "button" should not exist
     And "Next" "button" should not exist
-    And "Finish" "button" should exist
+    And "Abort" "button" should exist
+    And "Finish" "button" should not exist
     # Must rate before go next
     When I set the field "True" to "1"
     And I press "Check"
     Then "Next" "button" should exist
     When I click on "Next" "button"
-    Then I should see "Please Rate"
-    # Must also rate when now trying to early finish
-    When I click on "Finish" "button"
-    Then I should see "Please Rate"
+    Then I should see "Please rate"
+    # Must also rate when now trying to early abort
+    When I click on "Abort" "button"
+    Then I should see "Please rate"
     When I click on ".rateable[data-rate='1']" "css_element"
     And I click on "Next" "button"
     # QUESTION 2 mainly
-    #Then I should see "Can previous?"
     Then I should see "2" in the ".qno" "css_element"
-    And I should not see "Please Rate"
+    And I should not see "Please rate"
     # Can navigate back when not answered yet
     And "Previous" "button" should exist
     And "Next" "button" should not exist
-    And "Finish" "button" should exist
+    And "Abort" "button" should exist
+    And "Finish" "button" should not exist
     When I click on "Previous" "button"
-    #Then I should see "Can next?"
     Then I should see "1" in the ".qno" "css_element"
     # Can navigate forth because already answered this question
     And I click on "Next" "button"
-    #Then I should see "Can previous?"
     Then I should see "2" in the ".qno" "css_element"
     # After answering can only navigate back after rating
-    #When I click on "One" "checkbox"
-    #And I click on "Two" "checkbox"
     When I set the field "False" to "1"
     And I press "Check"
     And I click on "Previous" "button"
-    Then I should see "Please Rate"
+    Then I should see "Please rate"
     When I click on ".rateable[data-rate='2']" "css_element"
     And I click on "Previous" "button"
     #Then I should see "Can next?"
@@ -108,19 +100,22 @@ Feature: Quizzes can be startet
     And I click on "Next" "button"
     And I click on "Next" "button"
     # QUESTION 3 mainly
-    #Then I should see "Can finish?"
     Then I should see "3" in the ".qno" "css_element"
-    And I should not see "Please Rate"
+    And I should not see "Please rate"
     # When answered can only finish when rated
     And "Previous" "button" should exist
     And "Next" "button" should not exist
-    And "Finish" "button" should exist
+    And "Abort" "button" should exist
+    And "Finish" "button" should not exist
     # After answering can only finish after rating
-    #When I set the field "Answer:" to "3.14"
     When I set the field "True" to "1"
     And I press "Check"
-    And I click on "Finish" "button"
-    Then I should see "Please Rate"
+    Then "Previous" "button" should exist
+    And "Next" "button" should not exist
+    And "Abort" "button" should not exist
+    And "Finish" "button" should exist
+    When I click on "Finish" "button"
+    Then I should see "Please rate"
     When I click on ".rateable[data-rate='3']" "css_element"
     And I click on "Finish" "button"
     # Back to main view and check the result numbers

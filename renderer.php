@@ -1398,7 +1398,6 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @return string HTML fragment
      */
     public function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false) {
-        
         return html_writer::div(
             html_writer::div(
                 $this->comment_form($questionid, $cmid)

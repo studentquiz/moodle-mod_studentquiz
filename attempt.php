@@ -243,7 +243,7 @@ $html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
 if ($canfinish && ($hasnext || !$hasanswered)) {
     $html .= html_writer::empty_tag('input',
         array('type' => 'submit', 'name' => 'finish',
-            'value' => get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-link'));
+            'value' => get_string('abort_button', 'studentquiz'), 'class' => 'btn'));
 }
 
 $html .= html_writer::end_tag('div');
@@ -268,6 +268,7 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 
 // Output the comments.
+$html .= html_writer::empty_tag('hr');
 if ($hasanswered) {
     $comments = mod_studentquiz_get_comments_with_creators($question->id);
 
