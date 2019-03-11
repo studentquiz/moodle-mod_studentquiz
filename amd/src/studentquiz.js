@@ -110,6 +110,23 @@ define(['jquery'], function($) {
      * Binding action buttons after refresh comment list.
      */
     function bindButtons() {
+        $('.studentquiz_behaviour .show_more').off('click').on('click', function() {
+            $('.studentquiz_behaviour .comment_list div').removeClass('hidden');
+            $(this).addClass('hidden');
+            $('.studentquiz_behaviour .show_less').removeClass('hidden');
+        });
+
+        $('.studentquiz_behaviour .show_less').off('click').on('click', function() {
+            $('.studentquiz_behaviour .comment_list > div').each(function(index) {
+                if (index > 10 && !$(this).hasClass('button_controls')) {
+                    $(this).addClass('hidden');
+                }
+            });
+
+            $(this).addClass('hidden');
+            $('.studentquiz_behaviour .show_more').removeClass('hidden');
+        });
+
         $('.studentquiz_behaviour .remove_action').off('click').on('click', function() {
             var $cmidfield = $(this).closest('form').find('.cmid_field');
             var cmid = $cmidfield.attr('value');

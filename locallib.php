@@ -627,6 +627,8 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
         }
     }
 
+    $num = 0;
+    $showmoreafter = 10;
     // Output comments in chronically reverse order.
     foreach (array_reverse($comments) as $comment) {
         $canedit = $ismoderator || $comment->userid == $userid;
@@ -656,7 +658,18 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
                 $comment->comment,
                 FORMAT_MOODLE,
                 array('context' => $cmid)
-            )
+            ),
+            ($num >= $showmoreafter) ? 'hidden' : ''
+        );
+        $num++;
+    }
+
+    if (count($comments) > $showmoreafter) {
+        $output .= html_writer::div(
+            html_writer::tag('button', get_string('show_more', $modname),
+                array('type' => 'button', 'class' => 'show_more btn btn-secondary'))
+            . html_writer::tag('button', get_string('show_less', $modname)
+            , array('type' => 'button', 'class' => 'show_less btn btn-secondary hidden')), 'button_controls'
         );
     }
 
