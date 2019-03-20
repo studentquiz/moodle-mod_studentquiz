@@ -302,7 +302,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017111904) {
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('allowedqtypes', XMLDB_TYPE_TEXT, 'medium', null,
-            null, null, null, 'incorrectanswerquantifier');
+            null, null, null, 'incorrectanswerquantifier');  // Text fields cannot have default.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -446,7 +446,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2018121800) {
         $table = new xmldb_table('studentquiz_progress');
 
-        $dbman->add_key($table, new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, array('questionid', 'userid', 'studentquizid')));
+        $dbman->add_key($table, new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, array(
+            'questionid', 'userid', 'studentquizid'
+        )));
 
         upgrade_mod_savepoint(true, 2018121800, 'studentquiz');
     }
@@ -463,6 +465,27 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2018122500, 'studentquiz');
+    }
+
+    // Properties excluderoles, forcecommenting, forcerating are introduced. Add fields and set their default values.
+    if ($oldversion < 2019032002) {
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('excluderoles', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, 'aggregated');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('forcerating', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'excluderoles');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('forcecommenting', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'forcerating');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2019032002, 'studentquiz');
     }
 
     return true;

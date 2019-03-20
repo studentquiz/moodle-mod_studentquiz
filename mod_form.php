@@ -77,7 +77,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        $mform->addElement('header', 'studentranking', get_string('advancedsettings', 'moodle'));
+        $mform->addElement('header', 'sectionranking', get_string('settings_section_header_ranking', 'studentquiz'));
 
         // Field anonymous Ranking.
         $mform->addElement('checkbox', 'anonymrank',
@@ -130,6 +130,22 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setDefault('incorrectanswerquantifier',
             get_config('studentquiz', 'incorrectanswered'));
 
+        // Selection for excluded roles.
+        $defaultexcluderoles = explode(',', get_config('studentquiz', 'excluderoles'));
+        $excluderolesgroup = array();
+        foreach (mod_studentquiz_get_roles() as $role => $name) {
+            $excluderolesgroup[] =& $mform->createElement('checkbox', $role, '', $name);
+            if (in_array($role, $defaultexcluderoles)) {
+                // Default question types already defined in Administration setting.
+                // This question type was enable by default in Administration setting.
+                $mform->setDefault("excluderoles[" . $role . "]", 1);
+            }
+        }
+        $mform->addGroup($excluderolesgroup, 'excluderoles', get_string('settings_excluderoles', 'studentquiz'));
+        $mform->addHelpButton('excluderoles', 'settings_excluderoles', 'studentquiz');
+
+        $mform->addElement('header', 'sectionquestion', get_string('settings_section_header_question', 'studentquiz'));
+
         // Selection for allowed question types.
         $allowedgroup = array();
         $allowedgroup[] =& $mform->createElement('checkbox', "ALL", '', get_string('settings_allowallqtypes', 'studentquiz'));
@@ -149,6 +165,18 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addGroup($allowedgroup, 'allowedqtypes', get_string('settings_allowedqtypes', 'studentquiz'));
         $mform->disabledIf('allowedqtypes', "allowedqtypes[ALL]", 'checked');
         $mform->addHelpButton('allowedqtypes', 'settings_allowedqtypes', 'studentquiz');
+
+        // Field force rating.
+        $mform->addElement('checkbox', 'forcerating', get_string('settings_forcerating', 'studentquiz'));
+        $mform->setType('forcerating', PARAM_INT);
+        $mform->addHelpButton('forcerating', 'settings_forcerating', 'studentquiz');
+        $mform->setDefault('forcerating', get_config('studentquiz', 'forcerating'));
+
+        // Field force commenting
+        $mform->addElement('checkbox', 'forcecommenting', get_string('settings_forcecommenting', 'studentquiz'));
+        $mform->setType('forcecommenting', PARAM_INT);
+        $mform->addHelpButton('forcecommenting', 'settings_forcecommenting', 'studentquiz');
+        $mform->setDefault('forcecommenting', get_config('studentquiz', 'forcecommenting'));
 
         // Availability.
         $mform->addElement('header', 'availability', get_string('availability', 'moodle'));
@@ -180,6 +208,12 @@ class mod_studentquiz_mod_form extends moodleform_mod {
                 $defaultvalues["allowedqtypes[$qtype]"] = (int)in_array($qtype, $enabled);
             }
             $defaultvalues["allowedqtypes[ALL]"] = (int)in_array("ALL", $enabled);
+        }
+        if (isset($defaultvalues['excluderoles'])) {
+            $enabled = explode(',', $defaultvalues['excluderoles']);
+            foreach (array_keys(mod_studentquiz_get_roles()) as $role) {
+                $defaultvalues["excluderoles[$role]"] = (int)in_array($role, $enabled);
+            }
         }
     }
 

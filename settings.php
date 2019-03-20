@@ -28,9 +28,9 @@ require_once(__DIR__ . '/locallib.php');
 
 if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_heading(
-        'studentquiz/ratingsettings',
-        get_string('rankingsettingsheader', 'studentquiz'),
-        get_string('rankingsettingsdescription', 'studentquiz')
+        'studentquiz/sectionranking',
+        get_string('settings_section_header_ranking', 'studentquiz'),
+        get_string('settings_section_description_default', 'studentquiz')
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -68,6 +68,20 @@ if ($ADMIN->fulltree) {
         -1, PARAM_INT
     ));
 
+    // Get all roles available on system.
+    $roles = mod_studentquiz_get_roles();
+    // Replace all value to 0 for default value.
+    $defaultroles = array_map(function($val) {
+        return 0;
+    }, $roles);
+
+    $settings->add(new admin_setting_configmulticheckbox('studentquiz/excluderoles',
+        get_string('settings_excluderoles', 'studentquiz'),
+        get_string('settings_excluderoles_help', 'studentquiz'),
+        $defaultroles,
+        $roles
+    ));
+
     // Show a onetime settings option as info, that we'll uninstall the questionbehavior plugin automatically.
     // Will not show this option if this plugin doesn't exist.
     if (array_key_exists('studentquiz', core_component::get_plugin_list('qbehaviour'))) {
@@ -80,23 +94,35 @@ if ($ADMIN->fulltree) {
     }
 
     $settings->add(new admin_setting_heading(
-            'studentquiz/defaultquestiontypessettings',
-            get_string('defaultquestiontypessettingsheader', 'studentquiz'),
-            ''
+        'studentquiz/sectionquestion',
+        get_string('settings_section_header_question', 'studentquiz'),
+        get_string('settings_section_description_default', 'studentquiz')
     ));
 
     // Get all question types available on system.
     $qtypes = mod_studentquiz_get_question_types();
-    // Replace all value to 1 for default value without foreach loop.
+    // Replace all value to 1 for default value.
     $defaultqtypes = array_map(function($val) {
         return 1;
     }, $qtypes);
 
     $settings->add(new admin_setting_configmulticheckbox('studentquiz/defaultqtypes',
-            get_string('settings_qtypes_default_new_activity', 'studentquiz'),
-            '',
-            $defaultqtypes,
-            $qtypes
+        get_string('settings_allowedqtypes', 'studentquiz'),
+        get_string('settings_allowedqtypes_help', 'studentquiz'),
+        $defaultqtypes,
+        $qtypes
+    ));
+
+    $settings->add(new admin_setting_configcheckbox('studentquiz/forcerating',
+        get_string('settings_forcerating', 'studentquiz'),
+        get_string('settings_forcerating_help', 'studentquiz'),
+        '1'
+    ));
+
+    $settings->add(new admin_setting_configcheckbox('studentquiz/forcecommenting',
+        get_string('settings_forcecommenting', 'studentquiz'),
+        get_string('settings_forcecommenting_help', 'studentquiz'),
+        '0'
     ));
 
 }

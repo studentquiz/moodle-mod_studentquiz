@@ -989,6 +989,19 @@ function mod_studentquiz_get_question_types_keys() {
 }
 
 /**
+ * Lookup available system roles
+ * @return array roles with identifier as key and name as value
+ */
+function mod_studentquiz_get_roles() {
+    $roles = role_get_names();
+    $return = array();
+    foreach ($roles as $role) {
+        $return[$role->id] = $role->localname;
+    }
+    return $return;
+}
+
+/**
  * Add capabilities to teacher (Non editing teacher) and
  * Student roles in the context of this context
  *

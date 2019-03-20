@@ -77,7 +77,7 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     $studentquiz->timecreated = time();
 
-    // TODO unify parsing of submitted variables!
+    // TODO unify parsing of submitted variables! mform and studentquiz are quite the same? or where do they exactly differ?
 
     if (!empty($mform->anonymrank)) {
         $studentquiz->anonymrank = $mform->anonymrank;
@@ -92,12 +92,23 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
         $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
     }
 
-    if ((!isset($studentquiz->hiddensection))) {
+    if (!isset($studentquiz->hiddensection)) {
         $studentquiz->hiddensection = 0;
     }
 
     if (isset($mform->hiddensection)) {
         $studentquiz->hiddensection = $mform->hiddensection;
+    }
+
+    $studentquiz->excluderoles = (!empty($studentquiz->excluderoles))
+        ? implode(',', array_keys($studentquiz->excluderoles)) : '';
+
+    if (!isset($studentquiz->forcerating)) {
+        $studentquiz->forcerating = 0;
+    }
+
+    if (!isset($studentquiz->forcecommenting)) {
+        $studentquiz->forcecommenting = 0;
     }
 
     // New StudentQuiz instances use the aggregated mode.
@@ -133,14 +144,28 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
     global $DB;
 
+    // For checkboxes, when deselected, $1 still contains the data from the database, because browser doesn't
+    // send it.
+
     $studentquiz->timemodified = time();
     $studentquiz->id = $studentquiz->instance;
 
-    // Initialize values or manipulations where needed.
     if (!isset($studentquiz->anonymrank)) {
         $studentquiz->anonymrank = 0;
     }
+
     $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
+
+    $studentquiz->excluderoles = (!empty($studentquiz->excluderoles))
+        ? implode(',', array_keys($studentquiz->excluderoles)) : '';
+
+    if (!isset($studentquiz->forcerating)) {
+        $studentquiz->forcerating = 0;
+    }
+
+    if (!isset($studentquiz->forcecommenting)) {
+        $studentquiz->forcecommenting = 0;
+    }
 
     $result = $DB->update_record('studentquiz', $studentquiz);
 
