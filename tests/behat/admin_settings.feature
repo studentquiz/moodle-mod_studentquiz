@@ -13,8 +13,7 @@ Feature: New activities instances setting will be inherited from Admin setting
   Scenario: Check Default question types appear in Admin setting
     Given I log in as "admin"
     When I navigate to "Plugins > StudentQuiz" in site administration
-    Then I should see "Default question types"
-    And I should see "The following are default for a new activity"
+    Then I should see "Allowed question types"
     And the field "s_studentquiz_defaultqtypes[multichoice]" matches value "1"
     And the field "s_studentquiz_defaultqtypes[truefalse]" matches value "1"
     And the field "s_studentquiz_defaultqtypes[shortanswer]" matches value "1"
