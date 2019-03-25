@@ -1,4 +1,4 @@
-#page-mod-studentquiz-view #filterform {
+.path-mod-studentquiz #filterform {
     background-color: #f5f5f5;
     border: 1px solid #e3e3e3;
     -webkit-border-radius: 3px;
@@ -13,49 +13,48 @@
     padding: 9px;
 }
 
-#page-mod-studentquiz-view #filterform blockquote {
-    /*border-color: #ddd; strange double declaration here... */
+.path-mod-studentquiz #filterform blockquote {
     border-color: rgba(0, 0, 0, 0.15);
 }
 
-#page-mod-studentquiz-view #filterform .fitem {
+.path-mod-studentquiz #filterform .fitem {
     display: inline-block;
     line-height: 40px;
     margin-right: .3em;
     white-space: nowrap;
 }
 
-#page-mod-studentquiz-view #filterform .fitem label {
+.path-mod-studentquiz #filterform .fitem label {
     display: inline;
     line-height: 20px;
     padding-right: .3em;
 }
 
-#page-mod-studentquiz-view #filterform .fitem:before,
-#page-mod-studentquiz-view #filterform .fitem:after {
+.path-mod-studentquiz #filterform .fitem:before,
+.path-mod-studentquiz #filterform .fitem:after {
     display: inline;
 }
 
-#page-mod-studentquiz-view #filterform div,
-#page-mod-studentquiz-view #filterform fieldset {
+.path-mod-studentquiz #filterform div,
+.path-mod-studentquiz #filterform fieldset {
     clear: none;
     display: inline;
     float: none;
 }
 
-#page-mod-studentquiz-view input[type="checkbox"].toggle label {
+.path-mod-studentquiz input[type="checkbox"].toggle label {
     cursor: pointer;
     position: relative;
     user-select: none;
     -moz-user-select: none;
 }
 
-#page-mod-studentquiz-view input[type="checkbox"].toggle {
+.path-mod-studentquiz input[type="checkbox"].toggle {
     display: none;
 }
 
-#page-mod-studentquiz-view input[type="checkbox"].toggle + span,
-#page-mod-studentquiz-view input[type="checkbox"].toggle + label span {
+.path-mod-studentquiz input[type="checkbox"].toggle + span,
+.path-mod-studentquiz input[type="checkbox"].toggle + label span {
     background: #eee;
     border-bottom: 2px solid darkgray;
     border-radius: 4px;
@@ -65,283 +64,228 @@
     transition: all 0.4s ease;
 }
 
-#page-mod-studentquiz-view .toggle:checked + span,
-#page-mod-studentquiz-view .toggle:checked + label span {
+.path-mod-studentquiz .toggle:checked + span,
+.path-mod-studentquiz .toggle:checked + label span {
     border-bottom: 2px solid #1177d1;
     color: #1177d1;
     display: inline-block;
     transition: all 0.4s ease;
 }
 
-#page-mod-studentquiz-view #page .quizattemptsummary td p {
+.path-mod-studentquiz #page .quizattemptsummary td p {
     margin-top: 0;
 }
-#page-mod-studentquiz-view table.quizattemptsummary tr.bestrow td {
+
+.path-mod-studentquiz table.quizattemptsummary tr.bestrow td {
     background-color: #d9edf7;
     border-color: #bce8f1;
 }
-table.quizattemptsummary .noreviewmessage {
+
+.path-mod-studentquiz table.quizattemptsummary .noreviewmessage {
     color: gray;
 }
 
-#page-mod-studentquiz-view .generaltable.quizattemptsummary {
+.path-mod-studentquiz .generaltable.quizattemptsummary {
     margin-left: auto;
     margin-right: auto;
 }
 
-.statedetails {
+.path-mod-studentquiz .statedetails {
     display: block;
     font-size: 0.7em;
 }
 
-/** report rank view **/
-#page-mod-studentquiz-reportquiz .quizinfo,
-#page-mod-studentquiz-reportquiz #page .quizgradefeedback,
-#ppage-mod-studentquiz-reportquiz #page .quizattempt {
-    text-align: center;
-}
-#page-mod-studentquiz-reportquiz #page .quizattemptsummary td p {
-    margin-top: 0;
-}
-#page-mod-studentquiz-reportquiz .quizattemptsummary tr.bestrow td {
-    background-color: #d9edf7;
-    border-color: #bce8f1;
-}
-table.quizattemptsummary .noreviewmessage {
-    color: gray;
-}
-#page-mod-studentquiz-reportquiz .generaltable.quizattemptsummary {
-    margin-left: auto;
-    margin-right: auto;
-}
-#page-mod-studentquiz-reportquiz .generalbox#feedback {
-    margin-left: auto;
-    margin-right: auto;
-    padding-bottom: 15px;
-    width: 70%;
-}
-#page-mod-studentquiz-reportquiz .generalbox#feedback h2 {
-    margin: 0;
-}
-#page-mod-studentquiz-reportquiz .generalbox#feedback h3 {
-    text-align: left;
-}
-#page-mod-studentquiz-reportquiz.dir-rtl .generalbox#feedback h3 {
-    text-align: center;
-}
-#page-mod-studentquiz-reportquiz .generalbox#feedback .overriddennotice {
-    font-size: 0.7em;
-    text-align: center;
-}
-.quizstartbuttondiv.quizsecuremoderequired input {
-    display: none;
-}
-.jsenabled .quizstartbuttondiv.quizsecuremoderequired input {
-    display: inline;
-}
-
-body.page-mod-studentquiz-reportquiz .gradedattempt,
-body.page-mod-studentquiz-reportquiz table tbody tr.gradedattempt > td {
-    background-color: #d9edf7;
-    border-color: #bce8f1;
-}
-
-#page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav {
+.path-mod-studentquiz .mod-studentquiz-attempt-nav {
     margin-bottom: 20px;
 }
 
-#page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav .col-md-4 {
+.path-mod-studentquiz .mod-studentquiz-attempt-nav .col-md-4 {
     box-sizing: border-box;
     float: left;
     width: 33.33333%;
 }
 
-#page-mod-studentquiz-attempt .mod-studentquiz-attempt-nav:after {
+.path-mod-studentquiz .mod-studentquiz-attempt-nav:after {
     display: table;
     clear: both;
     content: '';
 }
 
-.quizattemptcounts {
-    clear: left;
-    display: inline;
-    margin-left: 20%;
-    text-align: center;
-}
-.dir-rtl .quizattemptcounts {
-    margin-left: 0;
-    margin-right: 20%;
-}
-#page-mod-studentquiz-reportquiz .quizattemptcounts,
-.dir-rtl #page-mod-studentquiz-reportquiz.quizattemptcounts {
-    display: block;
-    margin-left: 0;
-    margin-right: 0;
-}
-#page-mod-studentquiz-reportquiz .reportquiz_total_label {
-    font-weight: bold;
-}
-
-.error {
+.path-mod-studentquiz .error {
     color: #f00;
     font-weight: bold;
 }
-.mod-studentquiz-summary-highlight {
+
+.path-mod-studentquiz .mod-studentquiz-summary-highlight {
     background-color: #d9edf7;
     font-weight: bold;
 }
-.reportquiz_total_heading {
+
+.path-mod-studentquiz .reportquiz_total_heading {
     border-bottom: 1px solid #e5e5e5;
 }
-#page-mod-studentquiz-view .mod_quiz_edit_forms {
+
+.path-mod-studentquiz .mod_quiz_edit_forms {
     display: none;
 }
-.question-approved {
+
+.path-mod-studentquiz .question-approved {
     color: #0a0;
 }
-.question-unapproved {
+
+.path-mod-studentquiz .question-unapproved {
     color: #7b1400;
 }
-table#categoryquestions {
+
+.path-mod-studentquiz table#categoryquestions {
     table-layout: auto;
 }
-#categoryquestions .header {
+
+.path-mod-studentquiz #categoryquestions .header {
     text-align: left;
     white-space: nowrap;
 }
-#categoryquestions th.checkbox,
-#categoryquestions td.checkbox {
+
+.path-mod-studentquiz #categoryquestions th.checkbox,
+.path-mod-studentquiz #categoryquestions td.checkbox {
     padding-left: 10px;
     padding-right: 7px;
 }
-#categoryquestions .qtype {
+
+.path-mod-studentquiz #categoryquestions .qtype {
     width: auto;
 }
-#categoryquestions .questionname {
+
+.path-mod-studentquiz #categoryquestions .questionname {
     min-width: 180px;
 }
-#categoryquestions .iconcol {
+
+.path-mod-studentquiz #categoryquestions .iconcol {
     width: 12px;
 }
-#categoryquestions .rates,
-#categoryquestions .difficultylevel,
-#categoryquestions .practice {
+
+.path-mod-studentquiz #categoryquestions .rates,
+.path-mod-studentquiz #categoryquestions .difficultylevel,
+.path-mod-studentquiz #categoryquestions .practice {
     width: 115px;
 }
 
-#categoryquestions th.practice .sorters,
-#categoryquestions th.difficultylevel .sorters,
-#categoryquestions th.rates .sorters {
+.path-mod-studentquiz #categoryquestions th.practice .sorters,
+.path-mod-studentquiz #categoryquestions th.difficultylevel .sorters,
+.path-mod-studentquiz #categoryquestions th.rates .sorters {
     font-size: .8em;
     font-weight: 400;
 }
-#categoryquestions th .sorters {
+
+.path-mod-studentquiz #categoryquestions th .sorters {
     font-size: 0.8em;
     font-weight: normal;
 }
-#categoryquestions td.difficultylevel,
-#categoryquestions td.rates {
+
+.path-mod-studentquiz #categoryquestions td.difficultylevel,
+.path-mod-studentquiz #categoryquestions td.rates {
     padding-top: 7px;
 }
-#categoryquestions td.questionname,
-#categoryquestions td.creatorname {
+
+.path-mod-studentquiz #categoryquestions td.questionname,
+.path-mod-studentquiz #categoryquestions td.creatorname {
     white-space: normal;
     line-height: 1em;
 }
-#categoryquestions td.qtype .icon {
+
+.path-mod-studentquiz #categoryquestions td.qtype .icon {
     margin-right: 0;
 }
 
-
-/* behavior */
-.studentquiz_behaviour {
+.path-mod-studentquiz .studentquiz_behaviour {
     margin: 0 0 10px 5px;
 }
 
-.studentquiz_behaviour label,
-.im-feedback .studentquiz_behaviour label,
-.studentquiz_behaviour span.label {
+.path-mod-studentquiz .studentquiz_behaviour label,
+.path-mod-studentquiz .im-feedback .studentquiz_behaviour label,
+.path-mod-studentquiz .studentquiz_behaviour span.label {
     margin-right: 15px;
 }
 
-.studentquiz_behaviour .rate {
+.path-mod-studentquiz .studentquiz_behaviour .rate {
     margin-bottom: 20px;
 }
 
-.studentquiz_behaviour textarea {
+.path-mod-studentquiz .studentquiz_behaviour textarea {
     box-sizing: border-box;
     height: 100px;
     width: 100%;
 }
 
-.studentquiz_behaviour .comment_list > div {
+.path-mod-studentquiz .studentquiz_behaviour .comment_list > div {
     border-bottom: 1px solid #fff;
     border-top: 1px solid #eee;
     padding: 15px 0;
     position: relative;
 }
 
-.studentquiz_behaviour .comment_list div span.remove_action {
+.path-mod-studentquiz .studentquiz_behaviour .comment_list div span.remove_action {
     cursor: pointer;
     position: absolute;
     right: 0;
     text-decoration: underline;
 }
 
-.studentquiz_behaviour .comment_list div span.remove_action:hover {
+.path-mod-studentquiz .studentquiz_behaviour .comment_list div span.remove_action:hover {
     text-decoration: none;
 }
 
-.studentquiz_behaviour .comment_list div p:last-child {
+.path-mod-studentquiz .studentquiz_behaviour .comment_list div p:last-child {
     margin: 0;
 }
 
-.studentquiz_behaviour .rate .rating {
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating {
     cursor: not-allowed;
     direction: rtl;
     display: inline-block;
     unicode-bidi: bidi-override;
 }
 
-.studentquiz_behaviour .rate .error {
+.path-mod-studentquiz .studentquiz_behaviour .rate .error {
     margin-top: 5px;
 }
 
-.studentquiz_behaviour .star,
-.studentquiz_behaviour .rate .rating .rateable.star-empty:hover,
-.studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty {
+.path-mod-studentquiz .studentquiz_behaviour .star,
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover,
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty {
     background-image: url([[pix:mod_studentquiz|star_icon]]);
 }
 
-.studentquiz_behaviour .star,
-.studentquiz_behaviour .star-empty {
+.path-mod-studentquiz .studentquiz_behaviour .star,
+.path-mod-studentquiz .studentquiz_behaviour .star-empty {
     display: inline-block;
     height: 20px;
     width: 20px;
 }
 
-.studentquiz_behaviour .rate .rating .rateable {
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable {
     cursor: pointer;
 }
 
-.studentquiz_behaviour .star-empty {
+.path-mod-studentquiz .studentquiz_behaviour .star-empty {
     background-image: url([[pix:mod_studentquiz|star_empty_icon]]);
 }
 
-#page-mod-studentquiz-view .pagination .form-control {
+.path-mod-studentquiz .pagination .form-control {
     width: 60px;
 }
 
-#page-mod-studentquiz-view .modulespecificbuttonscontainer input.btn {
+.path-mod-studentquiz .modulespecificbuttonscontainer input.btn {
     margin-right: 5px;
 }
 
-#page-mod-studentquiz-view #mod_studentquiz_statblock .report_more_url,
-#page-mod-studentquiz-view #mod_studentquiz_rankingblock .report_more_url {
+.path-mod-studentquiz #mod_studentquiz_statblock .report_more_url,
+.path-mod-studentquiz #mod_studentquiz_rankingblock .report_more_url {
     text-align: right;
 }
-#mod_studentquiz_statblock .card-text.content > div,
-#mod_studentquiz_rankingblock .card-text.content > div {
+
+.path-mod-studentquiz #mod_studentquiz_statblock .card-text.content > div,
+.path-mod-studentquiz #mod_studentquiz_rankingblock .card-text.content > div {
     display: flex;
     justify-content: space-between;
 }
