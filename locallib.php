@@ -685,14 +685,15 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
  * Get Paginated ranking data ordered (DESC) by points, questions_created, questions_approved, rates_average
  * @param int $cmid Course module id of the StudentQuiz considered.
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
+ * @param []int $excluderoles array of role ids to exclude
  * @param int $limitfrom return a subset of records, starting at this point (optional).
  * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
  * @return moodle_recordset of paginated ranking table
  */
-function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $aggregated, $limitfrom = 0, $limitnum = 0) {
+function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $aggregated, $excluderoles=array(), $limitfrom = 0, $limitnum = 0) {
     global $DB;
     $select = mod_studentquiz_helper_attempt_stat_select();
-    $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated);
+    $joins = mod_studentquiz_helper_attempt_stat_joins($aggregated, $excluderoles);
     $statsbycat = ' ) statspercategory GROUP BY userid';
     $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
@@ -835,16 +836,25 @@ function mod_studentquiz_helper_attempt_stat_select() {
  * @return string
  * TODO: Refactor: There must be a better way to do this!
  */
-function mod_studentquiz_helper_attempt_stat_joins($aggregated) {
+function mod_studentquiz_helper_attempt_stat_joins($aggregated, $excluderoles=array()) {
     $sql = " FROM {studentquiz} sq
              -- Get this Studentquiz Question category.
              JOIN {context} con ON con.instanceid = sq.coursemodule
+                  AND con.contextlevel = ".CONTEXT_MODULE."
              JOIN {question_categories} qc ON qc.contextid = con.id
              -- Only enrolled users.
              JOIN {course} c ON c.id = sq.course
-             JOIN {enrol} e ON e.courseid = c.id
-             JOIN {user_enrolments} ue ON ue.enrolid = e.id
-             JOIN {user} u ON ue.userid = u.id
+             JOIN {context} cctx ON cctx.instanceid = c.id
+                  AND cctx.contextlevel = ".CONTEXT_COURSE."
+             JOIN {role_assignments} ra ON cctx.id = ra.contextid
+             JOIN {user} u ON u.id = ra.userid";
+    if (!empty($excluderoles)) {
+        $sql .= "
+            -- Only not excluded roles
+            JOIN {role} r ON r.id = ra.roleid
+                AND r.id NOT IN (".implode(',', $excluderoles).")";
+    }
+    $sql .= "
         -- Question created by user.
         LEFT JOIN (
                     SELECT count(*) AS countq, q.createdby AS creator
