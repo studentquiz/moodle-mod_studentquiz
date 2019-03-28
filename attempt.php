@@ -188,7 +188,11 @@ $headtags .= question_engine::initialise_js();
 $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
 // Start output.
 $PAGE->set_url($actionurl);
-$PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
+$jsparams = array(
+    boolval($studentquiz->forcerating),
+    boolval($studentquiz->forcecommenting)
+);
+$PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise', $jsparams);
 $title = format_string($question->name);
 $PAGE->set_title($cm->name);
 $PAGE->set_heading($cm->name);

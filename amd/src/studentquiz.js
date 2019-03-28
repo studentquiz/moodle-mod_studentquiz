@@ -25,7 +25,8 @@
 
 define(['jquery'], function($) {
     return {
-        initialise: function() {
+        initialise: function(forcerating, forcecommenting) {
+
             // Ajax request POST on CLICK for add comment.
             $('.studentquiz_behaviour .add_comment').off('click').on('click', function() {
                 var $comments = $(this).closest('.comments');
@@ -35,14 +36,21 @@ define(['jquery'], function($) {
                 var cmid = $cmidfield.attr('value');
                 var $commentlist = $comments.children('.comment_list');
 
+                if ($field.val() == "") {
+                    return;
+                }
+
                 $.post(M.cfg.wwwroot + '/mod/studentquiz/save.php',
                     {save: 'comment', cmid: cmid, questionid: questionid, sesskey: M.cfg.sesskey, text: $field.val()},
                     function() {
                         $field.val('');
                         $field.trigger("keyup");
                         getCommentList(questionid, $commentlist, cmid);
+
+                        $('.studentquiz_behaviour > .comments > .comment_error').addClass('hide');
                     }
                 );
+                return;
             });
 
             // Ajax request POST on CLICK for add rating.
@@ -73,25 +81,29 @@ define(['jquery'], function($) {
             $('input[name="next"], input[name="previous"], input[name="finish"]').off('click').on('click', function() {
                 var $that = $(this);
 
-                if (
-                    !$('.im-controls input[type="submit"]').length ||
+                var afterquestion = !$('.im-controls input[type="submit"]').length ||
                     $('.im-controls input[type="submit"]').filter(function() {
                         return this.name.match(/^q.+-submit$/);
-                    }).is(':disabled')
-                ) {
-                    var hasRated = false;
-                    $('.rating span').each(function() {
-                        if ($(this).hasClass('star')) {
-                            hasRated = true;
-                        }
-                    });
+                    }).is(':disabled');
+                if (afterquestion) {
+                    var hasrated = $('.rating span').hasClass('star');
+                    var hascommented = $('.studentquiz_behaviour .comment_list > div').hasClass('fromcreator');
 
-                    if (hasRated) {
+                    if (forcerating) {
+                        if (!hasrated) {
+                            $('.studentquiz_behaviour > .rate > .rate_error').removeClass('hide');
+                        }
+                    }
+                    if (forcecommenting) {
+                        if (!hascommented) {
+                            $('.studentquiz_behaviour > .comments > .comment_error').removeClass('hide');
+                        }
+                    }
+
+                    if ((!forcerating || hasrated) && (!forcecommenting || hascommented)) {
                         $that.submit();
                         return true;
                     }
-
-                    $('.studentquiz_behaviour > .rate > .rate_error').removeClass('hide');
                     return false;
                 } else {
                     $that.submit();
@@ -182,7 +194,7 @@ define(['jquery'], function($) {
     function enablePreventUnload() {
         // Kindly warn user when he tries to leave page while he has still input in the comment textarea
         $(window).on('beforeunload', function() {
-            $('.studentquiz_behaviour > .comments > .comment_error').removeClass('hide');
+            $('.studentquiz_behaviour > .comments > .comment_error_unsaved').removeClass('hide');
             return true;
         });
     }
@@ -191,7 +203,7 @@ define(['jquery'], function($) {
      * Remove the beforeunload event.
      */
     function disablePreventUnload() {
-        $('.studentquiz_behaviour > .comments > .comment_error').addClass('hide');
+        $('.studentquiz_behaviour > .comments > .comment_error_unsaved').addClass('hide');
         $(window).off('beforeunload');
     }
 });

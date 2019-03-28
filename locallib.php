@@ -631,8 +631,9 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
     $showmoreafter = 10;
     // Output comments in chronically reverse order.
     foreach (array_reverse($comments) as $comment) {
-        $canedit = $ismoderator || $comment->userid == $userid;
-        $seename = !$anonymize || $comment->userid == $userid;
+        $isfromcreator = $comment->userid == $userid;
+        $canedit = $ismoderator || $isfromcreator;
+        $seename = !$anonymize || $isfromcreator;
 
         $date = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
@@ -659,7 +660,8 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
                 FORMAT_MOODLE,
                 array('context' => $cmid)
             ),
-            ($num >= $showmoreafter) ? 'hidden' : ''
+            (($num >= $showmoreafter) ? 'hidden' : '')
+            . (($isfromcreator) ? 'fromcreator' : '')
         );
         $num++;
     }
@@ -667,9 +669,12 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
     if (count($comments) > $showmoreafter) {
         $output .= html_writer::div(
             html_writer::tag('button', get_string('show_more', $modname),
-                array('type' => 'button', 'class' => 'show_more btn btn-secondary'))
+                array('type' => 'button', 'class' => 'show_more btn btn-secondary')
+            )
             . html_writer::tag('button', get_string('show_less', $modname)
-            , array('type' => 'button', 'class' => 'show_less btn btn-secondary hidden')), 'button_controls'
+                , array('type' => 'button', 'class' => 'show_less btn btn-secondary hidden')
+            )
+            , 'button_controls'
         );
     }
 
