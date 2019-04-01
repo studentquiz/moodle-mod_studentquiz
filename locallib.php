@@ -657,7 +657,8 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
             . html_writer::tag('p', $date . ' | ' . $username)
             . format_text(
                 $comment->comment,
-                FORMAT_MOODLE
+                FORMAT_MOODLE,
+                array('context' => context_module::instance($cmid))
             ),
             (($num >= $showmoreafter) ? 'hidden' : '')
             . (($isfromcreator) ? 'fromcreator' : '')
