@@ -51,4 +51,4 @@ if (mod_studentquiz_check_created_permission($cmid)) {
 
 $comments = mod_studentquiz_get_comments_with_creators($questionid);
 
-echo mod_studentquiz_comment_renderer($comments, $userid, $context->id, $anonymize, $ismoderator);
+echo mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize, $ismoderator);
