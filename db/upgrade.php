@@ -489,7 +489,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     // Migrate all studentquizes to aggreated state
-    if($oldversion < 2019041401) {
+    if ($oldversion < 2019041401) {
         mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state();
     }
 

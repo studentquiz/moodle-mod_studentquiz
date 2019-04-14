@@ -124,8 +124,8 @@ function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state()
 
     $transaction = $DB->start_delegated_transaction();
 
-    try{
-        foreach($studentquizes as $studentquiz) {
+    try {
+        foreach ($studentquizes as $studentquiz) {
             $data = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquiz->id);
 
             $DB->insert_records('studentquiz_progress', new ArrayIterator($data));
