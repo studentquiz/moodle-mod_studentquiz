@@ -105,44 +105,6 @@ function mod_studentquiz_flip_approved($questionid) {
 }
 
 /**
- * Migrates all studentquizes that are not yet aggregated to the aggreated state.
- *
- * If it fails, try the following:
- *  - Set all entries in the table studentquiz to aggregated = 0
- *  - Truncate the table studentquiz_progress
- *  - Retry
- *
- * @throws Throwable
- * @throws coding_exception
- * @throws dml_exception
- * @throws dml_transaction_exception
- */
-function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state() {
-    global $DB;
-
-    $studentquizes = $DB->get_records('studentquiz', array('aggregated' => '0'));
-
-    $transaction = $DB->start_delegated_transaction();
-
-    try {
-        foreach ($studentquizes as $studentquiz) {
-            $data = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquiz->id);
-
-            $DB->insert_records('studentquiz_progress', new ArrayIterator($data));
-
-            $studentquiz->aggregated = 1;
-
-            $DB->update_record('studentquiz', $studentquiz);
-
-        }
-        $DB->commit_delegated_transaction($transaction);
-    } catch (Exception $e) {
-        $DB->rollback_delegated_transaction($transaction, $e);
-        throw new Exception($e->getMessage());
-    }
-}
-
-/**
  * Returns studentquiz_progress entries for a single studentquiz instance.
  * It is calculated using the question_attempts data.
  *
