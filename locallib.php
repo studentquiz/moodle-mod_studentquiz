@@ -136,8 +136,7 @@ function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state()
 
         }
         $DB->commit_delegated_transaction($transaction);
-    }
-    catch (Exception $e) {
+    } catch (Exception $e) {
         $DB->rollback_delegated_transaction($transaction, $e);
         throw new Exception($e->getMessage());
     }
