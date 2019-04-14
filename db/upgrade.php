@@ -488,5 +488,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019032002, 'studentquiz');
     }
 
+    // Migrate all studentquizes to aggreated state
+    if ($oldversion < 2019041401) {
+        mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state();
+
+        upgrade_mod_savepoint(true, 2019041401, 'studentquiz');
+    }
+
     return true;
 }
