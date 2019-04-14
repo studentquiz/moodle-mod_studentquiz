@@ -107,6 +107,11 @@ function mod_studentquiz_flip_approved($questionid) {
 /**
  * Migrates all studentquizes that are not yet aggregated to the aggreated state.
  *
+ * If it fails, try the following:
+ *  - Set all entries in the table studentquiz to aggregated = 0
+ *  - Truncate the table studentquiz_progress
+ *  - Retry
+ *
  * @throws Throwable
  * @throws coding_exception
  * @throws dml_exception
