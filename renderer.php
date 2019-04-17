@@ -108,10 +108,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 .html_writer::span(
                     '<b class="stat never-answered">' . ($unansweredquestions) .'</b>',
                     '', array('style' => 'float: right;color:#f0ad4e;')))
-            . html_writer::div(
-                get_string('statistic_block_progress_available', 'studentquiz')
-                .html_writer::span('<b class="stat questions-available">' .$sqstats->questions_available .'</b>', '',
-                    array('style' => 'float: right;')))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->questions_approved .'</b>', '',
@@ -1383,7 +1379,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         $rate = $DB->get_record('studentquiz_rate', array('questionid' => $questionid, 'userid' => $USER->id));
         if ($rate !== false) {
             $value = $rate->rate;
-            $readonly = true;
+            //$readonly = true; // always rateable for now
         }
 
         return html_writer::div(
