@@ -1375,15 +1375,14 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     public function render_rate($questionid) {
         global $DB, $USER;
 
-        $value = -1; $readonly = false;
+        $value = -1;
         $rate = $DB->get_record('studentquiz_rate', array('questionid' => $questionid, 'userid' => $USER->id));
         if ($rate !== false) {
             $value = $rate->rate;
-            //$readonly = true; // always rateable for now
         }
 
         return html_writer::div(
-            html_writer::div($this->rate_choices($questionid, $value , $readonly), 'rate'),
+            html_writer::div($this->rate_choices($questionid, $value , false), 'rate'),
             'studentquiz_behaviour'
         );
     }
