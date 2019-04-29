@@ -42,7 +42,7 @@ Feature: Navigation to the pages
     Then I should see "Community Statistics"
     Then I should see "Personal Progress"
 
-  Scenario: See the statistics page
+  Scenario: See the ranking page
     When I navigate to "Ranking" in current page administration
     Then I should see "Created question factor"
     Then I should see "Latest correct answer factor"
