@@ -47,6 +47,11 @@ $context = $report->get_context();
 $cm = $report->get_coursemodule();
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
+// If for some weired reason a studentquiz is not aggregated yet, now would be a moment to do so.
+if (!$studentquiz->aggregated) {
+    mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_state($studentquiz);
+}
+
 // Redirect if we have received valid POST data.
 if (data_submitted()) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {

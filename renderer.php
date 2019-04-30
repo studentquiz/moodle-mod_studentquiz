@@ -762,7 +762,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      *
      * @return array
      */
-    public function get_is_sortable_difficulty_level_column($aggregated) {
+    public function get_is_sortable_difficulty_level_column() {
         return [
                 'difficulty' => [
                         'field' => 'dl.difficultylevel',
@@ -770,7 +770,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                         'tip' => get_string('average_column_name', 'studentquiz')
                 ],
                 'mydifficulty' => [
-                        'field' => $aggregated ? 'mydifficulty' : 'mydiffs.mydifficulty',
+                        'field' => 'mydifficulty',
                         'title' => get_string('mine_column_name', 'studentquiz'),
                         'tip' => get_string('mine_column_name', 'studentquiz')
                 ]
@@ -1718,7 +1718,6 @@ class mod_studentquiz_migration_renderer extends mod_studentquiz_renderer {
     public function view_body($cmid, $studentquiz) {
         if ($studentquiz->aggregated == 1) {
             return $this->output->error_text(get_string('migrate_already_done', 'studentquiz'));
-
         } else {
             return $this->output->confirm(get_string('migrate_ask', 'studentquiz'),
                 new moodle_url('/mod/studentquiz/migrate.php', array('id' => $cmid, 'do' => 'yes')),

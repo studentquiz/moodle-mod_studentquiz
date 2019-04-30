@@ -172,7 +172,7 @@ define(['jquery'], function($) {
 
     /**
      * Kindly ask to prevent leaving page when there's a unsaved comment
-     * 
+     *
      * Note: Only in preview is the commenting visible without answering the question. If someone has filled the
      * textarea and afterwards answers the question, he'll get the dialogue, which is fine.
      */
