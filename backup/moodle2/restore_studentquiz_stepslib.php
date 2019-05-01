@@ -126,7 +126,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->allowedqtypes)) {
             $data->allowedqtypes = get_config('studentquiz', 'defaultqtypes');
         }
-        if (empty($data->aggregated)) {
+        if (empty($data->aggregated) && $data->aggregated != "0") {
             $data->aggregated = "1";
         }
         if (empty($data->excluderoles)) {
