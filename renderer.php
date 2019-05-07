@@ -111,7 +111,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
                 .html_writer::span('<b>' .$userstats->questions_approved .'</b>', '',
-                    array('style' => 'float: right;color:#28A745;')));
+                    array('style' => 'float: right;color:#28A745;')))
+            . html_writer::div(get_string('statistic_block_created', 'studentquiz')
+                .html_writer::span('<b>' .$userstats->questions_created .'</b>', '',
+                    array('style' => 'float: right;')));
 
         // Add More link to Stat block.
         $reporturl = new moodle_url('/mod/studentquiz/reportstat.php', ['id' => $cmid]);
