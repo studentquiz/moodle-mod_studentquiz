@@ -183,7 +183,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         if (count($this->questions) || $this->isfilteractive) {
-            $output .= $this->renderer->render_filter_form($this->filterform);
+            // HACK: Remove form end tag so the form spans over question table too.
+            // The filter makes it impossible to combine it's form with other input elements on the page.
+            $output .= substr($this->renderer->render_filter_form($this->filterform), 0, -7);
         }
 
         if (count($this->questions) > 0) {
@@ -670,6 +672,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (optional_param('resetbutton', false, PARAM_ALPHA)) {
             redirect($pageurl);
         }
+        // Customize form action url from question bank. We only need cmid, rest is in $_POST.
+        $this->baseurl->remove_params("cat", "qperpage");
 
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,

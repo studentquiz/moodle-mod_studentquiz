@@ -924,10 +924,12 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     public function render_question_form($questionslist) {
         $output = '';
 
-        $output .= html_writer::start_tag('form', [
-                'method' => 'post',
-                'action' => 'view.php'
-        ]);
+        // HACK: Start tag of form comes from filter.
+        // The filter makes it impossible to combine it's form with other input elements on the page.
+        // $output .= html_writer::start_tag('form', [
+        //         'method' => 'post',
+        //         'action' => 'view.php'
+        // ]);
         $output .= html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
         $output .= $questionslist;
         $output .= html_writer::end_tag('form');
