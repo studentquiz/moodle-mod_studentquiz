@@ -221,6 +221,9 @@ $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cm
 // Output the question.
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
+// Output the state change select box.
+$html .= $output->render_state_choice($question->id, $course->id, $cmid);
+
 // Output the rating.
 if ($hasanswered) {
     $html .= $output->render_rate($question->id);

@@ -154,6 +154,10 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
         $studentquiz->anonymrank = 0;
     }
 
+    if (!isset($studentquiz->publishnewquestion)) {
+        $studentquiz->publishnewquestion = 0;
+    }
+
     $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
 
     $studentquiz->excluderoles = (!empty($studentquiz->excluderoles))

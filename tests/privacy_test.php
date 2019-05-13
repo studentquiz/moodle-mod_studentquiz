@@ -247,11 +247,11 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertCount(2, $questions);
         $this->assertEquals((object) [
                 'name' => $this->questions[0]->name,
-                'approved' => transform::yesno($this->approvals[0]->approved)
+                'approved' => transform::yesno($this->approvals[0]->state)
         ], $questions[$this->questions[0]->id]);
         $this->assertEquals((object) [
                 'name' => $this->questions[1]->name,
-                'approved' => transform::yesno($this->approvals[1]->approved)
+                'approved' => transform::yesno($this->approvals[1]->state)
         ], $questions[$this->questions[1]->id]);
 
         /*
@@ -308,7 +308,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertCount(1, $questions);
         $this->assertEquals((object) [
                 'name' => $this->questions[2]->name,
-                'approved' => transform::yesno($this->approvals[2]->approved)
+                'approved' => transform::yesno($this->approvals[2]->state)
         ], $questions[$this->questions[2]->id]);
 
         $rates = $data->rates;
@@ -417,7 +417,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertCount(1, $questions);
         $this->assertEquals((object) [
                 'name' => $this->questions[3]->name,
-                'approved' => transform::yesno($this->approvals[3]->approved)
+                'approved' => transform::yesno($this->approvals[3]->state)
         ], $questions[$this->questions[3]->id]);
 
         $rates = $data->rates;
@@ -792,7 +792,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $data = (object) [
                 'id' => 0,
                 'questionid' => $questionid,
-                'approved' => rand(0, 1)
+                'state' => rand(0, 1)
         ];
 
         $data->id = $DB->insert_record('studentquiz_question', $data);

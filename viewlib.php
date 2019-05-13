@@ -142,8 +142,8 @@ class mod_studentquiz_view {
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
             // Ensure we have a studentquiz_question record.
-            mod_studentquiz_ensure_studentquiz_question_record($lastchanged);
-            mod_studentquiz_notify_changed($lastchanged, $this->course, $this->cm);
+            mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
+            mod_studentquiz_state_notify($lastchanged, $this->course, $this->cm, 'changed');
             redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));
         }
 

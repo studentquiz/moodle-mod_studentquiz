@@ -38,17 +38,37 @@ Feature: Quizzes can be startet
       | user     | course | role           |
       | student1 | C1     | student        |
     And the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber     | forcerating |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1           |
-    And the following "questions" exist:
-      | questioncategory          | qtype       | name             | template    |
-      | Default for StudentQuiz 1 | truefalse   | Exampe question  |             |
-      | Default for StudentQuiz 1 | truefalse   | Exampe question  |             |
-      | Default for StudentQuiz 1 | truefalse   | Exampe question  |             |
+      | activity    | name          | intro              | course | idnumber     | forcerating | publishnewquestion |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1           | 1                  |
     And I log in as "student1"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
     And I should see "Create new question"
+
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    Then I should see "Adding a True/False question"
+    And I set the field "Question name" to "Exampe question 1"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    Then I should see "Adding a True/False question"
+    And I set the field "Question name" to "Exampe question 2"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    Then I should see "Adding a True/False question"
+    And I set the field "Question name" to "Exampe question 3"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+
     # To sort the question table by question name
     #And I change window size to "large"
     #And I click on ".questionname a" "css_element"
@@ -120,6 +140,6 @@ Feature: Quizzes can be startet
     And I click on "Finish" "button"
     # Back to main view and check the result numbers
     Then "Create new question" "button" should exist
-    And I should see "2" in the ".stat.last-attempt-correct" "css_element"
-    And I should see "1" in the ".stat.last-attempt-incorrect" "css_element"
+    And I should see "1" in the ".stat.last-attempt-correct" "css_element"
+    And I should see "2" in the ".stat.last-attempt-incorrect" "css_element"
     And I should see "0" in the ".stat.never-answered" "css_element"
