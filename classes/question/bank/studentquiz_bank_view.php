@@ -534,11 +534,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(), $addcontexts, $category);
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, $pageurl);
+        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, true);
 
         $output .= $this->display_question_list_rows($page);
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, $pageurl);
+        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, false);
 
         $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(), $addcontexts, $category);
 

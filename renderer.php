@@ -1149,10 +1149,10 @@ EOT;
      * @param $totalnumber
      * @param $page
      * @param $perpage
-     * @param $pageurl
+     * @param $showperpageselection
      * @return string
      */
-    public function render_pagination_bar($pagevars, $baseurl, $totalnumber, $page, $perpage, $pageurl) {
+    public function render_pagination_bar($pagevars, $baseurl, $totalnumber, $page, $perpage, $showperpageselection) {
         $pagingurl = new \moodle_url('view.php');
         $pagingurl->params($baseurl->params());
         $pagingbar = new \paging_bar($totalnumber, $page, $perpage, $pagingurl);
@@ -1180,18 +1180,20 @@ EOT;
         if ($shouldshownavigation) {
             if ($shouldshowpaging) {
                 $pagingbaroutput .= html_writer::start_div('categorypagingbarcontainer');
-                $selectionperpage = \html_writer::empty_tag('input', [
-                    'type' => 'submit',
-                    'value' => get_string('pagesize', 'studentquiz'),
-                    'class' => 'btn'
-                ]);
-                $selectionperpage .= \html_writer::empty_tag('input', [
-                    'type' => 'text',
-                    'name' => 'qperpage',
-                    'value' => $perpage,
-                    'class' => 'form-control'
-                ]);
-                $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
+                if ($showperpageselection) {
+                    $selectionperpage = \html_writer::empty_tag('input', [
+                        'type' => 'submit',
+                        'value' => get_string('pagesize', 'studentquiz'),
+                        'class' => 'btn'
+                    ]);
+                    $selectionperpage .= \html_writer::empty_tag('input', [
+                        'type' => 'text',
+                        'name' => 'qperpage',
+                        'value' => $perpage,
+                        'class' => 'form-control'
+                    ]);
+                    $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
+                }
                 $pagingbaroutput .= $this->output->render($pagingbar);
                 $pagingbaroutput .= html_writer::end_div();
             }
