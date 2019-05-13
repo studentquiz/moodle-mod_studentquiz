@@ -925,8 +925,8 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
         $output = '';
 
         $output .= html_writer::start_tag('form', [
-                'method' => 'post',
-                'action' => 'view.php'
+                'method' => 'get',
+                'action' => ''
         ]);
         $output .= html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
         $output .= $questionslist;
@@ -1148,12 +1148,11 @@ EOT;
      * @param $page
      * @param $perpage
      * @param $pageurl
+     * @param $showperpageselection
      * @return string
      */
-    public function render_pagination_bar($pagevars, $baseurl, $totalnumber, $page, $perpage, $pageurl) {
-        $pagingurl = new \moodle_url('view.php');
-        $pagingurl->params($baseurl->params());
-        $pagingbar = new \paging_bar($totalnumber, $page, $perpage, $pagingurl);
+    public function render_pagination_bar($pagevars, $baseurl, $totalnumber, $page, $perpage, $showperpageselection) {
+        $pagingbar = new \paging_bar($totalnumber, $page, $perpage, $baseurl);
         $pagingbar->pagevar = 'qpage';
 
         $shouldshownavigation = false;
@@ -1178,35 +1177,35 @@ EOT;
         if ($shouldshownavigation) {
             if ($shouldshowpaging) {
                 $pagingbaroutput .= html_writer::start_div('categorypagingbarcontainer');
-                $selectionperpage = \html_writer::empty_tag('input', [
-                    'type' => 'submit',
-                    'value' => get_string('pagesize', 'studentquiz'),
-                    'class' => 'btn'
-                ]);
-                $selectionperpage .= \html_writer::empty_tag('input', [
-                    'type' => 'text',
-                    'name' => 'qperpage',
-                    'value' => $perpage,
-                    'class' => 'form-control'
-                ]);
-                $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
+                if ($showperpageselection) {
+                    $selectionperpage = \html_writer::empty_tag('input', [
+                        'type' => 'submit',
+                        'value' => get_string('pagesize', 'studentquiz'),
+                        'class' => 'btn'
+                    ]);
+                    $selectionperpage .= \html_writer::empty_tag('input', [
+                        'type' => 'text',
+                        'name' => 'qperpage',
+                        'value' => $perpage,
+                        'class' => 'form-control'
+                    ]);
+                    $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
+                }
                 $pagingbaroutput .= $this->output->render($pagingbar);
                 $pagingbaroutput .= html_writer::end_div();
             }
-            $btntext = ($shouldshowall)? get_string('showall', 'moodle', $totalnumber): get_string('showperpage', 'moodle', $perpage);
-            $showallbtn = \html_writer::tag('button', $btntext, [
-                'type' => 'submit',
-                'name' => 'showall',
-                'value' => ($shouldshowall)? '1': '0',
-                'class' => 'btn btn-link'
-            ]);
-            $pagingbaroutput .= $showallbtn;
-            if (!$shouldshowall) {
-                $pagingbaroutput .= \html_writer::empty_tag('input', [
-                    'type' => 'hidden',
-                    'name' => 'qperpage',
-                    'value' => $perpage
-                ]);
+            if ($showperpageselection) {
+                $showalllink = '';
+                if ($shouldshowall) {
+                    $linktext = get_string('showall', 'moodle', $totalnumber);
+                    $url = new \moodle_url('view.php', array_merge($baseurl->params(), ['showall' => 1]));
+                    $showalllink = html_writer::link($url, $linktext);
+                } else {
+                    $linktext = get_string('showperpage', 'moodle', $perpage);
+                    $url = new \moodle_url('view.php', array_merge($baseurl->params(), ['showall' => 0, 'qperpage' => $perpage]));
+                    $showalllink = html_writer::link($url, $linktext);
+                }
+                $pagingbaroutput .= html_writer::div($showalllink, 'paging');
             }
         }
 
