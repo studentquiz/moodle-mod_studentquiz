@@ -178,7 +178,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $row;
     }
 
-    public function render_table($data, $size, $align, $head, $caption) {
+    public function render_table($data, $size, $align, $head, $caption, $class='') {
         $table = new html_table();
         if (!empty($caption)) {
             $table->caption = $caption;
@@ -187,6 +187,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->align = $align;
         $table->size = $size;
         $table->data = $data;
+        $table->attributes['class'] = $class;
         return html_writer::table($table);
     }
 
@@ -1702,7 +1703,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         }
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
-        return $this->render_table($data, $size, $align, $head, $caption);
+        return $this->render_table($data, $size, $align, $head, $caption, 'rankingtable');
     }
 }
 
