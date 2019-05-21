@@ -35,9 +35,10 @@ Feature: Restore of studentquizzes in moodle exports contain question answers
     And I should see "<pos_2_total_points>" in the ".rankingtable tbody tr:nth-child(2) td.c2" "css_element"
 
     Examples:
-      | file                                           | course     | studentquiz   | pos_1_correct_answered_points | pos_1_total_points | pos_2_correct_answered_points | pos_2_total_points |
-      | backup-moodle2-aggregated-earlybefore.mbz      | Course One | StudentQuiz 1 | 2                             | 12                 | 2                             | 11                 |
-    #   | backup-moodle2-aggregated-before.mbz           | Course One | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
-    #   | backup-moodle2-aggregated-during-value-0.mbz   | Course One | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
-    #   | backup-moodle2-aggregated-during-value-1.mbz   | Course One | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
-    #   | backup-moodle2-aggregated-after.mbz            | Course One | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
+      | file                                      | course            | studentquiz   | pos_1_correct_answered_points | pos_1_total_points | pos_2_correct_answered_points | pos_2_total_points |
+      | backup-moodle2-aggregated-earlybefore.mbz | Course One        | StudentQuiz 1 | 2                             | 12                 | 2                             | 11                 |
+      | backup-moodle2-aggregated_before.mbz      | aggregated before | SQbefore      | 2                             | 32                 | 4                             | 23                 |
+#       | backup-moodle2-aggregated-during-value-0.mbz | aggregated during 0 | SQduring0     | 0                             | 0                  | 0                             | 0                  |
+#       | backup-moodle2-aggregated-during-value-1.mbz | aggregated during 1 | SQduring1     | 0                             | 0                  | 0                             | 0                  |
+# after does not yet exist, must be added once aggregated field is removed from tbl_studentquiz
+#       | backup-moodle2-aggregated-after.mbz          | Course One        | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
