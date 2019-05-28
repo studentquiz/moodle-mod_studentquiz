@@ -27,7 +27,7 @@ Feature: Question submission and answering will follow the availability setting
     Then I should see "Open for question submission from"
     And I should see "Closed for question submission from"
     And I should see "Open for answering from"
-    And I should see "Close for answering from"
+    And I should see "Closed for answering from"
 
   @javascript
   Scenario: Availability settings validation
