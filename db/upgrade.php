@@ -492,7 +492,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2019051700) {
 
         $table = new xmldb_table('studentquiz_progress');
-        
+
         // Changing the default of field lastanswercorrect on table studentquiz_progress to drop it.
         $field = new xmldb_field('lastanswercorrect', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, null, 'studentquizid');
 
@@ -510,11 +510,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Launch change of default for field correctattempts.
         $dbman->change_field_default($table, $field);
-        
+
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2019051700, 'studentquiz');
     }
-
 
     return true;
 }
