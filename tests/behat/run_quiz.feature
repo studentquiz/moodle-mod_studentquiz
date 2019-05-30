@@ -123,4 +123,3 @@ Feature: Quizzes can be startet
     And I should see "2" in the ".stat.last-attempt-correct" "css_element"
     And I should see "1" in the ".stat.last-attempt-incorrect" "css_element"
     And I should see "0" in the ".stat.never-answered" "css_element"
-    And I should see "3" in the ".stat.questions-available" "css_element"
