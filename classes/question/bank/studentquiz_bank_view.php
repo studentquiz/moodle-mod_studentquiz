@@ -117,6 +117,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param mod_studentquiz_report $report
      */
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars, $report) {
+        $this->set_filter_post_data();
         parent::__construct($contexts, $pageurl, $course, $cm);
         global $USER, $PAGE;
         $this->pagevars = $pagevars;
@@ -183,7 +184,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         if (count($this->questions) || $this->isfilteractive) {
-            $output .= $this->renderer->render_filter_form($this->filterform);
+            // We're unable to force the filter form to submit with get method. We have 2 forms on the page
+            // which need to interact with each other, so forcing method as get here
+            $output .= str_replace('method="post"', 'method="get"', $this->renderer->render_filter_form($this->filterform));
         }
 
         if (count($this->questions) > 0) {
@@ -532,11 +535,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(), $addcontexts, $category);
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, $pageurl);
+        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, true);
 
         $output .= $this->display_question_list_rows($page);
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, $pageurl);
+        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, false);
 
         $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(), $addcontexts, $category);
 
@@ -657,6 +660,24 @@ class studentquiz_bank_view extends \core_question\bank\view {
             true, 'myrate');
     }
 
+     /**
+      * Set data for filter recognition
+      * We have two forms in the view.php page which need to interact with each other. All params are sent through GET,
+      * but the moodle filter form can only process POST, so we need to copy them there.
+      */
+    private function set_filter_post_data() {
+        $_POST = $_GET;
+    }
+
+    /**
+     * Modify base url for ordering.
+     * We have two forms in the view.php page which need to interact with each other. All params are sent through GET,
+     * but the moodle filter form can only process POST, so we need to copy them there.
+     */
+    private function modify_base_url() {
+        $this->baseurl->params($_GET);
+    }
+
     /**
      * Initialize filter form
      * @param moodle_url $pageurl
@@ -671,6 +692,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             redirect($pageurl);
         }
 
+        $this->modify_base_url();
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(),

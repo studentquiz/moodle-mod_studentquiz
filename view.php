@@ -47,10 +47,12 @@ $context = $report->get_context();
 $cm = $report->get_coursemodule();
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
-// Redirect if we have received valid POST data.
-if (data_submitted()) {
+// Redirect if we have received valid data.
+// Usually we should use submitted_data(), but since we have two forms merged and exchanging their values
+// using GET params, we can't use that.
+if (!empty($_GET)) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
-        if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(data_submitted())) {
+        if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($_GET))) {
             if ($attempt = mod_studentquiz_generate_attempt($ids, $studentquiz, $USER->id)) {
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
                 redirect(new moodle_url('/mod/studentquiz/attempt.php',
@@ -70,6 +72,8 @@ $renderer->init_question_table_wanted_columns();
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
 
+// Since this page has 2 forms interacting with each other, all params must be passed in GET, thus
+// $PAGE->url will be as it has recieved the request
 $PAGE->set_url($view->get_pageurl());
 $PAGE->set_title($view->get_title());
 $PAGE->set_heading($COURSE->fullname);
