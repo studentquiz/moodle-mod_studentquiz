@@ -488,5 +488,32 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019032002, 'studentquiz');
     }
 
+    // XMLDB "Check defaults" issues.
+    if ($oldversion < 2019051700) {
+
+        $table = new xmldb_table('studentquiz_progress');
+
+        // Changing the default of field lastanswercorrect on table studentquiz_progress to drop it.
+        $field = new xmldb_field('lastanswercorrect', XMLDB_TYPE_INTEGER, '2', null, XMLDB_NOTNULL, null, null, 'studentquizid');
+
+        // Launch change of default for field lastanswercorrect.
+        $dbman->change_field_default($table, $field);
+
+        // Changing the default of field attempts on table studentquiz_progress to drop it.
+        $field = new xmldb_field('attempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'lastanswercorrect');
+
+        // Launch change of default for field attempts.
+        $dbman->change_field_default($table, $field);
+
+        // Changing the default of field correctattempts on table studentquiz_progress to drop it.
+        $field = new xmldb_field('correctattempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'attempts');
+
+        // Launch change of default for field correctattempts.
+        $dbman->change_field_default($table, $field);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2019051700, 'studentquiz');
+    }
+
     return true;
 }
