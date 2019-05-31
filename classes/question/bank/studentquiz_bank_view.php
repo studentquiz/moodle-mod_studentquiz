@@ -198,7 +198,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
             );
             $output .= $this->renderer->render_question_form($questionslist);
         } else {
-            $output .= $this->renderer->render_no_questions_notification($this->isfilteractive);
+            list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
+                    $this->studentquiz->closesubmissionfrom, 'submission');
+            if ($questionsubmissionallow) {
+                $output .= $this->renderer->render_no_questions_notification($this->isfilteractive);
+            }
         }
         return $output;
     }
