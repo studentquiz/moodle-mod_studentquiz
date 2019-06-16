@@ -253,6 +253,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
                         }
                     }
+                    $this->baseurl->remove_params('approveselected');
+                    $this->baseurl->remove_params('confirm');
+                    $this->baseurl->remove_params('sesskey');
                     redirect($this->baseurl);
                 } else {
                     print_error('invalidconfirm', 'question');
@@ -290,7 +293,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     question_require_capability_on($question, 'move');
                 }
                 question_move_questions_to_category($questionids, $tocategory->id);
-                redirect($this->baseurl->out(false));
+                $this->baseurl->remove_params('move');
+                $this->baseurl->remove_params('sesskey');
+                redirect($this->baseurl);
             }
         }
 
@@ -309,6 +314,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
                         }
                     }
+                    $this->baseurl->remove_params('deleteselected');
+                    $this->baseurl->remove_params('confirm');
+                    $this->baseurl->remove_params('sesskey');
                     redirect($this->baseurl);
                 } else {
                     print_error('invalidconfirm', 'question');
@@ -379,6 +387,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $questionnames = '';
             // An asterix in front of those that are in use Set to true if at least one of the questions is in use.
             $inuse = false;
+            // Exact requested url except the delete/approveselected.
+            $baseurl = new \moodle_url('view.php', $this->baseurl->params());
+            $baseurl->remove_params('deleteselected', 'approveselected');
 
             // Parse input for question ids.
             foreach (array_keys($rawquestions) as $key) {
@@ -399,8 +410,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 redirect($this->baseurl);
             }
             $questionlist = rtrim($questionlist, ',');
-
-            $baseurl = new \moodle_url('view.php', $this->baseurl->params());
 
             if (optional_param('deleteselected', false, PARAM_BOOL)) {
                 // Add an explanation about questions in use.
@@ -423,7 +432,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0, 'confirm' => md5($questionlist),
                         'sesskey' => sesskey()));
 
-                $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'post');
+                $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
                 $continue->disabled = true;
 
                 $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz', $questionnames), $continue, $baseurl);
