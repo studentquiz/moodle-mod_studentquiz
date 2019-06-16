@@ -27,12 +27,12 @@ namespace mod_studentquiz\bank;
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Represent approved column in studentquiz_bank_view
+ * Represent state column in studentquiz_bank_view
  *
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class approved_column extends \core_question\bank\column_base {
+class state_column extends \core_question\bank\column_base {
 
     protected $renderer;
 
@@ -49,7 +49,7 @@ class approved_column extends \core_question\bank\column_base {
      * @return string column name
      */
     public function get_name() {
-        return 'approved';
+        return 'state';
     }
 
     /**
@@ -57,7 +57,7 @@ class approved_column extends \core_question\bank\column_base {
      * @return string column title
      */
     protected function get_title() {
-        return get_string('approved_veryshort', 'studentquiz');
+        return get_string('state_column_name_veryshort', 'studentquiz');
     }
 
     /**
@@ -65,7 +65,7 @@ class approved_column extends \core_question\bank\column_base {
      * @return string column title
      */
     protected function get_title_tip() {
-        return get_string('approved_column_name', 'studentquiz');
+        return get_string('state_column_name', 'studentquiz');
     }
 
     /**
@@ -74,7 +74,7 @@ class approved_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $output = $this->renderer->render_approved_column($question, $this->qbank->base_url(), $rowclasses);
+        $output = $this->renderer->render_state_column($question, $this->qbank->base_url(), $rowclasses);
         echo $output;
     }
 
@@ -84,7 +84,7 @@ class approved_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         return array('ap' => " LEFT JOIN (
-                                           SELECT questionid, approved
+                                           SELECT questionid, state
                                              FROM {studentquiz_question}
                                          ) ap ON ap.questionid = q.id");
     }
@@ -94,7 +94,7 @@ class approved_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('ap.approved');
+        return array('ap.state');
     }
 
     /**
@@ -102,6 +102,6 @@ class approved_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'ap.approved';
+        return 'ap.state';
     }
 }

@@ -15,21 +15,33 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
+ * Helper class for StudentQuiz
  *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch) <your@email.address>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_studentquiz
+ * @author Huong Nguyen <huongnv13@gmail.com>
+ * @copyright 2019 HSR (http://www.hsr.ch)
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace mod_studentquiz\local;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2019060401;
-$plugin->release      = 'v3.3.0';
-$plugin->requires     = 2017111306; // Version MOODLE_31, 3.4.0.
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
+/**
+ * Helper class for StudentQuiz
+ *
+ * @package mod_studentquiz
+ * @author Huong Nguyen <huongnv13@gmail.com>
+ * @copyright 2019 HSR (http://www.hsr.ch)
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class studentquiz_helper {
+
+    const STATE_DISAPPROVED = 0;
+    const STATE_APPROVED = 1;
+    const STATE_NEW = 2;
+    const STATE_CHANGED = 3;
+    const STATE_HIDE = 4;
+    const STATE_DELETE = 5;
+
+}

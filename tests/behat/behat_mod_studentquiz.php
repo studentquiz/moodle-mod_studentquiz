@@ -69,4 +69,15 @@ class behat_mod_studentquiz extends behat_base {
         $field->set_value($value);
     }
 
+    /**
+     * @Given /^I make sure the current Moodle version is greater than 3.4$/
+     *
+     */
+    public function i_check_moodle_version() {
+        global $CFG;
+        if (!$CFG->branch < 35) {
+            throw new \Moodle\BehatExtension\Exception\SkippedException();
+        }
+    }
+
 }

@@ -37,8 +37,16 @@ $messageproviders = array(
     'approved' => array(
         'capability' => 'mod/studentquiz:emailnotifyapproved'
     ),
-    // Notify student that someone has unapproved his question. (Info to question author.)
-    'unapproved' => array(
+    // Notify student that someone has disapproved his question. (Info to question author.)
+    'disapproved' => array(
+        'capability' => 'mod/studentquiz:emailnotifyapproved'
+    ),
+    // Notify student that someone has unhidden his question. (Info to question author.)
+    'unhidden' => array(
+        'capability' => 'mod/studentquiz:emailnotifyapproved'
+    ),
+    // Notify student that someone has hidden his question. (Info to question author.)
+    'hidden' => array(
         'capability' => 'mod/studentquiz:emailnotifyapproved'
     ),
     // Notify student that someone has commented to his question. (Info to question author).

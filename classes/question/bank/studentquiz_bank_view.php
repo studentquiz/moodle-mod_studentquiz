@@ -25,6 +25,8 @@
 
 namespace mod_studentquiz\question\bank;
 
+use mod_studentquiz\local\studentquiz_helper;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ .'/../../../locallib.php');
@@ -35,10 +37,12 @@ require_once(__DIR__ . '/difficulty_level_column.php');
 require_once(__DIR__ . '/tag_column.php');
 require_once(__DIR__ . '/practice_column.php');
 require_once(__DIR__ . '/comments_column.php');
-require_once(__DIR__ . '/approved_column.php');
+require_once(__DIR__ . '/state_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
 require_once(__DIR__ . '/preview_column.php');
 require_once(__DIR__ . '/question_name_column.php');
+require_once(__DIR__ . '/sq_hidden_column.php');
+require_once(__DIR__ . '/sq_edit_action_column.php');
 
 /**
  * Module instance settings form
@@ -159,6 +163,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function display($tabname, $page, $perpage, $cat,
                             $recurse, $showhidden, $showquestiontext, $tagids = []) {
+        global $USER;
         $output = '';
 
         $this->build_query();
@@ -169,11 +174,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $tags = mod_studentquiz_get_tags_by_question_ids($this->displayedquestionsids);
 
         // Annotate questions with tags.
-        foreach ($questions as $question) {
+        foreach ($questions as $key => $question) {
             if (array_key_exists($question->id, $tags)) {
                 $question->tagarray = $tags[$question->id];
             } else {
                 $question->tagarray = null;
+            }
+            if (isset($question->sq_hidden) && $question->sq_hidden) {
+                // Hide the question if needed.
+                $context = \context::instance_by_id($question->contextid);
+                if ($question->createdby != $USER->id && !has_capability('mod/studentquiz:previewothers', $context)) {
+                    unset($questions[$key]);
+                }
             }
         }
 
@@ -221,13 +233,24 @@ class studentquiz_bank_view extends \core_question\bank\view {
             if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
                 // TODO: What? Security by obscurity? Needs a look closer, probably best by using the capability :manage!
                 $approveselected = required_param('approveselected', PARAM_RAW);
+                $state = required_param('state', PARAM_INT);
                 if ($confirm == md5($approveselected)) {
                     if ($questionlist = explode(',', $approveselected)) {
                         // For each question either hide it if it is in use or delete it.
                         foreach ($questionlist as $questionid) {
                             $questionid = (int)$questionid;
-                            mod_studentquiz_flip_approved($questionid);
-                            mod_studentquiz_notify_approved($questionid, $this->course, $this->cm);
+                            if ($state == studentquiz_helper::STATE_HIDE) {
+                                $type = 'hidden';
+                                $value = 1;
+                            } else if ($state == studentquiz_helper::STATE_DELETE) {
+                                $type = 'deleted';
+                                $value = 1;
+                            } else {
+                                $type = 'state';
+                                $value = $state;
+                            }
+                            mod_studentquiz_change_state_visibility($questionid, $type, $value);
+                            mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
                         }
                     }
                     redirect($this->baseurl);
@@ -282,12 +305,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
                         foreach ($questionlist as $questionid) {
                             $questionid = (int)$questionid;
                             question_require_capability_on($questionid, 'edit');
-                            mod_studentquiz_notify_deleted($questionid, $this->course, $this->cm);
-                            if (questions_in_use(array($questionid))) {
-                                $DB->set_field('question', 'hidden', 1, array('id' => $questionid));
-                            } else {
-                                question_delete_question($questionid);
-                            }
+                            mod_studentquiz_state_notify($questionid, $this->course, $this->cm, 'deleted');
+                            $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
                         }
                     }
                     redirect($this->baseurl);
@@ -300,12 +319,46 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Unhide a question.
         if (($unhide = optional_param('unhide', '', PARAM_INT)) and confirm_sesskey()) {
             question_require_capability_on($unhide, 'edit');
-            $DB->set_field('question', 'hidden', 0, array('id' => $unhide));
+            $DB->set_field('studentquiz_question', 'hidden', 0, ['questionid' => $unhide]);
+            mod_studentquiz_state_notify($unhide, $this->course, $this->cm, 'unhidden');
 
             // Purge these questions from the cache.
             \question_bank::notify_question_edited($unhide);
-
+            // Fix infinite redirect.
+            $this->baseurl->remove_params('unhide');
+            $this->baseurl->remove_params('sesskey');
             redirect($this->baseurl);
+        }
+
+        // Hide a question.
+        if (($hide = optional_param('hide', '', PARAM_INT)) and confirm_sesskey()) {
+            question_require_capability_on($hide, 'edit');
+            $DB->set_field('studentquiz_question', 'hidden', 1, ['questionid' => $hide]);
+            mod_studentquiz_state_notify($hide, $this->course, $this->cm, 'hidden');
+            // Purge these questions from the cache.
+            \question_bank::notify_question_edited($hide);
+            // Fix infinite redirect.
+            $this->baseurl->remove_params('hide');
+            $this->baseurl->remove_params('sesskey');
+            redirect($this->baseurl);
+        }
+
+        if (optional_param('hiddenselected', false, PARAM_BOOL)) {
+            // If teacher has already confirmed the action.
+            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
+                $hiddenselected = required_param('hiddenselected', PARAM_RAW);
+                if ($confirm == md5($hiddenselected)) {
+                    if ($questionlist = explode(',', $hiddenselected)) {
+                        // For each question either hide it if it is in use or delete it.
+                        foreach ($questionlist as $questionid) {
+                            $questionid = (int)$questionid;
+                            question_require_capability_on($questionid, 'edit');
+                            mod_studentquiz_state_notify($questionid, $this->course, $this->cm, 'hidden');
+                            $DB->set_field('studentquiz_question', 'hidden', 1, ['id' => $questionid]);
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -367,12 +420,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'studentquiz');
                 }
 
-                $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'confirm' => md5($questionlist),
-                    'sesskey' => sesskey()));
+                $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0, 'confirm' => md5($questionlist),
+                        'sesskey' => sesskey()));
 
-                $continue = new \single_button($approveurl, get_string('approve', 'studentquiz'), 'post');
+                $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'post');
+                $continue->disabled = true;
 
-                $output = $OUTPUT->confirm(get_string('approveselectedscheck', 'studentquiz', $questionnames), $continue, $baseurl);
+                $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz', $questionnames), $continue, $baseurl);
             }
 
             echo $output;
@@ -573,6 +627,21 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * Return the row classes for question table
+     *
+     * @param object $question the row from the $question table, augmented with extra information.
+     * @param int $rowcount Row index
+     * @return array Classes of row
+     */
+    protected function get_row_classes($question, $rowcount) {
+        $classes = parent::get_row_classes($question, $rowcount);
+        if (isset($question->sq_hidden) && $question->sq_hidden) {
+            $classes[] = 'dimmed_text';
+        }
+        return $classes;
+    }
+
+    /**
      * Set filter form fields
      * @param bool $anonymize if false, questions can get filtered by author last name and first name instead by own userid only.
      */
@@ -585,10 +654,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
             false, 'myattempts', array('myattempts', 'myattempts_op'), 0, 0,
             get_string('filter_label_onlynew_help', 'studentquiz'));
 
-        $this->fields[] = new \toggle_filter_checkbox('onlyapproved',
-            get_string('filter_label_onlyapproved', 'studentquiz'),
-            false, 'ap.approved', array('approved', 'approved_op'), 1, 1,
-            get_string('filter_label_onlyapproved_help', 'studentquiz'));
+        $this->fields[] = new \toggle_filter_checkbox('only_new_state',
+                get_string('state_new', 'studentquiz'), false, 'ap.state',
+                ['approved'], 2, studentquiz_helper::STATE_NEW);
+        $this->fields[] = new \toggle_filter_checkbox('only_approved_state',
+                get_string('state_approved', 'studentquiz'), false, 'ap.state',
+                ['approved'], 2, studentquiz_helper::STATE_APPROVED);
+        $this->fields[] = new \toggle_filter_checkbox('only_disapproved_state',
+                get_string('state_disapproved', 'studentquiz'), false, 'ap.state',
+                ['approved'], 2, studentquiz_helper::STATE_DISAPPROVED);
+        $this->fields[] = new \toggle_filter_checkbox('only_changed_state',
+                get_string('state_changed', 'studentquiz'), false, 'ap.state',
+                ['approved'], 2, studentquiz_helper::STATE_CHANGED);
 
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
             get_string('filter_label_onlygood', 'studentquiz'),

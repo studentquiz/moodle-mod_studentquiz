@@ -515,5 +515,30 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019051700, 'studentquiz');
     }
 
+    if ($oldversion < 2019060401) {
+        // Rename field approved on table studentquiz_question to state.
+        $table = new xmldb_table('studentquiz_question');
+        $field = new xmldb_field('approved', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'questionid');
+        if ($dbman->field_exists($table, $field)) {
+            // Launch rename field state.
+            $dbman->rename_field($table, $field, 'state');
+        }
+        // Create new hidden fields.
+        $field = new xmldb_field('hidden', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Create new column publishnewquestion on studentquiz table.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('publishnewquestion', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2019060401, 'studentquiz');
+    }
+
     return true;
 }
