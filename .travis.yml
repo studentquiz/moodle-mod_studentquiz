@@ -15,6 +15,7 @@ addons:
       # - oracle-java8-installer
       # - oracle-java8-set-default
       - chromium-chromedriver
+      - openjdk-8-jre-headless
 
 cache:
   directories:
@@ -22,32 +23,38 @@ cache:
     - $HOME/.npm
 
 # PHP Compatibility Matrix Moodle
-# Moodle 3.1: php5.4, php5.5, php5.6, php7.0 (lim)
-# Moodle 3.2: php5.6, php7.0 (lim), php7.1 (lim)
-# Moodle 3.3: php5.6, php7.0 (lim), php7.1 (lim)
-# Moodle 3.4: php7.0, php7.1, php7.2 (exp)
 # Moodle 3.5: php7.0, php7.1, php7.2 (exp)
 # Moodle 3.6: php7.0, php7.1, php7.2 (exp), php7.3 (dev)
+# Moodle 3.7: php7.1, php7.2, php7.3
 # lim: limited, exp: expected, dev: non-production
+# earlier versions of Moodle and php are not included, as support was dropped
+
 php:
- - 7.0
  - 7.1
  - 7.2
+ - 7.3
 
 env:
-  - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
 
 matrix:
   include:
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
-    - php: 7.2
-      env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
-    - php: 7.2
+    - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
+    - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mariadb
+    - php: 7.2
+      env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mariadb
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mariadb
 
 before_install:
   # php settings
