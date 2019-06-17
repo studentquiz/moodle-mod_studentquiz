@@ -84,6 +84,7 @@ script:
   - moodle-plugin-ci savepoints
   #- moodle-plugin-ci mustache #currently no mustache relevant files, so we can also omit the java packages above
   - moodle-plugin-ci grunt
+  - moodle-plugin-ci phpdoc
   - moodle-plugin-ci phpunit --coverage-text
   - moodle-plugin-ci behat --profile chrome
   - moodle-plugin-ci behat # with firefox
