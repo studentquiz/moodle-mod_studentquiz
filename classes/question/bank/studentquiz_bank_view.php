@@ -226,6 +226,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function process_actions() {
         global $DB;
+        // This code is called by both POST forms and GET links, so cannot use data_submitted.
+        $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
 
         // Approve selected questions.
         if (optional_param('approveselected', false, PARAM_BOOL)) {
@@ -256,6 +258,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $this->baseurl->remove_params('approveselected');
                     $this->baseurl->remove_params('confirm');
                     $this->baseurl->remove_params('sesskey');
+                    foreach ($rawquestionids as $id) {
+                        $this->baseurl->remove_params('q' . $id);
+                    }
                     redirect($this->baseurl);
                 } else {
                     print_error('invalidconfirm', 'question');
@@ -273,17 +278,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
             $tocontext = \context::instance_by_id($contextid);
             require_capability('moodle/question:add', $tocontext);
-            $rawdata = (array) data_submitted();
-            // TODO: Seen that somewhere else, extract in common function!
-            $questionids = array();
-            foreach (array_keys($rawdata) as $key) {  // Parse input for question ids.
-                if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
-                    $key = $matches[1];
-                    $questionids[] = $key;
-                }
-            }
-            if ($questionids) {
-                list($usql, $params) = $DB->get_in_or_equal($questionids);
+
+            if ($rawquestionids) {
+                list($usql, $params) = $DB->get_in_or_equal($rawquestionids);
                 $sql = "SELECT q.*, c.contextid
                           FROM {question} q
                           JOIN {question_categories} c ON c.id = q.category
@@ -292,9 +289,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 foreach ($questions as $question) {
                     question_require_capability_on($question, 'move');
                 }
-                question_move_questions_to_category($questionids, $tocategory->id);
+                question_move_questions_to_category($rawquestionids, $tocategory->id);
                 $this->baseurl->remove_params('move');
                 $this->baseurl->remove_params('sesskey');
+                foreach ($rawquestionids as $id) {
+                    $this->baseurl->remove_params('q' . $id);
+                }
                 redirect($this->baseurl);
             }
         }
@@ -317,6 +317,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $this->baseurl->remove_params('deleteselected');
                     $this->baseurl->remove_params('confirm');
                     $this->baseurl->remove_params('sesskey');
+                    foreach ($rawquestionids as $id) {
+                        $this->baseurl->remove_params('q' . $id);
+                    }
                     redirect($this->baseurl);
                 } else {
                     print_error('invalidconfirm', 'question');
@@ -335,6 +338,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
             // Fix infinite redirect.
             $this->baseurl->remove_params('unhide');
             $this->baseurl->remove_params('sesskey');
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
             redirect($this->baseurl);
         }
 
@@ -348,6 +354,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
             // Fix infinite redirect.
             $this->baseurl->remove_params('hide');
             $this->baseurl->remove_params('sesskey');
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
             redirect($this->baseurl);
         }
 
@@ -392,17 +401,15 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $baseurl->remove_params('deleteselected', 'approveselected');
 
             // Parse input for question ids.
-            foreach (array_keys($rawquestions) as $key) {
-                if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
-                    $key = $matches[1];
-                    $questionlist .= $key.',';
-                    question_require_capability_on($key, 'edit');
-                    if (questions_in_use(array($key))) {
-                        $questionnames .= '* ';
-                        $inuse = true;
-                    }
-                    $questionnames .= $DB->get_field('question', 'name', array('id' => $key)) . '<br />';
+            foreach (mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions) as $id) {
+                $baseurl->remove_params('q'.$id);
+                $questionlist .= $id.',';
+                question_require_capability_on($id, 'edit');
+                if (questions_in_use(array($id))) {
+                    $questionnames .= '* ';
+                    $inuse = true;
                 }
+                $questionnames .= $DB->get_field('question', 'name', array('id' => $id)) . '<br />';
             }
 
             // No questions were selected.
@@ -420,7 +427,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
                     'sesskey' => sesskey()));
 
-                $continue = new \single_button($deleteurl, get_string('delete'), 'post');
+                $continue = new \single_button($deleteurl, get_string('delete'), 'get');
 
                 $output = $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
             } else if (optional_param('approveselected', false, PARAM_BOOL)) {

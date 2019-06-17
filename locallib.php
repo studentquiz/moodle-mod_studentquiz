@@ -569,9 +569,6 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
             $ids[] = $matches[1];
         }
     }
-    if (!count($ids)) {
-        return false;
-    }
     return $ids;
 }
 
