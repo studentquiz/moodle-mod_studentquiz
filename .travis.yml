@@ -56,10 +56,16 @@ matrix:
     # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mariadb
+      addons:
+        mariadb: 10.2
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mariadb
+      addons:
+        mariadb: 10.2
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mariadb
+      addons:
+        mariadb: 10.2
 
 before_install:
   # php settings
