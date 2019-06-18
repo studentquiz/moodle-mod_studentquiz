@@ -35,7 +35,6 @@ cache:
 php:
  - 7.1
  - 7.2
- #- 7.3 # https://github.com/blackboard-open-source/moodle-plugin-ci/issues/98
 
 env:
   - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
@@ -44,21 +43,22 @@ env:
 
 matrix:
   include:
+    # Only Moodle 37 and onwards has php 7.3 support
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
-    #- php: 7.3 # see above
-    - php: 7.2
+    - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
     # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mariadb
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mariadb
-    #- php: 7.3 # see above
-    - php: 7.2
+    - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mariadb
 
 before_install:
