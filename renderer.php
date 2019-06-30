@@ -1706,24 +1706,3 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         return $this->render_table($data, $size, $align, $head, $caption, 'rankingtable');
     }
 }
-
-class mod_studentquiz_migration_renderer extends mod_studentquiz_renderer {
-
-    public function view_body_success($cmid, $studentquiz) {
-        return $this->output->notification(get_string('migrated_successful', 'studentquiz'),
-                \core\output\notification::NOTIFY_SUCCESS)
-            . $this->output->single_button(new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid)),
-                get_string('finish_button', 'studentquiz'));
-    }
-
-    public function view_body($cmid, $studentquiz) {
-        if ($studentquiz->aggregated == 1) {
-            return $this->output->error_text(get_string('migrate_already_done', 'studentquiz'));
-        } else {
-            return $this->output->confirm(get_string('migrate_ask', 'studentquiz'),
-                new moodle_url('/mod/studentquiz/migrate.php', array('id' => $cmid, 'do' => 'yes')),
-                new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid)));
-        }
-    }
-
-}
