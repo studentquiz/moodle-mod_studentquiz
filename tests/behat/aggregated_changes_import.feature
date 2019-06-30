@@ -38,7 +38,7 @@ Feature: Restore of studentquizzes in moodle exports contain question answers
       | file                                      | course            | studentquiz   | pos_1_correct_answered_points | pos_1_total_points | pos_2_correct_answered_points | pos_2_total_points |
       | backup-moodle2-aggregated-earlybefore.mbz | Course One        | StudentQuiz 1 | 2                             | 12                 | 2                             | 11                 |
       | backup-moodle2-aggregated_before.mbz      | aggregated before | SQbefore      | 2                             | 32                 | 4                             | 23                 |
-#       | backup-moodle2-aggregated-during-value-0.mbz | aggregated during 0 | SQduring0     | 0                             | 0                  | 0                             | 0                  |
-#       | backup-moodle2-aggregated-during-value-1.mbz | aggregated during 1 | SQduring1     | 0                             | 0                  | 0                             | 0                  |
+#       | backup-moodle2-aggregated-during-value-0.mbz | aggregated during 0 | SQduring0     | 4                             | 28                 | 2                             | 20                 |
+#       | backup-moodle2-aggregated-during-value-1.mbz | aggregated during 1 | SQduring1     | 4                             | 28                 | 2                             | 20                 |
 # after does not yet exist, must be added once aggregated field is removed from tbl_studentquiz
 #       | backup-moodle2-aggregated-after.mbz          | Course One        | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
