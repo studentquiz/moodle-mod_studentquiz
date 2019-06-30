@@ -289,3 +289,8 @@
     display: flex;
     justify-content: space-between;
 }
+
+.path-mod-studentquiz .mod_studentquiz_submission_info {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}

@@ -32,6 +32,8 @@ $string['abort_button'] = 'Abort';
 $string['after_answering_end_date'] = 'This StudentQuiz closed for answering on {$a}.';
 $string['after_submission_end_date'] = 'This StudentQuiz closed for question submission on {$a}.';
 $string['answeringndbeforestart'] = 'Answering deadline can not be specified before the open for answering date';
+$string['api_state_change_success_content'] = 'Question state/visibility changed successfully';
+$string['api_state_change_success_title'] = 'Success';
 $string['approve'] = 'Approve';
 $string['approve_toggle'] = 'Un/Approve';
 $string['approved'] = '✓';
@@ -43,6 +45,7 @@ $string['before_answering_end_date'] = 'This StudentQuiz closes for answering on
 $string['before_answering_start_date'] = 'Open for answering from {$a}.';
 $string['before_submission_end_date'] = 'This StudentQuiz closes for question submission on {$a}.';
 $string['before_submission_start_date'] = 'Open for question submission from {$a}.';
+$string['changeselectedsstate'] = 'Change the following questions:<br /><br />{$a}';
 $string['comment_column_name'] = 'Comments';
 $string['comment_error'] = 'Please comment';
 $string['comment_error_unsaved'] = 'Do you want to save this comment first?';
@@ -102,13 +105,30 @@ The comment was: \'{$a->commenttext}\'
 You can review this question at: {$a->questionurl}.';
 $string['emailminecommentdeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailminecommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
-$string['emailunapprovedbody'] = 'Dear {$a->recepientname},
+$string['emaildisapprovedbody'] = 'Dear {$a->recepientname},
 
-The approval of your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been revoked by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been disapproved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
-$string['emailunapprovedsmall'] = 'The approval of your question \'{$a->questionname}\' has been revoked by {$a->actorname}.';
-$string['emailunapprovedsubject'] = 'Question approval has been revoked: {$a->questionname}';
+$string['emaildisapprovedsmall'] = 'Your question \'{$a->questionname}\' has been disapproved by {$a->actorname}.';
+$string['emaildisapprovedsubject'] = 'Question has been disapproved: {$a->questionname}';
+
+$string['emailhiddenbody'] = 'Dear {$a->recepientname},
+
+Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been hidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+
+You can review this question at: {$a->questionurl}.';
+$string['emailhiddensmall'] = 'Your question \'{$a->questionname}\' has been hidden by {$a->actorname}.';
+$string['emailhiddensubject'] = 'Question has been hidden: {$a->questionname}';
+
+$string['emailunhiddenbody'] = 'Dear {$a->recepientname},
+
+Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been unhidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+
+You can review this question at: {$a->questionurl}.';
+$string['emailunhiddensmall'] = 'Your question \'{$a->questionname}\' has been unhidden by {$a->actorname}.';
+$string['emailunhiddensubject'] = 'Question has been unhidden: {$a->questionname}';
+
 $string['filter'] = 'Filter';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
@@ -302,7 +322,7 @@ $string['settings_anonymous_label'] = 'Make students anonymous';
 $string['settings_approvedquantifier'] = 'Approved question factor';
 $string['settings_approvedquantifier_help'] = 'Points for each approved question';
 $string['settings_approvedquantifier_label'] = 'Points for each question approved';
-$string['settings_availability_close_answering_from'] = 'Close for answering from';
+$string['settings_availability_close_answering_from'] = 'Closed for answering from';
 $string['settings_availability_close_submission_from'] = 'Closed for question submission from';
 $string['settings_availability_open_answering_from'] = 'Open for answering from';
 $string['settings_availability_open_submission_from'] = 'Open for question submission from';
@@ -334,12 +354,24 @@ $string['settings_removeqbehavior_label'] = 'Remove question behavior plugin Stu
 $string['settings_section_description_default'] = 'These values define the default values when creating a new studentquiz activity.';
 $string['settings_section_header_question'] = 'Question settings';
 $string['settings_section_header_ranking'] = 'Ranking settings';
+$string['settings_publish_new_questions'] = 'Publish new questions';
+$string['settings_publish_new_questions_help'] = 'Automatically publish new created questions';
 $string['show_less'] = 'Show less';
 $string['show_more'] = 'Show more';
 $string['slot_of_slot'] = 'Question {$a->slot} of {$a->slots} in this set';
 $string['start_quiz_button'] = 'Start Quiz';
+$string['state_changed'] = 'Changed';
+$string['state_change_tooltip'] = 'Question is {$a}. Click here to change the state of this question';
+$string['state_column_name'] = 'State';
+$string['state_column_name_veryshort'] = 'S';
+$string['state_disapproved'] = 'Disapproved';
+$string['state_toggle'] = 'Change state';
+$string['state_approved'] = 'Approved';
+$string['state_new'] = 'New';
 $string['statistic_block_approvals'] = 'Questions approved';
 $string['statistic_block_created'] = 'Questions created';
+$string['statistic_block_disapprovals'] = 'Questions disapproved';
+$string['statistic_block_new_changed'] = 'Questions new/changed';
 $string['statistic_block_progress_available'] = 'Questions available';
 $string['statistic_block_progress_last_attempt_correct'] = 'Latest attempt correct';
 $string['statistic_block_progress_last_attempt_incorrect'] = 'Latest attempt wrong';

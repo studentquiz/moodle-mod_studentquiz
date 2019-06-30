@@ -154,6 +154,10 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
         $studentquiz->anonymrank = 0;
     }
 
+    if (!isset($studentquiz->publishnewquestion)) {
+        $studentquiz->publishnewquestion = 0;
+    }
+
     $studentquiz->allowedqtypes = implode(',', array_keys($studentquiz->allowedqtypes));
 
     $studentquiz->excluderoles = (!empty($studentquiz->excluderoles))
@@ -432,6 +436,14 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
 
     if (mod_studentquiz_check_created_permission($PAGE->cm->id)) {
         question_extend_settings_navigation($studentquiznode, $PAGE->cm->context)->trim_if_empty();
+
+        global $studentquiz;
+        if (isset($studentquiz) && $studentquiz->aggregated == 0) {
+            $studentquiznode->add_node(navigation_node::create(get_string('migrate_studentquiz_short', 'studentquiz'),
+                new moodle_url('/mod/studentquiz/migrate.php', array('id' => $PAGE->cm->id)),
+                navigation_node::TYPE_CUSTOM, null, 'mod_studentquiz_migrate',
+                null, $beforekey));
+        }
     }
 
 }

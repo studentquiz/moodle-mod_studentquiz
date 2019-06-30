@@ -5,6 +5,9 @@ sudo: required
 notifications:
   email: false
 
+services:
+  - mysql
+
 addons:
   postgresql: "9.4"
   firefox: "47.0.1"
@@ -15,6 +18,7 @@ addons:
       # - oracle-java8-installer
       # - oracle-java8-set-default
       - chromium-chromedriver
+      - openjdk-8-jre-headless
 
 cache:
   directories:
@@ -22,32 +26,47 @@ cache:
     - $HOME/.npm
 
 # PHP Compatibility Matrix Moodle
-# Moodle 3.1: php5.4, php5.5, php5.6, php7.0 (lim)
-# Moodle 3.2: php5.6, php7.0 (lim), php7.1 (lim)
-# Moodle 3.3: php5.6, php7.0 (lim), php7.1 (lim)
-# Moodle 3.4: php7.0, php7.1, php7.2 (exp)
 # Moodle 3.5: php7.0, php7.1, php7.2 (exp)
 # Moodle 3.6: php7.0, php7.1, php7.2 (exp), php7.3 (dev)
+# Moodle 3.7: php7.1, php7.2, php7.3
 # lim: limited, exp: expected, dev: non-production
+# earlier versions of Moodle and php are not included, as support was dropped
+
 php:
- - 7.0
  - 7.1
  - 7.2
 
 env:
-  - MOODLE_BRANCH=MOODLE_34_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
 
 matrix:
   include:
+    # Only Moodle 37 and onwards has php 7.3 support
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
-    - php: 7.2
-      env: MOODLE_BRANCH=MOODLE_34_STABLE DB=mysqli
-    - php: 7.2
+    - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
+    # TODO: Somehow behat doesn't run when mariadb is in use, all other stuff do
+    # - php: 7.1
+    #   env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mariadb
+    #   addons:
+    #     mariadb: 10.2
+    # - php: 7.2
+    #   env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mariadb
+    #   addons:
+    #     mariadb: 10.2
+    # - php: 7.3
+    #   env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mariadb
+    #   addons:
+    #     mariadb: 10.2
 
 before_install:
   # php settings
@@ -75,8 +94,9 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  #- moodle-plugin-ci mustache #currently no mustache relevant files, so we can also omit the java packages above
+  #- moodle-plugin-ci mustache # currently no mustache relevant files, so we can also omit the java packages above
   - moodle-plugin-ci grunt
+  #- moodle-plugin-ci phpdoc # should be enabled but the errors have to be fixed first
   - moodle-plugin-ci phpunit --coverage-text
-  - moodle-plugin-ci behat --profile chrome
+  #- moodle-plugin-ci behat --profile chrome # chromium is currently broken again...
   - moodle-plugin-ci behat # with firefox

@@ -180,7 +180,7 @@ class provider implements
         list($contextsql, $contextparam) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
         $sql = "SELECT DISTINCT ctx.id AS contextid,
-                       q.id AS questionid, q.name AS questionname, question.approved AS questionapproved,
+                       q.id AS questionid, q.name AS questionname, CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
                        q.createdby AS questioncreatedby, q.modifiedby AS questionmodifiedby,
                        rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,

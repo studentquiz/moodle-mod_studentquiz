@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/studentquiz_bank_view.php');
+require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
 
@@ -240,10 +241,12 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * @param mixed $value
      */
     protected function set_filter($which, $value) {
-        $_POST[$which] = $value;
-        $_POST["submitbutton"] = "Filter";
+        // Usually we set POST for a form, but since we have two forms merged and exchanging their values
+        // using GET params, we can't use that.
+        $_GET[$which] = $value;
+        $_GET["submitbutton"] = "Filter";
         // session key is required, otherwise it won't try to load and filter POSTed data
-        $_POST["_qf__mod_studentquiz_question_bank_filter_form"] = "1";
-        $_POST["sesskey"] = sesskey();
+        $_GET["_qf__mod_studentquiz_question_bank_filter_form"] = "1";
+        $_GET["sesskey"] = sesskey();
     }
 }

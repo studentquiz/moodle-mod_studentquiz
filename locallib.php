@@ -25,6 +25,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\local\studentquiz_helper;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/questionlib.php');
@@ -88,19 +90,24 @@ function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $st
 }
 
 /**
- * Flip a question's approval status.
- * TODO: Ensure question is part of a studentquiz context.
- * @param int questionid index number of question
+ * Change a question state of visibility
+ *
+ * @param int $questionid Id of question
+ * @param string $type Type of change
+ * @param int $value Value of change
  */
-function mod_studentquiz_flip_approved($questionid) {
+function mod_studentquiz_change_state_visibility($questionid, $type, $value) {
     global $DB;
-
-    $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-    if ($approved === false) {
+    $question = $DB->record_exists('studentquiz_question', ['questionid' => $questionid]);
+    if (!$question) {
         // This question has no row in yet, maybe due to category move or import.
-        $DB->insert_record('studentquiz_question', (object)array('approved' => true, 'questionid' => $questionid));
+        $DB->insert_record('studentquiz_question', (object) ['state' => true, 'questionid' => $questionid]);
     } else {
-        $DB->set_field('studentquiz_question', 'approved', !$approved, array('questionid' => $questionid));
+        if ($type == 'deleted') {
+            $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
+        } else {
+            $DB->set_field('studentquiz_question', $type, $value, ['questionid' => $questionid]);
+        }
     }
 }
 
@@ -277,40 +284,29 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
 }
 
 /**
- * Notify student that someone has edited his question. (Info to question author)
- * @param int $questionid ID of the student's questions.
+ * Notify student that someone has change the state / visibility of his question. (Info to question author)
+ *
+ * @param int $questionid Id of the question
  * @param stdClass $course course object
  * @param stdClass $module course module object
+ * @param string $type Type of change
  * @return bool True if sucessfully sent, false otherwise.
  */
-function mod_studentquiz_notify_changed($questionid, $course, $module) {
-    return mod_studentquiz_event_notification_question('changed', $questionid, $course, $module);
-}
-
-/**
- * Notify student that someone has deleted his question. (Info to question author)
- * @param int $questionid ID of the author's question.
- * @param stdClass $course course object
- * @param stdClass $module course module object
- * @return bool True if sucessfully sent, false otherwise.
- */
-function mod_studentquiz_notify_deleted($questionid, $course, $module) {
-    return mod_studentquiz_event_notification_question('deleted', $questionid, $course, $module);
-}
-
-/**
- * Notify student that someone has approved or unapproved his question. (Info to question author)
- * @param int $questionid ID of the student's questions.
- * @param stdClass $course course object
- * @param stdClass $module course module object
- * @return bool True if sucessfully sent, false otherwise.
- */
-function mod_studentquiz_notify_approved($questionid, $course, $module) {
+function mod_studentquiz_state_notify($questionid, $course, $module, $type) {
     global $DB;
-
-    $approved = $DB->get_field('studentquiz_question', 'approved', array('questionid' => $questionid));
-    return mod_studentquiz_event_notification_question(($approved) ? 'approved' : 'unapproved',
-        $questionid, $course, $module, 'approved');
+    if ($type == 'state') {
+        $state = $DB->get_field('studentquiz_question', $type, ['questionid' => $questionid]);
+        $states = [
+                studentquiz_helper::STATE_DISAPPROVED => 'disapproved',
+                studentquiz_helper::STATE_APPROVED => 'approved',
+                studentquiz_helper::STATE_NEW => 'new',
+                studentquiz_helper::STATE_CHANGED => 'changed',
+        ];
+        $event = $states[$state];
+    } else {
+        $event = $type;
+    }
+    return mod_studentquiz_event_notification_question($event, $questionid, $course, $module);
 }
 
 /**
@@ -623,9 +619,6 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
             $ids[] = $matches[1];
         }
     }
-    if (!count($ids)) {
-        return false;
-    }
     return $ids;
 }
 
@@ -833,6 +826,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
                    -- See: https://dev.mysql.com/doc/refman/5.7/en/group-by-optimization.html.
                    MAX(points) AS points, MAX(questions_created) AS questions_created,
                    MAX(questions_created_and_rated) AS questions_created_and_rated, MAX(questions_approved) AS questions_approved,
+                   MAX(questions_disapproved) AS questions_disapproved,
                    MAX(rates_received) AS rates_received, MAX(rates_average) AS rates_average,
                    MAX(question_attempts) AS question_attempts, MAX(question_attempts_correct) AS question_attempts_correct,
                    MAX(question_attempts_incorrect) AS question_attempts_incorrect,
@@ -847,7 +841,7 @@ function mod_studentquiz_helper_attempt_stat_select() {
                                                -- Questions created.
                                                COALESCE(creators.countq, 0) * :questionquantifier +
                                                -- Questions approved.
-                                               COALESCE(approvals.countq, 0) * :approvedquantifier +
+                                               COALESCE(approvals.approved, 0) * :approvedquantifier +
                                                -- Rating.
                                                COALESCE(rates.avgv, 0) * (COALESCE(creators.countq, 0) -
                                                    COALESCE(rates.not_rated_questions, 0)) * :ratequantifier +
@@ -865,7 +859,9 @@ function mod_studentquiz_helper_attempt_stat_select() {
                             COALESCE(COALESCE(creators.countq, 0) - COALESCE(rates.not_rated_questions, 0),
                                 0) AS questions_created_and_rated,
                             -- Questions approved.
-                            COALESCE(approvals.countq, 0) AS questions_approved,
+                            COALESCE(approvals.approved, 0) AS questions_approved,
+                            -- Questions disapproved.
+                            COALESCE(approvals.disapproved, 0) AS questions_disapproved,
                             -- Questions rating received.
                             COALESCE(rates.countv, 0) AS rates_received,
                             COALESCE(rates.avgv, 0) AS rates_average,
@@ -912,14 +908,18 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       JOIN {context} con ON con.instanceid = sq.coursemodule
                       JOIN {question_categories} qc ON qc.contextid = con.id
                       JOIN {question} q ON q.category = qc.id
+                      JOIN {studentquiz_question} sqq ON q.id = sqq.questionid
                      WHERE q.hidden = 0
+                           AND sqq.hidden = 0
                            AND q.parent = 0
                            AND sq.coursemodule = :cmid4
                   GROUP BY creator
                   ) creators ON creators.creator = u.id
         -- Approved questions.
         LEFT JOIN (
-                    SELECT count(*) AS countq, q.createdby AS creator
+                    SELECT count(*) AS countq, q.createdby AS creator,
+                    COUNT(CASE WHEN sqq.state = 0 THEN q.id END) as disapproved,
+	                COUNT(CASE WHEN sqq.state = 1 THEN q.id END) as approved
                       FROM {studentquiz} sq
                       JOIN {context} con ON con.instanceid = sq.coursemodule
                       JOIN {question_categories} qc ON qc.contextid = con.id
@@ -927,7 +927,7 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       JOIN {studentquiz_question} sqq ON q.id = sqq.questionid
                       WHERE q.hidden = 0
                             AND q.parent = 0
-                            AND sqq.approved = 1
+                            AND sqq.hidden = 0
                             AND sq.coursemodule = :cmid5
                    GROUP BY creator
                    ) approvals ON approvals.creator = u.id
@@ -958,7 +958,10 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
                       JOIN {question} q ON q.id = sp.questionid
-                     WHERE sq.coursemodule = :cmid2 and q.hidden = 0
+                      JOIN {studentquiz_question} sqq ON sp.questionid = sqq.questionid
+                     WHERE sq.coursemodule = :cmid2
+                           AND q.hidden = 0
+                           AND sqq.hidden = 0
                   GROUP BY sp.userid
                   ) lastattempt ON lastattempt.userid = u.id
         LEFT JOIN (
@@ -967,7 +970,10 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
                       JOIN {question} q ON q.id = sp.questionid
-                     WHERE sq.coursemodule = :cmid1 and q.hidden = 0
+                      JOIN {studentquiz_question} sqq ON sp.questionid = sqq.questionid
+                     WHERE sq.coursemodule = :cmid1
+                           AND q.hidden = 0
+                           AND sqq.hidden = 0
                   GROUP BY sp.userid
                   ) attempts ON attempts.userid = u.id";
     // Question attempts: sum of number of graded attempts per question.
@@ -1217,13 +1223,23 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
 
 /**
  * This is a helper to ensure we have a studentquiz_question record for a specific question
+ *
  * @param int $id question id
+ * @param int $cmid The course_module id
  */
-function mod_studentquiz_ensure_studentquiz_question_record($id) {
+function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid) {
     global $DB;
     // Check if record exist.
     if (!$DB->count_records('studentquiz_question', array('questionid' => $id)) ) {
-        $DB->insert_record('studentquiz_question', array('questionid' => $id, 'approved' => 0));
+        $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
+        $params = [
+                'questionid' => $id,
+                'state' => studentquiz_helper::STATE_NEW
+        ];
+        if (!$studentquiz->publishnewquestion) {
+            $params['hidden'] = 1;
+        }
+        $DB->insert_record('studentquiz_question', (object) $params);
     }
 }
 
@@ -1281,7 +1297,7 @@ function mod_studentquiz_question_stats($cmid) {
     global $DB;
     $sql = "SELECT COUNT(*) AS questions_available,
                    AVG(rating.avg_rating) AS average_rating,
-                   SUM(sqq.approved) AS questions_approved
+                   SUM(CASE WHEN sqq.state = 1 THEN 1 ELSE 0 END) AS questions_approved
               FROM {studentquiz} sq
               -- Get this StudentQuiz question category.
               JOIN {context} con ON con.instanceid = sq.coursemodule
@@ -1300,6 +1316,7 @@ function mod_studentquiz_question_stats($cmid) {
                    GROUP BY q.id
                    ) rating ON rating.questionid = q.id
              WHERE q.hidden = 0
+                   AND sqq.hidden = 0
                    AND q.parent = 0
                    AND sq.coursemodule = :cmid1";
     $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
