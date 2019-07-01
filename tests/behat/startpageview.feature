@@ -17,8 +17,8 @@ Feature: View comprehensive information about this studentquiz activity
       | teacher1 | C1     | editingteacher |
       | student1 | C1     | student        |
     And the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber       |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
+      | activity    | name          | intro              | course | idnumber     | publishnewquestion |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1                  |
     And the following "questions" exist:
       | questioncategory          | qtype | name                       | questiontext                  |
       | Default for StudentQuiz 1 | essay | Test question to be copied | Write about whatever you want |

@@ -1240,7 +1240,7 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid) {
                 'questionid' => $id,
                 'state' => studentquiz_helper::STATE_NEW
         ];
-        if (!$studentquiz->publishnewquestion) {
+        if (isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion) {
             $params['hidden'] = 1;
         }
         $DB->insert_record('studentquiz_question', (object) $params);
