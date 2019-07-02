@@ -172,29 +172,7 @@ function mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_stat
 function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquizid) {
     global $DB;
 
-    $records = $DB->get_recordset_sql(mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_sql($studentquizid));
-
-    $studentquizprogresses = array();
-
-    foreach ($records as $r) {
-        $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class(
-            $r->questionid_, $r->userid_, $r->studentquizid,
-            $r->lastanswercorrect == 'gradedright' ? 1 : 0, $r->attempts, $r->correctattempts);
-        array_push($studentquizprogresses, $studentquizprogress);
-    }
-
-    return $studentquizprogresses;
-}
-
-/**
- * Return the sql query for migrating question_attempts into studentquiz_progress
- *
- * @param $studentquizid stdClass
- * @return string
- *
- */
-function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_sql($studentquizid) {
-    $sql = "SELECT q.id AS questionid_, qas.userid AS userid_, s.id AS studentquizid, COUNT(qas.id) AS attempts,
+    $sql = "SELECT q.id AS questionid, qas.userid AS userid, s.id AS studentquizid, COUNT(qas.id) AS attempts,
                    SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) AS correctattempts,
                    (
                      SELECT qas1.state
@@ -202,8 +180,8 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_s
                        JOIN {question_attempts} qa1 ON qa1.questionid = q1.id
                        JOIN {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
                       WHERE qas1.fraction IS NOT NULL
-                            AND q1.id = questionid_
-                            AND qas1.userid = userid_
+                            AND q1.id = questionid
+                            AND qas1.userid = userid
                    ORDER BY qas1.id DESC
                       LIMIT 1
                    ) AS lastanswercorrect
@@ -214,10 +192,21 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps_s
               JOIN {studentquiz} s ON s.coursemodule = cm.id
               JOIN {question_attempts} qa ON qa.questionid = q.id
               JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-              WHERE s.id = $studentquizid
+              WHERE s.id = :studentquizid
                     AND qas.state != 'todo'
-          GROUP BY q.id,qas.userid";
-    return $sql;
+          GROUP BY q.id, qas.userid, s.id";
+    $records = $DB->get_recordset_sql($sql, array( 'studentquizid' => $studentquizid));
+
+    $studentquizprogresses = array();
+
+    foreach ($records as $r) {
+        $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class(
+            $r->questionid, $r->userid, $r->studentquizid,
+            $r->lastanswercorrect == 'gradedright' ? 1 : 0, $r->attempts, $r->correctattempts);
+        array_push($studentquizprogresses, $studentquizprogress);
+    }
+
+    return $studentquizprogresses;
 }
 
 /**

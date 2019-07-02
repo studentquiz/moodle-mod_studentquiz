@@ -1819,6 +1819,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         }
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
-        return $this->render_table($data, $size, $align, $head, $caption, 'rankingtable');
+        return $this->render_table($data, $size, $align, $head, $caption, 'generaltable rankingtable');
     }
 }
