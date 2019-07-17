@@ -686,11 +686,14 @@ function mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize,
 
         $editspan = '';
         if ($canedit) {
-            $editspan = html_writer::span('remove', 'remove_action',
-                array(
-                    'data-id' => $comment->id,
-                    'data-question_id' => $comment->questionid
-                ));
+            $editspan = html_writer::span(get_string('remove_comment', 'studentquiz'), 'remove_action',
+                    [
+                            'data-id' => $comment->id,
+                            'data-question_id' => $comment->questionid,
+                            'tabindex' => '0',
+                            'aria-label' => get_string('remove_comment_label', 'studentquiz')
+                    ]
+            );
         }
 
         $output .= html_writer::div( $editspan

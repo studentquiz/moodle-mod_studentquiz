@@ -50,6 +50,6 @@ Feature: Preview a question as a student
     When I set the field "Add comment" to "Very good question"
     And I press "Add comment"
     Then I should see "Very good question"
-    And I should see "remove"
+    And I should see "Remove"
     And I click on ".remove_action" "css_element"
     Then I should see "No comments"
