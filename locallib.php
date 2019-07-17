@@ -202,7 +202,7 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
                      ) qas1 ON qas1.questionid1 = q.id AND qas1.userid1 = qas.userid
               WHERE s.id = :studentquizid
                     AND qas.state != 'todo'
-          GROUP BY q.id, qas.userid, s.id";
+          GROUP BY q.id, qas.userid, s.id, qas1.state1";
     $records = $DB->get_recordset_sql($sql, array( 'studentquizid' => $studentquizid));
 
     $studentquizprogresses = array();
