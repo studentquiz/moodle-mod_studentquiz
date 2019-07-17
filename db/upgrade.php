@@ -540,5 +540,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2019060401, 'studentquiz');
     }
 
+    if ($oldversion < 2019071700) {
+        // Migrate from question usage attempt step data to internal progress table.
+        mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state();
+
+        upgrade_mod_savepoint(true, 2019071700, 'studentquiz');
+    }
+
     return true;
 }

@@ -54,12 +54,18 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $userinfo = $this->get_setting_value('userinfo');
 
         // Additional Path for attempts.
+        // TODO: attempts can be ignored if progress exists and works flawless.
         $attempt = new restore_path_element('attempt',
             '/activity/studentquiz/attempts/attempt');
         $paths[] = $attempt;
 
         // Add attempt data.
         $this->add_question_usages($attempt, $paths);
+
+        // Restore Progress.
+        $progress = new restore_path_element('progress',
+            '/activity/studentquiz/progresses/progress');
+        $paths[] = $progress;
 
         // Restore Rate.
         $rate = new restore_path_element('rate',
@@ -127,7 +133,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             $data->allowedqtypes = get_config('studentquiz', 'defaultqtypes');
         }
         if (empty($data->aggregated)) {
-            $data->aggregated = "1";
+            $data->aggregated = "0";
         }
         if (empty($data->excluderoles)) {
             $data->excluderoles = get_config('studentquiz', 'excluderoles');
@@ -145,13 +151,21 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     }
 
     protected function process_attempt($data) {
+        // TODO: attempts can be ignored if progress exists and works flawless.
         $data = (object)$data;
-
         $data->studentquizid = $this->get_new_parentid('studentquiz');
         $data->userid = $this->get_mappingid('user', $data->userid);
-
         // The data is actually inserted into the database later in inform_new_usage_id.
         $this->currentattempt = clone($data);
+    }
+
+    protected function process_progress($data) {
+        global $DB;
+        $data = (object)$data;
+        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->studentquizid = $this->get_new_parentid('studentquiz');
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $DB->insert_record('studentquiz_progress', $data);
     }
 
     protected function process_rate($data) {
@@ -159,7 +173,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $newitemid = $DB->insert_record('studentquiz_rate', $data);
+        $DB->insert_record('studentquiz_rate', $data);
     }
 
     protected function process_comment($data) {
@@ -191,6 +205,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
 
     protected function inform_new_usage_id($newusageid) {
+        // TODO: attempts can be ignored if progress exists and works flawless.
         global $DB;
 
         $data = $this->currentattempt;
@@ -216,5 +231,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         mod_studentquiz_fix_wrong_parent_in_question_categories();
         // Migrate old quiz usage if needed (the function does the checking).
         mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
+        // Migrate progress from quiz usage to internal table
+        mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($this->get_courseid());
     }
 }

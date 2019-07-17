@@ -82,7 +82,7 @@ class mod_studentquiz_report {
     protected $studentquizstats;
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
-            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->studentquiz->aggregated);
+            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id());
             $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id());
             $this->studentquizstats->questions_available = $this->questionstats->questions_available;
             $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;
@@ -100,7 +100,7 @@ class mod_studentquiz_report {
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
             $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(),
-                $this->get_quantifiers(), $this->get_user_id(), $this->studentquiz->aggregated);
+                $this->get_quantifiers(), $this->get_user_id());
             return $this->userrankingstats;
         } else {
             return $this->userrankingstats;
@@ -329,7 +329,7 @@ class mod_studentquiz_report {
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
         $excluderoles = (!empty($this->studentquiz->excluderoles)) ? explode(',', $this->studentquiz->excluderoles) : array();
         return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->get_quantifiers(),
-            $this->studentquiz->aggregated, $excluderoles, 0, $limitfrom, $limitnum);
+            $excluderoles, 0, $limitfrom, $limitnum);
     }
 
     /**

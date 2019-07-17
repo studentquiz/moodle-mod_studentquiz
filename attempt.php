@@ -113,41 +113,39 @@ if (data_submitted()) {
         // We save the attempts always to db, as there is no finish/submission step expected for the user.
         question_engine::save_questions_usage_by_activity($questionusage);
 
-        // Only add studentquiz_progress information, if it is a studentquiz aggregated type
-        if ($studentquiz->aggregated) {
-            $qa = $questionusage->get_question_attempt($slot);
-            $q = $questionusage->get_question($slot);
+        $qa = $questionusage->get_question_attempt($slot);
+        $q = $questionusage->get_question($slot);
 
-            $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
-                'userid' => $userid, 'studentquizid' => $studentquiz->id));
-            $updatestudentquizprogress = true;
-            if ($studentquizprogress == false) {
-                $updatestudentquizprogress = false;
-                $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
-            }
-
-            $studentquizprogress->attempts += 1;
-
-            switch($qa->get_state()) {
-                case question_state::$gradedright:
-                    $studentquizprogress->correctattempts += 1;
-                    $studentquizprogress->lastanswercorrect = 1;
-                    break;
-                case question_state::$gradedwrong:
-                case question_state::$gradedpartial:
-                    $studentquizprogress->lastanswercorrect = 0;
-                    break;
-                case question_state::$todo:
-                default:
-                    break;
-            }
-
-            if ($updatestudentquizprogress) {
-                $DB->update_record('studentquiz_progress', $studentquizprogress);
-            } else {
-                $studentquizprogress->id = $DB->insert_record('studentquiz_progress', $studentquizprogress, true);
-            }
+        $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
+            'userid' => $userid, 'studentquizid' => $studentquiz->id));
+        $updatestudentquizprogress = true;
+        if ($studentquizprogress == false) {
+            $updatestudentquizprogress = false;
+            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
         }
+
+        $studentquizprogress->attempts += 1;
+
+        switch($qa->get_state()) {
+            case question_state::$gradedright:
+                $studentquizprogress->correctattempts += 1;
+                $studentquizprogress->lastanswercorrect = 1;
+                break;
+            case question_state::$gradedwrong:
+            case question_state::$gradedpartial:
+                $studentquizprogress->lastanswercorrect = 0;
+                break;
+            case question_state::$todo:
+            default:
+                break;
+        }
+
+        if ($updatestudentquizprogress) {
+            $DB->update_record('studentquiz_progress', $studentquizprogress);
+        } else {
+            $studentquizprogress->id = $DB->insert_record('studentquiz_progress', $studentquizprogress, true);
+        }
+
 
         redirect($actionurl);
     }
