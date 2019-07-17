@@ -123,11 +123,16 @@ function mod_studentquiz_change_state_visibility($questionid, $type, $value) {
  * @throws coding_exception
  * @throws dml_exception
  * @throws dml_transaction_exception
+ * @param int|null $courseorigid
  */
-function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state() {
+function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($courseorigid=null) {
     global $DB;
 
-    $studentquizes = $DB->get_records('studentquiz', array('aggregated' => '0'));
+    $params = array('aggregated' => '0');
+    if (!empty($courseorigid)) {
+        $params['course'] = $courseorigid;
+    }
+    $studentquizes = $DB->get_records('studentquiz', $params);
 
     $transaction = $DB->start_delegated_transaction();
 
@@ -174,17 +179,7 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
 
     $sql = "SELECT q.id AS questionid, qas.userid AS userid, s.id AS studentquizid, COUNT(qas.id) AS attempts,
                    SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) AS correctattempts,
-                   (
-                     SELECT qas1.state
-                       FROM {question} q1
-                       JOIN {question_attempts} qa1 ON qa1.questionid = q1.id
-                       JOIN {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
-                      WHERE qas1.fraction IS NOT NULL
-                            AND q1.id = questionid
-                            AND qas1.userid = userid
-                   ORDER BY qas1.id DESC
-                      LIMIT 1
-                   ) AS lastanswercorrect
+                   CASE WHEN qas1.state1 = 'gradedright' THEN 1 ELSE 0 END AS lastanswercorrect
               FROM {question} q
               JOIN {question_categories} qc ON qc.id = q.category
               JOIN {context} co ON co.id = qc.contextid
@@ -192,6 +187,19 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
               JOIN {studentquiz} s ON s.coursemodule = cm.id
               JOIN {question_attempts} qa ON qa.questionid = q.id
               JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+              JOIN (
+                     SELECT qas1.state as state1, q1.id AS questionid1, qas1.userid AS userid1
+                       FROM {question} q1
+                       JOIN {question_attempts} qa1 ON qa1.questionid = q1.id
+                       JOIN {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
+                       JOIN (
+                              SELECT MAX(qas1m.id) as attemptstepmaxid
+                                FROM {question} q1m
+                                JOIN {question_attempts} qa1m ON qa1m.questionid = q1m.id
+                                JOIN {question_attempt_steps} qas1m ON qas1m.questionattemptid = qa1m.id
+                            GROUP BY q1m.id, qas1m.userid
+                            ) qas1m ON qas1m.attemptstepmaxid = qas1.id
+                     ) qas1 ON qas1.questionid1 = q.id AND qas1.userid1 = qas.userid
               WHERE s.id = :studentquizid
                     AND qas.state != 'todo'
           GROUP BY q.id, qas.userid, s.id";
@@ -202,7 +210,7 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
     foreach ($records as $r) {
         $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class(
             $r->questionid, $r->userid, $r->studentquizid,
-            $r->lastanswercorrect == 'gradedright' ? 1 : 0, $r->attempts, $r->correctattempts);
+            $r->lastanswercorrect, $r->attempts, $r->correctattempts);
         array_push($studentquizprogresses, $studentquizprogress);
     }
 
