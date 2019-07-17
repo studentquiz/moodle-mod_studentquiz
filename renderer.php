@@ -180,7 +180,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $row;
     }
 
-    public function render_table($data, $size, $align, $head, $caption) {
+    public function render_table($data, $size, $align, $head, $caption, $class='') {
         $table = new html_table();
         if (!empty($caption)) {
             $table->caption = $caption;
@@ -189,6 +189,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $table->align = $align;
         $table->size = $size;
         $table->data = $data;
+        $table->attributes['class'] = $class;
         return html_writer::table($table);
     }
 
@@ -778,7 +779,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      *
      * @return array
      */
-    public function get_is_sortable_difficulty_level_column($aggregated) {
+    public function get_is_sortable_difficulty_level_column() {
         return [
                 'difficulty' => [
                         'field' => 'dl.difficultylevel',
@@ -786,7 +787,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                         'tip' => get_string('average_column_name', 'studentquiz')
                 ],
                 'mydifficulty' => [
-                        'field' => $aggregated ? 'mydifficulty' : 'mydiffs.mydifficulty',
+                        'field' => 'mydifficulty',
                         'title' => get_string('mine_column_name', 'studentquiz'),
                         'tip' => get_string('mine_column_name', 'studentquiz')
                 ]
@@ -1818,28 +1819,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         }
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
-        return $this->render_table($data, $size, $align, $head, $caption);
+        return $this->render_table($data, $size, $align, $head, $caption, 'generaltable rankingtable');
     }
-}
-
-class mod_studentquiz_migration_renderer extends mod_studentquiz_renderer {
-
-    public function view_body_success($cmid, $studentquiz) {
-        return $this->output->notification(get_string('migrated_successful', 'studentquiz'),
-                \core\output\notification::NOTIFY_SUCCESS)
-            . $this->output->single_button(new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid)),
-                get_string('finish_button', 'studentquiz'));
-    }
-
-    public function view_body($cmid, $studentquiz) {
-        if ($studentquiz->aggregated == 1) {
-            return $this->output->error_text(get_string('migrate_already_done', 'studentquiz'));
-
-        } else {
-            return $this->output->confirm(get_string('migrate_ask', 'studentquiz'),
-                new moodle_url('/mod/studentquiz/migrate.php', array('id' => $cmid, 'do' => 'yes')),
-                new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid)));
-        }
-    }
-
 }
