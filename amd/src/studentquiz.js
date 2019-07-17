@@ -106,6 +106,16 @@ define(['jquery'], function($) {
 
             // Bind the show more and show less buttons
             bindButtons();
+        },
+
+        // Set focus to sorted head of question table.
+        setFocus: function() {
+            $(document).ready(function() {
+                var sortIcon = $('#categoryquestions .iconsort');
+                if (sortIcon) {
+                    sortIcon.parent().focus();
+                }
+            });
         }
     };
 
