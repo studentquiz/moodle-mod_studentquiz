@@ -53,28 +53,17 @@ define(['jquery'], function($) {
                 return;
             });
 
+            var ratingElements = $(".studentquiz_behaviour .rate .rating .rateable");
             // Ajax request POST on CLICK for add rating.
-            $('.studentquiz_behaviour .rate .rating .rateable').off('click').on('click', function() {
-                var rate = $(this).attr('data-rate');
-                var $that = $(this);
-                var $cmidfield = $(this).closest('form').find('.cmid_field');
-                var cmid = $cmidfield.attr('value');
-                $.post(M.cfg.wwwroot + '/mod/studentquiz/save.php',
-                    {save: 'rate', cmid: cmid, questionid: $(this).attr('data-questionid'), sesskey: M.cfg.sesskey, rate: rate},
-                    function() {
-                        var $ratingStars = $that.closest('.rating').children('span');
-                        $ratingStars.removeClass('star');
-                        $ratingStars.addClass('star-empty');
-                        $ratingStars.each(function() {
-                            if ($(this).attr('data-rate') <= rate) {
-                                $(this).removeClass('star-empty');
-                                $(this).addClass('star');
-                            }
-                        });
-
-                        $('.studentquiz_behaviour > .rate > .rate_error').addClass('hide');
-                    }
-                );
+            ratingElements.off("click").on("click", function() {
+                addRating(this);
+            });
+            // Ajax request POST for add rating when "Enter" or "Space" is pressed.
+            ratingElements.on("keypress", function(e) {
+                if (e.keyCode === 13 || e.keyCode === 32) {
+                    e.preventDefault();
+                    addRating(this);
+                }
             });
 
             // On CLICK check if student submitted result and has rated if not abort and show error for rating.
@@ -92,6 +81,8 @@ define(['jquery'], function($) {
                     if (forcerating) {
                         if (!hasrated) {
                             $('.studentquiz_behaviour > .rate > .rate_error').removeClass('hide');
+                            // Set focus to the first star.
+                            $('.studentquiz_behaviour .rate .rating .rateable:first-child').focus();
                         }
                     }
                     if (forcecommenting) {
@@ -205,6 +196,33 @@ define(['jquery'], function($) {
     function disablePreventUnload() {
         $('.studentquiz_behaviour > .comments > .comment_error_unsaved').addClass('hide');
         $(window).off('beforeunload');
+    }
+
+    /**
+     * Add rating to question.
+     *
+     * @param {DOM} element
+     */
+    function addRating(element) {
+        var rate = $(element).attr('data-rate');
+        var $that = $(element);
+        var $cmIdField = $(element).closest('form').find('.cmid_field');
+        var cmid = $cmIdField.attr('value');
+        $.post(M.cfg.wwwroot + '/mod/studentquiz/save.php',
+            {save: 'rate', cmid: cmid, questionid: $(element).attr('data-questionid'), sesskey: M.cfg.sesskey, rate: rate},
+            function() {
+                var $ratingStars = $that.closest('.rating').children('span');
+                $ratingStars.removeClass('star');
+                $ratingStars.addClass('star-empty');
+                $ratingStars.each(function() {
+                    if ($(this).attr('data-rate') <= rate) {
+                        $(this).removeClass('star-empty');
+                        $(this).addClass('star');
+                    }
+                });
+                $('.studentquiz_behaviour > .rate > .rate_error').addClass('hide');
+            }
+        );
     }
 
     /**
