@@ -1420,13 +1420,24 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         }
 
         $choices = '';
-        $rates = [5, 4, 3, 2, 1];
+        $rates = [1, 2, 3, 4, 5];
         foreach ($rates as $rate) {
             $class = 'star-empty';
             if ($rate <= $selected) {
                 $class = 'star';
             }
-            $choices .= html_writer::span('', $rateable . $class, array('data-rate' => $rate, 'data-questionid' => $questionid));
+            if ($rate == 1) {
+                $ratedescription = get_string('rate_one_star_desc', 'mod_studentquiz');
+            } else {
+                $ratedescription = get_string('rate_multi_stars_desc', 'mod_studentquiz', $rate);
+            }
+            $rateableattr = [
+                    'data-rate' => $rate,
+                    'data-questionid' => $questionid,
+                    'tabindex' => 0,
+                    'aria-label' => $ratedescription
+            ];
+            $choices .= html_writer::span('', $rateable . $class, $rateableattr);
         }
         return html_writer::tag('label', get_string('rate_title', 'mod_studentquiz'), array('for' => 'rate_field'))
             . $this->output->help_icon('rate_help', 'mod_studentquiz') . ': '
