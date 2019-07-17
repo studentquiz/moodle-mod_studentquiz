@@ -268,7 +268,7 @@
 
 .path-mod-studentquiz .studentquiz_behaviour .star-empty,
 .path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable:hover ~ .rateable.star-empty,
-.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty{
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty {
     background-image: url([[pix:mod_studentquiz|star_empty_icon]]);
 }
 
