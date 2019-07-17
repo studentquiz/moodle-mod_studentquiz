@@ -511,6 +511,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function render_practice_column($question, $rowclasses) {
         $output = '';
+        $attrs = ['tabindex' => 0];
 
         if (!empty($question->myattempts)) {
             $output .= $question->myattempts;
@@ -524,14 +525,17 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             // TODO: Refactor magic constant.
             if ($question->mylastattempt == 'gradedright') {
                 $output .= get_string('lastattempt_right', 'studentquiz');
+                $attrs['aria-label'] = get_string('lastattempt_right_label', 'studentquiz');
             } else {
                 $output .= get_string('lastattempt_wrong', 'studentquiz');
+                $attrs['aria-label'] = get_string('lastattempt_wrong_label', 'studentquiz');
             }
         } else {
             $output .= get_string('no_mylastattempt', 'studentquiz');
+            $attrs['aria-label'] = get_string('no_mylastattempt_label', 'studentquiz');
         }
 
-        return $output;
+        return html_writer::span($output, 'pratice_info', $attrs);
     }
 
     /**
