@@ -241,9 +241,9 @@
 
 .path-mod-studentquiz .studentquiz_behaviour .rate .rating {
     cursor: not-allowed;
-    direction: rtl;
     display: inline-block;
     unicode-bidi: bidi-override;
+    height: 0;
 }
 
 .path-mod-studentquiz .studentquiz_behaviour .rate .error {
@@ -251,8 +251,7 @@
 }
 
 .path-mod-studentquiz .studentquiz_behaviour .star,
-.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover,
-.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty {
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating:hover .rateable.star-empty {
     background-image: url([[pix:mod_studentquiz|star_icon]]);
 }
 
@@ -267,7 +266,9 @@
     cursor: pointer;
 }
 
-.path-mod-studentquiz .studentquiz_behaviour .star-empty {
+.path-mod-studentquiz .studentquiz_behaviour .star-empty,
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable:hover ~ .rateable.star-empty,
+.path-mod-studentquiz .studentquiz_behaviour .rate .rating .rateable.star-empty:hover ~ .rateable.star-empty{
     background-image: url([[pix:mod_studentquiz|star_empty_icon]]);
 }
 

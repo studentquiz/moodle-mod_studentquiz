@@ -86,7 +86,6 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        if ($this->studentquiz->aggregated) {
             return array('dl' => "LEFT JOIN (
                                               SELECT ROUND(1 - AVG(correctattempts / attempts), 2) AS difficultylevel,
                                                      questionid
@@ -94,42 +93,6 @@ class difficulty_level_column extends \core_question\bank\column_base {
                                                WHERE studentquizid = " . $this->studentquizid . "
                                             GROUP BY questionid
                                             ) dl ON dl.questionid = q.id");
-        } else {
-            return array('dl' => "LEFT JOIN (
-                                              SELECT ROUND(1-avg(case qas.state when 'gradedright' then 1 else 0 end),2)
-                                                         AS difficultylevel,
-                                                     questionid
-                                                FROM {studentquiz_attempt} sqa
-                                                JOIN {question_usages} qu ON qu.id = sqa.questionusageid
-                                                JOIN {question_attempts} qa ON qa.questionusageid = qu.id
-                                                JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-                                           LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
-                                               WHERE sqa.studentquizid = " . $this->studentquizid . "
-                                                     AND qasd.name='-submit'
-                                                     AND (qas.state = 'gradedright'
-                                                          OR qas.state = 'gradedwrong'
-                                                          OR qas.state='gradedpartial')
-                                            GROUP BY qa.questionid
-                                            ) dl ON dl.questionid = q.id",
-                    'mydiffs' => "LEFT JOIN (
-                                              SELECT ROUND(1-avg(case state when 'gradedright' then 1 else 0 end),2)
-                                                         AS mydifficulty,
-                                                     sum(case state when 'gradedright' then 1 else 0 end) AS mycorrectattempts,
-                                                     questionid
-                                                FROM {studentquiz_attempt} sqa
-                                                JOIN {question_usages} qu ON qu.id = sqa.questionusageid
-                                                JOIN {question_attempts} qa ON qa.questionusageid = qu.id
-                                                JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-                                           LEFT JOIN {question_attempt_step_data} qasd ON qasd.attemptstepid = qas.id
-                                               WHERE sqa.userid = " . $this->currentuserid . "
-                                                     AND sqa.studentquizid = " . $this->studentquizid . "
-                                                     AND qasd.name='-submit'
-                                                     AND (qas.state = 'gradedright'
-                                                         OR qas.state = 'gradedwrong'
-                                                         OR qas.state = 'gradedpartial')
-                                            GROUP BY qa.questionid
-                                            ) mydiffs ON mydiffs.questionid = q.id");
-        }
     }
 
     /**
@@ -137,12 +100,8 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array fieldname in array
      */
     public function get_required_fields() {
-        if ($this->studentquiz->aggregated) {
-            return array('dl.difficultylevel', 'ROUND(1 - (sp.correctattempts / sp.attempts),2) AS mydifficulty',
-                'sp.correctattempts AS mycorrectattempts');
-        } else {
-            return array('dl.difficultylevel', 'mydiffs.mydifficulty', 'mydiffs.mycorrectattempts');
-        }
+        return array('dl.difficultylevel', 'ROUND(1 - (sp.correctattempts / sp.attempts),2) AS mydifficulty',
+            'sp.correctattempts AS mycorrectattempts');
     }
 
     /**
@@ -150,11 +109,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        if ($this->studentquiz->aggregated) {
-            return $this->renderer->get_is_sortable_difficulty_level_column(true);
-        } else {
-            return $this->renderer->get_is_sortable_difficulty_level_column(false);
-        }
+        return $this->renderer->get_is_sortable_difficulty_level_column();
     }
 
     /**

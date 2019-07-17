@@ -47,6 +47,11 @@ $context = $report->get_context();
 $cm = $report->get_coursemodule();
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
+// If for some weired reason a studentquiz is not aggregated yet, now would be a moment to do so.
+if (!$studentquiz->aggregated) {
+    mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_state($studentquiz);
+}
+
 // Redirect if we have received valid data.
 // Usually we should use submitted_data(), but since we have two forms merged and exchanging their values
 // using GET params, we can't use that.

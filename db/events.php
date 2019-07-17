@@ -15,21 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
+ * Module events definitions.
  *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch) <your@email.address>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_studentquiz
+ * @copyright 2019 Huong Nguyen <huongnv13@gmail.com>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2019071700;
-$plugin->release      = 'v4.0.0';
-$plugin->requires     = 2018051700; // Version MOODLE_35, 3.5.0+.
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
+// List of observers.
+$observers = [
+        [
+                'eventname' => '\core\event\question_created',
+                'callback' => 'mod_studentquiz_observer::question_created'
+        ]
+];

@@ -4,6 +4,7 @@ Feature: Quizzes can be startet
   As a student
   I need the quiz run of an activity to work
 
+  @javascript
   Scenario: An already logged in user can participate a studentquiz meanwhile created
     Given the following "users" exist:
       | username | firstname | lastname | email                |
@@ -16,8 +17,8 @@ Feature: Quizzes can be startet
       | student1 | C1     | student        |
     Then I log in as "student1"
     When the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber       |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
+      | activity    | name          | intro              | course | idnumber     | publishnewquestion |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1                  |
     And the following "questions" exist:
       | questioncategory          | qtype | name                       | questiontext                  |
       | Default for StudentQuiz 1 | essay | Test question to be copied | Write about whatever you want |
