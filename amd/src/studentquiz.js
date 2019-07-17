@@ -130,17 +130,17 @@ define(['jquery'], function($) {
             $('.studentquiz_behaviour .show_more').removeClass('hidden');
         });
 
-        $('.studentquiz_behaviour .remove_action').off('click').on('click', function() {
-            var $cmidfield = $(this).closest('form').find('.cmid_field');
-            var cmid = $cmidfield.attr('value');
-            var questionid = $(this).attr('data-question_id');
-            var $commentlist = $(this).closest('.comments').children('.comment_list');
-            $.post(M.cfg.wwwroot + '/mod/studentquiz/remove.php',
-                {id: $(this).attr('data-id'), cmid: cmid, sesskey: M.cfg.sesskey},
-                function() {
-                    getCommentList(questionid, $commentlist, cmid);
-                }
-            );
+        var removeCommentEle = $('.studentquiz_behaviour .remove_action');
+
+        removeCommentEle.off('click').on('click', function() {
+            removeComment(this);
+        });
+
+        // Ensure that 'Remove comment' works with Enter keypress.
+        removeCommentEle.on('keypress', function(e) {
+            if (e.keyCode !== undefined && e.keyCode === 13) {
+                removeComment(this);
+            }
         });
     }
 
@@ -163,7 +163,7 @@ define(['jquery'], function($) {
 
     /**
      * Kindly ask to prevent leaving page when there's a unsaved comment
-     * 
+     *
      * Note: Only in preview is the commenting visible without answering the question. If someone has filled the
      * textarea and afterwards answers the question, he'll get the dialogue, which is fine.
      */
@@ -221,6 +221,24 @@ define(['jquery'], function($) {
                     }
                 });
                 $('.studentquiz_behaviour > .rate > .rate_error').addClass('hide');
+            }
+        );
+    }
+
+    /**
+     * Remove question comment.
+     *
+     * @param {DOM} element
+     */
+    function removeComment(element) {
+        var $cmIdField = $(element).closest('form').find('.cmid_field');
+        var cmId = $cmIdField.attr('value');
+        var questionId = $(element).attr('data-question_id');
+        var $commentList = $(element).closest('.comments').children('.comment_list');
+        $.post(M.cfg.wwwroot + '/mod/studentquiz/remove.php',
+            {id: $(element).attr('data-id'), cmid: cmId, sesskey: M.cfg.sesskey},
+            function() {
+                getCommentList(questionId, $commentList, cmId);
             }
         );
     }
