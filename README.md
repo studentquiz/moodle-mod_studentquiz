@@ -38,7 +38,7 @@ For changes and instructions please read the [Release Notes](https://github.com/
 
 ## Documentation
 
-You can find manuals for each role in the [manuals website](https://docs.moodle.org/34/en/StudentQuiz_module). 
+You can find manuals for each role in the [manuals website](https://docs.moodle.org/37/en/StudentQuiz_module). 
 
 ## Compatibility
 
