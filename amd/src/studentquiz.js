@@ -149,6 +149,7 @@ define(['jquery'], function($) {
         // Ensure that 'Remove comment' works with Enter keypress.
         removeCommentEle.on('keypress', function(e) {
             if (e.keyCode !== undefined && e.keyCode === 13) {
+                e.preventDefault();
                 removeComment(this);
             }
         });
@@ -251,5 +252,6 @@ define(['jquery'], function($) {
                 getCommentList(questionId, $commentList, cmId);
             }
         );
+        $('.studentquiz_behaviour .add_comment').focus();
     }
 });
