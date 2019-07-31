@@ -104,6 +104,86 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
 
 }
 
+/**
+ * Class studentquiz_user_filter_text
+ *
+ * @package    mod_studentquiz
+ * @copyright  2019 HSR (http://www.hsr.ch)
+ * @author     Huong Nguyen <huongnv13@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class studentquiz_user_filter_text extends user_filter_text {
+
+    /**
+     * Adds controls specific to this filter in the form.
+     *
+     * @param object $mform a MoodleForm object to setup
+     * @throws coding_exception
+     */
+    public function setupForm(&$mform) {
+        parent::setupForm($mform);
+        $group = $mform->getElement($this->_name.'_grp');
+        if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
+            $groupElements = $group->getElements();
+            if (count($groupElements) > 0) {
+                $select = $groupElements[0];
+                $select->setLabel(get_string('filter_advanced_element', 'studentquiz', $select->getLabel()));
+            }
+        }
+    }
+
+}
+
+/**
+ * Class studentquiz_user_filter_date
+ *
+ * @package    mod_studentquiz
+ * @copyright  2019 HSR (http://www.hsr.ch)
+ * @author     Huong Nguyen <huongnv13@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class studentquiz_user_filter_date extends user_filter_date {
+
+    /**
+     * Adds controls specific to this filter in the form.
+     *
+     * @param object $mform a MoodleForm object to setup
+     */
+    public function setupForm(&$mform) {
+        parent::setupForm($mform);
+        $group = $mform->getElement($this->_name . '_grp');
+        if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
+            $groupElements = $group->getElements();
+            if (!empty($groupElements)) {
+                $dateselector = $groupElements[1]->getElements();
+                if (!empty($dateselector)) {
+                    $isbefore = optional_param('timecreated_sdt', 0, PARAM_INT);
+                    if ($isbefore && $isbefore['enabled']) {
+                        // The first active element is "Day" selection.
+                        $targetelement = $dateselector[0];
+                        $targetlabel = $targetelement->getLabel();
+                        $targetelement->setLabel(get_string('filter_advanced_element', 'studentquiz', $targetlabel));
+                    } else {
+                        // The first active element in case optional checkbox is not enabled.
+                        $targetelement = $dateselector[3];
+                        if ($targetelement instanceof HTML_QuickForm_link) {
+                            // It is "Calendar" link in case the calendar is gregorian.
+                            $attrs = $targetelement->getAttributes();
+                            $attrs['alt'] = get_string('filter_advanced_element', 'studentquiz');
+                            $targetelement->setAttributes($attrs);
+                        } else if ($targetelement instanceof HTML_QuickForm_input) {
+                            // It is optional checkbox in case the calendar isn't gregorian.
+                            $targetlabel = $targetelement->getLabel();
+                            $targetelement->setLabel(get_string('filter_advanced_element', 'studentquiz', $targetlabel));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}
+
 class toggle_filter_checkbox extends user_filter_checkbox {
 
     protected $operator;
@@ -167,7 +247,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
 }
 
 
-class user_filter_tag extends user_filter_text {
+class user_filter_tag extends studentquiz_user_filter_text {
 
     /**
      * Returns the condition to be used with SQL where
@@ -233,7 +313,7 @@ class user_filter_tag extends user_filter_text {
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class user_filter_number extends user_filter_text {
+class user_filter_number extends studentquiz_user_filter_text {
     /**
      * Returns an array of comparison operators
      * @return array of comparison operators

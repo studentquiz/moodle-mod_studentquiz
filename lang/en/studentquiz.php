@@ -130,6 +130,7 @@ $string['emailunhiddensmall'] = 'Your question \'{$a->questionname}\' has been u
 $string['emailunhiddensubject'] = 'Question has been unhidden: {$a->questionname}';
 
 $string['filter'] = 'Filter';
+$string['filter_advanced_element'] = '{$a} (Advanced element)';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
 $string['filter_label_approved'] = 'Approved questions';
