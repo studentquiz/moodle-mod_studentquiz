@@ -723,22 +723,22 @@ class studentquiz_bank_view extends \core_question\bank\view {
             true, 'practice');
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'),
             true, 'comment');
-        $this->fields[] = new \user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
+        $this->fields[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
             true, 'name');
-        $this->fields[] = new \user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
+        $this->fields[] = new \studentquiz_user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
             true, 'questiontext');
 
         if ($anonymize) {
             $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
                 true, 'createdby');
         } else {
-            $this->fields[] = new \user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'),
+            $this->fields[] = new \studentquiz_user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'),
                 true, 'firstname');
-            $this->fields[] = new \user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
+            $this->fields[] = new \studentquiz_user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
                 true, 'lastname');
         }
 
-        $this->fields[] = new \user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
+        $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
 
         $this->fields[] = new \user_filter_simpleselect('mylastattempt', get_string('filter_label_mylastattempt', 'studentquiz'),
