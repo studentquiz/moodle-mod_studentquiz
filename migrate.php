@@ -67,7 +67,7 @@ if (!has_capability('mod/studentquiz:manage', $context)) {
 if (data_submitted()) {
     if (optional_param("do", '', PARAM_RAW) === 'yes') {
         if ($studentquiz->aggregated == 0) {
-            $data = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquiz->id);
+            $data = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquiz->id, $context);
 
             $DB->insert_records('studentquiz_progress', new ArrayIterator($data));
 
