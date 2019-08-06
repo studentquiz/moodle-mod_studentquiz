@@ -157,7 +157,8 @@ function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($
 function mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_state($studentquiz) {
     global $DB;
 
-    $data = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquiz->id);
+    $context = context_module::instance($studentquiz->coursemodule);
+    $data = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquiz->id, $context);
 
     $DB->insert_records('studentquiz_progress', new ArrayIterator($data));
 
@@ -170,46 +171,52 @@ function mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_stat
  * Returns studentquiz_progress entries for a single studentquiz instance.
  * It is calculated using the question_attempts data.
  *
- * @param $studentquizid stdClass
- * @return array
+ * @param int $studentquizid id of this studentquiz instance from the studentquiz table.
+ * @param context $context the module context for this studentquiz.
+ * @return array data that can be inserted into the studentquiz_progress table.
  * @throws dml_exception
  */
-function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquizid) {
+function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($studentquizid, $context) {
     global $DB;
 
-    $sql = "SELECT q.id AS questionid, qas.userid AS userid, s.id AS studentquizid, COUNT(qas.id) AS attempts,
-                   SUM(CASE WHEN qas.state = 'gradedright' THEN 1 ELSE 0 END) AS correctattempts,
-                   CASE WHEN qas1.state1 = 'gradedright' THEN 1 ELSE 0 END AS lastanswercorrect
-              FROM {question} q
-              JOIN {question_categories} qc ON qc.id = q.category
-              JOIN {context} co ON co.id = qc.contextid
-              JOIN {course_modules} cm ON cm.id = co.instanceid
-              JOIN {studentquiz} s ON s.coursemodule = cm.id
-              JOIN {question_attempts} qa ON qa.questionid = q.id
-              JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
-              JOIN (
-                     SELECT qas1.state as state1, q1.id AS questionid1, qas1.userid AS userid1
-                       FROM {question} q1
-                       JOIN {question_attempts} qa1 ON qa1.questionid = q1.id
-                       JOIN {question_attempt_steps} qas1 ON qas1.questionattemptid = qa1.id
-                       JOIN (
-                              SELECT MAX(qas1m.id) as attemptstepmaxid
-                                FROM {question} q1m
-                                JOIN {question_attempts} qa1m ON qa1m.questionid = q1m.id
-                                JOIN {question_attempt_steps} qas1m ON qas1m.questionattemptid = qa1m.id
-                            GROUP BY q1m.id, qas1m.userid
-                            ) qas1m ON qas1m.attemptstepmaxid = qas1.id
-                     ) qas1 ON qas1.questionid1 = q.id AND qas1.userid1 = qas.userid
-              WHERE s.id = :studentquizid
-                    AND qas.state != 'todo'
-          GROUP BY q.id, qas.userid, s.id, qas1.state1";
-    $records = $DB->get_recordset_sql($sql, array( 'studentquizid' => $studentquizid));
+    $sql = "SELECT innerq.questionid, innerq.userid, innerq.attempts, innerq.correctattempts,
+                   CASE WHEN qas1.state = :rightstate2 THEN 1 ELSE 0 END AS lastanswercorrect
+
+              FROM (
+                    SELECT qa.questionid, qas.userid,
+                           COUNT(qas.id) AS attempts,
+                           SUM(CASE WHEN qas.state = :rightstate3 THEN 1 ELSE 0 END) AS correctattempts
+
+                      FROM {question_usages} qu
+                      JOIN {question_attempts} qa ON qa.questionusageid = qu.id
+                      JOIN {question_attempt_steps} qas ON qas.questionattemptid = qa.id
+
+                     WHERE qu.contextid = :contextid1
+                           AND qas.state IN (:rightstate, :partialstate, :wrongstate)
+
+                  GROUP BY qa.questionid, qas.userid
+                    ) innerq
+
+              JOIN {question_attempt_steps} qas1 ON qas1.id = (
+                   SELECT MAX(qas_last.id)
+                     FROM {question_usages} qu_last
+                     JOIN {question_attempts} qa_last ON qa_last.questionusageid = qu_last.id
+                     JOIN {question_attempt_steps} qas_last ON qas_last.questionattemptid = qa_last.id
+                    WHERE qu_last.contextid = :contextid2 AND qa_last.questionid = innerq.questionid AND qas_last.userid = innerq.userid
+                          AND qas_last.state IN (:rightstate1, :partialstate1, :wrongstate1)
+                   )";
+    $records = $DB->get_recordset_sql($sql, array(
+            'rightstate2' => (string) question_state::$gradedright, 'rightstate3' => (string) question_state::$gradedright,
+            'contextid1' => $context->id, 'contextid2' => $context->id,
+            'rightstate' => (string) question_state::$gradedright, 'partialstate' => (string) question_state::$gradedpartial,
+            'wrongstate' => (string) question_state::$gradedwrong, 'rightstate1' => (string) question_state::$gradedright,
+            'partialstate1' => (string) question_state::$gradedpartial, 'wrongstate1' => (string) question_state::$gradedwrong));
 
     $studentquizprogresses = array();
 
     foreach ($records as $r) {
         $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class(
-            $r->questionid, $r->userid, $r->studentquizid,
+            $r->questionid, $r->userid, $studentquizid,
             $r->lastanswercorrect, $r->attempts, $r->correctattempts);
         array_push($studentquizprogresses, $studentquizprogress);
     }

@@ -40,11 +40,42 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 class mod_studentquiz_report_testcase extends advanced_testcase {
 
     /**
+     * @var stdClass the StudentQuiz activity created in setUp.
+     */
+    protected $studentquiz;
+
+    /**
+     * @var context_module the corresponding activity context.
+     */
+    protected $context;
+
+    /**
+     * @var stdClass the corresponding course_module.
+     */
+    protected $cm;
+
+    /**
+     * @var mod_studentquiz_report the report created in setUp.
+     */
+    protected $report;
+
+    /**
+     * @var array the users created in setUp.
+     */
+    protected $users;
+
+    /**
+     * @var array the questions created in setUp.
+     */
+    protected $questions;
+
+    /**
      * Setup test
      * @throws coding_exception
      */
     protected function setUp() {
         global $DB;
+        $this->resetAfterTest();
 
         // Setup activity.
         $course = $this->getDataGenerator()->create_course();
@@ -75,121 +106,31 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
 
         // Create questions in questionbank.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $layout = array(
-            array('TF1', 'truefalse'),
-            array('TF2', 'truefalse'),
-            array('TF3', 'truefalse'),
-        );
-        $questionids = array();
-        foreach ($layout as $item) {
-            list($name, $qtype) = $item;
-            $q = $questiongenerator->create_question($qtype, null, array(
-                'name' => $name,
-                'category' => $this->studentquiz->categoryid,
-                // Set further properties like created by here.
-            ));
-            $questionids[] = $q->id;
-        }
+        $q1 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF1', 'category' => $this->studentquiz->categoryid]);
+        $q2 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF2', 'category' => $this->studentquiz->categoryid]);
+        $q3 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF3', 'category' => $this->studentquiz->categoryid]);
+        $q4 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF4', 'category' => $this->studentquiz->categoryid]);
+        $this->questions = [$q1, $q2, $q3, $q4];
 
-        // Load questions.
-        $questions = array();
-        foreach ($questionids as $questionid) {
-            $questions[] = question_bank::load_question($questionid);
-        }
-
-        // Load studentquiz view to ensure questions are in DB now ?
-        // TODO: Unable to do, as questionbank tries to redirect!
-        // $studentquizview = new mod_studentquiz_view($course, $this->context, $this->cm, $this->studentquiz, $user->id);
-        // var_dump($studentquizview->get_questionbank()->get_questions());
-
-        // Load attempt data
+        // Create an attempt by the first user. First question right. Second wrong.
+        $this->setUser($users[0]);
+        // Third started but not answered. Forth no attempt.
+        $questionids = [$q1->id, $q2->id, $q3->id];
         $attempt = mod_studentquiz_generate_attempt($questionids, $this->studentquiz, $users[0]->id);
-        $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid); // THIS internally does also load_from_records!
+        $questionids = explode(',', $attempt->ids);
 
-        $questions[0]->start_attempt(new question_attempt_step(array('answer' => '0'), time(), $users[0]->id), 1);
-        $questionusage->process_all_actions();
-        // TODO $questions[0]->classify_response(array('answer' => '0')); ?
-        $questions[1]->start_attempt(new question_attempt_step(), 1);
-        // TODO $questions[1]->classify_response(array('answer' => '1'));  ?
-        $questions[2]->start_attempt(new question_attempt_step(), 1);
-        // TODO $questions[2]->classify_response(array()); // = no response ?
-        /*
-         *
-         Attention! Here userid = userid with attempt -> speciality studentquiz, just in case...
-         $records = new question_test_recordset(array(
-            array('questionattemptid', 'contextid', 'questionusageid', 'slot', 'behaviour',         'timecreated', 'userid', 'name', 'value'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0, 'todo',
-                      null, 1256233700, $users[0]->id,       null, null),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1, 'complete',
-                 null, 1256233705, $users[0]->id,   'answer',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2, 'complete',
-                  null, 1256233710, $users[0]->id,   'answer',  '0'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-               $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3, 'complete',
-                  null, 1256233715, $users[0]->id,   'answer',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4, 'gradedright',
-                1.0000000, 1256233720, $users[0]->id,  '-finish',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial',
-                0.5000000, 1256233790, $users[0]->id, '-comment', 'Not good enough!'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial',
-                0.5000000, 1256233790, $users[0]->id,    '-mark',  '1'),
-            array($attempt->id, $this->context->id, $attempt->questionusageid, 1, STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR,
-                $questions[0]->id, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5, 'mangrpartial',
-                0.5000000, 1256233790, $users[0]->id, '-maxmark',  '2'),
-        ));
-        TODO: Save attempt to DB -> load mod_studentquiz_report to query results
-        question_bank::start_unit_test();
-        $qa = question_attempt::load_from_records($records, $attempt->id, new question_usage_null_observer(), STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
-        question_bank::end_unit_test();
-        */
-        // Probably not needed, but was a try.
-        // Exercise SUT - no exception yet.
-        foreach ($questionusage->get_slots() as $slot) {
-            $questionusage->finish_question($slot);
-        }
+        $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
+        $post = $questionusage->prepare_simulated_post_data([1 => ['answer' => 1, '-submit' => 1]]);
+        $questionusage->process_all_actions(null, $post);
 
-        // save to db, was the hope
+        mod_studentquiz_add_question_to_attempt($questionusage, $this->studentquiz, $questionids, 1);
+        $post = $questionusage->prepare_simulated_post_data([2 => ['answer' => 0, '-submit' => 1]]);
+        $questionusage->process_all_actions(null, $post);
+
+        mod_studentquiz_add_question_to_attempt($questionusage, $this->studentquiz, $questionids, 2);
+
         question_engine::save_questions_usage_by_activity($questionusage);
-
-        /*
-         * Load attempt data 2. I believe this is to test without the DB, not the way around.
-        $records = new question_test_recordset(array(
-            array('questionattemptid', 'contextid', 'questionusageid', 'slot',
-                'behaviour', 'questionid', 'variant', 'maxmark', 'minfraction', 'maxfraction', 'flagged',
-                'questionsummary', 'rightanswer', 'responsesummary', 'timemodified',
-                'attemptstepid', 'sequencenumber', 'state', 'fraction',
-                'timecreated', 'userid', 'name', 'value'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 1, 0,
-                'todo',              null, 1256233700, 1,       null, null),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 2, 1,
-                'complete',          null, 1256233705, 1,   'answer',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 1, '', '', '', 1256233790, 3, 2,
-                'complete',          null, 1256233710, 1,   'answer',  '0'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 4, 3,
-                'complete',          null, 1256233715, 1,   'answer',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 5, 4,
-                'gradedright',  1.0000000, 1256233720, 1,  '-finish',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5,
-                'mangrpartial', 0.5000000, 1256233790, 1, '-comment', 'Not good enough!'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5,
-                'mangrpartial', 0.5000000, 1256233790, 1,    '-mark',  '1'),
-            array(1, 123, 1, 1, 'deferredfeedback', -1, 1, 2.0000000, 0.0000000, 1.0000000, 0, '', '', '', 1256233790, 6, 5,
-                'mangrpartial', 0.5000000, 1256233790, 1, '-maxmark',  '2'),
-        ));
-        $question = test_question_maker::make_question('truefalse', 'true');
-        $question->id = -1;
-
-        question_bank::start_unit_test();
-        question_bank::load_test_question_data($question);
-        $qa = question_attempt::load_from_records($records, 1, new question_usage_null_observer(), 'deferredfeedback');
-        question_bank::end_unit_test();
-        */
+        $this->setAdminUser();
     }
 
     public function test_mod_studentquiz_get_user_ranking_table() {
@@ -201,13 +142,37 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
     }
 
     public function test_mod_studentquiz_user_stats() {
-        $userstats = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id, 0);
+        $userstats = mod_studentquiz_user_stats($this->cm->id, $this->report->get_quantifiers(), $this->users[0]->id);
         $this->assertEquals(0, $userstats->questions_created);
     }
 
-    public function tearDown() {
-        parent::tearDown();
-        $this->resetAfterTest();
+    public function test_mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps() {
+        $studentquizprogresses = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps(
+                $this->studentquiz->id, $this->context);
+
+        // Only data for the two completed questions.
+        $this->assertCount(2, $studentquizprogresses);
+
+        $progressbyquestionid = [];
+        foreach ($studentquizprogresses as $progress) {
+            $progressbyquestionid[$progress->questionid] = $progress;
+        }
+
+        // Check stats on Q1.
+        $q1stats = $progressbyquestionid[$this->questions[0]->id];
+        $this->assertEquals($this->questions[0]->id, $q1stats->questionid);
+        $this->assertEquals($this->users[0]->id, $q1stats->userid);
+        $this->assertEquals(1, $q1stats->lastanswercorrect);
+        $this->assertEquals(1, $q1stats->attempts);
+        $this->assertEquals(1, $q1stats->correctattempts);
+
+        // Check stats on Q2.
+        $q2stats = $progressbyquestionid[$this->questions[1]->id];
+        $this->assertEquals($this->questions[1]->id, $q2stats->questionid);
+        $this->assertEquals($this->users[0]->id, $q2stats->userid);
+        $this->assertEquals(0, $q2stats->lastanswercorrect);
+        $this->assertEquals(1, $q2stats->attempts);
+        $this->assertEquals(0, $q2stats->correctattempts);
     }
 
     private function debugdb($user=array()) {
@@ -219,79 +184,4 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
             $result[$table] = $DB->get_records($table);
         }
     }
-
-    /**
-     * Convert an array of data destined for one question to the equivalent POST data.
-     * @param array $data the data for the quetsion.
-     * @return array the complete post data.
-     */
-    // From question\engine\tests\questionusage_autosave_test.php.
-    // TODO fix some $this usage to correct one!
-    // Usage:
-    // Post data: $postdata = $this->response_data_to_post(array('answer' => 'obsolete response'));.
-    // Post data: $postdata[$this->quba->get_field_prefix($this->slot) . ':sequencecheck'] = $this->get_question_attempt()->get_sequence_check_count() - 1;.
-    // Question Usage: $this->quba->process_all_actions(null/*time()*/, $postdata);.
-    protected function response_data_to_post($data) {
-        $prefix = $this->quba->get_field_prefix($this->slot);
-        $fulldata = array(
-            'slots' => $this->slot,
-            $prefix . ':sequencecheck' => $this->get_question_attempt()->get_sequence_check_count(),
-        );
-        foreach ($data as $name => $value) {
-            $fulldata[$prefix . $name] = $value;
-        }
-        return $fulldata;
-    }
-
-
 }
-/*
-        // QUIZ
-
-        $quizobj = quiz::create($quiz->id, $user1->id);
-
-        // Start the attempt.
-        $quba = question_engine::make_questions_usage_by_activity('mod_student', $studentquiz->get_context());
-        //$quba->set_preferred_behaviour($quizobj->get_quiz()->preferredbehaviour);
-
-        $timenow = time();
-        $attempt = quiz_create_attempt($quizobj, 1, false, $timenow, false, $user1->id);
-
-        quiz_start_new_attempt($quizobj, $quba, $attempt, 1, $timenow);
-        $this->assertEquals('1,2,0', $attempt->layout);
-
-        quiz_attempt_save_started($quizobj, $quba, $attempt);
-
-        // Process some responses from the student.
-        $attemptobj = quiz_attempt::create($attempt->id);
-        $this->assertFalse($attemptobj->has_response_to_at_least_one_graded_question());
-
-        $prefix1 = $quba->get_field_prefix(1);
-        $prefix2 = $quba->get_field_prefix(2);
-
-        $tosubmit = array(1 => array('answer' => 'frog'),
-            2 => array('answer' => '3.14'));
-
-        $attemptobj->process_submitted_actions($timenow, false, $tosubmit);
-
-        // Finish the attempt.
-        $attemptobj = quiz_attempt::create($attempt->id);
-        $this->assertTrue($attemptobj->has_response_to_at_least_one_graded_question());
-        $attemptobj->process_finish($timenow, false);
-
-        // Re-load quiz attempt data.
-        $attemptobj = quiz_attempt::create($attempt->id);
-
-        // Check that results are stored as expected.
-        $this->assertEquals(1, $attemptobj->get_attempt_number());
-        $this->assertEquals(2, $attemptobj->get_sum_marks());
-        $this->assertEquals(true, $attemptobj->is_finished());
-        $this->assertEquals($timenow, $attemptobj->get_submitted_date());
-        $this->assertEquals($user1->id, $attemptobj->get_userid());
-        $this->assertTrue($attemptobj->has_response_to_at_least_one_graded_question());
-
-        // Check quiz grades.
-        $grades = quiz_get_user_grades($quiz, $user1->id);
-        $grade = array_shift($grades);
-        $this->assertEquals(100.0, $grade->rawgrade);
-*/
