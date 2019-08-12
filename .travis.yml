@@ -10,7 +10,7 @@ services:
 
 addons:
   postgresql: "9.4"
-  firefox: "60.8.0"
+  firefox: "60.8.0esr"
   #chrome: stable
   apt:
     packages:
