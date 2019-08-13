@@ -1394,20 +1394,26 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                              question_display_options $options, $cmid,
                              $comments, $userid, $anonymize = true, $ismoderator = false) {
         global $COURSE;
+        $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
+        $forcerating = boolval($studentquiz->forcerating);
+        $forcecommenting = boolval($studentquiz->forcecommenting);
         return $this->render_state_choice($question->id, $COURSE->id, $cmid)
-                . $this->render_rate($question->id)
-                . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator);
+                . $this->render_rate($question->id, $forcerating)
+                . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator, $forcecommenting);
     }
 
     /**
      * Generate some HTML to display rating options
      *
-     * @param  int $questionid Question id
-     * @param  boolean $selected shows the selected rate
-     * @param  boolean $readonly describes if rating is readonly
+     * @param int $questionid Question id
+     * @param boolean $selected shows the selected rate
+     * @param boolean $readonly describes if rating is readonly
+     * @param boolean $forcerating True if enforce rating is turned on
      * @return string HTML fragment
+     * @throws coding_exception
      */
-    protected function rate_choices($questionid, $selected, $readonly) {
+    protected function rate_choices($questionid, $selected, $readonly, $forcerating = true) {
+        $output = '';
         $attributes = array(
             'type' => 'radio',
             'name' => 'q' . $questionid
@@ -1444,46 +1450,58 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             ];
             $choices .= html_writer::span('', $rateable . $class, $rateableattr);
         }
-        return html_writer::tag('label', get_string('rate_title', 'mod_studentquiz'), array('for' => 'rate_field'))
-            . $this->output->help_icon('rate_help', 'mod_studentquiz') . ': '
-            . html_writer::div($choices, 'rating')
-            . html_writer::div(get_string('rate_error', 'mod_studentquiz'), 'hide error rate_error');
+
+        $output .= html_writer::tag('label', get_string('rate_title', 'mod_studentquiz'), ['for' => 'rate_field']);
+        if ($forcerating) {
+            $output .= html_writer::span($this->output->pix_icon('req', get_string('requiredelement', 'form')), 'req');
+        }
+        $output .= $this->output->help_icon('rate_help', 'mod_studentquiz') . ': ';
+        $output .= html_writer::div($choices, 'rating');
+        $output .= html_writer::div(get_string('rate_error', 'mod_studentquiz'), 'hide error rate_error');
+
+        return $output;
     }
 
     /**
      * Generate some HTML to display comment form for add comment
      *
-     * @param  int $questionid Question id
+     * @param int $questionid Question id
+     * @param int $cmid Course module id
+     * @param bool $forcecommenting True if enforce commenting is turned on
      * @return string HTML fragment
+     * @throws coding_exception
      */
-    protected function comment_form($questionid, $cmid) {
-        return html_writer::tag('label', get_string('add_comment', 'mod_studentquiz'), array('for' => 'add_comment_field'))
-            . $this->output->help_icon('comment_help', 'mod_studentquiz') . ':'
-            . html_writer::tag('p', html_writer::tag(
+    protected function comment_form($questionid, $cmid, $forcecommenting = false) {
+        $output = '';
+
+        $output .= html_writer::tag('label', get_string('add_comment', 'mod_studentquiz'), ['for' => 'add_comment_field']);
+        if ($forcecommenting) {
+            $output .= html_writer::span($this->output->pix_icon('req', get_string('requiredelement', 'form')), 'req');
+        }
+        $output .= $this->output->help_icon('comment_help', 'mod_studentquiz') . ':';
+        $output .= html_writer::tag('p', html_writer::tag(
                 'textarea', '',
-                array('id' => 'add_comment_field', 'class' => 'add_comment_field form-control', 'name' => 'q' . $questionid)))
-                . html_writer::div(get_string('comment_error', 'mod_studentquiz'), 'hide error comment_error')
-                . html_writer::div(get_string('comment_error_unsaved', 'mod_studentquiz'), 'hide error comment_error_unsaved')
-            . html_writer::tag('p', html_writer::tag(
+                ['id' => 'add_comment_field', 'class' => 'add_comment_field form-control', 'name' => 'q' . $questionid]));
+        $output .= html_writer::div(get_string('comment_error', 'mod_studentquiz'), 'hide error comment_error');
+        $output .= html_writer::div(get_string('comment_error_unsaved', 'mod_studentquiz'), 'hide error comment_error_unsaved');
+        $output .= html_writer::tag('p', html_writer::tag(
                 'button',
                 get_string('add_comment', 'mod_studentquiz'),
-                array('type' => 'button', 'class' => 'add_comment btn btn-secondary'))
-            )
-            . html_writer::tag('input', '', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid));
+                ['type' => 'button', 'class' => 'add_comment btn btn-secondary']));
+        $output .= html_writer::tag('input', '', ['type' => 'hidden', 'name' => 'cmid', 'value' => $cmid]);
+
+        return $output;
     }
 
     /**
      * Generate some HTML to display rating
      *
-     * @param  int $questionid Question id
-     * @param array $comments comments ordered by createdby ASC
-     * @param int $userid viewing user id
-     * @param bool $anonymize users can't see other comment authors user names except ismoderator
-     * @param bool $ismoderator can delete all comments, can see all usernames
+     * @param int $questionid Question id
+     * @param boolean $forcerating True if enforce rating is turned on
      * @return string HTML fragment
-     * @return string HTML fragment
+     * @throws dml_exception
      */
-    public function render_rate($questionid) {
+    public function render_rate($questionid, $forcerating = true) {
         global $DB, $USER;
 
         $value = -1;
@@ -1493,7 +1511,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         }
 
         return html_writer::div(
-            html_writer::div($this->rate_choices($questionid, $value , false), 'rate'),
+            html_writer::div($this->rate_choices($questionid, $value , false, $forcerating), 'rate'),
             'studentquiz_behaviour'
         );
     }
@@ -1501,13 +1519,20 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate some HTML to display the complete comment fragment
      *
-     * @param  int $questionid Question id
+     * @param int $cmid Course module id
+     * @param int $questionid Question id
+     * @param array $comments List of comment
+     * @param int $userid User id
+     * @param bool $anonymize True if anonymize setting is turned on
+     * @param bool $ismoderator True if user is moderator
+     * @param bool $forcecommenting True if enforce commenting is turned on
      * @return string HTML fragment
+     * @throws coding_exception
      */
-    public function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false) {
+    public function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false, $forcecommenting = false) {
         return html_writer::div(
             html_writer::div(
-                $this->comment_form($questionid, $cmid)
+                $this->comment_form($questionid, $cmid, $forcecommenting)
                 . html_writer::div(
                     $this->comment_list($comments, $userid, $cmid, $anonymize, $ismoderator),
                     'comment_list'

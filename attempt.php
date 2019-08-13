@@ -224,7 +224,7 @@ $html .= $output->render_state_choice($question->id, $course->id, $cmid);
 
 // Output the rating.
 if ($hasanswered) {
-    $html .= $output->render_rate($question->id);
+    $html .= $output->render_rate($question->id, $studentquiz->forcerating);
 }
 
 // Finish the question form.
@@ -286,7 +286,8 @@ if ($hasanswered) {
         $ismoderator = true;
     }
 
-    $html .= $output->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator);
+    $html .= $output->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator,
+            $studentquiz->forcecommenting);
 }
 
 $html .= html_writer::end_tag('form');
