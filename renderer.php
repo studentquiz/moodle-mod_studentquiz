@@ -870,6 +870,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
 
         if (!optional_param('deleteselected', false, PARAM_BOOL) && !optional_param('approveselected', false, PARAM_BOOL)) {
             $contents .= $this->heading(format_string($view->get_studentquiz_name()));
+
+            if (!empty($view->get_studentquiz()->intro)) {
+                $contents .= $this->box(format_module_intro('studentquiz', $view->get_studentquiz(), $view->get_cm_id()), 'generalbox', 'intro');
+            }
             $contents .= $this->render_select_qtype_form($view);
         }
 

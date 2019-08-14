@@ -117,7 +117,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Loads the question custom bank view
+     * Loads the question custom bank view.
      */
     private function load_questionbank() {
         // Ensure capabilities are set to load question bank.
@@ -162,7 +162,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Return the users' progress information in this StudentQuiz
+     * Return the users' progress information in this StudentQuiz.
      * TODO: Refactor this method to actually return personal progress values!
      */
     public function get_progress_info() {
@@ -174,7 +174,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Has question ids set
+     * Has question ids set.
      * @return bool
      */
     public function has_question_ids() {
@@ -182,7 +182,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get the question bank page url
+     * Get the question bank page url.
      * @return moodle_url
      */
     public function get_pageurl() {
@@ -190,7 +190,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get actual view url
+     * Get actual view url.
      * @return moodle_url
      */
     public function get_viewurl() {
@@ -198,7 +198,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get the question pagevar
+     * Get the question pagevar.
      * @return object
      */
     public function get_qb_pagevar() {
@@ -206,7 +206,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get the urlview data (includes cmid)
+     * Get the urlview data (includes cmid).
      * @return array
      */
     public function get_urlview_data() {
@@ -214,7 +214,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get activity course
+     * Get activity course.
      * @return mixed|stdClass
      */
     public function get_course() {
@@ -222,7 +222,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Has printable error
+     * Has printable error.
      * @return bool
      */
     public function has_printableerror() {
@@ -230,7 +230,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get error message
+     * Get error message.
      * @return string error message
      */
     public function get_errormessage() {
@@ -238,7 +238,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get activity course module
+     * Get activity course module.
      * @return stdClass
      */
     public function get_coursemodule() {
@@ -246,14 +246,23 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get StudentQuiz Activity Name
+     * Get StudentQuiz activity name.
+     * @return string
      */
     public function get_studentquiz_name() {
         return $this->cm->name;
     }
 
     /**
-     * Get activity course module id
+     * Get StudentQuiz activity.
+     * @return mixed
+     */
+    public function get_studentquiz() {
+        return $this->studentquiz;
+    }
+
+    /**
+     * Get activity course module id.
      * @return mixed
      */
     public function get_cm_id() {
@@ -261,7 +270,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get activity category id
+     * Get activity category id.
      * @return mixed
      */
     public function get_category_id() {
@@ -269,7 +278,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get activity context id
+     * Get activity context id.
      * @return int
      */
     public function get_context_id() {
@@ -277,7 +286,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get activity context
+     * Get activity context.
      * @return context
      */
     public function get_context() {
@@ -285,7 +294,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get the view title
+     * Get the view title.
      * @return string
      */
     public function get_title() {
@@ -294,7 +303,7 @@ class mod_studentquiz_view {
     }
 
     /**
-     * Get the question view
+     * Get the question view.
      * @return \mod_studentquiz\question\bank\studentquiz_bank_view mixed
      * @deprecated
      */
