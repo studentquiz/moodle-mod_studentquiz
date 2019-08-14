@@ -120,13 +120,14 @@ class studentquiz_user_filter_text extends user_filter_text {
      * @param object $mform a MoodleForm object to setup
      * @throws coding_exception
      */
+    // @codingStandardsIgnoreLine
     public function setupForm(&$mform) {
         parent::setupForm($mform);
         $group = $mform->getElement($this->_name.'_grp');
         if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
-            $groupElements = $group->getElements();
-            if (count($groupElements) > 0) {
-                $select = $groupElements[0];
+            $groupelements = $group->getElements();
+            if (count($groupelements) > 0) {
+                $select = $groupelements[0];
                 $select->setLabel(get_string('filter_advanced_element', 'studentquiz', $select->getLabel()));
             }
         }
@@ -149,13 +150,14 @@ class studentquiz_user_filter_date extends user_filter_date {
      *
      * @param object $mform a MoodleForm object to setup
      */
+    // @codingStandardsIgnoreLine
     public function setupForm(&$mform) {
         parent::setupForm($mform);
         $group = $mform->getElement($this->_name . '_grp');
         if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
-            $groupElements = $group->getElements();
-            if (!empty($groupElements)) {
-                $dateselector = $groupElements[1]->getElements();
+            $groupelements = $group->getElements();
+            if (!empty($groupelements)) {
+                $dateselector = $groupelements[1]->getElements();
                 if (!empty($dateselector)) {
                     $isbefore = optional_param('timecreated_sdt', 0, PARAM_INT);
                     if ($isbefore && $isbefore['enabled']) {
