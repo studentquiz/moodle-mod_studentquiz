@@ -168,6 +168,7 @@ $string['lastattempt_right_label'] = 'Last attempt correct';
 $string['lastattempt_wrong'] = '✗';
 $string['lastattempt_wrong_label'] = 'Last attempt incorrect';
 $string['latest_column_name'] = 'Latest';
+$string['manager_anonym_fullname'] = 'Anonymous Manager';
 $string['messageprovider:approved'] = 'Question approved notification';
 $string['messageprovider:changed'] = 'Question changed notification';
 $string['messageprovider:commentadded'] = 'Comment added notification';

@@ -246,6 +246,9 @@ function mod_studentquiz_check_created_permission($cmid) {
  */
 
 function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module) {
+    // Get StudentQuiz.
+    $context = context_module::instance($module->id);
+    $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
 
     // Prepare message.
     $time = new DateTime('now', core_date::get_user_timezone_object());
@@ -277,6 +280,13 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
     // User who triggered the noticication.
     $data->actorname     = fullname($actor);
     $data->actorusername = $recepient->username;
+
+    // Set to anonymous student and manager if needed.
+    if ($studentquiz->anonymrank) {
+        $data->recepientname = get_string('creator_anonym_fullname', 'studentquiz');
+        $data->actorname = get_string('manager_anonym_fullname', 'studentquiz');
+    }
+
     return $data;
 }
 
