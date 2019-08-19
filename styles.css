@@ -274,6 +274,19 @@
     background-image: url([[pix:mod_studentquiz|star_empty_icon]]);
 }
 
+.path-mod-studentquiz .change-question-state {
+    display: block;
+}
+
+.path-mod-studentquiz .change-question-state select#menustatetype,
+.path-mod-studentquiz .change-question-state button#change_state {
+    margin-left: 10px;
+}
+
+.path-mod-studentquiz .change-question-state button#change_state {
+    margin-right: 10px;
+}
+
 .path-mod-studentquiz .pagination .form-control {
     width: 60px;
 }
