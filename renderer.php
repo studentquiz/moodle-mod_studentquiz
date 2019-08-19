@@ -1562,11 +1562,13 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     studentquiz_helper::STATE_HIDE => get_string('hide'),
                     studentquiz_helper::STATE_DELETE => get_string('delete')
             ];
+            $output .= html_writer::start_span('change-question-state');
             $output .= html_writer::tag('label', 'Change state', ['for' => 'statetype']);
             $output .= html_writer::select($states, 'statetype');
             $output .= html_writer::tag('button', 'Submit',
                     ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $questionid,
-                            'data-courseid' => $courseid, 'data-cmid' => $cmid]);
+                            'data-courseid' => $courseid, 'data-cmid' => $cmid, 'disabled' => 'disabled']);
+            $output .= html_writer::end_span();
             $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
         }
         return $output;
