@@ -1481,3 +1481,38 @@ function mod_studentquiz_delete_comment($commentid, $course, $module) {
     }
     return $success;
 }
+
+/**
+ * Compare and create new record for studentquiz_questions table if need. Only for Moodle version smaller than 3.7
+ *
+ * @param object $studentquiz StudentQuiz object
+ * @throws dml_exception
+ */
+function mod_studentquiz_compare_questions_data($studentquiz) {
+    global $DB, $CFG;
+    if ($CFG->branch >= 37) {
+        return;
+    }
+    $sql = "SELECT q.id
+              FROM {studentquiz} sq
+              JOIN {context} con ON con.instanceid = sq.coursemodule
+              JOIN {question_categories} qc ON qc.contextid = con.id
+              JOIN {question} q ON q.category = qc.id
+             WHERE q.hidden = 0
+                   AND q.parent = 0
+                   AND sq.coursemodule = :coursemodule
+                   AND qc.id = :categoryid
+                   AND q.id NOT IN (SELECT questionid FROM {studentquiz_question} WHERE state != 0)";
+
+    $params = [
+            'coursemodule' => $studentquiz->coursemodule,
+            'categoryid' => $studentquiz->categoryid
+    ];
+
+    $missingquestions = $DB->get_records_sql($sql, $params);
+    if ($missingquestions) {
+        foreach ($missingquestions as $missingquestion) {
+            mod_studentquiz_ensure_studentquiz_question_record($missingquestion->id, $studentquiz->coursemodule);
+        }
+    }
+}

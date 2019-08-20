@@ -54,8 +54,11 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/loadingicon'], functio
             submitStateButton.on('click', function() {
                 submitStateButton.attr('disabled', 'disabled');
                 var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
-                var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
-                LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
+                if (typeof LoadingIcon.addIconToContainerRemoveOnCompletion === 'function') {
+                    // Because core/loadingicon only available since Moodle 3.7.
+                    var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
+                    LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
+                }
                 var args = {
                     courseid: submitStateButton.attr('data-courseid'),
                     cmid: submitStateButton.attr('data-cmid'),
