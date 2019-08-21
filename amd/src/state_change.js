@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification', 'core/loadingicon'], function($, Ajax, Notification, LoadingIcon) {
+define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
 
     var t = {
 
@@ -54,11 +54,10 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/loadingicon'], functio
             submitStateButton.on('click', function() {
                 submitStateButton.attr('disabled', 'disabled');
                 var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
-                if (typeof LoadingIcon.addIconToContainerRemoveOnCompletion === 'function') {
-                    // Because core/loadingicon only available since Moodle 3.7.
+                require(['core/loadingicon'], function (LoadingIcon) {
                     var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
                     LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
-                }
+                });
                 var args = {
                     courseid: submitStateButton.attr('data-courseid'),
                     cmid: submitStateButton.attr('data-cmid'),
