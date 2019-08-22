@@ -87,7 +87,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
             return array('dl' => "LEFT JOIN (
-                                              SELECT ROUND(1 - AVG(correctattempts / attempts), 2) AS difficultylevel,
+                                              SELECT ROUND(1 - AVG(CAST(correctattempts AS DECIMAL) / CAST(attempts AS DECIMAL)), 2) AS difficultylevel,
                                                      questionid
                                                 FROM {studentquiz_progress}
                                                WHERE studentquizid = " . $this->studentquizid . "
@@ -100,7 +100,7 @@ class difficulty_level_column extends \core_question\bank\column_base {
      * @return array fieldname in array
      */
     public function get_required_fields() {
-        return array('dl.difficultylevel', 'ROUND(1 - (sp.correctattempts / sp.attempts),2) AS mydifficulty',
+        return array('dl.difficultylevel', 'ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)),2) AS mydifficulty',
             'sp.correctattempts AS mycorrectattempts');
     }
 
