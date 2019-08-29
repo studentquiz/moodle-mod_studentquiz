@@ -186,7 +186,7 @@ $string['migrate_studentquiz_short'] = 'Speed-up this question set';
 $string['migrated_successful'] = 'This activity has been migrated successfully!';
 $string['mine_column_name'] = 'Mine';
 $string['modulename'] = 'StudentQuiz';
-$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.<br><br>For more information read the <a href="https://studentquiz.hsr.ch/docs/">StudentQuiz documentation</a>.';
+$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.';
 $string['modulename_link'] = 'mod/studentquiz/view';
 $string['modulenameplural'] = 'StudentQuizzes';
 $string['more'] = 'More';
