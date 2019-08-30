@@ -289,6 +289,7 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
     $data->actorusername = $recepient->username;
 
     // Set to anonymous student and manager if needed.
+    $data->anonymrank = $studentquiz->anonymrank;
     if ($studentquiz->anonymrank) {
         $data->recepientname = get_string('creator_anonym_fullname', 'studentquiz');
         $data->actorname = get_string('manager_anonym_fullname', 'studentquiz');
@@ -460,6 +461,13 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
     // Courseid only for moodle >= 3.2.
     if ($CFG->version >= 2016120500) {
         $eventdata->courseid = $data->courseid;
+    }
+
+    // Set to anonymous student and manager if needed.
+    if ($data->anonymrank) {
+        $recipient->lastname = $submitter->lastname = '';
+        $submitter->firstname = get_string('manager_anonym_fullname', 'studentquiz');
+        $recipient->firstname = get_string('creator_anonym_fullname', 'studentquiz');
     }
 
     $eventdata->userfrom          = $submitter;
