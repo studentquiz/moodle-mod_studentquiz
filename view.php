@@ -98,6 +98,7 @@ echo $renderer->render_overview($view);
 
 $PAGE->requires->js_init_code($renderer->render_bar_javascript_snippet(), true);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'setFocus');
+$PAGE->requires->js_call_amd('mod_studentquiz/toggle_filter_checkbox', 'init');
 
 echo $OUTPUT->footer();
 

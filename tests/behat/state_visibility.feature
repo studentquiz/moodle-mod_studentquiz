@@ -114,7 +114,7 @@ Feature: Question states and visibility
     And I click on "Submit" "button"
     And I switch to the main window
 
-    And I click on "//span[text() = 'New']" "xpath_element"
+    And I click on "//a[text() = 'New']" "xpath_element"
     When I press "id_submitbutton"
     Then I should see "TF 04"
     And I should not see "TF 01"
@@ -122,7 +122,7 @@ Feature: Question states and visibility
     And I should not see "TF 03"
     And I click on "Reset" "button"
 
-    And I click on "//span[text() = 'Approved']" "xpath_element"
+    And I click on "//a[text() = 'Approved']" "xpath_element"
     And I press "id_submitbutton"
     And I should see "TF 02"
     And I should not see "TF 01"
@@ -130,7 +130,7 @@ Feature: Question states and visibility
     And I should not see "TF 04"
     And I click on "Reset" "button"
 
-    And I click on "//span[text() = 'Disapproved']" "xpath_element"
+    And I click on "//a[text() = 'Disapproved']" "xpath_element"
     And I press "id_submitbutton"
     And I should see "TF 01"
     And I should not see "TF 02"
@@ -138,7 +138,7 @@ Feature: Question states and visibility
     And I should not see "TF 04"
     And I click on "Reset" "button"
 
-    And I click on "//span[text() = 'Changed']" "xpath_element"
+    And I click on "//a[text() = 'Changed']" "xpath_element"
     And I press "id_submitbutton"
     And I should see "TF 03"
     And I should not see "TF 01"
