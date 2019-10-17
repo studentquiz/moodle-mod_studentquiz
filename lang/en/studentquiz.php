@@ -60,14 +60,14 @@ $string['difficulty_level_column_name'] = 'Difficulty';
 $string['difficulty_title'] = 'Difficulty bar';
 $string['emailapprovedbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been approved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been approved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 $string['emailapprovedsmall'] = 'Your question \'{$a->questionname}\' has been approved by {$a->actorname}.';
 $string['emailapprovedsubject'] = 'Question has been approved: {$a->questionname}';
 $string['emailchangedbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been modified by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been modified by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 $string['emailchangedsmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->actorname}.';
@@ -107,7 +107,7 @@ $string['emailminecommentdeletedsmall'] = 'Your comment to question \'{$a->quest
 $string['emailminecommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
 $string['emaildisapprovedbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been disapproved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been disapproved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 $string['emaildisapprovedsmall'] = 'Your question \'{$a->questionname}\' has been disapproved by {$a->actorname}.';
@@ -115,7 +115,7 @@ $string['emaildisapprovedsubject'] = 'Question has been disapproved: {$a->questi
 
 $string['emailhiddenbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been hidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been hidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 $string['emailhiddensmall'] = 'Your question \'{$a->questionname}\' has been hidden by {$a->actorname}.';
@@ -123,7 +123,7 @@ $string['emailhiddensubject'] = 'Question has been hidden: {$a->questionname}';
 
 $string['emailunhiddenbody'] = 'Dear {$a->recepientname},
 
-Your question \'{$a->questionname}\' in course \'{$a->coursename}\' in StudentQuiz activity \'{$a->modulename}\' has been unhidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
+Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been unhidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
 
 You can review this question at: {$a->questionurl}.';
 $string['emailunhiddensmall'] = 'Your question \'{$a->questionname}\' has been unhidden by {$a->actorname}.';
