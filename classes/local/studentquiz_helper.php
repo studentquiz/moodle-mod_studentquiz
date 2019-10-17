@@ -44,4 +44,16 @@ class studentquiz_helper {
     const STATE_HIDE = 4;
     const STATE_DELETE = 5;
 
+    /**
+     * Statename offers string representation for state codes. Probably only use for translation hints.
+     */
+    public static $statename = array(
+        self::STATE_DISAPPROVED => 'disapproved',
+        self::STATE_APPROVED => 'approved',
+        self::STATE_NEW => 'new',
+        self::STATE_CHANGED => 'changed',
+        self::STATE_HIDE => 'hidden',
+        self::STATE_DELETE => 'deleted',
+    );
+
 }

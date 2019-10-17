@@ -360,28 +360,18 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_state_column($question, $baseurl, $rowclasses) {
-        switch ($question->state) {
-            case studentquiz_helper::STATE_DISAPPROVED:
-                // Disapproved
-                $state = 'state_disapproved';
-                break;
-            case studentquiz_helper::STATE_APPROVED:
-                // Approved.
-                $state = 'state_approved';
-                break;
-            case studentquiz_helper::STATE_NEW:
-                // New.
-                $state = 'state_new';
-                break;
-            case studentquiz_helper::STATE_CHANGED:
-                // Changed.
-                $state = 'state_changed';
-                break;
-            default:
-                throw new coding_exception('Invalid question state');
+        if (!in_array($question->state, array(
+            studentquiz_helper::STATE_DISAPPROVED,
+            studentquiz_helper::STATE_APPROVED,
+            studentquiz_helper::STATE_NEW,
+            studentquiz_helper::STATE_CHANGED,
+        ))) {
+            throw new coding_exception('Invalid question state');
         }
-        $title = get_string('state_change_tooltip', 'studentquiz', get_string($state, 'studentquiz'));
-        $content = $this->output->pix_icon($state, '', 'studentquiz');
+
+        $statename = studentquiz_helper::$statename[$question->state];
+        $title = get_string('state_change_tooltip_'.$statename, 'studentquiz');
+        $content = $this->output->pix_icon('state_'.$statename, '', 'studentquiz');
 
         if (question_has_capability_on($question, 'editall')) {
             $url = new moodle_url($baseurl, [
