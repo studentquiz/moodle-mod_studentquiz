@@ -159,7 +159,7 @@ class studentquiz_user_filter_date extends user_filter_date {
             if (!empty($groupelements)) {
                 $dateselector = array();
                 foreach ($groupelements as $el) {
-                    if ($el instanceof MoodleQuickForm_date_selector) {
+                    if ($el->getType() == 'date_selector') {
                         $dateselector = $el->getElements();
                         break;
                     }
