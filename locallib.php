@@ -69,6 +69,17 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
             if ($studentquiz->category = question_get_default_category($contextid)) {
                 $studentquiz->categoryid = $studentquiz->category->id;
                 return $studentquiz;
+            } else {
+		// If we come here we have no question category for this module.
+                // Consequently we create a default category.
+                require_once($CFG->dirroot . '/question/tests/generator/lib.php');
+                $cqg = new core_question_generator();
+                $cdata = array(
+                    'name'      => 'Default for ' . $studentquiz->name,
+                );
+                $studentquiz->category = $cqg->create_question_category($cdata);
+                $studentquiz->categoryid = $studentquiz->category->id;
+                return $studentquiz;
             }
         } else {
             return $studentquiz;
