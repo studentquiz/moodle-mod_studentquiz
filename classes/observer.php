@@ -51,4 +51,29 @@ class mod_studentquiz_observer {
         }
     }
 
+    /**
+     * Observer for the even question_moved - Create new record for studentquiz_questions table.
+     *
+     * @param \core\event\question_moved $event
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function question_moved(\core\event\question_moved $event) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
+
+        $newcategory = $DB->get_record('question_categories', ['id' => $event->other['newcategoryid']]);
+        if (!$newcategory) {
+            print_error('invalidcategoryid', 'error');
+        }
+        $context = context::instance_by_id($newcategory->contextid);
+        if ($context->contextlevel == CONTEXT_MODULE) {
+            $cm = get_coursemodule_from_id(false, $context->instanceid);
+            if ($cm && $cm->modname == 'studentquiz') {
+                mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $context->instanceid);
+            }
+        }
+    }
+
 }

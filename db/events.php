@@ -29,5 +29,9 @@ $observers = [
         [
                 'eventname' => '\core\event\question_created',
                 'callback' => 'mod_studentquiz_observer::question_created'
+        ],
+        [
+                'eventname' => '\core\event\question_moved',
+                'callback' => 'mod_studentquiz_observer::question_moved'
         ]
 ];
