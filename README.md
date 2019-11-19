@@ -1,9 +1,9 @@
 # ![StudentQuiz](https://raw.githubusercontent.com/frankkoch/moodle-mod_studentquiz/master/pix/icon.svg?sanitize=true) StudentQuiz
 
-[![Build Status](https://travis-ci.org/frankkoch/moodle-mod_studentquiz.svg?branch=master)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
 [![Latest Release](https://img.shields.io/github/v/release/frankkoch/moodle-mod_studentquiz?sort=semver&color=orange)](https://github.com/frankkoch/moodle-mod_studentquiz/releases)
-[![PHP Support](https://img.shields.io/travis/php-v/frankkoch/moodle-mod_studentquiz/master)](https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/.travis.yml)
-[![Moodle Support](https://img.shields.io/badge/Moodle-%3E%3D%203.5-blue)](https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/.travis.yml)
+[![Build Status](https://travis-ci.org/frankkoch/moodle-mod_studentquiz.svg?branch=master)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
+[![PHP Support](https://img.shields.io/travis/php-v/frankkoch/moodle-mod_studentquiz/master)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
+[![Moodle Support](https://img.shields.io/badge/Moodle-%3E%3D%203.5-blue)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
 [![License GPL-3.0](https://img.shields.io/github/license/frankkoch/moodle-mod_studentquiz?color=lightgrey)](https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/frankkoch/moodle-mod_studentquiz)](https://github.com/frankkoch/moodle-mod_studentquiz/graphs/contributors)
 
