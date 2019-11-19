@@ -342,8 +342,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $output .= html_writer::empty_tag('br');
             $output .= html_writer::tag('span', $date, ['class' => 'date']);
         } else {
-            $author = user_get_users_by_id(array($question->createdby))[$question->createdby];
-            $output .= fullname($author);
+            $author = core_user::get_user($question->createdby);
+            if ($author) {
+                $output .= html_writer::tag('span', fullname($author));
+            } else {
+                // Cannot find the user. Leave it blank.
+                $output .= html_writer::tag('span', '');
+            }
             $output .= html_writer::empty_tag('br');
             $output .= html_writer::tag('span', $date, ['class' => 'date']);
         }
