@@ -39,9 +39,10 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             var changeStateButton = $(t.SELECTOR.CHANGE_STATE_BUTTON);
             var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
             var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
+            var lastSelectedState = stateChangeSelect.val();
 
             stateChangeSelect.on('change', function() {
-                if (stateChangeSelect.val() !== '') {
+                if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
                     stateValueInput.val(stateChangeSelect.val());
                     changeStateButton.removeAttr('disabled');
                     submitStateButton.removeAttr('disabled');
@@ -69,7 +70,9 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 promise[0].then(function(results) {
                     Notification.alert(results.status, results.message);
                     pendingPromise.resolve();
-                    submitStateButton.removeAttr('disabled');
+                    lastSelectedState = stateChangeSelect.val();
+                    // Reload the Studentquiz page.
+                    window.opener.location.reload();
                 }).fail(failure);
             });
         },

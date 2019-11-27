@@ -1558,7 +1558,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     studentquiz_helper::STATE_DELETE => get_string('delete')
             ];
             $output .= html_writer::start_span('change-question-state');
-            $output .= html_writer::tag('label', 'Change state', ['for' => 'statetype']);
+            $output .= html_writer::tag('label', get_string('state_toggle', 'studentquiz'), ['for' => 'statetype']);
             $output .= html_writer::select($states, 'statetype');
             $output .= html_writer::tag('button', 'Submit',
                     ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $questionid,
