@@ -365,16 +365,18 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_state_column($question, $baseurl, $rowclasses) {
-        if (!in_array($question->state, array(
+        var_dump(array($question->id, $question->state));
+
+        if (is_null($question->state) || $question->state === "" || !in_array(intval($question->state), array(
             studentquiz_helper::STATE_DISAPPROVED,
             studentquiz_helper::STATE_APPROVED,
             studentquiz_helper::STATE_NEW,
             studentquiz_helper::STATE_CHANGED,
         ))) {
-            throw new coding_exception('Invalid question state');
+            throw new coding_exception('Invalid question state `'.$question->state.'` for question `'.$question->id.'`');
         }
 
-        $statename = studentquiz_helper::$statename[$question->state];
+        $statename = studentquiz_helper::$statename[intval($question->state)];
         $title = get_string('state_change_tooltip_'.$statename, 'studentquiz');
         $content = $this->output->pix_icon('state_'.$statename, '', 'studentquiz');
 

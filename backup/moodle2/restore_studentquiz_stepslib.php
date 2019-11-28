@@ -188,9 +188,13 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         global $DB;
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
-        if (isset($data->approved)) {
-            $data->state = $data->approved;
-            unset($data->approved);
+        if (!isset($data->state)) {
+            if (isset($data->approved)) {
+                $data->state = $data->approved;
+                unset($data->approved);
+            } else {
+                $data->state = studentquiz_helper::STATE_APPROVED;
+            }
         }
         $DB->insert_record('studentquiz_question', $data);
     }

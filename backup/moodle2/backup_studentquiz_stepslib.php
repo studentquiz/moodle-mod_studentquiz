@@ -66,7 +66,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // StudentQuiz -> Question.
         $questions = new backup_nested_element('questions');
-        $question = new backup_nested_element('question', array('questionid'), array('approved'));
+        $question = new backup_nested_element('question', array('questionid'), array('state', 'hidden'));
         $questions->add_child($question);
         $studentquiz->add_child($questions);
 
