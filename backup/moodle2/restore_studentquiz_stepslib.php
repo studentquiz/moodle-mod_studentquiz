@@ -193,7 +193,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                 $data->state = $data->approved;
                 unset($data->approved);
             } else {
-                $data->state = studentquiz_helper::STATE_APPROVED;
+                $data->state = studentquiz_helper::STATE_NEW;
             }
         }
         $DB->insert_record('studentquiz_question', $data);
