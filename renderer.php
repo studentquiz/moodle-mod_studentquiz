@@ -366,8 +366,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function render_state_column($question, $baseurl, $rowclasses) {
         // Moodle doesn't process "empty" objects in restore. So questions from older backups can have no question state
-        // assigned. Need to figure out, if it's fine to handle them just as new or if the question table has to have an
-        // entry. Ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/172
+        // assigned. Need to figure out for the calculation, if it's fine to handle them just as new or if the question
+        // table has to have an entry. Ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/172
         if (is_null($question->state) || $question->state === "") {
             $question->state = studentquiz_helper::STATE_NEW;
         }
