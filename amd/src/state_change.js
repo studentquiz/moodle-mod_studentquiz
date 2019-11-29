@@ -22,26 +22,26 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notification) {
 
     var t = {
 
         SELECTOR: {
             STATE_SELECT: '#menustatetype',
-            CHANGE_STATE_BUTTON: 'div.singlebutton button.btn-primary',
+            CHANGE_STATE_BUTTON: 'div.singlebutton.continue_state_change input[type=submit]',
             STATE_VALUE_INPUT: 'input[name=state]',
             SUBMIT_STATE_BUTTON: '#change_state',
             CHANGE_STATE_NOTIFICATION: 'span.change-question-state'
         },
 
-        init: function() {
+        init: function () {
             var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
             var changeStateButton = $(t.SELECTOR.CHANGE_STATE_BUTTON);
             var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
             var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
             var lastSelectedState = stateChangeSelect.val();
 
-            stateChangeSelect.on('change', function() {
+            stateChangeSelect.on('change', function () {
                 if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
                     stateValueInput.val(stateChangeSelect.val());
                     changeStateButton.removeAttr('disabled');
@@ -52,7 +52,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 }
             });
 
-            submitStateButton.on('click', function() {
+            submitStateButton.on('click', function () {
                 submitStateButton.attr('disabled', 'disabled');
                 var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
                 require(['core/loadingicon'], function (LoadingIcon) {
@@ -66,8 +66,8 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     state: stateChangeSelect.val()
                 };
                 var failure;
-                var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
-                promise[0].then(function(results) {
+                var promise = Ajax.call([{ methodname: 'mod_studentquiz_set_state', args: args }], true, true);
+                promise[0].then(function (results) {
                     Notification.alert(results.status, results.message);
                     pendingPromise.resolve();
                     lastSelectedState = stateChangeSelect.val();
@@ -84,13 +84,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
          * @param {string} pendingKey JSPending key
          * @returns {*|jQuery|{}} Pending Promise
          */
-        addPendingJSPromise: function(pendingKey) {
+        addPendingJSPromise: function (pendingKey) {
             M.util.js_pending(pendingKey);
 
             var pendingPromise = $.Deferred();
-            pendingPromise.then(function() {
-                    M.util.js_complete(pendingKey);
-                    return arguments[0];
+            pendingPromise.then(function () {
+                M.util.js_complete(pendingKey);
+                return arguments[0];
             }).catch(Notification.exception);
 
             return pendingPromise;

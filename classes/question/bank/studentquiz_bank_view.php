@@ -441,6 +441,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
                 $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
                 $continue->disabled = true;
+                $continue->class .= ' continue_state_change';
 
                 $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz', $questionnames), $continue, $baseurl);
             }
