@@ -29,17 +29,15 @@ Feature: Restore of studentquizzes in moodle exports contain question answers
     And I am on "<course>" course homepage
     And I follow "<studentquiz>"
     When I navigate to "Ranking" in current page administration
-    Then I should see "<pos_1_correct_answered_points>" in the ".rankingtable tbody tr:nth-child(1) td.c6" "css_element"
-    And I should see "<pos_1_total_points>" in the ".rankingtable tbody tr:nth-child(1) td.c2" "css_element"
-    And I should see "<pos_2_correct_answered_points>" in the ".rankingtable tbody tr:nth-child(2) td.c6" "css_element"
-    And I should see "<pos_2_total_points>" in the ".rankingtable tbody tr:nth-child(2) td.c2" "css_element"
+    Then "1" row "Points for latest correct attemps" column of "rankingtable" table should contain "<pos_1_correct_answered_points>"
+    And "1" row "Total Points" column of "rankingtable" table should contain "<pos_1_total_points>"
+    And "2" row "Points for latest correct attemps" column of "rankingtable" table should contain "<pos_2_correct_answered_points>"
+    And "2" row "Total Points" column of "rankingtable" table should contain "<pos_2_total_points>"
 
     Examples:
-      | file                                      | course              | studentquiz   | pos_1_correct_answered_points | pos_1_total_points | pos_2_correct_answered_points | pos_2_total_points |
-# TODO: early before should be checked/supported? This is pretty old and seems not to work currently.
-#      | backup-moodle2-aggregated-earlybefore.mbz | Course One          | StudentQuiz 1 | 2                             | 12                 | 2                             | 11                 |
-      | backup-moodle2-aggregated_before.mbz      | aggregated before   | SQbefore      | 2                             | 32                 | 4                             | 23                 |
-      | backup-moodle2-aggregated-during-0.mbz    | aggregated during 0 | SQduring0     | 4                             | 28                 | 2                             | 20                 |
-      | backup-moodle2-aggregated-during-1.mbz    | aggregated during 1 | SQduring1     | 4                             | 28                 | 2                             | 20                 |
+      | file                                   | course              | studentquiz | pos_1_correct_answered_points | pos_1_total_points | pos_2_correct_answered_points | pos_2_total_points |
+      | backup-moodle2-aggregated-before.mbz   | aggregated before   | SQbefore    | 2                             | 32                 | 4                             | 23                 |
+      | backup-moodle2-aggregated-during-0.mbz | aggregated during 0 | SQduring0   | 4                             | 28                 | 2                             | 20                 |
+      | backup-moodle2-aggregated-during-1.mbz | aggregated during 1 | SQduring1   | 4                             | 28                 | 2                             | 20                 |
 # after does not yet exist, must be added once aggregated field is removed from tbl_studentquiz - if that ever will happen
-#       | backup-moodle2-aggregated-after.mbz          | Course One        | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |
+# | backup-moodle2-aggregated-after.mbz       | Course One          | StudentQuiz 1 | 0                             | 0                  | 0                             | 0                  |

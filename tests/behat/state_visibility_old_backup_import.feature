@@ -16,9 +16,9 @@ Feature: Restore of studentquizzes in moodle exports contain old approved column
     Given I am on "Course 1" course homepage
     And I navigate to "Restore" in current page administration
     And I press "Manage backup files"
-    And I upload "mod/studentquiz/tests/fixtures/backup-moodle2-aggregated_before.mbz" file to "Files" filemanager
+    And I upload "mod/studentquiz/tests/fixtures/backup-moodle2-aggregated-before.mbz" file to "Files" filemanager
     And I press "Save changes"
-    And I restore "backup-moodle2-aggregated_before.mbz" backup into a new course using this options:
+    And I restore "backup-moodle2-aggregated-before.mbz" backup into a new course using this options:
     And I am on "aggregated before" course homepage
     When I follow "SQbefore"
     Then I should see "first"
