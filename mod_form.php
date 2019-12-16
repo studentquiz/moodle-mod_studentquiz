@@ -77,6 +77,12 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
+        // Field publish new questions.
+        $mform->addElement('checkbox', 'publishnewquestion', get_string('settings_publish_new_questions', 'studentquiz'));
+        $mform->setType('publishnewquestion', PARAM_INT);
+        $mform->addHelpButton('publishnewquestion', 'settings_publish_new_questions', 'studentquiz');
+        $mform->setDefault('publishnewquestion', 1);
+
         $mform->addElement('header', 'sectionranking', get_string('settings_section_header_ranking', 'studentquiz'));
 
         // Field anonymous Ranking.
@@ -85,12 +91,6 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setType('anonymrank', PARAM_INT);
         $mform->addHelpButton('anonymrank', 'settings_anonymous', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
-
-        // Field publish new questions.
-        $mform->addElement('checkbox', 'publishnewquestion', get_string('settings_publish_new_questions', 'studentquiz'));
-        $mform->setType('publishnewquestion', PARAM_INT);
-        $mform->addHelpButton('publishnewquestion', 'settings_publish_new_questions', 'studentquiz');
-        $mform->setDefault('publishnewquestion', 1);
 
         // Select question behaviour. Removed in v3.0.0, unless a use-case needs this option.
         // Since there's no studentquiz behavior anymore, we could offer a selection.
