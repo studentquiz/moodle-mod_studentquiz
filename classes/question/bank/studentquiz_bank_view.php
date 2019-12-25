@@ -733,10 +733,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
                 true, 'createdby');
         } else {
-            $this->fields[] = new \studentquiz_user_filter_text('firstname', get_string('filter_label_firstname', 'studentquiz'),
-                true, 'firstname');
-            $this->fields[] = new \studentquiz_user_filter_text('lastname', get_string('filter_label_surname', 'studentquiz'),
-                true, 'lastname');
+            $this->fields[] = new \studentquiz_user_filter_text('firstname', get_string('firstname'), true, 'firstname');
+            $this->fields[] = new \studentquiz_user_filter_text('lastname', get_string('lastname'), true, 'lastname');
         }
 
         $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
