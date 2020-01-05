@@ -242,4 +242,3 @@ Feature: Question states and visibility
     And I navigate to "Edit settings" in current page administration
     When I expand all fieldsets
     Then the "Question publishing" "select" should be disabled
-
