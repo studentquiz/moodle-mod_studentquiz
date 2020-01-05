@@ -66,10 +66,14 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
     global $DB;
     if ($studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $cmid))) {
         if ($contextid !== false) {
-            if ($studentquiz->category = question_get_default_category($contextid)) {
-                $studentquiz->categoryid = $studentquiz->category->id;
-                return $studentquiz;
-            }
+            // It seems there are studentquiz instances missing the default category, we've not expected that case
+            // so far. The question bank page calls the function question_make_default_categories() through
+            // question_build_edit_resources() on every page view so we'd honor that behavior here as well now.
+            // The function question_make_default_categories() will return the existing category if it exists.
+            $context = \context::instance_by_id($contextid);
+            $studentquiz->category = question_make_default_categories(array($context));
+            $studentquiz->categoryid = $studentquiz->category->id;
+            return $studentquiz;
         } else {
             return $studentquiz;
         }
