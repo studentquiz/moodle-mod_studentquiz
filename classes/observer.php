@@ -34,7 +34,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_studentquiz_observer {
 
     /**
-     * Observer for the even question_created - Create new record for studentquiz_questions table.
+     * Observer for the event question_created - Create new record for studentquiz_question table.
      *
      * @param \core\event\question_created $event
      * @throws moodle_exception
@@ -52,7 +52,8 @@ class mod_studentquiz_observer {
     }
 
     /**
-     * Observer for the even question_moved - Create new record for studentquiz_questions table.
+     * Observer for the event question_moved - Create new record for studentquiz_question table if the question is moved
+     * into a studenquiz question category.
      *
      * @param \core\event\question_moved $event
      * @throws coding_exception
@@ -72,6 +73,46 @@ class mod_studentquiz_observer {
             $cm = get_coursemodule_from_id(false, $context->instanceid);
             if ($cm && $cm->modname == 'studentquiz') {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $context->instanceid);
+            }
+        }
+    }
+
+    /**
+     * Observer for the event question_updated - Update record in studentquiz_question table.
+     *
+     * @param \core\event\question_updated $event
+     * @throws coding_exception
+     * @throws moodle_exception
+     */
+    public static function question_updated(\core\event\question_updated $event) {
+        global $CFG;
+        require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
+        if ($event->contextlevel == CONTEXT_MODULE) {
+            $modinfo = get_fast_modinfo($event->courseid);
+            $cm = $modinfo->get_cm($event->contextinstanceid);
+            if ($cm->modname == 'studentquiz') {
+                var_dump('question_updated', $event);
+                // TODO: shouldn't this change the state of the question to "changed"?
+            }
+        }
+    }
+
+    /**
+     * Observer for the event question_deleted - Remove record from the studentquiz_question table.
+     *
+     * @param \core\event\question_deleted $event
+     * @throws coding_exception
+     * @throws dml_exception
+     * @throws moodle_exception
+     */
+    public static function question_deleted(\core\event\question_deleted $event) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
+        if ($event->contextlevel == CONTEXT_MODULE) {
+            $modinfo = get_fast_modinfo($event->courseid);
+            $cm = $modinfo->get_cm($event->contextinstanceid);
+            if ($cm->modname == 'studentquiz') {
+                $DB->delete_records('studentquiz_question', array('questionid' => $event->objectid));
             }
         }
     }

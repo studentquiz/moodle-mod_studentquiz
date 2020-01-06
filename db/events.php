@@ -33,5 +33,18 @@ $observers = [
         [
                 'eventname' => '\core\event\question_moved',
                 'callback' => 'mod_studentquiz_observer::question_moved'
-        ]
+        ],
+        [
+                'eventname' => '\core\event\question_updated',
+                'callback' => 'mod_studentquiz_observer::question_updated'
+        ],
+        [
+                'eventname' => '\core\event\question_deleted',
+                'callback' => 'mod_studentquiz_observer::question_deleted'
+        ],
+        // Unfortunately the imported event holds no information about which question ids got imported.
+        // [
+        //         'eventname' => '\core\event\questions_imported',
+        //         'callback' => 'mod_studentquiz_observer::questions_imported'
+        // ]
 ];
