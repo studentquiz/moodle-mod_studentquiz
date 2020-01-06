@@ -186,8 +186,10 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
     protected function process_question_meta($data) {
         global $DB;
+
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
+
         if (!isset($data->state)) {
             if (isset($data->approved)) {
                 $data->state = $data->approved;
@@ -196,6 +198,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                 $data->state = studentquiz_helper::STATE_NEW;
             }
         }
+
+        if (!isset($data->hidden)) {
+            $data->hidden = 0;
+        }
+
         $DB->insert_record('studentquiz_question', $data);
     }
 
@@ -235,7 +242,10 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         mod_studentquiz_fix_wrong_parent_in_question_categories();
         // Migrate old quiz usage if needed (the function does the checking).
         mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
-        // Migrate progress from quiz usage to internal table
+        // Migrate progress from quiz usage to internal table.
         mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($this->get_courseid());
+        // Workaround setting default question state if no state data is available.
+        // ref: https://tracker.moodle.org/browse/MDL-67406
+        mod_studentquiz_fix_all_missing_question_state_after_restore($this->get_courseid());
     }
 }

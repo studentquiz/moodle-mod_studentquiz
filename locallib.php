@@ -1247,19 +1247,30 @@ function mod_studentquiz_migrate_old_quiz_usage($courseorigid=null) {
  *
  * @param int $id question id
  * @param int $cmid The course_module id
+ * @param bool $honorpublish Honor the setting publishnewquestions
+ * @param bool $hidden If the question should be hidden, only used if $honorpublish is false
  */
-function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid) {
+function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpublish = true, $hidden = true) {
     global $DB;
+
     // Check if record exist.
     if (!$DB->count_records('studentquiz_question', array('questionid' => $id)) ) {
         $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
         $params = [
-                'questionid' => $id,
-                'state' => studentquiz_helper::STATE_NEW
+            'questionid' => $id,
+            'state' => studentquiz_helper::STATE_NEW
         ];
-        if (isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion) {
-            $params['hidden'] = 1;
+
+        if ($honorpublish) {
+            if (isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion) {
+                $params['hidden'] = 1;
+            }
+        } else {
+            if ($hidden) {
+                $params['hidden'] = 1;
+            }
         }
+
         $DB->insert_record('studentquiz_question', (object) $params);
     }
 }
@@ -1490,9 +1501,11 @@ function mod_studentquiz_delete_comment($commentid, $course, $module) {
  * Compare and create new record for studentquiz_questions table if need. Only for Moodle version smaller than 3.7
  *
  * @param object $studentquiz StudentQuiz object
+ * @param bool $honorpublish Honor the setting publishnewquestions
+ * @param bool $hidden If the question should be hidden, only used if $honorpublish is false
  * @throws dml_exception
  */
-function mod_studentquiz_compare_questions_data($studentquiz) {
+function mod_studentquiz_compare_questions_data($studentquiz, $honorpublish = true, $hidden = true) {
     global $DB, $CFG;
     if ($CFG->branch >= 37) {
         return;
@@ -1516,7 +1529,46 @@ function mod_studentquiz_compare_questions_data($studentquiz) {
     $missingquestions = $DB->get_records_sql($sql, $params);
     if ($missingquestions) {
         foreach ($missingquestions as $missingquestion) {
-            mod_studentquiz_ensure_studentquiz_question_record($missingquestion->id, $studentquiz->coursemodule);
+            mod_studentquiz_ensure_studentquiz_question_record(
+                $missingquestion->id, $studentquiz->coursemodule, $honorpublish, $hidden
+            );
         }
+    }
+}
+
+/**
+ * Adds the default state to questions for restores since there's a bug in the moodle code.
+ * ref: https://tracker.moodle.org/browse/MDL-67406
+ *
+ * Finds all the questions missing the state information and writes the default state for imports
+ * into the database.
+ *
+ * @throws Throwable
+ * @throws coding_exception
+ * @throws dml_exception
+ * @throws dml_transaction_exception
+ * @param int|null $courseorigid
+ */
+function mod_studentquiz_fix_all_missing_question_state_after_restore($courseorigid=null) {
+    global $DB;
+
+    $params = array();
+    if (!empty($courseorigid)) {
+        $params['course'] = $courseorigid;
+    }
+    $studentquizes = $DB->get_records('studentquiz', $params);
+
+    $transaction = $DB->start_delegated_transaction();
+
+    try {
+        foreach ($studentquizes as $studentquiz) {
+            $context = \context_module::instance($studentquiz->coursemodule);
+            $studentquiz = mod_studentquiz_load_studentquiz($studentquiz->coursemodule, $context->id);
+            mod_studentquiz_compare_questions_data($studentquiz, false, false);
+        }
+        $DB->commit_delegated_transaction($transaction);
+    } catch (Exception $e) {
+        $DB->rollback_delegated_transaction($transaction, $e);
+        throw new Exception($e->getMessage());
     }
 }
