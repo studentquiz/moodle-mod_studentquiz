@@ -1519,11 +1519,61 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $output .= html_writer::end_span();
             $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
         }
-        return $output;
+        return \html_writer::div($output, 'studentquiz_behaviour');
+    }
+
+    /**
+     * Render navigation bar of attempt page.
+     *
+     * @param bool $hasprevious
+     * @param bool $hasnext
+     * @param bool $hasanswered
+     * @param bool $canfinish
+     * @return string
+     */
+    public function render_navigation_bar($hasprevious, $hasnext, $hasanswered, $canfinish) {
+
+        $col1content = '&nbsp;';
+        if ($hasprevious) {
+            $col1content = html_writer::empty_tag('input', [
+                    'type' => 'submit',
+                    'name' => 'previous',
+                    'value' => get_string('previous_button', 'studentquiz'),
+                    'class' => 'btn btn-primary'
+            ]);
+        }
+
+        $content1 = html_writer::div(html_writer::div($col1content, 'pull-left'), 'col-md-4');
+
+        // Not has rated, is done using javascript.
+        $col2content = '';
+        if ($canfinish && ($hasnext || !$hasanswered)) {
+            $col2content .= html_writer::empty_tag('input', [
+                    'type' => 'submit', 'name' => 'finish',
+                    'value' => get_string('abort_button', 'studentquiz'),
+                    'class' => 'btn'
+            ]);
+        }
+
+        $content2 = html_writer::div(html_writer::div($col2content, 'mdl-align'), 'col-md-4');
+
+        $col3content = '';
+        if ($hasanswered) {
+            $strbutton = $hasnext ? get_string('next_button', 'studentquiz') : get_string('finish_button', 'studentquiz');
+            $col3content .= html_writer::empty_tag('input', [
+                    'type' => 'submit',
+                    'name' => $hasnext ? 'next' : 'finish',
+                    'value' => $strbutton,
+                    'class' => 'btn btn-primary'
+            ]);
+        }
+        $content3 = html_writer::div(html_writer::div($col3content, 'pull-right'), 'col-md-4');
+
+        return html_writer::div($content1 . $content2 . $content3, 'mod-studentquiz-attempt-nav row');
     }
 }
 
-class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
+class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
 
     /**
      * Get quiz admin statistic view
