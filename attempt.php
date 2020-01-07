@@ -222,69 +222,49 @@ $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cm
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the state change select box.
-$html .= $output->render_state_choice($question->id, $course->id, $cmid);
+$statechangehtml = $output->render_state_choice($question->id, $course->id, $cmid);
+$navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $hasanswered, $canfinish);
 
-// Output the rating.
+// Change state will always first thing below navigation.
+$orders  = [
+    $navigationhtml,
+    $statechangehtml
+];
+
 if ($hasanswered) {
-    $html .= $output->render_rate($question->id, $studentquiz->forcerating);
-}
-
-// Finish the question form.
-$html .= html_writer::start_tag('div', array('class' => 'mod-studentquiz-attempt-nav row'));
-$html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
-$html .= html_writer::start_tag('div', array('class' => 'pull-left'));
-if ($hasprevious) {
-    $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'previous',
-            'value' => get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
-} else {
-    $html .= '&nbsp;';
-}
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
-
-$html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
-$html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
-
-// Not has rated, is done using javascript.
-if ($canfinish && ($hasnext || !$hasanswered)) {
-    $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'finish',
-            'value' => get_string('abort_button', 'studentquiz'), 'class' => 'btn'));
-}
-
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
-$html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
-$html .= html_writer::start_tag('div', array('class' => 'pull-right'));
-
-// And not hasrated, but done using javascript as not showing the next button seems not intuitive.
-if ($hasanswered) {
-    if ($hasnext) {
-        $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'next',
-                'value' => get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));
-    } else { // Finish instead of next on the last question.
-        $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'finish',
-                'value' => get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+    // Get output the rating.
+    $ratinghtml = $output->render_rate($question->id, $studentquiz->forcerating);
+    // Get output the comments.
+    $commenthtml = $output->render_comment($cmid, $question->id, $userid, $highlight);
+    // If force rating and commenting, then it will above navigation.
+    if ($studentquiz->forcerating && $studentquiz->forcecommenting) {
+         $orders = array_merge([
+             $ratinghtml,
+             $commenthtml
+         ], $orders);
+    } else {
+        // If force rating, then it will be render first.
+        if ($studentquiz->forcerating) {
+            array_unshift($orders, $ratinghtml);
+        } else {
+            $orders[] = $ratinghtml;
+        }
+        // If force commenting, then it will be render first.
+        if ($studentquiz->forcecommenting) {
+            array_unshift($orders, $commenthtml);
+        } else {
+            $orders[] = $commenthtml;
+        }
     }
 }
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
+
+foreach ($orders as $v) {
+    $html .= $v;
+}
 
 $html .= html_writer::end_tag('form');
 
-// Output the comments.
-if ($hasanswered) {
-    $html .= $output->render_comment($cmid, $question->id, $userid, $highlight);
-}
-
-
 echo $html;
-
-// Display the settings form.
 
 echo $OUTPUT->footer();
 
