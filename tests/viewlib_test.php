@@ -26,6 +26,7 @@ defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
 global $CFG;
 require_once($CFG->dirroot . '/mod/studentquiz/viewlib.php');
+require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 
 /**
  * Unit tests for (some of) mod/studentquiz/viewlib.php.
@@ -138,5 +139,45 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     public function tearDown() {
         parent::tearDown();
         $this->resetAfterTest();
+    }
+
+    /**
+     * Test mod_studentquiz_ensure_question_capabilities function.
+     */
+    public function test_mod_studentquiz_ensure_question_capabilities() {
+        $this->resetAfterTest();
+        $user = $this->getDataGenerator()->create_user();
+        $course = $this->getDataGenerator()->create_course();
+        $roleid = $this->getDataGenerator()->create_role();
+        $context = \context_system::instance();
+        $studentquiz = $this->getDataGenerator()->create_module('studentquiz',
+                ['course' => $course->id], ['anonymrank' => true]);
+        $contextstudentquiz = context_module::instance($studentquiz->coursemodule);
+        $questioncap = [
+                'moodle/question:add',
+                'moodle/question:editmine',
+                'moodle/question:editall',
+                'moodle/question:viewmine',
+                'moodle/question:viewall',
+                'moodle/question:movemine',
+                'moodle/question:moveall'
+        ];
+        $haveonecap = false;
+
+        $this->getDataGenerator()->role_assign($roleid, $user->id, $context->id);
+        $this->setUser($user);
+        assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
+        assign_capability('mod/studentquiz:previewothers', CAP_ALLOW, $roleid, $context, true);
+        assign_capability('mod/studentquiz:view', CAP_ALLOW, $roleid, $context, true);
+
+        mod_studentquiz_ensure_question_capabilities($context);
+
+        foreach ($questioncap as $cap) {
+            if (has_capability($cap, $contextstudentquiz)) {
+                $haveonecap = true;
+                break;
+            }
+        }
+        $this->assertTrue($haveonecap);
     }
 }
