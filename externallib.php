@@ -56,6 +56,7 @@ class mod_studentquiz_external extends external_api {
      */
     public static function change_question_state($courseid, $cmid, $questionid, $state) {
         global $PAGE;
+
         if ($state == studentquiz_helper::STATE_HIDE) {
             $type = 'hidden';
             $value = 1;
@@ -66,7 +67,14 @@ class mod_studentquiz_external extends external_api {
             $type = 'state';
             $value = $state;
         }
+
         mod_studentquiz_change_state_visibility($questionid, $type, $value);
+
+        // Additionally always unhide the question when it got approved
+        if ($state == studentquiz_helper::STATE_APPROVED) {
+            mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
+        }
+
         $course = get_course($courseid);
         $cm = get_coursemodule_from_id('studentquiz', $cmid);
         $context = context_module::instance($cmid);

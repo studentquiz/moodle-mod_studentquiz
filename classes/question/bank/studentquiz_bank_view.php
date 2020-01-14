@@ -251,8 +251,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
                                 $type = 'state';
                                 $value = $state;
                             }
+
                             mod_studentquiz_change_state_visibility($questionid, $type, $value);
                             mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
+
+                            // Additionally always unhide the question when it got approved
+                            if ($state == studentquiz_helper::STATE_APPROVED) {
+                                mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
+                            }
                         }
                     }
                     $this->baseurl->remove_params('approveselected');
