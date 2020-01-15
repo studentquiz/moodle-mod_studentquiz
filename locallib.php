@@ -105,7 +105,7 @@ function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $st
  */
 function mod_studentquiz_change_state_visibility($questionid, $type, $value) {
     global $DB;
-    
+
     if ($type == 'deleted') {
         $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
     } else {
