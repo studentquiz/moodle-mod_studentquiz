@@ -29,6 +29,7 @@ cache:
 # Moodle 3.5: php7.0, php7.1, php7.2 (exp)
 # Moodle 3.6: php7.0, php7.1, php7.2 (exp), php7.3 (dev)
 # Moodle 3.7: php7.1, php7.2, php7.3
+# Moodle 3.8: php7.1, php7.2, php7.3
 # lim: limited, exp: expected, dev: non-production
 # earlier versions of Moodle and php are not included, as support was dropped
 
@@ -40,12 +41,15 @@ env:
   - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
   - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+  - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
 
 matrix:
   include:
     # Only Moodle 37 and onwards has php 7.3 support
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
@@ -53,6 +57,8 @@ matrix:
       env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
     # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
     # TODO: Somehow behat doesn't run when mariadb is in use, all other stuff do
     # - php: 7.1
