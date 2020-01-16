@@ -79,7 +79,7 @@ Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\
 The comment is: \'{$a->commenttext}\'
 
 You can review this question at: {$a->questionurl}.';
-$string['emailcommentaddedsmall'] = 'Your question \'{$a->questionname}\' has been commented by {$a->username}.';
+$string['emailcommentaddedsmall'] = 'Your question \'{$a->questionname}\' has been commented by {$a->actorname}.';
 $string['emailcommentaddedsubject'] = 'Question has been commented: {$a->questionname}';
 
 $string['emailcommentdeletedbody'] = 'Dear {$a->recepientname},
