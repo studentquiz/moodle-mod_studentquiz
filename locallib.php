@@ -288,7 +288,7 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
 
     // User who triggered the noticication.
     $data->actorname     = fullname($actor);
-    $data->actorusername = $recepient->username;
+    $data->actorusername = $actor->username;
 
     // Set to anonymous student and manager if needed.
     if ($studentquiz->anonymrank) {
@@ -448,22 +448,13 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
  */
 function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
     global $CFG;
-    // Recipient info for template.
-    $data->useridnumber = $recipient->idnumber;
-    $data->username     = fullname($recipient);
-    $data->userusername = $recipient->username;
 
     // Prepare the message.
     $eventdata = new \core\message\message();
     $eventdata->component         = 'mod_studentquiz';
     $eventdata->name              = $event;
     $eventdata->notification      = 1;
-
-    // Courseid only for moodle >= 3.2.
-    if ($CFG->version >= 2016120500) {
-        $eventdata->courseid = $data->courseid;
-    }
-
+    $eventdata->courseid          = $data->courseid;
     $eventdata->userfrom          = $submitter;
     $eventdata->userto            = $recipient;
     $eventdata->subject           = get_string('email' . $event . 'subject', 'studentquiz', $data);
