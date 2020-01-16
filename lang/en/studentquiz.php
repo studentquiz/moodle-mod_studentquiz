@@ -409,3 +409,5 @@ $string['studentquizname_help'] = 'The name of this StudentQuiz Activity';
 $string['submissionendbeforestart'] = 'Submissions deadline can not be specified before the open for submissions date';
 $string['tags'] = 'Tags';
 $string['unapprove'] = 'Unapprove';
+$string['filter_label_question_creation_item'] = '{$a->creationtext} {$a->rowtext} {$a->inputtext}';
+$string['filter_label_question_creation_item_inputtext'] = '{$a->inputtext} {$a->inputtype}';

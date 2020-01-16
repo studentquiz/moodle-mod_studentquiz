@@ -24,6 +24,19 @@
 define(['jquery', 'core/key_codes'], function($, keyCodes) {
     var t = {
 
+        SELECTOR: {
+            TIME_EDT: {
+                CALENDAR: "a[name='timecreated_edt[calendar]",
+                SELECT_DAY_CALENDAR: "select[name='timecreated_edt[day]",
+                INPUT: "input[name='timecreated_edt[enabled]']"
+            },
+            TIME_SDT: {
+                CALENDAR: "a[name='timecreated_sdt[calendar]",
+                SELECT_DAY_CALENDAR: "select[name='timecreated_sdt[day]",
+                INPUT: "input[name='timecreated_sdt[enabled]']"
+            }
+        },
+
         /**
          * Elements (jQuery) are depend on hidden checkboxes.
          * They will disable if the checkbox is checked.
@@ -59,6 +72,9 @@ define(['jquery', 'core/key_codes'], function($, keyCodes) {
                     t.linkToggleHandler($(this));
                 }
             });
+
+            // Init.
+            t.initCalendarTabIndex();
         },
 
         /**
@@ -105,6 +121,40 @@ define(['jquery', 'core/key_codes'], function($, keyCodes) {
             }
 
             return false;
+        },
+
+        /**
+         * Init Calendar Tab Index, should not tab-able when checkbox is not checked.
+         */
+        initCalendarTabIndex: function() {
+            $(t.SELECTOR.TIME_SDT.INPUT).change(function() {
+                var calendar = $(t.SELECTOR.TIME_SDT.CALENDAR);
+                var focus = $(t.SELECTOR.TIME_SDT.SELECT_DAY_CALENDAR);
+                var isCheck = $(this).is(":checked");
+                t.toggleCalendarTabIndex(calendar, focus, isCheck);
+            });
+            $(t.SELECTOR.TIME_EDT.INPUT).change(function() {
+                var calendar = $(t.SELECTOR.TIME_EDT.CALENDAR);
+                var focus = $(t.SELECTOR.TIME_EDT.SELECT_DAY_CALENDAR);
+                var isCheck = $(this).is(":checked");
+                t.toggleCalendarTabIndex(calendar, focus, isCheck);
+            });
+        },
+
+        /**
+         * Toggle tab index for calendar.
+         *
+         * @param {jQuery} calendar
+         * @param {jQuery} focusElement
+         * @param {Boolean} isCheck
+         */
+        toggleCalendarTabIndex: function(calendar, focusElement, isCheck) {
+            if (isCheck) {
+                calendar.removeAttr('tabindex');
+                focusElement.focus();
+            } else {
+                calendar.attr('tabindex', -1);
+            }
         }
     };
 

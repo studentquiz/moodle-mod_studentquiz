@@ -186,10 +186,107 @@ class studentquiz_user_filter_date extends user_filter_date {
                         }
                     }
                 }
+                $this->screen_reader_helper($group, $groupelements);
             }
         }
     }
 
+    /**
+     * Improve screen reader.
+     *
+     * @param MoodleQuickForm_group $group
+     * @param array $groupelements
+     */
+    private function screen_reader_helper(MoodleQuickForm_group $group, array $groupelements) {
+
+        /** @var MoodleQuickForm_date_selector[] $dategroups */
+        $dategroups = [];
+
+        // Define variable for "is after", "is before" text.
+        $isafter = $isbefore = null;
+
+        // Loop through group elements to find date_selector array.
+        // Has the text "is after", "is before" in array too.
+        foreach ($groupelements as $el) {
+            // First get all date groups in group elements.
+            if ($el->getType() == 'date_selector') {
+                $dategroups[] = $el;
+                continue;
+            }
+            // Get 'is after' text.
+            if ($el instanceof MoodleQuickForm_static && $el->getName() === $this->_name . '_s2') {
+                $isafter = strip_tags($el->_text);
+                continue;
+            }
+            // Get 'is before' text.
+            if ($el instanceof MoodleQuickForm_static && $el->getName() === $this->_name . '_s5') {
+                $isbefore = strip_tags($el->_text);
+                continue;
+            }
+        }
+
+        // Loop through date_selector array.
+        // Some inputs don't have label + title correct, fix them.
+        foreach ($dategroups as $dategroup) {
+            $inputs = $dategroup->getElements();
+
+            // First need to find the checkbox (to check calendar tab-able).
+            $checkbox = false;
+            foreach ($inputs as $input) {
+                if ($input instanceof MoodleQuickForm_checkbox) {
+                    $checkbox = $input;
+                    break;
+                }
+            }
+
+            foreach ($inputs as $input) {
+                $rowtext = strpos($dategroup->getName(), '_sdt') ? $isafter : $isbefore;
+                $creationtext = $group->getLabel();
+                if ($input instanceof HTML_QuickForm_link) {
+                    $attrs = $input->getAttributes();
+                    $attrs['alt'] = $this->generate_creation_label($creationtext, $rowtext, $input->getName());
+                    // Should check is checkbox, in case if cannot find one.
+                    if ($checkbox instanceof MoodleQuickForm_checkbox && !$checkbox->getChecked()) {
+                        $attrs['tabindex'] = -1;
+                    }
+                    $input->setAttributes($attrs);
+                    continue;
+                } else if ($input instanceof MoodleQuickForm_checkbox) {
+                    $attrs = $input->getAttributes();
+                    $attrs['title'] = $this->generate_creation_label($creationtext, $rowtext, $input->getText(), $input->getType());
+                    $input->setAttributes($attrs);
+                    continue;
+                } else if ($input instanceof MoodleQuickForm_select) {
+                    $label = $this->generate_creation_label($creationtext, $rowtext, $input->getLabel());
+                    $input->setLabel($label);
+                    continue;
+                }
+            }
+        }
+    }
+
+    /**
+     * Generate label string for screen reader.
+     *
+     * @param string $creationtext
+     * @param string $rowtext
+     * @param string $inputtext
+     * @param string $inputtype
+     */
+    private function generate_creation_label($creationtext, $rowtext, $inputtext, $inputtype = '') {
+        $data = new \stdClass();
+        $data->creationtext = $creationtext;
+        $data->rowtext = $rowtext;
+        if ($inputtype) {
+            $inputtextdata = new stdClass();
+            $inputtextdata->inputtext = $inputtext;
+            $inputtextdata->inputtype = $inputtype;
+            $data->inputtext = \get_string('filter_label_question_creation_item_inputtext', 'studentquiz', $inputtextdata);
+        } else {
+            $data->inputtext = $inputtext;
+        }
+        return \get_string('filter_label_question_creation_item', 'studentquiz', $data);
+    }
 }
 
 class toggle_filter_checkbox extends user_filter_checkbox {
