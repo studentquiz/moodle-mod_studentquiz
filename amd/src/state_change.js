@@ -28,7 +28,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notifica
 
         SELECTOR: {
             STATE_SELECT: '#menustatetype',
-            CHANGE_STATE_BUTTON: 'div.singlebutton.continue_state_change input[type=submit]',
+            CHANGE_STATE_BUTTON: 'div.singlebutton.continue_state_change [type=submit]',
             STATE_VALUE_INPUT: 'input[name=state]',
             SUBMIT_STATE_BUTTON: '#change_state',
             CHANGE_STATE_NOTIFICATION: 'span.change-question-state'
