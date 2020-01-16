@@ -99,19 +99,17 @@ function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $st
  * @param int $questionid Id of question
  * @param string $type Type of change
  * @param int $value Value of change
+ * @throws Throwable
+ * @throws coding_exception
+ * @throws dml_exception
  */
 function mod_studentquiz_change_state_visibility($questionid, $type, $value) {
     global $DB;
-    $question = $DB->record_exists('studentquiz_question', ['questionid' => $questionid]);
-    if (!$question) {
-        // This question has no row in yet, maybe due to category move or import.
-        $DB->insert_record('studentquiz_question', (object) ['state' => true, 'questionid' => $questionid]);
+
+    if ($type == 'deleted') {
+        $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
     } else {
-        if ($type == 'deleted') {
-            $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
-        } else {
-            $DB->set_field('studentquiz_question', $type, $value, ['questionid' => $questionid]);
-        }
+        $DB->set_field('studentquiz_question', $type, $value, ['questionid' => $questionid]);
     }
 }
 
