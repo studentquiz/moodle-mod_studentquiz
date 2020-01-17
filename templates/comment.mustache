@@ -72,7 +72,7 @@
     }
 
 }}
-<div class="studentquiz-comment-item {{#highlight}}highlight{{/highlight}}" id="comment_{{id}}" data-id="{{id}}">
+<div class="studentquiz-comment-item {{#highlight}}highlighted{{/highlight}}" id="comment_{{id}}" data-id="{{id}}">
     <span id="c{{id}}" data-deleted="{{ deleted }}" data-numberofreply="{{numberofreply}}"
           {{#repliesstring}}data-replies="{{repliesstring}}"{{/repliesstring}}></span>
     {{#deleted}}
@@ -135,7 +135,7 @@
         {{/canviewdeleted}}
         {{^canviewdeleted}}
             <div class="studentquiz-comment-item-outerbox deleted-comment">
-                {{#ispost}}
+                {{#root}}
                     {{#expanded}}
                         <a class="studentquiz-comment-collapselink" href="#" title="{{#str}} collapsecomment, mod_studentquiz {{/str}}">
                             {{#pix}}switch_minus, mod_studentquiz, {{#str}} collapsecomment, mod_studentquiz {{/str}}{{/pix}}
@@ -150,7 +150,7 @@
                             {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
                         </a>
                     {{/expanded}}
-                {{/ispost}}
+                {{/root}}
                 <strong>{{#str}} deletedcomment, mod_studentquiz{{/str}}</strong>
                 {{#str}} deletedbyauthor, mod_studentquiz, {{deletedtime}} {{/str}}
             </div>

@@ -118,6 +118,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     sortFeature: null,
                     sortable: [],
                     workingState: false,
+                    isNoComment: false,
 
                     /**
                      * Init function.
@@ -157,6 +158,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.string = params.strings;
                         self.forceCommenting = params.forcecommenting;
                         self.canViewDeleted = params.canviewdeleted;
+                        self.isNoComment = params.isnocomment;
 
                         self.initServerRender();
                         self.initBindEditor();
@@ -298,12 +300,13 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         });
 
                         // Bind event to "Add Reply" button (Root comment).
-                        self.addComment.click(function() {
+                        self.addComment.click(function(e) {
+                            e.preventDefault();
                             M.util.js_pending(t.ACTION_CREATE);
                             self.changeWorkingState(true);
                             self.loadingIcon.show();
                             // Hide error if exists.
-                            $(t.SELECTOR.COMMENT_ERROR).hide();
+                            $(t.SELECTOR.COMMENT_ERROR).addClass('hide');
                             // Hide no comment.
                             $(t.SELECTOR.NO_COMMENT).hide();
                             var rootId = t.ROOT_COMMENT_VALUE;
@@ -540,7 +543,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var filter = $(t.SELECTOR.COMMENT_FILTER);
                         var emptyReplies = self.checkEmptyElement($(t.SELECTOR.CONTAINER_REPLIES));
                         // Note: Admin will see deleted comments. Make sure replies container is empty.
-                        if (self.lastCurrentCount === 0 && emptyReplies) {
+                        if (self.lastCurrentCount === 0 && emptyReplies && self.isNoComment) {
                             $(t.SELECTOR.CONTAINER_REPLIES).hide();
                             filter.hide();
                             noCommentSelector.show();
@@ -948,6 +951,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 self.btnCollapseAll.prop('disabled', false);
                                 self.btnCollapseAll.show();
                                 self.expand = true;
+                                self.isNoComment = false;
                             } else {
                                 self.updateCommentCount(self.lastCurrentCount + 1, self.lastTotal + 1);
                             }
@@ -1034,7 +1038,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         M.util.js_pending(t.ACTION_CREATE_REPLY);
                         self.createComment(params).then(function(response) {
                             // Hide error if exists.
-                            $(t.SELECTOR.COMMENT_ERROR).hide();
+                            $(t.SELECTOR.COMMENT_ERROR).addClass('hide');
                             var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                             var repliesEl = el.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER);
 
@@ -1144,7 +1148,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                             return true;
                                         }
 
-                                        var convertedCommentData = self.convertForTemplate(response.data, self.expand);
+                                        var convertedCommentData = self.convertForTemplate(response.data,
+                                            self.deleteTarget.expanded);
 
                                         // Delete success, begin to call template and render the page again.
                                         var commentSelector = $(t.SELECTOR.COMMENT_ID + convertedCommentData.id);
@@ -1171,7 +1176,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                             if (!convertedCommentData.root) {
                                                 var parentSelector = commentSelector.parent();
                                                 var parentCountSelector = parentSelector.closest(t.SELECTOR.COMMENT_ITEM)
-                                                    .find(t.TOTAL_REPLY);
+                                                    .find(t.SELECTOR.TOTAL_REPLY);
                                                 var countSelector = parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_NUMBER);
                                                 var newCount = parseInt(countSelector.text()) - 1;
                                                 parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_NUMBER).text(newCount);
@@ -1265,9 +1270,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
                         var attoEditable = document.getElementById(attoEditableId);
                         var observation = new MutationObserver(function(mutationsList) {
-                            for (var i = 0; i < mutationsList.length; i++) {
-                                var mutation = mutationsList[i];
-                                if (mutation.type === 'childList') {
+                            mutationsList.forEach(function(mutation) {
+                                if (mutation.type === 'attributes' &&
+                                    (mutation.attributeName === 'style' || mutation.attributeName === 'hidden')) {
                                     M.util.js_pending(key);
                                     if (t.EMPTY_CONTENT.indexOf($('#' + attoEditableId).html()) > -1) {
                                         self.triggerAttoNoContent(formSelector);
@@ -1276,10 +1281,18 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     }
                                     M.util.js_complete(key);
                                 }
-                            }
+                            });
                         });
                         observation.observe(attoEditable, {attributes: true, childList: true, subtree: true});
-
+                        textareaSelector.change(function() {
+                            M.util.js_pending(key);
+                            if (t.EMPTY_CONTENT.indexOf($('#' + attoEditableId).html()) > -1) {
+                                self.triggerAttoNoContent(formSelector);
+                            } else {
+                                self.triggerAttoHasContent(formSelector);
+                            }
+                            M.util.js_complete(key);
+                        });
                         M.util.js_complete('init_editor');
 
                         // Check interval for 5s in case draft content show up.
@@ -1299,7 +1312,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @returns {boolean}
                      */
                     checkEmptyElement: function(el) {
-                        return el.length === 0;
+                        return el.children().length === 0;
                     },
 
                     /**
@@ -1402,7 +1415,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} formSelector
                      */
                     triggerAttoNoContent: function(formSelector) {
-                        var placeholder = this.formSelector.attr('data-textarea-placeholder');
+                        var placeholder = formSelector.attr('data-textarea-placeholder');
                         var editorContentWrap = formSelector.find(t.SELECTOR.ATTO.CONTENT_WRAP);
                         var submitBtn = formSelector.find(t.SELECTOR.SUBMIT_BUTTON);
                         submitBtn.addClass('disabled');

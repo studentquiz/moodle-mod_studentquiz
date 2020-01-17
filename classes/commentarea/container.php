@@ -645,11 +645,10 @@ class container {
     public function anonymous_mode() {
         $context = $this->get_context();
         $studentquiz = $this->get_studentquiz();
-        $capability = $studentquiz->anonymrank;
-        if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
-            $capability = false;
+        if ($this->ismoderator || has_capability('mod/studentquiz:unhideanonymous', $context)) {
+            return false;
         }
-        return $capability;
+        return $studentquiz->anonymrank;
     }
 
     public function get_fields() {
