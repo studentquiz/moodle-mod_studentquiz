@@ -359,25 +359,6 @@
     padding-top: 2px;
 }
 
-.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info {
-    text-align: right;
-}
-
-.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info .studentquiz-comment-expand-section {
-    display: inline-block;
-}
-
-.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info .studentquiz-comment-postcount {
-    font-weight: 700;
-}
-
-.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-groupselector {
-    display: inline;
-    float: left;
-    text-align: left;
-    margin-right: 6px;
-}
-
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-postform {
     margin-top: 20px;
     clear: both;
@@ -715,3 +696,70 @@
 .path-mod-studentquiz div[data-groupname="report-comment-conditions"] span {
     display: block;
 }
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info {
+    display: table;
+    width: 100%;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info .studentquiz-comment-expand-section {
+    text-align: right;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info .studentquiz-comment-postcount {
+    font-weight: 700;
+}
+
+.path-mod-studentquiz .studentquiz-comment-filters .studentquiz-comment-filter-item {
+    font-size: 1em;
+    position: relative;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.path-mod-studentquiz .studentquiz-comment-filters .studentquiz-comment-filter-item span.studentquiz-comment-filter-name {
+    padding: 0 5px;
+}
+
+.path-mod-studentquiz .studentquiz-comment-filters .studentquiz-comment-filter-item span:hover {
+    text-decoration: underline;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter .studentquiz-comment-filter-info {
+    padding-top: 15px;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-info .filter-item {
+    display: table-cell;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-item + .studentquiz-comment-filter-item::before {
+    content: "/";
+    color: #000;
+}
+
+.path-mod-studentquiz .studentquiz-comment-filters .studentquiz-comment-filter-item .studentquiz-comment-filter-type {
+    visibility: hidden;
+}
+
+.path-mod-studentquiz .studentquiz-comment-filters .studentquiz-comment-filter-item.current .studentquiz-comment-filter-type {
+    visibility: visible;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-item > div {
+    display: inline-block;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-filter-item .studentquiz-comment-filter-type i {
+    vertical-align: text-top;
+    margin: 0;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .filter-asc.current .studentquiz-comment-filter-type i::before {
+    content: url([[pix:mod_studentquiz|switch_minus]]);
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .filter-desc.current .studentquiz-comment-filter-type i::before {
+    content: url([[pix:mod_studentquiz|switch_plus]]);
+}
+

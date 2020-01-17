@@ -57,6 +57,7 @@ class get_comments_api extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'numbertoshow' => new external_value(PARAM_INT, 'Number of comments to show, 0 will return all comments/replies',
                         VALUE_DEFAULT, container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT),
+                'sort' => new external_value(PARAM_TEXT, 'Sort type', false)
         ]);
     }
 
@@ -88,17 +89,18 @@ class get_comments_api extends external_api {
      * @param int $numbertoshow - Number comments to show.
      * @return array
      */
-    public static function get_comments($questionid, $cmid, $numbertoshow) {
+    public static function get_comments($questionid, $cmid, $numbertoshow, $sort) {
 
         $params = self::validate_parameters(self::get_comments_parameters(), [
                 'questionid' => $questionid,
                 'cmid' => $cmid,
-                'numbertoshow' => $numbertoshow
+                'numbertoshow' => $numbertoshow,
+                'sort' => $sort
         ]);
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
 
-        $commentarea = new container($studentquiz, $question, $cm, $context);
+        $commentarea = new container($studentquiz, $question, $cm, $context, null, $sort);
         $comments = $commentarea->fetch_all($numbertoshow);
 
         $data = [];

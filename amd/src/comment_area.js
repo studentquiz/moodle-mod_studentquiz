@@ -82,7 +82,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 COMMENT_FILTER: '.studentquiz-comment-filter',
                 COMMENT_FILTER_HIDE: '.hide-comment-filter',
                 COMMENT_ERROR: '.studentquiz-comment-container .comment-error',
-                BTN_REPORT: '.studentquiz-comment-btnreport'
+                BTN_REPORT: '.studentquiz-comment-btnreport',
+                COMMENT_FILTER_ITEM: '.studentquiz-comment-filter-item',
+                COMMENT_FILTER_NAME: '.studentquiz-comment-filter-name',
+                COMMENT_FILTER_TYPE: '.studentquiz-comment-filter-type'
             },
             get: function() {
                 return {
@@ -112,6 +115,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     hasComment: false,
                     referer: null,
                     highlight: 0,
+                    sortFeature: null,
+                    sortable: [],
+                    workingState: false,
 
                     /**
                      * Init function.
@@ -144,6 +150,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                         self.expand = params.expand || false;
                         self.referer = params.referer;
+                        self.sortFeature = params.sortfeature;
+                        self.sortable = params.sortable;
 
                         // Get all language string.
                         self.string = params.strings;
@@ -339,10 +347,92 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             });
                             return true;
                         });
+
+                        // Bind events filter sort.
+                        $(t.SELECTOR.COMMENT_FILTER_ITEM).on('click', function(e) {
+                            e.preventDefault();
+                            // Check if current state is working, return.
+                            if (self.workingState) {
+                                return;
+                            }
+
+                            var asc = self.string.sort.asc;
+                            var desc = self.string.sort.desc;
+
+                            var nameSelector = $(this).find(t.SELECTOR.COMMENT_FILTER_NAME);
+                            var iconSelector = $(this).find(t.SELECTOR.COMMENT_FILTER_TYPE);
+
+                            // Get sort type from data-type.
+                            var type = $(this).data('type');
+                            var orderBy = $(this).attr('data-order');
+                            var isCurrent = $(this).hasClass('current');
+                            var ascString = $(this).attr('data-asc-string');
+                            var descString = $(this).attr('data-desc-string');
+
+                            // Get current orderBy from data-order. If not current sort, don't change.
+                            // Then reverse it to opposite orderBy and call to API.
+                            // Example: current is desc, then we should call order by = asc to api.
+
+                            orderBy = orderBy === 'desc' ? 'asc' : 'desc';
+                            // Ok we attach that orderBy to current order by.
+                            $(this).attr('data-order', orderBy);
+
+                            if (!isCurrent) {
+                                $(this).addClass('current');
+                            }
+
+                            if (orderBy === 'desc') {
+                                nameSelector.attr('title', ascString);
+                                nameSelector.attr('alt', ascString);
+                                iconSelector.attr('title', desc);
+                                iconSelector.attr('alt', desc);
+                            } else {
+                                nameSelector.attr('title', descString);
+                                nameSelector.attr('alt', descString);
+                                iconSelector.attr('title', asc);
+                                iconSelector.attr('alt', asc);
+                            }
+
+                            // Note: new text is the opposite of current sort type (old type).
+
+                            // Reset all filter elements to its default.
+                            $(t.SELECTOR.COMMENT_FILTER_ITEM).not(this).each(function() {
+                                var each = $(this);
+                                var eachName = $(this).find(t.SELECTOR.COMMENT_FILTER_NAME);
+                                var eachType = $(this).find(t.SELECTOR.COMMENT_FILTER_TYPE);
+                                var defaultString = $(this).attr('data-asc-string');
+                                each.attr('data-order', 'desc');
+                                each.removeClass('filter-asc');
+                                each.removeClass('filter-desc');
+                                each.removeClass('current');
+                                eachName.attr('title', defaultString);
+                                eachName.attr('alt', defaultString);
+                                eachType.attr('title', asc);
+                                eachType.attr('alt', asc);
+                            });
+
+                            if (orderBy === 'desc') {
+                                $(this).removeClass('filter-asc');
+                                $(this).addClass('filter-desc');
+                            } else {
+                                $(this).removeClass('filter-desc');
+                                $(this).addClass('filter-asc');
+                            }
+
+                            // Build to sort type. Example: date_asc, date_desc.
+                            var sortType = type + '_' + orderBy;
+                            self.setSort(sortType);
+
+                            if (self.expand) {
+                                self.btnExpandAll.trigger('click');
+                            } else {
+                                self.btnCollapseAll.trigger('click');
+                            }
+                        });
                     },
 
                     /**
-                     * Get comments, nubmertoshow = 0 will get all comment + replies.
+                     * Get comments, numbertoshow = 0 will get all comment + replies.
                      *
                      * @param {Integer} numberToShow
                      * @returns {Promise}
@@ -350,7 +440,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     getComments: function(numberToShow) {
                         var self = this;
                         var params = self.getParamsBeforeCallApi({
-                            numbertoshow: numberToShow
+                            numbertoshow: numberToShow,
+                            sort: self.sortFeature
                         });
                         var promise = ajax.call([{
                             methodname: t.ACTION_GET_ALL,
@@ -447,14 +538,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                         var noCommentSelector = $(t.SELECTOR.NO_COMMENT);
                         var filter = $(t.SELECTOR.COMMENT_FILTER);
-                        var emptyReplies = self.checkEmptyElement($(t.SELECTOR.COMMENT_REPLIES_CONTAINER));
+                        var emptyReplies = self.checkEmptyElement($(t.SELECTOR.CONTAINER_REPLIES));
                         // Note: Admin will see deleted comments. Make sure replies container is empty.
                         if (self.lastCurrentCount === 0 && emptyReplies) {
-                            $(t.SELECTOR.COMMENT_REPLIES_CONTAINER).hide();
+                            $(t.SELECTOR.CONTAINER_REPLIES).hide();
                             filter.hide();
                             noCommentSelector.show();
                         } else {
-                            $(t.SELECTOR.COMMENT_REPLIES_CONTAINER).show();
+                            $(t.SELECTOR.CONTAINER_REPLIES).show();
                             noCommentSelector.hide();
                             filter.show();
                         }
@@ -567,6 +658,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     changeWorkingState: function(boolean) {
                         var visibility = boolean ? 'hidden' : 'visible';
                         var self = this;
+                        self.workingState = boolean;
                         self.btnExpandAll.prop('disabled', boolean);
                         self.btnCollapseAll.prop('disabled', boolean);
                         self.elementSelector.find(t.SELECTOR.BTN_REPLY).prop('disabled', boolean);
@@ -799,6 +891,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                     /**
                      * Convert form data to Json require for web service.
+                     * Note: attempt.php had form already, we cannot have a form inside a form.
                      *
                      * @param {jQuery} form
                      * @returns {Object}
@@ -1315,6 +1408,18 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         submitBtn.addClass('disabled');
                         submitBtn.prop('disabled', true);
                         editorContentWrap.attr('data-placeholder', placeholder);
+                    },
+
+                    /**
+                     * Set sort depend on sortable array.
+                     *
+                     * @param {string} string
+                     */
+                    setSort: function(string) {
+                        var self = this;
+                        if ($.inArray(string, self.sortable) !== -1) {
+                            self.sortFeature = string;
+                        }
                     }
                 };
             },

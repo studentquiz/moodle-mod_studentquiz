@@ -57,6 +57,7 @@ require_once($CFG->libdir . '/questionlib.php');
 class provider implements
         \core_privacy\local\metadata\provider,
         \core_privacy\local\request\plugin\provider,
+        \core_privacy\local\request\user_preference_provider,
         studentquiz_userlist {
 
     /**
@@ -65,7 +66,7 @@ class provider implements
      * @param collection $collection The initialised collection to add items to.
      * @return collection A listing of user data stored through this system.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         $collection->add_database_table('studentquiz_rate', [
                 'rate' => 'privacy:metadata:studentquiz_rate:rate',
                 'questionid' => 'privacy:metadata:studentquiz_rate:questionid',
@@ -104,6 +105,8 @@ class provider implements
                 'categoryid' => 'privacy:metadata:studentquiz_attempt:categoryid'
         ], 'privacy:metadata:studentquiz_attempt');
 
+        $collection->add_user_preference(container::USER_PREFERENCE_SORT, 'privacy:metadata:' . container::USER_PREFERENCE_SORT);
+
         return $collection;
     }
 
@@ -113,7 +116,7 @@ class provider implements
      * @param int $userid The user to search.
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new contextlist();
 
         // Get activity context if user created/modified the question or their data exist in these table
@@ -723,5 +726,28 @@ class provider implements
                            WHERE questionid {$questionsql}
                                  AND userid = :userid
                                  AND parentid != :parentid", $params);
+    }
+
+    /**
+     * Stores the user preferences related to mod_studentquiz.
+     *
+     * @param int $userid The user ID that we want the preferences for.
+     */
+    public static function export_user_preferences(int $userid) {
+        $context = \context_system::instance();
+        $preferences = [
+                container::USER_PREFERENCE_SORT => ['string' => get_string('privacy:metadata:' . container::USER_PREFERENCE_SORT,
+                        'mod_studentquiz'),
+                        'bool' => false]
+        ];
+        foreach ($preferences as $key => $preference) {
+            $value = get_user_preferences($key, null, $userid);
+            if ($preference['bool']) {
+                $value = transform::yesno($value);
+            }
+            if (isset($value)) {
+                writer::with_context($context)->export_user_preference('mod_studentquiz', $key, $value, $preference['string']);
+            }
+        }
     }
 }
