@@ -80,4 +80,28 @@ class behat_mod_studentquiz extends behat_base {
         }
     }
 
+    /**
+     * Enter the text into the editor, this step will trigger trusted event.
+     *
+     * @Given /^I enter the text "([^"]*)" into the "([^"]*)" editor/
+     *
+     * @param $value
+     * @param $fieldlocator
+     */
+    public function enter_the_text_into_field($value, $fieldlocator) {
+        $editorid = $this->find_field($fieldlocator)->getAttribute('id') . 'editable';
+        $js = 'M.util.js_pending("behat-update-editor");
+               var ele = document.getElementById("' . $editorid . '");
+               ele.focus();
+               document.execCommand("selectall", null, false);
+               if("' . $value . '" == "") {
+                 document.execCommand("delete", false);
+               } else {
+                 document.execCommand("insertText", false, "' . $value . '");
+               }
+               ele.blur();
+               M.util.js_complete("behat-update-editor")';
+        $this->getSession()->executeScript($js);
+    }
+
 }

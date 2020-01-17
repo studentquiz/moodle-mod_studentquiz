@@ -129,21 +129,11 @@ if ($question) {
         'closepreview',
     ), 'question');
 
-    // StudentQuiz renderers.
-    $comments = mod_studentquiz_get_comments_with_creators($question->id);
-
-    $anonymize = $studentquiz->anonymrank;
-    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
-        $anonymize = false;
-    }
-    $ismoderator = false;
-    if (mod_studentquiz_check_created_permission($cmid)) {
-        $ismoderator = true;
-    }
-
-    echo $output->feedback($question, $options, $cmid, $comments, $USER->id, $anonymize, $ismoderator);
+    echo $output->feedback($question, $options, $cmid, $USER->id);
 
     echo html_writer::end_tag('form');
+
+    echo $output->render_comment($cmid, $question->id, $USER->id);
 } else {
     echo $OUTPUT->notification(get_string('deletedquestiontext', 'qtype_missingtype'));
 }
