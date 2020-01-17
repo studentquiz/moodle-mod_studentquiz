@@ -1976,7 +1976,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'highlight' => $highlight,
                 'expand' => $isexpand,
                 'sortfeature' => $sortfeature,
-                'sortable' => $sortable
+                'sortable' => $sortable,
+                'isnocomment' => empty($res)
         ];
         $mform = new \mod_studentquiz\commentarea\form\comment_form([
                 'index' => $id,

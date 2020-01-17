@@ -717,7 +717,7 @@ class provider implements
                               SET userid = :guestuserid,
                                   deleted = :deleted,
                                   deleteuserid = :deleteuserid,
-                                  comment = :comment 
+                                  comment = :comment
                             WHERE questionid {$questionsql}
                                   AND userid = :userid
                                   AND parentid = :parentid", $params + $blankcomment);

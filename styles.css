@@ -505,11 +505,11 @@
     margin-bottom: 20px;
 }
 
-.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-item.highlight {
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-item.highlighted {
     background: #def2f8;
 }
 
-.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-item.highlight .studentquiz-comment-replies {
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-item.highlighted .studentquiz-comment-replies {
     background: #fff;
 }
 
