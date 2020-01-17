@@ -528,6 +528,10 @@
     background: #def2f8;
 }
 
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-item.highlight .studentquiz-comment-replies {
+    background: #fff;
+}
+
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-replies .studentquiz-comment-item-outerbox {
     margin-left: 30px;
 }
@@ -706,4 +710,8 @@
 
 .path-mod-studentquiz .studentquiz-comment-container .comment-errors .comment-error {
     margin-bottom: 1rem;
+}
+
+.path-mod-studentquiz div[data-groupname="report-comment-conditions"] span {
+    display: block;
 }

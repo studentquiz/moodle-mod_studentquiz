@@ -26,6 +26,8 @@ namespace mod_studentquiz\commentarea;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_studentquiz\utils;
+
 /**
  * Container class for comment area.
  *
@@ -101,6 +103,11 @@ class container {
     const DELETION_PERIOD_MAX = 60;
 
     /**
+     * @var array - Reporting Emails.
+     */
+    private $reportemails = [];
+
+    /**
      * mod_studentquiz_commentarea_list constructor.
      *
      * @param mixed $studentquiz - Student Quiz instance.
@@ -123,6 +130,7 @@ class container {
 
         // If not force commenting, always true;
         $this->refresh_has_comment();
+        $this->reportemails = utils::extract_reporting_emails_from_string($studentquiz->reportingemail);
     }
 
     /**
@@ -510,5 +518,14 @@ class container {
      */
     public function check_has_comment() {
         return $this->checkhascomment;
+    }
+
+    /**
+     * Get reporting emails list.
+     *
+     * @return array
+     */
+    public function get_reporting_emails() {
+        return $this->reportemails;
     }
 }

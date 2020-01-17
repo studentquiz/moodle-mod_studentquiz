@@ -72,8 +72,9 @@
     }
 
 }}
-<div class="studentquiz-comment-item" id="comment_{{id}}" data-id="{{id}}">
-    <span id="c{{id}}" data-deleted="{{ deleted }}" data-numberofreply="{{numberofreply}}" data-authorid="{{authorid}}"></span>
+<div class="studentquiz-comment-item {{#highlight}}highlight{{/highlight}}" id="comment_{{id}}" data-id="{{id}}">
+    <span id="c{{id}}" data-deleted="{{ deleted }}" data-numberofreply="{{numberofreply}}"
+          {{#repliesstring}}data-replies="{{repliesstring}}"{{/repliesstring}}></span>
     {{#deleted}}
         {{#canviewdeleted}}
             <div class="studentquiz-comment-item-outerbox">
@@ -188,6 +189,15 @@
         </div>
         <div class="studentquiz-comment-postfooter">
             <div class="studentquiz-comment-commands-box">
+                {{#canreport}}
+                    <div class="studentquiz-comment-commands-buttons">
+                        <button data-href="{{{reportlink}}}"
+                                class="btn btn btn-secondary studentquiz-comment-btnreport"
+                                title="{{#str}} reportcomment, mod_studentquiz, {{index}} {{/str}}">
+                            {{#str}} reportcomment, mod_studentquiz {{/str}}
+                        </button>
+                    </div>
+                {{/canreport}}
                 {{#root}}
                     {{#canreply}}
                         <div class="studentquiz-comment-commands-buttons">

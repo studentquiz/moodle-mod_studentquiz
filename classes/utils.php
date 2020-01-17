@@ -65,7 +65,9 @@ class utils {
                 'iscreator' => new external_value(PARAM_BOOL, 'Check if this comment belongs to current logged in user.'),
                 'root' => new external_value(PARAM_BOOL, 'Check if is comment or reply.'),
                 'plural' => new external_value(PARAM_TEXT, 'text reply or replies.'),
-                'hascomment' => new external_value(PARAM_BOOL, 'Check if in current user has comment')
+                'hascomment' => new external_value(PARAM_BOOL, 'Check if in current user has comment'),
+                'canreport' => new external_value(PARAM_BOOL, 'Can report this comment or not.'),
+                'reportlink' => new external_value(PARAM_TEXT, 'Report link for this comment.')
         ];
     }
 
@@ -110,7 +112,7 @@ class utils {
      * @param array $data
      * @return array
      */
-    public static function count_comments_and_replies(array $data) : array {
+    public static function count_comments_and_replies(array $data): array {
         $commentcount = 0;
         $deletecommentcount = 0;
         $replycount = 0;
@@ -139,6 +141,83 @@ class utils {
                 'total' => $commentcount + $replycount,
                 'totaldelete' => $deletecommentcount + $deletereplycount
         ]);
+    }
+
+    /**
+     * Extract emails from string of reporting email column of SQ table.
+     *
+     * @param string $string
+     * @return array
+     */
+    public static function extract_reporting_emails_from_string($string): array {
+        return $string ? explode(';', $string) : [];
+    }
+
+    /**
+     * Send to admin emails.
+     *
+     * @param object $formdata - Form data.
+     * @param array $recipients - Emails list.
+     * @param array $customdata - Custom data.
+     * @param array $options - Custom options.
+     * @param \stdClass $user - User data.
+     * @return void
+     */
+    public static function send_report($formdata, $recipients, $customdata, $options, $user = null) {
+        global $USER;
+
+        $numconditions = $options['numconditions'];
+        $conditions = $options['conditions'];
+
+        $content = \html_writer::div(get_string('report_comment_emailpreface', 'studentquiz', $customdata));
+
+        $link = \html_writer::link($customdata['previewurl'], get_string('report_comment_link_text', 'studentquiz'));
+
+        $content .= \html_writer::div($link);
+
+        $content .= \html_writer::empty_tag('br');
+
+        // Print the reasons for reporting.
+        $content .= \html_writer::div(get_string('report_comment_reasons', 'studentquiz'));
+
+        for ($i = 1; $i <= $numconditions; $i++) {
+            if (!empty($formdata->{'condition' . $i})) {
+                $content .= \html_writer::div('- ' . $conditions[$i]);
+            }
+        }
+
+        if (!empty($formdata->conditionmore)) {
+            $content .= \html_writer::div(preg_replace("/\r\n|\r|\n/", '<br/>', $formdata->conditionmore));
+        }
+
+        $content .= \html_writer::empty_tag('br');
+
+        // Email append.
+        $content .= \html_writer::div(get_string('report_comment_emailappendix', 'studentquiz', $customdata));
+
+        // Build email content.
+        $mailcontent = \html_writer::div($content);
+
+        $subject = get_string('report_comment_emailsubject', 'studentquiz', $customdata);
+
+        if ($user === null) {
+            $from = $USER;
+        } else {
+            $from = $user;
+        }
+
+        foreach ($recipients as $email) {
+            // Send out email.
+            $fakeuser = (object) [
+                    'email' => $email,
+                    'mailformat' => 1,
+                    'id' => -1
+            ];
+            // Send email.
+            if (!email_to_user($fakeuser, $from, $subject, null, $mailcontent)) {
+                print_error('error_sendalert', 'studentquiz', $customdata->url, $fakeuser->email);
+            }
+        }
     }
 
     /**

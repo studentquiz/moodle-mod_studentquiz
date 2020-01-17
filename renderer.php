@@ -1479,14 +1479,15 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @param int $cmid - Course module id.
      * @param int $questionid - Question id.
      * @param int $userid - User id.
+     * @param int $highlight - Highlight comment ID.
      * @return string HTML fragment.
      */
-    public function render_comment($cmid, $questionid, $userid) {
+    public function render_comment($cmid, $questionid, $userid, $highlight = 0) {
         $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
         return html_writer::div(
                 html_writer::div(
                         html_writer::div(
-                                $renderer->render_comment_area($questionid, $userid, $cmid),
+                                $renderer->render_comment_area($questionid, $userid, $cmid, $highlight),
                                 'comment_list'),
                         'comments'
                 ), 'studentquiz_behaviour'
@@ -1834,23 +1835,75 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
      * @param int $questionid - Question id.
      * @param int $userid - User id.
      * @param int $cmid - Course module id.
+     * @param int $highlight - Highlight comment ID.
      * @return string HTML fragment
      */
-    public function render_comment_area($questionid, $userid, $cmid) {
-        global $COURSE;
+    public function render_comment_area($questionid, $userid, $cmid, $highlight = 0) {
+        global $COURSE, $PAGE;
 
         $id = 'question_comment_area_' . $questionid;
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
         $commentarea = new container($studentquiz, $question, $cm, $context);
-        $comments = $commentarea->fetch_all($commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT);
+        $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
+
+        if ($highlight != 0) {
+            $numbertoshow = 0;
+        }
+
+        $isexpand = $numbertoshow === 0;
+
+        $currentreferer = $PAGE->url;
+        // Making sure we don't pass highlight or referer param. It will be set later.
+        $currentreferer->remove_params('highlight');
+        $currentreferer->remove_params('referer');
+        // Encode before pass it to comment area js.
+        $referer = urlencode($currentreferer->out(false));
+
+        $comments = $commentarea->fetch_all($numbertoshow);
         $res = [];
         if (count($comments) > 0) {
             foreach ($comments as $comment) {
                 $item = $comment->convert_to_object();
                 $item->canviewdeleted = $canviewdeleted;
                 $item->replies = [];
+                if ($numbertoshow == 0) {
+                    $item->expanded = true;
+                    $repliesstring = [];
+                    foreach ($comment->get_replies() as $reply) {
+                        $replyobject = $reply->convert_to_object();
+                        // Check if reply is highlight.
+                        $replyobject->highlight = false;
+                        if ($highlight != 0) {
+                            if ($replyobject->id == $highlight) {
+                                $replyobject->highlight = true;
+                            }
+                        }
+                        $replyurl = clone $currentreferer;
+                        $replyurl->param('highlight', $replyobject->id);
+                        $replyobject->reportlink .= '&referer=' . urlencode($replyurl->out());
+                        $repliesstring[] = [
+                                'id' => $replyobject->id,
+                                'deleted' => $replyobject->deleted,
+                                'reportlink' => $replyobject->reportlink
+                        ];
+                        $item->replies[] = $replyobject;
+                    }
+                    $item->repliesstring = json_encode($repliesstring);
+                } else {
+                    $item->expanded = false;
+                }
+                // Check if comment is highlighted.
+                $item->highlight = false;
+                if ($highlight != 0) {
+                    if ($item->id == $highlight) {
+                        $item->highlight = true;
+                    }
+                }
+                $url = clone $currentreferer;
+                $url->param('highlight', $item->id);
+                $item->reportlink .= '&referer=' . urlencode($url->out());
                 $res[] = $item;
             }
         }
@@ -1866,7 +1919,10 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'numbertoshow' => container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT,
                 'cmid' => $cmid,
                 'forcecommenting' => $forcecommenting,
-                'canviewdeleted' => $canviewdeleted
+                'canviewdeleted' => $canviewdeleted,
+                'referer' => $referer,
+                'highlight' => $highlight,
+                'expand' => $isexpand
         ];
         $mform = new \mod_studentquiz\commentarea\form\comment_form([
                 'index' => $id,
