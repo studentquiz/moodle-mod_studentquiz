@@ -82,7 +82,7 @@ $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
 if (data_submitted()) {
-    // On the following navigation steps the question has to be finished and the comment saved
+    // On the following navigation steps the question has to be finished and the comment saved.
     if (optional_param('next', null, PARAM_BOOL) || optional_param('finish', null, PARAM_BOOL)) {
         $transaction = $DB->start_delegated_transaction();
         $questionusage->finish_question($slot);
@@ -272,25 +272,12 @@ $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 $html .= html_writer::end_tag('div');
 
-// Output the comments.
-$html .= html_writer::empty_tag('hr');
-if ($hasanswered) {
-    $comments = mod_studentquiz_get_comments_with_creators($question->id);
-
-    $anonymize = $studentquiz->anonymrank;
-    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
-        $anonymize = false;
-    }
-    $ismoderator = false;
-    if (mod_studentquiz_check_created_permission($cmid)) {
-        $ismoderator = true;
-    }
-
-    $html .= $output->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator,
-            $studentquiz->forcecommenting);
-}
-
 $html .= html_writer::end_tag('form');
+
+// Output the comments.
+if ($hasanswered) {
+    $html .= $output->render_comment($cmid, $question->id, $userid);
+}
 
 
 echo $html;

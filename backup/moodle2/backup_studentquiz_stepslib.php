@@ -50,7 +50,8 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
             'coursemodule', 'name', 'intro', 'introformat', 'grade', 'anonymrank', 'quizpracticebehaviour',
             'questionquantifier', 'approvedquantifier', 'ratequantifier',
             'correctanswerquantifier', 'incorrectanswerquantifier',
-            'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting'
+            'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting',
+            'commentdeletionperiod'
         ));
 
         // StudentQuiz Attempt -> User, Question usage Id.

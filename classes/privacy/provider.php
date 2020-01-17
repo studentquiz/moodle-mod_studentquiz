@@ -33,6 +33,8 @@ use \core_privacy\local\request\userlist;
 use \core_privacy\local\request\writer;
 use \core_privacy\local\metadata\collection;
 use \core_privacy\local\request\transform;
+use mod_studentquiz\commentarea\container;
+use mod_studentquiz\utils;
 
 // A polyfill for Moodle 3.3.
 if (interface_exists('\core_privacy\local\request\core_userlist_provider')) {
@@ -82,7 +84,11 @@ class provider implements
                 'comment' => 'privacy:metadata:studentquiz_comment:comment',
                 'questionid' => 'privacy:metadata:studentquiz_comment:questionid',
                 'userid' => 'privacy:metadata:studentquiz_comment:userid',
-                'created' => 'privacy:metadata:studentquiz_comment:created'
+                'created' => 'privacy:metadata:studentquiz_comment:created',
+                'parentid' => 'privacy:metadata:studentquiz_comment:parentid',
+                'deleted' => 'privacy:metadata:studentquiz_comment:deleted',
+                'deleteuserid' => 'privacy:metadata:studentquiz_comment:deleteuserid',
+
         ], 'privacy:metadata:studentquiz_comment');
 
         $collection->add_database_table('studentquiz_practice', [
@@ -185,6 +191,7 @@ class provider implements
                        rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
                        comment.userid AS commentuserid, comment.created AS commentcreate,
+                       comment.parentid AS commentparentid, comment.deleted AS commentdelete, comment.deleteuserid AS commentdeleteuserid,
                        progress.questionid AS progressquestionid, progress.userid AS progressuserid,
                        progress.studentquizid AS progressstudentquizid, progress.lastanswercorrect AS progresslastanswercorrect,
                        progress.attempts AS progressattempts, progress.correctattempts AS progresscorrectattempts,
@@ -286,7 +293,11 @@ class provider implements
                         'comment' => $record->commentcomment,
                         'questionid' => $record->commentquestionid,
                         'userid' => transform::user($record->commentuserid),
-                        'created' => transform::datetime($record->commentcreate)
+                        'created' => transform::datetime($record->commentcreate),
+                        'parentid' => $record->commentparentid,
+                        'deleted' => $record->commentdelete > 0 ? transform::datetime($record->commentdelete) : 0,
+                        'deleteuserid' => !is_null($record->commentdeleteuserid) ? transform::user($record->commentdeleteuserid) :
+                                null
                 ];
             }
 
@@ -480,9 +491,7 @@ class provider implements
                              AND userid = :userid", ['userid' => $userid] + $questionparams);
 
         // Delete comments belong to user within approved context.
-        $DB->execute("DELETE FROM {studentquiz_comment}
-                       WHERE questionid {$questionsql}
-                             AND userid = :userid", ['userid' => $userid] + $questionparams);
+        self::delete_comment_for_user($questionsql, $questionparams, ['userid' => $userid]);
 
         // Delete progress belong to user within approved context.
         $DB->execute("DELETE FROM {studentquiz_progress}
@@ -644,9 +653,7 @@ class provider implements
                              AND userid {$userinsql}", $questionparams + $userinparams);
 
         // Delete comments belong to users.
-        $DB->execute("DELETE FROM {studentquiz_comment}
-                       WHERE questionid {$questionsql}
-                             AND userid {$userinsql}", $questionparams + $userinparams);
+        self::delete_comment_for_users($questionsql, $questionparams, $userinsql, $userinparams);
 
         // Delete progress belong to users.
         $DB->execute("DELETE FROM {studentquiz_progress}
@@ -664,5 +671,57 @@ class provider implements
                              AND studentquizid = :studentquizid", [
                         'studentquizid' => $cm->instance
                 ] + $userinparams);
+    }
+
+    /**
+     * Delete comments belong to users.
+     *
+     * @param $questionsql
+     * @param $questionparams
+     * @param $userinsql
+     * @param $userinparamsn
+     */
+    private static function delete_comment_for_users($questionsql, $questionparams, $userinsql, $userinparams) {
+        global $DB;
+        $params = $questionparams + $userinparams + ['parentid' => container::PARENTID];
+        $blankcomment = utils::get_blank_comment();
+        $DB->execute("UPDATE {studentquiz_comment}
+                              SET userid = :guestuserid,
+                                  deleted = :deleted,
+                                  deleteuserid = :deleteuserid,
+                                  comment = :comment
+                            WHERE questionid {$questionsql}
+                                  AND userid {$userinsql}
+                                  AND parentid = :parentid", $params + $blankcomment);
+        $DB->execute("DELETE
+                            FROM {studentquiz_comment}
+                           WHERE questionid {$questionsql}
+                                 AND userid {$userinsql}
+                                 AND parentid != :parentid", $params);
+    }
+
+    /**
+     * Delete comment for specific user.
+     *
+     * @param $questionsql
+     * @param $questionparams
+     */
+    private static function delete_comment_for_user($questionsql, $questionparams, $userparams) {
+        global $DB;
+        $params = $questionparams + $userparams + ['parentid' => container::PARENTID];
+        $blankcomment = utils::get_blank_comment();
+        $DB->execute("UPDATE {studentquiz_comment}
+                              SET userid = :guestuserid,
+                                  deleted = :deleted,
+                                  deleteuserid = :deleteuserid,
+                                  comment = :comment 
+                            WHERE questionid {$questionsql}
+                                  AND userid = :userid
+                                  AND parentid = :parentid", $params + $blankcomment);
+        $DB->execute("DELETE
+                            FROM {studentquiz_comment}
+                           WHERE questionid {$questionsql}
+                                 AND userid = :userid
+                                 AND parentid != :parentid", $params);
     }
 }
