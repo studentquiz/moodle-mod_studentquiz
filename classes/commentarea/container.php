@@ -65,7 +65,7 @@ class container {
     private $studentquiz;
 
     /** @var string - Basic order to get comments. */
-    private $basicorder = 'created ASC';
+    private $basicorder = 'c.created ASC';
 
     /** @var object|\stdClass - Current user of Moodle. Only call it once when __construct */
     private $user;
@@ -81,6 +81,19 @@ class container {
 
     /** @var bool - Flag current user has commented. */
     private $checkhascomment = false;
+
+    /**
+     * @var string - Sort feature.
+     */
+    private $sortfeature;
+
+    /**
+     * @var string - Sort field.
+     */
+    private $sortfield;
+
+    /** @var string - Sort by (ASC/DESC). */
+    private $sortby;
 
     /**
      * @var array List of users has comments.
@@ -107,6 +120,63 @@ class container {
      */
     private $reportemails = [];
 
+    /** @var string - Define sort type date. */
+    const SORT_DATE = 'date';
+    /** @var string - Define sort type forename. */
+    const SORT_FIRSTNAME = 'forename';
+    /** @var string - Define sort type lastname. */
+    const SORT_LASTNAME = 'surname';
+
+    /** @var array - Mapping db fields with sort define. */
+    const SORT_DB_FIELDS = [
+            self::SORT_DATE => 'c.created',
+            self::SORT_FIRSTNAME => 'u.firstname',
+            self::SORT_LASTNAME => 'u.lastname',
+    ];
+
+    /** @var array - Default sort. */
+    const SORT_FIELDS = [
+            self::SORT_DATE
+    ];
+
+    /** @var array - Special fields. */
+    const USER_SORT_FIELDS = [
+            self::SORT_FIRSTNAME,
+            self::SORT_LASTNAME
+    ];
+
+    /** @var string - Define sort by date ascending. */
+    const SORT_DATE_ASC = 'date_asc';
+    /** @var string - Define sort by date descending. */
+    const SORT_DATE_DESC = 'date_desc';
+    /** @var string - Define sort by user forename ascending. */
+    const SORT_FIRSTNAME_ASC = 'forename_asc';
+    /** @var string - Define sort by user forename descending. */
+    const SORT_FIRSTNAME_DESC = 'forename_desc';
+    /** @var string - Define sort by user surname ascending. */
+    const SORT_LASTNAME_ASC = 'surname_asc';
+    /** @var string - Define sort by user forename descending. */
+    const SORT_LASTNAME_DESC = 'surname_desc';
+
+    /** @var array - Per sort field has multiple sort features. */
+    const SORT_FEATURES = [
+            self::SORT_DATE => [
+                    self::SORT_DATE_ASC,
+                    self::SORT_DATE_DESC
+            ],
+            self::SORT_FIRSTNAME => [
+                    self::SORT_FIRSTNAME_ASC,
+                    self::SORT_FIRSTNAME_DESC,
+            ],
+            self::SORT_LASTNAME => [
+                    self::SORT_LASTNAME_ASC,
+                    self::SORT_LASTNAME_DESC,
+            ]
+    ];
+
+    /** @var string - Define name for user preference sort. */
+    const USER_PREFERENCE_SORT = 'mod_studentquiz_comment_sort';
+
     /**
      * mod_studentquiz_commentarea_list constructor.
      *
@@ -115,8 +185,9 @@ class container {
      * @param mixed $cm - Course Module instance.
      * @param mixed $context - Context instance.
      * @param \stdClass $user - User instance.
+     * @param string $sort - Sort type.
      */
-    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null) {
+    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null, $sort = '') {
         global $USER, $COURSE;
         $this->studentquiz = $studentquiz;
         $this->question = $question;
@@ -131,6 +202,8 @@ class container {
         // If not force commenting, always true;
         $this->refresh_has_comment();
         $this->reportemails = utils::extract_reporting_emails_from_string($studentquiz->reportingemail);
+        $this->set_sort_user_preference($sort);
+        $this->setup_sort();
     }
 
     /**
@@ -291,21 +364,56 @@ class container {
         if (is_numeric($numbertoshow) && $numbertoshow > 0) {
             $this->currentlimit = $numbertoshow;
         }
+        // Check has limit or get all.
+        $haslimit = $this->currentlimit > 0;
 
-        // Set order.
-        $order = $this->basicorder;
-        // If have limit, get latest.
-        if ($this->currentlimit > 0) {
-            $order = 'created DESC';
+        // Build join.
+        $join = '';
+        if ($this->is_user_table_sort()) {
+            $join = 'JOIN {user} u ON u.id = c.userid';
         }
 
+        $userpreferencesort = $this->get_sort();
+
+        // If have limit, always get latest.
+        if ($haslimit) {
+            $order = 'c.created DESC';
+            if ($this->is_user_table_sort()) {
+                $order = $userpreferencesort . ', ' . $order;
+            }
+        } else {
+            $order = $this->get_sort();
+            if ($this->is_user_table_sort()) {
+                $order = $userpreferencesort . ', ' . $this->basicorder;
+            }
+        }
+
+        // Build a where string a = :a AND b = :b.
+        $where = '';
+        foreach (array_keys($params) as $v) {
+            if (!$where) {
+                $where .= "c.$v = :$v";
+            } else {
+                $where .= " AND c.$v = :$v";
+            }
+        }
+
+        // Build limit.
+        $limit = $haslimit ? "LIMIT $this->currentlimit" : '';
+
+        $sql = "SELECT c.*
+                  FROM {studentquiz_comment} c
+                       $join
+                 WHERE $where
+              ORDER BY $order
+                       $limit";
         // Retrieve comments from question.
-        $roots = $DB->get_records('studentquiz_comment', $params, $order, '*', $this->currentoffset, $this->currentlimit);
+        $roots = $DB->get_records_sql($sql, $params);
 
         $data = [];
         if (!empty($roots)) {
-            if ($this->currentlimit > 0) {
-                $roots = array_reverse($roots, true);
+            if ($haslimit) {
+                $roots = $this->resort($roots);
             }
             list($ids, $listids) = $DB->get_in_or_equal(array_column($roots, 'id'));
             $query = "SELECT *
@@ -527,5 +635,230 @@ class container {
      */
     public function get_reporting_emails() {
         return $this->reportemails;
+    }
+
+    /**
+     * Get anonymous mode.
+     *
+     * @return bool
+     */
+    public function anonymous_mode() {
+        $context = $this->get_context();
+        $studentquiz = $this->get_studentquiz();
+        $capability = $studentquiz->anonymrank;
+        if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
+            $capability = false;
+        }
+        return $capability;
+    }
+
+    public function get_fields() {
+        $fields = [];
+        // In anonymous mode, those features is not available.
+        if (!$this->anonymous_mode()) {
+            $fields = array_merge($fields, self::USER_SORT_FIELDS);
+        }
+        return array_merge($fields, self::SORT_FIELDS);
+    }
+
+    /**
+     * Get array of sortable in current context.
+     *
+     * @return array
+     */
+    public function get_sortable() {
+        return self::extract_sort_features_from_sort_fields($this->get_fields());
+    }
+
+    /**
+     * Check if current sort feature can be used to sort.
+     *
+     * @param string $field
+     * @return bool
+     */
+    public function is_sortable($field) {
+        return in_array($field, $this->get_sortable());
+    }
+
+    /**
+     * Setup sort.
+     */
+    public function setup_sort() {
+        $currentsortfeature = $this->get_sort_from_user_preference();
+        // In case we are in anonymous mode, and current sort is not supported, return default sort.
+        if ($this->anonymous_mode() && !$this->is_sortable($currentsortfeature)) {
+            $currentsortfeature = self::SORT_DATE_ASC;
+        }
+        $this->sortfeature = $currentsortfeature;
+    }
+
+    /**
+     * Get sort from user preference. If not set then create one.
+     *
+     * @return string
+     */
+    public function get_sort_from_user_preference() {
+        $sort = get_user_preferences(self::USER_PREFERENCE_SORT);
+        // In case db row is not found.
+        if (is_null($sort)) {
+            set_user_preference(self::USER_PREFERENCE_SORT, self::SORT_DATE_ASC);
+            $sort = get_user_preferences(self::USER_PREFERENCE_SORT);
+        }
+        return $sort;
+    }
+
+    /**
+     * Check if current sort needs to join user table for sort.
+     *
+     * @return bool
+     */
+    public function is_user_table_sort() {
+        return in_array($this->sortfeature, self::extract_sort_features_from_sort_fields(self::USER_SORT_FIELDS));
+    }
+
+    /**
+     * Get all sort features by sort field (date, forename, surname).
+     *
+     * @param array $fields
+     * @return array
+     */
+    public static function extract_sort_features_from_sort_fields($fields) {
+        $sortable = [];
+        if (count($fields) > 0) {
+            foreach ($fields as $field) {
+                if (!isset(self::SORT_FEATURES[$field])) {
+                    continue;
+                }
+                $sortdata = self::SORT_FEATURES[$field];
+                $sortable = array_merge($sortable, $sortdata);
+            }
+        }
+        return $sortable;
+    }
+
+    /**
+     * Convert sort feature to database order.
+     *
+     * @return array
+     */
+    public function extract_user_preference_sort() {
+        $sort = explode('_', $this->sortfeature);
+        $sortfield = self::SORT_DB_FIELDS[$sort[0]];
+        $sortby = $sort[1];
+        // Build into order query. Example: created_at => 'created asc'.
+        $dbsort = $sortfield . ' ' . $sortby;
+        return [$dbsort, $sortfield, $sortby];
+    }
+
+    /**
+     * Build query order by.
+     *
+     * @return string
+     */
+    public function get_sort() {
+        list($dbsort, $sortfield, $sortby) = $this->extract_user_preference_sort();
+        $this->sortfield = $sortfield;
+        $this->sortby = $sortby;
+        return $dbsort;
+    }
+
+    /**
+     * Set user preference sort.
+     *
+     * @param string $string
+     */
+    public function set_sort_user_preference($string) {
+        if ($this->is_sortable($string)) {
+            $currentsort = $this->get_sort_from_user_preference();
+            // If current sort is different, then update. Otherwise no need to call DB.
+            if ($string !== $currentsort) {
+                set_user_preference(self::USER_PREFERENCE_SORT, $string);
+            }
+        }
+    }
+
+    /**
+     * Get current sort feature of comment area.
+     *
+     * @return string
+     */
+    public function get_sort_feature() {
+        return $this->sortfeature;
+    }
+
+    /**
+     * Render sort select filters.
+     *
+     * @return array
+     */
+    public function get_sort_select() {
+        $data = [];
+        foreach ($this->get_fields() as $field) {
+            $type = 'desc';
+            $features = self::SORT_FEATURES[$field];
+            if (in_array($this->sortfeature, $features) && $this->sortby === 'asc') {
+                $type = 'asc';
+            }
+            $classes = $type === 'desc' ? 'filter-desc' : 'filter-asc';
+            // Add current class to current sort href link in fe.
+            if (in_array($this->sortfeature, $features)) {
+                $classes .= ' current';
+            }
+            $asc = \get_string('asc');
+            $desc = \get_string('desc');
+            $typename = \get_string("filter_comment_label_$field", 'studentquiz');
+            $sortbydesc = \get_string('filter_comment_label_sort_toggle', 'studentquiz', [
+                    'field' => $typename,
+                    'type' => $desc
+            ]);
+            $sortbyasc = \get_string('filter_comment_label_sort_toggle', 'studentquiz', [
+                    'field' => $typename,
+                    'type' => $asc
+            ]);
+            $data[] = [
+                    'sortkey' => $field,
+                    'typename' => $typename,
+                    'togglestring' => $type === 'desc' ? $sortbyasc : $sortbydesc,
+                    'orderclass' => $classes,
+                    'ordertype' => $type,
+                    'iconsortname' => ${$type},
+                    'ascstring' => $sortbyasc,
+                    'descstring' => $sortbydesc
+            ];
+        }
+        return $data;
+    }
+
+    /**
+     * Re-sort data when get limit (limit always get latest).
+     *
+     * @param $data
+     * @param $sorttype
+     * @return array
+     */
+    private function resort($data) {
+        // If sort by date desc, do not need re-sort.
+        if ($this->sortfeature === self::SORT_DATE_DESC) {
+            return $data;
+        }
+        // If sort by user name, keep name as it is. But sort time created DESC => ASC.
+        if ($this->is_user_table_sort()) {
+            $orders = [];
+            foreach ($data as $k => $v) {
+                $orders[$v->userid][] = $k;
+            }
+            foreach ($orders as $k => $v) {
+                $orders[$k] = array_reverse($v);
+            }
+            $res = [];
+            foreach ($orders as $v) {
+                foreach ($v as $commentid) {
+                    $res["$commentid"] = $data[$commentid];
+                }
+            }
+            return $res;
+        }
+        // Otherwise just reverse data.
+        return array_reverse($data, true);
     }
 }

@@ -1959,6 +1959,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         }
 
         $forcecommenting = $commentarea->get_studentquiz()->forcecommenting;
+        $sortfeature = $commentarea->get_sort_feature();
+        $sortable = $commentarea->get_sortable();
 
         $jsdata = [
                 'id' => $id,
@@ -1972,7 +1974,9 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'canviewdeleted' => $canviewdeleted,
                 'referer' => $referer,
                 'highlight' => $highlight,
-                'expand' => $isexpand
+                'expand' => $isexpand,
+                'sortfeature' => $sortfeature,
+                'sortable' => $sortable
         ];
         $mform = new \mod_studentquiz\commentarea\form\comment_form([
                 'index' => $id,
@@ -1996,7 +2000,11 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'cancel' => get_string('cancel', 'core'),
                 'error' => get_string('error', 'core'),
                 'replies' => get_string('replies', 'mod_studentquiz'),
-                'reply' => get_string('reply', 'mod_studentquiz')
+                'reply' => get_string('reply', 'mod_studentquiz'),
+                'sort' => [
+                        'asc' => get_string('asc'),
+                        'desc' => get_string('desc')
+                ]
         ];
 
         // Need to pass this to js to calculate current of total comments.
@@ -2010,7 +2018,10 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'postform' => $mform->get_html(),
                 'comments' => $res,
                 'commentcountstring' => $commentcountstring,
-                'hascomment' => $commentarea->check_has_comment()
+                'hascomment' => $commentarea->check_has_comment(),
+                'sortfeature' => $sortfeature,
+                'sortable' => $sortable,
+                'sortselect' => $commentarea->get_sort_select()
         ]);
     }
 }

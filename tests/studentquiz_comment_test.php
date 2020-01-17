@@ -69,6 +69,26 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     /** @var stdClass - Course. */
     protected $course;
 
+    /** @var array - Users list. */
+    protected $userlist = [
+            [
+                    'firstname' => 'Alex',
+                    'lastname' => 'Dan'
+            ],
+            [
+                    'firstname' => 'Chris',
+                    'lastname' => 'Bron'
+            ],
+            [
+                    'firstname' => 'Danny',
+                    'lastname' => 'Civi'
+            ],
+            [
+                    'firstname' => 'Bob',
+                    'lastname' => 'Alex'
+            ],
+    ];
+
     /**
      * Setup for unit test.
      */
@@ -93,19 +113,29 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
 
         // Create user.
-        $user = $this->getDataGenerator()->create_user(['firstname' => 'Student 1']);
-        $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
-        $this->users[] = $user;
+        foreach ($this->userlist as $userdata) {
+            $user = $this->getDataGenerator()->create_user($userdata);
+            $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
+            $this->users[] = $user;
+        }
 
         // Create questions in questionbank.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $q1 = $questiongenerator->create_question('truefalse', null,
                 ['name' => 'TF1', 'category' => $this->studentquiz->categoryid]);
         $q1 = \question_bank::load_question($q1->id);
-        $this->questions = [$q1];
+
+        // Create question 2.
+        $q2 = $questiongenerator->create_question('truefalse', null,
+                ['name' => 'TF2', 'category' => $this->studentquiz->categoryid]);
+        $q2 = \question_bank::load_question($q2->id);
+
+        $this->questions = [$q1, $q2];
 
         $this->commentarea = new \mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, $user);
         $this->rootid = \mod_studentquiz\commentarea\container::PARENTID;
+
+        $this->generate_comment_list_for_sort();
     }
 
     /**
@@ -113,7 +143,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
      * @param bool $convert - Is convert to object data.
      * @return comment|stdClass
      */
-    private function get_comment_by_id ($id, $convert = true) {
+    private function get_comment_by_id($id, $convert = true) {
         $comment = $this->commentarea->query_comment_by_id($id);
         if ($convert) {
             $comment = $comment->convert_to_object();
@@ -156,7 +186,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     }
 
     /**
-     * Test create root comment
+     * Test create root comment.
      */
     public function test_create_root_comment() {
         // Create root comment.
@@ -262,5 +292,133 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         foreach (explode(';', $inputreportemails) as $k => $v) {
             $this->assertEquals($v, $emails[$k]);
         }
+    }
+
+    /**
+     * Generate comment list for sort.
+     */
+    private function generate_comment_list_for_sort() {
+        global $DB;
+        $question = $this->questions[1];
+        $commentarea = $this->commentarea;
+        // All users will comment once.
+        foreach ($this->users as $k => $user) {
+            $records[] = (object) [
+                    'comment' => 'Test comment ' . $user->firstname . ' ' . $user->lastname,
+                    'parentid' => $this->rootid,
+                    'userid' => $user->id,
+                    'created' => $k + 1,
+                    'questionid' => $question->id
+            ];
+        }
+        $DB->insert_records('studentquiz_comment', $records);
+    }
+
+    /**
+     * Test sort feature. (Admin state).
+     */
+    public function test_sort_feature() {
+        $q1 = $this->questions[1];
+        $base = $this->commentarea;
+        // Test sort by date asc.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $base::SORT_DATE_ASC);
+        $comments = $commentarea->fetch_all();
+        $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[3]->get_comment_data()->userid);
+
+        // Test sort by desc.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $base::SORT_DATE_DESC);
+        $comments = $commentarea->fetch_all();
+        $this->assertEquals($this->users[0]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[0]->get_comment_data()->userid);
+
+        // Test sort by first name asc.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $base::SORT_FIRSTNAME_ASC);
+        $comments = $commentarea->fetch_all();
+        $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[3]->get_comment_data()->userid);
+
+        // Test sort by first name desc.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $base::SORT_FIRSTNAME_DESC);
+        $comments = $commentarea->fetch_all();
+        $this->assertEquals($this->users[2]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[0]->id, $comments[3]->get_comment_data()->userid);
+
+        // Test sort by last name asc.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $base::SORT_LASTNAME_ASC);
+        $comments = $commentarea->fetch_all();
+        $this->assertEquals($this->users[3]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[0]->id, $comments[3]->get_comment_data()->userid);
+
+        // Test sort by last name desc.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $base::SORT_LASTNAME_DESC);
+        $comments = $commentarea->fetch_all();
+        $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[3]->get_comment_data()->userid);
+    }
+
+    /**
+     * Test normal user sortable feature.
+     */
+    public function test_sortable_feature() {
+        // Test if a normal user can sort in anonymous.
+        $user = $this->users[0];
+        $q1 = $this->questions[1];
+        $this->setUser($user);
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context);
+        $sortable = $commentarea->get_sortable();
+        // Ok we can only sort by date.
+        $this->assertEquals([
+                $commentarea::SORT_DATE_ASC,
+                $commentarea::SORT_DATE_DESC,
+        ], $sortable);
+
+        // Try to pass sort firstname asc. Expect FAIL.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $commentarea::SORT_FIRSTNAME_ASC);
+        $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_FIRSTNAME_ASC);
+
+        // Try to pass sort firstname desc. Expect FAIL.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $commentarea::SORT_FIRSTNAME_DESC);
+        $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_FIRSTNAME_DESC);
+
+        // Try to pass sort lastname asc. Expect FAIL.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $commentarea::SORT_LASTNAME_ASC);
+        $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_LASTNAME_ASC);
+
+        // Try to pass sort lastname desc. Expect FAIL.
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $commentarea::SORT_LASTNAME_DESC);
+        $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_LASTNAME_DESC);
+
+        // Try to pass sort date desc. Of course it works!
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $commentarea::SORT_DATE_DESC);
+        $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_DESC);
+
+        // Try to pass sort date asc. Of course it works!
+        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+                $commentarea::SORT_DATE_ASC);
+        $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_ASC);
     }
 }

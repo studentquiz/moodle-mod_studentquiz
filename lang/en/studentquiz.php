@@ -232,6 +232,7 @@ $string['privacy:metadata:studentquiz_comment:userid'] = 'ID of the user.';
 $string['privacy:metadata:studentquiz_comment:parentid'] = 'ID of parent comment. 0: top level comment.';
 $string['privacy:metadata:studentquiz_comment:deleted'] = 'Time deleted time comment.';
 $string['privacy:metadata:studentquiz_comment:deleteuserid'] = 'ID of the user deleted comment.';
+$string['privacy:metadata:mod_studentquiz_comment_sort'] = 'A user preference for comment filter type.';
 
 
 $string['privacy:metadata:studentquiz_practice'] = 'Store quiz practices.';
@@ -488,3 +489,9 @@ Report could not be sent.';
 $string['report_comment_emailappendix'] = 'You are receiving this email because your email address has been
 used on the StudentQuiz for reporting unacceptable comment.';
 $string['report_comment_link_text'] = 'Preview here';
+
+$string['filter_comment_label_forename'] = 'Forename';
+$string['filter_comment_label_surname'] = 'Surname';
+$string['filter_comment_label_date'] = 'Date';
+$string['filter_comment_label_sort_by'] = 'Sort by:';
+$string['filter_comment_label_sort_toggle'] = 'Sort by {$a->field} {$a->type}';

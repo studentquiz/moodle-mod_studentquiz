@@ -54,8 +54,30 @@
     </div>
     <div class="studentquiz-comment-filter {{^comments}}hide-comment-filter{{/comments}}">
         <div class="studentquiz-comment-filter-info">
-            <div class="studentquiz-comment-groupselector">{{{groupselector}}}</div>
-            <div class="studentquiz-comment-expand-section">
+            <div class="filter-item studentquiz-comment-filters">
+                <span>{{#str}} filter_comment_label_sort_by, mod_studentquiz {{/str}}</span>
+                {{#sortselect}}
+                    <a href="#" class="studentquiz-comment-filter-item {{ orderclass }}"
+                       data-type="{{sortkey}}"
+                       data-order="{{ordertype}}"
+                       data-type-name="{{typename}}"
+                       data-asc-string="{{ascstring}}"
+                       data-desc-string="{{descstring}}"
+                    >
+                        <div class="studentquiz-comment-filter-name"
+                             title="{{togglestring}}"
+                             alt="{{togglestring}}"
+                        >{{ typename }}</div>
+                        <div class="studentquiz-comment-filter-type"
+                             title="{{iconsortname}}"
+                             alt="{{iconsortname}}"
+                        >
+                            <i class="icon"></i>
+                        </div>
+                    </a>
+                 {{/sortselect}}
+            </div>
+            <div class="filter-item studentquiz-comment-expand-section">
                 <button class="studentquiz-comment-expand" title="{{#str}} expandall, mod_studentquiz {{/str}}">
                     {{#str}} expandall, mod_studentquiz {{/str}}
                 </button>
