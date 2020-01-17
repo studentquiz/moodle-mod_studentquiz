@@ -114,6 +114,14 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     // New StudentQuiz instances use the aggregated mode.
     $studentquiz->aggregated = 1;
 
+    // Set default value for comment deletion period.
+    if (!empty($mform->commentdeletionperiod)) {
+        $studentquiz->commentdeletionperiod = $mform->commentdeletionperiod;
+    }
+    if (empty($studentquiz->commentdeletionperiod)) {
+        $studentquiz->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
+    }
+
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
     $context = context_module::instance($studentquiz->coursemodule);
@@ -169,6 +177,10 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
 
     if (!isset($studentquiz->forcecommenting)) {
         $studentquiz->forcecommenting = 0;
+    }
+
+    if (!isset($studentquiz->commentdeletionperiod)) {
+        $studentquiz->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
     }
 
     $result = $DB->update_record('studentquiz', $studentquiz);
@@ -467,4 +479,26 @@ function mod_studentquiz_question_pluginfile($course, $context, $component,
     }
 
     send_stored_file($file, 0, 0, $forcedownload, $options);
+}
+
+/**
+ * Comment form fragment.
+ *
+ * @param array $params - Params used to load comment form.
+ * @return string
+ */
+function mod_studentquiz_output_fragment_commentform($params) {
+    if (!isset($params['replyto'])) {
+        throw new moodle_exception('missingparam', 'studentquiz');
+    }
+    $cancelbutton = isset($params['cancelbutton']) ? $params['cancelbutton'] : false;
+    // Assign data to edit post form, this will also check for session key.
+    $mform = new \mod_studentquiz\commentarea\form\comment_form([
+            'questionid' => $params['questionid'],
+            'cmid' => $params['cmid'],
+            'replyto' => $params['replyto'],
+            'forcecommenting' => $params['forcecommenting'],
+            'cancelbutton' => $cancelbutton
+    ]);
+    return $mform->get_html();
 }

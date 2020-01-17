@@ -144,6 +144,9 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->forcecommenting)) {
             $data->forcecommenting = get_config('studentquiz', 'forcecommenting');
         }
+        if (empty($data->commentdeletionperiod)) {
+            $data->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
+        }
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
         $this->apply_activity_instance($newitemid);
