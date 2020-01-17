@@ -33,6 +33,7 @@
         <FIELD NAME="closeansweringfrom" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="If non-zero, users cannot attempt questions after the specified date"/>
         <FIELD NAME="publishnewquestion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Setting to automatically publish new created question"/>
         <FIELD NAME="commentdeletionperiod" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="10" SEQUENCE="false" COMMENT="Define deletion period for user can able to delete a comment."/>
+        <FIELD NAME="reportingemail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Email address for reporting unacceptable comments"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

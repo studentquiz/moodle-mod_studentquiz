@@ -235,4 +235,32 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
             $this->assertEquals($numreplies, $v->numberofreply);
         }
     }
+
+    /**
+     * Test report feature. Turn off by default. Then turn it on.
+     */
+    public function test_report_feature() {
+        global $DB;
+        $q1 = $this->questions[0];
+        // Need to use comment class functions. Don't use convert to response data.
+        $comment = $this->create_comment($this->rootid, $q1->id, 'Test comment', false);
+        // Assume that we didn't input any emails for report. It will return false.
+        $this->assertFalse($comment->can_report());
+        // Turn on report.
+        $inputreportemails = 'admin@domain.com;admin1@domail.com';
+        $this->studentquiz->reportingemail = $inputreportemails;
+        $DB->update_record('studentquiz', $this->studentquiz);
+        // Re-init SQ.
+        $this->studentquiz = mod_studentquiz_load_studentquiz($this->cm->id, $this->context->id);
+        // Re-init comment area.
+        $this->commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context);
+        $comment = $this->get_comment_by_id($comment->get_id(), false);
+        // Now report is turned on. It will return true.
+        $this->assertTrue($comment->can_report());
+        // Check emails used for report correct.
+        $emails = $this->commentarea->get_reporting_emails();
+        foreach (explode(';', $inputreportemails) as $k => $v) {
+            $this->assertEquals($v, $emails[$k]);
+        }
+    }
 }

@@ -43,6 +43,9 @@ class comment {
     /** @var string - Allowable tags when shorten text. */
     const ALLOWABLE_TAGS = '<img>';
 
+    /** @var string - Link to page when user press report button. */
+    const ABUSE_PAGE = '/mod/studentquiz/reportcomment.php';
+
     /** @var \question_bank - Question. */
     private $question;
 
@@ -212,6 +215,25 @@ class comment {
     }
 
     /**
+     * Report permission.
+     *
+     * @return bool
+     */
+    public function can_report() {
+        $flag = true;
+        if ($this->is_deleted()) {
+            $this->error = get_string('describe_already_deleted', 'mod_studentquiz');
+            $flag = false;
+        }
+        // If set report emails and comment is not deleted yet.
+        if (empty($this->get_container()->get_reporting_emails())) {
+            $this->error = get_string('report_comment_not_available', 'mod_studentquiz');
+            $flag = false;
+        }
+        return $flag;
+    }
+
+    /**
      * Can reply permission.
      *
      * @return bool
@@ -354,7 +376,10 @@ class comment {
                 $object->deleteuser->lastname = '';
             }
         }
-        $object->hascomment = $container->check_has_comment();
+		$object->hascomment = $container->check_has_comment();
+        $object->canreport = $this->can_report();
+        // Add report link if report enabled.
+        $object->reportlink = $object->canreport ? $this->get_abuse_link($object->id) : null;
         return $object;
     }
 
@@ -392,5 +417,22 @@ class comment {
             return $this->strings['replies'];
         }
         return $this->strings['reply'];
+    }
+
+    /**
+     * Generate report link.
+     *
+     * @param int $commentid
+     * @return string
+     */
+    private function get_abuse_link($commentid) {
+        $questiondata = $this->get_container()->get_question();
+        $params = [
+                'cmid' => $this->get_container()->get_cmid(),
+                'questionid' => $questiondata->id,
+                'commentid' => $commentid
+        ];
+        $url = new \moodle_url(self::ABUSE_PAGE, $params);
+        return $url->out();
     }
 }

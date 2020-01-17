@@ -376,6 +376,14 @@ $string['setting_question_publishing_automatic'] = 'Automatically publish new qu
 $string['setting_question_publishing_require_approval'] = 'Require approval before publishing';
 $string['settings_commentdeletionperiod'] = 'Comment deletion period (minutes)';
 $string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed, with the default being 10. If the deletion period is set to 0, students are unable to delete their own comments. Note that teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
+$string['settings_reportingemail'] = 'Email for reporting offensive comments';
+$string['settings_reportingemail_help'] = 'If this email address is supplied, then a Report link appears
+next to each comment. Users can click the link to report offensive comments. The information will be sent to this address.
+
+If this email is left blank then the Report feature will not be shown (unless a site-level
+reporting  address has been supplied).
+
+More than one email address can be added so long as they are separated by a semi-colon.';
 $string['show_less'] = 'Show less';
 $string['show_more'] = 'Show more';
 $string['slot_of_slot'] = 'Question {$a->slot} of {$a->slots} in this set';
@@ -451,3 +459,32 @@ $string['add_comment'] = 'Add comment';
 $string['add_reply'] = 'Add reply';
 $string['current_of_total'] = '{$a->current} of {$a->total}';
 $string['anonnymous_user_name'] = 'Anonymous User #{$a}';
+$string['invalidemail'] = 'This email address is not valid. Please enter a single email address.';
+$string['report_comment_not_available'] = 'The report comment function is not available.';
+$string['report_comment_pagename'] = 'Report a comment as unacceptable';
+$string['report_comment_info'] = "The 'Report' feature can send this comment to a staff member who will
+investigate. <strong>Please use this feature only if you think the comment breaks the
+rules</strong>.";
+$string['report_comment_reasons'] = 'Reasons for reporting comment:';
+$string['report_comment_condition1'] = 'It is abusive';
+$string['report_comment_condition2'] = 'It is harassment';
+$string['report_comment_condition3'] = 'It contains obscene content such as pornography';
+$string['report_comment_condition4'] = 'It is libellous or defamatory';
+$string['report_comment_condition5'] = 'It infringes copyright';
+$string['report_comment_condition6'] = 'It is against the rules for some other reason';
+$string['report_comment_condition_more'] = 'Other information (optional)';
+$string['report_comment_reporter_info'] = "<strong>Reporter's details</strong>:";
+$string['report_comment_reporter_detail'] = '{$a->fullname} ({$a->username}; {$a->email}; {$a->ip})';
+$string['report_comment_invalid'] = 'You need to specify the reason for reporting this comment.';
+$string['report_comment_invalid_checkbox'] = 'You need to tick at least one of the boxes.';
+$string['report_comment_submit'] = 'Send report';
+$string['report_comment_emailsubject'] = 'Report comment {$a->commentid}: {$a->coursename} {$a->studentquizname}';
+$string['report_comment_emailpreface'] = 'A comment has been reported by {$a->fullname} ({$a->username},
+{$a->email}).';
+$string['report_comment_feedback'] = 'Your report has been sent successfully. A member of staff will
+investigate this issue.';
+$string['error_sendalert'] = 'There was an error sending your report to {$a}.
+Report could not be sent.';
+$string['report_comment_emailappendix'] = 'You are receiving this email because your email address has been
+used on the StudentQuiz for reporting unacceptable comment.';
+$string['report_comment_link_text'] = 'Preview here';

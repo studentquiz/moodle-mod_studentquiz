@@ -81,7 +81,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 TOTAL_REPLY: '.studentquiz-comment-totalreply',
                 COMMENT_FILTER: '.studentquiz-comment-filter',
                 COMMENT_FILTER_HIDE: '.hide-comment-filter',
-                COMMENT_ERROR: '.studentquiz-comment-container .comment-error'
+                COMMENT_ERROR: '.studentquiz-comment-container .comment-error',
+                BTN_REPORT: '.studentquiz-comment-btnreport'
             },
             get: function() {
                 return {
@@ -109,6 +110,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     forceCommenting: false,
                     canViewDeleted: false,
                     hasComment: false,
+                    referer: null,
+                    highlight: 0,
 
                     /**
                      * Init function.
@@ -140,6 +143,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         };
 
                         self.expand = params.expand || false;
+                        self.referer = params.referer;
 
                         // Get all language string.
                         self.string = params.strings;
@@ -156,6 +160,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     initServerRender: function() {
                         var self = this;
+                        self.changeWorkingState(true);
                         $(t.SELECTOR.COMMENT_ITEM).each(function() {
                             var id = $(this).data('id');
                             var attrs = $(this).find(t.SELECTOR.SPAN_COMMENT_ID + id);
@@ -169,14 +174,37 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 numberofreply: attrs.data('numberofreply'),
                                 expanded: self.expand,
                                 replies: replies,
-                                root: true,
-                                authorid: attrs.data('authorid')
+                                root: true
                             };
                             self.bindCommentEvent(comment);
                         });
-                        self.changeWorkingState(true);
-                        self.updateCommentCount(self.countServerData.count.commentcount, self.countServerData.total);
-                        self.btnExpandAll.show();
+
+                        // If expanded, current comment count is total comments + replies.
+                        var commentcount = self.expand ? self.countServerData.total : self.countServerData.count.commentcount;
+                        self.updateCommentCount(commentcount, self.countServerData.total);
+
+                        if (self.expand) {
+                            self.btnExpandAll.hide();
+                            self.btnCollapseAll.show();
+                        } else {
+                            self.btnExpandAll.show();
+                            self.btnCollapseAll.hide();
+                        }
+
+                        // Highlight.
+                        var query = window.location.search.substring(1);
+                        var getParams = self.parseQueryString(query);
+                        self.highlight = parseInt(getParams.highlight) || 0;
+                        // End set highlight.
+
+                        // Scroll to.
+                        if (self.highlight !== 0) {
+                            var target = $(t.SELECTOR.COMMENT_ID + self.highlight);
+                            if (target.length) {
+                                self.scrollToElement(target);
+                            }
+                        }
+
                         self.changeWorkingState(false);
                     },
 
@@ -474,9 +502,17 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         // Loop comments and replies to get id and bind event for button inside it.
                         var el = self.containerSelector.find(t.SELECTOR.COMMENT_ID + data.id);
                         var i = 0;
-                        for (i; i < data.replies.length; i++) {
-                            var reply = data.replies[i];
-                            self.bindReplyEvent(reply, el);
+                        if (data.root && data.hasOwnProperty('replies')) {
+                            for (i; i < data.replies.length; i++) {
+                                var reply = data.replies[i];
+                                if (!reply.hasOwnProperty('expand')) {
+                                    reply.expand = true;
+                                }
+                                if (!reply.hasOwnProperty('root')) {
+                                    reply.root = false;
+                                }
+                                self.bindReplyEvent(reply, el);
+                            }
                         }
                         el.find(t.SELECTOR.BTN_DELETE).click(function(e) {
                             self.bindDeleteEvent(data);
@@ -494,6 +530,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             e.preventDefault();
                             self.bindCollapseEvent(data);
                         });
+                        el.find(t.SELECTOR.BTN_REPORT).click(function(e) {
+                            e.preventDefault();
+                            window.location = $(this).data('href');
+                        });
                     },
 
                     /**
@@ -508,6 +548,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         replySelector.find(t.SELECTOR.BTN_DELETE_REPLY).click(function(e) {
                             self.bindDeleteEvent(reply);
                             e.preventDefault();
+                        });
+                        replySelector.find(t.SELECTOR.BTN_REPORT).click(function(e) {
+                            e.preventDefault();
+                            window.location = $(this).data('href');
                         });
                     },
 
@@ -528,6 +572,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.elementSelector.find(t.SELECTOR.BTN_REPLY).prop('disabled', boolean);
                         self.elementSelector.find(t.SELECTOR.BTN_DELETE).prop('disabled', boolean);
                         self.elementSelector.find(t.SELECTOR.BTN_DELETE_REPLY).prop('disabled', boolean);
+                        self.elementSelector.find(t.SELECTOR.BTN_REPORT).prop('disabled', boolean);
                         self.elementSelector.find(t.SELECTOR.EXPAND_LINK).css('visibility', visibility);
                         self.elementSelector.find(t.SELECTOR.COLLAPSE_LINK).css('visibility', visibility);
                         if (self.deleteDialog) {
@@ -729,6 +774,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 item.replies = [];
                             }
                             self.setHasComment(item.hascomment);
+                            item.highlight = item.id === self.highlight;
+                            if (self.referer && item.reportlink) {
+                                item.reportlink = self.buildRefererReportLink(item.reportlink, item.id);
+                            }
                             // Only root comment has replies.
                             if (item.root) {
                                 for (var j = 0; j < item.replies.length; j++) {
@@ -737,6 +786,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     reply.canviewdeleted = self.canViewDeleted;
                                     if (!reply.hasOwnProperty('replies')) {
                                         reply.replies = [];
+                                    }
+                                    reply.highlight = reply.id === self.highlight;
+                                    if (self.referer && reply.reportlink) {
+                                        reply.reportlink = self.buildRefererReportLink(reply.reportlink, reply.id);
                                     }
                                 }
                             }
@@ -952,9 +1005,11 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         });
                     },
 
-                    /*
-                    * Bind comment delete event.
-                    * */
+                    /**
+                     * Bind comment delete event.
+                     *
+                     * @param {Object} data
+                     */
                     bindDeleteEvent: function(data) {
                         var self = this;
                         self.deleteTarget = data;
@@ -1174,6 +1229,65 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 container.removeClass(hasCommentClass);
                             }
                         }
+                    },
+
+                    /**
+                     * Parse query string.
+                     *
+                     * @param {string} query
+                     * @return {string}
+                     */
+                    parseQueryString: function(query) {
+                        var vars = query.split("&");
+                        var queryString = {};
+                        for (var i = 0; i < vars.length; i++) {
+                            var pair = vars[i].split("=");
+                            var key = decodeURIComponent(pair[0]);
+                            var value = decodeURIComponent(pair[1]);
+                            // If first entry with this name.
+                            if (typeof queryString[key] === "undefined") {
+                                queryString[key] = decodeURIComponent(value);
+                                // If second entry with this name.
+                            } else if (typeof queryString[key] === "string") {
+                                queryString[key] = [queryString[key], decodeURIComponent(value)];
+                                // If third or later entry with this name.
+                            } else {
+                                queryString[key].push(decodeURIComponent(value));
+                            }
+                        }
+                        return queryString;
+                    },
+
+                    /**
+                     * Scroll to element.
+                     *
+                     * @param {jQuery} target
+                     * @param {Integer} speed
+                     */
+                    scrollToElement: function(target, speed) {
+                        if (!target.length) {
+                            return;
+                        }
+                        if (typeof speed === 'undefined') {
+                            speed = 1000;
+                        }
+                        var top = target.offset().top;
+                        $('html,body').animate({scrollTop: top}, speed);
+                    },
+
+                    /**
+                     * Build referer report link.
+                     *
+                     * @param {string} link
+                     * @param {Integer} id
+                     * @returns {string}
+                     */
+                    buildRefererReportLink: function(link, id) {
+                        var self = this;
+                        var referer = decodeURIComponent(self.referer);
+                        // Add highlight.
+                        link += '&referer=' + encodeURIComponent(referer + '&highlight=' + id);
+                        return link;
                     },
 
                     /**

@@ -227,3 +227,49 @@ Feature: Create comment as an user
     And I press "Check"
     And I wait until the page is ready
     And I should not see "Comment 1"
+
+  @javascript
+  Scenario: Test report comment feature.
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    # Try to report when disable report feature.
+    When I follow "StudentQuiz 1"
+    And I click on "Start Quiz" "button"
+    And I set the field "True" to "1"
+    And I press "Check"
+    And I wait until the page is ready
+    When I enter the text "Comment 1" into the "Add comment" editor
+    And I press "Add comment"
+    And I wait until the page is ready
+    And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    # Not visible!
+    Then I should not see "Report"
+    # Enable report feature.
+    When I follow "StudentQuiz 1"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    # Try to input wrong format.
+    And I set the field "Email for reporting offensive comments" to "admin@domain.com;"
+    When I press "Save and display"
+    Then I should see "This email address is not valid. Please enter a single email address."
+    # Then input right one.
+    When I set the field "Email for reporting offensive comments" to "admin@domain.com;admin1@domain.com"
+    And I press "Save and display"
+    Then I should see "StudentQuiz 1"
+    # Try to report.
+    And I click on "Start Quiz" "button"
+    And I set the field "True" to "1"
+    And I press "Check"
+    And I wait until the page is ready
+    Then I should see "Report"
+    # Test with Report feature.
+    When I click on "Report" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+    Then I should see "Report a comment as unacceptable"
+    And I set the field "It is abusive" to "1"
+    When I press "Send report"
+    Then I should see "Your report has been sent successfully"
+    When I press "Continue"
+    And I wait until the page is ready
+    # After report, check we navigate back.
+    Then I should see "Add comment"

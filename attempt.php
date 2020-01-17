@@ -28,6 +28,8 @@ require_once(__DIR__ . '/locallib.php');
 
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
+// Comment highlight.
+$highlight = optional_param('highlight', 0, PARAM_INT);
 
 // Load course and course module requested.
 if ($cmid) {
@@ -276,7 +278,7 @@ $html .= html_writer::end_tag('form');
 
 // Output the comments.
 if ($hasanswered) {
-    $html .= $output->render_comment($cmid, $question->id, $userid);
+    $html .= $output->render_comment($cmid, $question->id, $userid, $highlight);
 }
 
 
