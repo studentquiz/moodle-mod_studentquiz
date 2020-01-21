@@ -1880,7 +1880,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
     const MODNAME = 'mod_studentquiz';
 
     /**
-     * Generate HTML to render comments
+     * Generate HTML to render comments.
      *
      * @param int $questionid - Question id.
      * @param int $userid - User id.

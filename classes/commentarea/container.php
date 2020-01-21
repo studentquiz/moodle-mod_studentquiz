@@ -199,7 +199,7 @@ class container {
         $this->ismoderator = has_capability('mod/studentquiz:previewothers', $context);
         $this->canviewdeleted = $this->ismoderator;
 
-        // If not force commenting, always true;
+        // If not force commenting, always true.
         $this->refresh_has_comment();
         $this->reportemails = utils::extract_reporting_emails_from_string($studentquiz->reportingemail);
         $this->set_sort_user_preference($sort);

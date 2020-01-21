@@ -610,12 +610,12 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertFalse($DB->record_exists_sql($sql, $commentparams));
 
         // Test root comment became blank.
-        $rootcommentafterdelete = $DB->get_record('studentquiz_comment', ['id' => $rootcomment->id]);
-        $this->assertEquals($rootcomment->id, $rootcommentafterdelete->id);
-        $this->assertEquals('', $rootcommentafterdelete->comment);
-        $this->assertEquals($guestid, $rootcommentafterdelete->userid);
-        $this->assertEquals($guestid, $rootcommentafterdelete->deleteuserid);
-        $this->assertTrue($rootcommentafterdelete->deleted != 0);
+        $commentafterdelete = $DB->get_record('studentquiz_comment', ['id' => $rootcomment->id]);
+        $this->assertEquals($rootcomment->id, $commentafterdelete->id);
+        $this->assertEquals('', $commentafterdelete->comment);
+        $this->assertEquals($guestid, $commentafterdelete->userid);
+        $this->assertEquals($guestid, $commentafterdelete->deleteuserid);
+        $this->assertTrue($commentafterdelete->deleted != 0);
 
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2

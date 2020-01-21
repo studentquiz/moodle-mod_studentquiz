@@ -364,7 +364,7 @@ class comment {
             if ($container->can_view_username() || $this->is_creator()) {
                 $object->authorname = $this->get_user()->fullname;
             } else {
-                $object->authorname = get_string('anonnymous_user_name', 'mod_studentquiz', $object->rownumber);
+                $object->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $object->rownumber);
             }
             $object->posttime = userdate($this->get_created(), $this->strings['timeformat']);
             if ($this->is_deleted()) {
@@ -376,7 +376,7 @@ class comment {
                 $object->deleteuser->lastname = '';
             }
         }
-		$object->hascomment = $container->check_has_comment();
+        $object->hascomment = $container->check_has_comment();
         $object->canreport = $this->can_report();
         // Add report link if report enabled.
         $object->reportlink = $object->canreport ? $this->get_abuse_link($object->id) : null;

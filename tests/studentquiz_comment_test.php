@@ -299,7 +299,6 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     private function generate_comment_list_for_sort() {
         global $DB;
         $question = $this->questions[1];
-        $commentarea = $this->commentarea;
         // All users will comment once.
         foreach ($this->users as $k => $user) {
             $records[] = (object) [
