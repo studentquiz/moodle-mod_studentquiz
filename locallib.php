@@ -1037,21 +1037,66 @@ function mod_studentquiz_get_roles() {
 function mod_studentquiz_ensure_question_capabilities($context) {
     global $CFG;
 
-    $neededcapabilities = array(
-        'moodle/question:add',
-        'moodle/question:usemine',
-        'moodle/question:viewmine',
-        'moodle/question:editmine'
-    );
+    $neededcapabilities = [
+            'mod/studentquiz:view' => [
+                    'moodle/question:useall'
+            ],
+            'mod/studentquiz:submit' => [
+                    'moodle/question:add',
+                    'moodle/question:viewmine',
+                    'moodle/question:editmine'
+            ],
+            'mod/studentquiz:previewothers' => [
+                    'moodle/question:viewall',
+                    'moodle/question:editall'
+            ],
+            'mod/studentquiz:manage' => [
+                    'moodle/question:add',
+                    'moodle/question:viewall',
+                    'moodle/question:editall'
+            ]
+    ];
+
+    $studentquizcapabilities = array_keys($neededcapabilities);
+
+    $extracapabilities = [];
+    $capabiltiesneededbyeachrole = [];
     if ($CFG->version >= 2018051700) { // Moodle 3.5+.
-        $neededcapabilities[] = 'moodle/question:tagmine';
+        $extracapabilities[] = 'moodle/question:tagmine';
     }
 
-    // Get the ids of all the roles that can submit questions in this activity.
-    list($roleids) = get_roles_with_cap_in_context($context, 'mod/studentquiz:submit');
-    foreach ($roleids as $roleid) {
+    foreach ($studentquizcapabilities as $studentquizcapability) {
+        // Get the ids of all the roles that related to given capability.
+        list($roleids) = get_roles_with_cap_in_context($context, $studentquizcapability);
+        foreach ($roleids as $roleid) {
+            if (!array_key_exists($roleid, $capabiltiesneededbyeachrole)) {
+                $capabiltiesneededbyeachrole[$roleid] = $neededcapabilities[$studentquizcapability];
+            } else {
+                $capabiltiesneededbyeachrole[$roleid] =
+                        array_merge($capabiltiesneededbyeachrole[$roleid], $neededcapabilities[$studentquizcapability]);
+            }
+        }
+    }
+
+    foreach ($capabiltiesneededbyeachrole as $roleid => $questioncapabilites) {
+        $capabilitieswithall  = preg_grep('/all$/', $questioncapabilites);
+        foreach ($capabilitieswithall as $capabilitiy) {
+            $capabilitieswithmine = preg_replace('/all$/', 'mine', $capabilitiy);
+            if (in_array($capabilitieswithmine, $questioncapabilites)) {
+                // Remove the 'mine' if we have 'all' capability.
+                $deletekey = array_search($capabilitieswithmine, $capabiltiesneededbyeachrole[$roleid]);
+                unset($capabiltiesneededbyeachrole[$roleid][$deletekey]);
+            }
+        }
+    }
+
+    foreach ($capabiltiesneededbyeachrole as $roleid => $questioncapabilites) {
+        // Include the extra capabilities if needed.
+        if (!empty($extracapabilities)) {
+            $questioncapabilites = array_merge($questioncapabilites, $extracapabilities);
+        }
         // If needed, add an override for each question capability.
-        foreach ($neededcapabilities as $capability) {
+        foreach ($questioncapabilites as $capability) {
             // This function only creates an override if needed.
             role_change_permission($roleid, $context, $capability, CAP_ALLOW);
         }
