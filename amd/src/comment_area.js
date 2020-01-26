@@ -42,6 +42,11 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
             ACTION_COLLAPSE_ALL: 'action_collapse_all',
             ACTION_RENDER_COMMENT: 'action_render_comment',
             ACTION_APPEND_COMMENT: 'action_append_comment',
+            ACTION_EDITOR_INIT: 'action_editor_init',
+            ACTION_INIT: 'action_init',
+            ACTION_UPDATE_COMMENT_COUNT: 'action_update_comment_count',
+            ACTION_CLEAR_FORM: 'action_clear_form',
+            ACTION_SHOW_ERROR: 'action_show_error',
             FRAGMENT_FORM_CALLBACK: 'commentform',
             HAS_COMMENT_CLASS: 'has-comment',
             SELECTOR: {
@@ -126,6 +131,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Object} params
                      */
                     init: function(params) {
+                        M.util.js_pending(t.ACTION_INIT);
                         var self = this;
                         // Assign attribute.
                         self.elementSelector = $('#' + $.escapeSelector(params.id));
@@ -163,6 +169,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.initServerRender();
                         self.initBindEditor();
                         self.bindEvents();
+                        M.util.js_complete(t.ACTION_INIT);
                     },
 
                     /**
@@ -223,12 +230,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     initBindEditor: function() {
                         var self = this;
+                        M.util.js_pending(t.ACTION_EDITOR_INIT);
                         // Interval to init atto editor, there are time when Atto's Javascript slow to init the editor, so we
                         // check interval here to make sure the Atto is init before calling our script.
                         var interval = setInterval(function() {
                             if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                                 self.bindEditorEvent(self.formSelector);
                                 clearInterval(interval);
+                                M.util.js_complete(t.ACTION_EDITOR_INIT);
                             }
                         }, 500);
                     },
@@ -321,6 +330,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     attoWrap.addClass('error');
                                     attoWrap.prepend('<span class="error" tabindex="0">' + self.string.required + '</span>');
                                 }
+                                M.util.js_complete(t.ACTION_CREATE);
                                 return false;
                             }
                             var params = {
@@ -331,12 +341,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 },
                             };
                             self.createComment(params).then(function(response) {
+                                M.util.js_pending(t.ACTION_CLEAR_FORM);
                                 // Clear form in setTimeout to prevent require message still shown when reset on Firefox.
                                 setTimeout(function() {
                                     // Clear form data.
                                     formSelector.trigger('reset');
                                     // Clear atto editor data.
                                     formSelector.find('#id_editor_question_' + unique + 'editable').empty();
+                                    M.util.js_complete(t.ACTION_CLEAR_FORM);
                                 });
                                 var data = self.convertForTemplate(response, true);
                                 // Disable reply button since content is now empty.
@@ -473,10 +485,12 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     showError: function(message) {
                         var self = this;
+                        M.util.js_pending(t.ACTION_SHOW_ERROR);
                         // Get error string for title.
                         $.when(self.string.error).done(function(string) {
                             self.showDialog(string, message);
                             self.changeWorkingState(false);
+                            M.util.js_complete(t.ACTION_SHOW_ERROR);
                         });
                     },
 
@@ -517,6 +531,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Integer|NULL} total
                      */
                     updateCommentCount: function(current, total) {
+                        M.util.js_pending(t.ACTION_UPDATE_COMMENT_COUNT);
                         var self = this;
 
                         // If total parameter is not set, use the old value.
@@ -555,6 +570,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                         $.when(s).done(function(text) {
                             self.elementSelector.find(t.SELECTOR.COMMENT_COUNT).text(text);
+                            M.util.js_complete(t.ACTION_UPDATE_COMMENT_COUNT);
                         });
                     },
 
@@ -583,7 +599,6 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             self.changeWorkingState(false);
                             M.util.js_complete(t.ACTION_RENDER_COMMENT);
                         });
-                        return false;
                     },
 
                     /**
@@ -971,8 +986,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     * */
                     loadFragmentForm: function(fragmentForm, item) {
                         var self = this;
-                        var key = t.ACTION_LOAD_FRAGMENT_FORM;
-                        M.util.js_pending(key);
+                        M.util.js_pending(t.ACTION_LOAD_FRAGMENT_FORM);
                         var params = self.getParamsBeforeCallApi({
                             replyto: item.id,
                             cancelbutton: true,
@@ -995,7 +1009,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentFormEvent(fragmentForm, item);
-                            M.util.js_complete(key);
+                            M.util.js_complete(t.ACTION_LOAD_FRAGMENT_FORM);
                         });
                     },
 

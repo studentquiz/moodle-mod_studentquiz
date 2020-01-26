@@ -21,56 +21,53 @@
 
     Example context (json):
     {
-        {
-                "id": 1,
+        "id": 1,
+        "questionid": 29,
+        "parentid": 0,
+        "content": "This is a comment text",
+        "shortcontent": "This is a comment text",
+        "numberofreply": 1,
+        "plural": false,
+        "candelete": true,
+        "canviewdeleted": true,
+        "canreply": true,
+        "deleleuser": {
+            "firstname": "",
+            "lastname": ""
+        },
+        "deleted": false,
+        "deletedtime": 0,
+        "iscreator": true,
+        "rownumber": 1,
+        "root": true,
+        "authorname": "Teacher",
+        "posttime": "6 December 2019, 4:06 PM",
+        "replies": [
+              {
+                "id": 2,
                 "questionid": 29,
-                "parentid": 0,
-                "content": "This is a comment text",
-                "shortcontent": "This is a comment text",
-                "numberofreply": 1,
-                "plural": false,
+                "parentid": 1,
+                "content": "This is a comment reply text",
+                "shortcontent": "This is a comment reply text",
+                "numberofreply": 0,
+                "plural": "reply",
                 "candelete": true,
                 "canviewdeleted": true,
                 "canreply": true,
                 "deleleuser": {
                     "firstname": "",
-                    "lastname": "",
+                    "lastname": ""
                 },
                 "deleted": false,
                 "deletedtime": 0,
                 "iscreator": true,
-                "rownumber": 1,
-                "root": true,
-                "authorname": "Teacher"
-                "posttime": "6 December 2019, 4:06 PM"
-                "replies": [
-                      {
-                        "id": 2,
-                        "questionid": 29,
-                        "parentid": 1,
-                        "content": "This is a comment reply text",
-                        "shortcontent": "This is a comment reply text",
-                        "numberofreply": 0,
-                        "plural": "reply",
-                        "candelete": true,
-                        "canviewdeleted": true,
-                        "canreply": true,
-                        "deleleuser": {
-                            "firstname": "",
-                            "lastname": "",
-                        },
-                        "deleted": false,
-                        "deletedtime": 0,
-                        "iscreator": true,
-                        "rownumber": 2,
-                        "root": false,
-                        "authorname": "Teacher",
-                        "posttime": "6 December 2019, 4:08 PM"
-                    }
-                ]
-         }
+                "rownumber": 2,
+                "root": false,
+                "authorname": "Teacher",
+                "posttime": "6 December 2019, 4:08 PM"
+            }
+        ]
     }
-
 }}
 <div class="studentquiz-comment-item {{#highlight}}highlighted{{/highlight}}" id="comment_{{id}}" data-id="{{id}}">
     <span id="c{{id}}" data-deleted="{{ deleted }}" data-numberofreply="{{numberofreply}}"
