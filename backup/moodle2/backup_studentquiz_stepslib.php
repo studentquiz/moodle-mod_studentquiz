@@ -47,10 +47,11 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // Define the root element describing the StudentQuiz instance.
         $studentquiz = new backup_nested_element('studentquiz', array('id'), array(
-            'coursemodule', 'name', 'intro', 'introformat', 'grade', 'anonymrank', 'quizpracticebehaviour',
-            'questionquantifier', 'approvedquantifier', 'ratequantifier',
-            'correctanswerquantifier', 'incorrectanswerquantifier',
-            'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting'
+                'coursemodule', 'name', 'intro', 'introformat', 'grade', 'anonymrank', 'quizpracticebehaviour',
+                'questionquantifier', 'approvedquantifier', 'ratequantifier',
+                'correctanswerquantifier', 'incorrectanswerquantifier',
+                'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting',
+                'commentdeletionperiod', 'reportingemail'
         ));
 
         // StudentQuiz Attempt -> User, Question usage Id.
@@ -85,7 +86,9 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // Comment -> Question, User.
         $comments = new backup_nested_element('comments');
-        $comment = new backup_nested_element('comment', array('questionid', 'userid', 'id'), array('comment', 'created'));
+        $comment = new backup_nested_element('comment', array('questionid', 'userid', 'id'), [
+                'comment', 'created', 'parentid', 'deleted', 'deleteuserid'
+        ]);
         $comments->add_child($comment);
         $studentquiz->add_child($comments);
 
@@ -123,13 +126,15 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
             $rate->set_source_sql($ratesql, array('studentquizid' => backup::VAR_PARENTID));
 
             // Only select comments to questions of this StudentQuiz.
+            // Need to order by parentid + id (root comments always first).
             $commentsql = "SELECT comment.*
                              FROM {studentquiz} sq
                              JOIN {context} con ON con.instanceid = sq.coursemodule
                              JOIN {question_categories} qc ON qc.contextid = con.id
                         LEFT JOIN {question} q ON q.category = qc.id
                              JOIN {studentquiz_comment} comment ON comment.questionid = q.id
-                            WHERE sq.id = :studentquizid";
+                            WHERE sq.id = :studentquizid
+                         ORDER BY comment.parentid, comment.id";
             $comment->set_source_sql($commentsql, array('studentquizid' => backup::VAR_PARENTID));
         }
 
@@ -140,6 +145,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $question->annotate_ids('question', 'questionid');
         $rate->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'userid');
+        $comment->annotate_ids('user', 'deleteuserid');
 
         // Define file annotations (we do not use itemid in this example).
         $studentquiz->annotate_files('mod_studentquiz', 'intro', null);

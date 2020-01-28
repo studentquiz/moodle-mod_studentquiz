@@ -63,10 +63,6 @@ switch($save) {
         $data->rate = required_param('rate', PARAM_INT);
         mod_studentquiz_save_rate($data);
         break;
-    case 'comment':
-        $data->comment = required_param('text', PARAM_TEXT);
-        mod_studentquiz_save_comment($data, $course, $module);
-        break;
 }
 
 header('Content-Type: text/html; charset=utf-8');

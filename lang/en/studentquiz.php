@@ -29,9 +29,11 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['add_comment'] = 'Add comment';
 $string['abort_button'] = 'Abort';
+$string['add_reply'] = 'Add reply';
 $string['after_answering_end_date'] = 'This StudentQuiz closed for answering on {$a}.';
 $string['after_submission_end_date'] = 'This StudentQuiz closed for question submission on {$a}.';
 $string['answeringndbeforestart'] = 'Answering deadline can not be specified before the open for answering date';
+$string['anonymous_user_name'] = 'Anonymous User #{$a}';
 $string['api_state_change_success_content'] = 'Question state/visibility changed successfully';
 $string['api_state_change_success_title'] = 'Success';
 $string['approve'] = 'Approve';
@@ -46,18 +48,30 @@ $string['before_answering_start_date'] = 'Open for answering from {$a}.';
 $string['before_submission_end_date'] = 'This StudentQuiz closes for question submission on {$a}.';
 $string['before_submission_start_date'] = 'Open for question submission from {$a}.';
 $string['changeselectedsstate'] = 'Change the state of the following questions:<br /><br />{$a}';
+$string['collapseall'] = 'Collapse all comments';
+$string['collapsecomment'] = 'Collapse comment';
 $string['comment_column_name'] = 'Comments';
 $string['comment_error'] = 'Please comment';
 $string['comment_error_unsaved'] = 'Do you want to save this comment first?';
 $string['comment_help'] = 'Write a comment';
 $string['comment_help_help'] = 'Write a comment to the question';
 $string['comment_veryshort'] = 'C';
+$string['confirmdeletecomment'] = 'Are you sure you want to delete this comment?';
 $string['createnewquestion'] = 'Create new question';
 $string['createnewquestionfirst'] = 'Create first question';
 $string['creator_anonym_fullname'] = 'Anonymous Student';
+$string['current_of_total'] = '{$a->current} of {$a->total}';
 $string['difficulty_all_column_name'] = 'Community Difficulty';
 $string['difficulty_level_column_name'] = 'Difficulty';
 $string['difficulty_title'] = 'Difficulty bar';
+$string['delete'] = 'Delete';
+$string['deletecomment'] = 'Delete comment';
+$string['deletedbyuser'] = 'This comment was deleted by {$a->user} on {$a->date}.';
+$string['deletedbyauthor'] = 'This comment was deleted on {$a}.';
+$string['deletedcomment'] = 'Comment deleted.';
+$string['describe_already_deleted'] = 'This comment is already deleted.';
+$string['describe_not_creator'] = 'This is not your comment.';
+$string['describe_out_of_time_delete'] = 'This comment is out of time to delete';
 $string['emailapprovedbody'] = 'Dear {$a->recepientname},
 
 Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been approved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
@@ -129,8 +143,19 @@ You can review this question at: {$a->questionurl}.';
 $string['emailunhiddensmall'] = 'Your question \'{$a->questionname}\' has been unhidden by {$a->actorname}.';
 $string['emailunhiddensubject'] = 'Question has been unhidden: {$a->questionname}';
 
+$string['editorplaceholder'] = 'Enter your comment here ...';
+$string['error_form_validation'] = '{$a}';
+$string['error_sendalert'] = 'There was an error sending your report to {$a}.
+Report could not be sent.';
+$string['expandcomment'] = 'Expand comment';
+$string['expandall'] = 'Expand all comments';
 $string['filter'] = 'Filter';
 $string['filter_advanced_element'] = '{$a} (Advanced element)';
+$string['filter_comment_label_forename'] = 'Forename';
+$string['filter_comment_label_surname'] = 'Surname';
+$string['filter_comment_label_date'] = 'Date';
+$string['filter_comment_label_sort_by'] = 'Sort by:';
+$string['filter_comment_label_sort_toggle'] = 'Sort by {$a->field} {$a->type}';
 $string['filter_ishigher'] = 'Is higher';
 $string['filter_islower'] = 'Is lower';
 $string['filter_label_approved'] = 'Approved questions';
@@ -157,16 +182,22 @@ $string['filter_label_onlynew_help'] = 'Questions you have never answered before
 $string['filter_label_practice'] = 'Attempts';
 $string['filter_label_question'] = 'Question title';
 $string['filter_label_questiontext'] = 'Question content';
+$string['filter_label_question_creation_item'] = '{$a->creationtext} {$a->rowtext} {$a->inputtext}';
+$string['filter_label_question_creation_item_inputtext'] = '{$a->inputtext} {$a->inputtype}';
 $string['filter_label_rates'] = 'Rating';
 $string['filter_label_show_mine'] = 'My questions';
 $string['filter_label_tags'] = 'Tag';
 $string['finish_button'] = 'Finish';
+$string['image_placeholder'] = ' [Image] ';
+$string['invalidcomment'] = 'invalidcomment';
+$string['invalidemail'] = 'This email address is not valid. Please enter a single email address.';
 $string['lastattempt_right'] = '✓';
 $string['lastattempt_right_label'] = 'Last attempt correct';
 $string['lastattempt_wrong'] = '✗';
 $string['lastattempt_wrong_label'] = 'Last attempt incorrect';
 $string['latest_column_name'] = 'Latest';
 $string['manager_anonym_fullname'] = 'Anonymous Manager';
+$string['message'] = 'Message';
 $string['messageprovider:approved'] = 'Question approved notification';
 $string['messageprovider:changed'] = 'Question changed notification';
 $string['messageprovider:commentadded'] = 'Comment added notification';
@@ -183,6 +214,8 @@ $string['migrate_studentquiz'] = 'Migrate StudentQuiz questions prior to version
 $string['migrate_studentquiz_short'] = 'Speed-up this question set';
 $string['migrated_successful'] = 'This activity has been migrated successfully!';
 $string['mine_column_name'] = 'Mine';
+$string['missingparam'] = 'A required parameter is missing or wrong';
+$string['moderator'] = 'Moderator';
 $string['modulename'] = 'StudentQuiz';
 $string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.';
 $string['modulename_link'] = 'mod/studentquiz/view';
@@ -213,6 +246,8 @@ $string['no_tags'] = 'n.a.';
 $string['not_approved'] = '✗';
 $string['num_questions'] = '{$a} questions';
 $string['number_column_name'] = 'Number';
+$string['numberreply'] = '{$a} Replies';
+$string['onlyrootcommentcanreply'] = 'Only first level of comment can be reply';
 $string['pagesize'] = 'Page size:';
 $string['please_enrole_message'] = 'Please enroll in this course to see your personal progress';
 $string['pluginadministration'] = 'StudentQuiz Administration';
@@ -229,6 +264,11 @@ $string['privacy:metadata:studentquiz_comment:comment'] = 'Comment of the questi
 $string['privacy:metadata:studentquiz_comment:created'] = 'Time created time comment.';
 $string['privacy:metadata:studentquiz_comment:questionid'] = 'ID of the question.';
 $string['privacy:metadata:studentquiz_comment:userid'] = 'ID of the user.';
+$string['privacy:metadata:studentquiz_comment:parentid'] = 'ID of parent comment. 0: top level comment.';
+$string['privacy:metadata:studentquiz_comment:deleted'] = 'Time deleted time comment.';
+$string['privacy:metadata:studentquiz_comment:deleteuserid'] = 'ID of the user deleted comment.';
+$string['privacy:metadata:mod_studentquiz_comment_sort'] = 'A user preference for comment filter type.';
+
 $string['privacy:metadata:studentquiz_practice'] = 'Store quiz practices.';
 $string['privacy:metadata:studentquiz_practice:quizcoursemodule'] = 'Quiz course module.';
 $string['privacy:metadata:studentquiz_practice:studentquizcoursemodule'] = 'StudentQuiz course module.';
@@ -322,6 +362,36 @@ $string['reportrank_table_quantifier_caption'] = 'How your points are calculated
 $string['reportrank_table_title'] = 'Student ranking - Top 10';
 $string['reportrank_table_title_for_manager'] = 'Student ranking';
 $string['reportrank_title'] = 'Ranking';
+$string['reportcomment'] = 'Report';
+$string['replycomment'] = 'Reply';
+$string['reply'] = 'Reply';
+$string['replies'] = 'Replies';
+$string['report_comment_not_available'] = 'The report comment function is not available.';
+$string['report_comment_pagename'] = 'Report a comment as unacceptable';
+$string['report_comment_info'] = "The 'Report' feature can send this comment to a staff member who will
+investigate. <strong>Please use this feature only if you think the comment breaks the
+rules</strong>.";
+$string['report_comment_reasons'] = 'Reasons for reporting comment:';
+$string['report_comment_condition1'] = 'It is abusive';
+$string['report_comment_condition2'] = 'It is harassment';
+$string['report_comment_condition3'] = 'It contains obscene content such as pornography';
+$string['report_comment_condition4'] = 'It is libellous or defamatory';
+$string['report_comment_condition5'] = 'It infringes copyright';
+$string['report_comment_condition6'] = 'It is against the rules for some other reason';
+$string['report_comment_condition_more'] = 'Other information (optional)';
+$string['report_comment_reporter_info'] = "<strong>Reporter's details</strong>:";
+$string['report_comment_reporter_detail'] = '{$a->fullname} ({$a->username}; {$a->email}; {$a->ip})';
+$string['report_comment_invalid'] = 'You need to specify the reason for reporting this comment.';
+$string['report_comment_invalid_checkbox'] = 'You need to tick at least one of the boxes.';
+$string['report_comment_submit'] = 'Send report';
+$string['report_comment_emailsubject'] = 'Report comment {$a->commentid}: {$a->coursename} {$a->studentquizname}';
+$string['report_comment_emailpreface'] = 'A comment has been reported by {$a->fullname} ({$a->username},
+{$a->email}).';
+$string['report_comment_feedback'] = 'Your report has been sent successfully. A member of staff will
+investigate this issue.';
+$string['report_comment_emailappendix'] = 'You are receiving this email because your email address has been
+used on the StudentQuiz for reporting unacceptable comment.';
+$string['report_comment_link_text'] = 'Preview here';
 $string['review_button'] = 'Review';
 $string['settings_allowallqtypes'] = 'Allow all question types';
 $string['settings_allowedqtypes'] = 'Allowed question types';
@@ -363,11 +433,22 @@ $string['settings_removeqbehavior_help'] = 'This info should appear only once du
 $string['settings_removeqbehavior_label'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_section_description_default'] = 'These values define the default values when creating a new studentquiz activity.';
 $string['settings_section_header_question'] = 'Question settings';
+$string['settings_section_header_comment'] = 'Comment settings';
 $string['settings_section_header_ranking'] = 'Ranking settings';
 $string['setting_question_publishing'] = 'Question publishing';
 $string['setting_question_publishing_help'] = 'Published questions appear in the question pool for other students to take them. Either allow all questions to be published automatically, or require approval before they can be published.<br>Note that this setting cannot be changed once a question has been created in the StudentQuiz.';
 $string['setting_question_publishing_automatic'] = 'Automatically publish new questions';
 $string['setting_question_publishing_require_approval'] = 'Require approval before publishing';
+$string['settings_commentdeletionperiod'] = 'Comment deletion period (minutes)';
+$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed, with the default being 10. If the deletion period is set to 0, students are unable to delete their own comments. Note that teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
+$string['settings_reportingemail'] = 'Email for reporting offensive comments';
+$string['settings_reportingemail_help'] = 'If this email address is supplied, then a Report link appears
+next to each comment. Users can click the link to report offensive comments. The information will be sent to this address.
+
+If this email is left blank then the Report feature will not be shown (unless a site-level
+reporting  address has been supplied).
+
+More than one email address can be added so long as they are separated by a semi-colon.';
 $string['show_less'] = 'Show less';
 $string['show_more'] = 'Show more';
 $string['slot_of_slot'] = 'Question {$a->slot} of {$a->slots} in this set';
@@ -409,5 +490,3 @@ $string['studentquizname_help'] = 'The name of this StudentQuiz Activity';
 $string['submissionendbeforestart'] = 'Submissions deadline can not be specified before the open for submissions date';
 $string['tags'] = 'Tags';
 $string['unapprove'] = 'Unapprove';
-$string['filter_label_question_creation_item'] = '{$a->creationtext} {$a->rowtext} {$a->inputtext}';
-$string['filter_label_question_creation_item_inputtext'] = '{$a->inputtext} {$a->inputtype}';

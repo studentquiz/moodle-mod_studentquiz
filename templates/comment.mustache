@@ -1,0 +1,237 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_studentquiz/comment
+
+    Template for rendering comment  for in comment area type of studentquiz.
+
+    Example context (json):
+    {
+        "id": 1,
+        "questionid": 29,
+        "parentid": 0,
+        "content": "This is a comment text",
+        "shortcontent": "This is a comment text",
+        "numberofreply": 1,
+        "plural": false,
+        "candelete": true,
+        "canviewdeleted": true,
+        "canreply": true,
+        "deleleuser": {
+            "firstname": "",
+            "lastname": ""
+        },
+        "deleted": false,
+        "deletedtime": 0,
+        "iscreator": true,
+        "rownumber": 1,
+        "root": true,
+        "authorname": "Teacher",
+        "posttime": "6 December 2019, 4:06 PM",
+        "replies": [
+              {
+                "id": 2,
+                "questionid": 29,
+                "parentid": 1,
+                "content": "This is a comment reply text",
+                "shortcontent": "This is a comment reply text",
+                "numberofreply": 0,
+                "plural": "reply",
+                "candelete": true,
+                "canviewdeleted": true,
+                "canreply": true,
+                "deleleuser": {
+                    "firstname": "",
+                    "lastname": ""
+                },
+                "deleted": false,
+                "deletedtime": 0,
+                "iscreator": true,
+                "rownumber": 2,
+                "root": false,
+                "authorname": "Teacher",
+                "posttime": "6 December 2019, 4:08 PM"
+            }
+        ]
+    }
+}}
+<div class="studentquiz-comment-item {{#highlight}}highlighted{{/highlight}}" id="comment_{{id}}" data-id="{{id}}">
+    <span id="c{{id}}" data-deleted="{{ deleted }}" data-numberofreply="{{numberofreply}}"
+          {{#repliesstring}}data-replies="{{repliesstring}}"{{/repliesstring}}></span>
+    {{#deleted}}
+        {{#canviewdeleted}}
+            <div class="studentquiz-comment-item-outerbox">
+                <div class="studentquiz-comment-author">
+                    <span class="studentquiz-comment-postdate">{{posttime}}</span>
+                    <span> | </span>
+                    {{authorname}}
+                    {{#root}}
+                        {{#expanded}}
+                            <a class="studentquiz-comment-collapselink" href="#" title="{{#str}} collapsecomment, mod_studentquiz {{/str}}">
+                                {{#pix}}switch_minus, mod_studentquiz, {{#str}} collapsecomment, mod_studentquiz {{/str}}{{/pix}}
+                            </a>
+                            <a class="studentquiz-comment-expandlink" href="#" style="display: none" title="{{#str}} expandcomment, mod_studentquiz {{/str}}">
+                                {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
+                            </a>
+                        {{/expanded}}
+                        {{^expanded}}
+                            <a class="studentquiz-comment-expandlink" href="#" title="{{#str}} expandcomment, mod_studentquiz {{/str}}">
+                                {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
+                            </a>
+                        {{/expanded}}
+                    {{/root}}
+                </div>
+                <div class="studentquiz-comment-text-deleted">
+                    <div class="studentquiz-comment-delete-info">
+                        <strong>{{#str}} deletedcomment, mod_studentquiz{{/str}}</strong>
+                        {{#str}}
+                            deletedbyuser, mod_studentquiz, {
+                            "user": {{# quote }} {{deleteuser.firstname}} {{deleteuser.lastname}} {{/ quote }},
+                            "date": {{# quote }}{{ deletedtime }}{{/ quote }}
+                            }
+                        {{/str}}
+                    </div>
+                    <div class="studentquiz-comment-delete-content">
+                        {{#expanded}}
+                            {{{content}}}
+                        {{/expanded}}
+                        {{^expanded}}
+                            {{{shortcontent}}}
+                        {{/expanded}}
+                    </div>
+                </div>
+                <div class="studentquiz-comment-postfooter">
+                    <div class="studentquiz-comment-commands-box">
+                        {{#root}}
+                            <div class="studentquiz-comment-totalreply">
+                                <span class="studentquiz-comment-count-number">
+                                    {{numberofreply}}
+                                </span>
+                                <span class="studentquiz-comment-count-text">
+                                    {{plural}}
+                                </span>
+                            </div>
+                        {{/root}}
+                    </div>
+                </div>
+            </div>
+        {{/canviewdeleted}}
+        {{^canviewdeleted}}
+            <div class="studentquiz-comment-item-outerbox deleted-comment">
+                {{#root}}
+                    {{#expanded}}
+                        <a class="studentquiz-comment-collapselink" href="#" title="{{#str}} collapsecomment, mod_studentquiz {{/str}}">
+                            {{#pix}}switch_minus, mod_studentquiz, {{#str}} collapsecomment, mod_studentquiz {{/str}}{{/pix}}
+                        </a>
+                        <a class="studentquiz-comment-expandlink" href="#" style="display: none"
+                           title="{{#str}} expandcomment, mod_studentquiz {{/str}}">
+                            {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
+                        </a>
+                    {{/expanded}}
+                    {{^expanded}}
+                        <a class="studentquiz-comment-expandlink" href="#" title="{{#str}} expandcomment, mod_studentquiz {{/str}}">
+                            {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
+                        </a>
+                    {{/expanded}}
+                {{/root}}
+                <strong>{{#str}} deletedcomment, mod_studentquiz{{/str}}</strong>
+                {{#str}} deletedbyauthor, mod_studentquiz, {{deletedtime}} {{/str}}
+            </div>
+        {{/canviewdeleted}}
+    {{/deleted}}
+    {{^deleted}}
+        <div class="studentquiz-comment-item-outerbox">
+            <div class="studentquiz-comment-author">
+                <span class="studentquiz-comment-postdate">{{posttime}}</span>
+                <span> | </span>
+                {{authorname}}
+                {{#root}}
+                    {{#expanded}}
+                        <a class="studentquiz-comment-collapselink" href="#" title="{{#str}} collapsecomment, mod_studentquiz {{/str}}">
+                            {{#pix}}switch_minus, mod_studentquiz, {{#str}} collapsecomment, mod_studentquiz {{/str}}{{/pix}}
+                        </a>
+                        <a class="studentquiz-comment-expandlink" href="#" style="display: none" title="{{#str}} expandcomment, mod_studentquiz {{/str}}">
+                            {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
+                        </a>
+                    {{/expanded}}
+                    {{^expanded}}
+                        <a class="studentquiz-comment-expandlink" href="#" title="{{#str}} expandcomment, mod_studentquiz {{/str}}">
+                            {{#pix}}switch_plus, mod_studentquiz, {{#str}} expandcomment, mod_studentquiz {{/str}}{{/pix}}
+                        </a>
+                    {{/expanded}}
+                {{/root}}
+            </div>
+            <div class="studentquiz-comment-text">
+                {{#expanded}}
+                    {{{content}}}
+                {{/expanded}}
+                {{^expanded}}
+                    {{{shortcontent}}}
+                {{/expanded}}
+            </div>
+        </div>
+        <div class="studentquiz-comment-postfooter">
+            <div class="studentquiz-comment-commands-box">
+                {{#canreport}}
+                    <div class="studentquiz-comment-commands-buttons">
+                        <button data-href="{{{reportlink}}}"
+                                class="btn btn btn-secondary studentquiz-comment-btnreport"
+                                title="{{#str}} reportcomment, mod_studentquiz, {{index}} {{/str}}">
+                            {{#str}} reportcomment, mod_studentquiz {{/str}}
+                        </button>
+                    </div>
+                {{/canreport}}
+                {{#root}}
+                    {{#canreply}}
+                        <div class="studentquiz-comment-commands-buttons">
+                            <button class="btn btn-secondary studentquiz-comment-btnreply"
+                                    title="{{#str}} replycomment, mod_studentquiz, {{index}} {{/str}}">
+                                {{#str}} replycomment, mod_studentquiz {{/str}}
+                            </button>
+                        </div>
+                    {{/canreply}}
+                {{/root}}
+                {{#candelete}}
+                    <div class="studentquiz-comment-commands-buttons">
+                        <button class="btn btn-secondary studentquiz-comment-btndelete{{^root}}reply{{/root}}"
+                                title="{{#str}} delete, mod_studentquiz {{/str}}">
+                            {{#str}} delete, mod_studentquiz {{/str}}
+                        </button>
+                    </div>
+                {{/candelete}}
+                {{#root}}
+                    <div class="studentquiz-comment-totalreply">
+                        <span class="studentquiz-comment-count-number">
+                            {{numberofreply}}
+                        </span>
+                        <span class="studentquiz-comment-count-text">
+                            {{plural}}
+                        </span>
+                    </div>
+                {{/root}}
+            </div>
+        </div>
+        <div class="studentquiz-comment-postfragmentform"></div>
+    {{/deleted}}
+    {{#root}}
+        <div class="studentquiz-comment-replies">
+            {{#replies}}
+                {{>mod_studentquiz/comment}}
+            {{/replies}}
+        </div>
+    {{/root}}
+</div>

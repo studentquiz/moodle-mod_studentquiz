@@ -179,6 +179,18 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 self::create_comment($this->questions[3]->id, $this->users[0]->id),
         ];
 
+        // Create 2 replies for second user.
+        $rootcomment = $this->comments[3];
+        $userreply = $this->users[1];
+        $this->comments[] = self::create_comment($rootcomment->questionid, $userreply->id, $rootcomment->id);
+        $this->comments[] = self::create_comment($rootcomment->questionid, $userreply->id, $rootcomment->id);
+
+        // Create 2 replies for first user.
+        $rootcomment = $this->comments[3];
+        $userreply = $this->users[0];
+        $this->comments[] = self::create_comment($rootcomment->questionid, $userreply->id, $rootcomment->id);
+        $this->comments[] = self::create_comment($rootcomment->questionid, $userreply->id, $rootcomment->id);
+
         // Create Progresses.
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
@@ -320,12 +332,16 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ], $rates[$this->rates[3]->id]);
 
         $comments = $data->comments;
-        $this->assertCount(1, $comments);
+        // We created 1 root comments + 2  replies.
+        $this->assertCount(3, $comments);
         $this->assertEquals((object) [
                 'comment' => $this->comments[3]->comment,
                 'questionid' => $this->comments[3]->questionid,
                 'userid' => transform::user($this->comments[3]->userid),
                 'created' => transform::datetime($this->comments[3]->created),
+                'parentid' => $this->comments[3]->parentid,
+                'deleted' => $this->comments[3]->deleted > 0 ? transform::datetime($this->comments[3]->deleted) : 0,
+                'deleteuserid' => !is_null($this->comments[3]->deleteuserid) ? transform::user($this->comments[3]->deleteuserid) : null
         ], $comments[$this->comments[3]->id]);
 
         // Skipped for now. Reasons:
@@ -393,12 +409,18 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'questionid' => $this->comments[0]->questionid,
                 'userid' => transform::user($this->comments[0]->userid),
                 'created' => transform::datetime($this->comments[0]->created),
+                'parentid' => $this->comments[0]->parentid,
+                'deleted' => $this->comments[0]->deleted > 0 ? transform::datetime($this->comments[0]->deleted) : 0,
+                'deleteuserid' => !is_null($this->comments[0]->deleteuserid) ? transform::user($this->comments[0]->deleteuserid) : null
         ], $comments[$this->comments[0]->id]);
         $this->assertEquals((object) [
                 'comment' => $this->comments[1]->comment,
                 'questionid' => $this->comments[1]->questionid,
                 'userid' => transform::user($this->comments[1]->userid),
                 'created' => transform::datetime($this->comments[1]->created),
+                'parentid' => $this->comments[1]->parentid,
+                'deleted' => $this->comments[1]->deleted > 0 ? transform::datetime($this->comments[1]->deleted) : 0,
+                'deleteuserid' => !is_null($this->comments[1]->deleteuserid) ? transform::user($this->comments[1]->deleteuserid) : null
         ], $comments[$this->comments[1]->id]);
 
         $this->assertEmpty($data->questions);
@@ -429,13 +451,40 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ], $rates[$this->rates[2]->id]);
 
         $comments = $data->comments;
-        $this->assertCount(1, $comments);
+        // We created 1 root comment + 2 replies.
+        $this->assertCount(3, $comments);
         $this->assertEquals((object) [
                 'comment' => $this->comments[2]->comment,
                 'questionid' => $this->comments[2]->questionid,
                 'userid' => transform::user($this->comments[2]->userid),
                 'created' => transform::datetime($this->comments[2]->created),
+                'parentid' => $this->comments[2]->parentid,
+                'deleted' => $this->comments[2]->deleted > 0 ? transform::datetime($this->comments[2]->deleted) : 0,
+                'deleteuserid' => !is_null($this->comments[2]->deleteuserid) ? transform::user($this->comments[2]->deleteuserid) : null
         ], $comments[$this->comments[2]->id]);
+
+        // Test replies.
+        // Test reply 1.
+        $this->assertEquals((object) [
+                'comment' => $this->comments[4]->comment,
+                'questionid' => $this->comments[4]->questionid,
+                'userid' => transform::user($this->comments[4]->userid),
+                'created' => transform::datetime($this->comments[4]->created),
+                'parentid' => $this->comments[3]->id,
+                'deleted' => $this->comments[4]->deleted > 0 ? transform::datetime($this->comments[4]->deleted) : 0,
+                'deleteuserid' => !is_null($this->comments[4]->deleteuserid) ? transform::user($this->comments[4]->deleteuserid) : null
+        ], $comments[$this->comments[4]->id]);
+
+        // Test reply 2.
+        $this->assertEquals((object) [
+                'comment' => $this->comments[5]->comment,
+                'questionid' => $this->comments[5]->questionid,
+                'userid' => transform::user($this->comments[5]->userid),
+                'created' => transform::datetime($this->comments[5]->created),
+                'parentid' => $this->comments[3]->id,
+                'deleted' => $this->comments[5]->deleted > 0 ? transform::datetime($this->comments[5]->deleted) : 0,
+                'deleteuserid' => !is_null($this->comments[5]->deleteuserid) ? transform::user($this->comments[5]->deleteuserid) : null
+        ], $comments[$this->comments[5]->id]);
 
         $practices = $data->practices;
         $this->assertCount(1, $practices);
@@ -532,6 +581,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 $this->contexts[1]->id
         ]);
 
+        $commentparams = ['userid' => $this->users[0]->id, 'parentid' => \mod_studentquiz\commentarea\container::PARENTID];
+        $rootcomment = $DB->get_record('studentquiz_comment', $commentparams);
+
         // Delete data belong to first user.
         // When running the whole cronjob, privacy task for Question plugin will be called before StudentQuiz.
         core_question\privacy\provider::delete_data_for_user($appctx);
@@ -552,7 +604,19 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertFalse($DB->record_exists('studentquiz_practice', $params));
         $this->assertFalse($DB->record_exists('studentquiz_rate', $params));
         $this->assertFalse($DB->record_exists('studentquiz_attempt', $params));
-        $this->assertFalse($DB->record_exists('studentquiz_comment', $params));
+
+        // Deleted all replies.
+        $sql = "SELECT 1 FROM {studentquiz_comment} WHERE userid = :userid AND parentid != :parentid";
+        $this->assertFalse($DB->record_exists_sql($sql, $commentparams));
+
+        // Test root comment became blank.
+        $commentafterdelete = $DB->get_record('studentquiz_comment', ['id' => $rootcomment->id]);
+        $this->assertEquals($rootcomment->id, $commentafterdelete->id);
+        $this->assertEquals('', $commentafterdelete->comment);
+        $this->assertEquals($guestid, $commentafterdelete->userid);
+        $this->assertEquals($guestid, $commentafterdelete->deleteuserid);
+        $this->assertTrue($commentafterdelete->deleted != 0);
+
         // Skipped for now. Reasons:
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
@@ -738,7 +802,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertArrayHasKey($this->attempts[2]->id, $attempts);
 
         $comments = $DB->get_records('studentquiz_comment', $sqlparams);
-        $this->assertCount(1, $comments);
+        $this->assertCount(3, $comments);
         $this->assertArrayHasKey($this->comments[3]->id, $comments);
 
         // Test data belong to the second user still exist.
@@ -828,10 +892,13 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      *
      * @param $questionid
      * @param $userid
+     * @param $parentid
+     * @param $delete
+     * @param $deleteuserid
      * @return object
      * @throws dml_exception
      */
-    protected function create_comment($questionid, $userid) {
+    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0) {
         global $DB;
 
         $data = (object) [
@@ -840,6 +907,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'questionid' => $questionid,
                 'userid' => $userid,
                 'created' => rand(1000000000, 2000000000),
+                'parentid' => $parentid,
+                'deleted' => $delete === 1 ? rand(1000000000, 2000000000) : 0,
+                'deleteuserid' => $deleteuserid > 0 ? $deleteuserid : null
         ];
 
         $data->id = $DB->insert_record('studentquiz_comment', $data);

@@ -22,7 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -1367,20 +1369,6 @@ EOT;
 
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
-     * Generate some HTML to display comment list
-     * @param array $comments comments ordered by createdby ASC
-     * @param int $userid viewing user id
-     * @param int $cmid course module id
-     * @param bool $anonymize users can't see other comment authors user names except ismoderator
-     * @param bool $ismoderator can delete all comments, can see all usernames
-     * @return string HTML fragment
-     * TODO: move mod_studentquiz_comment_renderer in here!
-     */
-    public function comment_list($comments, $userid, $cmid, $anonymize = true, $ismoderator = false) {
-        return mod_studentquiz_comment_renderer($comments, $userid, $cmid, $anonymize, $ismoderator);
-    }
-
-    /**
      * Generate some HTML (which may be blank) that appears in the outcome area,
      * after the question-type generated output.
      *
@@ -1389,23 +1377,17 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      *
      * @param question_definition $question the current question.
      * @param question_display_options $options controls what should and should not be displayed.
-     * @param array $comments comments ordered by createdby ASC
      * @param int $userid viewing user id
-     * @param bool $anonymize users can't see other comment authors user names except ismoderator
-     * @param bool $ismoderator can delete all comments, can see all usernames
      * @return string HTML fragment
      * @return string HTML fragment.
      */
     public function feedback(question_definition $question,
                              question_display_options $options, $cmid,
-                             $comments, $userid, $anonymize = true, $ismoderator = false) {
+                             $userid) {
         global $COURSE;
         $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
         $forcerating = boolval($studentquiz->forcerating);
-        $forcecommenting = boolval($studentquiz->forcecommenting);
-        return $this->render_state_choice($question->id, $COURSE->id, $cmid)
-                . $this->render_rate($question->id, $forcerating)
-                . $this->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator, $forcecommenting);
+        return $this->render_state_choice($question->id, $COURSE->id, $cmid). $this->render_rate($question->id, $forcerating);
     }
 
     /**
@@ -1469,37 +1451,6 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     }
 
     /**
-     * Generate some HTML to display comment form for add comment
-     *
-     * @param int $questionid Question id
-     * @param int $cmid Course module id
-     * @param bool $forcecommenting True if enforce commenting is turned on
-     * @return string HTML fragment
-     * @throws coding_exception
-     */
-    protected function comment_form($questionid, $cmid, $forcecommenting = false) {
-        $output = '';
-
-        $output .= html_writer::tag('label', get_string('add_comment', 'mod_studentquiz'), ['for' => 'add_comment_field']);
-        if ($forcecommenting) {
-            $output .= html_writer::span($this->output->pix_icon('req', get_string('requiredelement', 'form')), 'req');
-        }
-        $output .= $this->output->help_icon('comment_help', 'mod_studentquiz') . ':';
-        $output .= html_writer::tag('p', html_writer::tag(
-                'textarea', '',
-                ['id' => 'add_comment_field', 'class' => 'add_comment_field form-control', 'name' => 'q' . $questionid]));
-        $output .= html_writer::div(get_string('comment_error', 'mod_studentquiz'), 'hide error comment_error');
-        $output .= html_writer::div(get_string('comment_error_unsaved', 'mod_studentquiz'), 'hide error comment_error_unsaved');
-        $output .= html_writer::tag('p', html_writer::tag(
-                'button',
-                get_string('add_comment', 'mod_studentquiz'),
-                ['type' => 'button', 'class' => 'add_comment btn btn-secondary']));
-        $output .= html_writer::tag('input', '', ['type' => 'hidden', 'name' => 'cmid', 'value' => $cmid]);
-
-        return $output;
-    }
-
-    /**
      * Generate some HTML to display rating
      *
      * @param int $questionid Question id
@@ -1523,28 +1474,23 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     }
 
     /**
-     * Generate some HTML to display the complete comment fragment
+     * Generate some HTML to display the complete comment fragment.
      *
-     * @param int $cmid Course module id
-     * @param int $questionid Question id
-     * @param array $comments List of comment
-     * @param int $userid User id
-     * @param bool $anonymize True if anonymize setting is turned on
-     * @param bool $ismoderator True if user is moderator
-     * @param bool $forcecommenting True if enforce commenting is turned on
-     * @return string HTML fragment
-     * @throws coding_exception
+     * @param int $cmid - Course module id.
+     * @param int $questionid - Question id.
+     * @param int $userid - User id.
+     * @param int $highlight - Highlight comment ID.
+     * @return string HTML fragment.
      */
-    public function render_comment($cmid, $questionid, $comments, $userid, $anonymize = true, $ismoderator = false, $forcecommenting = false) {
+    public function render_comment($cmid, $questionid, $userid, $highlight = 0) {
+        $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
         return html_writer::div(
-            html_writer::div(
-                $this->comment_form($questionid, $cmid, $forcecommenting)
-                . html_writer::div(
-                    $this->comment_list($comments, $userid, $cmid, $anonymize, $ismoderator),
-                    'comment_list'
-                ),
-                'comments'),
-            'studentquiz_behaviour'
+                html_writer::div(
+                        html_writer::div(
+                                $renderer->render_comment_area($questionid, $userid, $cmid, $highlight),
+                                'comment_list'),
+                        'comments'
+                ), 'studentquiz_behaviour'
         );
     }
 
@@ -1573,11 +1519,61 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $output .= html_writer::end_span();
             $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
         }
-        return $output;
+        return \html_writer::div($output, 'studentquiz_behaviour');
+    }
+
+    /**
+     * Render navigation bar of attempt page.
+     *
+     * @param bool $hasprevious
+     * @param bool $hasnext
+     * @param bool $hasanswered
+     * @param bool $canfinish
+     * @return string
+     */
+    public function render_navigation_bar($hasprevious, $hasnext, $hasanswered, $canfinish) {
+
+        $col1content = '&nbsp;';
+        if ($hasprevious) {
+            $col1content = html_writer::empty_tag('input', [
+                    'type' => 'submit',
+                    'name' => 'previous',
+                    'value' => get_string('previous_button', 'studentquiz'),
+                    'class' => 'btn btn-primary'
+            ]);
+        }
+
+        $content1 = html_writer::div(html_writer::div($col1content, 'pull-left'), 'col-md-4');
+
+        // Not has rated, is done using javascript.
+        $col2content = '';
+        if ($canfinish && ($hasnext || !$hasanswered)) {
+            $col2content .= html_writer::empty_tag('input', [
+                    'type' => 'submit', 'name' => 'finish',
+                    'value' => get_string('abort_button', 'studentquiz'),
+                    'class' => 'btn'
+            ]);
+        }
+
+        $content2 = html_writer::div(html_writer::div($col2content, 'mdl-align'), 'col-md-4');
+
+        $col3content = '';
+        if ($hasanswered) {
+            $strbutton = $hasnext ? get_string('next_button', 'studentquiz') : get_string('finish_button', 'studentquiz');
+            $col3content .= html_writer::empty_tag('input', [
+                    'type' => 'submit',
+                    'name' => $hasnext ? 'next' : 'finish',
+                    'value' => $strbutton,
+                    'class' => 'btn btn-primary'
+            ]);
+        }
+        $content3 = html_writer::div(html_writer::div($col3content, 'pull-right'), 'col-md-4');
+
+        return html_writer::div($content1 . $content2 . $content3, 'mod-studentquiz-attempt-nav row');
     }
 }
 
-class mod_studentquiz_report_renderer extends mod_studentquiz_renderer{
+class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
 
     /**
      * Get quiz admin statistic view
@@ -1868,5 +1864,165 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
         return $this->render_table($data, $size, $align, $head, $caption, 'generaltable rankingtable');
+    }
+}
+
+/**
+ * Comment renderer.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2019 The Open University.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
+
+    /** @var string - Define name of Student Quiz mod. */
+    const MODNAME = 'mod_studentquiz';
+
+    /**
+     * Generate HTML to render comments.
+     *
+     * @param int $questionid - Question id.
+     * @param int $userid - User id.
+     * @param int $cmid - Course module id.
+     * @param int $highlight - Highlight comment ID.
+     * @return string HTML fragment
+     */
+    public function render_comment_area($questionid, $userid, $cmid, $highlight = 0) {
+        global $COURSE, $PAGE;
+
+        $id = 'question_comment_area_' . $questionid;
+
+        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
+        $commentarea = new container($studentquiz, $question, $cm, $context);
+        $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
+        $canviewdeleted = $commentarea->can_view_deleted();
+
+        if ($highlight != 0) {
+            $numbertoshow = 0;
+        }
+
+        $isexpand = $numbertoshow === 0;
+
+        $currentreferer = $PAGE->url;
+        // Making sure we don't pass highlight or referer param. It will be set later.
+        $currentreferer->remove_params('highlight');
+        $currentreferer->remove_params('referer');
+        // Encode before pass it to comment area js.
+        $referer = urlencode($currentreferer->out(false));
+
+        $comments = $commentarea->fetch_all($numbertoshow);
+        $res = [];
+        if (count($comments) > 0) {
+            foreach ($comments as $comment) {
+                $item = $comment->convert_to_object();
+                $item->canviewdeleted = $canviewdeleted;
+                $item->replies = [];
+                if ($numbertoshow == 0) {
+                    $item->expanded = true;
+                    $repliesstring = [];
+                    foreach ($comment->get_replies() as $reply) {
+                        $replyobject = $reply->convert_to_object();
+                        // Check if reply is highlight.
+                        $replyobject->highlight = false;
+                        if ($highlight != 0) {
+                            if ($replyobject->id == $highlight) {
+                                $replyobject->highlight = true;
+                            }
+                        }
+                        $replyurl = clone $currentreferer;
+                        $replyurl->param('highlight', $replyobject->id);
+                        $replyobject->reportlink .= '&referer=' . urlencode($replyurl->out());
+                        $repliesstring[] = [
+                                'id' => $replyobject->id,
+                                'deleted' => $replyobject->deleted,
+                                'reportlink' => $replyobject->reportlink
+                        ];
+                        $item->replies[] = $replyobject;
+                    }
+                    $item->repliesstring = json_encode($repliesstring);
+                } else {
+                    $item->expanded = false;
+                }
+                // Check if comment is highlighted.
+                $item->highlight = false;
+                if ($highlight != 0) {
+                    if ($item->id == $highlight) {
+                        $item->highlight = true;
+                    }
+                }
+                $url = clone $currentreferer;
+                $url->param('highlight', $item->id);
+                $item->reportlink .= '&referer=' . urlencode($url->out());
+                $res[] = $item;
+            }
+        }
+
+        $forcecommenting = $commentarea->get_studentquiz()->forcecommenting;
+        $sortfeature = $commentarea->get_sort_feature();
+        $sortable = $commentarea->get_sortable();
+
+        $jsdata = [
+                'id' => $id,
+                'courseid' => $COURSE->id,
+                'questionid' => $questionid,
+                'contextid' => $context->id,
+                'userid' => $userid,
+                'numbertoshow' => container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT,
+                'cmid' => $cmid,
+                'forcecommenting' => $forcecommenting,
+                'canviewdeleted' => $canviewdeleted,
+                'referer' => $referer,
+                'highlight' => $highlight,
+                'expand' => $isexpand,
+                'sortfeature' => $sortfeature,
+                'sortable' => $sortable,
+                'isnocomment' => empty($res)
+        ];
+        $mform = new \mod_studentquiz\commentarea\form\comment_form([
+                'index' => $id,
+                'replyto' => VALUE_DEFAULT,
+                'questionid' => $questionid,
+                'cmid' => $cmid,
+                'cancelbutton' => false,
+                'forcecommenting' => $forcecommenting
+        ]);
+
+        $count = utils::count_comments_and_replies($res);
+        $current = $count['total'];
+        $total = $commentarea->get_num_comments();
+
+        // Get strings.
+        $strings = [
+                'required' => get_string('required', 'core'),
+                'deletecomment' => get_string('deletecomment', 'mod_studentquiz'),
+                'confirmdeletecomment' => get_string('confirmdeletecomment', 'mod_studentquiz'),
+                'deletetext' => get_string('delete', 'mod_studentquiz'),
+                'cancel' => get_string('cancel', 'core'),
+                'error' => get_string('error', 'core'),
+                'replies' => get_string('replies', 'mod_studentquiz'),
+                'reply' => get_string('reply', 'mod_studentquiz'),
+                'sort' => [
+                        'asc' => get_string('asc'),
+                        'desc' => get_string('desc')
+                ]
+        ];
+
+        // Need to pass this to js to calculate current of total comments.
+        $jsdata = array_merge($jsdata, compact('count', 'total', 'strings'));
+
+        $commentcountstring = get_string('current_of_total', 'mod_studentquiz', compact('current', 'total'));
+
+        $this->page->requires->js_call_amd(self::MODNAME . '/comment_area', 'generate', [json_encode($jsdata)]);
+        return $this->output->render_from_template(self::MODNAME . '/comment_area', [
+                'id' => $id,
+                'postform' => $mform->get_html(),
+                'comments' => $res,
+                'commentcountstring' => $commentcountstring,
+                'hascomment' => $commentarea->check_has_comment(),
+                'sortfeature' => $sortfeature,
+                'sortable' => $sortable,
+                'sortselect' => $commentarea->get_sort_select()
+        ]);
     }
 }

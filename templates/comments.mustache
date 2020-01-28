@@ -1,0 +1,84 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_studentquiz/comments
+
+    Template for rendering comments for in comment area of studentquiz.
+
+    Classes required for JS:
+    * none
+
+    Data attributes required for JS:
+    * none
+
+    Example context (json):
+    {
+        "comments": [
+            {
+                "id": 1,
+                "questionid": 29,
+                "parentid": 0,
+                "content": "This is a comment text",
+                "shortcontent": "This is a comment text",
+                "numberofreply": 1,
+                "plural": false,
+                "candelete": true,
+                "canviewdeleted": true,
+                "canreply": true,
+                "deleleuser": {
+                    "firstname": "",
+                    "lastname": ""
+                },
+                "deleted": false,
+                "deletedtime": 0,
+                "iscreator": true,
+                "rownumber": 1,
+                "root": true,
+                "authorname": "Teacher",
+                "posttime": "6 December 2019, 4:06 PM",
+                "replies": [
+                      {
+                        "id": 2,
+                        "questionid": 29,
+                        "parentid": 1,
+                        "content": "This is a comment reply text",
+                        "shortcontent": "This is a comment reply text",
+                        "numberofreply": 0,
+                        "plural": "reply",
+                        "candelete": true,
+                        "canviewdeleted": true,
+                        "canreply": true,
+                        "deleleuser": {
+                            "firstname": "",
+                            "lastname": ""
+                        },
+                        "deleted": false,
+                        "deletedtime": 0,
+                        "iscreator": true,
+                        "rownumber": 2,
+                        "root": false,
+                        "authorname": "Teacher",
+                        "posttime": "6 December 2019, 4:08 PM"
+                    }
+                ]
+            }
+        ]
+    }
+}}
+{{#comments}}
+    {{>mod_studentquiz/comment}}
+{{/comments}}

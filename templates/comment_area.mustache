@@ -1,0 +1,98 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template mod_studentquiz/comment_area
+
+    Template for rendering in comment area for studentquiz.
+
+    Example context (json):
+    {
+        "id": "question_comment_area_29",
+        "postform": "",
+        "comments": [
+            {
+                "id": 1,
+                "questionid": 29,
+                "content": "This is a comment text",
+                "shortcontent": "This is a comment text",
+                "numberofreply": 0,
+                "plural": "reply",
+                "candelete": true,
+                "canviewdelete": true,
+                "canreply": true,
+                "deleleuser": null,
+                "deleted": false,
+                "deletedtime": 0,
+                "iscreator": true,
+                "rownumber": 1,
+                "root": true,
+                "authorname": "Teacher",
+                "posttime": "6 December 2019, 4:06 PM",
+                "replies": []
+            }
+        ],
+        "commentcountstring": "1 of 1"
+    }
+}}
+<div class="studentquiz-comment-container {{#hascomment}}has-comment{{/hascomment}}" id="{{id}}">
+    <div class="studentquiz-comment-postform">
+        {{{postform}}}
+    </div>
+    <div class="studentquiz-comment-filter {{^comments}}hide-comment-filter{{/comments}}">
+        <div class="studentquiz-comment-filter-info">
+            <div class="filter-item studentquiz-comment-filters">
+                <span>{{#str}} filter_comment_label_sort_by, mod_studentquiz {{/str}}</span>
+                {{#sortselect}}
+                    <a href="#" class="studentquiz-comment-filter-item {{ orderclass }}"
+                       data-type="{{sortkey}}"
+                       data-order="{{ordertype}}"
+                       data-type-name="{{typename}}"
+                       data-asc-string="{{ascstring}}"
+                       data-desc-string="{{descstring}}"
+                    >
+                        <div class="studentquiz-comment-filter-name"
+                             title="{{togglestring}}"
+                             alt="{{togglestring}}"
+                        >{{ typename }}</div>
+                        <div class="studentquiz-comment-filter-type"
+                             title="{{iconsortname}}"
+                             alt="{{iconsortname}}"
+                        >
+                            <i class="icon"></i>
+                        </div>
+                    </a>
+                 {{/sortselect}}
+            </div>
+            <div class="filter-item studentquiz-comment-expand-section">
+                <button class="studentquiz-comment-expand" title="{{#str}} expandall, mod_studentquiz {{/str}}">
+                    {{#str}} expandall, mod_studentquiz {{/str}}
+                </button>
+                <button class="studentquiz-comment-collapse" title="{{#str}} collapseall, mod_studentquiz {{/str}}">
+                    {{#str}} collapseall, mod_studentquiz {{/str}}
+                </button>
+                <span class="studentquiz-comment-postcount">
+                    {{#commentcountstring}}{{commentcountstring}}{{/commentcountstring}}
+                </span>
+            </div>
+        </div>
+    </div>
+    <div class="studentquiz-container-replies">{{>mod_studentquiz/comments}}</div>
+    <div class="no-comment">
+        {{^comments}}{{#str}} no_comments, mod_studentquiz {{/str}}{{/comments}}
+    </div>
+    <div class="studentquiz-comment-loading">{{#pix}} y/loading, core, {{#str}} loading {{/str}} {{/pix}}</div>
+</div>

@@ -66,10 +66,15 @@ try {
 // Get and validate existing preview, or start a new one.
 $actionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $cmid, 'questionid' => $questionid));
 $previewid = optional_param('previewid', 0, PARAM_INT);
+$highlight = optional_param('highlight', 0, PARAM_INT);
 
 if ($question) {
     if ($previewid) {
-        $actionurl = new moodle_url($actionurl, array('previewid' => $previewid));
+        $params = ['previewid' => $previewid];
+        if ($highlight != 0) {
+            $params['highlight'] = $highlight;
+        }
+        $actionurl = new moodle_url($actionurl, $params);
         $quba = question_engine::load_questions_usage_by_activity($previewid);
         $slot = $quba->get_first_question_number();
 
@@ -96,7 +101,11 @@ if ($question) {
         $transaction->allow_commit();
 
         $previewid = $quba->get_id();
-        $actionurl = new moodle_url($actionurl, array('previewid' => $previewid));
+        $params = ['previewid' => $previewid];
+        if ($highlight != 0) {
+            $params['highlight'] = $highlight;
+        }
+        $actionurl = new moodle_url($actionurl, $params);
 
         redirect($actionurl);
     }
@@ -129,21 +138,11 @@ if ($question) {
         'closepreview',
     ), 'question');
 
-    // StudentQuiz renderers.
-    $comments = mod_studentquiz_get_comments_with_creators($question->id);
-
-    $anonymize = $studentquiz->anonymrank;
-    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
-        $anonymize = false;
-    }
-    $ismoderator = false;
-    if (mod_studentquiz_check_created_permission($cmid)) {
-        $ismoderator = true;
-    }
-
-    echo $output->feedback($question, $options, $cmid, $comments, $USER->id, $anonymize, $ismoderator);
+    echo $output->feedback($question, $options, $cmid, $USER->id);
 
     echo html_writer::end_tag('form');
+
+    echo $output->render_comment($cmid, $question->id, $USER->id, $highlight);
 } else {
     echo $OUTPUT->notification(get_string('deletedquestiontext', 'qtype_missingtype'));
 }

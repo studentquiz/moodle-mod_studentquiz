@@ -28,6 +28,8 @@ require_once(__DIR__ . '/locallib.php');
 
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
+// Comment highlight.
+$highlight = optional_param('highlight', 0, PARAM_INT);
 
 // Load course and course module requested.
 if ($cmid) {
@@ -82,7 +84,7 @@ $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
 if (data_submitted()) {
-    // On the following navigation steps the question has to be finished and the comment saved
+    // On the following navigation steps the question has to be finished and the comment saved.
     if (optional_param('next', null, PARAM_BOOL) || optional_param('finish', null, PARAM_BOOL)) {
         $transaction = $DB->start_delegated_transaction();
         $questionusage->finish_question($slot);
@@ -220,82 +222,49 @@ $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cm
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the state change select box.
-$html .= $output->render_state_choice($question->id, $course->id, $cmid);
+$statechangehtml = $output->render_state_choice($question->id, $course->id, $cmid);
+$navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $hasanswered, $canfinish);
 
-// Output the rating.
+// Change state will always first thing below navigation.
+$orders  = [
+    $navigationhtml,
+    $statechangehtml
+];
+
 if ($hasanswered) {
-    $html .= $output->render_rate($question->id, $studentquiz->forcerating);
-}
-
-// Finish the question form.
-$html .= html_writer::start_tag('div', array('class' => 'mod-studentquiz-attempt-nav row'));
-$html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
-$html .= html_writer::start_tag('div', array('class' => 'pull-left'));
-if ($hasprevious) {
-    $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'previous',
-            'value' => get_string('previous_button', 'studentquiz'), 'class' => 'btn btn-primary'));
-} else {
-    $html .= '&nbsp;';
-}
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
-
-$html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
-$html .= html_writer::start_tag('div', array('class' => 'mdl-align'));
-
-// Not has rated, is done using javascript.
-if ($canfinish && ($hasnext || !$hasanswered)) {
-    $html .= html_writer::empty_tag('input',
-        array('type' => 'submit', 'name' => 'finish',
-            'value' => get_string('abort_button', 'studentquiz'), 'class' => 'btn'));
-}
-
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
-$html .= html_writer::start_tag('div', array('class' => 'col-md-4'));
-$html .= html_writer::start_tag('div', array('class' => 'pull-right'));
-
-// And not hasrated, but done using javascript as not showing the next button seems not intuitive.
-if ($hasanswered) {
-    if ($hasnext) {
-        $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'next',
-                'value' => get_string('next_button', 'studentquiz'), 'class' => 'btn btn-primary'));
-    } else { // Finish instead of next on the last question.
-        $html .= html_writer::empty_tag('input',
-            array('type' => 'submit', 'name' => 'finish',
-                'value' => get_string('finish_button', 'studentquiz'), 'class' => 'btn btn-primary'));
+    // Get output the rating.
+    $ratinghtml = $output->render_rate($question->id, $studentquiz->forcerating);
+    // Get output the comments.
+    $commenthtml = $output->render_comment($cmid, $question->id, $userid, $highlight);
+    // If force rating and commenting, then it will above navigation.
+    if ($studentquiz->forcerating && $studentquiz->forcecommenting) {
+         $orders = array_merge([
+             $ratinghtml,
+             $commenthtml
+         ], $orders);
+    } else {
+        // If force rating, then it will be render first.
+        if ($studentquiz->forcerating) {
+            array_unshift($orders, $ratinghtml);
+        } else {
+            $orders[] = $ratinghtml;
+        }
+        // If force commenting, then it will be render first.
+        if ($studentquiz->forcecommenting) {
+            array_unshift($orders, $commenthtml);
+        } else {
+            $orders[] = $commenthtml;
+        }
     }
 }
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
-$html .= html_writer::end_tag('div');
 
-// Output the comments.
-$html .= html_writer::empty_tag('hr');
-if ($hasanswered) {
-    $comments = mod_studentquiz_get_comments_with_creators($question->id);
-
-    $anonymize = $studentquiz->anonymrank;
-    if (has_capability('mod/studentquiz:unhideanonymous', $context)) {
-        $anonymize = false;
-    }
-    $ismoderator = false;
-    if (mod_studentquiz_check_created_permission($cmid)) {
-        $ismoderator = true;
-    }
-
-    $html .= $output->render_comment($cmid, $question->id, $comments, $userid, $anonymize, $ismoderator,
-            $studentquiz->forcecommenting);
+foreach ($orders as $v) {
+    $html .= $v;
 }
 
 $html .= html_writer::end_tag('form');
 
-
 echo $html;
-
-// Display the settings form.
 
 echo $OUTPUT->footer();
 

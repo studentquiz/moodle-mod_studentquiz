@@ -94,7 +94,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function process_studentquiz($data) {
         global $DB;
 
-        $data = (object)$data;
+        $data = (object) $data;
         $data->course = $this->get_courseid();
         $data->coursemodule = $this->get_mappingid('course_module', $data->coursemodule);
         $oldid = $data->id;
@@ -144,6 +144,9 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->forcecommenting)) {
             $data->forcecommenting = get_config('studentquiz', 'forcecommenting');
         }
+        if (empty($data->commentdeletionperiod)) {
+            $data->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
+        }
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
         $this->apply_activity_instance($newitemid);
@@ -179,9 +182,22 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function process_comment($data) {
         global $DB;
         $data = (object) $data;
+        $oldid = $data->id;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $DB->insert_record('studentquiz_comment', $data);
+        $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
+
+        // If is a reply (parentid != 0).
+        if (!empty($data->parentid)) {
+            if ($newparentid = $this->get_mappingid('studentquiz_comment', $data->parentid)) {
+                $data->parentid = $newparentid;
+            } else {
+                $data->parentid = \mod_studentquiz\commentarea\container::PARENTID;
+            }
+        }
+
+        $newid = $DB->insert_record('studentquiz_comment', $data);
+        $this->set_mapping('studentquiz_comment', $oldid, $newid, true);
     }
 
     protected function process_question_meta($data) {
@@ -247,5 +263,19 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         // Workaround setting default question state if no state data is available.
         // ref: https://tracker.moodle.org/browse/MDL-67406
         mod_studentquiz_fix_all_missing_question_state_after_restore($this->get_courseid());
+    }
+
+    /**
+     * Get mapping id or null.
+     *
+     * @param $type
+     * @param $oldid
+     * @return mixed
+     */
+    private function get_mappingid_or_null($type, $oldid) {
+        if ($oldid === null) {
+            return null;
+        }
+        return $this->get_mappingid($type, $oldid);
     }
 }

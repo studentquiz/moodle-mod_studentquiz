@@ -100,8 +100,8 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  #- moodle-plugin-ci mustache # currently no mustache relevant files, so we can also omit the java packages above
-  - moodle-plugin-ci grunt
+  - moodle-plugin-ci mustache || true
+  - moodle-plugin-ci grunt || [ "$MOODLE_BRANCH" = 'master' ] || [ "$MOODLE_BRANCH" = 'MOODLE_38_STABLE' ]
   - moodle-plugin-ci phpdoc || true # Report errors but don't fail the build (until they are fixed)
   - moodle-plugin-ci phpunit --coverage-text
   #- moodle-plugin-ci behat --profile chrome # chromium is mostly broken

@@ -190,11 +190,29 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('forcerating', 'settings_forcerating', 'studentquiz');
         $mform->setDefault('forcerating', get_config('studentquiz', 'forcerating'));
 
+        // Comment sections.
+        $mform->addElement('header', 'sectioncomment', get_string('settings_section_header_comment', 'studentquiz'));
+
         // Field force commenting
         $mform->addElement('checkbox', 'forcecommenting', get_string('settings_forcecommenting', 'studentquiz'));
         $mform->setType('forcecommenting', PARAM_INT);
         $mform->addHelpButton('forcecommenting', 'settings_forcecommenting', 'studentquiz');
         $mform->setDefault('forcecommenting', get_config('studentquiz', 'forcecommenting'));
+
+        // Comment deletion period.
+        $mform->addElement('select', 'commentdeletionperiod',
+                get_string('settings_commentdeletionperiod', 'studentquiz'),
+                \mod_studentquiz\commentarea\container::get_deletion_period_options()
+        );
+        $mform->setType('commentdeletionperiod', PARAM_INT);
+        $mform->addHelpButton('commentdeletionperiod', 'settings_commentdeletionperiod', 'studentquiz');
+        $mform->setDefault('commentdeletionperiod', get_config('studentquiz', 'commentdeletionperiod'));
+
+        // Email address for reporting unacceptable comment for this studentquiz, default is blank.
+        $mform->addElement('text', 'reportingemail', get_string('settings_reportingemail', 'studentquiz'), ['size' => 64]);
+        $mform->setType('reportingemail', PARAM_NOTAGS);
+        $mform->addRule('reportingemail', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
+        $mform->addHelpButton('reportingemail', 'settings_reportingemail', 'studentquiz');
 
         // Availability.
         $mform->addElement('header', 'availability', get_string('availability', 'moodle'));
@@ -236,10 +254,11 @@ class mod_studentquiz_mod_form extends moodleform_mod {
     }
 
     /**
-     * TODO: describe this
+     * Validation of studentquiz_mod_form.
+     *
      * @param array $data
      * @param array $files
-     * @return array $errors
+     * @return array
      */
     public function validation($data, $files) {
         $errors = array();
@@ -254,6 +273,38 @@ class mod_studentquiz_mod_form extends moodleform_mod {
                 $data['openansweringfrom'] >= $data['closeansweringfrom']) {
             $errors['closeansweringfrom'] = get_string('answeringndbeforestart', 'studentquiz');
         }
+        if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
+            $errors['reportingemail'] = get_string('invalidemail', 'studentquiz');
+        }
         return $errors;
+    }
+
+    /**
+     * Validate string contains validate email or multiple emails.
+     * @param string $emails - Example: test@gmail.com;test1@gmail.com.
+     * @return bool
+     */
+    private function validate_emails($emails) {
+        $list = explode(';' , $emails);
+        foreach ($list as $email) {
+            if (!validate_email($email)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @return bool|object
+     */
+    public function get_data() {
+        $data = parent::get_data();
+        // Set the reportingemail to null if empty so that they are consistency.
+        if ($data) {
+            if (empty($data->reportingemail)) {
+                $data->reportingemail = null;
+            }
+        }
+        return $data;
     }
 }
