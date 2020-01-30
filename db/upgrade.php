@@ -590,5 +590,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         upgrade_mod_savepoint(true, 2020011602, 'studentquiz');
     }
+
     return true;
 }
