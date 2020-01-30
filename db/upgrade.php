@@ -550,7 +550,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2020011601) {
 
         $table = new xmldb_table('studentquiz_comment');
-        $field = new xmldb_field('parentid', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'comment');
+        $field = new xmldb_field('parentid', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'created');
         $index = new xmldb_index('parentidindex', XMLDB_INDEX_NOTUNIQUE, ['parentid']);
         if (!$dbman->field_exists($table, $field)) {
             // Add parentid field.
@@ -561,7 +561,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
             }
         }
 
-        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'modified');
+        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'parentid');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -583,7 +583,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2020011602) {
 
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('reportingemail', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'forcecommenting');
+        $field = new xmldb_field('reportingemail', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'commentdeletionperiod');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
