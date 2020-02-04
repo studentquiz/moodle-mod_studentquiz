@@ -144,11 +144,11 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.loadingIcon = el.find(t.SELECTOR.LOADING_ICON);
                         self.formSelector = el.find(t.SELECTOR.FORM_SELECTOR);
 
-                        self.questionId = parseInt(params.questionid);
-                        self.contextId = parseInt(params.contextid);
-                        self.userId = parseInt(params.userid);
-                        self.numberToShow = parseInt(params.numbertoshow);
-                        self.cmId = parseInt(params.cmid);
+                        self.questionId = parseInt(el.data('questionid'));
+                        self.contextId = parseInt(el.data('contextid'));
+                        self.userId = parseInt(el.data('userid'));
+                        self.numberToShow = parseInt(el.data('numbertoshow'));
+                        self.cmId = parseInt(el.data('cmid'));
 
                         self.countServerData = {
                             count: params.count,
@@ -156,12 +156,12 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         };
 
                         self.expand = params.expand || false;
-                        self.referer = params.referer;
+                        self.referer = el.data('referer');
                         self.sortFeature = params.sortfeature;
-                        self.sortable = params.sortable;
+                        self.sortable = el.data('sortable');
 
-                        // Get all language string.
-                        self.string = params.strings;
+                        // Get all language strings.
+                        self.string = el.data('strings');
                         self.forceCommenting = params.forcecommenting;
                         self.canViewDeleted = params.canviewdeleted;
                         self.isNoComment = params.isnocomment;
@@ -1451,7 +1451,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 };
             },
             generate: function(params) {
-                t.get().init(JSON.parse(params));
+                t.get().init(params);
             }
         };
         return t;
