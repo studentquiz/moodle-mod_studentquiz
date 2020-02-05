@@ -168,10 +168,11 @@ class utils {
 
         $numconditions = $options['numconditions'];
         $conditions = $options['conditions'];
+        $previewurl = $customdata['previewurl'];
 
         $content = \html_writer::div(get_string('report_comment_emailpreface', 'studentquiz', $customdata));
 
-        $link = \html_writer::link($customdata['previewurl'], get_string('report_comment_link_text', 'studentquiz'));
+        $link = \html_writer::link($previewurl, get_string('report_comment_link_text', 'studentquiz'));
 
         $content .= \html_writer::div($link);
 
@@ -215,7 +216,7 @@ class utils {
             ];
             // Send email.
             if (!email_to_user($fakeuser, $from, $subject, null, $mailcontent)) {
-                print_error('error_sendalert', 'studentquiz', $customdata->url, $fakeuser->email);
+                print_error('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
             }
         }
     }
