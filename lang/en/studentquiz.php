@@ -363,6 +363,7 @@ $string['reportrank_table_title'] = 'Student ranking - Top 10';
 $string['reportrank_table_title_for_manager'] = 'Student ranking';
 $string['reportrank_title'] = 'Ranking';
 $string['reportcomment'] = 'Report';
+$string['reportcomment_title'] = 'Report comment as unacceptable';
 $string['replycomment'] = 'Reply';
 $string['reply'] = 'Reply';
 $string['replies'] = 'Replies';
