@@ -239,8 +239,8 @@
     text-decoration: none;
 }
 
-.path-mod-studentquiz .studentquiz_behaviour .comment_list div p:last-child {
-    margin: 0;
+.path-mod-studentquiz .studentquiz_behaviour .comment_list .editor_atto_content_wrap.no-content .editor_atto_content p {
+    margin: 0; /** When in no content state, p has no margin. */
 }
 
 .path-mod-studentquiz .studentquiz_behaviour .rate .rating {
