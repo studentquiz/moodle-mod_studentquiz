@@ -48,7 +48,17 @@
         "commentcountstring": "1 of 1"
     }
 }}
-<div class="studentquiz-comment-container {{#hascomment}}has-comment{{/hascomment}}" id="{{id}}">
+<div class="studentquiz-comment-container {{#hascomment}}has-comment{{/hascomment}}"
+     id="{{id}}"
+     data-strings="{{strings}}"
+     data-sortable="{{sortablestrings}}"
+     data-referer="{{referer}}"
+     data-questionid="{{questionid}}"
+     data-contextid="{{contextid}}"
+     data-cmid="{{cmid}}"
+     data-userid="{{userid}}"
+     data-numbertoshow="{{numbertoshow}}"
+>
     <div class="studentquiz-comment-postform">
         {{{postform}}}
     </div>
@@ -75,7 +85,7 @@
                             <i class="icon"></i>
                         </div>
                     </a>
-                 {{/sortselect}}
+                {{/sortselect}}
             </div>
             <div class="filter-item studentquiz-comment-expand-section">
                 <button class="studentquiz-comment-expand" title="{{#str}} expandall, mod_studentquiz {{/str}}">
