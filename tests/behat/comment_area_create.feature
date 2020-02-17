@@ -421,3 +421,26 @@ Feature: Create comment as an user
     Then I should see "Date" in the ".studentquiz-comment-filters" "css_element"
     And I should not see "Forename" in the ".studentquiz-comment-filters" "css_element"
     And I should not see "Surname" in the ".studentquiz-comment-filters" "css_element"
+
+  @javascript
+  Scenario: Test placeholder display after click Add comment.
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    And I follow "StudentQuiz 1"
+    When I click on "Start Quiz" "button"
+    And I set the field "True" to "1"
+    And I press "Check"
+    # Wait for comment area init.
+    When I wait until the page is ready
+    # Check if placeholder has correct text.
+    Then the "data-placeholder" attribute of ".editor_atto_content_wrap" "css_element" should contain "Enter your comment here ..."
+    # Enter "Comment 1".
+    When I enter the text "Comment 1" into the "Add comment" editor
+    # Check data-placeholder now is empty.
+    Then ".editor_atto_content_wrap[data-placeholder='']" "css_element" should exist
+    And I press "Add comment"
+    And I wait until the page is ready
+    When I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    # Check placeholder is back with correct text.
+    And the "data-placeholder" attribute of ".editor_atto_content_wrap" "css_element" should contain "Enter your comment here ..."

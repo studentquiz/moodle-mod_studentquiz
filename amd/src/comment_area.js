@@ -352,6 +352,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     formSelector.trigger('reset');
                                     // Clear atto editor data.
                                     formSelector.find('#id_editor_question_' + unique + 'editable').empty();
+                                    formSelector.find(t.SELECTOR.TEXTAREA).trigger('change');
                                     M.util.js_complete(t.ACTION_CLEAR_FORM);
                                 });
                                 var data = self.convertForTemplate(response, true);
