@@ -49,6 +49,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
             ACTION_SHOW_ERROR: 'action_show_error',
             FRAGMENT_FORM_CALLBACK: 'commentform',
             HAS_COMMENT_CLASS: 'has-comment',
+            ATTO_CONTENT_TYPE: {
+                HAS_CONTENT: 'has-content',
+                NO_CONTENT: 'no-content'
+            },
             SELECTOR: {
                 CONTAINER: '.studentquiz-comment-container',
                 EXPAND_ALL: '.studentquiz-comment-expand',
@@ -1421,6 +1425,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         submitBtn.removeClass('disabled');
                         submitBtn.prop('disabled', false);
                         editorContentWrap.attr('data-placeholder', '');
+                        editorContentWrap.addClass(t.ATTO_CONTENT_TYPE.HAS_CONTENT);
+                        editorContentWrap.removeClass(t.ATTO_CONTENT_TYPE.NO_CONTENT);
                     },
 
                     /**
@@ -1435,6 +1441,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         submitBtn.addClass('disabled');
                         submitBtn.prop('disabled', true);
                         editorContentWrap.attr('data-placeholder', placeholder);
+                        editorContentWrap.addClass(t.ATTO_CONTENT_TYPE.NO_CONTENT);
+                        editorContentWrap.removeClass(t.ATTO_CONTENT_TYPE.HAS_CONTENT);
                     },
 
                     /**
