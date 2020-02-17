@@ -114,14 +114,6 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     // New StudentQuiz instances use the aggregated mode.
     $studentquiz->aggregated = 1;
 
-    // Set default value for comment deletion period.
-    if (!empty($mform->commentdeletionperiod)) {
-        $studentquiz->commentdeletionperiod = $mform->commentdeletionperiod;
-    }
-    if (empty($studentquiz->commentdeletionperiod)) {
-        $studentquiz->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
-    }
-
     // You may have to add extra stuff in here.
     $studentquiz->id = $DB->insert_record('studentquiz', $studentquiz);
     $context = context_module::instance($studentquiz->coursemodule);
