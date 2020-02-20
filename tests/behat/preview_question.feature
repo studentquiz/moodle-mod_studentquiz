@@ -13,11 +13,11 @@ Feature: Preview a question as a student
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user     | course | role           |
-      | student1 | C1     | student        |
+      | user     | course | role    |
+      | student1 | C1     | student |
     And the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber       |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
+      | activity    | name          | intro              | course | idnumber     |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 |
     And the following "questions" exist:
       | questioncategory          | qtype     | name                          |
       | Default for StudentQuiz 1 | numerical | Test question to be previewed |

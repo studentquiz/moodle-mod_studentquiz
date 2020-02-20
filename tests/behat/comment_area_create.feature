@@ -33,7 +33,7 @@ Feature: Create comment as an user
       | Default for StudentQuiz 1 | truefalse | Test question to be previewed | Answer the question 1 |
       | Default for StudentQuiz 2 | truefalse | Test question to be previewed | Answer the question 2 |
 
-  @javascript
+  @javascript @_switch_window
   Scenario: Test show initital view and Expand all comment/ Collapse all comment button. Check both start quiz and preview mode
     Given I log in as "admin"
     And I am on "Course 1" course homepage
@@ -294,7 +294,7 @@ Feature: Create comment as an user
 
   @javascript
   Scenario: Admin and user can sortable.
-     # Student 2
+    # Student 2
     Given I log in as "student2"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
@@ -306,7 +306,7 @@ Feature: Create comment as an user
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
-     # Student 3
+    # Student 3
     Given I log in as "student3"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
@@ -318,7 +318,7 @@ Feature: Create comment as an user
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
-     # Student 4
+    # Student 4
     Given I log in as "student4"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
@@ -330,7 +330,7 @@ Feature: Create comment as an user
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
-     # Student 5
+    # Student 5
     Given I log in as "student5"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
@@ -342,7 +342,7 @@ Feature: Create comment as an user
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
-     # Log in as admin
+    # Log in as admin
     Given I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"

@@ -57,7 +57,7 @@ Feature: Question states and visibility
     And I follow "StudentQuiz Test 2"
     And I should see "TF 01"
 
-  @javascript
+  @javascript @_switch_window
   Scenario: Test filter
     Given I log in as "student1"
     And I am on "Course 1" course homepage
@@ -174,7 +174,7 @@ Feature: Question states and visibility
     And I should see "TF 01"
     And "Hide" "link" should not exist in the "TF 01" "table_row"
 
-  @javascript
+  @javascript @_switch_window
   Scenario: Test Studentquiz cannot edit approved/disapproved question
     Given I log in as "student1"
     And I am on "Course 1" course homepage
