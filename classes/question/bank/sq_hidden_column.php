@@ -63,14 +63,12 @@ class sq_hidden_column extends action_column_base {
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
     protected function display_content($question, $rowclasses) {
-        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            if ($question->sq_hidden) {
-                $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
-                $this->print_icon('t/restore', get_string('restore'), $url);
-            } else {
-                $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
-                $this->print_icon('t/show', get_string('hide'), $url);
-            }
+        if ($question->sq_hidden) {
+            $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
+            $this->print_icon('t/restore', get_string('restore'), $url);
+        } else {
+            $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
+            $this->print_icon('t/show', get_string('hide'), $url);
         }
     }
 
@@ -89,7 +87,15 @@ class sq_hidden_column extends action_column_base {
      * @return array 'table_alias' => 'JOIN clause'
      */
     public function get_extra_joins() {
-        return ['hd' => ' LEFT JOIN (SELECT questionid, hidden as sq_hidden FROM {studentquiz_question}) hd ON hd.questionid = q.id'];
+        $wherehidden = "WHERE hidden = 0";
+        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+            $wherehidden = "";
+        }
+        return array('hd' => "JOIN (
+                                     SELECT questionid, hidden as sq_hidden
+                                     FROM {studentquiz_question}
+                                     ".$wherehidden."
+                                   ) hd ON hd.questionid = q.id");
     }
 
     /**

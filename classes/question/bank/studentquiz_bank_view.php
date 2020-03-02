@@ -180,13 +180,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             } else {
                 $question->tagarray = null;
             }
-            if (isset($question->sq_hidden) && $question->sq_hidden) {
-                // Hide the question if needed.
-                $context = \context::instance_by_id($question->contextid);
-                if ($question->createdby != $USER->id && !has_capability('mod/studentquiz:previewothers', $context)) {
-                    unset($questions[$key]);
-                }
-            }
         }
 
         $this->questions = $questions;
