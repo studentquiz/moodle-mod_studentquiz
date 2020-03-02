@@ -117,4 +117,4 @@ script:
   - moodle-plugin-ci grunt || [ "$MOODLE_BRANCH" = 'master' ] || [ "$MOODLE_BRANCH" = 'MOODLE_38_STABLE' ]
   - moodle-plugin-ci phpdoc || true # Report errors but don't fail the build (until they are fixed)
   - moodle-plugin-ci phpunit --coverage-text
-  - moodle-plugin-ci behat --profile "$PROFILE"
+  - moodle-plugin-ci behat $( [ "$PROFILE" = "firefox" ] || echo "--profile $PROFILE" )
