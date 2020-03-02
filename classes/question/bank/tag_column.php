@@ -107,14 +107,8 @@ class tag_column extends \core_question\bank\column_base {
         return array('tags' => "LEFT JOIN (
                                             SELECT ti.itemid AS questionid, COUNT(*) AS tags, " . $searchtag . " AS searchtag
                                               FROM {tag} t
-                                              JOIN {tag_instance} ti ON (
-                                                                          t.id = ti.tagid
-                                                                          AND ti.itemid IN (
-                                                                                             SELECT id FROM {question} q
-                                                                                             WHERE q.category = " .
-                                                                                                 $this->categoryid . "
-                                                                                           )
-                                                                        )
+                                              JOIN {tag_instance} ti ON t.id = ti.tagid
+                                              JOIN {question} q ON ti.tagid = q.id
                                              WHERE ti.itemtype = 'question'
                                           GROUP BY questionid
                                           ) tags ON tags.questionid = q.id");
