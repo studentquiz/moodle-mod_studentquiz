@@ -7,6 +7,8 @@ notifications:
 
 services:
   - mysql
+  # we need docker for self-organized selenium start. (workaround #202)
+  - docker
 
 addons:
   postgresql: "9.4"
@@ -36,20 +38,23 @@ cache:
 php:
  - 7.1
  - 7.2
+ - 7.3
 
 env:
-  - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
+  global:
+    # This prevents starting selenium and php servers using moodle-plugin-ci in-built functionality.
+    - MOODLE_START_BEHAT_SERVERS=NO
+  matrix:
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
 
 matrix:
+  exclude:
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
   include:
-    # Only Moodle 37 and onwards has php 7.3 support
-    - php: 7.3
-      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
-    - php: 7.3
-      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
@@ -92,6 +97,12 @@ before_install:
 
 install:
   - moodle-plugin-ci install
+  # Start Selenuim Standalone server using docker. (workaround #202)
+  - docker run -d -p 127.0.0.1:4444:4444 --net=host -v /dev/shm:/dev/shm selenium/standalone-${PROFILE}:3
+  # Start php built-in server. (workaround #202)
+  - php -S localhost:8000 -t $HOME/build/moodle > /dev/null 2>&1 &
+  # Wait to make sure docker container is fully running. (workaround #202)
+  - sleep 10
 
 script:
   - moodle-plugin-ci phplint
@@ -105,4 +116,4 @@ script:
   - moodle-plugin-ci phpdoc || true # Report errors but don't fail the build (until they are fixed)
   - moodle-plugin-ci phpunit --coverage-text
   #- moodle-plugin-ci behat --profile chrome # chromium is mostly broken
-  - moodle-plugin-ci behat || true # Behat seems to be broken at the moment
+  - moodle-plugin-ci behat || true
