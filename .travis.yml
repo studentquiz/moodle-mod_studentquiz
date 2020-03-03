@@ -12,14 +12,8 @@ services:
 
 addons:
   postgresql: "9.4"
-  firefox: "47.0.1"
-  #chrome: stable
   apt:
     packages:
-      # can be omitted because mustache is not in use
-      # - oracle-java8-installer
-      # - oracle-java8-set-default
-      - chromium-chromedriver
       - openjdk-8-jre-headless
 
 cache:
@@ -43,7 +37,7 @@ php:
 env:
   global:
     # Set PROFILE to either chrome or firefox depending on your preference.
-    - PROFILE=firefox
+    - PROFILE=chrome
     # This prevents starting selenium and php servers using moodle-plugin-ci in-built functionality.
     - MOODLE_START_BEHAT_SERVERS=NO
   matrix:
