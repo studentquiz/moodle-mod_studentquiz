@@ -67,7 +67,8 @@ class utils {
                 'plural' => new external_value(PARAM_TEXT, 'text reply or replies.'),
                 'hascomment' => new external_value(PARAM_BOOL, 'Check if in current user has comment'),
                 'canreport' => new external_value(PARAM_BOOL, 'Can report this comment or not.'),
-                'reportlink' => new external_value(PARAM_TEXT, 'Report link for this comment.')
+                'reportlink' => new external_value(PARAM_TEXT, 'Report link for this comment.'),
+                'canedit' => new external_value(PARAM_BOOL, 'Can delete this comment or not.')
         ];
     }
 
@@ -232,7 +233,9 @@ class utils {
                 'guestuserid' => $guestuserid,
                 'deleted' => time(),
                 'deleteuserid' => $guestuserid,
-                'comment' => ''
+                'comment' => '',
+                'edited' => time(),
+                'edituserid' => $guestuserid
         ];
     }
 }

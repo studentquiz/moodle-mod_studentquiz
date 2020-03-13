@@ -173,7 +173,7 @@ class comment {
     }
 
     /**
-     * Get limited time user can delete comment.
+     * Get limited time user can delete/edit comment.
      *
      * @return int
      */
@@ -380,6 +380,7 @@ class comment {
         $object->canreport = $this->can_report();
         // Add report link if report enabled.
         $object->reportlink = $object->canreport ? $this->get_abuse_link($object->id) : null;
+        $object->canedit = $this->can_edit();
         return $object;
     }
 
@@ -434,5 +435,55 @@ class comment {
         ];
         $url = new \moodle_url(self::ABUSE_PAGE, $params);
         return $url->out();
+    }
+
+    /**
+     * If not moderator, then only allow edit for 10 minutes.
+     *
+     * @return bool
+     */
+    public function can_edit() {
+        $allow = true;
+        // Deleted comment can't be editable.
+        if ($this->is_deleted()) {
+            $this->error = get_string('describe_already_deleted', 'mod_studentquiz');
+            $allow = false;
+        } else if (!$this->is_moderator()) {
+            // If not admin, and not comment's creator, can't be editable.
+            if (!$this->is_creator()) {
+                $this->error = get_string('describe_not_creator', 'mod_studentquiz');
+                $allow = false;
+            } else {
+                $studentquiz = $this->get_container()->get_studentquiz();
+                // If period is over or period = 0, can't be editable.
+                if ($studentquiz->commentdeletionperiod > 0) {
+                    if (time() > $this->get_editable_time()) {
+                        $this->error = get_string('describe_out_of_time_edit', 'mod_studentquiz');
+                        $allow = false;
+                    }
+                } else if ($studentquiz->commentdeletionperiod == 0) {
+                    $this->error = get_string('describe_out_of_time_edit', 'mod_studentquiz');
+                    $allow = false;
+                }
+            }
+        }
+        return $allow;
+    }
+
+    /**
+     * Edit comment feature.
+     *
+     * @param \stdClass $datacomment - Comment edit data.
+     * @return bool
+     */
+    public function update_comment($datacomment) {
+        global $DB;
+        $data = new \stdClass();
+        $data->id = $this->data->id;
+        // Update content from editor.
+        $data->comment = $datacomment->message['text'];
+        $data->edited = time();
+        $data->edituserid = $this->get_container()->get_user()->id;
+        return $DB->update_record('studentquiz_comment', $data);
     }
 }

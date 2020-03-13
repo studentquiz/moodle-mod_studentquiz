@@ -89,6 +89,8 @@ class provider implements
                 'parentid' => 'privacy:metadata:studentquiz_comment:parentid',
                 'deleted' => 'privacy:metadata:studentquiz_comment:deleted',
                 'deleteuserid' => 'privacy:metadata:studentquiz_comment:deleteuserid',
+                'edited' => 'privacy:metadata:studentquiz_comment:edited',
+                'edituserid' => 'privacy:metadata:studentquiz_comment:edituserid'
 
         ], 'privacy:metadata:studentquiz_comment');
 
@@ -195,6 +197,7 @@ class provider implements
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
                        comment.userid AS commentuserid, comment.created AS commentcreate,
                        comment.parentid AS commentparentid, comment.deleted AS commentdelete, comment.deleteuserid AS commentdeleteuserid,
+                       comment.edited AS commentedit, comment.edituserid AS commentedituserid,
                        progress.questionid AS progressquestionid, progress.userid AS progressuserid,
                        progress.studentquizid AS progressstudentquizid, progress.lastanswercorrect AS progresslastanswercorrect,
                        progress.attempts AS progressattempts, progress.correctattempts AS progresscorrectattempts,
@@ -300,6 +303,9 @@ class provider implements
                         'parentid' => $record->commentparentid,
                         'deleted' => $record->commentdelete > 0 ? transform::datetime($record->commentdelete) : 0,
                         'deleteuserid' => !is_null($record->commentdeleteuserid) ? transform::user($record->commentdeleteuserid) :
+                                null,
+                        'edited' => $record->commentedit > 0 ? transform::datetime($record->commentedit) : 0,
+                        'edituserid' => !is_null($record->commentedituserid) ? transform::user($record->commentedituserid) :
                                 null
                 ];
             }
@@ -692,7 +698,9 @@ class provider implements
                               SET userid = :guestuserid,
                                   deleted = :deleted,
                                   deleteuserid = :deleteuserid,
-                                  comment = :comment
+                                  comment = :comment,
+                                  edited = :edited,
+                                  edituserid = :edituserid
                             WHERE questionid {$questionsql}
                                   AND userid {$userinsql}
                                   AND parentid = :parentid", $params + $blankcomment);
@@ -717,7 +725,9 @@ class provider implements
                               SET userid = :guestuserid,
                                   deleted = :deleted,
                                   deleteuserid = :deleteuserid,
-                                  comment = :comment
+                                  comment = :comment,
+                                  edited = :edited,
+                                  edituserid = :edituserid
                             WHERE questionid {$questionsql}
                                   AND userid = :userid
                                   AND parentid = :parentid", $params + $blankcomment);

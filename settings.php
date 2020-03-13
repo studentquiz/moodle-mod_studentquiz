@@ -125,7 +125,7 @@ if ($ADMIN->fulltree) {
         '0'
     ));
 
-    $settings->add(new admin_setting_configselect('studentquiz/commentdeletionperiod',
+    $settings->add(new admin_setting_configselect('studentquiz/commentediting_deletionperiod',
             get_string('settings_commentdeletionperiod', 'studentquiz'),
             get_string('settings_commentdeletionperiod_help', 'studentquiz'),
             \mod_studentquiz\commentarea\container::DELETION_PERIOD_DEFAULT,

@@ -99,7 +99,7 @@ class get_comments_api extends external_api {
         ]);
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
-
+        self::validate_context($context);
         $commentarea = new container($studentquiz, $question, $cm, $context, null, $sort);
         $comments = $commentarea->fetch_all($numbertoshow);
 

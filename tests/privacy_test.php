@@ -176,7 +176,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 self::create_comment($this->questions[0]->id, $this->users[1]->id),
                 self::create_comment($this->questions[1]->id, $this->users[1]->id),
                 self::create_comment($this->questions[2]->id, $this->users[1]->id),
-                self::create_comment($this->questions[3]->id, $this->users[0]->id),
+                self::create_comment($this->questions[3]->id, $this->users[0]->id, 0, 0, 0, 1 , $this->users[0]->id),
         ];
 
         // Create 2 replies for second user.
@@ -341,7 +341,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[3]->created),
                 'parentid' => $this->comments[3]->parentid,
                 'deleted' => $this->comments[3]->deleted > 0 ? transform::datetime($this->comments[3]->deleted) : 0,
-                'deleteuserid' => !is_null($this->comments[3]->deleteuserid) ? transform::user($this->comments[3]->deleteuserid) : null
+                'deleteuserid' => !is_null($this->comments[3]->deleteuserid) ? transform::user($this->comments[3]->deleteuserid) : null,
+                'edited' => $this->comments[3]->edited > 0 ? transform::datetime($this->comments[3]->edited) : 0,
+                'edituserid' => !is_null($this->comments[3]->edituserid) ? transform::user($this->comments[3]->edituserid) : null
         ], $comments[$this->comments[3]->id]);
 
         // Skipped for now. Reasons:
@@ -411,7 +413,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[0]->created),
                 'parentid' => $this->comments[0]->parentid,
                 'deleted' => $this->comments[0]->deleted > 0 ? transform::datetime($this->comments[0]->deleted) : 0,
-                'deleteuserid' => !is_null($this->comments[0]->deleteuserid) ? transform::user($this->comments[0]->deleteuserid) : null
+                'deleteuserid' => !is_null($this->comments[0]->deleteuserid) ? transform::user($this->comments[0]->deleteuserid) : null,
+                'edited' => $this->comments[0]->edited > 0 ? transform::datetime($this->comments[0]->edited) : 0,
+                'edituserid' => !is_null($this->comments[0]->edituserid) ? transform::user($this->comments[0]->edituserid) : null
         ], $comments[$this->comments[0]->id]);
         $this->assertEquals((object) [
                 'comment' => $this->comments[1]->comment,
@@ -420,7 +424,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[1]->created),
                 'parentid' => $this->comments[1]->parentid,
                 'deleted' => $this->comments[1]->deleted > 0 ? transform::datetime($this->comments[1]->deleted) : 0,
-                'deleteuserid' => !is_null($this->comments[1]->deleteuserid) ? transform::user($this->comments[1]->deleteuserid) : null
+                'deleteuserid' => !is_null($this->comments[1]->deleteuserid) ? transform::user($this->comments[1]->deleteuserid) : null,
+                'edited' => $this->comments[1]->edited > 0 ? transform::datetime($this->comments[1]->edited) : 0,
+                'edituserid' => !is_null($this->comments[1]->edituserid) ? transform::user($this->comments[1]->edituserid) : null
         ], $comments[$this->comments[1]->id]);
 
         $this->assertEmpty($data->questions);
@@ -460,7 +466,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[2]->created),
                 'parentid' => $this->comments[2]->parentid,
                 'deleted' => $this->comments[2]->deleted > 0 ? transform::datetime($this->comments[2]->deleted) : 0,
-                'deleteuserid' => !is_null($this->comments[2]->deleteuserid) ? transform::user($this->comments[2]->deleteuserid) : null
+                'deleteuserid' => !is_null($this->comments[2]->deleteuserid) ? transform::user($this->comments[2]->deleteuserid) : null,
+                'edited' => $this->comments[2]->edited > 0 ? transform::datetime($this->comments[2]->edited) : 0,
+                'edituserid' => !is_null($this->comments[2]->edituserid) ? transform::user($this->comments[2]->edituserid) : null
         ], $comments[$this->comments[2]->id]);
 
         // Test replies.
@@ -472,7 +480,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[4]->created),
                 'parentid' => $this->comments[3]->id,
                 'deleted' => $this->comments[4]->deleted > 0 ? transform::datetime($this->comments[4]->deleted) : 0,
-                'deleteuserid' => !is_null($this->comments[4]->deleteuserid) ? transform::user($this->comments[4]->deleteuserid) : null
+                'deleteuserid' => !is_null($this->comments[4]->deleteuserid) ? transform::user($this->comments[4]->deleteuserid) : null,
+                'edited' => $this->comments[4]->edited > 0 ? transform::datetime($this->comments[4]->edited) : 0,
+                'edituserid' => !is_null($this->comments[4]->edituserid) ? transform::user($this->comments[4]->edituserid) : null
         ], $comments[$this->comments[4]->id]);
 
         // Test reply 2.
@@ -483,7 +493,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[5]->created),
                 'parentid' => $this->comments[3]->id,
                 'deleted' => $this->comments[5]->deleted > 0 ? transform::datetime($this->comments[5]->deleted) : 0,
-                'deleteuserid' => !is_null($this->comments[5]->deleteuserid) ? transform::user($this->comments[5]->deleteuserid) : null
+                'deleteuserid' => !is_null($this->comments[5]->deleteuserid) ? transform::user($this->comments[5]->deleteuserid) : null,
+                'edited' => $this->comments[5]->edited > 0 ? transform::datetime($this->comments[5]->edited) : 0,
+                'edituserid' => !is_null($this->comments[5]->edituserid) ? transform::user($this->comments[5]->edituserid) : null
         ], $comments[$this->comments[5]->id]);
 
         $practices = $data->practices;
@@ -895,10 +907,12 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @param $parentid
      * @param $delete
      * @param $deleteuserid
+     * @param $edit
+     * @param $edituserid
      * @return object
      * @throws dml_exception
      */
-    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0) {
+    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0, $edit = 0, $edituserid = 0) {
         global $DB;
 
         $data = (object) [
@@ -909,12 +923,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => rand(1000000000, 2000000000),
                 'parentid' => $parentid,
                 'deleted' => $delete === 1 ? rand(1000000000, 2000000000) : 0,
-                'deleteuserid' => $deleteuserid > 0 ? $deleteuserid : null
+                'deleteuserid' => $deleteuserid > 0 ? $deleteuserid : null,
+                'edited' => $edit === 1 ? rand(1000000000, 2000000000) : 0,
+                'edituserid' => $edituserid > 0 ? $edituserid : null
         ];
 
         $data->id = $DB->insert_record('studentquiz_comment', $data);
 
-        return $data;
+        return $DB->get_record('studentquiz_comment', ['id' => $data->id]);
     }
 
     /**

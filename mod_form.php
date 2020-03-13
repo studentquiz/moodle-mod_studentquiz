@@ -206,7 +206,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         );
         $mform->setType('commentdeletionperiod', PARAM_INT);
         $mform->addHelpButton('commentdeletionperiod', 'settings_commentdeletionperiod', 'studentquiz');
-        $mform->setDefault('commentdeletionperiod', get_config('studentquiz', 'commentdeletionperiod'));
+        $mform->setDefault('commentdeletionperiod', get_config('studentquiz', 'commentediting_deletionperiod'));
 
         // Email address for reporting unacceptable comment for this studentquiz, default is blank.
         $mform->addElement('text', 'reportingemail', get_string('settings_reportingemail', 'studentquiz'), ['size' => 64]);

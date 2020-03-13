@@ -69,6 +69,12 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     /** @var stdClass - Course. */
     protected $course;
 
+    /** @var mod_studentquiz\commentarea\container - Comment area has disabled period setting. */
+    protected $commentareanoperiod;
+
+    /** @var mod_studentquiz\commentarea\container - Comment area has enable period setting. */
+    protected $commentareahasperiod;
+
     /** @var array - Users list. */
     protected $userlist = [
             [
@@ -136,6 +142,9 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->rootid = \mod_studentquiz\commentarea\container::PARENTID;
 
         $this->generate_comment_list_for_sort();
+
+        // Create SQs with period setting.
+        $this->set_up_studentquizs_with_period();
     }
 
     /**
@@ -418,5 +427,114 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_DATE_ASC);
         $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_ASC);
+    }
+
+    /**
+     * Setup some SQs with different settings.
+     */
+    private function set_up_studentquizs_with_period() {
+        $this->setUser($this->users[0]);
+        $this->commentareanoperiod = $this->seed_studentquiz_period_setting(0);
+        $this->commentareahasperiod = $this->seed_studentquiz_period_setting(10);
+        $this->setAdminUser();
+    }
+
+    /**
+     * Set up SQ disabled period setting + seed some comments.
+     *
+     * @param int $period
+     * @return \mod_studentquiz\commentarea\container
+     */
+    private function seed_studentquiz_period_setting($period) {
+        global $DB;
+        $course = $this->course;
+        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+                'course' => $course->id,
+                'anonymrank' => true,
+                'forcecommenting' => 1,
+                'publishnewquestion' => 1
+        ));
+        $context = context_module::instance($activity->cmid);
+
+        $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
+        $studentquiz->commentdeletionperiod = $period;
+        $DB->update_record('studentquiz', $studentquiz);
+        $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
+
+        $cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
+
+        // Create questions in questionbank.
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        $q1 = $questiongenerator->create_question('truefalse', null, [
+                'name' => 'TF1',
+                'category' => $studentquiz->categoryid
+        ]);
+        $q1 = \question_bank::load_question($q1->id);
+
+        $commentarea = new \mod_studentquiz\commentarea\container($studentquiz, $q1, $cm, $context, $this->users[0]);
+
+        // Seed a comment.
+        $DB->insert_record('studentquiz_comment', (object) [
+                'comment' => 'Test comment',
+                'parentid' => $this->rootid,
+                'userid' => $commentarea->get_user()->id,
+                'created' => time(),
+                'questionid' => $q1->id
+        ]);
+
+        return $commentarea;
+    }
+
+    /**
+     * Test edit comment.
+     */
+    public function test_edit_comment() {
+        // Create root comment.
+        $q1 = $this->questions[0];
+        $text = 'Root comment';
+        // Dont need to convert to use delete.
+        $comment = $this->create_comment($this->rootid, $q1->id, $text, false);
+        $formdata = new \stdClass();
+        $formdata->message['text'] = 'Edited comment';
+        // Try to update.
+        $comment->update_comment($formdata);
+        // Get new data.
+        $commentafteredit = $this->get_comment_by_id($comment->get_id(), false);
+        // Edit time now is > 0 (edited).
+        $this->assertTrue($commentafteredit->get_comment_data()->edited > 0);
+        // Check correct edit user id.
+        $this->assertEquals($this->users[0]->id, $commentafteredit->get_comment_data()->edituserid);
+        // Expect new comment is "Edited comment".
+        $this->assertEquals($formdata->message['text'], $commentafteredit->get_comment_data()->comment);
+    }
+
+    /**
+     * Test if setting = 0, we cannot edit a comment.
+     */
+    public function test_editable_when_turn_off_period_setting_comment() {
+        $this->setUser($this->users[0]);
+        $commentarea = $this->commentareanoperiod;
+        $comments = $commentarea->fetch_all();
+        // Check if setting = 0.
+        $this->assertEquals(0, $commentarea->get_studentquiz()->commentdeletionperiod);
+        // Ensure we cannot edit it.
+        foreach ($comments as $comment) {
+            $this->assertFalse($comment->can_edit());
+        }
+    }
+
+    /**
+     * Test if setting > 0, we can edit a comment.
+     */
+    public function test_editable_when_turn_on_period_setting_comment() {
+        $this->setUser($this->users[0]);
+        $commentarea = $this->commentareahasperiod;
+        $comments = $commentarea->fetch_all();
+        // Check if setting larger than 0.
+        $this->assertTrue($commentarea->get_studentquiz()->commentdeletionperiod > 0);
+        // Ensure we can edit it.
+        foreach ($comments as $comment) {
+            $this->assertTrue($comment->can_edit());
+        }
     }
 }

@@ -50,11 +50,18 @@ class validate_comment_form extends \moodleform {
         $params = $this->_customdata['params'];
 
         $questionid = $params['questionid'];
-        $replyto = isset($params['replyto']) && $params['replyto'] ? $params['replyto'] : 0;
-        $context = \context_module::instance($params['cmid']);
-        $unique = $questionid . '_' . $replyto;
 
-        $formtype = $replyto == container::PARENTID ? 'add_comment' : 'add_reply';
+        if (!empty(($params['editmode']))) {
+            $commentid = $params['commentid'];
+            $formtype = 'savechanges';
+        } else {
+            $commentid = isset($params['replyto']) && $params['replyto'] ? $params['replyto'] : 0;
+            $formtype = $commentid == container::PARENTID ? 'add_comment' : 'add_reply';
+        }
+
+        $context = \context_module::instance($params['cmid']);
+        $unique = $questionid . '_' . $commentid;
+
         $submitlabel = \get_string($formtype, 'mod_studentquiz');
         $mform->addElement('studentquiz_comment_editor', 'message', $submitlabel,
                 ['id' => 'id_editor_question_' . $unique],
