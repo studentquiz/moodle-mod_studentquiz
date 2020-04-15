@@ -83,10 +83,7 @@ class state_column extends \core_question\bank\column_base {
      * @return array modified select left join
      */
     public function get_extra_joins() {
-        return array('ap' => " LEFT JOIN (
-                                           SELECT questionid, state
-                                             FROM {studentquiz_question}
-                                         ) ap ON ap.questionid = q.id");
+        return array('sqs' => " LEFT JOIN {studentquiz_question} sqs ON sqs.questionid = q.id");
     }
 
     /**
@@ -94,7 +91,7 @@ class state_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('ap.state');
+        return array('sqs.state AS state');
     }
 
     /**
@@ -102,6 +99,6 @@ class state_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'ap.state';
+        return 'sqs.state';
     }
 }
