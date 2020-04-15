@@ -434,14 +434,14 @@ $string['settings_removeqbehavior_help'] = 'This info should appear only once du
 $string['settings_removeqbehavior_label'] = 'Remove question behavior plugin StudentQuiz';
 $string['settings_section_description_default'] = 'These values define the default values when creating a new studentquiz activity.';
 $string['settings_section_header_question'] = 'Question settings';
-$string['settings_section_header_comment'] = 'Comment settings';
+$string['settings_section_header_comment_rating'] = 'Comment and rating settings';
 $string['settings_section_header_ranking'] = 'Ranking settings';
 $string['setting_question_publishing'] = 'Question publishing';
 $string['setting_question_publishing_help'] = 'Published questions appear in the question pool for other students to take them. Either allow all questions to be published automatically, or require approval before they can be published.<br>Note that this setting cannot be changed once a question has been created in the StudentQuiz.';
 $string['setting_question_publishing_automatic'] = 'Automatically publish new questions';
 $string['setting_question_publishing_require_approval'] = 'Require approval before publishing';
 $string['settings_commentdeletionperiod'] = 'Comment deletion period (minutes)';
-$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed, with the default being 10. If the deletion period is set to 0, students are unable to delete their own comments. Note that teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
+$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed. If the deletion period is set to 0, students are unable to delete their own comments. Teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
 $string['settings_reportingemail'] = 'Email for reporting offensive comments';
 $string['settings_reportingemail_help'] = 'If this email address is supplied, then a Report link appears
 next to each comment. Users can click the link to report offensive comments. The information will be sent to this address.

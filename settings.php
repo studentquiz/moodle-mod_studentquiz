@@ -125,6 +125,9 @@ if ($ADMIN->fulltree) {
         '0'
     ));
 
+    $commentdeletionhelp = str_replace('%%%STUDENTQUIZ_PERIOD_PLACEHOLDER%%%',
+            \mod_studentquiz\commentarea\container::DELETION_PERIOD_DEFAULT,
+            get_string('settings_commentdeletionperiod_help', 'studentquiz'));
     $settings->add(new admin_setting_configselect('studentquiz/commentdeletionperiod',
             get_string('settings_commentdeletionperiod', 'studentquiz'),
             get_string('settings_commentdeletionperiod_help', 'studentquiz'),
