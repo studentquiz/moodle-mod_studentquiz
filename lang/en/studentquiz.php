@@ -441,7 +441,7 @@ $string['setting_question_publishing_help'] = 'Published questions appear in the
 $string['setting_question_publishing_automatic'] = 'Automatically publish new questions';
 $string['setting_question_publishing_require_approval'] = 'Require approval before publishing';
 $string['settings_commentdeletionperiod'] = 'Comment deletion period (minutes)';
-$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed, with the default being %%%STUDENTQUIZ_PERIOD_PLACEHOLDER%%%. If the deletion period is set to 0, students are unable to delete their own comments. Note that teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
+$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed. If the deletion period is set to 0, students are unable to delete their own comments. Teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
 $string['settings_reportingemail'] = 'Email for reporting offensive comments';
 $string['settings_reportingemail_help'] = 'If this email address is supplied, then a Report link appears
 next to each comment. Users can click the link to report offensive comments. The information will be sent to this address.

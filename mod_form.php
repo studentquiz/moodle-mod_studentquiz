@@ -308,19 +308,4 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         return $data;
     }
 
-    /**
-     * After definition hook.
-     *
-     * @return void
-     */
-    protected function after_definition() {
-        /** @var MoodleQuickForm_select $commentdeletionperiodelement */
-        $commentdeletionperiodelement = $this->_form->getElement('commentdeletionperiod');
-        $helpbuttonhtml = $commentdeletionperiodelement->getHelpButton();
-        $helpbuttonhtml = str_replace('%%%STUDENTQUIZ_PERIOD_PLACEHOLDER%%%', get_config('studentquiz', 'commentdeletionperiod'),
-                $helpbuttonhtml);
-        $commentdeletionperiodelement->_helpbutton = $helpbuttonhtml;
-        parent::after_definition();
-    }
-
 }
