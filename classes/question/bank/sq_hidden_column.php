@@ -63,12 +63,14 @@ class sq_hidden_column extends action_column_base {
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
     protected function display_content($question, $rowclasses) {
-        if ($question->sq_hidden) {
-            $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
-            $this->print_icon('t/restore', get_string('restore'), $url);
-        } else {
-            $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
-            $this->print_icon('t/show', get_string('hide'), $url);
+        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+            if ($question->sq_hidden) {
+                $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
+                $this->print_icon('t/show', get_string('show'), $url);
+            } else {
+                $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
+                $this->print_icon('t/hide', get_string('hide'), $url);
+            }
         }
     }
 
@@ -87,15 +89,11 @@ class sq_hidden_column extends action_column_base {
      * @return array 'table_alias' => 'JOIN clause'
      */
     public function get_extra_joins() {
-        $wherehidden = "WHERE hidden = 0";
+        $andhidden = "AND sqh.hidden = 0";
         if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            $wherehidden = "";
+            $andhidden = "";
         }
-        return array('hd' => "JOIN (
-                                     SELECT questionid, hidden as sq_hidden
-                                     FROM {studentquiz_question}
-                                     ".$wherehidden."
-                                   ) hd ON hd.questionid = q.id");
+        return array('sqh' => "JOIN {studentquiz_question} sqh ON sqh.questionid = q.id $andhidden");
     }
 
     /**
@@ -105,6 +103,6 @@ class sq_hidden_column extends action_column_base {
      * ones from get_extra_joins. Every field requested must specify a table prefix.
      */
     public function get_required_fields() {
-        return ['hd.sq_hidden'];
+        return ['sqh.hidden AS sq_hidden'];
     }
 }
