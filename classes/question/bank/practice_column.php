@@ -86,15 +86,6 @@ class practice_column extends \core_question\bank\column_base {
     }
 
     /**
-     * Get params that this join requires be added to the query.
-     * @return array sqlparams required to be added to query
-     */
-    public function get_sqlparams() {
-        $this->sqlparams = array();
-        return $this->sqlparams;
-    }
-
-    /**
      * Get the left join for practice
      * @return array modified select left join
      */

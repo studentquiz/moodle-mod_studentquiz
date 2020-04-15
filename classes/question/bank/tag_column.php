@@ -26,6 +26,9 @@ namespace mod_studentquiz\bank;
 
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/studentquiz/classes/local/db.php');
+use mod_studentquiz\local\db;
+
 /**
  * Represent tag column in studentquiz_bank_view
  *
@@ -63,23 +66,6 @@ class tag_column extends \core_question\bank\column_base {
         return 'tags';
     }
 
-    public function set_searchconditions($searchconditions) {
-        $this->searchconditions = $searchconditions;
-        foreach ($searchconditions as $searchcondition) {
-            if (method_exists($searchcondition, 'is_tag_filter_active')) {
-                $this->tagfilteractive = $searchcondition->is_tag_filter_active();
-            }
-        }
-    }
-
-    /**
-     * Set array of tags, used for renderer by this column
-     * @param $tags array ( [questionid] => array( [tag.id] => {$tag->rawname, $tag.name}  )
-     */
-    public function set_tags($tags) {
-        $this->tags = $tags;
-    }
-
     /**
      * Get column title
      * @return string translated title
@@ -103,29 +89,25 @@ class tag_column extends \core_question\bank\column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins() {
-        $searchtag = ($this->tagfilteractive) ? "SUM(CASE WHEN t.name LIKE :searchtag THEN 1 ELSE 0 END)" : "0";
+        global $DB;
+
+        # concatenated string always containing a leading and ending ',' so a potential search for an item is always in between elements
+        $concatenated = $DB->sql_concat_join("','", array("''", db::group_concat('t.name'), "''"));
+
         return array('tags' => "LEFT JOIN (
-                                            SELECT ti.itemid AS questionid, COUNT(*) AS tags, " . $searchtag . " AS searchtag
-                                              FROM {tag} t
-                                              JOIN {tag_instance} ti ON t.id = ti.tagid
-                                              JOIN {question} q ON ti.tagid = q.id
+                                            SELECT " . $concatenated . " AS tagarray, ti.itemid as questionid
+                                              FROM {tag_instance} ti
+                                              JOIN {tag} t ON ti.tagid = t.id
                                              WHERE ti.itemtype = 'question'
                                           GROUP BY questionid
                                           ) tags ON tags.questionid = q.id");
     }
 
-    /**
-     * Return parameter for
-     */
-    public function get_sqlparams() {
-            return array();
-    }
-
     public function get_required_fields() {
-        return array('tags.tags', 'tags.searchtag');
+        return array('tags.tagarray');
     }
 
     public function is_sortable() {
-        return 'tags.tags';
+        return 'tags.tagarray';
     }
 }

@@ -131,11 +131,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
         // Init search conditions with filterform state.
-        $cateorycondition = new \core_question\bank\search\category_condition(
+        $categorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
         $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform, $this->report, $studentquiz);
         $this->isfilteractive = $studentquizcondition->is_filter_active();
-        $this->searchconditions = array ($cateorycondition, $studentquizcondition);
+        $this->searchconditions = array ($categorycondition, $studentquizcondition);
         $this->renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
     }
 
@@ -170,31 +170,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Get result set.
         $questions = $this->load_questions($page, $perpage);
-
-        $tags = mod_studentquiz_get_tags_by_question_ids($this->displayedquestionsids);
-
-        // Annotate questions with tags.
-        foreach ($questions as $key => $question) {
-            if (array_key_exists($question->id, $tags)) {
-                $question->tagarray = $tags[$question->id];
-            } else {
-                $question->tagarray = null;
-            }
-        }
-
         $this->questions = $questions;
+        $this->countsql = count($this->questions);
 
         if ($this->process_actions_needing_ui()) {
             return;
         }
 
-        if (count($this->questions) || $this->isfilteractive) {
+        if ($this->countsql || $this->isfilteractive) {
             // We're unable to force the filter form to submit with get method. We have 2 forms on the page
             // which need to interact with each other, so forcing method as get here
             $output .= str_replace('method="post"', 'method="get"', $this->renderer->render_filter_form($this->filterform));
         }
 
-        if (count($this->questions) > 0) {
+        if ($this->countsql > 0) {
             $questionslist = $this->display_question_list(
                     $this->contexts->having_one_edit_tab_cap($tabname),
                     $this->baseurl, $cat, $this->cm,
@@ -476,18 +465,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $fields = array('q.hidden', 'q.category', 'q.timecreated', 'q.createdby');
         $tests = array('q.parent = 0', 'q.hidden = 0');
         foreach ($this->requiredcolumns as $column) {
-            if (method_exists($column, 'set_searchconditions')) {
-                $column->set_searchconditions($this->searchconditions);
-            }
             $extrajoins = $column->get_extra_joins();
             foreach ($extrajoins as $prefix => $join) {
                 if (isset($joins[$prefix]) && $joins[$prefix] != $join) {
                     throw new \coding_exception('Join ' . $join . ' conflicts with previous join ' . $joins[$prefix]);
                 }
                 $joins[$prefix] = $join;
-            }
-            if (method_exists($column, 'get_sqlparams')) {
-                $params = array_merge($params, $column->get_sqlparams());
             }
             $fields = array_merge($fields, $column->get_required_fields());
         }
@@ -519,8 +502,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $sql = ' FROM {question} q ' . implode(' ', $joins);
         $sql .= ' WHERE ' . implode(' AND ', $tests);
         $this->sqlparams = $params;
-        $this->countsql = 'SELECT count(1)' . $sql;
-        $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
+        $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' GROUP BY q.id ORDER BY ' . implode(', ', $sorts);
     }
 
     /**
@@ -703,9 +685,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
             false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.60,
             get_string('filter_label_onlydifficult_help', 'studentquiz', '60'));
 
-        // Standard filters.
-        $this->fields[] = new \user_filter_tag('tagname', get_string('filter_label_tags', 'studentquiz'),
-            true, 'tagname');
+        // Advanced filters.
+        $this->fields[] = new \studentquiz_user_filter_text('tagarray', get_string('filter_label_tags', 'studentquiz'),
+            true, 'tagarray');
 
         $this->fields[] = new \user_filter_simpleselect('approved', get_string('filter_label_approved', 'studentquiz'),
             true, 'approved', array(
@@ -713,7 +695,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 false => get_string('not_approved', 'studentquiz')
             ));
 
-        // Advanced filters.
         $this->fields[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
             true, 'rate');
         $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
