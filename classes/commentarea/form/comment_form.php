@@ -48,6 +48,9 @@ class comment_form {
     /** @var bool - Force commenting. */
     private $forcecommenting = false;
 
+    /** @var bool - Edit mode. */
+    private $editmode = false;
+
     /**
      * comment_form constructor.
      *
@@ -62,6 +65,10 @@ class comment_form {
             $this->forcecommenting = $params['forcecommenting'];
             unset($params['forcecommenting']);
         }
+        if (!empty(($params['editmode']))) {
+            $this->editmode = $params['editmode'];
+            unset($params['editmode']);
+        }
         $this->params = $params;
     }
 
@@ -73,14 +80,40 @@ class comment_form {
         $params = $this->params;
 
         $questionid = $params['questionid'];
-        $replyto = isset($params['replyto']) && $params['replyto'] ? $params['replyto'] : 0;
+
+        if (!$this->editmode) {
+            $commentid = isset($params['replyto']) && $params['replyto'] ? $params['replyto'] : 0;
+            $submitlabel = $commentid == container::PARENTID ? 'add_comment' : 'add_reply';
+            $textarealabel = $submitlabel;
+        } else {
+            if (!isset($params['commentid']) || !isset($params['formdata'])) {
+                throw new \moodle_exception('missingparam', 'studentquiz');
+            }
+            $commentid = $params['commentid'];
+            $submitlabel = 'savechanges';
+            $textarealabel = 'editcomment';
+        }
+
         $context = \context_module::instance($params['cmid']);
 
-        $formtype = $replyto == container::PARENTID ? 'add_comment' : 'add_reply';
-        $submitlabel = \get_string($formtype, 'mod_studentquiz');
+        $submitlabelstring = \get_string($submitlabel, 'mod_studentquiz');
+        $textarealabelstring = \get_string($textarealabel, 'mod_studentquiz');
 
-        $unique = $questionid . '_' . $replyto;
+        $unique = $questionid . '_' . $commentid;
         $id = 'studentquiz_customeditor_' . $unique;
+
+        // Setup editor.
+        $editorid = 'id_editor_question_' . $unique;
+        $editor = new comment_simple_editor('message', 'message',
+                ['id' => $editorid],
+                ['context' => $context]);
+
+        // If edit form, add data to it.
+        if ($this->editmode) {
+            $editor->setValue($params['formdata']);
+            unset($params['formdata']);
+        }
+
         $required = \get_string('required');
         $placeholder = \get_string('editorplaceholder', 'mod_studentquiz');
         $html = \html_writer::start_div('comment-area-form', [
@@ -99,8 +132,6 @@ class comment_form {
 
         $html .= \html_writer::start_div('form-group row  fitem comment_editor_container');
 
-        $editorid = 'id_editor_question_' . $unique;
-
         // Write help icon.
         $requiredicon = '';
         if ($this->forcecommenting) {
@@ -109,7 +140,7 @@ class comment_form {
         $helpicon = $OUTPUT->help_icon('comment_help', 'mod_studentquiz');
 
         // Write label.
-        $labelcontent = \html_writer::tag('label', $submitlabel, [
+        $labelcontent = \html_writer::tag('label', $textarealabelstring, [
                 'class' => 'add-comment-label',
                 'for' => $editorid
         ]);
@@ -122,9 +153,8 @@ class comment_form {
 
         // Start second col.
         $html .= \html_writer::start_div('col-md-12 form-inline felement', ['data-fieldtype' => 'editor']);
-        $html .= (new comment_simple_editor('message', 'message',
-                ['id' => $editorid],
-                ['context' => $context]))->toHtml();
+
+        $html .= $editor->toHtml();
         $html .= \html_writer::end_div();
         // End second col.
 
@@ -139,7 +169,7 @@ class comment_form {
         $html .= \html_writer::start_div('row buttonar');
         $html .= \html_writer::start_div('col-md-12 form-inline felement');
 
-        $submitbtn = \html_writer::tag('button', $submitlabel, [
+        $submitbtn = \html_writer::tag('button', $submitlabelstring, [
                 'name' => 'submitbutton',
                 'id' => 'id_submitbutton',
                 'class' => 'btn btn-primary'
@@ -175,8 +205,8 @@ class comment_form {
         $html = \html_writer::start_div('row comment-errors');
         $html .= \html_writer::start_div('col-md-12 form-inline felement');
         $html .= \html_writer::div(
-            \get_string('comment_error', 'studentquiz')
-            , 'hide error comment-error');
+                \get_string('comment_error', 'studentquiz')
+                , 'hide error comment-error');
         $html .= \html_writer::end_div();
         $html .= \html_writer::end_div();
         return $html;

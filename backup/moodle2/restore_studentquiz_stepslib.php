@@ -144,8 +144,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->forcecommenting)) {
             $data->forcecommenting = get_config('studentquiz', 'forcecommenting');
         }
-        if (empty($data->commentdeletionperiod)) {
-            $data->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
+        if (!isset($data->commentdeletionperiod)) {
+            $data->commentdeletionperiod = get_config('studentquiz', 'commentediting_deletionperiod');
         }
         // Create the StudentQuiz instance.
         $newitemid = $DB->insert_record('studentquiz', $data);
@@ -186,6 +186,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
+        $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
 
         // If is a reply (parentid != 0).
         if (!empty($data->parentid)) {

@@ -29,6 +29,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\commentarea\container;
+use mod_studentquiz\utils;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/lib/questionlib.php');
@@ -172,7 +175,7 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
     }
 
     if (!isset($studentquiz->commentdeletionperiod)) {
-        $studentquiz->commentdeletionperiod = get_config('studentquiz', 'commentdeletionperiod');
+        $studentquiz->commentdeletionperiod = get_config('studentquiz', 'commentediting_deletionperiod');
     }
 
     $result = $DB->update_record('studentquiz', $studentquiz);
@@ -492,5 +495,38 @@ function mod_studentquiz_output_fragment_commentform($params) {
             'forcecommenting' => $params['forcecommenting'],
             'cancelbutton' => $cancelbutton
     ]);
+    return $mform->get_html();
+}
+
+/**
+ * Edit comment form fragment.
+ *
+ * @param array $params - Params used to load comment form.
+ * @return string
+ */
+function mod_studentquiz_output_fragment_commenteditform($params) {
+    if (!isset($params['commentid'])) {
+        throw new moodle_exception('missingparam', 'studentquiz');
+    }
+    $cancelbutton = isset($params['cancelbutton']) ? $params['cancelbutton'] : false;
+
+    list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
+    $commentarea = new container($studentquiz, $question, $cm, $context);
+    $comment = $commentarea->query_comment_by_id($params['commentid']);
+    if (!$comment) {
+        throw new moodle_exception('invalidcomment', 'studentquiz');
+    }
+
+    $formdata = ['text' => $comment->get_comment_data()->comment];
+    $mform = new \mod_studentquiz\commentarea\form\comment_form([
+            'questionid' => $params['questionid'],
+            'cmid' => $params['cmid'],
+            'commentid' => $params['commentid'],
+            'forcecommenting' => $params['forcecommenting'],
+            'cancelbutton' => $cancelbutton,
+            'editmode' => true,
+            'formdata' => $formdata
+    ]);
+
     return $mform->get_html();
 }

@@ -39,9 +39,9 @@ Feature: Activities can be created
     And I log in as "teacher1"
     And I am on "Course 1" course homepage with editing mode on
     And I add a "StudentQuiz" to section "1" and I fill the form with:
-      | StudentQuiz Name                  | Test quiz name        |
-      | Description                       | Test quiz description |
-      | Comment deletion period (minutes) | 0                     |
+      | StudentQuiz Name                          | Test quiz name        |
+      | Description                               | Test quiz description |
+      | Comment editing/deletion period (minutes) | 0                     |
     When I am on "Course 1" course homepage
     Then I should see "Test quiz name"
     When I follow "Test quiz name"

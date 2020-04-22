@@ -560,7 +560,11 @@
     text-align: right;
     display: inline-block;
     width: 100%;
-    padding: 12px 0 12px 30px;
+    padding: 12px 0 2px 30px;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-postfooter .studentquiz-comment-commands-box > div {
+    margin-bottom: 10px;
 }
 
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-commands-buttons {
@@ -577,10 +581,9 @@
 
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-totalreply {
     display: inline-block;
-    float: right;
-    margin-top: 3px;
     font-size: 1em;
     color: #000;
+    line-height: 28px;
 }
 
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-replies {
@@ -763,3 +766,10 @@
     content: url([[pix:mod_studentquiz|switch_plus]]);
 }
 
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-commands-buttons .studentquiz-comment-btneditreply img,
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-commands-buttons .studentquiz-comment-btnedit img {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    margin: 0 9px 0 0;
+}

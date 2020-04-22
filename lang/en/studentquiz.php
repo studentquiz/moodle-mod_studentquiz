@@ -51,6 +51,7 @@ $string['changeselectedsstate'] = 'Change the state of the following questions:<
 $string['collapseall'] = 'Collapse all comments';
 $string['collapsecomment'] = 'Collapse comment';
 $string['comment_column_name'] = 'Comments';
+$string['comment_cannot_update'] = 'Cannot update comment';
 $string['comment_error'] = 'Please comment';
 $string['comment_error_unsaved'] = 'Do you want to save this comment first?';
 $string['comment_help'] = 'Write a comment';
@@ -72,6 +73,8 @@ $string['deletedcomment'] = 'Comment deleted.';
 $string['describe_already_deleted'] = 'This comment is already deleted.';
 $string['describe_not_creator'] = 'This is not your comment.';
 $string['describe_out_of_time_delete'] = 'This comment is out of time to delete';
+$string['describe_out_of_time_edit'] = 'This comment is out of time to edit';
+$string['editcomment'] = 'Edit comment';
 $string['emailapprovedbody'] = 'Dear {$a->recepientname},
 
 Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been approved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
@@ -267,6 +270,8 @@ $string['privacy:metadata:studentquiz_comment:userid'] = 'ID of the user.';
 $string['privacy:metadata:studentquiz_comment:parentid'] = 'ID of parent comment. 0: top level comment.';
 $string['privacy:metadata:studentquiz_comment:deleted'] = 'Time deleted time comment.';
 $string['privacy:metadata:studentquiz_comment:deleteuserid'] = 'ID of the user deleted comment.';
+$string['privacy:metadata:studentquiz_comment:edited'] = 'Time edited time comment.';
+$string['privacy:metadata:studentquiz_comment:edituserid'] = 'ID of the user edited comment.';
 $string['privacy:metadata:mod_studentquiz_comment_sort'] = 'A user preference for comment filter type.';
 
 $string['privacy:metadata:studentquiz_practice'] = 'Store quiz practices.';
@@ -394,6 +399,7 @@ $string['report_comment_emailappendix'] = 'You are receiving this email because 
 used on the StudentQuiz for reporting unacceptable comment.';
 $string['report_comment_link_text'] = 'Preview here';
 $string['review_button'] = 'Review';
+$string['savechanges'] = 'Save changes';
 $string['settings_allowallqtypes'] = 'Allow all question types';
 $string['settings_allowedqtypes'] = 'Allowed question types';
 $string['settings_allowedqtypes_help'] = 'Limit the allowed question types to the selected entries';
@@ -440,8 +446,8 @@ $string['setting_question_publishing'] = 'Question publishing';
 $string['setting_question_publishing_help'] = 'Published questions appear in the question pool for other students to take them. Either allow all questions to be published automatically, or require approval before they can be published.<br>Note that this setting cannot be changed once a question has been created in the StudentQuiz.';
 $string['setting_question_publishing_automatic'] = 'Automatically publish new questions';
 $string['setting_question_publishing_require_approval'] = 'Require approval before publishing';
-$string['settings_commentdeletionperiod'] = 'Comment deletion period (minutes)';
-$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Delete button will be available to students to delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed. If the deletion period is set to 0, students are unable to delete their own comments. Teachers and administrators will always be able to delete student comments, and also see the content of any deleted comment.';
+$string['settings_commentdeletionperiod'] = 'Comment editing/deletion period (minutes)';
+$string['settings_commentdeletionperiod_help'] = 'Set the time period (in minutes) that the Edit/Delete button will be available to students to edit/delete their own comment (or response to a comment) once it is posted. Values between 0-60 minutes are allowed. If the deletion period is set to 0, students are unable to edit/delete their own comments. Note that teachers and administrators will always be able to edit/delete student comments, and also see the content of any deleted comment.';
 $string['settings_reportingemail'] = 'Email for reporting offensive comments';
 $string['settings_reportingemail_help'] = 'If this email address is supplied, then a Report link appears
 next to each comment. Users can click the link to report offensive comments. The information will be sent to this address.

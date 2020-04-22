@@ -63,6 +63,14 @@ $functions = [
                 'classname'   => 'mod_studentquiz\local\external\delete_comment_api',
                 'methodname'  => 'delete_comment',
                 'description' => 'Delete comment',
+                'type' => 'write',
+                'ajax' => true
+        ],
+        // Edit comment.
+        'mod_studentquiz_edit_comment' => [
+                'classname'   => 'mod_studentquiz\local\external\edit_comment_api',
+                'methodname'  => 'edit_comment',
+                'description' => 'Edit comment',
                 'type'        => 'write',
                 'ajax'        => true
         ]
@@ -74,7 +82,8 @@ $services = [
                         'mod_studentquiz_set_state',
                         'mod_studentquiz_get_comments',
                         'mod_studentquiz_expand_comment',
-                        'mod_studentquiz_delete_comment'
+                        'mod_studentquiz_delete_comment',
+                        'mod_studentquiz_edit_comment'
                 ],
                 'requiredcapability' => '',
                 'enabled' => 1,

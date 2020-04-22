@@ -444,3 +444,92 @@ Feature: Create comment as an user
     Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
     # Check placeholder is back with correct text.
     And the "data-placeholder" attribute of ".editor_atto_content_wrap" "css_element" should contain "Enter your comment here ..."
+
+  @javascript
+  Scenario: Test edit comment/reply.
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    # Prepare comments and replies.
+    And I follow "StudentQuiz 1"
+    When I click on "Start Quiz" "button"
+    Then I set the field "True" to "1"
+    And I press "Check"
+    # Wait for comment area init.
+    And I wait until the page is ready
+    When I enter the text "Comment 1" into the "Add comment" editor
+    And I press "Add comment"
+    And I wait until the page is ready
+    And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Reply" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
+    # Check edit button.
+    And I should see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+    # Try to edit.
+    When I click on "Edit" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+    And I wait until the page is ready
+    And I enter the text "Comment 1 edited" into the "Edit comment" editor
+    And I press "Save changes"
+    And I wait until the page is ready
+    Then I should see "Comment 1 edited" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    # Read a reply.
+    When I click on "Reply" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
+    # Wait for reply init.
+    And I wait until the page is ready
+    And I enter the text "Reply comment 1" into the "Add reply" editor
+    And I press "Add reply"
+    And I wait until the page is ready
+    Then I should see "Reply comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
+    # Check edit button of reply.
+    And I should see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+     # Try to edit reply.
+    When I click on "Edit" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+    And I wait until the page is ready
+    And I enter the text "Reply comment 1 edited" into the "Edit comment" editor
+    And I press "Save changes"
+    And I wait until the page is ready
+    Then I should see "Reply comment 1 edited" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I log out
+    # Try with student2 - should not see edit button.
+    Given I log in as "student2"
+    And I am on "Course 1" course homepage
+    # Prepare comments and replies.
+    And I follow "StudentQuiz 1"
+    When I click on "Start Quiz" "button"
+    Then I set the field "True" to "1"
+    And I press "Check"
+    # Wait for comment area init.
+    And I wait until the page is ready
+    # Expand to view all comments.
+    When I press "Expand all comments"
+    And I wait until the page is ready
+    Then I should not see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+    And I should not see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+
+  @javascript
+  Scenario: Test enable/disable edit feature.
+    Given I log in as "admin"
+    And I am on "Course 1" course homepage
+    When I follow "StudentQuiz 1"
+    And I navigate to "Edit settings" in current page administration
+    And I expand all fieldsets
+    When I set the field "Comment editing/deletion period (minutes)" to "0"
+    And I press "Save and display"
+    Then I should see "StudentQuiz 1"
+    And I log out
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    # Prepare comments and replies.
+    And I follow "StudentQuiz 1"
+    When I click on "Start Quiz" "button"
+    Then I set the field "True" to "1"
+    And I press "Check"
+    # Wait for comment area init.
+    And I wait until the page is ready
+    # Try to comment.
+    When I enter the text "Comment 1" into the "Add comment" editor
+    And I press "Add comment"
+    And I wait until the page is ready
+    And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should not see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"

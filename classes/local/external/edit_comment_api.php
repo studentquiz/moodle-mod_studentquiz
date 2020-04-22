@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Create comment services implementation.
+ * Edit comment services implementation.
  *
  * @package mod_studentquiz
  * @copyright 2020 The Open University
@@ -32,30 +32,31 @@ use external_single_structure;
 use external_value;
 use mod_studentquiz\commentarea\container;
 use mod_studentquiz\commentarea\form\validate_comment_form;
+use mod_studentquiz\commentarea\form\validate_comment_form_edit;
 use mod_studentquiz\utils;
 
 require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * Create comment services implementation.
+ * Edit comment services implementation.
  *
  * @package mod_studentquiz
  * @copyright 2020 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class create_comment_api extends external_api {
+class edit_comment_api extends external_api {
 
     /**
      * Gets function parameter metadata.
      *
      * @return external_function_parameters Parameter info
      */
-    public static function create_comment_parameters() {
+    public static function edit_comment_parameters() {
         return new external_function_parameters([
                 'questionid' => new external_value(PARAM_INT, 'Question ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
-                'replyto' => new external_value(PARAM_INT, 'Comment ID to to reply.'),
+                'commentid' => new external_value(PARAM_INT, 'Comment ID to edit.'),
                 'message' => new external_function_parameters([
                         'text' => new external_value(PARAM_RAW, 'Message of the post'),
                         'format' => new external_value(PARAM_TEXT, 'Format of the message')
@@ -68,26 +69,26 @@ class create_comment_api extends external_api {
      *
      * @return external_single_structure
      */
-    public static function create_comment_returns() {
+    public static function edit_comment_returns() {
         $replystructure = utils::get_comment_area_webservice_comment_reply_structure();
         return new external_single_structure($replystructure);
     }
 
     /**
-     * Get comments belong to question.
+     * Edit comment.
      *
      * @param int $questionid - ID of question.
-     * @param int $cmid - ID of CM
-     * @param int $replyto - ID of comment reply to (0 if top level comment).
+     * @param int $cmid - ID of CM.
+     * @param int $commentid - ID of comment to edit.
      * @param string $message - Comment message.
      * @return \stdClass
      */
-    public static function create_comment($questionid, $cmid, $replyto, $message) {
+    public static function edit_comment($questionid, $cmid, $commentid, $message) {
         global $PAGE;
-        $params = self::validate_parameters(self::create_comment_parameters(), [
+        $params = self::validate_parameters(self::edit_comment_parameters(), [
                 'questionid' => $questionid,
                 'cmid' => $cmid,
-                'replyto' => $replyto,
+                'commentid' => $commentid,
                 'message' => $message
         ]);
 
@@ -95,14 +96,14 @@ class create_comment_api extends external_api {
         self::validate_context($context);
         $commentarea = new container($studentquiz, $question, $cm, $context);
 
-        if ($params['replyto'] != container::PARENTID) {
-            $replytocomment = $commentarea->query_comment_by_id($params['replyto']);
-            if (!$replytocomment) {
-                throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
-            }
-            if (!$replytocomment->can_reply()) {
-                throw new \moodle_exception($replytocomment->get_error(), 'studentquiz');
-            }
+        $comment = $commentarea->query_comment_by_id($params['commentid']);
+        if (!$comment) {
+            throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
+        }
+
+        // Check edit permission.
+        if (!$comment->can_edit()) {
+            throw new \moodle_exception($comment->get_error(), 'studentquiz');
         }
 
         $PAGE->set_context($context);
@@ -117,7 +118,8 @@ class create_comment_api extends external_api {
                 'params' => [
                         'questionid' => $params['questionid'],
                         'cmid' => $params['cmid'],
-                        'replyto' => $params['replyto'],
+                        'commentid' => $params['commentid'],
+                        'editmode' => true
                 ]
         ], 'post', '', null, true, $formdata);
 
@@ -129,12 +131,15 @@ class create_comment_api extends external_api {
             throw new \moodle_exception('error_form_validation', 'studentquiz', '', json_encode($errors));
         }
 
-        // Create comment.
-        $id = $commentarea->create_comment($validatedata);
-        $comment = $commentarea->refresh_has_comment()->query_comment_by_id($id);
+        // Update comment.
+        $comment->update_comment($validatedata);
+
+        // Fetch db again to get full data.
+        $comment = $commentarea->refresh_has_comment()->query_comment_by_id($params['commentid']);
         if (!$comment) {
             throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
         }
+
         return $comment->convert_to_object();
     }
 }
