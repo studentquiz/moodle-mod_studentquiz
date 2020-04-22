@@ -124,7 +124,7 @@ if ($ADMIN->fulltree) {
         get_string('settings_forcecommenting_help', 'studentquiz'),
         '0'
     ));
-
+ 
     $settings->add(new admin_setting_configselect('studentquiz/commentediting_deletionperiod',
             get_string('settings_commentdeletionperiod', 'studentquiz'),
             get_string('settings_commentdeletionperiod_help', 'studentquiz'),

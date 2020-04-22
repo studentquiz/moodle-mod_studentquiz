@@ -1219,34 +1219,6 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
     }
 }
 
-/**
- * @param $ids
- * @return array [questionid] -> array ( array($tagname, $tagrawname) )
- */
-function mod_studentquiz_get_tags_by_question_ids($ids) {
-    global $DB;
-
-    // Return an empty array for empty selection.
-    if (empty($ids)) {
-        return array();
-    }
-
-    list($insql, $params) = $DB->get_in_or_equal($ids);
-    $result = array();
-    $sql = "SELECT ti.id AS id, t.id AS tagid, t.name, t.rawname, ti.itemid
-              FROM {tag} t
-              JOIN {tag_instance} ti ON ti.tagid = t.id
-             WHERE ti.itemtype = 'question' AND ti.itemid " . $insql;
-    $tags = $DB->get_records_sql($sql, $params);
-    foreach ($tags as $tag) {
-        if (empty($result[$tag->itemid])) {
-            $result[$tag->itemid] = array();
-        }
-        $result[$tag->itemid][] = $tag;
-    }
-    return $result;
-}
-
 function mod_studentquiz_count_questions($cmid) {
     global $DB;
     $sql = "SELECT COUNT(*)

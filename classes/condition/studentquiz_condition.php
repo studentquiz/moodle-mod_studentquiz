@@ -23,6 +23,8 @@
 namespace mod_studentquiz\condition;
 defined('MOODLE_INTERNAL') || die();
 
+require_once($CFG->dirroot . '/mod/studentquiz/classes/local/db.php');
+use mod_studentquiz\local\db;
 
 /**
  * This class controls from which category questions are listed.
@@ -78,12 +80,6 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         return $this->isfilteractive;
     }
 
-    protected $istagfilteractive = false;
-
-    public function is_tag_filter_active() {
-        return $this->istagfilteractive;
-    }
-
     protected function init() {
         if ($adddata = $this->filterform->get_data()) {
 
@@ -114,11 +110,15 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                     continue;
                 }
 
-                if ($field->_name == 'tagname') {
-                    $this->istagfilteractive = true;
-                    $this->tagnamefield = $sqldata;
-                    // TODO: ugly override for PoC!
-                    $field->_name = 'tags';
+                // Respect leading and ending ',' for the tagarray as provided by tag_column.php
+                if ($field->_name == 'tagarray') {
+                    foreach ($sqldata[1] as $key => $value) {
+                        if (!empty($value)) {
+                            $sqldata[1][$key] = "%,$value,%";
+                        } else {
+                            $sqldata[0] = "$field->_name IS NULL";
+                        }
+                    }
                 }
 
                 // TODO: cleanup that buggy filter function to remove this!
@@ -187,9 +187,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 return 'myatts.';
             case 'myrate':
                 return 'myrate.';
-            case 'tags':
-                return 'tags.';
-            case 'searchtag':
+            case 'tagarray':
                 return 'tags.';
             default;
                 return 'q.';

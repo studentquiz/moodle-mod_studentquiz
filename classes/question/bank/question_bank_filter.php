@@ -338,7 +338,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
     public function get_sql_filter($data) {
         switch($this->operator) {
             case 0:
-                $res = "($this->field IS null OR $this->field = 0)";
+                $res = "($this->field IS NULL OR $this->field = 0)";
                 break;
             case 1:
                 $res = "$this->field >= $this->value";
@@ -351,66 +351,6 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         }
         return array($res, array());
     }
-}
-
-
-class user_filter_tag extends studentquiz_user_filter_text {
-
-    /**
-     * Returns the condition to be used with SQL where
-     * @param array $data filter settings
-     * @return array sql string and $params
-     */
-    public function get_sql_filter($data) {
-        static $counter = 0;
-        $name = 'ex_tag' . $counter++;
-
-        // TODO Override for PoC.
-        $name = 'searchtag';
-
-        $operator = $data['operator'];
-
-        // Search is case insensitive!
-        $value = strtolower($data['value']);
-
-        $field = $this->_field;
-
-        // TODO: Ugly override for PoC.
-        $field = 'tags';
-
-        $params = array();
-
-        switch ($operator) {
-            case 0: // Contains.
-                $res = ' searchtag > 0 ';
-                $params[$name] = "%$value%";
-                break;
-            case 1: // Does not contain.
-                $res = ' (searchtag = 0 OR searchtag IS NULL) ';
-                $params[$name] = "%$value%";
-                break;
-            case 2: // Equal to.
-                $res = '  searchtag = 1 ';
-                $params[$name] = "$value";
-                break;
-            case 3: // Starts with.
-                $res = '  searchtag > 0 ';
-                $params[$name] = "$value%";
-                break;
-            case 4: // Ends with.
-                $res = ' searchtag > 0 ';
-                $params[$name] = "%$value";
-                break;
-            case 5: // Empty.
-                $res = ' (tags = 0 OR tags IS NULL) ';
-                $params[$name] = "-ignore-";
-                break;
-            default:
-                return '';
-        }
-        return array($res, $params);
-    }
-
 }
 
 /**

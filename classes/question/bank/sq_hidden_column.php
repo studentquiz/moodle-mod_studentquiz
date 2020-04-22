@@ -66,10 +66,10 @@ class sq_hidden_column extends action_column_base {
         if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
             if ($question->sq_hidden) {
                 $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
-                $this->print_icon('t/restore', get_string('restore'), $url);
+                $this->print_icon('t/show', get_string('show'), $url);
             } else {
                 $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
-                $this->print_icon('t/show', get_string('hide'), $url);
+                $this->print_icon('t/hide', get_string('hide'), $url);
             }
         }
     }
@@ -89,7 +89,11 @@ class sq_hidden_column extends action_column_base {
      * @return array 'table_alias' => 'JOIN clause'
      */
     public function get_extra_joins() {
-        return ['hd' => ' LEFT JOIN (SELECT questionid, hidden as sq_hidden FROM {studentquiz_question}) hd ON hd.questionid = q.id'];
+        $andhidden = "AND sqh.hidden = 0";
+        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+            $andhidden = "";
+        }
+        return array('sqh' => "JOIN {studentquiz_question} sqh ON sqh.questionid = q.id $andhidden");
     }
 
     /**
@@ -99,6 +103,6 @@ class sq_hidden_column extends action_column_base {
      * ones from get_extra_joins. Every field requested must specify a table prefix.
      */
     public function get_required_fields() {
-        return ['hd.sq_hidden'];
+        return ['sqh.hidden AS sq_hidden'];
     }
 }

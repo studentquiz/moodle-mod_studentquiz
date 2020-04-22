@@ -15,6 +15,7 @@ Its main purpose is to get overview of all questions, for importing or exporting
 
 StudentQuiz loads all questions from its question category and its subcategories.
 Thus you can also move questions into subcategories of the StudentQuiz question category to organise the questions to your liking.
+Duplicating a StudentQuiz activity will also duplicate the questions since they are part of the StudentQuiz question category.
 
 **Important**
     Use the question bank in the StudentQuiz activity, otherwise you won't be in the context of StudentQuiz and you can't see its question categories.

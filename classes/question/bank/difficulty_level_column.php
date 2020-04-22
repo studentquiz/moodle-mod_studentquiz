@@ -55,8 +55,6 @@ class difficulty_level_column extends \core_question\bank\column_base {
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
-    protected $sqlparams = array();
-
     /**
      * Return name of column
      * @return string columnname
@@ -71,14 +69,6 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     public function set_joinconditions($joinconditions) {
         $this->joinconditions = $joinconditions;
-    }
-
-    /**
-     * Get params that this join requires be added to the query.
-     * @return array sqlparams required to be added to query
-     */
-    public function get_sqlparams() {
-        return $this->sqlparams;
     }
 
     /**
