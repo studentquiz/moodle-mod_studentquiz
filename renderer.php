@@ -634,8 +634,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function render_tag_column($question, $rowclasses) {
         $output = '';
 
-        if (!empty($question->tags) && !empty($question->tagarray)) {
-            foreach ($question->tagarray as $tag) {
+        if (!empty($question->tagarray)) {
+            foreach (explode(',', $question->tagarray) as $tag) {
                 $tag = $this->render_tag($tag);
                 $output .= $tag;
             }
@@ -653,7 +653,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return string
      */
     public function render_tag($tag) {
-        $output = html_writer::tag('span', (strlen($tag->rawname) > 10 ? (substr($tag->rawname, 0, 8) . '...') : $tag->rawname), [
+        $output = html_writer::tag('span', (strlen($tag) > 10 ? (substr($tag, 0, 8) . '...') : $tag), [
                 'role' => 'listitem',
                 'data-value' => 'HELLO',
                 'aria-selected' => 'true',
