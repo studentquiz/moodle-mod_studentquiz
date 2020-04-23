@@ -388,7 +388,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     if ($oldversion < 2018051300) {
         // Fix wrong parent in question categories if applicable.
-        mod_studentquiz_fix_wrong_parent_in_question_categories();
+        // Removed afterwards because of #173, just here for historical purposes because this is the upgrade file with savepoints
+        // mod_studentquiz_fix_wrong_parent_in_question_categories();
 
         upgrade_mod_savepoint(true, 2018051300, 'studentquiz');
     }

@@ -1272,59 +1272,6 @@ function mod_studentquiz_question_stats($cmid) {
 }
 
 /**
- * Fix parent of question categories of StudentQuiz.
- * Old StudentQuiz had the parent of question categories not equalling to 0 for various reasons, but they should.
- * In Moodle < 3.5 there is no "top" parent category, so the question category itself has to be corrected if it's not 0.
- * In Moodle >= 3.5 there is a new "top" parent category, so the question category of StudentQuiz has to have that as parent.
- * See https://tracker.moodle.org/browse/MDL-61132 and its diff.
- *
- * This function must be usable for the restore and the plugin update process.
- */
-function mod_studentquiz_fix_wrong_parent_in_question_categories() {
-    global $DB;
-
-    if (function_exists('question_get_top_category')) { // We have a moodle with "top" category feature.
-        $sql = "SELECT qc.id, qc.contextid, qc.name, qc.parent
-                  FROM {question_categories} qc
-            INNER JOIN {context} c ON qc.contextid = c.id
-            INNER JOIN {course_modules} cm ON c.instanceid = cm.id
-            INNER JOIN {modules} m ON cm.module = m.id
-             LEFT JOIN {question_categories} up ON qc.contextid = up.contextid
-                       AND qc.parent = up.id
-                 WHERE m.name = :modulename
-                       AND up.name IS NULL
-                       AND qc.name <> :topname";
-        $categorieswithouttop = $DB->get_records_sql($sql, array(
-            'modulename' => 'studentquiz',
-            'topname' => 'top'
-        ));
-        foreach ($categorieswithouttop as $currentcat) {
-            $topcat = question_get_top_category($currentcat->contextid, true);
-            // Now set the parent to the newly created top id.
-            $DB->set_field('question_categories', 'parent', $topcat->id, array('id' => $currentcat->id));
-        }
-    } else {
-        $sql = "SELECT qc.id, qc.contextid, qc.name, qc.parent
-                  FROM {question_categories} qc
-            INNER JOIN {context} c ON qc.contextid = c.id
-            INNER JOIN {course_modules} cm ON c.instanceid = cm.id
-            INNER JOIN {modules} m ON cm.module = m.id
-             LEFT JOIN {question_categories} up ON qc.contextid = up.contextid
-                       AND qc.parent = up.id
-                 WHERE m.name = :modulename
-                       AND up.id IS NULL
-                       AND qc.parent <> 0";
-        $categorieswithoutparent = $DB->get_records_sql($sql, array(
-                'modulename' => 'studentquiz'
-        ));
-        foreach ($categorieswithoutparent as $currentcat) {
-            // Now set the parent to 0.
-            $DB->set_field('question_categories', 'parent', 0, array('id' => $currentcat->id));
-        }
-    }
-}
-
-/**
  * Check that StudentQuiz is allowing answering or not.
  *
  * @param int $openform Open date
