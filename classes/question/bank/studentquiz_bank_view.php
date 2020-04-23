@@ -653,16 +653,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
             get_string('filter_label_onlynew_help', 'studentquiz'));
 
         $this->fields[] = new \toggle_filter_checkbox('only_new_state',
-                get_string('state_new', 'studentquiz'), false, 'ap.state',
+                get_string('state_new', 'studentquiz'), false, 'sqs.state',
                 ['approved'], 2, studentquiz_helper::STATE_NEW);
         $this->fields[] = new \toggle_filter_checkbox('only_approved_state',
-                get_string('state_approved', 'studentquiz'), false, 'ap.state',
+                get_string('state_approved', 'studentquiz'), false, 'sqs.state',
                 ['approved'], 2, studentquiz_helper::STATE_APPROVED);
         $this->fields[] = new \toggle_filter_checkbox('only_disapproved_state',
-                get_string('state_disapproved', 'studentquiz'), false, 'ap.state',
+                get_string('state_disapproved', 'studentquiz'), false, 'sqs.state',
                 ['approved'], 2, studentquiz_helper::STATE_DISAPPROVED);
         $this->fields[] = new \toggle_filter_checkbox('only_changed_state',
-                get_string('state_changed', 'studentquiz'), false, 'ap.state',
+                get_string('state_changed', 'studentquiz'), false, 'sqs.state',
                 ['approved'], 2, studentquiz_helper::STATE_CHANGED);
 
         $this->fields[] = new \toggle_filter_checkbox('onlygood',

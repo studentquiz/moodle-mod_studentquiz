@@ -99,19 +99,19 @@ Feature: Question states and visibility
     And I click on "Preview" "link" in the "TF 01" "table_row"
     And I switch to "questionpreview" window
     And I set the field "statetype" to "Disapproved"
-    And I click on "Submit" "button"
+    And I click on "Change state" "button"
     And I switch to the main window
 
     And I click on "Preview" "link" in the "TF 02" "table_row"
     And I switch to "questionpreview" window
     And I set the field "statetype" to "Approved"
-    And I click on "Submit" "button"
+    And I click on "Change state" "button"
     And I switch to the main window
 
     And I click on "Preview" "link" in the "TF 03" "table_row"
     And I switch to "questionpreview" window
     And I set the field "statetype" to "Changed"
-    And I click on "Submit" "button"
+    And I click on "Change state" "button"
     And I switch to the main window
 
     And I click on "//a[text() = 'New']" "xpath_element"
@@ -166,7 +166,7 @@ Feature: Question states and visibility
     And I log in as "admin"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz Test 1"
-    And I click on "Restore" "link" in the "TF 01" "table_row"
+    And I click on "Show" "link" in the "TF 01" "table_row"
     And I log out
     And I log in as "student1"
     And I am on "Course 1" course homepage
@@ -204,13 +204,13 @@ Feature: Question states and visibility
     And I click on "Preview" "link" in the "TF 01" "table_row"
     And I switch to "questionpreview" window
     And I set the field "statetype" to "Approved"
-    And I click on "Submit" "button"
+    And I click on "Change state" "button"
     And I switch to the main window
 
     And I click on "Preview" "link" in the "TF 02" "table_row"
     And I switch to "questionpreview" window
     And I set the field "statetype" to "Disapproved"
-    And I click on "Submit" "button"
+    And I click on "Change state" "button"
     And I switch to the main window
 
     And I log out
