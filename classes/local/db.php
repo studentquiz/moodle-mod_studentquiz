@@ -46,7 +46,7 @@ class db {
             case self::DBFAMILY_MYSQL:
                 return "GROUP_CONCAT($field)";
             case self::DBFAMILY_POSTGRES:
-                return "string_agg(DISTINCT $field)";
+                return "STRING_AGG($field, ',')";
             default:
                 throw new \coding_exception("Unsupported database family: $family");
                 return;

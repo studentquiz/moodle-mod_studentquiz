@@ -502,7 +502,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $sql = ' FROM {question} q ' . implode(' ', $joins);
         $sql .= ' WHERE ' . implode(' AND ', $tests);
         $this->sqlparams = $params;
-        $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' GROUP BY q.id ORDER BY ' . implode(', ', $sorts);
+        $this->loadsql = 'SELECT ' . implode(', ', $fields) . $sql . ' ORDER BY ' . implode(', ', $sorts);
     }
 
     /**

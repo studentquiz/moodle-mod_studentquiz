@@ -99,7 +99,7 @@ class tag_column extends \core_question\bank\column_base {
                                               FROM {tag_instance} ti
                                               JOIN {tag} t ON ti.tagid = t.id
                                              WHERE ti.itemtype = 'question'
-                                          GROUP BY questionid
+                                          GROUP BY ti.itemid
                                           ) tags ON tags.questionid = q.id");
     }
 
