@@ -1381,10 +1381,8 @@ function mod_studentquiz_save_rate($data) {
  * @throws dml_exception
  */
 function mod_studentquiz_compare_questions_data($studentquiz, $honorpublish = true, $hidden = true) {
-    global $DB, $CFG;
-    if ($CFG->branch >= 37) {
-        return;
-    }
+    global $DB;
+
     $sql = "SELECT q.id
               FROM {studentquiz} sq
               JOIN {context} con ON con.instanceid = sq.coursemodule
@@ -1431,8 +1429,8 @@ function mod_studentquiz_fix_all_missing_question_state_after_restore($courseori
     if (!empty($courseorigid)) {
         $params['course'] = $courseorigid;
     }
-    $studentquizes = $DB->get_records('studentquiz', $params);
 
+    $studentquizes = $DB->get_records('studentquiz', $params);
     $transaction = $DB->start_delegated_transaction();
 
     try {

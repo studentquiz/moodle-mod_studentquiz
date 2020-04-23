@@ -41,9 +41,12 @@ class mod_studentquiz_observer {
      */
     public static function question_created(\core\event\question_created $event) {
         global $CFG;
+
         require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
+
         if ($event->contextlevel == CONTEXT_MODULE) {
             $modinfo = get_fast_modinfo($event->courseid);
+
             $cm = $modinfo->get_cm($event->contextinstanceid);
             if ($cm->modname == 'studentquiz') {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $event->contextinstanceid);
@@ -61,12 +64,14 @@ class mod_studentquiz_observer {
      */
     public static function question_moved(\core\event\question_moved $event) {
         global $DB, $CFG;
+
         require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 
         $newcategory = $DB->get_record('question_categories', ['id' => $event->other['newcategoryid']]);
         if (!$newcategory) {
             print_error('invalidcategoryid', 'error');
         }
+
         $context = context::instance_by_id($newcategory->contextid);
         if ($context->contextlevel == CONTEXT_MODULE) {
             $cm = get_coursemodule_from_id(false, $context->instanceid);
