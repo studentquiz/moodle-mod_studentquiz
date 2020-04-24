@@ -255,8 +255,6 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function after_restore() {
         parent::after_execute();
 
-        // Migrate old quiz usage if needed (the function does the checking).
-        mod_studentquiz_migrate_old_quiz_usage($this->get_courseid());
         // Migrate progress from quiz usage to internal table.
         mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($this->get_courseid());
         // Workaround setting default question state if no state data is available.

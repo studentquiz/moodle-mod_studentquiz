@@ -313,7 +313,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Migrate old quiz activity data into new data structure.
     if ($oldversion < 2017112406) {
         // This is also used in import, so it had to be extracted.
-        mod_studentquiz_migrate_old_quiz_usage();
+        // Removed as this migration step is now out of support range, just here for historical purposes because this is the upgrade file with savepoints
+        // mod_studentquiz_migrate_old_quiz_usage();
 
         upgrade_mod_savepoint(true, 2017112406, 'studentquiz');
     }
