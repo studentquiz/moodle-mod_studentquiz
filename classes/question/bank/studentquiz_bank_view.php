@@ -245,7 +245,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     }
                     $this->baseurl->remove_params('approveselected');
                     $this->baseurl->remove_params('confirm');
-                    $this->baseurl->remove_params('sesskey');
                     foreach ($rawquestionids as $id) {
                         $this->baseurl->remove_params('q' . $id);
                     }
@@ -279,7 +278,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 }
                 question_move_questions_to_category($rawquestionids, $tocategory->id);
                 $this->baseurl->remove_params('move');
-                $this->baseurl->remove_params('sesskey');
                 foreach ($rawquestionids as $id) {
                     $this->baseurl->remove_params('q' . $id);
                 }
@@ -304,7 +302,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     }
                     $this->baseurl->remove_params('deleteselected');
                     $this->baseurl->remove_params('confirm');
-                    $this->baseurl->remove_params('sesskey');
                     foreach ($rawquestionids as $id) {
                         $this->baseurl->remove_params('q' . $id);
                     }
@@ -325,7 +322,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             \question_bank::notify_question_edited($unhide);
             // Fix infinite redirect.
             $this->baseurl->remove_params('unhide');
-            $this->baseurl->remove_params('sesskey');
             foreach ($rawquestionids as $id) {
                 $this->baseurl->remove_params('q' . $id);
             }
@@ -341,29 +337,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
             \question_bank::notify_question_edited($hide);
             // Fix infinite redirect.
             $this->baseurl->remove_params('hide');
-            $this->baseurl->remove_params('sesskey');
             foreach ($rawquestionids as $id) {
                 $this->baseurl->remove_params('q' . $id);
             }
             redirect($this->baseurl);
-        }
-
-        if (optional_param('hiddenselected', false, PARAM_BOOL)) {
-            // If teacher has already confirmed the action.
-            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
-                $hiddenselected = required_param('hiddenselected', PARAM_RAW);
-                if ($confirm == md5($hiddenselected)) {
-                    if ($questionlist = explode(',', $hiddenselected)) {
-                        // For each question either hide it if it is in use or delete it.
-                        foreach ($questionlist as $questionid) {
-                            $questionid = (int)$questionid;
-                            question_require_capability_on($questionid, 'edit');
-                            mod_studentquiz_state_notify($questionid, $this->course, $this->cm, 'hidden');
-                            $DB->set_field('studentquiz_question', 'hidden', 1, ['id' => $questionid]);
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -689,11 +666,15 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \studentquiz_user_filter_text('tagarray', get_string('filter_label_tags', 'studentquiz'),
             true, 'tagarray');
 
-        $this->fields[] = new \user_filter_simpleselect('approved', get_string('filter_label_approved', 'studentquiz'),
-            true, 'approved', array(
-                true => get_string('approved', 'studentquiz'),
-                false => get_string('not_approved', 'studentquiz')
-            ));
+        $states = array();
+        foreach (studentquiz_helper::$statename as $num => $name) {
+            if ($num == studentquiz_helper::STATE_DELETE || $num == studentquiz_helper::STATE_HIDE) {
+                continue;
+            }
+            $states[$num] = get_string('state_'.$name, 'studentquiz');
+        }
+        $this->fields[] = new \user_filter_simpleselect('state', get_string('state_column_name', 'studentquiz'),
+            true, 'state', $states);
 
         $this->fields[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
             true, 'rate');

@@ -123,7 +123,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
 
                 // TODO: cleanup that buggy filter function to remove this!
                 // The user_filter_checkbox class has a buggy get_sql_filter function.
-                if ($field->_name == 'createdby' || $field->_name == 'approved') {
+                if ($field->_name == 'createdby') {
                     $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
                 }
 
@@ -174,8 +174,8 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 return 'pr.';
             case 'comment':
                 return 'co.';
-            case 'approved':
-                return 'ap.';
+            case 'state':
+                return 'sqs.';
             case 'firstname':
             case 'lastname':
                 return 'uc.';
