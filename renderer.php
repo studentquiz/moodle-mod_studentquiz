@@ -525,9 +525,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         $output .= '&nbsp;|&nbsp;';
 
-        if (!empty($question->mylastattempt)) {
+        if ($question->mylastanswercorrect !== null) {
             // TODO: Refactor magic constant.
-            if ($question->mylastattempt == 'gradedright') {
+            if ($question->mylastanswercorrect == '1') {
                 $output .= get_string('lastattempt_right', 'studentquiz');
                 $attrs['aria-label'] = get_string('lastattempt_right_label', 'studentquiz');
             } else {

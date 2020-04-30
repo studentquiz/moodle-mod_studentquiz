@@ -699,10 +699,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
 
-        $this->fields[] = new \user_filter_simpleselect('mylastattempt', get_string('filter_label_mylastattempt', 'studentquiz'),
-            true, 'mylastattempt', array(
-                'gradedright' => get_string('lastattempt_right', 'studentquiz'),
-                'gradedwrong' => get_string('lastattempt_wrong', 'studentquiz')
+        $this->fields[] = new \user_filter_simpleselect('lastanswercorrect', get_string('filter_label_mylastattempt', 'studentquiz'),
+            true, 'lastanswercorrect', array(
+                '1' => get_string('lastattempt_right', 'studentquiz'),
+                '0' => get_string('lastattempt_wrong', 'studentquiz')
             ));
 
         $this->fields[] = new \user_filter_number('myattempts', get_string('filter_label_myattempts', 'studentquiz'),

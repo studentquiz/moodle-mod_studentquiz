@@ -96,20 +96,11 @@ class attempts_column extends \core_question\bank\column_base {
     }
 
     /**
-     * Get sql query join for this column
-     * @return array sql query join additional
+     * Get fields for this column
+     * @return array additional fields
      */
     public function get_required_fields() {
-        return array('sp.attempts AS myattempts',
-            "(
-               CASE WHEN sp.attempts IS NULL
-                    THEN ''
-                    ELSE CASE WHEN sp.lastanswercorrect = 1
-                              THEN 'gradedright'
-                              ELSE 'gradedwrong'
-                    END
-               END
-             ) AS mylastattempt");
+        return array('sp.attempts AS myattempts', 'sp.lastanswercorrect AS mylastanswercorrect');
     }
 
     /**
