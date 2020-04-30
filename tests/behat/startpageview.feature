@@ -30,6 +30,4 @@ Feature: View comprehensive information about this studentquiz activity
     And I follow "StudentQuiz 1"
     And I wait until the page is ready
     Then "Filter" "fieldset" should be visible
-    # Unfortunately a field group has no correct target in the for, so we have to check the field differently
-    #And "Fast filter for questions" "field" should be visible
-    And "[for='fgroup_id_fastfilters']" "css_element" should exist
+    And I should see "Fast filter for questions"
