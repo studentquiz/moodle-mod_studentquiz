@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class practice_column extends \core_question\bank\column_base {
+class attempts_column extends \core_question\bank\column_base {
 
     protected $renderer;
 
@@ -64,7 +64,7 @@ class practice_column extends \core_question\bank\column_base {
      * @return string column name
      */
     public function get_name() {
-        return 'practice';
+        return 'attempts';
     }
 
     /**
@@ -81,12 +81,12 @@ class practice_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $output = $this->renderer->render_practice_column($question, $rowclasses);
+        $output = $this->renderer->render_attempts_column($question, $rowclasses);
         echo $output;
     }
 
     /**
-     * Get the left join for practice
+     * Get the left join for progress
      * @return array modified select left join
      */
     public function get_extra_joins() {
@@ -96,20 +96,11 @@ class practice_column extends \core_question\bank\column_base {
     }
 
     /**
-     * Get sql query join for this column
-     * @return array sql query join additional
+     * Get fields for this column
+     * @return array additional fields
      */
     public function get_required_fields() {
-        return array('sp.attempts practice', 'sp.attempts AS myattempts',
-            "(
-               CASE WHEN sp.attempts IS NULL
-                    THEN ''
-                    ELSE CASE WHEN sp.lastanswercorrect = 1
-                              THEN 'gradedright'
-                              ELSE 'gradedwrong'
-                    END
-               END
-             ) AS mylastattempt");
+        return array('sp.attempts AS myattempts', 'sp.lastanswercorrect AS mylastanswercorrect');
     }
 
     /**

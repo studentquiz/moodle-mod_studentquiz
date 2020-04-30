@@ -507,13 +507,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render the content of practice column.
+     * Render the content of attempts column.
      *
      * @param $question
      * @param $rowclasses
      * @return string
      */
-    public function render_practice_column($question, $rowclasses) {
+    public function render_attempts_column($question, $rowclasses) {
         $output = '';
         $attrs = ['tabindex' => 0];
 
@@ -525,9 +525,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         $output .= '&nbsp;|&nbsp;';
 
-        if (!empty($question->mylastattempt)) {
+        if ($question->mylastanswercorrect !== null) {
             // TODO: Refactor magic constant.
-            if ($question->mylastattempt == 'gradedright') {
+            if ($question->mylastanswercorrect == '1') {
                 $output .= get_string('lastattempt_right', 'studentquiz');
                 $attrs['aria-label'] = get_string('lastattempt_right_label', 'studentquiz');
             } else {
@@ -776,7 +776,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 . 'mod_studentquiz\\bank\\sq_hidden_column,'
                 . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
                 . 'mod_studentquiz\\bank\\tag_column,'
-                . 'mod_studentquiz\\bank\\practice_column,'
+                . 'mod_studentquiz\\bank\\attempts_column,'
                 . 'mod_studentquiz\\bank\\difficulty_level_column,'
                 . 'mod_studentquiz\\bank\\rate_column,'
                 . 'mod_studentquiz\\bank\\comment_column';

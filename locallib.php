@@ -51,7 +51,7 @@ const STUDENTQUIZ_COURSE_SECTION_SUMMARY = 'all student quizzes';
 const STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT = 1;
 /** @var string default course section visible for the orphaned activities */
 const STUDENTQUIZ_COURSE_SECTION_VISIBLE = false;
-/** @var string default StudentQuiz quiz practice behaviour */
+/** @var string default StudentQuiz quiz behaviour */
 const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
 /**

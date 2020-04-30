@@ -35,7 +35,7 @@ require_once(__DIR__ . '/question_text_row.php');
 require_once(__DIR__ . '/rate_column.php');
 require_once(__DIR__ . '/difficulty_level_column.php');
 require_once(__DIR__ . '/tag_column.php');
-require_once(__DIR__ . '/practice_column.php');
+require_once(__DIR__ . '/attempts_column.php');
 require_once(__DIR__ . '/comments_column.php');
 require_once(__DIR__ . '/state_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
@@ -681,8 +681,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             true, 'difficultylevel');
 
-        $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'),
-            true, 'practice');
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'),
             true, 'comment');
         $this->fields[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
@@ -701,10 +699,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
 
-        $this->fields[] = new \user_filter_simpleselect('mylastattempt', get_string('filter_label_mylastattempt', 'studentquiz'),
-            true, 'mylastattempt', array(
-                'gradedright' => get_string('lastattempt_right', 'studentquiz'),
-                'gradedwrong' => get_string('lastattempt_wrong', 'studentquiz')
+        $this->fields[] = new \user_filter_simpleselect('lastanswercorrect', get_string('filter_label_mylastattempt', 'studentquiz'),
+            true, 'lastanswercorrect', array(
+                '1' => get_string('lastattempt_right', 'studentquiz'),
+                '0' => get_string('lastattempt_wrong', 'studentquiz')
             ));
 
         $this->fields[] = new \user_filter_number('myattempts', get_string('filter_label_myattempts', 'studentquiz'),

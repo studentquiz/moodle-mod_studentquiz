@@ -82,11 +82,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * @var array
      */
-    protected $practices;
-
-    /**
-     * @var array
-     */
     protected $progresses;
 
     /**
@@ -210,13 +205,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 self::create_attempt($this->studentquiz[1]->id, $this->users[1]->id, $this->studentquiz[1]->categoryid),
         ];
 
-        // Create practices.
-        $this->practices = [
-                self::create_practice($this->studentquiz[0]->coursemodule, $this->users[0]->id),
-                self::create_practice($this->studentquiz[1]->coursemodule, $this->users[0]->id),
-                self::create_practice($this->studentquiz[1]->coursemodule, $this->users[1]->id),
-        ];
-
         $this->subcontext = [get_string('pluginname', 'mod_studentquiz')];
     }
 
@@ -287,14 +275,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'correctattempts' => $this->progresses[1]->correctattempts
         ], $progresses[$this->progresses[1]->questionid]);*/
 
-        $practices = $data->practices;
-        $this->assertCount(1, $practices);
-        $this->assertEquals((object) [
-                'quizcoursemodule' => $this->practices[0]->quizcoursemodule,
-                'studentquizcoursemodule' => $this->practices[0]->studentquizcoursemodule,
-                'userid' => transform::user($this->practices[0]->userid),
-        ], $practices[$this->practices[0]->id]);
-
         $attempts = $data->attempts;
         $this->assertCount(2, $attempts);
         $this->assertEquals((object) [
@@ -359,14 +339,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'attempts' => $this->progresses[2]->attempts,
                 'correctattempts' => $this->progresses[2]->correctattempts
         ], $progresses[$this->progresses[2]->questionid]);*/
-
-        $practices = $data->practices;
-        $this->assertCount(1, $practices);
-        $this->assertEquals((object) [
-                'quizcoursemodule' => $this->practices[1]->quizcoursemodule,
-                'studentquizcoursemodule' => $this->practices[1]->studentquizcoursemodule,
-                'userid' => transform::user($this->practices[1]->userid),
-        ], $practices[$this->practices[1]->id]);
 
         $attempts = $data->attempts;
         $this->assertCount(1, $attempts);
@@ -435,7 +407,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // (1) mysqli_native_moodle_database.php:1331 doesn't like php 7.2
         // (2) this table is currently not used
         // $this->assertEmpty($data->progresses);
-        $this->assertEmpty($data->practices);
         $this->assertEmpty($data->attempts);
 
         $contextdata = writer::with_context($this->contexts[1]);
@@ -498,14 +469,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'edituserid' => !is_null($this->comments[5]->edituserid) ? transform::user($this->comments[5]->edituserid) : null
         ], $comments[$this->comments[5]->id]);
 
-        $practices = $data->practices;
-        $this->assertCount(1, $practices);
-        $this->assertEquals((object) [
-                'quizcoursemodule' => $this->practices[2]->quizcoursemodule,
-                'studentquizcoursemodule' => $this->practices[2]->studentquizcoursemodule,
-                'userid' => transform::user($this->practices[2]->userid),
-        ], $practices[$this->practices[2]->id]);
-
         $attempts = $data->attempts;
         $this->assertCount(1, $attempts);
         $this->assertEquals((object) [
@@ -545,9 +508,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
          *        , $questionparams));
          */
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
-        $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_practice} WHERE studentquizcoursemodule = :cmid", [
-                'cmid' => $this->studentquiz[0]->coursemodule
-        ]));
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_attempt} WHERE studentquizid = :studentquizid", [
                 'studentquizid' => $this->studentquiz[0]->id
         ]));
@@ -568,9 +528,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
          *        , $questionparams));
          */
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
-        $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_practice} WHERE studentquizcoursemodule = :cmid", [
-                'cmid' => $this->studentquiz[1]->coursemodule
-        ]));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_attempt} WHERE studentquizid = :studentquizid", [
                 'studentquizid' => $this->studentquiz[1]->id
         ]));
@@ -613,7 +570,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Check personal data of other tables are deleted.
         $params = ['userid' => $this->users[0]->id];
 
-        $this->assertFalse($DB->record_exists('studentquiz_practice', $params));
         $this->assertFalse($DB->record_exists('studentquiz_rate', $params));
         $this->assertFalse($DB->record_exists('studentquiz_attempt', $params));
 
@@ -638,7 +594,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $params = ['userid' => $this->users[1]->id];
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->modifiedby);
-        $this->assertTrue($DB->record_exists('studentquiz_practice', $params));
         $this->assertTrue($DB->record_exists('studentquiz_rate', $params));
         $this->assertTrue($DB->record_exists('studentquiz_attempt', $params));
         $this->assertTrue($DB->record_exists('studentquiz_comment', $params));
@@ -727,28 +682,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     }
 
     /**
-     * Test get users in context with practice condition.
-     *
-     * @throws dml_exception
-     */
-    public function test_get_users_in_context_practice() {
-        // Create practice for the first user.
-        $this->create_practice($this->studentquiz[2]->coursemodule, $this->users[0]->id);
-
-        $userlist = new \core_privacy\local\request\userlist($this->contexts[2], $this->component);
-        \mod_studentquiz\privacy\provider::get_users_in_context($userlist);
-
-        $this->assertCount(1, $userlist);
-        $this->assertEquals([$this->users[0]->id], $userlist->get_userids());
-
-        // Create practice for the second user.
-        $this->create_practice($this->studentquiz[2]->coursemodule, $this->users[1]->id);
-        mod_studentquiz\privacy\provider::get_users_in_context($userlist);
-        $this->assertCount(2, $userlist);
-        $this->assertEquals([$this->users[0]->id, $this->users[1]->id ], $userlist->get_userids());
-    }
-
-    /**
      * Test get users in context with question's attempt condition.
      *
      * @throws dml_exception
@@ -801,10 +734,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Check personal data of other tables are deleted for first user and first context.
         $sqlparams = ['userid' => $this->users[0]->id];
 
-        $practices = $DB->get_records('studentquiz_practice', $sqlparams);
-        $this->assertCount(1, $practices);
-        $this->assertArrayHasKey($this->practices[1]->id, $practices);
-
         $rates = $DB->get_records('studentquiz_rate', $sqlparams);
         $this->assertCount(1, $rates);
         $this->assertArrayHasKey($this->rates[3]->id, $rates);
@@ -821,7 +750,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $sqlparams = ['userid' => $this->users[1]->id];
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->modifiedby);
-        $this->assertTrue($DB->record_exists('studentquiz_practice', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_rate', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_attempt', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_comment', $sqlparams));
@@ -980,29 +908,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ];
 
         $data->id = $DB->insert_record('studentquiz_attempt', $data);
-
-        return $data;
-    }
-
-    /**
-     * Create practice data for user.
-     *
-     * @param $studentquizcoursemodule
-     * @param $userid
-     * @return object
-     * @throws dml_exception
-     */
-    protected function create_practice($studentquizcoursemodule, $userid) {
-        global $DB;
-
-        $data = (object) [
-                'id' => 0,
-                'quizcoursemodule' => 1,
-                'studentquizcoursemodule' => $studentquizcoursemodule,
-                'userid' => $userid
-        ];
-
-        $data->id = $DB->insert_record('studentquiz_practice', $data);
 
         return $data;
     }
