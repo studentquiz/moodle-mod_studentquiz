@@ -30,13 +30,14 @@ class db {
 
     const DBFAMILY_MYSQL = 'mysql'; // Also counts for mariadb.
     const DBFAMILY_POSTGRES = 'postgres';
-    
+
     /**
-     * group_concat is a helper function to extend the database abstraction. It returns the function used by the current selected database driver for concatenating a column when the query is grouped.
-     * 
-     * MySQL: GROUP_CONCAT (https://dev.mysql.com/doc/refman/8.0/en/group-by-functions.html)
-     * MariaDB: GROUP_CONCAT (https://mariadb.com/kb/en/group_concat/)
-     * PostgreSQL: https://www.postgresql.org/docs/9.0/functions-aggregate.html
+     * group_concat is a helper function to extend the database abstraction. It returns the function used by the current
+     * selected database driver for concatenating a column when the query is grouped.
+     *
+     * - MySQL: GROUP_CONCAT (https://dev.mysql.com/doc/refman/8.0/en/group-by-functions.html)
+     * - MariaDB: GROUP_CONCAT (https://mariadb.com/kb/en/group_concat/)
+     * - PostgreSQL: https://www.postgresql.org/docs/9.0/functions-aggregate.html
      */
     public static function group_concat($field) {
         global $DB;
