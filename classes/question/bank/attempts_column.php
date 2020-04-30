@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class progress_column extends \core_question\bank\column_base {
+class attempts_column extends \core_question\bank\column_base {
 
     protected $renderer;
 
@@ -64,7 +64,7 @@ class progress_column extends \core_question\bank\column_base {
      * @return string column name
      */
     public function get_name() {
-        return 'progress';
+        return 'attempts';
     }
 
     /**
@@ -81,7 +81,7 @@ class progress_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $output = $this->renderer->render_progress_column($question, $rowclasses);
+        $output = $this->renderer->render_attempts_column($question, $rowclasses);
         echo $output;
     }
 

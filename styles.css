@@ -168,11 +168,11 @@
 
 .path-mod-studentquiz #categoryquestions .rates,
 .path-mod-studentquiz #categoryquestions .difficultylevel,
-.path-mod-studentquiz #categoryquestions .practice {
+.path-mod-studentquiz #categoryquestions .attempts {
     width: 115px;
 }
 
-.path-mod-studentquiz #categoryquestions th.practice .sorters,
+.path-mod-studentquiz #categoryquestions th.attempts .sorters,
 .path-mod-studentquiz #categoryquestions th.difficultylevel .sorters,
 .path-mod-studentquiz #categoryquestions th.rates .sorters {
     font-size: .8em;
