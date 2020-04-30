@@ -40,7 +40,7 @@ class question_text_row extends \core_question\bank\row_base {
     protected $formatoptions;
 
     /**
-     * Get the row name
+     * Get the column name
      * @return string questiontext
      */
     public function get_name() {

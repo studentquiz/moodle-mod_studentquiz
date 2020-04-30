@@ -47,7 +47,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // Define the root element describing the StudentQuiz instance.
         $studentquiz = new backup_nested_element('studentquiz', array('id'), array(
-                'coursemodule', 'name', 'intro', 'introformat', 'grade', 'anonymrank', 'quizpracticebehaviour',
+                'coursemodule', 'name', 'intro', 'introformat', 'grade', 'anonymrank',
                 'questionquantifier', 'approvedquantifier', 'ratequantifier',
                 'correctanswerquantifier', 'incorrectanswerquantifier',
                 'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting',

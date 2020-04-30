@@ -507,13 +507,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Render the content of practice column.
+     * Render the content of progress column.
      *
      * @param $question
      * @param $rowclasses
      * @return string
      */
-    public function render_practice_column($question, $rowclasses) {
+    public function render_progress_column($question, $rowclasses) {
         $output = '';
         $attrs = ['tabindex' => 0];
 
@@ -776,7 +776,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 . 'mod_studentquiz\\bank\\sq_hidden_column,'
                 . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
                 . 'mod_studentquiz\\bank\\tag_column,'
-                . 'mod_studentquiz\\bank\\practice_column,'
+                . 'mod_studentquiz\\bank\\progress_column,'
                 . 'mod_studentquiz\\bank\\difficulty_level_column,'
                 . 'mod_studentquiz\\bank\\rate_column,'
                 . 'mod_studentquiz\\bank\\comment_column';

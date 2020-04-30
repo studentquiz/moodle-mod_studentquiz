@@ -170,8 +170,6 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 return 'dl.';
             case 'rate':
                 return 'vo.';
-            case 'practice':
-                return 'pr.';
             case 'comment':
                 return 'co.';
             case 'state':

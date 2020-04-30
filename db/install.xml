@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/studentquiz/db" VERSION="20200213" COMMENT="XMLDB file for Moodle mod/studentquiz"
+<XMLDB PATH="mod/studentquiz/db" VERSION="20200430" COMMENT="mod_studentquiz database layout"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="studentquiz" COMMENT="Default comment for studentquiz, please edit me">
+    <TABLE NAME="studentquiz" COMMENT="studentquiz activity">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course studentquiz activity belongs to"/>
@@ -16,7 +16,6 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="grade" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="100" SEQUENCE="false" COMMENT="The maximum grade. Can be negative to indicate the use of a scale."/>
         <FIELD NAME="anonymrank" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Setting to show ranking anonym or not."/>
-        <FIELD NAME="quizpracticebehaviour" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false" COMMENT="Displays the question behaviour selected by teachers"/>
         <FIELD NAME="questionquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with number of questions contributed"/>
         <FIELD NAME="approvedquantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with the number of approved questions created"/>
         <FIELD NAME="ratequantifier" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Point factor multiplied with average rating per question"/>
@@ -104,22 +103,6 @@
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="questionid" UNIQUE="false" FIELDS="questionid"/>
         <INDEX NAME="parentid" UNIQUE="false" FIELDS="parentid" COMMENT="Parent ID of comment index."/>
-      </INDEXES>
-    </TABLE>
-    <TABLE NAME="studentquiz_practice" COMMENT="Store quiz practices">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="quizcoursemodule" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="studentquizcoursemodule" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
-        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of user"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
-      </KEYS>
-      <INDEXES>
-        <INDEX NAME="quizcoursemodule" UNIQUE="false" FIELDS="quizcoursemodule"/>
-        <INDEX NAME="studentquizcoursemodule" UNIQUE="false" FIELDS="studentquizcoursemodule"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="studentquiz_question" COMMENT="Store question related properties">

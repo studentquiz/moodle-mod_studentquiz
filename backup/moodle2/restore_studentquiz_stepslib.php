@@ -108,9 +108,6 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if ($data->grade < 0) {
             $data->grade = -($this->get_mappingid('scale', abs($data->grade)));
         }
-        if (empty($data->quizpracticebehaviour) || $data->quizpracticebehaviour == STUDENTQUIZ_BEHAVIOUR) {
-            $data->quizpracticebehaviour = STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR;
-        }
         if (empty($data->anonymrank)) {
             $data->anonymrank = true;
         }

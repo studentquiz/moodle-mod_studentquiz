@@ -609,5 +609,22 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020021300, 'studentquiz');
     }
 
+    // remove unused practice database tables and old quiz practice columns
+    if ($oldversion < 2020043000) {
+
+        $table = new xmldb_table('studentquiz_practice');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('quizpracticebehaviour');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2020043000, 'studentquiz');
+    }
+
     return true;
 }

@@ -35,7 +35,7 @@ require_once(__DIR__ . '/question_text_row.php');
 require_once(__DIR__ . '/rate_column.php');
 require_once(__DIR__ . '/difficulty_level_column.php');
 require_once(__DIR__ . '/tag_column.php');
-require_once(__DIR__ . '/practice_column.php');
+require_once(__DIR__ . '/progress_column.php');
 require_once(__DIR__ . '/comments_column.php');
 require_once(__DIR__ . '/state_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
@@ -681,8 +681,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             true, 'difficultylevel');
 
-        $this->fields[] = new \user_filter_number('practice', get_string('filter_label_practice', 'studentquiz'),
-            true, 'practice');
         $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'),
             true, 'comment');
         $this->fields[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
