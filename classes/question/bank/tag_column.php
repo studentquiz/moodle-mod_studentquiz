@@ -92,7 +92,7 @@ class tag_column extends \core_question\bank\column_base {
         global $DB;
 
         # concatenated string always containing a leading and ending ',' so a potential search for an item is always in between elements
-        $concatenated = $DB->sql_concat_join("','", array("''", db::group_concat('t.name'), "''"));
+        $concatenated = $DB->sql_concat_join("','", array("''", db::group_concat('t.rawname'), "''"));
 
         return array('tags' => "LEFT JOIN (
                                             SELECT " . $concatenated . " AS tagarray, ti.itemid as questionid
