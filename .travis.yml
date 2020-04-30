@@ -94,7 +94,7 @@ before_install:
 install:
   - moodle-plugin-ci install
   # Start Selenuim Standalone server using docker. (workaround #202)
-  - docker run -d -p 127.0.0.1:4444:4444 --net=host -v /dev/shm:/dev/shm selenium/standalone-${PROFILE}:3
+  - docker run -d -p 127.0.0.1:4444:4444 --net=host -v /dev/shm:/dev/shm -v $HOME/build/moodle:$HOME/build/moodle selenium/standalone-${PROFILE}:3
   # Start php built-in server. (workaround #202)
   - php -S localhost:8000 -t $HOME/build/moodle > /dev/null 2>&1 &
   # Wait to make sure docker container is fully running. (workaround #202)
