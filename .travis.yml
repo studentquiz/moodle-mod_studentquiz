@@ -36,20 +36,23 @@ cache:
 php:
  - 7.1
  - 7.2
+ - 7.3
 
 env:
-  - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
-  - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
+  global:
+    # Set PROFILE to either chrome or firefox depending on your preference.
+    - PROFILE=firefox
+  matrix:
+    - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
 
 matrix:
+  exclude:
+    - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
   include:
-    # Only Moodle 37 and onwards has php 7.3 support
-    - php: 7.3
-      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
-    - php: 7.3
-      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
@@ -58,6 +61,11 @@ matrix:
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
     - php: 7.3
+      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
+    # Newest PHP support
+    - php: 7.4
+      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
+    - php: 7.4
       env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
     # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
     # TODO: Somehow behat doesn't run when mariadb is in use, all other stuff do
@@ -100,9 +108,8 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache || true
+  - moodle-plugin-ci mustache || true # Report errors but don't fail the build (known random failures)
   - moodle-plugin-ci grunt || [ "$MOODLE_BRANCH" = 'master' ] || [ "$MOODLE_BRANCH" = 'MOODLE_38_STABLE' ]
   - moodle-plugin-ci phpdoc || true # Report errors but don't fail the build (until they are fixed)
   - moodle-plugin-ci phpunit --coverage-text
-  #- moodle-plugin-ci behat --profile chrome # chromium is mostly broken
-  - moodle-plugin-ci behat || true # Behat seems to be broken at the moment
+  - moodle-plugin-ci behat $( [ "$PROFILE" == "firefox" ] || echo "--profile $PROFILE" )
