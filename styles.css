@@ -59,7 +59,6 @@
     border-bottom: 2px solid darkgray;
     border-radius: 4px;
     display: inline-block;
-    margin-right: 5px;
     padding: 5px;
     transition: all 0.4s ease;
     text-decoration: none;
@@ -315,10 +314,6 @@
 
 .path-mod-studentquiz .pagination .form-control {
     width: 60px;
-}
-
-.path-mod-studentquiz .modulespecificbuttonscontainer input.btn {
-    margin-right: 5px;
 }
 
 .path-mod-studentquiz #mod_studentquiz_statblock .report_more_url,

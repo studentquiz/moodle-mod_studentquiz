@@ -353,7 +353,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
      */
     public function setup_form_in_group(&$mform, &$group) {
         $disableelements = implode(',', $this->disableelements);
-        $linktoggle = \html_writer::tag('a', $this->_label, ['href' => '#', 'class' => 'link-toggle mb-1',
+        $linktoggle = \html_writer::tag('a', $this->_label, ['href' => '#', 'class' => 'link-toggle me-1 mb-1',
                 'title' => $this->helptext, 'for' => 'id_' . $this->_name, 'data-disableelements' => $disableelements,
                 'role' => 'button']);
         $element = $mform->createElement('checkbox', $this->_name, null, $linktoggle, ['class' => 'toggle']);
