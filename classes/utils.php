@@ -38,6 +38,13 @@ use external_single_structure;
  */
 class utils {
 
+    /** @var int No digest type */
+    const NO_DIGEST_TYPE = 0;
+    /** @var int Daily digest type */
+    const DAILY_DIGEST_TYPE = 1;
+    /** @var int Weekly digest type */
+    const WEEKLY_DIGEST_TYPE = 2;
+
     /**
      * Get Comment Area web service comment reply structure.
      *
@@ -237,5 +244,42 @@ class utils {
                 'edited' => time(),
                 'edituserid' => $guestuserid
         ];
+    }
+
+    /**
+     * Calculate and return the timestamp of timetosend
+     *
+     * @param int $digestfirstday First day of the week
+     *
+     * @return int the timestamp to send
+     */
+    public static function calculcate_notification_time_to_send(int $digestfirstday): int {
+        date_default_timezone_set('UTC');
+        $timetosend = 0;
+        switch ($digestfirstday) {
+            case 0:
+                $timetosend = strtotime('next sunday', mktime(0, 0, 0));
+                break;
+            case 1:
+                $timetosend = strtotime('next monday', mktime(0, 0, 0));
+                break;
+            case 2:
+                $timetosend = strtotime('next tuesday', mktime(0, 0, 0));
+                break;
+            case 3:
+                $timetosend = strtotime('next wednesday', mktime(0, 0, 0));
+                break;
+            case 4:
+                $timetosend = strtotime('next thursday', mktime(0, 0, 0));
+                break;
+            case 5:
+                $timetosend = strtotime('next friday', mktime(0, 0, 0));
+                break;
+            case 6:
+                $timetosend = strtotime('next saturday', mktime(0, 0, 0));
+                break;
+        }
+
+        return $timetosend;
     }
 }

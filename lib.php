@@ -178,6 +178,23 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
         $studentquiz->commentdeletionperiod = get_config('studentquiz', 'commentediting_deletionperiod');
     }
 
+    $currentdata = $DB->get_record('studentquiz', ['id' => $studentquiz->instance]);
+    if ($currentdata->digesttype != $studentquiz->digesttype) {
+        $params = [
+                'objectid' => $currentdata->coursemodule,
+                'context' => context_module::instance($currentdata->coursemodule),
+                'other' => [
+                        'olddigesttype' => $currentdata->digesttype,
+                        'newdigesttype' => $studentquiz->digesttype
+                ]
+        ];
+        if ($currentdata->digesttype == 2) {
+            $params['other']['olddigestfirstday'] = $currentdata->digestfirstday;
+        }
+        $event = \mod_studentquiz\event\studentquiz_digest_changed::create($params);
+        $event->trigger();
+    }
+
     $result = $DB->update_record('studentquiz', $studentquiz);
 
     return $result;

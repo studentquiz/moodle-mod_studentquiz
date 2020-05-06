@@ -111,29 +111,7 @@ $capabilities = array(
         ),
     ),
     // Notifications.
-    'mod/studentquiz:emailnotifychanged' => array(
-        'riskbitmask' => RISK_SPAM,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student'        => CAP_ALLOW,
-            'teacher'        => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW,
-        ),
-    ),
-    'mod/studentquiz:emailnotifydeleted' => array(
-        'riskbitmask' => RISK_SPAM,
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
-            'student'        => CAP_ALLOW,
-            'teacher'        => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager'        => CAP_ALLOW,
-        ),
-    ),
-    'mod/studentquiz:emailnotifyapproved' => array(
+    'mod/studentquiz:emailnotifyquestion' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,

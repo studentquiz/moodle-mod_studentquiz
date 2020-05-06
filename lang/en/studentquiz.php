@@ -75,20 +75,7 @@ $string['describe_not_creator'] = 'This is not your comment.';
 $string['describe_out_of_time_delete'] = 'This comment is out of time to delete';
 $string['describe_out_of_time_edit'] = 'This comment is out of time to edit';
 $string['editcomment'] = 'Edit comment';
-$string['emailapprovedbody'] = 'Dear {$a->recepientname},
-
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been approved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
-
-You can review this question at: {$a->questionurl}.';
-$string['emailapprovedsmall'] = 'Your question \'{$a->questionname}\' has been approved by {$a->actorname}.';
-$string['emailapprovedsubject'] = 'Question has been approved: {$a->questionname}';
-$string['emailchangedbody'] = 'Dear {$a->recepientname},
-
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been modified by \'{$a->actorname}\' at \'{$a->timestamp}\'.
-
-You can review this question at: {$a->questionurl}.';
-$string['emailchangedsmall'] = 'Your question \'{$a->questionname}\' has been modified by {$a->actorname}.';
-$string['emailchangedsubject'] = 'Question has been modified: {$a->questionname}';
+$string['emailautomationnote'] = 'Please note that this is an automated system message – this email address is not monitored.';
 $string['emailcommentaddedbody'] = 'Dear {$a->recepientname},
 
 Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been commented by \'{$a->actorname}\' at \'{$a->timestamp}\'.
@@ -108,11 +95,6 @@ The comment was: \'{$a->commenttext}\'
 You can review this question at: {$a->questionurl}.';
 $string['emailcommentdeletedsmall'] = 'The comment to your question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailcommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
-$string['emaildeletedbody'] = 'Dear {$a->recepientname},
-
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'.';
-$string['emaildeletedsmall'] = 'Your question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
-$string['emaildeletedsubject'] = 'Question has been deleted: {$a->questionname}';
 $string['emailminecommentdeletedbody'] = 'Dear {$a->recepientname},
 
 Your comment on \'{$a->commenttime}\' to the question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been deleted by \'{$a->actorname}\' at \'{$a->timestamp}\'.
@@ -122,30 +104,13 @@ The comment was: \'{$a->commenttext}\'
 You can review this question at: {$a->questionurl}.';
 $string['emailminecommentdeletedsmall'] = 'Your comment to question \'{$a->questionname}\' has been deleted by {$a->actorname}.';
 $string['emailminecommentdeletedsubject'] = 'Comment has been deleted to question: {$a->questionname}';
-$string['emaildisapprovedbody'] = 'Dear {$a->recepientname},
-
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been disapproved by \'{$a->actorname}\' at \'{$a->timestamp}\'.
-
-You can review this question at: {$a->questionurl}.';
-$string['emaildisapprovedsmall'] = 'Your question \'{$a->questionname}\' has been disapproved by {$a->actorname}.';
-$string['emaildisapprovedsubject'] = 'Question has been disapproved: {$a->questionname}';
-
-$string['emailhiddenbody'] = 'Dear {$a->recepientname},
-
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been hidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
-
-You can review this question at: {$a->questionurl}.';
-$string['emailhiddensmall'] = 'Your question \'{$a->questionname}\' has been hidden by {$a->actorname}.';
-$string['emailhiddensubject'] = 'Question has been hidden: {$a->questionname}';
-
-$string['emailunhiddenbody'] = 'Dear {$a->recepientname},
-
-Your question \'{$a->questionname}\' in StudentQuiz activity \'{$a->modulename}\' in course \'{$a->coursename}\' has been unhidden by \'{$a->actorname}\' at \'{$a->timestamp}\'.
-
-You can review this question at: {$a->questionurl}.';
-$string['emailunhiddensmall'] = 'Your question \'{$a->questionname}\' has been unhidden by {$a->actorname}.';
-$string['emailunhiddensubject'] = 'Question has been unhidden: {$a->questionname}';
-
+$string['emailsinglebody'] = 'Your question <b>{$a->questionname}</b> in StudentQuiz activity <b>{$a->modulename}</b> in course <b>{$a->coursename}</b> has been {$a->eventname} by <b>{$a->actorname}</b> at <b>{$a->timestamp}</b>.';
+$string['emailsinglebody_reviewlink'] = 'You can review this question at: ';
+$string['emaildigestbody'] = 'This is your {$a->digesttype} digest of notifications for the <b>{$a->modulename}</b> StudentQuiz activity, available here: ';
+$string['emaildigestbody_section_title'] = 'Notification {$a->seq}, {$a->timestamp}';
+$string['emaildigestbody_section_content'] = 'Your question <b>{$a->questionname}</b> has been <b>{$a->actiontype}</b> by <b>{$a->actorname}</b>';
+$string['emaildigestsubject'] = 'StudentQuiz Digest Notification';
+$string['emailsalutation'] = 'Dear {$a},';
 $string['editorplaceholder'] = 'Enter your comment here ...';
 $string['error_form_validation'] = '{$a}';
 $string['error_sendalert'] = 'There was an error sending your report to {$a}.
@@ -390,6 +355,7 @@ used on the StudentQuiz for reporting unacceptable comment.';
 $string['report_comment_link_text'] = 'Preview here';
 $string['review_button'] = 'Review';
 $string['savechanges'] = 'Save changes';
+$string['scheduled_task_send_digest_notification'] = 'Send digest notification';
 $string['settings_allowallqtypes'] = 'Allow all question types';
 $string['settings_allowedqtypes'] = 'Allowed question types';
 $string['settings_allowedqtypes_help'] = 'Limit the allowed question types to the selected entries';
@@ -403,6 +369,13 @@ $string['settings_availability_close_answering_from'] = 'Closed for answering fr
 $string['settings_availability_close_submission_from'] = 'Closed for question submission from';
 $string['settings_availability_open_answering_from'] = 'Open for answering from';
 $string['settings_availability_open_submission_from'] = 'Open for question submission from';
+$string['settings_email_digest_type'] = 'Email digest type';
+$string['settings_email_digest_type_help'] = 'StudentQuiz has various notifications that you can enable, such as informing the student question-author of a state change (e.g. a teacher has approved one of their questions). You can use this setting to specify the frequency of these notifications. Digest emails will only be sent when there is at least one notification in the set period';
+$string['settings_email_digest_type_no_digest'] = 'No digest (single email per action)';
+$string['settings_email_digest_type_daily_digest'] = 'Daily digest';
+$string['settings_email_digest_type_weekly_digest'] = 'Weekly digest';
+$string['settings_email_digest_first_day'] = 'First day of week?';
+$string['settings_email_digest_first_day_help'] = 'If you have selected a weekly digest, this option allows you to define the first day (beginning at 00h:00m:00s of that day) of the seven day period. This is especially useful if the activity starts mid-week, for example.';
 $string['settings_excluderoles'] = 'Exclude roles in ranking';
 $string['settings_excluderoles_label'] = 'Roles in ranking to exclude';
 $string['settings_excluderoles_help'] = 'Selected roles are hidden in the rankings, enrolled users in these roles can still participate normally in the activity';
@@ -416,6 +389,7 @@ $string['settings_lastcorrectanswerquantifier_label'] = 'Points for latest corre
 $string['settings_lastincorrectanswerquantifier'] = 'Latest wrong answer factor';
 $string['settings_lastincorrectanswerquantifier_help'] = 'Points for each wrong or partially wrong answer on the last attempt';
 $string['settings_lastincorrectanswerquantifier_label'] = 'Points for latest wrong answers';
+$string['settings_notification'] = 'Notification settings';
 $string['settings_questionquantifier'] = 'Created question factor';
 $string['settings_questionquantifier_help'] = 'Points for each created question';
 $string['settings_questionquantifier_label'] = 'Points for each question created';

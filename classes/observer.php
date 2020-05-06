@@ -22,6 +22,9 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\event\studentquiz_digest_changed;
+use mod_studentquiz\utils;
+
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -79,6 +82,32 @@ class mod_studentquiz_observer {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $context->instanceid);
             }
         }
+    }
+
+    /**
+     * Observer for the even studentquiz_digest_changed
+     *
+     * @param studentquiz_digest_changed $event
+     */
+    public static function digest_changed(studentquiz_digest_changed $event) {
+        global $DB;
+
+        date_default_timezone_set('UTC');
+        $olddigesttype = $event->other['olddigesttype'];
+
+        if ($olddigesttype == utils::DAILY_DIGEST_TYPE) {
+            $timetosend = strtotime(date('Y-m-d'));
+        } else if ($olddigesttype == utils::WEEKLY_DIGEST_TYPE) {
+            $digestfirstday = $event->other['olddigestfirstday'];
+            $timetosend = utils::calculcate_notification_time_to_send($digestfirstday);
+        }
+        $DB->execute('UPDATE {studentquiz_notification}
+                              SET timetosend = :newtimetosend
+                            WHERE studentquizid = :studentquizid
+                                  AND timetosend = :oldtimetosend
+                                  AND status = :status',
+                ['newtimetosend' => strtotime('-1 day', date('Y-m-d')), 'studentquizid' => $event->objectid,
+                        'oldtimetosend' => $timetosend, 'status' => 0]);
     }
 
 }

@@ -51,7 +51,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                 'questionquantifier', 'approvedquantifier', 'ratequantifier',
                 'correctanswerquantifier', 'incorrectanswerquantifier',
                 'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting',
-                'commentdeletionperiod', 'reportingemail'
+                'commentdeletionperiod', 'reportingemail', 'digesttype', 'digestfirstday'
         ));
 
         // StudentQuiz Attempt -> User, Question usage Id.
@@ -91,6 +91,19 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         ]);
         $comments->add_child($comment);
         $studentquiz->add_child($comments);
+
+        // Notification -> Question, User.
+        $notifications = new backup_nested_element('notifications');
+        $notification = new backup_nested_element('notification', ['studentquizid', 'id'], [
+                'comment', 'created', 'parentid', 'deleted', 'deleteuserid', 'edited', 'edituserid'
+        ]);
+
+        // StudentQuiz -> Notification.
+        $notifications = new backup_nested_element('notifications');
+        $notification = new backup_nested_element('notification', ['studentquizid'],
+                ['content', 'recipientid', 'status', 'timetosend']);
+        $notifications->add_child($notification);
+        $studentquiz->add_child($notifications);
 
         // Define data sources.
         $studentquiz->set_source_table('studentquiz',
@@ -147,6 +160,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $comment->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'deleteuserid');
         $comment->annotate_ids('user', 'edituserid');
+        $notification->annotate_ids('studentquiz', 'studentquizid');
 
         // Define file annotations (we do not use itemid in this example).
         $studentquiz->annotate_files('mod_studentquiz', 'intro', null);
