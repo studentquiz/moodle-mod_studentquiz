@@ -146,6 +146,24 @@ class comment {
     }
 
     /**
+     * Get user id that created comment.
+     *
+     * @return int
+     */
+    public function get_user_id() {
+        return $this->data->user->id;
+    }
+
+    /**
+     * Get content of comment.
+     *
+     * @return string
+     */
+    public function get_comment_content() {
+        return $this->data->comment;
+    }
+
+    /**
      * Get user that deleted comment.
      *
      * @return mixed
@@ -381,6 +399,20 @@ class comment {
         // Add report link if report enabled.
         $object->reportlink = $object->canreport ? $this->get_abuse_link($object->id) : null;
         $object->canedit = $this->can_edit();
+        // Comment history
+        $editedcommenthistoryuser = get_string('anonymous_user_name', 'mod_studentquiz', $object->rownumber);
+        if ($container->can_view_username() || $this->is_creator()) {
+            $editedcommenthistoryuser = $container->get_user_from_user_list($comment->usermodified)->fullname;
+        }
+        $object->commenthistorymetadata = get_string('editedcommenthistory', 'mod_studentquiz', [
+                'lastesteditedcommentauthorname' => $editedcommenthistoryuser,
+                'lastededitedcommenttime' => userdate($comment->timemodified, $this->strings['timeformat'])
+        ]);
+        $object->commenthistorylink = new \moodle_url('comment_history.php', [
+                'cmid' => $this->get_container()->get_cmid(),
+                'questionid' => $this->get_container()->get_question()->id,
+                'commentid' => $comment->id
+        ]);
         return $object;
     }
 
@@ -397,6 +429,8 @@ class comment {
         $data->id = $this->data->id;
         $data->deleted = time();
         $data->deleteuserid = $this->get_container()->get_user()->id;
+        $data->timemodified = time();
+        $data->usermodified = $this->get_user_id();
         $res = $DB->update_record('studentquiz_comment', $data);
         // Writing log.
         $record = $this->data;
@@ -484,6 +518,27 @@ class comment {
         $data->comment = $datacomment->message['text'];
         $data->edited = time();
         $data->edituserid = $this->get_container()->get_user()->id;
+        $data->timemodified = time();
+        $data->usermodified = $this->get_user_id();
         return $DB->update_record('studentquiz_comment', $data);
+    }
+
+    /**
+     * Create new comment history
+     *
+     * @param $commentid int - comment id
+     * @param $userid int - user that modify comment
+     * @param $action int - action type Create 0 - Edit 1 - Delete 2
+     * @param $comment string - store comment content
+     */
+    public function create_history($commentid, $userid, $action, $comment) {
+        global $DB;
+        $instance = new \stdClass();
+        $instance->commentid = $commentid;
+        $instance->userid = $userid;
+        $instance->content = $comment;
+        $instance->action = $action;
+        $instance->timemodified = time();
+        return $DB->insert_record(utils::COMMENT_HISTORY_TABLE, $instance);
     }
 }

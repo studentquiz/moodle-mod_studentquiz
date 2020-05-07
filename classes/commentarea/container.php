@@ -490,6 +490,8 @@ class container {
         $comment->userid = $this->get_user()->id;
         $comment->parentid = $data->replyto != self::PARENTID ? $data->replyto : self::PARENTID;
         $comment->created = time();
+        $comment->timemodified = time();
+        $comment->usermodified = $this->get_user()->id;
         $id = $DB->insert_record('studentquiz_comment', $comment);
         // Write log.
         $this->log(self::COMMENT_CREATED, $comment);
@@ -859,5 +861,50 @@ class container {
         }
         // Otherwise just reverse data.
         return array_reverse($data, true);
+    }
+
+    /**
+     * Get comment histories by comment id
+     *
+     * @param $commentid int - comment id for filter data
+     * @return mixed - array comment's histories
+     */
+    public function get_histories($commentid) {
+        global $DB;
+        return $DB->get_records(utils::COMMENT_HISTORY_TABLE, ['commentid' => $commentid], 'timemodified DESC');
+    }
+
+    /**
+     * Return custom data for render comment histories
+     *
+     * @param $commenthistories inputed content for render - stdClass
+     * @return array
+     */
+    public function extract_comment_histories_to_render($commenthistories) {
+        global $DB;
+        $outputresults = [];
+        $userinfocacheset = [];
+        foreach ($commenthistories as $commenthistory) {
+            $instance = new \stdClass();
+            $instance->id = $commenthistory->id;
+            $instance->posttime = userdate($commenthistory->timemodified, get_string('strftimedatetime', 'langconfig'));
+            $instance->authorname = $commenthistory->userid;
+            $instance->content = $commenthistory->content;
+            $instance->rownumber = isset($commenthistory->rownumber) ? $commenthistory->rownumber : $commenthistory->id;
+            if (!array_key_exists($commenthistory->userid)) {
+                if ($this->can_view_username() || $this->get_user()->id == $commenthistory->id) {
+                    $user = \core_user::get_user($commenthistory->userid);
+                    $instance->authorname = fullname($user, true);
+                } else {
+                    $instance->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $instance->rownumber);
+                }
+                $userinfocacheset[] = [$commenthistory->userid => $instance->authorname];
+            } else {
+                $instance->authorname = $userinfocacheset[$instance->userid];
+            }
+
+            $outputresults[] = $instance;
+        }
+        return $outputresults;
     }
 }

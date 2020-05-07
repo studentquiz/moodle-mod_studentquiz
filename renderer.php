@@ -786,6 +786,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * Get sortable fields for difficulty level column.
      *
      * @return array
+
      */
     public function get_is_sortable_difficulty_level_column() {
         return [
@@ -2036,5 +2037,47 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'numbertoshow' => container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT,
                 'cmid' => $cmid
         ]);
+    }
+}
+
+/**
+ * Comment histories renderer.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2019 The Open University.
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class mod_studentquiz_comment_history_renderer extends mod_studentquiz_renderer {
+
+    /** @var string - Define name of Student Quiz mod. */
+    const MODNAME = 'mod_studentquiz';
+
+    /**
+     * Generate HTML to render comments.
+     *
+     * @param int $questionid - Question id.
+     * @param int $commentid - Comment id.
+     * @param int $cmid - Course module id.
+     * @return string HTML fragment
+     */
+    public function render_comment_history($questionid, $commentid, $cmid) {
+        global $PAGE;
+
+        $id = 'question_comment_area_' . $questionid;
+
+        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
+        $commentarea = new container($studentquiz, $question, $cm, $context);
+
+        $dbresults = $commentarea->get_histories($commentid);
+        $renderdata = $commentarea->extract_comment_histories_to_render($dbresults);
+
+        if (!empty($renderdata)) {
+            return $this->output->render_from_template(self::MODNAME . '/comment_histories', [
+                    'commenthistories' => $renderdata
+            ]);
+        }
+        else {
+            return print_string(get_string('nocommenthistoryexist', 'mod_studentquiz'));
+        }
     }
 }

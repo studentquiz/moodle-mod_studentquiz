@@ -38,6 +38,15 @@ use external_single_structure;
  */
 class utils {
 
+    /** @var string - Link to page when user press report button. */
+    const COMMENT_HISTORY_TABLE = 'studentquiz_comment_history';
+    /** @var int - Integer value of create history. */
+    const COMMENT_HISTORY_CREATE = 0;
+    /** @var int - Integer value of edit history. */
+    const COMMENT_HISTORY_EDIT = 1;
+    /** @var int - Integer value of delete history. */
+    const COMMENT_HISTORY_DELETE = 2;
+
     /**
      * Get Comment Area web service comment reply structure.
      *

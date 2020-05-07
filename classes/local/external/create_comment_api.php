@@ -132,9 +132,17 @@ class create_comment_api extends external_api {
         // Create comment.
         $id = $commentarea->create_comment($validatedata);
         $comment = $commentarea->refresh_has_comment()->query_comment_by_id($id);
+
         if (!$comment) {
             throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
         }
+
+        // Create history
+        $historyid = $comment->create_history($comment->get_id(), $comment->get_user_id(), utils::COMMENT_HISTORY_CREATE, $comment->get_comment_content());
+        if (!$historyid) {
+            throw new \moodle_exception(\get_string('cannotcapturecreatedhistory', 'studentquiz'), 'studentquiz');
+        }
+
         return $comment->convert_to_object();
     }
 }

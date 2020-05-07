@@ -75,7 +75,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Define field introformat to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'intro');
+                'intro');
 
         // Add field introformat.
         if (!$dbman->field_exists($table, $field)) {
@@ -90,7 +90,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Define field timecreated to be added to studentquiz.
         $table = new xmldb_table('studentquiz_question');
         $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'introformat');
+                'introformat');
 
         // Add field timecreated.
         if (!$dbman->field_exists($table, $field)) {
@@ -100,7 +100,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Define field timemodified to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'timecreated');
+                'timecreated');
 
         // Add field timemodified.
         if (!$dbman->field_exists($table, $field)) {
@@ -247,33 +247,33 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table = new xmldb_table('studentquiz');
 
         $definitions = array(
-            array(
-                'name' => 'questionquantifier',
-                'previous' => 'quizpracticebehaviour',
-                'default' => '10',
-            ), array(
-                'name' => 'approvedquantifier',
-                'previous' => 'questionquantifier',
-                'default' => '5',
-            ), array(
-                'name' => 'votequantifier',
-                'previous' => 'approvedquantifier',
-                'default' => '3',
-            ), array(
-                'name' => 'correctanswerquantifier',
-                'previous' => 'votequantifier',
-                'default' => '2',
-            ), array(
-                'name' => 'incorrectanswerquantifier',
-                'previous' => 'correctanswerquantifier',
-                'default' => '-1',
-            ),
+                array(
+                        'name' => 'questionquantifier',
+                        'previous' => 'quizpracticebehaviour',
+                        'default' => '10',
+                ), array(
+                        'name' => 'approvedquantifier',
+                        'previous' => 'questionquantifier',
+                        'default' => '5',
+                ), array(
+                        'name' => 'votequantifier',
+                        'previous' => 'approvedquantifier',
+                        'default' => '3',
+                ), array(
+                        'name' => 'correctanswerquantifier',
+                        'previous' => 'votequantifier',
+                        'default' => '2',
+                ), array(
+                        'name' => 'incorrectanswerquantifier',
+                        'previous' => 'correctanswerquantifier',
+                        'default' => '-1',
+                ),
         );
 
         // Add column and set useful default values during creation.
         foreach ($definitions as $definition) {
             $field = new xmldb_field($definition['name'], XMLDB_TYPE_INTEGER, '10', null,
-                XMLDB_NOTNULL, null, '0', $definition['previous']);
+                    XMLDB_NOTNULL, null, '0', $definition['previous']);
             if (!$dbman->field_exists($table, $field)) {
                 $dbman->add_field($table, $field);
             }
@@ -291,7 +291,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017111903) {
         if (array_key_exists('studentquiz', core_component::get_plugin_list('qbehaviour'))) {
             $DB->set_field('question_attempts', 'behaviour', 'immediatefeedback', array(
-                'behaviour' => 'studentquiz'
+                    'behaviour' => 'studentquiz'
             ));
             uninstall_plugin('qbehaviour', 'studentquiz');
         }
@@ -302,7 +302,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017111904) {
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('allowedqtypes', XMLDB_TYPE_TEXT, 'medium', null,
-            null, null, null, 'incorrectanswerquantifier');  // Text fields cannot have default.
+                null, null, null, 'incorrectanswerquantifier');  // Text fields cannot have default.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -376,7 +376,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table = new xmldb_table('studentquiz');
 
         $fieldnames = array('questionquantifier', 'approvedquantifier', 'ratequantifier',
-            'correctanswerquantifier', 'incorrectanswerquantifier');
+                'correctanswerquantifier', 'incorrectanswerquantifier');
         foreach ($fieldnames as $fieldname) {
             $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
             if ($dbman->field_exists($table, $field)) {
@@ -449,7 +449,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table = new xmldb_table('studentquiz_progress');
 
         $dbman->add_key($table, new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, array(
-            'questionid', 'userid', 'studentquizid'
+                'questionid', 'userid', 'studentquizid'
         )));
 
         upgrade_mod_savepoint(true, 2018121800, 'studentquiz');
@@ -624,6 +624,60 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2020043000, 'studentquiz');
+    }
+
+    // update studentquiz_comment table
+    if ($oldversion < 2020050505) {
+
+        // Define table studentquiz_comment_history to be created.
+        $table = new xmldb_table('studentquiz_comment_history');
+
+        // Adding fields to table studentquiz_comment_history.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('commentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('content', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('action', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table studentquiz_comment_history.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('commentid', XMLDB_KEY_FOREIGN, ['commentid'], 'studentquiz_comment', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Conditionally launch create table for studentquiz_comment_history.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Update table studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+
+        // Define field status to be added to studentquiz_comment.
+        $field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'edituserid');
+
+        // Conditionally launch add field status.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timemodified to be added to studentquiz_comment.
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'status');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field usermodified to be added to studentquiz_comment.
+        $field = new xmldb_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field usermodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2020050505, 'studentquiz');
     }
 
     return true;

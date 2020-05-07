@@ -124,6 +124,12 @@ class delete_comment_api extends external_api {
             $response->message = \get_string('invalidcomment', 'studentquiz');
         }
 
+        // Create history
+        $historyid = $comment->create_history($comment->get_id(), $comment->get_user_id(), utils::COMMENT_HISTORY_DELETE, $comment->get_comment_content());
+        if (!$historyid) {
+            throw new \moodle_exception(\get_string('cannotcapturedeletedhistory', 'studentquiz'), 'studentquiz');
+        }
+
         return $response;
     }
 }

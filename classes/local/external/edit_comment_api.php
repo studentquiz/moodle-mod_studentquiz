@@ -96,7 +96,8 @@ class edit_comment_api extends external_api {
         self::validate_context($context);
         $commentarea = new container($studentquiz, $question, $cm, $context);
 
-        $comment = $commentarea->query_comment_by_id($params['commentid']);
+        $oldcommentdata = $comment = $commentarea->query_comment_by_id($params['commentid']);
+
         if (!$comment) {
             throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
         }
@@ -138,6 +139,12 @@ class edit_comment_api extends external_api {
         $comment = $commentarea->refresh_has_comment()->query_comment_by_id($params['commentid']);
         if (!$comment) {
             throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
+        }
+
+        // Create history
+        $historyid = $comment->create_history($comment->get_id(), $comment->get_user_id(), utils::COMMENT_HISTORY_EDIT, $oldcommentdata->get_comment_content());
+        if (!$historyid) {
+            throw new \moodle_exception(\get_string('cannotcaptureeditedhistory', 'studentquiz'), 'studentquiz');
         }
 
         return $comment->convert_to_object();
