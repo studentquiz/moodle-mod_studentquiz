@@ -99,7 +99,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 COMMENT_FILTER_NAME: '.studentquiz-comment-filter-name',
                 COMMENT_FILTER_TYPE: '.studentquiz-comment-filter-type',
                 BTN_EDIT: '.studentquiz-comment-btnedit',
-                BTN_EDIT_REPLY: '.studentquiz-comment-btneditreply'
+                BTN_EDIT_REPLY: '.studentquiz-comment-btneditreply',
+                ATTO_HTML_BUTTON: 'button.atto_html_button'
             },
             get: function() {
                 return {
@@ -356,6 +357,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     // Clear form data.
                                     formSelector.trigger('reset');
                                     // Clear atto editor data.
+                                    if (!formSelector.find('#id_editor_question_' + unique + 'editable').is(':visible')) {
+                                        // HTML mode. Switch back to normal mode.
+                                        $(t.SELECTOR.ATTO_HTML_BUTTON).trigger('click');
+                                    }
                                     formSelector.find('#id_editor_question_' + unique + 'editable').empty();
                                     formSelector.find(t.SELECTOR.TEXTAREA).trigger('change');
                                     M.util.js_complete(t.ACTION_CLEAR_FORM);
