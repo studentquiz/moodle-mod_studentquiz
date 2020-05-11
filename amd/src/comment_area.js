@@ -1309,12 +1309,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
                         var attoEditable = document.getElementById(attoEditableId);
+                        var attoEditableEle = $('#' + attoEditableId);
                         var observation = new MutationObserver(function(mutationsList) {
                             mutationsList.forEach(function(mutation) {
                                 if (mutation.type === 'attributes' &&
                                     (mutation.attributeName === 'style' || mutation.attributeName === 'hidden')) {
                                     M.util.js_pending(key);
-                                    if (t.EMPTY_CONTENT.indexOf($('#' + attoEditableId).html()) > -1) {
+                                    if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
+                                        attoEditableEle.text().trim().length < 1) {
                                         self.triggerAttoNoContent(formSelector);
                                     } else {
                                         self.triggerAttoHasContent(formSelector);
@@ -1326,7 +1328,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         observation.observe(attoEditable, {attributes: true, childList: true, subtree: true});
                         textareaSelector.change(function() {
                             M.util.js_pending(key);
-                            if (t.EMPTY_CONTENT.indexOf($('#' + attoEditableId).html()) > -1) {
+                            if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
+                                attoEditableEle.text().trim().length < 1) {
                                 self.triggerAttoNoContent(formSelector);
                             } else {
                                 self.triggerAttoHasContent(formSelector);
