@@ -1236,14 +1236,16 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                             commentSelector.replaceWith(el);
                                             el.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER).replaceWith(oldReplies);
 
-                                            if (self.deleteTarget.root) {
-                                                self.bindCommentEvent(data);
-                                            } else {
-                                                self.bindReplyEvent(data, el.parent());
-                                            }
-                                            self.changeWorkingState(false);
+                                            setTimeout(function() {
+                                                if (self.deleteTarget.root) {
+                                                    self.bindCommentEvent(data);
+                                                } else {
+                                                    self.bindReplyEvent(data, el.parent());
+                                                }
+                                                self.changeWorkingState(false);
 
-                                            M.util.js_complete(t.ACTION_DELETE);
+                                                M.util.js_complete(t.ACTION_DELETE);
+                                            }, 200);
                                         });
                                         modal.hide();
                                         return true;
