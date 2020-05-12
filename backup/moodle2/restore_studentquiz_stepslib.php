@@ -23,6 +23,9 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\utils;
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
@@ -76,6 +79,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $comment = new restore_path_element('comment',
             '/activity/studentquiz/comments/comment');
         $paths[] = $comment;
+
+        // Restore Comment Histories.
+        $commenthistories = new restore_path_element('comment_history',
+                '/activity/studentquiz/commenthistories/comment');
+        $paths[] = $commenthistories;
 
         // Restore Question meta.
         $question = new restore_path_element('question_meta',
@@ -194,6 +202,34 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             }
         }
 
+        if ($data->edited > 0) {
+            $commenthistory = new stdClass();
+            $commenthistory->commentid = $data->id;
+            $commenthistory->content = $data->comment;
+            $commenthistory->userid = $data->edituserid;
+            $commenthistory->action = utils::COMMENT_HISTORY_EDIT;
+            $commenthistory->timemodified = $data->edited;
+            $DB->insert_record('studentquiz_comment_history', $commenthistory);
+
+            $data->status = utils::COMMENT_HISTORY_EDIT;
+            $data->usermodified = $data->edituserid;
+            $data->timemodified = $data->edited;
+        }
+
+        if ($data->deleted > 0) {
+            $commenthistory = new stdClass();
+            $commenthistory->commentid = $data->id;
+            $commenthistory->content = '';
+            $commenthistory->userid = $data->deleteuserid;
+            $commenthistory->action = utils::COMMENT_HISTORY_DELETE;
+            $commenthistory->timemodified = $data->deleted;
+            $DB->insert_record('studentquiz_comment_history', $commenthistory);
+
+            $data->status = utils::COMMENT_HISTORY_DELETE;
+            $data->usermodified = $data->deleteuserid;
+            $data->timemodified = $data->deleted;
+        }
+
         $newid = $DB->insert_record('studentquiz_comment', $data);
         $this->set_mapping('studentquiz_comment', $oldid, $newid, true);
     }
@@ -218,6 +254,20 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         }
 
         $DB->insert_record('studentquiz_question', $data);
+    }
+
+    protected function process_comment_history($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->id = $this->get_mappingid('id', $data->id);
+        $data->commentid = $this->get_mappingid('commentid', $data->commentid);
+        $data->content = $this->get_mappingid('content', $data->content);
+        $data->userid = $this->get_mappingid('userid', $data->userid);
+        $data->action = $this->get_mappingid('action', $data->action);
+        $data->timemodified = $this->get_mappingid('timemodified', $data->timemodified);
+
+        $DB->insert_record('studentquiz_comment_history', $data);
     }
 
     /**

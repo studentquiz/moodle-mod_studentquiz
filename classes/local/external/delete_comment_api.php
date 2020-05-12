@@ -124,6 +124,9 @@ class delete_comment_api extends external_api {
             $response->message = \get_string('invalidcomment', 'studentquiz');
         }
 
+        // Create history.
+        utils::create_comment_history($comment, utils::COMMENT_HISTORY_DELETE);
+
         return $response;
     }
 }

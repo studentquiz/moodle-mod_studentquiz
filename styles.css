@@ -543,6 +543,16 @@
     overflow: auto;
 }
 
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-text .studentquiz-comment-history {
+    color: #b1b1b1;
+    font-style: italic;
+}
+
+.path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-text .studentquiz-comment-history a {
+    color: #45a4dc;
+    text-decoration: none;
+}
+
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-text-deleted {
     color: #a5a5a5;
     background-color: #fff;

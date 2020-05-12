@@ -64,8 +64,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 CONTAINER_REPLIES: '.studentquiz-container-replies',
                 COMMENT_REPLIES_CONTAINER: '.studentquiz-comment-replies',
                 COMMENT_COUNT: '.studentquiz-comment-postcount',
-                COMMENT_TEXT: '.studentquiz-comment-text',
-                COMMENT_REPLIES_TEXT: '.studentquiz-comment-replies .studentquiz-comment-text',
+                COMMENT_TEXT: '.studentquiz-comment-text-inside',
+                COMMENT_HISTORY: '.studentquiz-comment-history',
+                COMMENT_REPLIES_TEXT: '.studentquiz-comment-replies .studentquiz-comment-text .studentquiz-comment-text-inside',
                 LOADING_ICON: '.studentquiz-comment-loading',
                 COMMENT_AREA_FORM: 'div.comment-area-form',
                 FORM_SELECTOR: '.studentquiz-comment-postform > div.comment-area-form',
@@ -1584,7 +1585,11 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             }
                             // Assign new content.
                             item.shortcontent = response.shortcontent;
-                            el.find(t.SELECTOR.COMMENT_TEXT).first().html(response.content);
+                            Templates.render(t.TEMPLATE_COMMENT, response).done(function(html) {
+                                var el = $(html);
+                                var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' + t.SELECTOR.COMMENT_TEXT;
+                                $(commentTextSelector).parent().html(el.find(t.SELECTOR.COMMENT_TEXT).parent().html());
+                            });
                             container.empty();
                             self.changeWorkingState(false);
                             M.util.js_complete(t.ACTION_EDIT);

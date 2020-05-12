@@ -27,6 +27,8 @@ namespace mod_studentquiz\commentarea;
 defined('MOODLE_INTERNAL') || die();
 
 use mod_studentquiz\utils;
+use moodle_url;
+use popup_action;
 
 /**
  * Comment for comment area.
@@ -77,7 +79,8 @@ class comment {
     public function __construct(container $container, $data, $parent = null) {
         // Get user data from users list.
         $data->user = $container->get_user_from_user_list($data->userid);
-        $data->deleteuser = !$data->deleteuserid ? null : $container->get_user_from_user_list($data->deleteuserid);
+        $data->deleteuser = $data->status == utils::COMMENT_HISTORY_DELETE ? null :
+                $container->get_user_from_user_list($data->userid);
 
         $this->container = $container;
         $this->question = $this->get_container()->get_question();
@@ -146,12 +149,32 @@ class comment {
     }
 
     /**
+     * Get user id that created comment.
+     *
+     * @return int
+     */
+    public function get_user_id() {
+        global $USER;
+        return $USER->id;
+    }
+
+    /**
+     * Get content of comment.
+     *
+     * @return string
+     */
+    public function get_comment_content() {
+        return $this->data->comment;
+    }
+
+    /**
      * Get user that deleted comment.
      *
      * @return mixed
      */
     public function get_delete_user() {
-        return $this->data->deleteuser;
+        return $this->data->status == utils::COMMENT_HISTORY_DELETE ?
+                $this->container->get_user_from_user_list($this->data->usermodified) : utils::COMMENT_HISTORY_CREATE;
     }
 
     /**
@@ -261,7 +284,7 @@ class comment {
      * @return mixed
      */
     private function get_deleted() {
-        return $this->data->deleted;
+        return $this->data->status == utils::COMMENT_HISTORY_DELETE ? $this->data->timemodified : utils::COMMENT_HISTORY_CREATE;
     }
 
     /**
@@ -332,6 +355,8 @@ class comment {
      * @return \stdClass
      */
     public function convert_to_object() {
+        global $OUTPUT;
+
         $comment = $this->data;
         $container = $this->get_container();
         $canviewdeleted = $container->can_view_deleted();
@@ -345,14 +370,13 @@ class comment {
         $object->plural = $this->get_reply_plural_text($object);
         $object->candelete = $this->can_delete();
         $object->canreply = $this->can_reply();
-        $object->deleteuser = new \stdClass();
-        $object->deleted = $this->is_deleted();
-        $object->deletedtime = $this->get_deleted_time();
         $object->iscreator = $this->is_creator();
         // Row number is use as username 'Anonymous Student #' see line 412.
         $object->rownumber = isset($comment->rownumber) ? $comment->rownumber : $comment->id;
         $object->root = $this->is_root_comment();
+        $object->status = $this->data->status;
         // Check is this comment is deleted and user permission to view deleted comment.
+        $object->deleteuser = new \stdClass();
         if ($this->is_deleted() && !$canviewdeleted) {
             // If this comment is deleted and user don't have permission to view then we hide following information.
             $object->title = '';
@@ -376,11 +400,32 @@ class comment {
                 $object->deleteuser->lastname = '';
             }
         }
+        $object->deleted = $this->is_deleted();
+        $object->deletedtime = $this->get_deleted_time();
         $object->hascomment = $container->check_has_comment();
         $object->canreport = $this->can_report();
         // Add report link if report enabled.
         $object->reportlink = $object->canreport ? $this->get_abuse_link($object->id) : null;
         $object->canedit = $this->can_edit();
+        $object->isedithistory = $comment->status == utils::COMMENT_HISTORY_EDIT;
+        // Comment history.
+        if ($this->data->userid == $comment->usermodified) {
+            $editedcommenthistoryuser = get_string('comment_author', 'mod_studentquiz');
+        } else if ($container->can_view_username()) {
+            $editedcommenthistoryuser = fullname(\core_user::get_user($comment->usermodified));
+        } else {
+            $editedcommenthistoryuser = get_string('anonymous_user_name', 'mod_studentquiz', $object->rownumber);
+        }
+
+        $object->commenthistorymetadata = get_string('editedcommenthistory', 'mod_studentquiz', [
+                'lastesteditedcommentauthorname' => $editedcommenthistoryuser,
+                'lastededitedcommenttime' => userdate($comment->timemodified, $this->strings['timeformat'])
+        ]);
+        $object->commenthistorylink = (new moodle_url('/mod/studentquiz/commenthistory.php', [
+                'cmid' => $this->get_container()->get_cmid(),
+                'questionid' => $this->get_container()->get_question()->id,
+                'commentid' => $comment->id
+        ]))->out();
         return $object;
     }
 
@@ -395,13 +440,12 @@ class comment {
         $transaction = $DB->start_delegated_transaction();
         $data = new \stdClass();
         $data->id = $this->data->id;
-        $data->deleted = time();
-        $data->deleteuserid = $this->get_container()->get_user()->id;
+        $data->timemodified = time();
+        $data->usermodified = $this->get_user_id();
+        $data->status = utils::COMMENT_HISTORY_DELETE;
         $res = $DB->update_record('studentquiz_comment', $data);
         // Writing log.
         $record = $this->data;
-        $record->deleted = $data->deleted;
-        $record->deleteuserid = $data->deleteuserid;
         $container->log($container::COMMENT_DELETED, $record);
         $transaction->allow_commit();
         return $res;
@@ -482,8 +526,30 @@ class comment {
         $data->id = $this->data->id;
         // Update content from editor.
         $data->comment = $datacomment->message['text'];
-        $data->edited = time();
-        $data->edituserid = $this->get_container()->get_user()->id;
+        $data->timemodified = time();
+        $data->usermodified = $this->get_user_id();
+        $data->status = utils::COMMENT_HISTORY_EDIT;
         return $DB->update_record('studentquiz_comment', $data);
+    }
+
+    /**
+     * Create new comment history
+     *
+     * @param $commentid int - comment id
+     * @param $userid int - user that modify comment
+     * @param $action int - action type Create 0 - Edit 1 - Delete 2
+     * @param $comment string - store comment content
+     */
+    public function create_history($commentid, $userid, $action, $comment): int {
+        global $DB;
+        $instance = new \stdClass();
+        $instance->commentid = $commentid;
+        $instance->userid = $userid;
+        $instance->content = $comment;
+        $instance->action = $action;
+        $instance->timemodified = time();
+        $newid = $DB->insert_record('studentquiz_comment_history', $instance);
+
+        return $newid;
     }
 }

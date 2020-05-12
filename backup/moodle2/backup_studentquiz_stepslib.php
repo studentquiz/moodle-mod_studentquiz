@@ -86,11 +86,18 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // Comment -> Question, User.
         $comments = new backup_nested_element('comments');
-        $comment = new backup_nested_element('comment', array('questionid', 'userid', 'id'), [
-                'comment', 'created', 'parentid', 'deleted', 'deleteuserid', 'edited', 'edituserid'
+        $comment = new backup_nested_element('comment', ['usermodified', 'questionid', 'userid', 'id'], [
+                'comment', 'created', 'parentid', 'status', 'timemodified'
         ]);
         $comments->add_child($comment);
         $studentquiz->add_child($comments);
+
+        // Comment history -> Comment, User.
+        $commenthistories = new backup_nested_element('commenthistories');
+        $commenthistory = new backup_nested_element('comment_history', ['userid', 'commentid', 'id'], [
+                'content', 'action', 'timemodified']);
+        $commenthistories->add_child($commenthistory);
+        $comment->add_child($commenthistories);
 
         // Define data sources.
         $studentquiz->set_source_table('studentquiz',
@@ -136,6 +143,18 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                             WHERE sq.id = :studentquizid
                          ORDER BY comment.parentid, comment.id";
             $comment->set_source_sql($commentsql, array('studentquizid' => backup::VAR_PARENTID));
+
+            // Only select comment histories to questions of this StudentQuiz.
+            $commenthistorysql = "SELECT ch.*
+                                    FROM {studentquiz} sq
+                                    JOIN {context} con ON con.instanceid = sq.coursemodule
+                                    JOIN {question_categories} qc ON qc.contextid = con.id
+                               LEFT JOIN {question} q ON q.category = qc.id
+                                    JOIN {studentquiz_comment} comment ON comment.questionid = q.id
+                               LEFT JOIN {studentquiz_comment_history} ch ON ch.commentid = comment.id
+                                   WHERE sq.id = :studentquizid
+                                ORDER BY ch.commentid, ch.id";
+            $commenthistory->set_source_sql($commenthistorysql, ['studentquizid' => backup::VAR_PARENTID]);
         }
 
         // Define id annotations.
@@ -145,8 +164,8 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $question->annotate_ids('question', 'questionid');
         $rate->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'userid');
-        $comment->annotate_ids('user', 'deleteuserid');
-        $comment->annotate_ids('user', 'edituserid');
+        $comment->annotate_ids('user', 'usermodified');
+        $commenthistory->annotate_ids('user', 'userid');
 
         // Define file annotations (we do not use itemid in this example).
         $studentquiz->annotate_files('mod_studentquiz', 'intro', null);

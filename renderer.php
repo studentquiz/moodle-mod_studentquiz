@@ -1999,7 +1999,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'sort' => [
                         'asc' => get_string('asc'),
                         'desc' => get_string('desc')
-                ]
+                ],
+                'editedcommenthistorylinktext' => get_string('editedcommenthistorylinktext', 'mod_studentquiz')
         ];
 
         // Create form add comment.
@@ -2036,5 +2037,39 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'numbertoshow' => container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT,
                 'cmid' => $cmid
         ]);
+    }
+}
+
+/**
+ * Comment history renderer.
+ *
+ * @package    mod_studentquiz
+ * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class mod_studentquiz_comment_history_renderer extends mod_studentquiz_renderer {
+
+    /**
+     * Generate HTML to render comments.
+     *
+     * @param int $questionid - Question id.
+     * @param int $commentid - Comment id.
+     * @param int $cmid - Course module id.
+     * @return string HTML fragment
+     */
+    public function render_comment_history($questionid, $commentid, $cmid) {
+        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
+        $commentarea = new container($studentquiz, $question, $cm, $context);
+
+        $dbresults = $commentarea->get_history($commentid);
+        $renderdata = $commentarea->extract_comment_history_to_render($dbresults);
+
+        if (!empty($renderdata)) {
+            return $this->output->render_from_template('mod_studentquiz/comment_history', [
+                    'commenthistory' => $renderdata
+            ]);
+        } else {
+            return get_string('nocommenthistoryexist', 'mod_studentquiz');
+        }
     }
 }

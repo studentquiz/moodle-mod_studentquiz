@@ -471,8 +471,14 @@ Feature: Create comment as an user
     And I press "Save changes"
     And I wait until the page is ready
     Then I should see "Comment 1 edited" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Edited by the Author" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I click on "History" "link" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I switch to "Comment history" window
+    And I wait until the page is ready
+    And I should see "Comment 1 edited"
     # Read a reply.
-    When I click on "Reply" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
+    When I switch to the main window
+    And I click on "Reply" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
     # Wait for reply init.
     And I wait until the page is ready
     And I enter the text "Reply comment 1" into the "Add reply" editor
@@ -489,6 +495,12 @@ Feature: Create comment as an user
     And I press "Save changes"
     And I wait until the page is ready
     Then I should see "Reply comment 1 edited" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Edited by the Author" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I click on "History" "link" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I switch to "Comment history" window
+    And I wait until the page is ready
+    And I should see "Reply comment 1 edited"
+    When I switch to the main window
     And I log out
     # Try with student2 - should not see edit button.
     Given I log in as "student2"

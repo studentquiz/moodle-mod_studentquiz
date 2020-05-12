@@ -29,6 +29,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\utils;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/../locallib.php');
@@ -624,6 +626,142 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2020043000, 'studentquiz');
+    }
+
+    if ($oldversion < 2020051200) {
+
+        // Define table studentquiz_comment_history to be created.
+        $table = new xmldb_table('studentquiz_comment_history');
+
+        // Adding fields to table studentquiz_comment_history.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('commentid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('content', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('action', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table studentquiz_comment_history.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('commentid', XMLDB_KEY_FOREIGN, ['commentid'], 'studentquiz_comment', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Conditionally launch create table for studentquiz_comment_history.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Update table studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+
+        // Define field status to be added to studentquiz_comment.
+        $field = new xmldb_field('status', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'edituserid');
+
+        // Conditionally launch add field status.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field timemodified to be added to studentquiz_comment.
+        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'status');
+
+        // Conditionally launch add field timemodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field usermodified to be added to studentquiz_comment.
+        $field = new xmldb_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field usermodified.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key usermodified (foreign) to be added to studentquiz_comment.
+        $key = new xmldb_key('usermodified', XMLDB_KEY_FOREIGN, ['usermodified'], 'user', ['id']);
+
+        // Launch add key usermodified.
+        $dbman->add_key($table, $key);
+
+        $comments = $DB->get_records('studentquiz_comment');
+        foreach ($comments as $comment) {
+            $commenthistory = new stdClass();
+            $commenthistory->commentid = $comment->id;
+            $commenthistory->content = $comment->comment;
+            $commenthistory->userid = $comment->userid;
+            $commenthistory->action = utils::COMMENT_HISTORY_CREATE;
+            $commenthistory->timemodified = $comment->created;
+            $DB->insert_record('studentquiz_comment_history', $commenthistory);
+
+            $comment->status = utils::COMMENT_HISTORY_CREATE;
+            $comment->usermodified = $comment->userid;
+            $comment->timemodified = $comment->created;
+
+            if ($comment->edited > 0) {
+                $commenthistory = new stdClass();
+                $commenthistory->commentid = $comment->id;
+                $commenthistory->content = $comment->comment;
+                $commenthistory->userid = $comment->edituserid;
+                $commenthistory->action = utils::COMMENT_HISTORY_EDIT;
+                $commenthistory->timemodified = $comment->edited;
+                $DB->insert_record('studentquiz_comment_history', $commenthistory);
+
+                $comment->status = utils::COMMENT_HISTORY_EDIT;
+                $comment->usermodified = $comment->edituserid;
+                $comment->timemodified = $comment->edited;
+            }
+            if ($comment->deleted > 0) {
+                $commenthistory = new stdClass();
+                $commenthistory->commentid = $comment->id;
+                $commenthistory->content = '';
+                $commenthistory->userid = $comment->deleteuserid;
+                $commenthistory->action = utils::COMMENT_HISTORY_DELETE;
+                $commenthistory->timemodified = $comment->deleted;
+                $DB->insert_record('studentquiz_comment_history', $commenthistory);
+
+                $comment->status = utils::COMMENT_HISTORY_DELETE;
+                $comment->usermodified = $comment->deleteuserid;
+                $comment->timemodified = $comment->deleted;
+            }
+            $DB->update_record('studentquiz_comment', $comment);
+        }
+
+        // Remove unused fields.
+        // Define field deleted to be dropped from studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $field = new xmldb_field('deleted');
+
+        // Conditionally launch drop field deleted.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field deleteuserid to be dropped from studentquiz_comment.
+        $field = new xmldb_field('deleteuserid');
+
+        // Conditionally launch drop field deleteuserid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field edited to be dropped from studentquiz_comment.
+        $field = new xmldb_field('edited');
+
+        // Conditionally launch drop field edited.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field edituserid to be dropped from studentquiz_comment.
+        $field = new xmldb_field('edituserid');
+
+        // Conditionally launch drop field edituserid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2020051200, 'studentquiz');
     }
 
     return true;

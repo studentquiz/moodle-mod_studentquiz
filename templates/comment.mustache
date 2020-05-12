@@ -178,12 +178,24 @@
                 {{/root}}
             </div>
             <div class="studentquiz-comment-text">
-                {{#expanded}}
-                    {{{content}}}
-                {{/expanded}}
-                {{^expanded}}
-                    {{{shortcontent}}}
-                {{/expanded}}
+                <div class="studentquiz-comment-text-inside">
+                    {{#expanded}}
+                        {{{content}}}
+                    {{/expanded}}
+                    {{^expanded}}
+                        {{{shortcontent}}}
+                    {{/expanded}}
+                </div>
+                {{#canedit}}
+                    {{#isedithistory}}
+                        <div class="studentquiz-comment-history">
+                            {{commenthistorymetadata}}
+                            (<a href="#"
+                                onclick="window.open('{{{ commenthistorylink }}}', '{{#str}} commenthistory, mod_studentquiz {{/str}}', 'width=800,height=600'); return false;"
+                                target="_blank">{{#str}} editedcommenthistorylinktext, mod_studentquiz {{/str}}</a>)
+                        </div>
+                    {{/isedithistory}}
+                {{/canedit}}
             </div>
         </div>
         <div class="studentquiz-comment-postfooter">
