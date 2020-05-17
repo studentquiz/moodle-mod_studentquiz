@@ -88,8 +88,8 @@ before_install:
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   # moodle-plugin-ci installation (https://github.com/blackboard-open-source/moodle-plugin-ci/blob/master/.travis.dist.yml)
   - phpenv config-rm xdebug.ini
-  - nvm install 8.9
-  - nvm use 8.9
+  - nvm install 14.2.0
+  - nvm use 14.2.0
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
