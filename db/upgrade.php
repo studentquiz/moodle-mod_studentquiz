@@ -626,5 +626,55 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020043000, 'studentquiz');
     }
 
+    if ($oldversion < 2020050400) {
+
+        $table = new xmldb_table('studentquiz');
+        // Define field digesttype to be added to studentquiz.
+        $field = new xmldb_field('digesttype', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'reportingemail');
+
+        // Conditionally launch add field digesttype.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field digestfirstday to be added to studentquiz.
+        $field = new xmldb_field('digestfirstday', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '1', 'digesttype');
+
+        // Conditionally launch add field digestfirstday.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2020050400, 'studentquiz');
+    }
+
+    if ($oldversion < 2020050404) {
+
+        // Define table studentquiz_notification to be created.
+        $table = new xmldb_table('studentquiz_notification');
+
+        // Adding fields to table studentquiz_notification.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('studentquizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'id');
+        $table->add_field('content', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'studentquizid');
+        $table->add_field('recipientid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'content');
+        $table->add_field('status', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'recipientid');
+        $table->add_field('timetosend', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'status');
+
+        // Adding keys to table studentquiz_notification.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
+        $table->add_key('recipientid', XMLDB_KEY_FOREIGN, ['recipientid'], 'user', ['id']);
+
+        // Conditionally launch create table for studentquiz_notification.
+        if (!$dbman->table_exists('studentquiz_notification')) {
+            $dbman->create_table($table);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2020050404, 'studentquiz');
+    }
+
     return true;
 }

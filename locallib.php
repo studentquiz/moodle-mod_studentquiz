@@ -271,6 +271,7 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
 
     // Module info.
     $data->modulename      = $module->name;
+    $data->moduleid = $module->id;
 
     // Question info.
     $data->questionname    = $question->name;
@@ -295,6 +296,10 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
         $data->recepientname = get_string('creator_anonym_fullname', 'studentquiz');
         $data->actorname = get_string('manager_anonym_fullname', 'studentquiz');
     }
+
+    // Notification settings.
+    $data->digesttype = $studentquiz->digesttype;
+    $data->digestfirstday = $studentquiz->digestfirstday;
 
     return $data;
 }
@@ -401,7 +406,7 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
         $data->commenttext = $comment->comment;
         $data->commenttime = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
-        return mod_studentquiz_send_notification('comment' . $event, $recipient, $actor, $data);
+        return mod_studentquiz_send_comment_notification('comment' . $event, $recipient, $actor, $data);
     }
 
     return false;
@@ -430,7 +435,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
         $data->commenttext = $comment->comment;
         $data->commenttime = userdate($comment->created, get_string('strftimedatetime', 'langconfig'));
 
-        return mod_studentquiz_send_notification('minecomment' . $event, $recipient, $actor, $data);
+        return mod_studentquiz_send_comment_notification('minecomment' . $event, $recipient, $actor, $data);
     }
 
     return false;
@@ -447,24 +452,66 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
  * @return int|false as for {@link message_send()}.
  */
 function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
-    global $CFG;
+    global $DB;
+    $customdata = [
+            'eventname' => $event,
+            'courseid' => $data->courseid,
+            'submitter' => $submitter,
+            'recipient' => $recipient,
+            'messagedata' => $data,
+            'questionurl' => $data->questionurl,
+            'questionname' => $data->questionname,
+    ];
+    if ($data->digesttype == 0) {
+        $task = new \mod_studentquiz\task\send_no_digest_notification_task();
+        $task->set_custom_data($customdata);
+        $task->set_component('mod_studentquiz');
+        \core\task\manager::queue_adhoc_task($task);
+    } else {
+        date_default_timezone_set('UTC');
+        $notificationqueue = new stdClass();
+        $notificationqueue->studentquizid = $data->moduleid;
+        $notificationqueue->content = serialize($customdata);
+        $notificationqueue->recipientid = $recipient->id;
+        if ($data->digesttype == 1) {
+            $notificationqueue->timetosend = strtotime(date('Y-m-d'));
+        } else {
+            $digestfirstday = $data->digestfirstday;
+            $notificationqueue->timetosend = \mod_studentquiz\utils::calculcate_notification_time_to_send($digestfirstday);
+        }
+        $DB->insert_record('studentquiz_notification', $notificationqueue);
+    }
+}
 
+/**
+ * Send notification for comment
+ *
+ * @todo Support this feature in {@link mod_studentquiz_send_notification} for the next release.
+ *
+ * @param string $event message event string
+ * @param stdClass $recipient user object of the intended recipient
+ * @param stdClass $submitter user object of the sender
+ * @param stdClass $data object of replaceable fields for the templates
+ *
+ * @return int|false as for {@link message_send()}.
+ */
+function mod_studentquiz_send_comment_notification($event, $recipient, $submitter, $data) {
     // Prepare the message.
     $eventdata = new \core\message\message();
-    $eventdata->component         = 'mod_studentquiz';
-    $eventdata->name              = $event;
-    $eventdata->notification      = 1;
-    $eventdata->courseid          = $data->courseid;
-    $eventdata->userfrom          = $submitter;
-    $eventdata->userto            = $recipient;
-    $eventdata->subject           = get_string('email' . $event . 'subject', 'studentquiz', $data);
-    $eventdata->smallmessage      = get_string('email' . $event . 'small', 'studentquiz', $data);
-    $eventdata->fullmessage       = get_string('email' . $event . 'body', 'studentquiz', $data);
+    $eventdata->component = 'mod_studentquiz';
+    $eventdata->name = $event;
+    $eventdata->notification = 1;
+    $eventdata->courseid = $data->courseid;
+    $eventdata->userfrom = $submitter;
+    $eventdata->userto = $recipient;
+    $eventdata->subject = get_string('email' . $event . 'subject', 'studentquiz', $data);
+    $eventdata->smallmessage = get_string('email' . $event . 'small', 'studentquiz', $data);
+    $eventdata->fullmessage = get_string('email' . $event . 'body', 'studentquiz', $data);
     $eventdata->fullmessageformat = FORMAT_PLAIN;
-    $eventdata->fullmessagehtml   = '';
+    $eventdata->fullmessagehtml = '';
 
-    $eventdata->contexturl        = $data->questionurl;
-    $eventdata->contexturlname    = $data->questionname;
+    $eventdata->contexturl = $data->questionurl;
+    $eventdata->contexturlname = $data->questionname;
 
     // ... and send it.
     return message_send($eventdata);

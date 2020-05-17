@@ -24,4 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array();
+$tasks = [
+        [
+                'classname' => 'mod_studentquiz\task\send_digest_notification_task',
+                'blocking' => 0,
+                'minute' => '0',
+                'hour' => '0',
+                'day' => '*',
+                'month' => '*',
+                'dayofweek' => '*'
+        ]
+];

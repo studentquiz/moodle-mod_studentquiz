@@ -25,29 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $messageproviders = array(
-    // Notify student that someone has edited his question. (Info to question author).
-    'changed' => array(
-        'capability' => 'mod/studentquiz:emailnotifychanged'
-    ),
-    // Notify student that someone has deleted his question. (Info to question author).
-    'deleted' => array(
-        'capability' => 'mod/studentquiz:emailnotifydeleted'
-    ),
-    // Notify student that someone has approved his question. (Info to question author).
-    'approved' => array(
-        'capability' => 'mod/studentquiz:emailnotifyapproved'
-    ),
-    // Notify student that someone has disapproved his question. (Info to question author.)
-    'disapproved' => array(
-        'capability' => 'mod/studentquiz:emailnotifyapproved'
-    ),
-    // Notify student that someone has unhidden his question. (Info to question author.)
-    'unhidden' => array(
-        'capability' => 'mod/studentquiz:emailnotifyapproved'
-    ),
-    // Notify student that someone has hidden his question. (Info to question author.)
-    'hidden' => array(
-        'capability' => 'mod/studentquiz:emailnotifyapproved'
+    // Notify student that someone has approved, disapproved, hide, unhide, or changed his question. (Info to question author).
+    'questionchanged' => array(
+        'capability' => 'mod/studentquiz:emailnotifyquestion'
     ),
     // Notify student that someone has commented to his question. (Info to question author).
     'commentadded' => array(

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/studentquiz/db" VERSION="20200430" COMMENT="mod_studentquiz database layout"
+<XMLDB PATH="mod/studentquiz/db" VERSION="20200504" COMMENT="mod_studentquiz database layout"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -33,6 +33,8 @@
         <FIELD NAME="publishnewquestion" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Setting to automatically publish new created question"/>
         <FIELD NAME="commentdeletionperiod" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="10" SEQUENCE="false" COMMENT="Define deletion period for user can able to delete a comment."/>
         <FIELD NAME="reportingemail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false" COMMENT="Email address for reporting unacceptable comments"/>
+        <FIELD NAME="digesttype" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Email digest type"/>
+        <FIELD NAME="digestfirstday" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="First day of week"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -132,6 +134,21 @@
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
         <KEY NAME="questionusageid" TYPE="foreign" FIELDS="questionusageid" REFTABLE="question_usages" REFFIELDS="id"/>
         <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="question_categories" REFFIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="studentquiz_notification" COMMENT="Notification queue">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="studentquizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="StudentQuiz id"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Notification content"/>
+        <FIELD NAME="recipientid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Recipient Id"/>
+        <FIELD NAME="status" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Status of the notification"/>
+        <FIELD NAME="timetosend" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Time to send the notification"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="studentquizid" TYPE="foreign" FIELDS="studentquizid" REFTABLE="studentquiz" REFFIELDS="id"/>
+        <KEY NAME="recipientid" TYPE="foreign" FIELDS="recipientid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>

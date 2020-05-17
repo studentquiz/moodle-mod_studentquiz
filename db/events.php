@@ -33,5 +33,9 @@ $observers = [
         [
                 'eventname' => '\core\event\question_moved',
                 'callback' => 'mod_studentquiz_observer::question_moved'
+        ],
+        [
+                'eventname' => '\mod_studentquiz\event\studentquiz_digest_changed',
+                'callback' => 'mod_studentquiz_observer::digest_changed'
         ]
 ];

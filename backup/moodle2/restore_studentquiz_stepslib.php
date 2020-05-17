@@ -82,6 +82,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             '/activity/studentquiz/questions/question');
         $paths[] = $question;
 
+        // Restore Notification meta.
+        $notification = new restore_path_element('notification',
+                '/activity/studentquiz/notifications/notification');
+        $paths[] = $notification;
+
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
@@ -218,6 +223,15 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         }
 
         $DB->insert_record('studentquiz_question', $data);
+    }
+
+    protected function process_notification($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->studentquizid = $this->get_mappingid('notification', $data->studentquizid);
+
+        $DB->insert_record('studentquiz_notification', $data);
     }
 
     /**
