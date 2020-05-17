@@ -27,6 +27,7 @@ namespace mod_studentquiz\commentarea;
 defined('MOODLE_INTERNAL') || die();
 
 use mod_studentquiz\utils;
+use stdClass;
 
 /**
  * Container class for comment area.
@@ -52,25 +53,25 @@ class container {
     /** @var \question_definition $question - Question class. */
     private $question;
 
-    /** @var \stdClass $cm - Module. */
+    /** @var stdClass $cm - Module. */
     private $cm;
 
-    /** @var \stdClass $context - Context. */
+    /** @var stdClass $context - Context. */
     private $context;
 
     /** @var array - Array of stored comments. */
     private $storedcomments;
 
-    /** @var object|\stdClass - Studentquiz data. */
+    /** @var object|stdClass - Studentquiz data. */
     private $studentquiz;
 
     /** @var string - Basic order to get comments. */
     private $basicorder = 'c.created ASC';
 
-    /** @var object|\stdClass - Current user of Moodle. Only call it once when __construct */
+    /** @var object|stdClass - Current user of Moodle. Only call it once when __construct */
     private $user;
 
-    /** @var object|\stdClass - Current course of Moodle. Only call it once when __construct */
+    /** @var object|stdClass - Current course of Moodle. Only call it once when __construct */
     private $course;
 
     /** @var int - Current set limit. */
@@ -184,7 +185,7 @@ class container {
      * @param \question_definition $question - Question instance.
      * @param mixed $cm - Course Module instance.
      * @param mixed $context - Context instance.
-     * @param \stdClass $user - User instance.
+     * @param stdClass $user - User instance.
      * @param string $sort - Sort type.
      */
     public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null, $sort = '') {
@@ -263,7 +264,7 @@ class container {
     /**
      * Get studentquiz.
      *
-     * @return object|\stdClass
+     * @return object|stdClass
      */
     public function get_studentquiz() {
         return $this->studentquiz;
@@ -342,10 +343,8 @@ class container {
      */
     public function get_num_comments() {
         global $DB;
-        return $DB->count_records('studentquiz_comment', [
-                'questionid' => $this->get_question()->id,
-                'deleted' => 0
-        ]);
+        return $DB->count_records_select('studentquiz_comment', 'questionid = :questionid AND status <> :status',
+                ['questionid' => $this->get_question()->id, 'status' => utils::COMMENT_HISTORY_DELETE]);
     }
 
     /**
@@ -467,7 +466,7 @@ class container {
     /**
      * Build data comment into comment class.
      *
-     * @param \stdClass $commentdata - Comment data.
+     * @param stdClass $commentdata - Comment data.
      * @param null $parentdata - Parent comment data, null if top level comment.
      * @return comment
      */
@@ -478,17 +477,20 @@ class container {
     /**
      * Create new comment.
      *
-     * @param \stdClass $data - Data of comment will be created.
+     * @param stdClass $data - Data of comment will be created.
      * @return int - ID of created comment.
      */
     public function create_comment($data) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
-        $comment = new \stdClass();
+        $comment = new stdClass();
         $comment->comment = $data->message['text'];
         $comment->questionid = $this->question->id;
         $comment->userid = $this->get_user()->id;
         $comment->parentid = $data->replyto != self::PARENTID ? $data->replyto : self::PARENTID;
+        $comment->timemodified = time();
+        $comment->usermodified = $this->get_user()->id;
+        $comment->status = utils::COMMENT_HISTORY_CREATE;
         $comment->created = time();
         $id = $DB->insert_record('studentquiz_comment', $comment);
         // Write log.
@@ -501,7 +503,7 @@ class container {
      * Writing log.
      *
      * @param string $action - Action name.
-     * @param \stdClass $data - data of comment.
+     * @param stdClass $data - data of comment.
      */
     public function log($action, $data) {
         $coursemodule = $this->get_cm();
@@ -524,8 +526,8 @@ class container {
             if (!in_array($comment->userid, $userids)) {
                 $userids[] = $comment->userid;
             }
-            if (!in_array($comment->deleteuserid, $userids)) {
-                $userids[] = $comment->deleteuserid;
+            if (!in_array($comment->userid, $userids) && $comment->status == utils::COMMENT_HISTORY_DELETE) {
+                $userids[] = $comment->userid;
             }
         }
         // Retrieve users from db.
@@ -597,11 +599,12 @@ class container {
      */
     public static function has_comment(int $questionid, $userid) {
         global $DB;
-        return $DB->record_exists('studentquiz_comment', [
-                'questionid' => $questionid,
-                'userid' => $userid,
-                'deleted' => 0
-        ]);
+        return $DB->record_exists_select('studentquiz_comment',
+                'questionid = :questionid AND userid = :userid AND status <> :status', [
+                        'questionid' => $questionid,
+                        'userid' => $userid,
+                        'status' => utils::COMMENT_HISTORY_DELETE
+                ]);
     }
 
     /**
@@ -859,5 +862,51 @@ class container {
         }
         // Otherwise just reverse data.
         return array_reverse($data, true);
+    }
+
+    /**
+     * Get comment history by given comment id
+     *
+     * @param $commentid int - Comment id for filter data
+     * @return array - array comment's history
+     */
+    public function get_history($commentid): array {
+        global $DB;
+
+        return $DB->get_records('studentquiz_comment_history', ['commentid' => $commentid, 'action' => utils::COMMENT_HISTORY_EDIT],
+                'timemodified DESC');
+    }
+
+    /**
+     * Return custom data for render comment history
+     *
+     * @param stdClass $commenthistories Content for renderer
+     * @return array
+     */
+    public function extract_comment_history_to_render($commenthistories): array {
+        $outputresults = [];
+        $userinfocacheset = [];
+        foreach ($commenthistories as $commenthistory) {
+            $instance = new stdClass();
+            $instance->id = $commenthistory->id;
+            $instance->posttime = userdate($commenthistory->timemodified, get_string('strftimedatetime', 'langconfig'));
+            $instance->content = $commenthistory->content;
+            $instance->rownumber = isset($commenthistory->rownumber) ? $commenthistory->rownumber : $commenthistory->id;
+            if (!array_key_exists($commenthistory->userid, $userinfocacheset)) {
+                if ($this->can_view_username() || $this->get_user()->id == $commenthistory->userid) {
+                    $user = \core_user::get_user($commenthistory->userid);
+                    $instance->authorname = fullname($user, true);
+                } else {
+                    $instance->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $instance->rownumber);
+                }
+                $userinfocacheset[$commenthistory->userid] = $instance->authorname;
+            } else {
+                $instance->authorname = $userinfocacheset[$commenthistory->userid];
+            }
+
+            $outputresults[] = $instance;
+        }
+
+        return $outputresults;
     }
 }

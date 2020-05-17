@@ -140,6 +140,9 @@ class edit_comment_api extends external_api {
             throw new \moodle_exception(\get_string('invalidcomment', 'studentquiz'), 'studentquiz');
         }
 
+        // Create history.
+        utils::create_comment_history($comment, utils::COMMENT_HISTORY_EDIT);
+
         return $comment->convert_to_object();
     }
 }

@@ -25,6 +25,7 @@
 defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
 use mod_studentquiz\commentarea\comment;
+use mod_studentquiz\utils;
 
 /**
  * Unit tests for comment area.
@@ -237,10 +238,10 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $comment->delete();
         // Get new data.
         $commentafterdelete = $this->get_comment_by_id($comment->get_id(), false);
-        // Delete time now is > 0 (deleted).
-        $this->assertTrue($commentafterdelete->get_comment_data()->deleted > 0);
+        // Status delete is 2.
+        $this->assertEquals(utils::COMMENT_HISTORY_DELETE, $commentafterdelete->get_comment_data()->status);
         // Check correct delete user id.
-        $this->assertEquals($this->users[0]->id, $commentafterdelete->get_delete_user()->id);
+        $this->assertEquals($this->users[0]->id, $commentafterdelete->get_comment_data()->userid);
     }
 
     /**
@@ -501,9 +502,9 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         // Get new data.
         $commentafteredit = $this->get_comment_by_id($comment->get_id(), false);
         // Edit time now is > 0 (edited).
-        $this->assertTrue($commentafteredit->get_comment_data()->edited > 0);
+        $this->assertTrue($commentafteredit->get_comment_data()->status == utils::COMMENT_HISTORY_EDIT);
         // Check correct edit user id.
-        $this->assertEquals($this->users[0]->id, $commentafteredit->get_comment_data()->edituserid);
+        $this->assertEquals($this->users[0]->id, $commentafteredit->get_comment_data()->userid);
         // Expect new comment is "Edited comment".
         $this->assertEquals($formdata->message['text'], $commentafteredit->get_comment_data()->comment);
     }
@@ -536,5 +537,50 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         foreach ($comments as $comment) {
             $this->assertTrue($comment->can_edit());
         }
+    }
+
+    /**
+     * Test create comment history.
+     */
+    public function test_create_comment_history() {
+        global $DB;
+        // Create root comment.
+        $q1 = $this->questions[0];
+        $text = 'Root comment for history';
+        $comment = $this->create_comment($this->rootid, $q1->id, $text, false);
+        $comparestr = 'comment' . $comment->get_id();
+        $historyid = $comment->create_history($comment->get_id(), $comment->get_user_id(), 0, $comparestr);
+        $history = $DB->get_record('studentquiz_comment_history', ['id' => $historyid]);
+        $this->assertEquals($history->commentid, $comment->get_id());
+        $this->assertEquals($history->action, 0);
+        $this->assertEquals($comparestr, $history->content);
+    }
+
+    /**
+     * Test create comment history.
+     */
+    public function test_get_histories() {
+        $comment = $this->create_comment($this->rootid, $this->questions[0]->id, 'demo content', false);
+        $comment->create_history($comment->get_id(), $comment->get_user_id(), 1, 'comment1' . $comment->get_id());
+        $comment->create_history($comment->get_id(), $comment->get_user_id(), 1, 'comment2' . $comment->get_id());
+        $histories = $this->commentarea->get_history($comment->get_id());
+        $this->assertCount(2, $histories);
+        $this->assertEquals(current($histories)->userid, $comment->get_user_id());
+    }
+
+    /**
+     * Test extract comment histories to render.
+     */
+    public function test_extract_comment_histories_to_render() {
+        $mockhistory = new stdClass();
+        $mockhistory->id = 1;
+        $mockhistory->timemodified = 1;
+        $mockhistory->userid = $this->users[0]->id;
+        $mockhistory->content = 'mock content';
+        $mockhistory->rownumber = 1;
+        $results = $this->commentarea->extract_comment_history_to_render([$mockhistory]);
+        $this->assertCount(1, $results);
+        $this->assertEquals(fullname($this->users[0]), $results[0]->authorname);
+        $this->assertEquals($results[0]->content, 'mock content');
     }
 }

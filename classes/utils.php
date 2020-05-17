@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use external_value;
 use external_single_structure;
+use mod_studentquiz\commentarea\comment;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.
@@ -38,6 +39,12 @@ use external_single_structure;
  */
 class utils {
 
+    /** @var int - Integer value of create history. */
+    const COMMENT_HISTORY_CREATE = 0;
+    /** @var int - Integer value of edit history. */
+    const COMMENT_HISTORY_EDIT = 1;
+    /** @var int - Integer value of delete history. */
+    const COMMENT_HISTORY_DELETE = 2;
     /** @var int No digest type */
     const NO_DIGEST_TYPE = 0;
     /** @var int Daily digest type */
@@ -75,7 +82,11 @@ class utils {
                 'hascomment' => new external_value(PARAM_BOOL, 'Check if in current user has comment'),
                 'canreport' => new external_value(PARAM_BOOL, 'Can report this comment or not.'),
                 'reportlink' => new external_value(PARAM_TEXT, 'Report link for this comment.'),
-                'canedit' => new external_value(PARAM_BOOL, 'Can delete this comment or not.')
+                'canedit' => new external_value(PARAM_BOOL, 'Can delete this comment or not.'),
+                'commenthistorymetadata' => new external_value(PARAM_RAW, 'Show comment history meta data'),
+                'commenthistorylink' => new external_value(PARAM_RAW, 'Link to connect comment history page'),
+                'isedithistory' => new external_value(PARAM_BOOL, 'Check history is edit show link'),
+                'status' => new external_value(PARAM_INT, 'Status of comment.'),
         ];
     }
 
@@ -128,7 +139,7 @@ class utils {
 
         if (count($data) > 0) {
             foreach ($data as $v) {
-                if ($v->deletedtime === 0) {
+                if ($v->status !== self::COMMENT_HISTORY_DELETE) {
                     $commentcount++;
                 } else {
                     $deletecommentcount++;
@@ -238,12 +249,31 @@ class utils {
         $guestuserid = guest_user()->id;
         return [
                 'guestuserid' => $guestuserid,
-                'deleted' => time(),
-                'deleteuserid' => $guestuserid,
                 'comment' => '',
-                'edited' => time(),
-                'edituserid' => $guestuserid
+                'status' => self::COMMENT_HISTORY_CREATE,
+                'timemodified' => time(),
+                'usermodified' => $guestuserid
         ];
+    }
+
+    /**
+     * Create comment history.
+     *
+     * @param comment $comment Comment object
+     * @param int $historytype Type of history
+     */
+    public static function create_comment_history(comment $comment, int $historytype) {
+        // Create history.
+        $historyid = $comment->create_history(
+                $comment->get_id(),
+                $comment->get_user_id(),
+                $historytype,
+                $comment->get_comment_content()
+        );
+
+        if (!$historyid) {
+            throw new \moodle_exception(\get_string('cannotcapturecommenthistory', 'studentquiz'), 'studentquiz');
+        }
     }
 
     /**
