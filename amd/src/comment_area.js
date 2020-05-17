@@ -99,7 +99,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 COMMENT_FILTER_NAME: '.studentquiz-comment-filter-name',
                 COMMENT_FILTER_TYPE: '.studentquiz-comment-filter-type',
                 BTN_EDIT: '.studentquiz-comment-btnedit',
-                BTN_EDIT_REPLY: '.studentquiz-comment-btneditreply'
+                BTN_EDIT_REPLY: '.studentquiz-comment-btneditreply',
+                ATTO_HTML_BUTTON: 'button.atto_html_button'
             },
             get: function() {
                 return {
@@ -356,6 +357,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     // Clear form data.
                                     formSelector.trigger('reset');
                                     // Clear atto editor data.
+                                    if (!formSelector.find('#id_editor_question_' + unique + 'editable').is(':visible')) {
+                                        // HTML mode. Switch back to normal mode.
+                                        $(t.SELECTOR.ATTO_HTML_BUTTON).trigger('click');
+                                    }
                                     formSelector.find('#id_editor_question_' + unique + 'editable').empty();
                                     formSelector.find(t.SELECTOR.TEXTAREA).trigger('change');
                                     M.util.js_complete(t.ACTION_CLEAR_FORM);
@@ -1231,14 +1236,16 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                             commentSelector.replaceWith(el);
                                             el.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER).replaceWith(oldReplies);
 
-                                            if (self.deleteTarget.root) {
-                                                self.bindCommentEvent(data);
-                                            } else {
-                                                self.bindReplyEvent(data, el.parent());
-                                            }
-                                            self.changeWorkingState(false);
+                                            setTimeout(function() {
+                                                if (self.deleteTarget.root) {
+                                                    self.bindCommentEvent(data);
+                                                } else {
+                                                    self.bindReplyEvent(data, el.parent());
+                                                }
+                                                self.changeWorkingState(false);
 
-                                            M.util.js_complete(t.ACTION_DELETE);
+                                                M.util.js_complete(t.ACTION_DELETE);
+                                            }, 200);
                                         });
                                         modal.hide();
                                         return true;
@@ -1309,12 +1316,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
                         var attoEditable = document.getElementById(attoEditableId);
+                        var attoEditableEle = $('#' + attoEditableId);
                         var observation = new MutationObserver(function(mutationsList) {
                             mutationsList.forEach(function(mutation) {
                                 if (mutation.type === 'attributes' &&
                                     (mutation.attributeName === 'style' || mutation.attributeName === 'hidden')) {
                                     M.util.js_pending(key);
-                                    if (t.EMPTY_CONTENT.indexOf($('#' + attoEditableId).html()) > -1) {
+                                    if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
+                                        attoEditableEle.text().trim().length < 1) {
                                         self.triggerAttoNoContent(formSelector);
                                     } else {
                                         self.triggerAttoHasContent(formSelector);
@@ -1326,7 +1335,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         observation.observe(attoEditable, {attributes: true, childList: true, subtree: true});
                         textareaSelector.change(function() {
                             M.util.js_pending(key);
-                            if (t.EMPTY_CONTENT.indexOf($('#' + attoEditableId).html()) > -1) {
+                            if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
+                                attoEditableEle.text().trim().length < 1) {
                                 self.triggerAttoNoContent(formSelector);
                             } else {
                                 self.triggerAttoHasContent(formSelector);
