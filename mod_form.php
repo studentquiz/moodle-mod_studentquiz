@@ -77,12 +77,6 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $this->add_intro_editor();
         }
 
-        // Field total questions.
-        $mform->addElement('hidden', 'totalquestions',
-                \mod_studentquiz\local\studentquiz_helper::get_studentquiz_total_questions($this->get_coursemodule(),
-                        $this->get_context()->id));
-        $mform->setType('totalquestions', PARAM_INT);
-
         // Field question publishing.
         $publishingoptions = [
                 1 => get_string('setting_question_publishing_automatic', 'studentquiz'),
@@ -93,7 +87,6 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('publishnewquestion', 'setting_question_publishing', 'studentquiz');
         $mform->setType('publishnewquestion', PARAM_INT);
         $mform->setDefault('publishnewquestion', 1);
-        $mform->disabledIf('publishnewquestion', 'totalquestions', 'neq', 0);
 
         $mform->addElement('header', 'sectionranking', get_string('settings_section_header_ranking', 'studentquiz'));
 
