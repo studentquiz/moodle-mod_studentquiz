@@ -201,6 +201,7 @@ $string['nav_export'] = 'Export';
 $string['nav_import'] = 'Import';
 $string['needtoallowatleastoneqtype'] = 'You need to allow at least one question type';
 $string['next_button'] = 'Next';
+$string['nocommenthistoryexist'] = 'There is no comment history yet for this comment.'
 $string['no_comment'] = 'n.a.';
 $string['no_comments'] = 'No comments';
 $string['no_difficulty_level'] = 'n.a.';
