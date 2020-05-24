@@ -595,22 +595,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020011602, 'studentquiz');
     }
 
-    if ($oldversion < 2020021300) {
-
-        $table = new xmldb_table('studentquiz_comment');
-        $field = new xmldb_field('edited', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'deleteuserid');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        $field = new xmldb_field('edituserid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'edited');
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
-        upgrade_mod_savepoint(true, 2020021300, 'studentquiz');
-    }
-
     // remove unused practice database tables and old quiz practice columns
     if ($oldversion < 2020043000) {
 
@@ -676,6 +660,23 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2020050404, 'studentquiz');
+    }
+
+    // Hotfix reapply this upgrade step for upgrading to v4.3.1 (v4.3.0 broken because of this). See #233.
+    if ($oldversion < 2020050199) { // Was 2020021300.
+
+        $table = new xmldb_table('studentquiz_comment');
+        $field = new xmldb_field('edited', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'deleteuserid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $field = new xmldb_field('edituserid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'edited');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2020050199, 'studentquiz');
     }
 
     if ($oldversion < 2020051200) {
