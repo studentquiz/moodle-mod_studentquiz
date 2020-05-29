@@ -241,16 +241,27 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     initBindEditor: function() {
                         var self = this;
+                        var isEditorLoaded = false;
                         M.util.js_pending(t.ACTION_EDITOR_INIT);
                         // Interval to init atto editor, there are time when Atto's Javascript slow to init the editor, so we
                         // check interval here to make sure the Atto is init before calling our script.
                         var interval = setInterval(function() {
                             if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                                 self.bindEditorEvent(self.formSelector);
+                                isEditorLoaded = true;
                                 clearInterval(interval);
                                 M.util.js_complete(t.ACTION_EDITOR_INIT);
                             }
                         }, 500);
+
+                        // If the editor has some content that has been restored
+                        // then check the editor content.
+                        var editorWaiting = setInterval(function() {
+                            if (isEditorLoaded) {
+                                self.checkEditorContent(self.formSelector);
+                                clearInterval(editorWaiting);
+                            }
+                        }, 1000);
                     },
 
                     /**
@@ -1311,38 +1322,20 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.triggerAttoNoContent(formSelector);
 
                         formSelector.find(t.SELECTOR.ATTO.TOOLBAR).fadeIn();
-
-                        var key = 'text_change_' + Date.now();
                         var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
-
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
                         var attoEditable = document.getElementById(attoEditableId);
-                        var attoEditableEle = $('#' + attoEditableId);
                         var observation = new MutationObserver(function(mutationsList) {
                             mutationsList.forEach(function(mutation) {
                                 if (mutation.type === 'attributes' &&
                                     (mutation.attributeName === 'style' || mutation.attributeName === 'hidden')) {
-                                    M.util.js_pending(key);
-                                    if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
-                                        attoEditableEle.text().trim().length < 1) {
-                                        self.triggerAttoNoContent(formSelector);
-                                    } else {
-                                        self.triggerAttoHasContent(formSelector);
-                                    }
-                                    M.util.js_complete(key);
+                                    self.checkEditorContent(formSelector);
                                 }
                             });
                         });
                         observation.observe(attoEditable, {attributes: true, childList: true, subtree: true});
                         textareaSelector.change(function() {
-                            M.util.js_pending(key);
-                            if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
-                                attoEditableEle.text().trim().length < 1) {
-                                self.triggerAttoNoContent(formSelector);
-                            } else {
-                                self.triggerAttoHasContent(formSelector);
-                            }
-                            M.util.js_complete(key);
+                            self.checkEditorContent(formSelector);
                         });
                         M.util.js_complete('init_editor');
 
@@ -1624,6 +1617,26 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             args: data
                         }]);
                         return promise[0];
+                    },
+
+                    /**
+                     * Check editor content.
+                     *
+                     * @param {jQuery} formSelector
+                     */
+                    checkEditorContent: function(formSelector) {
+                        var key = 'text_change_' + Date.now();
+                        M.util.js_pending(key);
+                        var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
+                        var attoEditableId = textareaSelector.attr('id') + 'editable';
+                        var attoEditableEle = $('#' + attoEditableId);
+                        if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
+                            attoEditableEle.text().trim().length < 1) {
+                            this.triggerAttoNoContent(formSelector);
+                        } else {
+                            this.triggerAttoHasContent(formSelector);
+                        }
+                        M.util.js_complete(key);
                     }
                 };
             },
