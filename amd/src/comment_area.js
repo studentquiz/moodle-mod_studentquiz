@@ -101,7 +101,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 COMMENT_FILTER_TYPE: '.studentquiz-comment-filter-type',
                 BTN_EDIT: '.studentquiz-comment-btnedit',
                 BTN_EDIT_REPLY: '.studentquiz-comment-btneditreply',
-                ATTO_HTML_BUTTON: 'button.atto_html_button'
+                ATTO_HTML_BUTTON: 'button.atto_html_button',
+                POST_FOOTER: '.studentquiz-comment-postfooter'
             },
             get: function() {
                 return {
@@ -707,8 +708,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * "working" is boolean parameter "true" will disable/hide "false" will enable/show.
                      *
                      * @param {Boolean} boolean
+                     * @param {null|jQuery} elementToHide
                      */
-                    changeWorkingState: function(boolean) {
+                    changeWorkingState: function(boolean, elementToHide = null) {
                         var visibility = boolean ? 'hidden' : 'visible';
                         var self = this;
                         self.workingState = boolean;
@@ -727,11 +729,15 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         }
                         if (boolean) {
                             self.addComment.prop('disabled', boolean);
+                            if (elementToHide !== null && elementToHide instanceof $) {
+                                elementToHide.hide();
+                            }
                         } else {
                             if (self.lastFocusElement) {
                                 self.lastFocusElement.focus();
                                 self.lastFocusElement = null;
                             }
+                            self.elementSelector.find(t.SELECTOR.POST_FOOTER).show();
                         }
                     },
 
@@ -1132,10 +1138,13 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var self = this;
                         var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                         var fragmentForm = el.find(t.SELECTOR.FRAGMENT_FORM).first();
+                        var postFooter = el.find(t.SELECTOR.POST_FOOTER).first();
                         var clone = self.loadingIcon.clone().show();
                         fragmentForm.append(clone);
+                        fragmentForm.removeClass('edit');
+                        fragmentForm.addClass('reply');
                         self.loadFragmentForm(fragmentForm, item);
-                        self.changeWorkingState(true);
+                        self.changeWorkingState(true, postFooter);
                     },
 
                     /**
@@ -1488,10 +1497,13 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var self = this;
                         var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                         var fragmentForm = el.find(t.SELECTOR.FRAGMENT_FORM).first();
+                        var postFooter = el.find(t.SELECTOR.POST_FOOTER).first();
                         var clone = self.loadingIcon.clone().show();
                         fragmentForm.append(clone);
+                        fragmentForm.removeClass('reply');
+                        fragmentForm.addClass('edit');
                         self.loadFragmentEditForm(fragmentForm, item);
-                        self.changeWorkingState(true);
+                        self.changeWorkingState(true, postFooter);
                     },
 
                     /**
@@ -1584,6 +1596,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             }
                             // Assign new content.
                             item.shortcontent = response.shortcontent;
+                            response.expanded = item.expanded;
                             Templates.render(t.TEMPLATE_COMMENT, response).done(function(html) {
                                 var el = $(html);
                                 var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' + t.SELECTOR.COMMENT_TEXT;
