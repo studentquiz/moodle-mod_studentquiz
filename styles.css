@@ -172,6 +172,10 @@
     width: 115px;
 }
 
+.path-mod-studentquiz #categoryquestions .tag {
+    width: 12ch;
+}
+
 .path-mod-studentquiz #categoryquestions th.attempts .sorters,
 .path-mod-studentquiz #categoryquestions th.difficultylevel .sorters,
 .path-mod-studentquiz #categoryquestions th.rates .sorters {
