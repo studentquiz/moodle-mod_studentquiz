@@ -52,17 +52,20 @@ define(['jquery'], function($) {
                     var hasrated = $('.rating span').hasClass('star');
                     var hascommented = $('.studentquiz-comment-container').hasClass('has-comment');
 
-                    if (forcerating) {
-                        if (!hasrated) {
-                            $('.studentquiz_behaviour > .rate > .rate_error').removeClass('hide');
-                            // Set focus to the first star.
-                            $('.studentquiz_behaviour .rate .rating .rateable:first-child').focus();
-                        }
+                    if (forcerating && !hasrated) {
+                        $('.studentquiz_behaviour > .rate > .rate_error').removeClass('hide');
                     }
-                    if (forcecommenting) {
-                        if (!hascommented) {
-                            $('.studentquiz_behaviour > .comments .comment-error').removeClass('hide');
-                        }
+                    if (forcecommenting && !hascommented) {
+                        $('.studentquiz_behaviour > .comments .comment-error').removeClass('hide');
+                    }
+
+                    // Set focus.
+                    if (forcerating && !hasrated) {
+                        // Set focus to the first star.
+                        $('.studentquiz_behaviour .rate .rating .rateable:first-child').focus();
+                    } else if (forcecommenting && !hascommented) {
+                        // Set focus to atto editor.
+                        $('.studentquiz_behaviour .comments .studentquiz-comment-container .editor_atto_content').focus();
                     }
 
                     if ((!forcerating || hasrated) && (!forcecommenting || hascommented)) {
