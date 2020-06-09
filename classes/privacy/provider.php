@@ -660,7 +660,7 @@ class provider implements
         $userlist->add_from_sql('userid', $sql, $params);
 
         // User notification.
-        $sql = "SELECT attempt.userid
+        $sql = "SELECT notif.recipientid
                   FROM {course_modules} cm
                   JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
                   JOIN {question_categories} qc ON qc.contextid = :contextid

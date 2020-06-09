@@ -94,6 +94,11 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * @var array
      */
+    protected $notifications;
+
+    /**
+     * @var array
+     */
     protected $subcontext;
 
     /**
@@ -215,6 +220,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 self::create_attempt($this->studentquiz[0]->id, $this->users[0]->id, $this->studentquiz[0]->categoryid),
                 self::create_attempt($this->studentquiz[1]->id, $this->users[0]->id, $this->studentquiz[1]->categoryid),
                 self::create_attempt($this->studentquiz[1]->id, $this->users[1]->id, $this->studentquiz[1]->categoryid),
+        ];
+
+        // Create attempts.
+        $this->notifications = [
+                self::create_notification($this->studentquiz[0]->id, $this->users[0]->id),
+                self::create_notification($this->studentquiz[0]->id, $this->users[0]->id),
+                self::create_notification($this->studentquiz[1]->id, $this->users[0]->id),
+                self::create_notification($this->studentquiz[1]->id, $this->users[1]->id),
         ];
 
         $this->subcontext = [get_string('pluginname', 'mod_studentquiz')];
@@ -523,6 +536,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_attempt} WHERE studentquizid = :studentquizid", [
                 'studentquizid' => $this->studentquiz[0]->id
         ]));
+        $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_notification} WHERE studentquizid = :studentquizid", [
+                'studentquizid' => $this->studentquiz[0]->id
+        ]));
 
         // Check personal data belong to second context is still existed.
         list($questionsql, $questionparams) =
@@ -539,6 +555,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 , $questionparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {question} WHERE id {$questionsql}", $questionparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_attempt} WHERE studentquizid = :studentquizid", [
+                'studentquizid' => $this->studentquiz[1]->id
+        ]));
+        $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_notification} WHERE studentquizid = :studentquizid", [
                 'studentquizid' => $this->studentquiz[1]->id
         ]));
     }
@@ -590,6 +609,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Deleted all comment history.
         $sql = "SELECT 1 FROM {studentquiz_comment_history} WHERE userid = :userid";
         $this->assertFalse($DB->record_exists_sql($sql, $commentparams));
+
+        // Deleted all notifications.
+        $this->assertFalse($DB->record_exists('studentquiz_notification', ['recipientid' => $this->users[0]->id]));
 
         // Test root comment became blank.
         $commentafterdelete = $DB->get_record('studentquiz_comment', ['id' => $rootcomment->id]);
@@ -733,6 +755,28 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     }
 
     /**
+     * Test get users in context with question's notification condition.
+     *
+     * @throws dml_exception
+     */
+    public function test_get_users_in_context_notification() {
+        // Create attempt for the first user
+        $this->create_notification($this->studentquiz[2]->id, $this->users[0]->id);
+
+        $userlist = new userlist($this->contexts[2], $this->component);
+        provider::get_users_in_context($userlist);
+
+        $this->assertCount(1, $userlist);
+        $this->assertEquals([$this->users[0]->id], $userlist->get_userids());
+
+        // Create attempt for the second student.
+        $this->create_notification($this->studentquiz[2]->id, $this->users[1]->id);
+        provider::get_users_in_context($userlist);
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$this->users[0]->id, $this->users[1]->id], $userlist->get_userids());
+    }
+
+    /**
      * Test delete data for users from one context.
      *
      * @throws coding_exception
@@ -778,6 +822,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $commenthistory = $DB->get_records('studentquiz_comment_history', $sqlparams);
         $this->assertCount(0, $commenthistory);
 
+        $notifications = $DB->get_records('studentquiz_notification', ['recipientid' => $this->users[0]->id]);
+        $this->assertCount(0, $notifications);
+
         // Test data belong to the second user still exist.
         $sqlparams = ['userid' => $this->users[1]->id];
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
@@ -786,6 +833,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertTrue($DB->record_exists('studentquiz_attempt', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_comment', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_comment_history', $sqlparams));
+        $this->assertTrue($DB->record_exists('studentquiz_notification', ['recipientid' => $this->users[1]->id]));
     }
 
     /**
@@ -945,7 +993,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     }
 
     /**
-     * Creat attempt data for user.
+     * Create attempt data for user.
      *
      * @param $studentquizid
      * @param $userid
@@ -965,6 +1013,29 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ];
 
         $data->id = $DB->insert_record('studentquiz_attempt', $data);
+
+        return $data;
+    }
+
+    /**
+     * Create notification data for user.
+     *
+     * @param $studentquizid
+     * @param $userid
+     * @return object
+     * @throws dml_exception
+     */
+    protected function create_notification($studentquizid, $userid) {
+        global $DB;
+
+        $data = (object) [
+                'id' => 0,
+                'studentquizid' => $studentquizid,
+                'recipientid' => $userid,
+                'content' => 'Sample content ' . rand(1, 1000),
+        ];
+
+        $data->id = $DB->insert_record('studentquiz_notification', $data);
 
         return $data;
     }
