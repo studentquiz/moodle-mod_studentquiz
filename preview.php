@@ -80,7 +80,11 @@ if ($question) {
 
         // Process submitted data.
         if (data_submitted()) {
-            $quba->process_all_actions();
+            $qa = $quba->get_question_attempt($slot);
+            $sequencecheck = $qa->get_submitted_var($qa->get_control_field_name('sequencecheck'), PARAM_INT);
+            if ($sequencecheck == $qa->get_sequence_check_count()) {
+                $quba->process_all_actions();
+            }
 
             $transaction = $DB->start_delegated_transaction();
             question_engine::save_questions_usage_by_activity($quba);

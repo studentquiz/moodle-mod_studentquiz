@@ -88,6 +88,13 @@ define(['jquery'], function($) {
                     sortIcon.parent().focus();
                 }
             });
+        },
+
+        // Select all questions.
+        selectAllQuestions: function() {
+            $(document).ready(function() {
+                $('#qbheadercheckbox').trigger('click');
+            });
         }
     };
 

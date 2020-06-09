@@ -37,13 +37,6 @@ use MoodleQuickForm_editor;
  */
 class comment_simple_editor extends MoodleQuickForm_editor {
 
-    /** @var string - Atto Toolbar define. */
-    const ATTO_TOOLBAR = 'style1 = bold, italic
-        style2 = link, unlink
-        style3 = superscript, subscript
-        style4 = unorderedlist, orderedlist
-        style5 = html';
-
     /** @var array - Attributes used for this editor. */
     const ATTRIBUTES = [
             'cols' => 60,
@@ -68,7 +61,7 @@ class comment_simple_editor extends MoodleQuickForm_editor {
     public function __construct($elementname = null, $elementlabel = null, $attributes = [], $options = []) {
         $attributes = array_merge($attributes, self::ATTRIBUTES);
         $options = array_merge($options, self::OPTIONS);
-        $this->_options['atto:toolbar'] = self::ATTO_TOOLBAR;
+        $this->_options['atto:toolbar'] = get_config('studentquiz', 'comment_editor_toolbar');
         parent::__construct($elementname, $elementlabel, $attributes, $options);
     }
 }
