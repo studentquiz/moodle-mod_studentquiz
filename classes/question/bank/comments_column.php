@@ -89,7 +89,7 @@ class comment_column extends \core_question\bank\column_base {
         return array('co' => "LEFT JOIN (
                                           SELECT COUNT(comment) AS comment, questionid
                                             FROM {studentquiz_comment}
-                                           WHERE status = {$deletedstatus}
+                                           WHERE status <> {$deletedstatus}
                                         GROUP BY questionid
                                         ) co ON co.questionid = q.id");
     }

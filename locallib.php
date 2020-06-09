@@ -1183,13 +1183,14 @@ function mod_studentquiz_check_availability($openform, $closefrom, $type) {
  * @internal param $module
  */
 function mod_studentquiz_save_rate($data) {
-    global $DB, $USER;
+    global $DB;
 
-    $row = $DB->get_record('studentquiz_rate', array('userid' => $USER->id, 'questionid' => $data->questionid));
+    $row = $DB->get_record('studentquiz_rate', array('userid' => $data->userid, 'questionid' => $data->questionid));
     if ($row === false) {
         $DB->insert_record('studentquiz_rate', $data);
     } else {
-        $DB->update_record('studentquiz_rate', $row);
+        $data->id = $row->id;
+        $DB->update_record('studentquiz_rate', $data);
     }
 }
 
