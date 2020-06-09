@@ -971,11 +971,6 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     public function display_javascript_snippet() {
         $output = '';
         $output .= html_writer::start_tag('script');
-        // Select all questions.
-        $output .= 'var el = document.querySelectorAll(".checkbox > input[type=checkbox]");
-                for (var i=0; i<el.length; i++) {
-                  el[i].checked = true;
-              }';
         // Change both move-to dropdown box at when selection changes.
         $output .= 'var elements = document.getElementsByName(\'category\');
               for(e in elements) {
