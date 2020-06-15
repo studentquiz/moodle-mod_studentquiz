@@ -772,7 +772,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 . 'mod_studentquiz\\bank\\question_text_row,'
                 . 'mod_studentquiz\\bank\\preview_column,'
                 . 'mod_studentquiz\\bank\\sq_edit_action_column,'
-                . 'delete_action_column,'
+                . 'mod_studentquiz\\bank\\sq_delete_action_column,'
                 . 'mod_studentquiz\\bank\\sq_hidden_column,'
                 . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
                 . 'mod_studentquiz\\bank\\tag_column,'

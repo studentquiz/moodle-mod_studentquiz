@@ -15,29 +15,28 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Represent edit action in studentquiz_bank_view
+ * Represent delete action in studentquiz_bank_view
  *
  * @package mod_studentquiz
  * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
+ * @copyright 2020 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace mod_studentquiz\bank;
 
-use core_question\bank\edit_action_column;
-use mod_studentquiz\local\studentquiz_helper;
+use core_question\bank\delete_action_column;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Represent edit action in studentquiz_bank_view
+ * Represent delete action in studentquiz_bank_view
  *
  * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
+ * @copyright 2020 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_edit_action_column extends edit_action_column {
+class sq_delete_action_column extends delete_action_column {
 
     /**
      * Output the contents of this column.
@@ -46,29 +45,20 @@ class sq_edit_action_column extends edit_action_column {
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
     protected function display_content($question, $rowclasses) {
-        if ($this->can_edit($question)) {
+        if ($this->can_delete($question)) {
             parent::display_content($question, $rowclasses);
         }
     }
 
     /**
-     * Look up if current user is allowed to edit this question
+     * Look up if current user is allowed to delete this question
      * @param object $question The current question object
      * @return boolean
      */
-    private function can_edit($question) {
+    private function can_delete($question) {
         global $USER;
-
-        $canedit = false;
-        if ($question->createdby == $USER->id && $question->state != studentquiz_helper::STATE_APPROVED &&
-                $question->state != studentquiz_helper::STATE_DISAPPROVED) {
-            // Do not render Edit icon if Question is in approved/disapproved state for Student.
-            $canedit = true;
-        } else if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            $canedit = true;
-        }
-
-        return $canedit;
+        return ($question->createdby == $USER->id) ||
+                has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context());
     }
 
 }
