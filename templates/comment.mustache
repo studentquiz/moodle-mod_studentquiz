@@ -107,6 +107,10 @@
                             "date": {{# quote }}{{ deletedtime }}{{/ quote }}
                             }
                         {{/str}}
+                        {{#isedithistory}}
+                            {{#str}} editedcomment_last_edit, mod_studentquiz{{/str}}
+                            {{commenthistorymetadata}}
+                        {{/isedithistory}}
                     </div>
                     <div class="studentquiz-comment-delete-content">
                         {{#expanded}}
@@ -153,6 +157,10 @@
                 {{/root}}
                 <strong>{{#str}} deletedcomment, mod_studentquiz{{/str}}</strong>
                 {{#str}} deletedbyauthor, mod_studentquiz, {{deletedtime}} {{/str}}
+                {{#isedithistory}}
+                    {{#str}} editedcomment_last_edit, mod_studentquiz{{/str}}
+                    {{commenthistorymetadata}}
+                {{/isedithistory}}
             </div>
         {{/canviewdeleted}}
     {{/deleted}}

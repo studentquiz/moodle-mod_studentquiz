@@ -60,7 +60,7 @@ Feature: Preview a question as a student
     And I click on "[title='Delete comment']" "css_element" in the ".modal.show" "css_element"
     And I wait until the page is ready
     # Check comment is render as deleted and global count updated.
-    Then I should see "Comment deleted" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-item-outerbox" "css_element"
+    Then I should see "Deleted post" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-item-outerbox" "css_element"
     And I should see "0 of 0"
 
   @javascript @_switch_window
