@@ -1000,15 +1000,11 @@ function mod_studentquiz_ensure_question_capabilities($context) {
             ],
             'mod/studentquiz:submit' => [
                     'moodle/question:add',
-                    'moodle/question:viewmine',
                     'moodle/question:editmine'
             ],
-            'mod/studentquiz:previewothers' => [
-                    'moodle/question:viewall'
-            ],
+            'mod/studentquiz:previewothers' => [],
             'mod/studentquiz:manage' => [
                     'moodle/question:add',
-                    'moodle/question:viewall',
                     'moodle/question:editall'
             ]
     ];

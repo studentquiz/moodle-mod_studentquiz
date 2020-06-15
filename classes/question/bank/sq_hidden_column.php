@@ -63,7 +63,7 @@ class sq_hidden_column extends action_column_base {
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
     protected function display_content($question, $rowclasses) {
-        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+        if (has_capability('mod/studentquiz:manage', $this->qbank->get_most_specific_context())) {
             if ($question->sq_hidden) {
                 $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
                 $this->print_icon('t/show', get_string('show'), $url);
