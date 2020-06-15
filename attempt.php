@@ -200,6 +200,13 @@ $title = format_string($question->name);
 $PAGE->set_title($cm->name);
 $PAGE->set_heading($cm->name);
 $PAGE->set_context($context);
+
+// Render nav bar.
+$navinfo = new stdClass();
+$navinfo->current = $slot;
+$navinfo->total = $questionscount;
+$PAGE->navbar->add(get_string('nav_question_no', 'studentquiz', $navinfo));
+
 echo $OUTPUT->header();
 
 $info = new stdClass();
