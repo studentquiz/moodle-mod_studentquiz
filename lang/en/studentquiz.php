@@ -194,6 +194,7 @@ $string['mylastattempt_column_name'] = 'My Last Attempt';
 $string['myrate_column_name'] = 'My Rating';
 $string['nav_export'] = 'Export';
 $string['nav_import'] = 'Import';
+$string['nav_question_no'] = 'Question {$a->current} of {$a->total}';
 $string['needtoallowatleastoneqtype'] = 'You need to allow at least one question type';
 $string['next_button'] = 'Next';
 $string['nocommenthistoryexist'] = 'There is no comment history yet for this comment.';
