@@ -1497,7 +1497,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      */
     public function render_state_choice($questionid, $courseid, $cmid) {
         $output = '';
-        if (has_capability('mod/studentquiz:previewothers', $this->page->context)) {
+        if (has_capability('mod/studentquiz:manage', $this->page->context)) {
             $states = [
                     studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
                     studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
