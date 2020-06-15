@@ -104,7 +104,7 @@ define(['jquery'], function ($) {
      * @param {DOM} element
      */
     function addRating(element) {
-        var $element = $(element)
+        var $element = $(element);
         var rate = $element.attr('data-rate');
         var $that = $element;
         var $cmIdField = $element.closest('form').find('.cmid_field');
