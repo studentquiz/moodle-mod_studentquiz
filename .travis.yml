@@ -25,18 +25,18 @@ cache:
     - $HOME/.composer/cache
     - $HOME/.npm
 
-# PHP Compatibility Matrix Moodle
-# Moodle 3.5: php7.0, php7.1, php7.2 (exp)
-# Moodle 3.6: php7.0, php7.1, php7.2 (exp), php7.3 (dev)
-# Moodle 3.7: php7.1, php7.2, php7.3
-# Moodle 3.8: php7.1, php7.2, php7.3
+# PHP Compatibility Matrix Moodle           End of life
+# Moodle 3.5: php7.0, php7.1, php7.2 (exp)  10 May 2021
+# Moodle 3.7: php7.1, php7.2, php7.3        9 November 2020
+# Moodle 3.8: php7.1, php7.2, php7.3        10 May 2021
+# Moodle 3.9: php7.2, php7.3, php7.4        ~ May 2023
 # lim: limited, exp: expected, dev: non-production
 # earlier versions of Moodle and php are not included, as support was dropped
 
 php:
- - 7.1
  - 7.2
  - 7.3
+ - 7.4
 
 env:
   global:
@@ -44,28 +44,29 @@ env:
     - PROFILE=firefox
   matrix:
     - MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
-    - MOODLE_BRANCH=MOODLE_36_STABLE DB=pgsql
     - MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
     - MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
+    - MOODLE_BRANCH=MOODLE_39_STABLE DB=pgsql
 
 matrix:
   exclude:
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - php: 7.4
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+    - php: 7.4
+      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+    # technically MOODLE_38 has no offical PHP7.4 support, but allow that test for now
   include:
+    # Technically PHP 7.1 is EOL, but MOODLE_35 is an LTS which has PHP 7.1 as the latest *non-conditional* supported version
+    - php: 7.1
+      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
     # Some MySQL as backend with various PHP versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
     - php: 7.2
-      env: MOODLE_BRANCH=MOODLE_36_STABLE DB=mysqli
-    - php: 7.3
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
     - php: 7.3
-      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
-    # Newest PHP support
-    - php: 7.4
-      env: MOODLE_BRANCH=MOODLE_38_STABLE DB=pgsql
-    - php: 7.4
       env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
     # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
     # TODO: Somehow behat doesn't run when mariadb is in use, all other stuff do
