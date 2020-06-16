@@ -81,7 +81,8 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
     return false;
 }
 
-function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $studentquizid, $lastanswercorrect = 0, $attempts = 0, $correctattempts = 0) {
+function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $studentquizid, $lastanswercorrect = 0,
+    $attempts = 0, $correctattempts = 0) {
     $studentquizprogress = new stdClass();
     $studentquizprogress->questionid = $questionid;
     $studentquizprogress->userid = $userid;
@@ -204,8 +205,10 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
                      FROM {question_usages} qu_last
                      JOIN {question_attempts} qa_last ON qa_last.questionusageid = qu_last.id
                      JOIN {question_attempt_steps} qas_last ON qas_last.questionattemptid = qa_last.id
-                    WHERE qu_last.contextid = :contextid2 AND qa_last.questionid = innerq.questionid AND qas_last.userid = innerq.userid
-                          AND qas_last.state IN (:rightstate1, :partialstate1, :wrongstate1)
+                    WHERE qu_last.contextid = :contextid2
+                      AND qa_last.questionid = innerq.questionid
+                      AND qas_last.userid = innerq.userid
+                      AND qas_last.state IN (:rightstate1, :partialstate1, :wrongstate1)
                    )";
     $records = $DB->get_recordset_sql($sql, array(
             'rightstate2' => (string) question_state::$gradedright, 'rightstate3' => (string) question_state::$gradedright,

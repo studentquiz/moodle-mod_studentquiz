@@ -133,7 +133,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Init search conditions with filterform state.
         $categorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
-        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform, $this->report, $studentquiz);
+        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform,
+            $this->report, $studentquiz);
         $this->isfilteractive = $studentquizcondition->is_filter_active();
         $this->searchconditions = array ($categorycondition, $studentquizcondition);
         $this->renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
@@ -179,7 +180,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         if ($this->countsql || $this->isfilteractive) {
             // We're unable to force the filter form to submit with get method. We have 2 forms on the page
-            // which need to interact with each other, so forcing method as get here
+            // which need to interact with each other, so forcing method as get here.
             $output .= str_replace('method="post"', 'method="get"', $this->renderer->render_filter_form($this->filterform));
         }
 
@@ -237,7 +238,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             mod_studentquiz_change_state_visibility($questionid, $type, $value);
                             mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
 
-                            // Additionally always unhide the question when it got approved
+                            // Additionally always unhide the question when it got approved.
                             if ($state == studentquiz_helper::STATE_APPROVED) {
                                 mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
                             }
@@ -401,14 +402,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'studentquiz');
                 }
 
-                $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0, 'confirm' => md5($questionlist),
-                        'sesskey' => sesskey()));
+                $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0,
+                    'confirm' => md5($questionlist),
+                    'sesskey' => sesskey()));
 
                 $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
                 $continue->disabled = true;
                 $continue->class .= ' continue_state_change';
 
-                $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz', $questionnames), $continue, $baseurl);
+                $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz',
+                    $questionnames), $continue, $baseurl);
             }
 
             echo $output;
@@ -566,15 +569,19 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= $this->renderer->render_hidden_field($this->cm->id, $this->get_filtered_question_ids(), $this->baseurl);
 
-        $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(), $addcontexts, $category);
+        $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(),
+            $addcontexts, $category);
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, true);
+        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
+            $perpage, true);
 
         $output .= $this->display_question_list_rows($page);
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page, $perpage, false);
+        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
+            $perpage, false);
 
-        $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(), $addcontexts, $category);
+        $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(),
+            $addcontexts, $category);
 
         $output .= \html_writer::end_tag('fieldset');
 
@@ -699,7 +706,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
 
-        $this->fields[] = new \user_filter_simpleselect('lastanswercorrect', get_string('filter_label_mylastattempt', 'studentquiz'),
+        $this->fields[] = new \user_filter_simpleselect('lastanswercorrect',
+            get_string('filter_label_mylastattempt', 'studentquiz'),
             true, 'lastanswercorrect', array(
                 '1' => get_string('lastattempt_right', 'studentquiz'),
                 '0' => get_string('lastattempt_wrong', 'studentquiz')

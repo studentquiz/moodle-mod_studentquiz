@@ -70,7 +70,7 @@ class mod_studentquiz_external extends external_api {
 
         mod_studentquiz_change_state_visibility($questionid, $type, $value);
 
-        // Additionally always unhide the question when it got approved
+        // Additionally always unhide the question when it got approved.
         if ($state == studentquiz_helper::STATE_APPROVED) {
             mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
         }

@@ -319,7 +319,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         // Migrate progress from quiz usage to internal table.
         mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($this->get_courseid());
         // Workaround setting default question state if no state data is available.
-        // ref: https://tracker.moodle.org/browse/MDL-67406
+        // ref: https://tracker.moodle.org/browse/MDL-67406.
         mod_studentquiz_fix_all_missing_question_state_after_restore($this->get_courseid());
     }
 

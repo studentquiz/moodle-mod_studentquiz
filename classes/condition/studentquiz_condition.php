@@ -100,17 +100,19 @@ class studentquiz_condition extends \core_question\bank\search\condition {
 
                 $sqldata = $field->get_sql_filter($data);
 
-                // Disable filtering by firstname if anonymized
-                if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) || !$this->report->is_anonymized())) {
+                // Disable filtering by firstname if anonymized.
+                if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                    !$this->report->is_anonymized())) {
                     continue;
                 }
 
-                // Disable filtering by firstname if anonymized
-                if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) || !$this->report->is_anonymized())) {
+                // Disable filtering by firstname if anonymized.
+                if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                    !$this->report->is_anonymized())) {
                     continue;
                 }
 
-                // Respect leading and ending ',' for the tagarray as provided by tag_column.php
+                // Respect leading and ending ',' for the tagarray as provided by tag_column.php.
                 if ($field->_name == 'tagarray') {
                     foreach ($sqldata[1] as $key => $value) {
                         if (!empty($value)) {

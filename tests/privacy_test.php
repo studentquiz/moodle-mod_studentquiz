@@ -738,7 +738,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @throws dml_exception
      */
     public function test_get_users_in_context_attempt() {
-        // Create attempt for the first user
+        // Create attempt for the first user.
         $this->create_attempt($this->studentquiz[2]->id, $this->users[0]->id, $this->studentquiz[2]->categoryid);
 
         $userlist = new userlist($this->contexts[2], $this->component);
@@ -760,7 +760,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @throws dml_exception
      */
     public function test_get_users_in_context_notification() {
-        // Create attempt for the first user
+        // Create attempt for the first user.
         $this->create_notification($this->studentquiz[2]->id, $this->users[0]->id);
 
         $userlist = new userlist($this->contexts[2], $this->component);
@@ -921,7 +921,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @return object
      * @throws dml_exception
      */
-    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0, $edit = 0, $edituserid = 0) {
+    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0, $edit = 0,
+        $edituserid = 0) {
         global $DB;
 
         $data = (object) [

@@ -266,9 +266,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $percentone = round(100 * ($info->one / $info->total));
 
         if (!empty($texttotal)) {
-            $text = html_writer::tag('text', $texttotal, array('xml:space' => 'preserve', 'text-anchor' => 'start', 'font-family' => 'Helvetica, Arial, sans-serif',
-            'font-size' => '12', 'font-weight' => 'bold', 'id' => 'svg_text', 'x' => '50%', 'y' => '50%', 'alignment-baseline' => 'middle', 'text-anchor' => 'middle',
-            'stroke-width' => '0', 'stroke' => '#000', 'fill' => '#000'));
+            $text = html_writer::tag('text', $texttotal, array('xml:space' => 'preserve', 'text-anchor' => 'start',
+                'font-family' => 'Helvetica, Arial, sans-serif', 'font-size' => '12', 'font-weight' => 'bold',
+                'id' => 'svg_text', 'x' => '50%', 'y' => '50%', 'alignment-baseline' => 'middle',
+                'text-anchor' => 'middle', 'stroke-width' => '0', 'stroke' => '#000', 'fill' => '#000'));
         } else {
             $text = '';
         }
@@ -369,7 +370,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     public function render_state_column($question, $baseurl, $rowclasses) {
         // Moodle doesn't process "empty" objects in restore. So questions from older backups can have no question state
         // assigned. Need to figure out for the calculation, if it's fine to handle them just as new or if the question
-        // table has to have an entry. Ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/172
+        // table has to have an entry. Ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/172.
         if (is_null($question->state) || $question->state === "") {
             $question->state = studentquiz_helper::STATE_NEW;
         }
@@ -380,7 +381,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             studentquiz_helper::STATE_NEW,
             studentquiz_helper::STATE_CHANGED,
         ))) {
-            throw new coding_exception('Invalid question state `'.$question->state.'` for question `'.$question->id.'`');
+            throw new coding_exception('Invalid question state '.$question->state.' for question id '.$question->id.'');
         }
 
         $statename = studentquiz_helper::$statename[intval($question->state)];
@@ -876,7 +877,8 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
             $contents .= $this->heading(format_string($view->get_studentquiz_name()));
 
             if (!empty($view->get_studentquiz()->intro)) {
-                $contents .= $this->box(format_module_intro('studentquiz', $view->get_studentquiz(), $view->get_cm_id()), 'generalbox', 'intro');
+                $contents .= $this->box(format_module_intro('studentquiz', $view->get_studentquiz(),
+                    $view->get_cm_id()), 'generalbox', 'intro');
             }
             $contents .= $this->render_select_qtype_form($view);
         }
@@ -994,10 +996,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      */
     public function render_bar_javascript_snippet() {
         $output = <<<EOT
-    boltbase = ",1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,-5.48006l1.81184,\
-    -0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z";
-    starbase = ",8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,5.081501l-4.327403,\
-    -3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z";
+    boltbase = ",1.838819l3.59776,4.98423l-1.4835,0.58821l4.53027,4.2704l-1.48284,0.71317l5.60036,7.15099l-9.49921,\
+        -5.48006l1.81184,-0.76102l-5.90211,-3.51003l2.11492,-1.08472l-6.23178,-3.68217l6.94429,-3.189z";
+    starbase = ",8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,\
+        5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z";
 
     function getNode(n, v) {
         n = document.createElementNS("http://www.w3.org/2000/svg", n);
@@ -1016,10 +1018,12 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     }
 
     function addBackground(svg, level) {
-        var r = getNode('rect', { x: 0.396847, y: 0.397703, rx: 5, ry: 5, width: 100, height: 20, "stroke-width": 0.5, fill:'#fff', stroke:"#868e96"});
+        var r = getNode('rect', { x: 0.396847, y: 0.397703, rx: 5, ry: 5, width: 100, height: 20, "stroke-width": 0.5,
+            fill:'#fff', stroke:"#868e96"});
         svg.appendChild(r);
 
-        var r = getNode('rect', { x: 0.396847, y: 0.397703, rx: 5, ry: 5, width: level, height: 20, "stroke-width": 0.5, fill: '#007bff', stroke:"#868e96"});
+        var r = getNode('rect', { x: 0.396847, y: 0.397703, rx: 5, ry: 5, width: level, height: 20, "stroke-width": 0.5,
+            fill: '#007bff', stroke:"#868e96"});
         svg.appendChild(r);
     }
 
@@ -1307,21 +1311,23 @@ EOT;
      */
     public function render_change_state_dialog($message, $continue, $cancel) {
         if ($continue instanceof single_button) {
-            // ok
+            // Ok.
             $continue->primary = true;
         } else if (is_string($continue)) {
             $continue = new single_button(new moodle_url($continue), get_string('continue'), 'get', true);
         } else if ($continue instanceof moodle_url) {
             $continue = new single_button($continue, get_string('continue'), 'get', true);
         } else {
-            throw new coding_exception('The continue param to $OUTPUT->confirm() must be either a URL (string/moodle_url) or a single_button instance.');
+            throw new coding_exception('The continue param to $OUTPUT->confirm() must be either a URL (string/moodle_url)' .
+                'or a single_button instance.');
         }
         if (is_string($cancel)) {
             $cancel = new single_button(new moodle_url($cancel), get_string('cancel'), 'get');
         } else if ($cancel instanceof moodle_url) {
             $cancel = new single_button($cancel, get_string('cancel'), 'get');
         } else {
-            throw new coding_exception('The cancel param to $OUTPUT->confirm() must be either a URL (string/moodle_url) or a single_button instance.');
+            throw new coding_exception('The cancel param to $OUTPUT->confirm() must be either a URL (string/moodle_url)' .
+                'or a single_button instance.');
         }
         $attributes = [
                 'role' => 'alertdialog',
@@ -1844,15 +1850,24 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 $username = get_string('creator_anonym_fullname', 'studentquiz');
             }
             $celldata[] = array(
-                $rank, // Row: Rank
-                $username, // Row: Fullname
-                round($ur->points, 2), // Row: Total Points
-                round($ur->questions_created * $report->get_quantifier_question(), 2), // Points for questions created
-                round($ur->questions_approved * $report->get_quantifier_approved(), 2), // Points for approved questions
-                round($ur->rates_average * $ur->questions_created_and_rated * $report->get_quantifier_rate(), 2), // Points for stars received
-                round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2), // Points for latest correct attemps
-                round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2), // Points for latest wrong attemps
-                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %' // Personal Progress
+                // Row: Rank.
+                $rank,
+                // Row: Fullname.
+                $username,
+                // Row: Total Points.
+                round($ur->points, 2),
+                // Points for questions created.
+                round($ur->questions_created * $report->get_quantifier_question(), 2),
+                // Points for approved questions.
+                round($ur->questions_approved * $report->get_quantifier_approved(), 2),
+                // Points for stars received.
+                round($ur->rates_average * $ur->questions_created_and_rated * $report->get_quantifier_rate(), 2),
+                // Points for latest correct attemps.
+                round($ur->last_attempt_correct * $report->get_quantifier_correctanswer(), 2),
+                // Points for latest wrong attemps.
+                round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
+                // Personal Progress.
+                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
             );
             $rowstyle[] = ($userid == $ur->userid) ? array('class' => 'mod-studentquiz-summary-highlight') : array();
         }
