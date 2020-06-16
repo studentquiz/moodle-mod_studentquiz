@@ -36,15 +36,8 @@ use \core_privacy\local\request\transform;
 use mod_studentquiz\commentarea\container;
 use mod_studentquiz\utils;
 
-// A polyfill for Moodle 3.3.
-if (interface_exists('\core_privacy\local\request\core_userlist_provider')) {
-    interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider
-    {
-    }
-} else {
-    interface studentquiz_userlist
-    {
-    }
+interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider
+{
 }
 
 require_once($CFG->libdir . '/questionlib.php');

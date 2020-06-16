@@ -1587,8 +1587,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
         $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'));
         $userstats = $report->get_user_stats();
         if (!$userstats) {
-            global $OUTPUT;
-            $output .= $OUTPUT->notification(get_string('please_enrole_message', 'studentquiz'), 'notify');
+            $output .= $this->output->notification(get_string('please_enrole_message', 'studentquiz'), 'notify');
             $userstats = $report->get_zero_user_stats();
         }
         $output .= $this->view_stat_cards(
@@ -1899,8 +1898,6 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
      * @return string HTML fragment
      */
     public function render_comment_area($questionid, $userid, $cmid, $highlight = 0) {
-        global $PAGE;
-
         $id = 'question_comment_area_' . $questionid;
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
@@ -1914,7 +1911,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
 
         $isexpand = $numbertoshow === 0;
 
-        $currentreferer = $PAGE->url;
+        $currentreferer = $this->page->url;
         // Making sure we don't pass highlight or referer param. It will be set later.
         $currentreferer->remove_params('highlight');
         $currentreferer->remove_params('referer');
