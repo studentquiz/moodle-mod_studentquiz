@@ -77,8 +77,9 @@ class mod_studentquiz_view {
      * @var int userid the currently loaded userid
      */
     protected $userid;
+
     /**
-     * question bank
+     * @var stdClass $questionbank
      */
     protected $questionbank;
 
@@ -88,12 +89,13 @@ class mod_studentquiz_view {
 
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param course course
-     * @param context course module context
-     * @param cm course module
-     * @param stdClass studentquiz loaded studentquiz
-     * @param int loaded userid
-     * @param mod_studentquiz_report
+     *
+     * @param course $course
+     * @param context $context course module context
+     * @param cm $cm course module
+     * @param stdClass $studentquiz loaded studentquiz
+     * @param int $userid loaded user
+     * @param mod_studentquiz_report $report
      * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($course, $context, $cm, $studentquiz, $userid, $report) {

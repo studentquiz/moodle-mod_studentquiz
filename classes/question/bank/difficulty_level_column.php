@@ -35,8 +35,13 @@ defined('MOODLE_INTERNAL') || die();
  */
 class difficulty_level_column extends \core_question\bank\column_base {
 
+    /**
+     * Renderer
+     * @var stdClass
+     */
     protected $renderer;
 
+    /** @var \stdClass */
     protected $studentquiz;
 
     /**

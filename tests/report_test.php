@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class mod_studentquiz_report_testcase extends advanced_testcase {
 
     /**
@@ -179,6 +178,12 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         $this->assertEquals(0, $q2stats->correctattempts);
     }
 
+    /**
+     * Debug output db contents
+     *
+     * @param array $user
+     * @return array
+     */
     private function debugdb($user=array()) {
         global $DB;
         $tables = array('studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts',

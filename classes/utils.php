@@ -100,7 +100,7 @@ style5 = html';
     /**
      * Truncate text.
      *
-     * @param $text - Full text.
+     * @param string $text - Full text.
      * @param int $length - Max length of text.
      * @return string
      */
@@ -120,8 +120,8 @@ style5 = html';
     /**
      * Get data need for comment area.
      *
-     * @param $questionid - Question ID.
-     * @param $cmid - Course Module ID.
+     * @param int $questionid - Question ID.
+     * @param int $cmid - Course Module ID.
      * @return array
      */
     public static function get_data_for_comment_area($questionid, $cmid) {

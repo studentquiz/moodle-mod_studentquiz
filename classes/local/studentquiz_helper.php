@@ -37,15 +37,39 @@ defined('MOODLE_INTERNAL') || die();
  */
 class studentquiz_helper {
 
+    /**
+     * @var int STATE_DISAPPROVED state constant for disapproved
+     */
     const STATE_DISAPPROVED = 0;
+
+    /**
+     * @var int STATE_APPROVED state constant for approved
+     */
     const STATE_APPROVED = 1;
+
+    /**
+     * @var int STATE_NEW state constant for new
+     */
     const STATE_NEW = 2;
+
+    /**
+     * @var int STATE_CHANGED state constant for changed
+     */
     const STATE_CHANGED = 3;
+
+    /**
+     * @var int STATE_HIDE state constant for hidden
+     */
     const STATE_HIDE = 4;
+
+    /**
+     * @var int STATE_DELETE state constant for deleted
+     */
     const STATE_DELETE = 5;
 
     /**
      * Statename offers string representation for state codes. Probably only use for translation hints.
+     * @var array constant to text
      */
     public static $statename = array(
         self::STATE_DISAPPROVED => 'disapproved',

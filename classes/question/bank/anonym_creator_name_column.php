@@ -35,12 +35,28 @@ defined('MOODLE_INTERNAL') || die();
  */
 class anonym_creator_name_column extends \core_question\bank\creator_name_column {
 
+    /**
+     * The current user
+     * @var int
+     */
     protected $currentuserid;
 
+    /**
+     * If it is anonymized
+     * @var bool
+     */
     protected $anonymize;
 
+    /**
+     * Name of the user if anonymized
+     * @var string
+     */
     protected $anonymousname;
 
+    /**
+     * Renderer
+     * @var stdClass
+     */
     protected $renderer;
 
     /**
@@ -53,6 +69,11 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
+    /**
+     * Default display column content
+     * @param  stdClass $question Questionbank from database
+     * @param  string $rowclasses
+     */
     protected function display_content($question, $rowclasses) {
         $this->anonymize = $this->qbank->is_anonymized();
         $output = $this->renderer->render_anonym_creator_name_column(

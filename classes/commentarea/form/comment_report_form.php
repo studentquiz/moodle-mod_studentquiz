@@ -124,7 +124,7 @@ class comment_report_form extends \moodleform {
     /**
      * Check all checkboxes in comment_report_form.
      *
-     * @param $data
+     * @param array $data
      * @return bool
      */
     private function check_validate_checkboxes($data) {

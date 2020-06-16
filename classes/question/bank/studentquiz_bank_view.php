@@ -94,15 +94,18 @@ class studentquiz_bank_view extends \core_question\bank\view {
     private $studentquiz;
 
     /**
-     * @var Currently viewing user id.
+     * @var int Currently viewing user id.
      */
     protected $userid;
 
 
+    /**
+     * @var mixed
+     */
     private $pagevars;
 
     /**
-     * @var StudentQuiz renderer.
+     * @var stdClass StudentQuiz renderer.
      */
     protected $renderer;
 
@@ -115,9 +118,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param \core_question\bank\question_edit_contexts $contexts
      * @param \core_question\bank\moodle_url $pageurl
      * @param object $course
-     * @param null|object $cm
+     * @param object|null $cm
      * @param object $studentquiz
-     * @param $pagevars
+     * @param mixed $pagevars
      * @param mod_studentquiz_report $report
      */
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars, $report) {
@@ -494,9 +497,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * TODO: document PHPDoc
      * Create new default question form
-     * @param string $category question category
+     * @param int $categoryid question category
      * @param bool $canadd capability state
      */
     public function create_new_question_form($categoryid, $canadd) {
@@ -590,6 +592,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         return $output;
     }
 
+    /**
+     * Prints the effective question table
+     *
+     * @return string
+     */
     protected function display_question_list_rows() {
         $output = '';
         $output .= \html_writer::start_div('categoryquestionscontainer');

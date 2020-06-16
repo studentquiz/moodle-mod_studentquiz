@@ -18,6 +18,7 @@
  * Privacy Subsystem implementation for mod_studentquiz.
  *
  * @package    mod_studentquiz
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -740,10 +741,10 @@ class provider implements
     /**
      * Delete comments belong to users.
      *
-     * @param $questionsql
-     * @param $questionparams
-     * @param $userinsql
-     * @param $userinparamsn
+     * @param string $questionsql
+     * @param array $questionparams
+     * @param string $userinsql
+     * @param array $userinparams
      */
     private static function delete_comment_for_users($questionsql, $questionparams, $userinsql, $userinparams) {
         global $DB;
@@ -768,8 +769,9 @@ class provider implements
     /**
      * Delete comment for specific user.
      *
-     * @param $questionsql
-     * @param $questionparams
+     * @param string $questionsql
+     * @param array $questionparams
+     * @param array $userparams
      */
     private static function delete_comment_for_user($questionsql, $questionparams, $userparams) {
         global $DB;

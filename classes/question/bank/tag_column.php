@@ -37,12 +37,14 @@ use mod_studentquiz\local\db;
  */
 class tag_column extends \core_question\bank\column_base {
 
-    protected $tags;
-
-    protected $searchconditions;
-
+    /**
+     * @var bool
+     */
     protected $tagfilteractive;
 
+    /**
+     * @var stdClass
+     */
     protected $renderer;
 
     /**
@@ -104,10 +106,18 @@ class tag_column extends \core_question\bank\column_base {
                                           ) tags ON tags.questionid = q.id");
     }
 
+    /**
+     * Get sql query join for this column
+     * @return array sql query join additional
+     */
     public function get_required_fields() {
         return array('tags.tagarray');
     }
 
+    /**
+     * Get sql sortable name
+     * @return string field name
+     */
     public function is_sortable() {
         return 'tags.tagarray';
     }

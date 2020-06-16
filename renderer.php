@@ -37,13 +37,18 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_studentquiz_renderer extends plugin_renderer_base {
 
+    /**
+     * Cached question preview link image.
+     * @var mixed
+     */
     protected $cachedquestionpreviewlinkimage;
 
     /**
-     * TODO: document blocks missing everywhere here
-     * @param $celldata
-     * @param $rowattributes
-     * @return array
+     * Render data into table while enriching them with attributes.
+     *
+     * @param array $celldata
+     * @param array $rowattributes
+     * @return html_table_row[]
      */
     public function render_table_data(array $celldata, array $rowattributes=array()) {
         $rows = array();
@@ -61,6 +66,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $rows;
     }
 
+    /**
+     * Render one table cell.
+     *
+     * @param string $text
+     * @param array $attributes
+     * @return html_table_cell
+     */
     public function render_table_cell($text, array $attributes=array()) {
         $cell = new html_table_cell();
         $cell->text = $text;
@@ -70,6 +82,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $cell;
     }
 
+    /**
+     * Render stat block.
+     *
+     * @param mixed $report
+     * @return block_content
+     */
     public function render_stat_block($report) {
         // TODO: Refactor: use mod_studentquiz_report_record_type!
         $userstats = $report->get_user_stats();
@@ -132,6 +150,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $bc;
     }
 
+    /**
+     * Render ranking block.
+     *
+     * @param mixed $report
+     * @return block_content
+     */
     public function render_ranking_block($report) {
         $ranking = $report->get_user_ranking_table(0, 10);
         $currentuserid = $report->get_user_id();
@@ -176,12 +200,29 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $bc;
     }
 
+    /**
+     * Render table row.
+     *
+     * @param array $cells
+     * @return html_table_row
+     */
     public function render_table_row($cells) {
         $row = new html_table_row();
         $row->cells = $cells;
         return $row;
     }
 
+    /**
+     * Render table with options.
+     *
+     * @param array $data 2-level array of content data
+     * @param array $size
+     * @param array $align
+     * @param array $head
+     * @param string $caption
+     * @param string $class
+     * @return string
+     */
     public function render_table($data, $size, $align, $head, $caption, $class='') {
         $table = new html_table();
         if (!empty($caption)) {
@@ -196,10 +237,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Return a svg representing a progress bar filling 100% of is containing element
-     * @param stdClass $info: total, group, one
-     * @param string $texttotal: text to be displayed in the center of the bar.
-     * @param bool bicolor: only bicolor color scheme.
+     * Return a svg representing a progress bar filling 100% of is containing element.
+     *
+     * @param stdClass $info total, group, one
+     * @param string $texttotal text to be displayed in the center of the bar
+     * @param bool $bicolor only bicolor color scheme
      * @return string
      */
     public function render_progress_bar($info, $texttotal=null, $bicolor=false) {
@@ -290,13 +332,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
 
     /**
-     * @Override from core_question renderer
      * Render an icon, optionally with the word 'Preview' beside it, to preview
      * a given question.
+     *
      * @param stdClass $question object of the question to be previewed.
-     * @param int $cmid the currend coursemodule id.
-     * @param bool $showlabel if true, show the word 'Preview' after the icon.
-     *      If false, just show the icon.
+     * @param stdClass $context the current context.
+     * @param bool $showlabel if true, show the word 'Preview' after the icon, otherwise just show the icon.
+     * @param string $previewtext label text.
+     * @return string
      */
     public function question_preview_link($question, $context, $showlabel, $previewtext) {
         if ($showlabel) {
@@ -318,7 +361,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Prints the error message
+     * Prints the error message.
+     *
      * @param string $errormessage string error message
      * @return string error as HTML
      */
@@ -329,11 +373,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the content of creator column.
      *
-     * @param $anonymize
-     * @param $question
-     * @param $currentuserid
-     * @param $anonymousname
-     * @param $rowclasses
+     * @param bool $anonymize
+     * @param stdClass $question
+     * @param int $currentuserid
+     * @param string $anonymousname
+     * @param array $rowclasses
      * @return string
      */
     public function render_anonym_creator_name_column($anonymize, $question, $currentuserid, $anonymousname, $rowclasses) {
@@ -362,9 +406,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the content of approve column.
      *
-     * @param $question
-     * @param $baseurl
-     * @param $rowclasses
+     * @param stdClass $question
+     * @param moodle_url $baseurl
+     * @param array $rowclasses
      * @return string
      */
     public function render_state_column($question, $baseurl, $rowclasses) {
@@ -403,8 +447,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the content of comment column.
      *
-     * @param $question
-     * @param $rowclasses
+     * @param stdClass $question
+     * @param array $rowclasses
      * @return string
      */
     public function render_comment_column($question, $rowclasses) {
@@ -422,8 +466,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * The svg image is renderer later using javascript.
      * See render_bar_javascript_snippet()
      *
-     * @param $question
-     * @param $rowclasses
+     * @param stdClass $question
+     * @param array $rowclasses
      * @return string
      */
     public function render_difficulty_level_column($question, $rowclasses) {
@@ -454,8 +498,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the difficulty bar.
      *
-     * @param $average
-     * @param $mine
+     * @param float $average
+     * @param float $mine
      * @param string $fillboltson
      * @param string $fillboltsoff
      * @param string $fillbaron
@@ -510,8 +554,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the content of attempts column.
      *
-     * @param $question
-     * @param $rowclasses
+     * @param stdClass $question
+     * @param array $rowclasses
      * @return string
      */
     public function render_attempts_column($question, $rowclasses) {
@@ -548,8 +592,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * The svg image is renderer later using javascript.
      * See render_bar_javascript_snippet()
      *
-     * @param $question
-     * @param $rowclasses
+     * @param stdClass $question
+     * @param array $rowclasses
      * @return string
      */
     public function render_rate_column($question, $rowclasses) {
@@ -578,9 +622,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Renders a svg bar
-     * @param number $average float between 1 to 5 for backgroud bar.
-     * @param int $mine between 1 to 5 for number of stars to be yellow
+     * Renders a svg bar.
+     *
+     * @param float $average float between 1 to 5 for backgroud bar.
+     * @param float $mine between 1 to 5 for number of stars to be yellow
+     * @param string $fillstarson
+     * @param string $fillstarsoff
+     * @param string $fillbaron
+     * @param string $fillbaroff
      */
     public function render_ratingbar($average, $mine, $fillstarson = '#ffc107', $fillstarsoff = '#fff', $fillbaron = '#fff',
             $fillbaroff = '#007bff') {
@@ -628,8 +677,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the content of tag column.
      *
-     * @param $question
-     * @param $rowclasses
+     * @param stdClass $question
+     * @param array $rowclasses
      * @return string
      */
     public function render_tag_column($question, $rowclasses) {
@@ -650,7 +699,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render tag element.
      *
-     * @param $tag
+     * @param string $tag
      * @return string
      */
     public function render_tag($tag) {
@@ -667,8 +716,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render fill bar.
      *
-     * @param $id
-     * @param $fill
+     * @param string $id
+     * @param string $fill
      * @param int $width
      * @return string
      */
@@ -696,10 +745,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render bolt icon.
      *
-     * @param $stroke
-     * @param $id
-     * @param $boltpath
-     * @param $fill
+     * @param string $stroke
+     * @param string $id
+     * @param string $boltpath
+     * @param string $fill
      * @return string
      */
     public function render_fill_bolt($stroke, $id, $boltpath, $fill) {
@@ -719,10 +768,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render start icon.
      *
-     * @param $stroke
-     * @param $id
-     * @param $starpath
-     * @param $fill
+     * @param string $stroke
+     * @param string $id
+     * @param string $starpath
+     * @param string $fill
      * @return string
      */
     public function render_fill_star($stroke, $id, $starpath, $fill) {
@@ -742,9 +791,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Render the content of question name column.
      *
-     * @param $question
-     * @param $rowclasses
-     * @param $labelfor
+     * @param stdClass $question
+     * @param array $rowclasses
+     * @param string $labelfor
      * @return string
      */
     public function render_question_name_column($question, $rowclasses, $labelfor) {
@@ -762,8 +811,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Allow to config which columns will be use for Question table.
-     *
+     * Allow to config which columns will be used for Question table.
      */
     public function init_question_table_wanted_columns() {
         global $CFG;
@@ -839,34 +887,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
 }
 
-
-class mod_studentquiz_summary_renderer extends mod_studentquiz_renderer {
-    /**
-     * Renders the summary object given to html
-     * @param mod_studentquiz_summary_view $summary summary view obj.
-     * @return summary html
-     */
-    public function render_summary($summary) {
-        $output = '';
-        $output .= html_writer::start_tag('form', array('method' => 'post', 'action' => '',
-            'enctype' => 'multipart/form-data', 'id' => 'responseform'));
-        $output .= html_writer::start_tag('div', array('align' => 'center'));
-        $output .= html_writer::empty_tag('input', array('type' => 'submit',
-            'name' => 'back', 'value' => get_string('review_button', 'studentquiz')));
-        $output .= html_writer::empty_tag('br');
-        $output .= html_writer::empty_tag('br');
-        $output .= html_writer::empty_tag('input', array('type' => 'submit',
-            'name' => 'finish', 'value' => get_string('finish_button', 'studentquiz')));
-        $output .= html_writer::end_tag('div');
-        $output .= html_writer::end_tag('form');
-        return $output;
-    }
-}
-
+/**
+ * Question bank overview renderer.
+ */
 class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
 
     /**
-     * Builds the studentquiz_bank_view
+     * Builds the studentquiz_bank_view.
+     *
      * @param studentquiz_view $view studentquiz_view class with the necessary information
      * @return string formatted html
      */
@@ -894,6 +922,8 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     }
 
     /**
+     * Render the question bank.
+     *
      * @param mod_studentquiz_view $view
      * @return string
      * TODO: REFACTOR!
@@ -905,6 +935,8 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     }
 
     /**
+     * Render the question type form.
+     *
      * @param mod_studentquiz_view $view
      * @return string
      */
@@ -954,7 +986,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
     /**
      * Render questions table form.
      *
-     * @param $questionslist
+     * @param array $questionslist
      */
     public function render_question_form($questionslist) {
         $output = '';
@@ -970,6 +1002,11 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
         return $output;
     }
 
+    /**
+     * Render question bank inner javascript snippet
+     *
+     * @return string
+     */
     public function display_javascript_snippet() {
         $output = '';
         $output .= html_writer::start_tag('script');
@@ -1101,10 +1138,10 @@ EOT;
     /**
      * Display the controls at the bottom of the list of questions.
      *
-     * @param $catcontext
-     * @param $hasquestionincategory
-     * @param $addcontexts
-     * @param $category
+     * @param context $catcontext
+     * @param bool $hasquestionincategory
+     * @param mixed $addcontexts
+     * @param stdClass $category
      * @return string
      */
     public function render_control_buttons($catcontext, $hasquestionincategory, $addcontexts, $category) {
@@ -1174,13 +1211,12 @@ EOT;
     /**
      * Display the pagination bar for Questions table.
      *
-     * @param $pagevars
-     * @param $baseurl
-     * @param $totalnumber
-     * @param $page
-     * @param $perpage
-     * @param $pageurl
-     * @param $showperpageselection
+     * @param array $pagevars
+     * @param moodle_url $baseurl
+     * @param int $totalnumber
+     * @param int $page
+     * @param int $perpage
+     * @param bool $showperpageselection
      * @return string
      */
     public function render_pagination_bar($pagevars, $baseurl, $totalnumber, $page, $perpage, $showperpageselection) {
@@ -1247,9 +1283,9 @@ EOT;
     /**
      * Generate hidden fields for Questions table form.
      *
-     * @param $cmid
-     * @param $filterquestionids
-     * @param $baseurl
+     * @param int $cmid
+     * @param array $filterquestionids
+     * @param moodle_url $baseurl
      * @return string
      */
     public function render_hidden_field($cmid, $filterquestionids, $baseurl) {
@@ -1267,8 +1303,8 @@ EOT;
     /**
      * Generate hidden field by given name and value.
      *
-     * @param $name
-     * @param $value
+     * @param string $name
+     * @param string $value
      * @return string
      */
     private function generate_hidden_input($name, $value) {
@@ -1368,6 +1404,9 @@ EOT;
 
 }
 
+/**
+ * Attempt renderer.
+ */
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate some HTML (which may be blank) that appears in the outcome area,
@@ -1378,9 +1417,9 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      *
      * @param question_definition $question the current question.
      * @param question_display_options $options controls what should and should not be displayed.
+     * @param int $cmid
      * @param int $userid viewing user id
      * @return string HTML fragment
-     * @return string HTML fragment.
      */
     public function feedback(question_definition $question,
                              question_display_options $options, $cmid,
@@ -1498,7 +1537,9 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Render state choice for specific question
      *
-     * @param int $questionid Question id
+     * @param int $questionid
+     * @param int $courseid
+     * @param int $cmid
      * @return string HTML state choice select box
      */
     public function render_state_choice($questionid, $courseid, $cmid) {
@@ -1574,6 +1615,9 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     }
 }
 
+/**
+ * Report renderer.
+ */
 class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
 
     /**
@@ -1728,10 +1772,16 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
     }
 }
 
+/**
+ * Ranking renderer.
+ */
 class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
 
     /**
-     * @param $report
+     * Render the ranking page contents.
+     *
+     * @param mod_studentquiz_report $report
+     * @return string
      */
     public function view_rank($report) {
         return $this->heading(get_string('reportrank_title', 'studentquiz'))
@@ -1740,8 +1790,10 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
     }
 
     /**
-     * displays quantifier information
-     * TODO: proper docs
+     * Display quantifier information.
+     *
+     * @param mod_studentquiz_report $report
+     * @return string
      */
     public function view_quantifier_information($report) {
         $align = array('left', 'right', 'left');
@@ -1772,9 +1824,10 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
     }
 
     /**
-     * builds the rank report table
+     * Build the rank report table.
+     *
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
-     * @return string rank report table
+     * @return string $rank report table
      * @throws coding_exception
      * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
      */

@@ -150,6 +150,8 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     }
 
     /**
+     * Provide comment by id.
+     *
      * @param int $id - Comment ID.
      * @param bool $convert - Is convert to object data.
      * @return comment|stdClass

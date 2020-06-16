@@ -301,6 +301,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
 
     /**
      * Validate string contains validate email or multiple emails.
+     *
      * @param string $emails - Example: test@gmail.com;test1@gmail.com.
      * @return bool
      */
@@ -315,6 +316,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
     }
 
     /**
+     * Return submitted data if properly submitted or returns NULL if validation fails or
+     * if there is no submitted data.
+     *
      * @return bool|object
      */
     public function get_data() {

@@ -95,6 +95,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     private $studentquizgenerator;
 
     /**
+     * Run questionbank.
+     *
      * @return \mod_studentquiz\question\bank\studentquiz_bank_view
      * @throws mod_studentquiz_view_exception
      * @throws moodle_exception

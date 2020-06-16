@@ -87,6 +87,7 @@ class get_comments_api extends external_api {
      * @param int $questionid - Question ID.
      * @param int $cmid - CM ID.
      * @param int $numbertoshow - Number comments to show.
+     * @param string $sort - Type of sort.
      * @return array
      */
     public static function get_comments($questionid, $cmid, $numbertoshow, $sort) {

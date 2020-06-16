@@ -120,8 +120,7 @@ class studentquiz_user_filter_text extends user_filter_text {
      * @param object $mform a MoodleForm object to setup
      * @throws coding_exception
      */
-    // @codingStandardsIgnoreLine
-    public function setupForm(&$mform) {
+    public function setupForm(&$mform) { // @codingStandardsIgnoreLine
         parent::setupForm($mform);
         $group = $mform->getElement($this->_name.'_grp');
         if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
@@ -150,8 +149,7 @@ class studentquiz_user_filter_date extends user_filter_date {
      *
      * @param object $mform a MoodleForm object to setup
      */
-    // @codingStandardsIgnoreLine
-    public function setupForm(&$mform) {
+    public function setupForm(&$mform) { // @codingStandardsIgnoreLine
         parent::setupForm($mform);
         $group = $mform->getElement($this->_name . '_grp');
         if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
@@ -289,12 +287,30 @@ class studentquiz_user_filter_date extends user_filter_date {
     }
 }
 
+/**
+ * The toggle filter is a hidden checkbox styled as toggle button.
+ *
+ * They have no own value but refer a the target field which is set to a defined value once toggled.
+ */
 class toggle_filter_checkbox extends user_filter_checkbox {
 
+    /**
+     * Operator is a short form to express if the value
+     * 0: is empty or 0
+     * 1: is bigger than
+     * 2: is equal
+     * @var int
+     */
     protected $operator;
 
+    /**
+     * @var mixed
+     */
     protected $value;
 
+    /**
+     * @var string
+     */
     protected $helptext;
 
     /**
@@ -307,7 +323,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
      * @param array $disableelements name of fields which should be disabled if this checkbox is checked.
      * @param int $operator key 0 : >=,
      * @param mixed $value text or number for comparison
-     *
+     * @param string $helptext
      */
     public function __construct($name, $label, $advanced, $field, $disableelements, $operator, $value, $helptext = '') {
         parent::__construct($name, $label, $advanced, $field, $disableelements);
@@ -317,6 +333,12 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         $this->helptext = $helptext;
     }
 
+    /**
+     * Create the toggle element and add it to the group
+     *
+     * @param mixed $mform moodle form
+     * @param array $group
+     */
     public function setup_form_in_group(&$mform, &$group) {
         $disableelements = implode(',', $this->disableelements);
         $linktoggle = \html_writer::tag('a', $this->_label, ['href' => '#', 'class' => 'link-toggle',
@@ -335,6 +357,12 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         $group[] = $element;
     }
 
+    /**
+     * Return sql snippet comparing data to defined operator
+     *
+     * @param mixed $data
+     * @return array
+     */
     public function get_sql_filter($data) {
         switch($this->operator) {
             case 0:
@@ -421,6 +449,13 @@ class user_filter_number extends studentquiz_user_filter_text {
  * Class user_filter_percent Users can enter a number of percent, database is queried for unit value.
  */
 class user_filter_percent extends user_filter_number {
+
+    /**
+     * Return sql snippet comparing data is between 0 and 100%
+     *
+     * @param mixed $data
+     * @return array
+     */
     public function get_sql_filter($data) {
         $val = round($data->value, 0);
         if ($val > 100 or $val < 0) {

@@ -34,6 +34,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class attempts_column extends \core_question\bank\column_base {
 
+    /**
+     * Renderer
+     * @var stdClass
+     */
     protected $renderer;
 
     /** @var \stdClass */

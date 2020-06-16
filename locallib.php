@@ -57,8 +57,8 @@ const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 /**
  * Load studentquiz from coursemodule id
  *
- * @param int cmid course module id
- * @param int context id id of the context of this course module
+ * @param int $cmid course module id
+ * @param int $contextid id of the context of this course module
  * @return stdClass|bool studentquiz or false
  * TODO: Should we refactor dependency on questionlib by inserting category as parameter?
  */
@@ -81,6 +81,17 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
     return false;
 }
 
+/**
+ * Make studentquiz progress object
+ *
+ * @param int $questionid
+ * @param int $userid
+ * @param int $studentquizid
+ * @param int $lastanswercorrect
+ * @param int $attempts
+ * @param int $correctattempts
+ * @return stdClass
+ */
 function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $studentquizid, $lastanswercorrect = 0,
     $attempts = 0, $correctattempts = 0) {
     $studentquizprogress = new stdClass();
@@ -153,7 +164,7 @@ function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($
 /**
  * Migrate a single studentquiz instance to aggregated state
  *
- * @param $studentquiz
+ * @param stdClass $studentquiz
  * @throws coding_exception
  * @throws dml_exception
  */
@@ -240,6 +251,8 @@ function mod_studentquiz_get_quiz_module_id() {
 
 /**
  * Check if user has permission to see creator
+ *
+ * @param int $cmid
  * @return bool
  */
 function mod_studentquiz_check_created_permission($cmid) {
@@ -249,6 +262,7 @@ function mod_studentquiz_check_created_permission($cmid) {
 
 /**
  * Prepare message for notify.
+ *
  * @param stdClass $question object
  * @param stdClass $recepient user object receiving the notification
  * @param int $actor user object triggering the notification
@@ -256,7 +270,6 @@ function mod_studentquiz_check_created_permission($cmid) {
  * @param stdClass $module course module object
  * @return stdClass Data object with course, module, question, student and teacher info
  */
-
 function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $course, $module) {
     // Get StudentQuiz.
     $context = context_module::instance($module->id);
@@ -335,8 +348,7 @@ function mod_studentquiz_state_notify($questionid, $course, $module, $type) {
 
 /**
  * Notify student that someone has commented to his question. (Info to question author)
- * @param stdClass comment that was just added to the question
- * @param int $questionid ID of the student's questions.
+ * @param stdClass $comment that was just added to the question
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
@@ -348,8 +360,7 @@ function mod_studentquiz_notify_comment_added($comment, $course, $module) {
 /**
  * Notify student that someone has deleted their comment to his question. (Info to question author)
  * Notify student that someone has deleted his comment to someone's question. (Info to comment author)
- * @param stdClass comment that was just added to the question
- * @param int $questionid ID of the student's questions.
+ * @param stdClass $comment that was just added to the question
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
@@ -388,7 +399,7 @@ function mod_studentquiz_event_notification_question($event, $questionid, $cours
 /**
  * Notify question author that an event occured when the autor has this capabilty
  * @param string $event The name of the event, used to automatically get capability and mail contents
- * @param stdClass comment that was just added to the question
+ * @param stdClass $comment that was just added to the question
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
@@ -418,7 +429,7 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
 /**
  * Notify question author that an event occured when the autor has this capabilty
  * @param string $event The name of the event, used to automatically get capability and mail contents
- * @param stdClass comment that was just added to the question
+ * @param stdClass $comment that was just added to the question
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return bool True if sucessfully sent, false otherwise.
@@ -524,7 +535,7 @@ function mod_studentquiz_send_comment_notification($event, $recipient, $submitte
  * Generate an attempt with question usage
  * @param array $ids of question ids to be used in this attempt
  * @param stdClass $studentquiz generating this attempt
- * @param userid attempting this StudentQuiz
+ * @param int $userid attempting this StudentQuiz
  * @return stdClass attempt from generate quiz or false on error
  * TODO: Remove dependency on persistence from factory!
  */
@@ -563,14 +574,17 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
 }
 
 /**
- * @param $questionusage question_usage_by_activity
- * @param $studentquiz stdClass $studentquiz generating this attempt
- * @param $questionids array $ids of question ids to be used in this attempt
+ * Add question to attempt.
+ *
+ * @param stdClass $questionusage question_usage_by_activity
+ * @param stdClass $studentquiz generating this attempt
+ * @param array $questionids of question ids to be used in this attempt
+ * @param int $lastslot
  * @throws coding_exception
  */
-function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, &$questionids, $lastslost = 0) {
+function mod_studentquiz_add_question_to_attempt(&$questionusage, $studentquiz, &$questionids, $lastslot = 0) {
     $allowedcategories = question_categorylist($studentquiz->categoryid);
-    $i = $lastslost;
+    $i = $lastslot;
     $addedquestions = 0;
     while ($addedquestions <= 0 && $i < count($questionids)) {
         $questiondata = question_bank::load_question($questionids[$i]);
@@ -665,6 +679,9 @@ function mod_studentquiz_reportrank_viewed($cmid, $context) {
 
 /**
  * Helper to get ids from prefexed ids in raw submit data
+ *
+ * @param array $rawdata from REQUEST
+ * @return array
  */
 function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
     if (!isset($rawdata)&& empty($rawdata)) {
@@ -725,7 +742,6 @@ function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $excluderol
 /**
  * Get aggregated studentquiz data
  * @param int $cmid Course module id of the StudentQuiz considered.
- * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
  * @return moodle_recordset of paginated ranking table
  */
 function mod_studentquiz_community_stats($cmid) {
@@ -786,7 +802,9 @@ function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
 }
 
 /**
- * @return
+ * Query helper for attempt stats
+ *
+ * @return string
  * TODO: Refactor: There must be a better way to do this!
  */
 function mod_studentquiz_helper_attempt_stat_select() {
@@ -849,6 +867,9 @@ function mod_studentquiz_helper_attempt_stat_select() {
 }
 
 /**
+ * Helper query for attempt stat joins
+ *
+ * @param array $excluderoles
  * @return string
  * TODO: Refactor: There must be a better way to do this!
  */
@@ -970,6 +991,11 @@ function mod_studentquiz_get_question_types() {
     return $returntypes;
 }
 
+/**
+ * Get key name of question types
+ *
+ * @return array
+ */
 function mod_studentquiz_get_question_types_keys() {
     $types = mod_studentquiz_get_question_types();
     return array_keys($types);
@@ -1096,6 +1122,12 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
     }
 }
 
+/**
+ * Count questions in a coursemodule
+ *
+ * @param int $cmid
+ * @return int
+ */
 function mod_studentquiz_count_questions($cmid) {
     global $DB;
     $sql = "SELECT COUNT(*)
@@ -1115,7 +1147,7 @@ function mod_studentquiz_count_questions($cmid) {
 /**
  * This query collects aggregated information about the questions in this StudentQuiz.
  *
- * @param $cmid
+ * @param int $cmid
  * @throws dml_exception
  */
 function mod_studentquiz_question_stats($cmid) {
@@ -1180,10 +1212,7 @@ function mod_studentquiz_check_availability($openform, $closefrom, $type) {
 /**
  * Saves question rating.
  *
- * // TODO:
- * @param  stdClass $data requires userid, questionid, rate
- * @internal param $course
- * @internal param $module
+ * @param stdClass $data requires userid, questionid, rate
  */
 function mod_studentquiz_save_rate($data) {
     global $DB;

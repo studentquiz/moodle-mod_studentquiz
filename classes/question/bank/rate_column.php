@@ -34,6 +34,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class rate_column extends \core_question\bank\column_base {
 
+    /**
+     * Renderer
+     * @var stdClass
+     */
     protected $renderer;
 
     /**
