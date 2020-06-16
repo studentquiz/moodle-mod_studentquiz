@@ -1000,11 +1000,11 @@ function mod_studentquiz_ensure_question_capabilities($context) {
             ],
             'mod/studentquiz:submit' => [
                     'moodle/question:add',
-                    'moodle/question:editmine'
+                    'moodle/question:editmine',
+                    'moodle/question:tagmine'
             ],
             'mod/studentquiz:previewothers' => [],
             'mod/studentquiz:manage' => [
-                    'moodle/question:add',
                     'moodle/question:editall'
             ]
     ];
@@ -1013,9 +1013,6 @@ function mod_studentquiz_ensure_question_capabilities($context) {
 
     $extracapabilities = [];
     $capabiltiesneededbyeachrole = [];
-    if ($CFG->version >= 2018051700) { // Moodle 3.5+.
-        $extracapabilities[] = 'moodle/question:tagmine';
-    }
 
     foreach ($studentquizcapabilities as $studentquizcapability) {
         // Get the ids of all the roles that related to given capability.
