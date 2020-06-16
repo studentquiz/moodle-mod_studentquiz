@@ -38,6 +38,8 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 class behat_mod_studentquiz extends behat_base {
 
     /**
+     * Behat function to set availability field
+     *
      * @Given /^I set the availability field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<days_value_integer>(?:[^"]|\\")*)" days from now$/
      * @param string $field Field name.
      * @param string $days Number of days from now.
@@ -70,8 +72,9 @@ class behat_mod_studentquiz extends behat_base {
     }
 
     /**
-     * @Given /^I make sure the current Moodle version is greater than 3.4$/
+     * Behat function to check moodle version greater than 3.4
      *
+     * @Given /^I make sure the current Moodle version is greater than 3.4$/
      */
     public function i_check_moodle_version() {
         global $CFG;
@@ -85,8 +88,8 @@ class behat_mod_studentquiz extends behat_base {
      *
      * @Given /^I enter the text "([^"]*)" into the "([^"]*)" editor/
      *
-     * @param $value
-     * @param $fieldlocator
+     * @param string $value
+     * @param string $fieldlocator
      */
     public function enter_the_text_into_field($value, $fieldlocator) {
         $editorid = $this->find_field($fieldlocator)->getAttribute('id') . 'editable';

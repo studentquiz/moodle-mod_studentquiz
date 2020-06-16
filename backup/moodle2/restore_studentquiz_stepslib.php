@@ -100,7 +100,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     }
 
     /**
-     * Process the given restore path element data
+     * Process the given restore path element data.
      *
      * @param array $data parsed element data
      */
@@ -163,6 +163,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $this->set_mapping('studentquiz', $oldid, $newitemid, true); // Has related files.
     }
 
+    /**
+     * Process attempt data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_attempt($data) {
         // TODO: attempts can be ignored if progress exists and works flawless.
         $data = (object)$data;
@@ -172,6 +177,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $this->currentattempt = clone($data);
     }
 
+    /**
+     * Process progress data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_progress($data) {
         global $DB;
         $data = (object)$data;
@@ -181,6 +191,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $DB->insert_record('studentquiz_progress', $data);
     }
 
+    /**
+     * Process rate data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_rate($data) {
         global $DB;
         $data = (object) $data;
@@ -189,6 +204,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $DB->insert_record('studentquiz_rate', $data);
     }
 
+    /**
+     * Process comment data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_comment($data) {
         global $DB;
         $data = (object) $data;
@@ -239,6 +259,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $this->set_mapping('studentquiz_comment', $oldid, $newid, true);
     }
 
+    /**
+     * Process question meta data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_question_meta($data) {
         global $DB;
 
@@ -261,6 +286,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $DB->insert_record('studentquiz_question', $data);
     }
 
+    /**
+     * Process comment history data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_comment_history($data) {
         global $DB;
 
@@ -275,6 +305,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $DB->insert_record('studentquiz_comment_history', $data);
     }
 
+    /**
+     * Process notification data.
+     *
+     * @param array $data parsed element data
+     */
     protected function process_notification($data) {
         global $DB;
 
@@ -293,6 +328,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     }
 
 
+    /**
+     * Inform the new question usage id.
+     *
+     * @param int $newusageid
+     */
     protected function inform_new_usage_id($newusageid) {
         // TODO: attempts can be ignored if progress exists and works flawless.
         global $DB;
@@ -319,15 +359,15 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         // Migrate progress from quiz usage to internal table.
         mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($this->get_courseid());
         // Workaround setting default question state if no state data is available.
-        // ref: https://tracker.moodle.org/browse/MDL-67406
+        // ref: https://tracker.moodle.org/browse/MDL-67406.
         mod_studentquiz_fix_all_missing_question_state_after_restore($this->get_courseid());
     }
 
     /**
      * Get mapping id or null.
      *
-     * @param $type
-     * @param $oldid
+     * @param string $type field identifier
+     * @param int $oldid the old id of that field
      * @return mixed
      */
     private function get_mappingid_or_null($type, $oldid) {

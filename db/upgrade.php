@@ -314,10 +314,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // Migrate old quiz activity data into new data structure.
     if ($oldversion < 2017112406) {
-        // This is also used in import, so it had to be extracted.
-        // Removed as this migration step is now out of support range, just here for historical purposes because this is the upgrade file with savepoints
-        // mod_studentquiz_migrate_old_quiz_usage();
-
+        // Removed as this migration step is now out of support range, just here for historical purposes because this
+        // is the upgrade file with savepoints: mod_studentquiz_migrate_old_quiz_usage().
         upgrade_mod_savepoint(true, 2017112406, 'studentquiz');
     }
 
@@ -389,11 +387,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2017120202, 'studentquiz');
     }
 
+    // Fix wrong parent in question categories if applicable.
     if ($oldversion < 2018051300) {
-        // Fix wrong parent in question categories if applicable.
-        // Removed afterwards because of #173, just here for historical purposes because this is the upgrade file with savepoints
-        // mod_studentquiz_fix_wrong_parent_in_question_categories();
-
+        // Removed afterwards because of #173, just here for historical purposes because this is
+        // the upgrade file with savepoints: mod_studentquiz_fix_wrong_parent_in_question_categories().
         upgrade_mod_savepoint(true, 2018051300, 'studentquiz');
     }
 
@@ -576,7 +573,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('commentdeletionperiod', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '10', 'publishnewquestion');
+        $field = new xmldb_field('commentdeletionperiod', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '10',
+            'publishnewquestion');
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -595,7 +593,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020011602, 'studentquiz');
     }
 
-    // remove unused practice database tables and old quiz practice columns
+    // Remove unused practice database tables and old quiz practice columns.
     if ($oldversion < 2020043000) {
 
         $table = new xmldb_table('studentquiz_practice');

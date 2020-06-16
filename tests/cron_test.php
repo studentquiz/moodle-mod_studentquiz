@@ -33,13 +33,28 @@ defined('MOODLE_INTERNAL') || die();
  */
 class mod_studentquiz_cron_testcase extends advanced_testcase {
 
+    /** @var stdClass */
     protected $course;
+
+    /** @var stdClass */
     protected $student1;
+
+    /** @var stdClass */
     protected $student2;
+
+    /** @var stdClass */
     protected $teacher;
+
+    /** @var stdClass */
     protected $studentquizdata;
+
+    /** @var int */
     protected $cmid;
+
+    /** @var stdClass */
     protected $studentquiz;
+
+    /** @var array */
     protected $questions;
 
     protected function setUp() {

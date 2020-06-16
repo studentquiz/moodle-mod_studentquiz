@@ -25,6 +25,9 @@
 namespace mod_studentquiz\event;
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * The mod_studentquiz comment created event
+ */
 class comment_created extends \core\event\comment_created {
 
     /**

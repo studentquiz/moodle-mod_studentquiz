@@ -36,6 +36,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class comment_column extends \core_question\bank\column_base {
 
+    /**
+     * Renderer
+     * @var stdClass
+     */
     protected $renderer;
 
     /**

@@ -139,7 +139,8 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
 
         $this->questions = [$q1, $q2];
 
-        $this->commentarea = new \mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, $this->users[0]);
+        $this->commentarea = new \mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm,
+            $this->context, $this->users[0]);
         $this->rootid = \mod_studentquiz\commentarea\container::PARENTID;
 
         $this->generate_comment_list_for_sort();
@@ -149,6 +150,8 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     }
 
     /**
+     * Provide comment by id.
+     *
      * @param int $id - Comment ID.
      * @param bool $convert - Is convert to object data.
      * @return comment|stdClass

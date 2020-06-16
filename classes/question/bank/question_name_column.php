@@ -35,7 +35,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class question_name_column extends \core_question\bank\question_name_column {
 
+    /** @var \stdClass */
     protected $renderer;
+
+    /** @var \stdClass */
     protected $context;
 
     /**

@@ -27,6 +27,7 @@ require_once(__DIR__ . '/locallib.php');
 
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
+ *
  * TODO: REFACTOR!
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
@@ -61,6 +62,12 @@ class mod_studentquiz_report {
      * And questions in child categories
      */
     protected $availablequestions;
+
+    /**
+     * Get number of available questions
+     *
+     * @return int
+     */
     public function get_available_questions() {
         return $this->availablequestions;
     }
@@ -71,15 +78,23 @@ class mod_studentquiz_report {
      * And questions in child categories
      */
     protected $enrolledusers;
+
+    /**
+     * Get number of enrolled users
+     *
+     * @return int
+     */
     public function get_enrolled_users() {
         return $this->enrolledusers;
     }
+
+    /** @var stdClass */
+    protected $studentquizstats;
 
     /**
      * Overall Stats of the studentquiz
      * @return stdClass
      */
-    protected $studentquizstats;
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
             $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id());
@@ -94,9 +109,14 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Ranking stats for current user (same as ranking table)
+     * @var stdClass @userrankingstats Ranking stats for current user (same as ranking table)
      */
     protected $userrankingstats;
+
+    /**
+     * Get user ranking stats
+     * @return stdClass
+     */
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
             $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(),
@@ -128,11 +148,13 @@ class mod_studentquiz_report {
         return $r;
     }
 
+    /** @var stdClass */
+    protected $useractivitystats;
+
     /**
      * Personal stats for interaction with studentquiz:
      * @return stdClass: numcomments, numrates, avgrates, numstarts
      */
-    protected $useractivitystats;
     public function get_useractivitystats() {
         return $this->useractivitystats;
     }
@@ -243,6 +265,7 @@ class mod_studentquiz_report {
 
     /**
      * Get the question quantifier of this studentquiz
+     * @return int
      */
     public function get_quantifier_question() {
         return $this->studentquiz->questionquantifier;
@@ -250,6 +273,7 @@ class mod_studentquiz_report {
 
     /**
      * Get the approved quantifier of this studentquiz
+     * @return int
      */
     public function get_quantifier_approved() {
         return $this->studentquiz->approvedquantifier;
@@ -257,6 +281,7 @@ class mod_studentquiz_report {
 
     /**
      * Get the rate quantifier of this studentquiz
+     * @return int
      */
     public function get_quantifier_rate() {
         return $this->studentquiz->ratequantifier;
@@ -264,6 +289,7 @@ class mod_studentquiz_report {
 
     /**
      * Get the correctanswerquantifier of this studentquiz
+     * @return int
      */
     public function get_quantifier_correctanswer() {
         return $this->studentquiz->correctanswerquantifier;
@@ -271,12 +297,14 @@ class mod_studentquiz_report {
 
     /**
      * Get the correctanswerquantifier of this studentquiz
+     * @return int
      */
     public function get_quantifier_incorrectanswer() {
         return $this->studentquiz->incorrectanswerquantifier;
     }
 
     /**
+     * Get all the quantifiers
      * @return stdClass of quantifiers
      */
     public function get_quantifiers() {
@@ -314,7 +342,8 @@ class mod_studentquiz_report {
     }
 
     /**
-     * Returns the id of the currently evaluated StudentQuiz.
+     * Get the id of the currently evaluated StudentQuiz.
+     * @return int
      */
     public function get_studentquiz_id() {
         return $this->cm->instance;
@@ -342,6 +371,7 @@ class mod_studentquiz_report {
     }
 
     /**
+     * Check whether current user sees others anonymized
      * @return bool studentquiz is set to anoymize
      */
     public function is_anonymized() {

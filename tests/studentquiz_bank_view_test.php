@@ -95,6 +95,8 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     private $studentquizgenerator;
 
     /**
+     * Run questionbank.
+     *
      * @return \mod_studentquiz\question\bank\studentquiz_bank_view
      * @throws mod_studentquiz_view_exception
      * @throws moodle_exception
@@ -245,7 +247,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         // using GET params, we can't use that.
         $_GET[$which] = $value;
         $_GET["submitbutton"] = "Filter";
-        // session key is required, otherwise it won't try to load and filter POSTed data
+        // Session key is required, otherwise it won't try to load and filter POSTed data.
         $_GET["_qf__mod_studentquiz_question_bank_filter_form"] = "1";
         $_GET["sesskey"] = sesskey();
     }

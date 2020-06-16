@@ -18,6 +18,7 @@
  * Privacy Subsystem implementation for mod_studentquiz.
  *
  * @package    mod_studentquiz
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -36,15 +37,8 @@ use \core_privacy\local\request\transform;
 use mod_studentquiz\commentarea\container;
 use mod_studentquiz\utils;
 
-// A polyfill for Moodle 3.3.
-if (interface_exists('\core_privacy\local\request\core_userlist_provider')) {
-    interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider
-    {
-    }
-} else {
-    interface studentquiz_userlist
-    {
-    }
+interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider
+{
 }
 
 require_once($CFG->libdir . '/questionlib.php');
@@ -204,7 +198,8 @@ class provider implements
         list($contextsql, $contextparam) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
         $sql = "SELECT DISTINCT ctx.id AS contextid,
-                       q.id AS questionid, q.name AS questionname, CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
+                       q.id AS questionid, q.name AS questionname,
+                       CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
                        q.createdby AS questioncreatedby, q.modifiedby AS questionmodifiedby,
                        rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
@@ -737,20 +732,19 @@ class provider implements
                              AND studentquizid = :studentquizid", [
                         'studentquizid' => $cm->instance
                 ] + $userinparams);
-        
+
         // Delete notifications belong to users.
         $DB->execute("DELETE FROM {studentquiz_notification}
                             WHERE recipientid {$userinsql}", $userinparams);
-
     }
 
     /**
      * Delete comments belong to users.
      *
-     * @param $questionsql
-     * @param $questionparams
-     * @param $userinsql
-     * @param $userinparamsn
+     * @param string $questionsql
+     * @param array $questionparams
+     * @param string $userinsql
+     * @param array $userinparams
      */
     private static function delete_comment_for_users($questionsql, $questionparams, $userinsql, $userinparams) {
         global $DB;
@@ -775,8 +769,9 @@ class provider implements
     /**
      * Delete comment for specific user.
      *
-     * @param $questionsql
-     * @param $questionparams
+     * @param string $questionsql
+     * @param array $questionparams
+     * @param array $userparams
      */
     private static function delete_comment_for_user($questionsql, $questionparams, $userparams) {
         global $DB;

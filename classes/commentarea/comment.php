@@ -535,10 +535,10 @@ class comment {
     /**
      * Create new comment history
      *
-     * @param $commentid int - comment id
-     * @param $userid int - user that modify comment
-     * @param $action int - action type Create 0 - Edit 1 - Delete 2
-     * @param $comment string - store comment content
+     * @param int $commentid - comment id
+     * @param int $userid - user that modify comment
+     * @param int $action - action type Create 0 - Edit 1 - Delete 2
+     * @param string $comment - store comment content
      */
     public function create_history($commentid, $userid, $action, $comment): int {
         global $DB;

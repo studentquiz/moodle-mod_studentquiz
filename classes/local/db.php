@@ -26,9 +26,19 @@ namespace mod_studentquiz\local;
 
 defined('MOODLE_INTERNAL') || die();
 
+/**
+ * Additional DB abstraction toolset.
+ */
 class db {
 
-    const DBFAMILY_MYSQL = 'mysql'; // Also counts for mariadb.
+    /**
+     * @var string DBFAMILY_MYSQL also counts for mariadb.
+     */
+    const DBFAMILY_MYSQL = 'mysql';
+
+    /**
+     * @var string DBFAMILY_POSTGRES
+     */
     const DBFAMILY_POSTGRES = 'postgres';
 
     /**
@@ -38,6 +48,9 @@ class db {
      * - MySQL: GROUP_CONCAT (https://dev.mysql.com/doc/refman/8.0/en/group-by-functions.html)
      * - MariaDB: GROUP_CONCAT (https://mariadb.com/kb/en/group_concat/)
      * - PostgreSQL: https://www.postgresql.org/docs/9.0/functions-aggregate.html
+     *
+     * @param string $field name
+     * @return string
      */
     public static function group_concat($field) {
         global $DB;
