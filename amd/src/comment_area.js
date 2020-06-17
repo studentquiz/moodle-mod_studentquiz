@@ -177,9 +177,12 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.forceCommenting = params.forcecommenting;
                         self.canViewDeleted = params.canviewdeleted;
                         self.isNoComment = params.isnocomment;
+                        self.allowSelfCommentRating = params.allowselfcommentrating;
 
                         self.initServerRender();
-                        self.initBindEditor();
+                        if (params.allowselfcommentrating) {
+                            self.initBindEditor();
+                        }
                         self.bindEvents();
                         M.util.js_complete(t.ACTION_INIT);
                     },
@@ -946,6 +949,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     }
                                 }
                             }
+                            item.allowselfcommentrating = self.allowSelfCommentRating;
                         }
                         return single ? data[0] : data;
                     },

@@ -60,9 +60,16 @@
      data-userid="{{userid}}"
      data-numbertoshow="{{numbertoshow}}"
 >
+    {{#postform}}
     <div class="studentquiz-comment-postform">
         {{{postform}}}
     </div>
+    {{/postform}}
+    {{^postform}}
+        <div class="studentquiz-not-display-comment">
+            {{#str}} notshowratingcomment, mod_studentquiz {{/str}}
+        </div>
+    {{/postform}}
     <div class="studentquiz-comment-filter {{^comments}}hide-comment-filter{{/comments}}">
         <div class="studentquiz-comment-filter-info">
             <div class="filter-item studentquiz-comment-filters">

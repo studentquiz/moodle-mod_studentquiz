@@ -426,6 +426,10 @@ class comment {
                 'questionid' => $this->get_container()->get_question()->id,
                 'commentid' => $comment->id
         ]))->out();
+        $object->allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode(
+            $this->get_container()->get_question(),
+            $this->get_container()->get_cmid()
+        );
         return $object;
     }
 
