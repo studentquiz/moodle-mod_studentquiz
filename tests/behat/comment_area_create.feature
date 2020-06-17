@@ -5,6 +5,8 @@ Feature: Create comment as an user
   I need to be able to create comment
 
   Background:
+    # 'I set the field' doesn't work on Moodle <= 35
+    Given I make sure the current Moodle branch is greater or equal "36"
     Given the following "users" exist:
       | username | firstname | lastname | email                |
       | teacher  | The       | Teacher  | teacher1@example.com |
@@ -488,7 +490,7 @@ Feature: Create comment as an user
     And I should see "1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
     # Check edit button of reply.
     And I should see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
-     # Try to edit reply.
+    # Try to edit reply.
     When I click on "Edit" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
     And I wait until the page is ready
     And I enter the text "Reply comment 1 edited" into the "Edit comment" editor

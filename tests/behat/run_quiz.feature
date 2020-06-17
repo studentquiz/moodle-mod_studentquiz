@@ -13,8 +13,8 @@ Feature: Quizzes can be startet
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user     | course | role           |
-      | student1 | C1     | student        |
+      | user     | course | role    |
+      | student1 | C1     | student |
     Then I log in as "student1"
     When the following "activities" exist:
       | activity    | name          | intro              | course | idnumber     | publishnewquestion |
@@ -29,6 +29,8 @@ Feature: Quizzes can be startet
 
   @javascript
   Scenario: A student can start a quiz on a fresh new activity and can follow the rating rules
+    # 'Then I should see ... in the ".qno" "css_element"' doesn't work on Moodle <= 35
+    Given I make sure the current Moodle branch is greater or equal "36"
     Given the following "users" exist:
       | username | firstname | lastname | email                |
       | student1 | Sam1      | Student1 | student1@example.com |
@@ -36,8 +38,8 @@ Feature: Quizzes can be startet
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
     And the following "course enrolments" exist:
-      | user     | course | role           |
-      | student1 | C1     | student        |
+      | user     | course | role    |
+      | student1 | C1     | student |
     And the following "activities" exist:
       | activity    | name          | intro              | course | idnumber     | forcerating | publishnewquestion |
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1           | 1                  |
