@@ -42,7 +42,7 @@ class behat_mod_studentquiz extends behat_base {
      *
      * @Given /^I set the availability field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<days_value_integer>(?:[^"]|\\")*)" days from now$/
      * @param string $field Field name.
-     * @param string $days Number of days from now.
+     * @param int $days Number of days from now.
      */
     public function i_set_availability_field_to($field, $days) {
         $date = strtotime($days . ' day');
@@ -72,13 +72,16 @@ class behat_mod_studentquiz extends behat_base {
     }
 
     /**
-     * Behat function to check moodle version greater than 3.4
+     * Behat function to check moodle branch is greater or equal provided value
      *
-     * @Given /^I make sure the current Moodle version is greater than 3.4$/
+     * @Given /^I make sure the current Moodle branch is greater or equal "(?P<version_value_integer>(?:[^"]|\\")*)"$/
+     *
+     * @param int $version
      */
-    public function i_check_moodle_version() {
+    public function i_check_moodle_version($version) {
         global $CFG;
-        if (!$CFG->branch < 35) {
+
+        if ($CFG->branch < $version) {
             throw new \Moodle\BehatExtension\Exception\SkippedException();
         }
     }
