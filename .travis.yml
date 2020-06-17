@@ -53,6 +53,8 @@ matrix:
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
     - php: 7.4
+      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
+    - php: 7.4
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
     # technically MOODLE_38 has no offical PHP7.4 support, but allow that test for now
   include:
