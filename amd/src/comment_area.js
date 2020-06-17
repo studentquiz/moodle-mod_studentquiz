@@ -25,7 +25,7 @@
  * @module mod_studentquiz/comment_element
  */
 define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates', 'core/fragment', 'core/modal_events'],
-    function ($, str, ajax, ModalFactory, Templates, fragment, ModalEvents) {
+    function($, str, ajax, ModalFactory, Templates, fragment, ModalEvents) {
         var t = {
             EMPTY_CONTENT: ['<br><p><br></p>', '<p><br></p>', '<br>', ''],
             ROOT_COMMENT_VALUE: 0,
@@ -104,7 +104,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 ATTO_HTML_BUTTON: 'button.atto_html_button',
                 POST_FOOTER: '.studentquiz-comment-postfooter'
             },
-            get: function () {
+            get: function() {
                 return {
                     elementSelector: null,
                     btnExpandAll: null,
@@ -142,7 +142,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Object} params
                      */
-                    init: function (params) {
+                    init: function(params) {
                         M.util.js_pending(t.ACTION_INIT);
                         var self = this;
                         // Assign attribute.
@@ -187,10 +187,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /**
                      * Init for server rendering.
                      */
-                    initServerRender: function () {
+                    initServerRender: function() {
                         var self = this;
                         self.changeWorkingState(true);
-                        $(t.SELECTOR.COMMENT_ITEM).each(function () {
+                        $(t.SELECTOR.COMMENT_ITEM).each(function() {
                             var id = $(this).data('id');
                             var attrs = $(this).find(t.SELECTOR.SPAN_COMMENT_ID + id);
                             var replies = [];
@@ -240,13 +240,13 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /**
                      * Init comment editor.
                      */
-                    initBindEditor: function () {
+                    initBindEditor: function() {
                         var self = this;
                         var isEditorLoaded = false;
                         M.util.js_pending(t.ACTION_EDITOR_INIT);
                         // Interval to init atto editor, there are time when Atto's Javascript slow to init the editor, so we
                         // check interval here to make sure the Atto is init before calling our script.
-                        var interval = setInterval(function () {
+                        var interval = setInterval(function() {
                             if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                                 self.bindEditorEvent(self.formSelector);
                                 isEditorLoaded = true;
@@ -257,7 +257,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                         // If the editor has some content that has been restored
                         // then check the editor content.
-                        var editorWaiting = setInterval(function () {
+                        var editorWaiting = setInterval(function() {
                             if (isEditorLoaded) {
                                 self.checkEditorContent(self.formSelector);
                                 clearInterval(editorWaiting);
@@ -268,10 +268,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /**
                      * Bind events: "Expand all comments", "Collapse all comments", "Add Reply".
                      */
-                    bindEvents: function () {
+                    bindEvents: function() {
                         var self = this;
                         // Bind event to "Expand all comments" button.
-                        self.btnExpandAll.click(function (e) {
+                        self.btnExpandAll.click(function(e) {
                             e.preventDefault();
                             M.util.js_pending(t.ACTION_EXPAND_ALL);
                             self.changeWorkingState(true);
@@ -282,7 +282,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             self.btnExpandAll.hide();
                             self.btnCollapseAll.show();
                             self.loadingIcon.show();
-                            self.getComments(t.GET_ALL_VALUE).then(function (response) {
+                            self.getComments(t.GET_ALL_VALUE).then(function(response) {
                                 // Calculate length to display count.
                                 var count = self.countCommentAndReplies(response.data);
                                 var total = count.total;
@@ -290,7 +290,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 self.renderComment(response.data, true);
                                 M.util.js_complete(t.ACTION_EXPAND_ALL);
                                 return true;
-                            }).fail(function (err) {
+                            }).fail(function(err) {
                                 M.util.js_complete(t.ACTION_EXPAND_ALL);
                                 self.showError(err.message);
                                 return false;
@@ -298,7 +298,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         });
 
                         // Bind event to "Collapse all comments" button.
-                        self.btnCollapseAll.click(function (e) {
+                        self.btnCollapseAll.click(function(e) {
                             e.preventDefault();
                             M.util.js_pending(t.ACTION_COLLAPSE_ALL);
                             self.changeWorkingState(true);
@@ -306,7 +306,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             self.btnCollapseAll.hide();
                             self.btnExpandAll.show();
                             self.containerSelector[0].innerHTML = '';
-                            self.getComments(self.numberToShow).then(function (response) {
+                            self.getComments(self.numberToShow).then(function(response) {
                                 // Calculate length to display the post count.
                                 var count = self.countCommentAndReplies(response.data);
                                 var commentCount = count.commentCount;
@@ -324,7 +324,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 }
                                 M.util.js_complete(t.ACTION_COLLAPSE_ALL);
                                 return true;
-                            }).fail(function (err) {
+                            }).fail(function(err) {
                                 M.util.js_complete(t.ACTION_COLLAPSE_ALL);
                                 self.showError(err.message);
                                 return false;
@@ -332,7 +332,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         });
 
                         // Bind event to "Add Reply" button (Root comment).
-                        self.addComment.click(function (e) {
+                        self.addComment.click(function(e) {
                             e.preventDefault();
                             M.util.js_pending(t.ACTION_CREATE);
                             self.changeWorkingState(true);
@@ -363,10 +363,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     format: formData['message[format]'],
                                 },
                             };
-                            self.createComment(params).then(function (response) {
+                            self.createComment(params).then(function(response) {
                                 M.util.js_pending(t.ACTION_CLEAR_FORM);
                                 // Clear form in setTimeout to prevent require message still shown when reset on Firefox.
-                                setTimeout(function () {
+                                setTimeout(function() {
                                     // Clear form data.
                                     formSelector.trigger('reset');
                                     // Clear atto editor data.
@@ -384,7 +384,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 self.appendComment(data, self.elementSelector.find(t.SELECTOR.CONTAINER_REPLIES), false);
                                 M.util.js_complete(t.ACTION_CREATE);
                                 return true;
-                            }).fail(function (e) {
+                            }).fail(function(e) {
                                 self.handleFailWhenCreateComment(e, params);
                                 M.util.js_complete(t.ACTION_CREATE);
                             });
@@ -392,7 +392,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         });
 
                         // Bind events filter sort.
-                        $(t.SELECTOR.COMMENT_FILTER_ITEM).on('click', function (e) {
+                        $(t.SELECTOR.COMMENT_FILTER_ITEM).on('click', function(e) {
                             e.preventDefault();
                             // Check if current state is working, return.
                             if (self.workingState) {
@@ -439,7 +439,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Note: new text is the opposite of current sort type (old type).
 
                             // Reset all filter elements to its default.
-                            $(t.SELECTOR.COMMENT_FILTER_ITEM).not(this).each(function () {
+                            $(t.SELECTOR.COMMENT_FILTER_ITEM).not(this).each(function() {
                                 var each = $(this);
                                 var eachName = $(this).find(t.SELECTOR.COMMENT_FILTER_NAME);
                                 var eachType = $(this).find(t.SELECTOR.COMMENT_FILTER_TYPE);
@@ -480,7 +480,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Integer} numberToShow
                      * @returns {Promise}
                      */
-                    getComments: function (numberToShow) {
+                    getComments: function(numberToShow) {
                         var self = this;
                         var params = self.getParamsBeforeCallApi({
                             numbertoshow: numberToShow,
@@ -499,7 +499,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Object} params
                      * @returns {Object}
                      */
-                    getParamsBeforeCallApi: function (params) {
+                    getParamsBeforeCallApi: function(params) {
                         var self = this;
                         params.questionid = self.questionId;
                         params.cmid = self.cmId;
@@ -511,11 +511,11 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {String} message
                      */
-                    showError: function (message) {
+                    showError: function(message) {
                         var self = this;
                         M.util.js_pending(t.ACTION_SHOW_ERROR);
                         // Get error string for title.
-                        $.when(self.string.error).done(function (string) {
+                        $.when(self.string.error).done(function(string) {
                             self.showDialog(string, message);
                             self.changeWorkingState(false);
                             M.util.js_complete(t.ACTION_SHOW_ERROR);
@@ -528,7 +528,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {String} title
                      * @param {String} body
                      */
-                    showDialog: function (title, body) {
+                    showDialog: function(title, body) {
                         var self = this;
                         var dialogue = self.dialogue;
                         if (dialogue) {
@@ -542,11 +542,11 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             type: ModalFactory.types.CANCEL,
                             title: title,
                             body: body
-                        }).done(function (modal) {
+                        }).done(function(modal) {
                             dialogue = modal;
                             // Display the dialogue.
                             dialogue.show();
-                            dialogue.getRoot().on(ModalEvents.hidden, {}, function () {
+                            dialogue.getRoot().on(ModalEvents.hidden, {}, function() {
                                 location.reload();
                             });
                         });
@@ -558,7 +558,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Integer|NULL} current
                      * @param {Integer|NULL} total
                      */
-                    updateCommentCount: function (current, total) {
+                    updateCommentCount: function(current, total) {
                         M.util.js_pending(t.ACTION_UPDATE_COMMENT_COUNT);
                         var self = this;
 
@@ -596,7 +596,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             filter.show();
                         }
 
-                        $.when(s).done(function (text) {
+                        $.when(s).done(function(text) {
                             self.elementSelector.find(t.SELECTOR.COMMENT_COUNT).text(text);
                             M.util.js_complete(t.ACTION_UPDATE_COMMENT_COUNT);
                         });
@@ -607,15 +607,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Array} comments
                      * @param {Boolean} expanded
-                     * @returns {Boolean}
                      */
-                    renderComment: function (comments, expanded) {
+                    renderComment: function(comments, expanded) {
                         var self = this;
                         M.util.js_pending(t.ACTION_RENDER_COMMENT);
                         comments = self.convertForTemplate(comments, expanded);
                         Templates.render(t.TEMPLATE_COMMENTS, {
                             comments: comments
-                        }).done(function (html) {
+                        }).done(function(html) {
                             // We render a lot of data, pure js here.
                             self.containerSelector[0].innerHTML = html;
                             // Turn off loading to show raw html first, then we bind events.
@@ -634,7 +633,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Object} data
                      */
-                    bindCommentEvent: function (data) {
+                    bindCommentEvent: function(data) {
                         var self = this;
                         // Loop comments and replies to get id and bind event for button inside it.
                         var el = self.containerSelector.find(t.SELECTOR.COMMENT_ID + data.id);
@@ -651,27 +650,27 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 self.bindReplyEvent(reply, el);
                             }
                         }
-                        el.find(t.SELECTOR.BTN_DELETE).click(function (e) {
+                        el.find(t.SELECTOR.BTN_DELETE).click(function(e) {
                             self.bindDeleteEvent(data);
                             e.preventDefault();
                         });
-                        el.find(t.SELECTOR.BTN_REPLY).click(function (e) {
+                        el.find(t.SELECTOR.BTN_REPLY).click(function(e) {
                             e.preventDefault();
                             self.getFragmentFormReplyEvent(data);
                         });
-                        el.find(t.SELECTOR.EXPAND_LINK).click(function (e) {
+                        el.find(t.SELECTOR.EXPAND_LINK).click(function(e) {
                             e.preventDefault();
                             self.bindExpandEvent(data);
                         });
-                        el.find(t.SELECTOR.COLLAPSE_LINK).click(function (e) {
+                        el.find(t.SELECTOR.COLLAPSE_LINK).click(function(e) {
                             e.preventDefault();
                             self.bindCollapseEvent(data);
                         });
-                        el.find(t.SELECTOR.BTN_REPORT).click(function (e) {
+                        el.find(t.SELECTOR.BTN_REPORT).click(function(e) {
                             e.preventDefault();
                             window.location = $(this).data('href');
                         });
-                        el.find(t.SELECTOR.BTN_EDIT).click(function (e) {
+                        el.find(t.SELECTOR.BTN_EDIT).click(function(e) {
                             e.preventDefault();
                             self.getFragmentEditFormEvent(data);
                         });
@@ -683,18 +682,18 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Object} reply
                      * @param {jQuery} el
                      */
-                    bindReplyEvent: function (reply, el) {
+                    bindReplyEvent: function(reply, el) {
                         var self = this;
                         var replySelector = el.find(t.SELECTOR.COMMENT_ID + reply.id);
-                        replySelector.find(t.SELECTOR.BTN_DELETE_REPLY).click(function (e) {
+                        replySelector.find(t.SELECTOR.BTN_DELETE_REPLY).click(function(e) {
                             self.bindDeleteEvent(reply);
                             e.preventDefault();
                         });
-                        replySelector.find(t.SELECTOR.BTN_REPORT).click(function (e) {
+                        replySelector.find(t.SELECTOR.BTN_REPORT).click(function(e) {
                             e.preventDefault();
                             window.location = $(this).data('href');
                         });
-                        replySelector.find(t.SELECTOR.BTN_EDIT_REPLY).click(function (e) {
+                        replySelector.find(t.SELECTOR.BTN_EDIT_REPLY).click(function(e) {
                             e.preventDefault();
                             self.getFragmentEditFormEvent(reply);
                         });
@@ -710,7 +709,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Boolean} boolean
                      * @param {null|jQuery} elementToHide
                      */
-                    changeWorkingState: function (boolean, elementToHide = null) {
+                    changeWorkingState: function(boolean, elementToHide = null) {
                         var visibility = boolean ? 'hidden' : 'visible';
                         var self = this;
                         self.workingState = boolean;
@@ -754,7 +753,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * commentCount: number
                      * }}
                      */
-                    countCommentAndReplies: function (data) {
+                    countCommentAndReplies: function(data) {
                         var commentCount = 0;
                         var deleteCommentCount = 0;
                         var replyCount = 0;
@@ -796,7 +795,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Integer} id
                      * @returns {Promise}
                      */
-                    expandComment: function (id) {
+                    expandComment: function(id) {
                         var self = this;
                         var params = self.getParamsBeforeCallApi({
                             commentid: id
@@ -813,7 +812,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Object} item
                      */
-                    bindExpandEvent: function (item) {
+                    bindExpandEvent: function(item) {
                         var self = this;
                         var itemSelector = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                         var key = t.ACTION_EXPAND;
@@ -824,7 +823,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         itemSelector.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER).append(loadingIcon);
                         $(self).hide();
                         // Call expand post web service to get replies.
-                        self.expandComment(item.id).then(function (response) {
+                        self.expandComment(item.id).then(function(response) {
                             var convertedItem = self.convertForTemplate(response, true);
 
                             // Count current reply displayed, because user can reply to this comment then press expanded.
@@ -854,7 +853,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                             self.updateCommentCount(newCount, newTotalCount);
 
-                            return Templates.render(t.TEMPLATE_COMMENT, convertedItem).done(function (html) {
+                            return Templates.render(t.TEMPLATE_COMMENT, convertedItem).done(function(html) {
                                 var el = $(html);
                                 itemSelector.replaceWith(el);
                                 self.lastFocusElement = el.find(t.SELECTOR.COLLAPSE_LINK);
@@ -863,7 +862,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 M.util.js_complete(key);
                                 return true;
                             });
-                        }).fail(function (e) {
+                        }).fail(function(e) {
                             M.util.js_complete(key);
                             self.showError(e.message);
                         });
@@ -874,7 +873,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Object} item
                      */
-                    bindCollapseEvent: function (item) {
+                    bindCollapseEvent: function(item) {
                         var self = this;
 
                         var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
@@ -912,7 +911,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Boolean} expanded
                      * @returns {*}
                      */
-                    convertForTemplate: function (data, expanded) {
+                    convertForTemplate: function(data, expanded) {
                         var self = this;
                         var single = false;
                         if (data.constructor !== Array) {
@@ -957,9 +956,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} form
                      * @returns {Object}
                      */
-                    convertFormToJson: function (form) {
+                    convertFormToJson: function(form) {
                         var data = {};
-                        form.find(":input").each(function () {
+                        form.find(":input").each(function() {
                             var type = $(this).prop("type");
                             var name = $(this).attr('name');
                             // Checked radios/checkboxes.
@@ -977,7 +976,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Object} data
                      * @returns {Promise}
                      */
-                    createComment: function (data) {
+                    createComment: function(data) {
                         var self = this;
                         data = self.getParamsBeforeCallApi(data);
                         var promise = ajax.call([{
@@ -994,10 +993,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} target
                      * @param {Boolean} isReply
                      */
-                    appendComment: function (item, target, isReply) {
+                    appendComment: function(item, target, isReply) {
                         var self = this;
                         M.util.js_pending(t.ACTION_APPEND_COMMENT);
-                        Templates.render(t.TEMPLATE_COMMENT, item).done(function (html) {
+                        Templates.render(t.TEMPLATE_COMMENT, item).done(function(html) {
                             var el = $(html);
                             target.append(el);
                             if (!self.lastCurrentCount) {
@@ -1027,7 +1026,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /*
                     * Call web services to get the fragment form, append to the DOM then bind event.
                     * */
-                    loadFragmentForm: function (fragmentForm, item) {
+                    loadFragmentForm: function(fragmentForm, item) {
                         var self = this;
                         M.util.js_pending(t.ACTION_LOAD_FRAGMENT_FORM);
                         var params = self.getParamsBeforeCallApi({
@@ -1046,7 +1045,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             t.FRAGMENT_FORM_CALLBACK,
                             self.contextId,
                             params
-                        ).done(function (html, js) {
+                        ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form reply.
                             var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' + item.id + 'editable';
@@ -1059,10 +1058,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /*
                     * Bind fragment form action button event like "Reply" or "Save changes".
                     * */
-                    bindFragmentFormEvent: function (fragmentForm, item) {
+                    bindFragmentFormEvent: function(fragmentForm, item) {
                         var self = this;
                         var formFragmentSelector = fragmentForm.find(t.SELECTOR.COMMENT_AREA_FORM);
-                        fragmentForm.find(t.SELECTOR.SUBMIT_BUTTON).click(function (e) {
+                        fragmentForm.find(t.SELECTOR.SUBMIT_BUTTON).click(function(e) {
                             e.preventDefault();
                             self.changeWorkingState(true);
                             var data = self.convertFormToJson(formFragmentSelector);
@@ -1083,7 +1082,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /*
                     * Call web services to create reply, update parent comment count, remove the fragment form.
                     * */
-                    createReplyComment: function (replyContainer, item, formSelector, formData) {
+                    createReplyComment: function(replyContainer, item, formSelector, formData) {
                         var self = this;
                         var params = {
                             replyto: item.id,
@@ -1093,7 +1092,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             }
                         };
                         M.util.js_pending(t.ACTION_CREATE_REPLY);
-                        self.createComment(params).then(function (response) {
+                        self.createComment(params).then(function(response) {
                             // Hide error if exists.
                             $(t.SELECTOR.COMMENT_ERROR).addClass('hide');
                             var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
@@ -1117,13 +1116,13 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             self.appendComment(data, repliesEl, true);
                             M.util.js_complete(t.ACTION_CREATE_REPLY);
                             return true;
-                        }).fail(function (e) {
+                        }).fail(function(e) {
                             self.handleFailWhenCreateComment(e, params);
                             M.util.js_complete(t.ACTION_CREATE_REPLY);
                         });
                     },
 
-                    handleFailWhenCreateComment: function (e, params) {
+                    handleFailWhenCreateComment: function(e, params) {
                         var self = this;
                         self.showError(e.message);
                         // Remove the fragment form container.
@@ -1134,7 +1133,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     /*
                     * Begin to load the fragment form for reply.
                     * */
-                    getFragmentFormReplyEvent: function (item) {
+                    getFragmentFormReplyEvent: function(item) {
                         var self = this;
                         var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                         var fragmentForm = el.find(t.SELECTOR.FRAGMENT_FORM).first();
@@ -1153,9 +1152,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} formSelector
                      * @param {Boolean} isEdit
                      */
-                    fragmentFormCancelEvent: function (formSelector, isEdit) {
+                    fragmentFormCancelEvent: function(formSelector, isEdit) {
                         var self = this;
-                        formSelector.find('#id_cancel').click(function (e) {
+                        formSelector.find('#id_cancel').click(function(e) {
                             e.preventDefault();
                             var commentSelector = formSelector.closest(t.SELECTOR.COMMENT_ITEM);
                             if (isEdit) {
@@ -1173,7 +1172,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Object} data
                      */
-                    bindDeleteEvent: function (data) {
+                    bindDeleteEvent: function(data) {
                         var self = this;
                         self.deleteTarget = data;
                         if (self.deleteDialog) {
@@ -1192,23 +1191,23 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     '<button class="btn btn-secondary" type="button" data-action="no" title="' +
                                     self.string.cancel + '">' +
                                     self.string.cancel + '</button>'
-                            }).done(function (modal) {
+                            }).done(function(modal) {
                                 // Save modal for later.
                                 self.deleteDialog = modal;
 
                                 // Bind event for cancel button.
-                                modal.getFooter().find('button[data-action="no"]').click(function (e) {
+                                modal.getFooter().find('button[data-action="no"]').click(function(e) {
                                     e.preventDefault();
                                     modal.hide();
                                 });
 
                                 // Bind event for delete button.
-                                modal.getFooter().find('button[data-action="yes"]').click(function (e) {
+                                modal.getFooter().find('button[data-action="yes"]').click(function(e) {
                                     e.preventDefault();
                                     M.util.js_pending(t.ACTION_DELETE);
                                     self.changeWorkingState(true);
                                     // Call web service to delete post.
-                                    self.deleteComment(self.deleteTarget.id).then(function (response) {
+                                    self.deleteComment(self.deleteTarget.id).then(function(response) {
                                         if (!response.success) {
                                             self.showError(response.message);
                                             return true;
@@ -1235,7 +1234,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                         }
 
                                         // Call template to render.
-                                        Templates.render(t.TEMPLATE_COMMENT, convertedCommentData).done(function (html) {
+                                        Templates.render(t.TEMPLATE_COMMENT, convertedCommentData).done(function(html) {
                                             var el = $(html);
 
                                             // Update the parent comment count if we delete reply before replace.
@@ -1266,14 +1265,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                         });
                                         modal.hide();
                                         return true;
-                                    }).fail(function (err) {
+                                    }).fail(function(err) {
                                         self.showError(err.message);
                                         return false;
                                     });
                                 });
 
                                 // Focus back to delete button when user hide modal.
-                                modal.getRoot().on(ModalEvents.hidden, function () {
+                                modal.getRoot().on(ModalEvents.hidden, function() {
                                     var el = $(t.SELECTOR.COMMENT_ID + self.deleteTarget.id);
                                     // Focus on different element base on comment or reply.
                                     if (self.deleteTarget.root) {
@@ -1284,7 +1283,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 });
 
                                 // Enable button when modal is shown.
-                                modal.getRoot().on(ModalEvents.shown, function () {
+                                modal.getRoot().on(ModalEvents.shown, function() {
                                     self.changeWorkingState(false);
                                 });
 
@@ -1302,7 +1301,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Integer} id
                      * @returns {Promise}
                      */
-                    deleteComment: function (id) {
+                    deleteComment: function(id) {
                         var self = this;
                         var params = self.getParamsBeforeCallApi({
                             commentid: id
@@ -1319,7 +1318,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {jQuery} formSelector
                      */
-                    bindEditorEvent: function (formSelector) {
+                    bindEditorEvent: function(formSelector) {
                         var self = this;
                         M.util.js_pending('init_editor');
 
@@ -1329,26 +1328,26 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
                         var attoEditable = document.getElementById(attoEditableId);
-                        var observation = new MutationObserver(function (mutationsList) {
-                            mutationsList.forEach(function (mutation) {
+                        var observation = new MutationObserver(function(mutationsList) {
+                            mutationsList.forEach(function(mutation) {
                                 if (mutation.type === 'attributes' &&
                                     (mutation.attributeName === 'style' || mutation.attributeName === 'hidden')) {
                                     self.checkEditorContent(formSelector);
                                 }
                             });
                         });
-                        observation.observe(attoEditable, { attributes: true, childList: true, subtree: true });
-                        textareaSelector.change(function () {
+                        observation.observe(attoEditable, {attributes: true, childList: true, subtree: true});
+                        textareaSelector.change(function() {
                             self.checkEditorContent(formSelector);
                         });
                         M.util.js_complete('init_editor');
 
                         // Check interval for 5s in case draft content show up.
-                        var interval = setInterval(function () {
+                        var interval = setInterval(function() {
                             formSelector.find('textarea[id^="id_message"]').trigger('change');
                         }, 350);
 
-                        setTimeout(function () {
+                        setTimeout(function() {
                             clearInterval(interval);
                         }, 5000);
                     },
@@ -1359,7 +1358,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} el - Element.
                      * @returns {boolean}
                      */
-                    checkEmptyElement: function (el) {
+                    checkEmptyElement: function(el) {
                         return el.children().length === 0;
                     },
 
@@ -1368,7 +1367,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {integer} value
                      */
-                    setHasComment: function (value) {
+                    setHasComment: function(value) {
                         var self = this;
                         var container = $(t.SELECTOR.CONTAINER);
                         var hasCommentClass = t.HAS_COMMENT_CLASS;
@@ -1391,7 +1390,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {string} query
                      * @return {string}
                      */
-                    parseQueryString: function (query) {
+                    parseQueryString: function(query) {
                         var vars = query.split("&");
                         var queryString = {};
                         for (var i = 0; i < vars.length; i++) {
@@ -1418,7 +1417,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} target
                      * @param {Integer} speed
                      */
-                    scrollToElement: function (target, speed) {
+                    scrollToElement: function(target, speed) {
                         if (!target.length) {
                             return;
                         }
@@ -1426,7 +1425,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             speed = 1000;
                         }
                         var top = target.offset().top;
-                        $('html,body').animate({ scrollTop: top }, speed);
+                        $('html,body').animate({scrollTop: top}, speed);
                     },
 
                     /**
@@ -1436,7 +1435,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Integer} id
                      * @returns {string}
                      */
-                    buildRefererReportLink: function (link, id) {
+                    buildRefererReportLink: function(link, id) {
                         var self = this;
                         var referer = decodeURIComponent(self.referer);
                         // Add highlight.
@@ -1449,7 +1448,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {jQuery} formSelector
                      */
-                    triggerAttoHasContent: function (formSelector) {
+                    triggerAttoHasContent: function(formSelector) {
                         var editorContentWrap = formSelector.find(t.SELECTOR.ATTO.CONTENT_WRAP);
                         var submitBtn = formSelector.find(t.SELECTOR.SUBMIT_BUTTON);
                         submitBtn.removeClass('disabled');
@@ -1464,7 +1463,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {jQuery} formSelector
                      */
-                    triggerAttoNoContent: function (formSelector) {
+                    triggerAttoNoContent: function(formSelector) {
                         var placeholder = formSelector.attr('data-textarea-placeholder');
                         var editorContentWrap = formSelector.find(t.SELECTOR.ATTO.CONTENT_WRAP);
                         var submitBtn = formSelector.find(t.SELECTOR.SUBMIT_BUTTON);
@@ -1480,7 +1479,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {string} string
                      */
-                    setSort: function (string) {
+                    setSort: function(string) {
                         var self = this;
                         if ($.inArray(string, self.sortable) !== -1) {
                             self.sortFeature = string;
@@ -1492,7 +1491,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Object} item
                      */
-                    getFragmentEditFormEvent: function (item) {
+                    getFragmentEditFormEvent: function(item) {
                         var self = this;
                         var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                         var fragmentForm = el.find(t.SELECTOR.FRAGMENT_FORM).first();
@@ -1511,7 +1510,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} fragmentForm
                      * @param {Object} item
                      */
-                    loadFragmentEditForm: function (fragmentForm, item) {
+                    loadFragmentEditForm: function(fragmentForm, item) {
                         var self = this;
                         M.util.js_pending(t.ACTION_LOAD_FRAGMENT_EDIT_FORM);
                         var params = self.getParamsBeforeCallApi({
@@ -1530,7 +1529,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             t.FRAGMENT_EDIT_FORM_CALLBACK,
                             self.contextId,
                             params
-                        ).done(function (html, js) {
+                        ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form.
                             var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' + item.id + 'editable';
@@ -1546,10 +1545,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} fragmentForm
                      * @param {Object} item
                      */
-                    bindFragmentEditFormEvent: function (fragmentForm, item) {
+                    bindFragmentEditFormEvent: function(fragmentForm, item) {
                         var self = this;
                         var formFragmentSelector = fragmentForm.find(t.SELECTOR.COMMENT_AREA_FORM);
-                        fragmentForm.find(t.SELECTOR.SUBMIT_BUTTON).click(function (e) {
+                        fragmentForm.find(t.SELECTOR.SUBMIT_BUTTON).click(function(e) {
                             e.preventDefault();
                             self.changeWorkingState(true);
                             var data = self.convertFormToJson(formFragmentSelector);
@@ -1575,7 +1574,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} formSelector
                      * @param {Object} formData
                      */
-                    editCommentEvent: function (container, item, formSelector, formData) {
+                    editCommentEvent: function(container, item, formSelector, formData) {
                         var self = this;
                         M.util.js_pending(t.ACTION_EDIT);
                         var params = {
@@ -1585,7 +1584,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 format: formData['message[format]'],
                             }
                         };
-                        self.editComment(params).then(function (response) {
+                        self.editComment(params).then(function(response) {
                             // Hide error if exists.
                             $(t.SELECTOR.COMMENT_ERROR).addClass('hide');
                             var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
@@ -1596,7 +1595,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Assign new content.
                             item.shortcontent = response.shortcontent;
                             response.expanded = item.expanded;
-                            Templates.render(t.TEMPLATE_COMMENT, response).done(function (html) {
+                            Templates.render(t.TEMPLATE_COMMENT, response).done(function(html) {
                                 var el = $(html);
                                 var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' + t.SELECTOR.COMMENT_TEXT;
                                 $(commentTextSelector).parent().html(el.find(t.SELECTOR.COMMENT_TEXT).parent().html());
@@ -1605,7 +1604,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             self.changeWorkingState(false);
                             M.util.js_complete(t.ACTION_EDIT);
                             return true;
-                        }).fail(function (e) {
+                        }).fail(function(e) {
                             self.handleFailWhenCreateComment(e, params);
                             M.util.js_complete(t.ACTION_EDIT);
                         });
@@ -1617,7 +1616,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {Object} data
                      * @returns {Promise}
                      */
-                    editComment: function (data) {
+                    editComment: function(data) {
                         var self = this;
                         data = self.getParamsBeforeCallApi(data);
                         var promise = ajax.call([{
@@ -1632,7 +1631,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {jQuery} formSelector
                      */
-                    checkEditorContent: function (formSelector) {
+                    checkEditorContent: function(formSelector) {
                         var key = 'text_change_' + Date.now();
                         M.util.js_pending(key);
                         var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
@@ -1648,7 +1647,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     }
                 };
             },
-            generate: function (params) {
+            generate: function(params) {
                 t.get().init(params);
             }
         };
