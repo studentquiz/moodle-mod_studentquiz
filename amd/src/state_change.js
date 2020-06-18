@@ -22,7 +22,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notification) {
+define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
 
     var t = {
 
@@ -34,14 +34,14 @@ define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notifica
             CHANGE_STATE_NOTIFICATION: 'span.change-question-state'
         },
 
-        init: function () {
+        init: function() {
             var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
             var changeStateButton = $(t.SELECTOR.CHANGE_STATE_BUTTON);
             var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
             var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
             var lastSelectedState = stateChangeSelect.val();
 
-            stateChangeSelect.on('change', function () {
+            stateChangeSelect.on('change', function() {
                 if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
                     stateValueInput.val(stateChangeSelect.val());
                     changeStateButton.removeAttr('disabled');
@@ -52,10 +52,10 @@ define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notifica
                 }
             });
 
-            submitStateButton.on('click', function () {
+            submitStateButton.on('click', function() {
                 submitStateButton.attr('disabled', 'disabled');
                 var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
-                require(['core/loadingicon'], function (LoadingIcon) {
+                require(['core/loadingicon'], function(LoadingIcon) {
                     var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
                     LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
                 });
@@ -66,13 +66,15 @@ define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notifica
                     state: stateChangeSelect.val()
                 };
                 var failure;
-                var promise = Ajax.call([{ methodname: 'mod_studentquiz_set_state', args: args }], true, true);
-                promise[0].then(function (results) {
+                var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
+                promise[0].then(function(results) {
                     Notification.alert(results.status, results.message);
                     pendingPromise.resolve();
                     lastSelectedState = stateChangeSelect.val();
                     // Reload the Studentquiz page.
                     window.opener.location.reload();
+                    // Each then() should return a value or throw (promise/always-return)
+                    return;
                 }).fail(failure);
             });
         },
@@ -84,11 +86,11 @@ define(['jquery', 'core/ajax', 'core/notification'], function ($, Ajax, Notifica
          * @param {string} pendingKey JSPending key
          * @returns {*|jQuery|{}} Pending Promise
          */
-        addPendingJSPromise: function (pendingKey) {
+        addPendingJSPromise: function(pendingKey) {
             M.util.js_pending(pendingKey);
 
             var pendingPromise = $.Deferred();
-            pendingPromise.then(function () {
+            pendingPromise.then(function() {
                 M.util.js_complete(pendingKey);
                 return arguments[0];
             }).catch(Notification.exception);

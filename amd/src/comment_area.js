@@ -607,7 +607,6 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      *
                      * @param {Array} comments
                      * @param {Boolean} expanded
-                     * @returns {Boolean}
                      */
                     renderComment: function(comments, expanded) {
                         var self = this;
@@ -1295,7 +1294,6 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             });
                         }
                     },
-
 
                     /**
                      * Delete comment API.

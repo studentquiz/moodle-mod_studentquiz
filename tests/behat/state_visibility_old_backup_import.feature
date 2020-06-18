@@ -5,7 +5,7 @@ Feature: Restore of studentquizzes in moodle exports contain old approved column
   I need to be able to restore the moodles backups from old studentquizzes, and the state and visibility feature work normally
 
   Background:
-    Given I make sure the current Moodle version is greater than 3.4
+    Given I make sure the current Moodle branch is greater or equal "35"
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |

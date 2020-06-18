@@ -31,9 +31,18 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->libdir . '/questionlib.php');
 
+/**
+ * Defines external functions for the studentquiz module.
+ *
+ * @package mod_studentquiz
+ * @author Huong Nguyen <huongnv13@gmail.com>
+ * @copyright 2019 HSR (http://www.hsr.ch)
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class mod_studentquiz_external extends external_api {
 
     /**
+     * Get the required question state parameters.
      * @return external_function_parameters
      */
     public static function change_question_state_parameters() {
@@ -46,6 +55,8 @@ class mod_studentquiz_external extends external_api {
     }
 
     /**
+     * Set the question state as provided.
+     *
      * @param int $courseid Course id
      * @param int $cmid Course module id
      * @param int $questionid Question id
@@ -70,7 +81,7 @@ class mod_studentquiz_external extends external_api {
 
         mod_studentquiz_change_state_visibility($questionid, $type, $value);
 
-        // Additionally always unhide the question when it got approved
+        // Additionally always unhide the question when it got approved.
         if ($state == studentquiz_helper::STATE_APPROVED) {
             mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
         }
@@ -87,6 +98,7 @@ class mod_studentquiz_external extends external_api {
     }
 
     /**
+     * Get available state return fields.
      * @return external_single_structure
      */
     public static function change_question_state_returns() {

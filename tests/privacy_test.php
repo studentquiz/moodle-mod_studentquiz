@@ -18,6 +18,7 @@
  * Data provider tests for booking system module.
  *
  * @package    mod_studentquiz
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -738,7 +739,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @throws dml_exception
      */
     public function test_get_users_in_context_attempt() {
-        // Create attempt for the first user
+        // Create attempt for the first user.
         $this->create_attempt($this->studentquiz[2]->id, $this->users[0]->id, $this->studentquiz[2]->categoryid);
 
         $userlist = new userlist($this->contexts[2], $this->component);
@@ -760,7 +761,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @throws dml_exception
      */
     public function test_get_users_in_context_notification() {
-        // Create attempt for the first user
+        // Create attempt for the first user.
         $this->create_notification($this->studentquiz[2]->id, $this->users[0]->id);
 
         $userlist = new userlist($this->contexts[2], $this->component);
@@ -839,10 +840,10 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create question for user.
      *
-     * @param $name
-     * @param $qtype
-     * @param $categoryid
-     * @param $user
+     * @param string $name
+     * @param string $qtype
+     * @param int $categoryid
+     * @param stdClass $user
      * @return question_definition
      * @throws coding_exception
      */
@@ -867,7 +868,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create approval data for question.
      *
-     * @param $questionid
+     * @param int $questionid
      * @return object
      * @throws dml_exception
      */
@@ -888,8 +889,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create rate data for user.
      *
-     * @param $questionid
-     * @param $userid
+     * @param int $questionid
+     * @param int $userid
      * @return object
      * @throws dml_exception
      */
@@ -911,17 +912,18 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create comment data for user.
      *
-     * @param $questionid
-     * @param $userid
-     * @param $parentid
-     * @param $delete
-     * @param $deleteuserid
-     * @param $edit
-     * @param $edituserid
+     * @param int $questionid
+     * @param int $userid
+     * @param int $parentid
+     * @param int $delete
+     * @param int $deleteuserid
+     * @param int $edit
+     * @param int $edituserid
      * @return object
      * @throws dml_exception
      */
-    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0, $edit = 0, $edituserid = 0) {
+    protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0, $edit = 0,
+        $edituserid = 0) {
         global $DB;
 
         $data = (object) [
@@ -944,8 +946,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create comment history data for given user and comment.
      *
-     * @param $commentid Comment id
-     * @param $userid Userid
+     * @param int $commentid Comment id
+     * @param int $userid Userid
      * @param bool $delete Is deleted or not
      * @return object
      */
@@ -969,9 +971,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create progress data for user.
      *
-     * @param $questionid
-     * @param $userid
-     * @param $studentquizid
+     * @param int $questionid
+     * @param int $userid
+     * @param int $studentquizid
      * @return object
      * @throws dml_exception
      */
@@ -995,9 +997,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create attempt data for user.
      *
-     * @param $studentquizid
-     * @param $userid
-     * @param $categoryid
+     * @param int $studentquizid
+     * @param int $userid
+     * @param int $categoryid
      * @return object
      * @throws dml_exception
      */
@@ -1020,8 +1022,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Create notification data for user.
      *
-     * @param $studentquizid
-     * @param $userid
+     * @param int $studentquizid
+     * @param int $userid
      * @return object
      * @throws dml_exception
      */

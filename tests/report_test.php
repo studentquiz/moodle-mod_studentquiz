@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class mod_studentquiz_report_testcase extends advanced_testcase {
 
     /**
@@ -106,10 +105,14 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
 
         // Create questions in questionbank.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $q1 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF1', 'category' => $this->studentquiz->categoryid]);
-        $q2 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF2', 'category' => $this->studentquiz->categoryid]);
-        $q3 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF3', 'category' => $this->studentquiz->categoryid]);
-        $q4 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF4', 'category' => $this->studentquiz->categoryid]);
+        $q1 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF1',
+            'category' => $this->studentquiz->categoryid]);
+        $q2 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF2',
+            'category' => $this->studentquiz->categoryid]);
+        $q3 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF3',
+            'category' => $this->studentquiz->categoryid]);
+        $q4 = $questiongenerator->create_question('truefalse', null, ['name' => 'TF4',
+            'category' => $this->studentquiz->categoryid]);
         $this->questions = [$q1, $q2, $q3, $q4];
 
         // Create an attempt by the first user. First question right. Second wrong.
@@ -175,9 +178,16 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         $this->assertEquals(0, $q2stats->correctattempts);
     }
 
+    /**
+     * Debug output db contents
+     *
+     * @param array $user
+     * @return array
+     */
     private function debugdb($user=array()) {
         global $DB;
-        $tables = array('studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts', 'question_attempt_steps', 'question_attempt_step_data');
+        $tables = array('studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts',
+            'question_attempt_steps', 'question_attempt_step_data');
         $result = array();
         $result['user'] = $this->users[0];
         foreach ($tables as $table) {

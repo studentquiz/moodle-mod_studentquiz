@@ -9,7 +9,7 @@ services:
   - mysql
 
 addons:
-  postgresql: "9.4"
+  postgresql: 9.6
   firefox: "47.0.1"
   #chrome: stable
   apt:
@@ -53,7 +53,7 @@ matrix:
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
     - php: 7.4
-      env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
+      env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
     - php: 7.4
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=pgsql
     # technically MOODLE_38 has no offical PHP7.4 support, but allow that test for now
@@ -61,13 +61,15 @@ matrix:
     # Technically PHP 7.1 is EOL, but MOODLE_35 is an LTS which has PHP 7.1 as the latest *non-conditional* supported version
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=pgsql
-    # Some MySQL as backend with various PHP versions, but just some to save matrix slots
+    # Some MySQL as backend with various PHP and Moodle versions, but just some to save matrix slots
     - php: 7.1
       env: MOODLE_BRANCH=MOODLE_35_STABLE DB=mysqli
     - php: 7.2
       env: MOODLE_BRANCH=MOODLE_37_STABLE DB=mysqli
     - php: 7.3
       env: MOODLE_BRANCH=MOODLE_38_STABLE DB=mysqli
+    - php: 7.4
+      env: MOODLE_BRANCH=MOODLE_39_STABLE DB=mysqli
     # Some MariaDB as backend with various PHP versions, but just some to save matrix slots
     # TODO: Somehow behat doesn't run when mariadb is in use, all other stuff do
     # - php: 7.1

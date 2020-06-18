@@ -35,8 +35,16 @@ defined('MOODLE_INTERNAL') || die();
  */
 class preview_column extends \core_question\bank\preview_action_column {
 
+    /**
+     * Renderer
+     * @var stdClass
+     */
     protected $renderer;
+
+    /** @var stdClass */
     protected $context;
+
+    /** @var string */
     protected $previewtext;
 
     /**

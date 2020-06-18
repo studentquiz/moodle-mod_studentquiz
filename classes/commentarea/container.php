@@ -593,8 +593,8 @@ class container {
     /**
      * Check if user already commented.
      *
-     * @param integer $questionid
-     * @param integer $userid
+     * @param int $questionid
+     * @param int $userid
      * @return bool
      */
     public static function has_comment(int $questionid, $userid) {
@@ -654,6 +654,11 @@ class container {
         return $studentquiz->anonymrank;
     }
 
+    /**
+     * Get fields.
+     *
+     * @return array
+     */
     public function get_fields() {
         $fields = [];
         // In anonymous mode, those features is not available.
@@ -834,8 +839,7 @@ class container {
     /**
      * Re-sort data when get limit (limit always get latest).
      *
-     * @param $data
-     * @param $sorttype
+     * @param array $data
      * @return array
      */
     private function resort($data) {
@@ -867,8 +871,8 @@ class container {
     /**
      * Get comment history by given comment id
      *
-     * @param $commentid int - Comment id for filter data
-     * @return array - array comment's history
+     * @param int $commentid Comment id for filter data
+     * @return array comment's history
      */
     public function get_history($commentid): array {
         global $DB;

@@ -35,12 +35,13 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     /**
      * @var studentquiz_view
      */
     private $viewlib;
+
+    /** @var stdClass */
     private $cm;
 
     /**
@@ -122,7 +123,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     /**
      * Call protected/private method of a class.
      *
-     * @param object &$object    Instantiated object that we will run method on.
+     * @param object $object     Instantiated object that we will run method on.
      * @param string $methodname Method name to call
      * @param array  $parameters Array of parameters to pass into method.
      *

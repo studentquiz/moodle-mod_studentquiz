@@ -15,6 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Modify stuff conditionally
+ *
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -27,30 +29,34 @@ require_once($CFG->dirroot . '/mod/studentquiz/classes/local/db.php');
 use mod_studentquiz\local\db;
 
 /**
- * This class controls from which category questions are listed.
+ * Conditionally modify question bank queries.
  *
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_condition extends \core_question\bank\search\condition {
 
-    /* Due to fix_sql_params not accepting repeated use of named params,
-       we need to get unique names for params that will be used more than
-       once...
-
-       init() from parent class duplicated here as we can't call it directly
-       (private) :-P
-
-       where() overridden with call to init() followed by call to parent
-       where()...
-
-       params() always returns $this->params, which doesn't change between
-       calls to get_in_or_equal, so don't need to fix anything there.
-       Which is fortunate, as there'd be no way to keep where() and params()
-       in sync.
-    */
-
-
+    /**
+     * Due to fix_sql_params not accepting repeated use of named params,
+     * we need to get unique names for params that will be used more than
+     * once...
+     *
+     * init() from parent class duplicated here as we can't call it directly
+     * (private) :-P
+     *
+     * where() overridden with call to init() followed by call to parent
+     * where()...
+     *
+     * params() always returns $this->params, which doesn't change between
+     * calls to get_in_or_equal, so don't need to fix anything there.
+     * Which is fortunate, as there'd be no way to keep where() and params()
+     * in sync.
+     *
+     * @param stdClass $cm
+     * @param stdClass $filterform
+     * @param \mod_studentquiz_report $report
+     * @param stdClass $studentquiz
+     */
     public function __construct($cm, $filterform, $report, $studentquiz) {
         $this->cm = $cm;
         $this->filterform = $filterform;
@@ -61,25 +67,38 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         $this->init();
     }
 
+    /** @var stdClass */
     protected $cm;
-    // Search condition depends on filterform.
+
+    /** @var stdClass $filterform Search condition depends on filterform */
     protected $filterform;
 
+    /** @var stdClass */
     protected $studentquiz;
 
-    /** @var  \mod_studentquiz_report */
+    /** @var \mod_studentquiz_report */
     protected $report;
 
+    /** @var array */
     protected $tests;
 
+    /** @var array */
     protected $params;
 
+    /** @var bool */
     protected $isfilteractive = false;
 
+    /**
+     * Whether the filter is active.
+     * @return bool
+     */
     public function is_filter_active() {
         return $this->isfilteractive;
     }
 
+    /**
+     * Initialize.
+     */
     protected function init() {
         if ($adddata = $this->filterform->get_data()) {
 
@@ -100,17 +119,19 @@ class studentquiz_condition extends \core_question\bank\search\condition {
 
                 $sqldata = $field->get_sql_filter($data);
 
-                // Disable filtering by firstname if anonymized
-                if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) || !$this->report->is_anonymized())) {
+                // Disable filtering by firstname if anonymized.
+                if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                    !$this->report->is_anonymized())) {
                     continue;
                 }
 
-                // Disable filtering by firstname if anonymized
-                if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) || !$this->report->is_anonymized())) {
+                // Disable filtering by firstname if anonymized.
+                if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                    !$this->report->is_anonymized())) {
                     continue;
                 }
 
-                // Respect leading and ending ',' for the tagarray as provided by tag_column.php
+                // Respect leading and ending ',' for the tagarray as provided by tag_column.php.
                 if ($field->_name == 'tagarray') {
                     foreach ($sqldata[1] as $key => $value) {
                         if (!empty($value)) {
@@ -138,6 +159,13 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         }
     }
 
+    /**
+     * Replaces special fields with additional sql instructions in the query
+     *
+     * @param string $sqldata the sql query
+     * @param string $name affected field name
+     * @return string modified sql query
+     */
     private function get_special_sql($sqldata, $name) {
         if (substr($sqldata, 0, 12) === 'mydifficulty') {
             return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $sqldata);
@@ -148,6 +176,12 @@ class studentquiz_condition extends \core_question\bank\search\condition {
         return $sqldata;
     }
 
+    /**
+     * Replaces fields with additional sql instructions in place of the field
+     *
+     * @param string $name affected field name
+     * @return string modified sql query
+     */
     private function get_sql_field($name) {
         if (substr($name, 0, 12) === 'mydifficulty') {
             return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $name);
@@ -161,6 +195,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
 
     /**
      * Get the sql table prefix
+     *
      * @param string $name
      * @return string return sql prefix
      */
@@ -193,7 +228,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
     }
 
     /**
-     * @Return an SQL fragment to be ANDed into the WHERE clause to filter which questions are shown.
+     * Provide SQL fragment to be ANDed into the WHERE clause to filter which questions are shown.
      * @return string SQL fragment. Must use named parameters.
      */
     public function where() {
