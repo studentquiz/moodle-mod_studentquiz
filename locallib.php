@@ -1024,18 +1024,23 @@ function mod_studentquiz_ensure_question_capabilities($context) {
     global $CFG;
 
     $neededcapabilities = [
-            'mod/studentquiz:view' => [
-                    'moodle/question:useall'
-            ],
-            'mod/studentquiz:submit' => [
-                    'moodle/question:add',
-                    'moodle/question:editmine',
-                    'moodle/question:tagmine'
-            ],
-            'mod/studentquiz:previewothers' => [],
-            'mod/studentquiz:manage' => [
-                    'moodle/question:editall'
-            ]
+        'mod/studentquiz:view' => [
+            'moodle/question:useall'
+        ],
+        'mod/studentquiz:submit' => [
+            'moodle/question:add',
+            'moodle/question:editmine',
+            'moodle/question:tagmine'
+        ],
+        'mod/studentquiz:previewothers' => [
+            'moodle/question:viewall'
+        ],
+        'mod/studentquiz:organize' => [
+            'moodle/question:moveall'
+        ],
+        'mod/studentquiz:manage' => [
+            'moodle/question:editall'
+        ]
     ];
 
     $studentquizcapabilities = array_keys($neededcapabilities);

@@ -58,7 +58,7 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
-    // Ability to see the activity.
+    // Ability to see and use the activity.
     'mod/studentquiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -84,6 +84,26 @@ $capabilities = array(
     // Ability to preview questions other than mine.
     'mod/studentquiz:previewothers' => array(
         'captype' => 'read',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
+    ),
+    // Ability to change the state of questions.
+    'mod/studentquiz:changestate' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
+    ),
+    // Ability to move questions into categories.
+    'mod/studentquiz:organize' => array(
+        'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
             'teacher'        => CAP_ALLOW,
