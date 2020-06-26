@@ -873,7 +873,8 @@ class container {
     public function get_history($commentid): array {
         global $DB;
 
-        return $DB->get_records('studentquiz_comment_history', ['commentid' => $commentid, 'action' => utils::COMMENT_HISTORY_EDIT],
+        list($insql, $inparams) = $DB->get_in_or_equal([utils::COMMENT_HISTORY_EDIT, utils::COMMENT_HISTORY_CREATE]);
+        return $DB->get_records_select('studentquiz_comment_history', "commentid = $commentid AND action $insql", $inparams,
                 'timemodified DESC');
     }
 
