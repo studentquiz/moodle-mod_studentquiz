@@ -113,6 +113,8 @@ class delete_comment_api extends external_api {
 
         // Delete the comment.
         $comment->delete();
+        // Create history.
+        utils::create_comment_history($comment, utils::COMMENT_HISTORY_DELETE);
         // Get new comment from DB to have correct info.
         $comment = $commentarea->refresh_has_comment()->query_comment_by_id($params['commentid']);
         if ($comment) {
@@ -123,9 +125,6 @@ class delete_comment_api extends external_api {
             $response->success = false;
             $response->message = \get_string('invalidcomment', 'studentquiz');
         }
-
-        // Create history.
-        utils::create_comment_history($comment, utils::COMMENT_HISTORY_DELETE);
 
         return $response;
     }
