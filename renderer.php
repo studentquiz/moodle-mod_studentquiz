@@ -1147,7 +1147,7 @@ EOT;
     public function render_control_buttons($catcontext, $hasquestionincategory, $addcontexts, $category) {
         $output = '';
         $caneditall = has_capability('mod/studentquiz:manage', $catcontext);
-        $canmoveall = has_capability('mod/studentquiz:manage', $catcontext);
+        $canmoveall = has_capability('mod/studentquiz:organize', $catcontext);
 
         $output .= html_writer::start_div('modulespecificbuttonscontainer');
         $output .= html_writer::tag('strong', '&nbsp;' . get_string('withselected', 'question') . ':');
@@ -1544,7 +1544,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      */
     public function render_state_choice($questionid, $courseid, $cmid) {
         $output = '';
-        if (has_capability('mod/studentquiz:previewothers', $this->page->context)) {
+        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
             $states = [
                     studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
                     studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),

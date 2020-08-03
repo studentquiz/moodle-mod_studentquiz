@@ -259,8 +259,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
         }
 
-        // Move selected questions to new category.
-        // TODO: Isn't there a questionlib function for that?
+        // Move selected questions to new category. Unfortunately there is no easy question lib method for moving
+        // questions into other categories.
         if (optional_param('move', false, PARAM_BOOL) and confirm_sesskey()) {
             $category = required_param('category', PARAM_SEQUENCE);
             list($tocategoryid, $contextid) = explode(',', $category);
@@ -280,6 +280,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 foreach ($questions as $question) {
                     question_require_capability_on($question, 'move');
                 }
+                // Careful! This function is considered question lib internal!
                 question_move_questions_to_category($rawquestionids, $tocategory->id);
                 $this->baseurl->remove_params('move');
                 foreach ($rawquestionids as $id) {
@@ -355,71 +356,73 @@ class studentquiz_bank_view extends \core_question\bank\view {
     public function process_actions_needing_ui() {
         global $DB, $OUTPUT;
 
-        // Make a list of all the questions that are selected.
-        if (optional_param('deleteselected', false, PARAM_BOOL) || optional_param('approveselected', false, PARAM_BOOL)) {
-            // This code is called by both POST forms and GET links, so cannot use data_submitted.
-            $rawquestions = $_REQUEST;
-            // Comma separated list of ids of questions to be deleted.
-            $questionlist = '';
-            // String with names of questions separated by <br /> with.
-            $questionnames = '';
-            // An asterix in front of those that are in use Set to true if at least one of the questions is in use.
-            $inuse = false;
-            // Exact requested url except the delete/approveselected.
-            $baseurl = new \moodle_url('view.php', $this->baseurl->params());
-            $baseurl->remove_params('deleteselected', 'approveselected');
-
-            // Parse input for question ids.
-            foreach (mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions) as $id) {
-                $baseurl->remove_params('q'.$id);
-                $questionlist .= $id.',';
-                question_require_capability_on($id, 'edit');
-                if (questions_in_use(array($id))) {
-                    $questionnames .= '* ';
-                    $inuse = true;
-                }
-                $questionnames .= $DB->get_field('question', 'name', array('id' => $id)) . '<br />';
-            }
-
-            // No questions were selected.
-            if (!$questionlist) {
-                redirect($this->baseurl);
-            }
-            $questionlist = rtrim($questionlist, ',');
-
-            if (optional_param('deleteselected', false, PARAM_BOOL)) {
-                // Add an explanation about questions in use.
-                if ($inuse) {
-                    $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'question');
-                }
-
-                $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
-                    'sesskey' => sesskey()));
-
-                $continue = new \single_button($deleteurl, get_string('delete'), 'get');
-
-                $output = $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
-            } else if (optional_param('approveselected', false, PARAM_BOOL)) {
-                // Add an explanation about questions in use.
-                if ($inuse) {
-                    $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'studentquiz');
-                }
-
-                $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0,
-                    'confirm' => md5($questionlist),
-                    'sesskey' => sesskey()));
-
-                $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
-                $continue->disabled = true;
-                $continue->class .= ' continue_state_change';
-
-                $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz',
-                    $questionnames), $continue, $baseurl);
-            }
-
-            echo $output;
-            return true;
+        $context = \context_module::instance($this->studentquiz->coursemodule);
+        if (optional_param('deleteselected', false, PARAM_BOOL)) {
+            require_capability('mod/studentquiz:manage', $context);
+        } else if (optional_param('approveselected', false, PARAM_BOOL)) {
+            require_capability('mod/studentquiz:changestate', $context);
+        } else {
+            // Otherwise no further actions.
+            return false;
         }
+
+        // Make a list of all the questions that are selected.
+        // This code is called by both POST forms and GET links, so cannot use data_submitted.
+        $rawquestions = $_REQUEST;
+        // Comma separated list of ids of questions to be deleted.
+        $questionlist = '';
+        // String with names of questions separated by <br /> with.
+        $questionnames = '';
+        // An asterix in front of those that are in use Set to true if at least one of the questions is in use.
+        $inuse = false;
+        // Exact requested url except the delete/approveselected.
+        $baseurl = new \moodle_url('view.php', $this->baseurl->params());
+        $baseurl->remove_params('deleteselected', 'approveselected');
+
+        // Parse input for question ids.
+        foreach (mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions) as $id) {
+            $baseurl->remove_params('q'.$id);
+            $questionlist .= $id.',';
+            if (questions_in_use(array($id))) {
+                $questionnames .= '* ';
+                $inuse = true;
+            }
+            $questionnames .= $DB->get_field('question', 'name', array('id' => $id)) . '<br />';
+        }
+
+        // No questions were selected.
+        if (!$questionlist) {
+            redirect($baseurl);
+        }
+        $questionlist = rtrim($questionlist, ',');
+
+        // Add an explanation about questions in use.
+        if ($inuse) {
+            $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'studentquiz');
+        }
+
+        if (optional_param('deleteselected', false, PARAM_BOOL)) {
+            $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
+                'sesskey' => sesskey()));
+
+            $continue = new \single_button($deleteurl, get_string('delete'), 'get');
+
+            $output = $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
+        } else if (optional_param('approveselected', false, PARAM_BOOL)) {
+            $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0,
+                'confirm' => md5($questionlist),
+                'sesskey' => sesskey()));
+
+            $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
+            $continue->disabled = true;
+            $continue->class .= ' continue_state_change';
+
+            $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz',
+                $questionnames), $continue, $baseurl);
+        }
+
+        echo $output;
+        return true;
     }
 
     /**
