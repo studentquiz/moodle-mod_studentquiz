@@ -1023,37 +1023,8 @@ function mod_studentquiz_get_roles() {
 function mod_studentquiz_ensure_question_capabilities($context) {
     global $CFG;
 
-    $neededcapabilities = [
-        // Allows to view and use the activity.
-        'mod/studentquiz:view' => [
-            // Allows to attempt questions.
-            'moodle/question:useall'
-        ],
-        // Allows to create questions.
-        'mod/studentquiz:submit' => [
-            // Allows to create questions.
-            'moodle/question:add',
-            'moodle/question:editmine',
-            'moodle/question:tagmine'
-        ],
-        // Allows to preview other questions.
-        'mod/studentquiz:previewothers' => [
-            // Allows to view edit questions in read-only of others.
-            'moodle/question:viewall'
-        ],
-        // Allows to move questions into categories.
-        'mod/studentquiz:organize' => [
-            // Allows to move questions into categories.
-            'moodle/question:moveall'
-        ],
-        // Allows to edit and delete questions.
-        'mod/studentquiz:manage' => [
-            // Allows to edit and delete questions.
-            'moodle/question:editall'
-        ]
-    ];
-
-    $studentquizcapabilities = array_keys($neededcapabilities);
+    require(__DIR__ . '/db/access.php');
+    $studentquizcapabilities = array_keys($contextcapabilities);
 
     $extracapabilities = [];
     $capabiltiesneededbyeachrole = [];
@@ -1063,10 +1034,10 @@ function mod_studentquiz_ensure_question_capabilities($context) {
         list($roleids) = get_roles_with_cap_in_context($context, $studentquizcapability);
         foreach ($roleids as $roleid) {
             if (!array_key_exists($roleid, $capabiltiesneededbyeachrole)) {
-                $capabiltiesneededbyeachrole[$roleid] = $neededcapabilities[$studentquizcapability];
+                $capabiltiesneededbyeachrole[$roleid] = $contextcapabilities[$studentquizcapability];
             } else {
                 $capabiltiesneededbyeachrole[$roleid] =
-                        array_merge($capabiltiesneededbyeachrole[$roleid], $neededcapabilities[$studentquizcapability]);
+                        array_merge($capabiltiesneededbyeachrole[$roleid], $contextcapabilities[$studentquizcapability]);
             }
         }
     }

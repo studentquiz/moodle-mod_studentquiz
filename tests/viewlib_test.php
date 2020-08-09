@@ -143,7 +143,8 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     }
 
     /**
-     * Test mod_studentquiz_ensure_question_capabilities function.
+     * Test mod_studentquiz_ensure_question_capabilities function by testing permissions initial,
+     * after adding a capability and after removing that capability again
      */
     public function test_mod_studentquiz_ensure_question_capabilities() {
         $this->resetAfterTest();
@@ -154,31 +155,23 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
         $studentquiz = $this->getDataGenerator()->create_module('studentquiz',
                 ['course' => $course->id], ['anonymrank' => true]);
         $contextstudentquiz = context_module::instance($studentquiz->coursemodule);
-        $questioncap = [
-                'moodle/question:add',
-                'moodle/question:editmine',
-                'moodle/question:editall',
-                'moodle/question:viewmine',
-                'moodle/question:viewall',
-                'moodle/question:movemine',
-                'moodle/question:moveall'
-        ];
-        $haveonecap = false;
 
         $this->getDataGenerator()->role_assign($roleid, $user->id, $context->id);
         $this->setUser($user);
+
+        // First the user doesn't have the context specific capability
+        $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
+
+        // Then we assign a capability and run the the ensure function so the context specific
+        // capability is added
         assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
-        assign_capability('mod/studentquiz:previewothers', CAP_ALLOW, $roleid, $context, true);
-        assign_capability('mod/studentquiz:view', CAP_ALLOW, $roleid, $context, true);
-
         mod_studentquiz_ensure_question_capabilities($context);
+        $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
-        foreach ($questioncap as $cap) {
-            if (has_capability($cap, $contextstudentquiz)) {
-                $haveonecap = true;
-                break;
-            }
-        }
-        $this->assertTrue($haveonecap);
+        // Then we remove that capability again and the user has not anymore the context specific
+        // capability
+        unassign_capability('mod/studentquiz:manage', $roleid, $context);
+        mod_studentquiz_ensure_question_capabilities($context);
+        $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
     }
 }
