@@ -1057,13 +1057,13 @@ function mod_studentquiz_ensure_question_capabilities($context) {
             if (in_array($studentquizcap, $capresolvednames)) {
                 foreach ($questioncaps as $questioncap) {
                     if (in_array($questioncap, $capoverridenames)) {
-                        // capability already set, no changes needed, so remove from the working list to prevent
-                        // removing it
+                        // Capability already set, no changes needed, so remove from the working list to prevent
+                        // removing it.
                         if (($key = array_search($questioncap, $capoverridenames)) !== false) {
                             unset($capoverridenames[$key]);
                         }
                     } else {
-                        // capability missing, add it
+                        // Capability missing, add it.
                         assign_capability($questioncap, CAP_ALLOW, $role->id, $context, true);
                     }
                 }

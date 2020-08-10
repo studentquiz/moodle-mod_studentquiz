@@ -160,17 +160,17 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
         $this->getDataGenerator()->role_assign($roleid, $user->id, $context->id);
         $this->setUser($user);
 
-        // First the user doesn't have the context specific capability
+        // First the user doesn't have the context specific capability.
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
 
         // Then we assign a capability and run the the ensure function so the context specific
-        // capability is added
+        // capability is added.
         assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
         mod_studentquiz_ensure_question_capabilities($context);
         $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
         // Then we remove that capability again and the user has not anymore the context specific
-        // capability
+        // capability.
         unassign_capability('mod/studentquiz:manage', $roleid, $context);
         mod_studentquiz_ensure_question_capabilities($context);
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));

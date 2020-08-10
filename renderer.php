@@ -1499,7 +1499,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @throws dml_exception
      */
     public function render_rate($questionid, $forcerating = true) {
-        global $DB, $USER, $PAGE;
+        global $DB, $USER;
 
         $question = question_bank::load_question($questionid);
         if (!utils::allow_self_comment_and_rating_in_preview_mode($question, $this->page->cm->id)) {

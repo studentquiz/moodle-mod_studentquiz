@@ -51,7 +51,7 @@ $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
 // Lookup question.
 try {
     $question = question_bank::load_question($questionid);
-    // A user can view this page if it is his question or he is allowed to view others questions
+    // A user can view this page if it is his question or he is allowed to view others questions.
     if ($question->createdby != $USER->id) {
         require_capability('mod/studentquiz:previewothers', $context);
     }
