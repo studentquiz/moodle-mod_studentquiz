@@ -96,7 +96,6 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
-            'teacher'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
@@ -106,7 +105,6 @@ $capabilities = array(
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
         'archetypes' => array(
-            'teacher'        => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),

@@ -1028,9 +1028,6 @@ function mod_studentquiz_ensure_question_capabilities($context) {
     require(__DIR__ . '/db/access.php');
     $studentquizcapabilities = array_keys($contextcapabilities);
 
-    $neededcapabilitiesbyeachrole = [];
-    $excessivecapabilitiesbyeachrole = [];
-
     // Get a list of roles assigned to this course (since there are no roles assigned directly to the studentquiz
     // context, includeparents is set to true).
     $roles = get_roles_used_in_context($context, true);
