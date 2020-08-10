@@ -1015,8 +1015,10 @@ function mod_studentquiz_get_roles() {
 }
 
 /**
- * Add capabilities to teacher (Non editing teacher) and
- * Student roles in the context of this context
+ * Add context specific capabilities to all roles from users assigned to this course of this studentquiz context.
+ * Warning: This functions assigns and unassigns capabilities. If this function is called from a capability_[un]assigned
+ * event, it will trigger that event again if it finds out that changes have to be made. The outcome of this chain of
+ * events is uncalculatable and may be uncontrollable and thus should be avoided!
  *
  * @param context $context of the studentquiz activity
  */
@@ -1026,43 +1028,56 @@ function mod_studentquiz_ensure_question_capabilities($context) {
     require(__DIR__ . '/db/access.php');
     $studentquizcapabilities = array_keys($contextcapabilities);
 
-    $extracapabilities = [];
-    $capabiltiesneededbyeachrole = [];
+    $neededcapabilitiesbyeachrole = [];
+    $excessivecapabilitiesbyeachrole = [];
 
-    foreach ($studentquizcapabilities as $studentquizcapability) {
-        // Get the ids of all the roles that related to given capability.
-        list($roleids) = get_roles_with_cap_in_context($context, $studentquizcapability);
-        foreach ($roleids as $roleid) {
-            if (!array_key_exists($roleid, $capabiltiesneededbyeachrole)) {
-                $capabiltiesneededbyeachrole[$roleid] = $contextcapabilities[$studentquizcapability];
-            } else {
-                $capabiltiesneededbyeachrole[$roleid] =
-                        array_merge($capabiltiesneededbyeachrole[$roleid], $contextcapabilities[$studentquizcapability]);
+    // Get a list of roles assigned to this course (since there are no roles assigned directly to the studentquiz
+    // context, includeparents is set to true).
+    $roles = get_roles_used_in_context($context, true);
+    foreach ($roles as $role) {
+        // Get the list of unresolved capabilities of this role in this exact context (so only overrides). This list
+        // contains the question capability overrides StudentQuiz is managing.
+        $capoverrides = get_capabilities_from_role_on_context($role, $context);
+        $capoverridenames = array();
+        foreach ($capoverrides as $capoverride) {
+            $capoverridenames[] = $capoverride->capability;
+        }
+
+        // Get the list of resolved capabilities of this role in this exact context (includes overrides). This list
+        // is based on for which studentquiz capabilities are given to apply question capability overrides.
+        $capresolveds = role_context_capabilities($role->id, $context);
+        $capresolvednames = array_keys($capresolveds);
+
+        // For each studentquiz cap there are question caps only for this context. So if the question cap is not found,
+        // it has to be assigned. While doing that the studentquiz and question caps will be removed from the list.
+        foreach ($contextcapabilities as $studentquizcap => $questioncaps) {
+            // It's fine for us that the studentquiz capability is set via override, we just don't want to remove
+            // it later, so also remove from the working list.
+            if (($key = array_search($studentquizcap, $capoverridenames)) !== false) {
+                unset($capoverridenames[$key]);
+            }
+
+            if (in_array($studentquizcap, $capresolvednames)) {
+                foreach ($questioncaps as $questioncap) {
+                    if (in_array($questioncap, $capoverridenames)) {
+                        // capability already set, no changes needed, so remove from the working list to prevent
+                        // removing it
+                        if (($key = array_search($questioncap, $capoverridenames)) !== false) {
+                            unset($capoverridenames[$key]);
+                        }
+                    } else {
+                        // capability missing, add it
+                        assign_capability($questioncap, CAP_ALLOW, $role->id, $context, true);
+                    }
+                }
             }
         }
-    }
 
-    foreach ($capabiltiesneededbyeachrole as $roleid => $questioncapabilites) {
-        $capabilitieswithall  = preg_grep('/all$/', $questioncapabilites);
-        foreach ($capabilitieswithall as $capabilitiy) {
-            $capabilitieswithmine = preg_replace('/all$/', 'mine', $capabilitiy);
-            if (in_array($capabilitieswithmine, $questioncapabilites)) {
-                // Remove the 'mine' if we have 'all' capability.
-                $deletekey = array_search($capabilitieswithmine, $capabiltiesneededbyeachrole[$roleid]);
-                unset($capabiltiesneededbyeachrole[$roleid][$deletekey]);
-            }
-        }
-    }
-
-    foreach ($capabiltiesneededbyeachrole as $roleid => $questioncapabilites) {
-        // Include the extra capabilities if needed.
-        if (!empty($extracapabilities)) {
-            $questioncapabilites = array_merge($questioncapabilites, $extracapabilities);
-        }
-        // If needed, add an override for each question capability.
-        foreach ($questioncapabilites as $capability) {
-            // This function only creates an override if needed.
-            role_change_permission($roleid, $context, $capability, CAP_ALLOW);
+        // After going through, all remaining caps are excessive have to be usassigned. If there are capabilities in
+        // the list not related to studentquiz or question, they have no meaning anyway, since this list only contains
+        // unresolved capabilities.
+        foreach ($capoverridenames as $capoverridename) {
+            unassign_capability($capoverridename, $role->id, $context);
         }
     }
 }

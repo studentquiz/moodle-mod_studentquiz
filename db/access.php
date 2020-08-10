@@ -167,8 +167,7 @@ $capabilities = array(
 );
 
 // The following capabilities are NOT managed by the moodle API, they are needed to setup context specific permissions
-// for users of StudentQuiz and are setup by StudentQuiz. They are added here so we have one place for the capability
-// definitions.
+// for users and are setup by StudentQuiz. They are moved here so we have one place for all capability definitions.
 $contextcapabilities = [
     // Allows to view and use the activity.
     'mod/studentquiz:view' => [
