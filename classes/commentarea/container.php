@@ -546,12 +546,26 @@ class container {
     }
 
     /**
+     * Add given user to the user list.
+     *
+     * @param int $userid
+     */
+    public function add_user_to_user_list($userid) {
+        $user = \core_user::get_user($userid);
+        $user->fullname = fullname($user);
+        $this->userlist[$user->id] = $user;
+    }
+
+    /**
      * Get user from users list.
      *
      * @param int $id - Id of user.
      * @return mixed|null
      */
     public function get_user_from_user_list(int $id) {
+        if (!array_key_exists($id, $this->userlist)) {
+            return null;
+        }
         return $this->userlist[$id];
     }
 
@@ -877,7 +891,8 @@ class container {
     public function get_history($commentid): array {
         global $DB;
 
-        return $DB->get_records('studentquiz_comment_history', ['commentid' => $commentid, 'action' => utils::COMMENT_HISTORY_EDIT],
+        list($insql, $inparams) = $DB->get_in_or_equal([utils::COMMENT_HISTORY_EDIT, utils::COMMENT_HISTORY_CREATE]);
+        return $DB->get_records_select('studentquiz_comment_history', "commentid = $commentid AND action $insql", $inparams,
                 'timemodified DESC');
     }
 

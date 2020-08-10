@@ -1499,7 +1499,12 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @throws dml_exception
      */
     public function render_rate($questionid, $forcerating = true) {
-        global $DB, $USER;
+        global $DB, $USER, $PAGE;
+
+        $question = question_bank::load_question($questionid);
+        if (!utils::allow_self_comment_and_rating_in_preview_mode($question, $this->page->cm->id)) {
+            return '';
+        }
 
         $value = -1;
         $rate = $DB->get_record('studentquiz_rate', array('questionid' => $questionid, 'userid' => $USER->id));
@@ -1957,6 +1962,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         $commentarea = new container($studentquiz, $question, $cm, $context);
         $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
+        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($question, $cmid);
 
         if ($highlight != 0) {
             $numbertoshow = 0;
@@ -1998,6 +2004,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                                 'deleted' => $replyobject->deleted,
                                 'reportlink' => $replyobject->reportlink
                         ];
+                        $replyobject->allowselfcommentrating = $allowselfcommentrating;
                         $item->replies[] = $replyobject;
                     }
                     $item->repliesstring = json_encode($repliesstring);
@@ -2014,6 +2021,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 $url = clone $currentreferer;
                 $url->param('highlight', $item->id);
                 $item->reportlink .= '&referer=' . urlencode($url->out());
+                $item->allowselfcommentrating = $allowselfcommentrating;
                 $res[] = $item;
             }
         }
@@ -2041,7 +2049,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         // Need to pass this to js to calculate current of total comments.
         $jsdata = array_merge($jsdata, [
                 'count' => $count,
-                'total' => $total
+                'total' => $total,
+                'allowselfcommentrating' => $allowselfcommentrating
         ]);
 
         $this->page->requires->js_call_amd(self::MODNAME . '/comment_area', 'generate', [$jsdata]);
@@ -2063,15 +2072,17 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'editedcommenthistorylinktext' => get_string('editedcommenthistorylinktext', 'mod_studentquiz')
         ];
 
-        // Create form add comment.
-        $mform = new \mod_studentquiz\commentarea\form\comment_form([
-                'index' => $id,
-                'replyto' => VALUE_DEFAULT,
-                'questionid' => $questionid,
-                'cmid' => $cmid,
-                'cancelbutton' => false,
-                'forcecommenting' => $forcecommenting
-        ]);
+        if ($allowselfcommentrating) {
+            // Create form add comment.
+            $mform = new \mod_studentquiz\commentarea\form\comment_form([
+                    'index' => $id,
+                    'replyto' => VALUE_DEFAULT,
+                    'questionid' => $questionid,
+                    'cmid' => $cmid,
+                    'cancelbutton' => false,
+                    'forcecommenting' => $forcecommenting
+            ]);
+        }
 
         // Get current of total string. Example: 5 of 7.
         $commentcountstring = get_string('current_of_total', 'mod_studentquiz', [
@@ -2081,7 +2092,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
 
         return $this->output->render_from_template(self::MODNAME . '/comment_area', [
                 'id' => $id,
-                'postform' => $mform->get_html(),
+                'postform' => $allowselfcommentrating ? $mform->get_html() : null,
                 'comments' => $res,
                 'commentcountstring' => $commentcountstring,
                 'hascomment' => $commentarea->check_has_comment(),

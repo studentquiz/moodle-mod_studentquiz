@@ -66,7 +66,8 @@
                 "root": false,
                 "authorname": "Teacher",
                 "posttime": "6 December 2019, 4:08 PM",
-                "canedit": true
+                "canedit": true,
+                "allowselfcommentrating": true
             }
         ]
     }
@@ -106,13 +107,17 @@
                             "date": {{# quote }}{{ deletedtime }}{{/ quote }}
                             }
                         {{/str}}
+                        {{#isedithistory}}
+                            {{#str}} editedcomment_last_edit, mod_studentquiz{{/str}}
+                            {{commenthistorymetadata}}
+                        {{/isedithistory}}
                     </div>
                     <div class="studentquiz-comment-delete-content">
                         {{#expanded}}
                             {{{content}}}
                         {{/expanded}}
                         {{^expanded}}
-                            {{{shortcontent}}}
+                            <p>{{{shortcontent}}}</p>
                         {{/expanded}}
                     </div>
                 </div>
@@ -152,6 +157,10 @@
                 {{/root}}
                 <strong>{{#str}} deletedcomment, mod_studentquiz{{/str}}</strong>
                 {{#str}} deletedbyauthor, mod_studentquiz, {{deletedtime}} {{/str}}
+                {{#isedithistory}}
+                    {{#str}} editedcomment_last_edit, mod_studentquiz{{/str}}
+                    {{commenthistorymetadata}}
+                {{/isedithistory}}
             </div>
         {{/canviewdeleted}}
     {{/deleted}}
@@ -183,7 +192,7 @@
                         {{{content}}}
                     {{/expanded}}
                     {{^expanded}}
-                        {{{shortcontent}}}
+                        <p>{{{shortcontent}}}</p>
                     {{/expanded}}
                 </div>
                 {{#canedit}}
@@ -191,7 +200,7 @@
                         <div class="studentquiz-comment-history">
                             {{commenthistorymetadata}}
                             (<a href="#"
-                                onclick="window.open('{{{ commenthistorylink }}}', '{{#str}} commenthistory, mod_studentquiz {{/str}}', 'width=800,height=600'); return false;"
+                                onclick="window.open('{{{ commenthistorylink }}}', '{{#str}} commenthistory, mod_studentquiz {{/str}}', 'scrollbars=1,resizable=1,width=800,height=600'); return false;"
                                 target="_blank">{{#str}} editedcommenthistorylinktext, mod_studentquiz {{/str}}</a>)
                         </div>
                     {{/isedithistory}}
@@ -209,32 +218,34 @@
                         </button>
                     </div>
                 {{/canreport}}
-                {{#root}}
-                    {{#canreply}}
-                        <div class="studentquiz-comment-commands-buttons">
-                            <button class="btn btn-secondary studentquiz-comment-btnreply"
-                                    title="{{#str}} replycomment, mod_studentquiz, {{index}} {{/str}}">
-                                {{#str}} replycomment, mod_studentquiz {{/str}}
-                            </button>
-                        </div>
-                    {{/canreply}}
-                {{/root}}
-                {{#canedit}}
-                    <div class="studentquiz-comment-commands-buttons">
-                        <button class="btn btn-secondary studentquiz-comment-btnedit{{^root}}reply{{/root}}"
-                                title="{{#str}} edit, core {{/str}}">
-                            {{#str}} edit, core {{/str}}
-                        </button>
-                    </div>
-                {{/canedit}}
-                {{#candelete}}
-                    <div class="studentquiz-comment-commands-buttons">
-                        <button class="btn btn-secondary studentquiz-comment-btndelete{{^root}}reply{{/root}}"
-                                title="{{#str}} delete, mod_studentquiz {{/str}}">
-                            {{#str}} delete, mod_studentquiz {{/str}}
-                        </button>
-                    </div>
-                {{/candelete}}
+				{{#allowselfcommentrating}}
+					{{#root}}
+						{{#canreply}}
+							<div class="studentquiz-comment-commands-buttons">
+								<button class="btn btn-secondary studentquiz-comment-btnreply"
+										title="{{#str}} replycomment, mod_studentquiz, {{index}} {{/str}}">
+									{{#str}} replycomment, mod_studentquiz {{/str}}
+								</button>
+							</div>
+						{{/canreply}}
+					{{/root}}
+					{{#canedit}}
+						<div class="studentquiz-comment-commands-buttons">
+							<button class="btn btn-secondary studentquiz-comment-btnedit{{^root}}reply{{/root}}"
+									title="{{#str}} edit, core {{/str}}">
+								{{#str}} edit, core {{/str}}
+							</button>
+						</div>
+					{{/canedit}}
+					{{#candelete}}
+						<div class="studentquiz-comment-commands-buttons">
+							<button class="btn btn-secondary studentquiz-comment-btndelete{{^root}}reply{{/root}}"
+									title="{{#str}} delete, mod_studentquiz {{/str}}">
+								{{#str}} delete, mod_studentquiz {{/str}}
+							</button>
+						</div>
+					{{/candelete}}
+				{{/allowselfcommentrating}}
                 {{#root}}
                     <div class="studentquiz-comment-totalreply">
                         <span class="studentquiz-comment-count-number">
