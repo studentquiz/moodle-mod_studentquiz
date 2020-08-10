@@ -73,7 +73,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                     lastSelectedState = stateChangeSelect.val();
                     // Reload the Studentquiz page.
                     window.opener.location.reload();
-                    // Each then() should return a value or throw (promise/always-return)
+                    // Each then() should return a value or throw (promise/always-return).
                     return;
                 }).fail(failure);
             });
