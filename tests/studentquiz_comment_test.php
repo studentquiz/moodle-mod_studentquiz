@@ -586,4 +586,13 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->assertEquals(fullname($this->users[0]), $results[0]->authorname);
         $this->assertEquals($results[0]->content, 'mock content');
     }
+
+    /**
+     * Test user permission for preview mode.
+     */
+    public function test_user_permission_for_preview_mode() {
+        $this->assertTrue(has_capability('mod/studentquiz:canselfratecomment', $this->context));
+        $this->setUser($this->users[0]);
+        $this->assertFalse(has_capability('mod/studentquiz:canselfratecomment', $this->context));
+    }
 }

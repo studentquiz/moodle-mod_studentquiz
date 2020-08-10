@@ -94,6 +94,7 @@ style5 = html';
                 'commenthistorylink' => new external_value(PARAM_RAW, 'Link to connect comment history page'),
                 'isedithistory' => new external_value(PARAM_BOOL, 'Check history is edit show link'),
                 'status' => new external_value(PARAM_INT, 'Status of comment.'),
+                'allowselfcommentrating' => new external_value(PARAM_BOOL, 'User can comment in owned question in preview mode.'),
         ];
     }
 
@@ -318,5 +319,25 @@ style5 = html';
         }
 
         return $timetosend;
+    }
+
+    /**
+     * Check permision can self comment and rating.
+     *
+     * @param question_definition $question Current Question stdClass
+     * @param int $cmid Current Cmid
+     * @return boolean
+     */
+    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid) {
+        global $USER, $PAGE;
+        $context = \context_module::instance($cmid);
+        if (
+            $PAGE->pagetype == 'mod-studentquiz-preview'
+            && $USER->id == $question->createdby
+            && !has_capability('mod/studentquiz:canselfratecomment', $context)
+        ) {
+            return false;
+        }
+        return true;
     }
 }
