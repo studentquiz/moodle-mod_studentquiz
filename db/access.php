@@ -174,16 +174,18 @@ $capabilities = array(
 );
 
 // The following capabilities are NOT managed by the moodle API, they are needed to setup context specific permissions
-// for users and are setup by StudentQuiz. They are moved here so we have one place for all capability definitions.
+// for users and are setup by StudentQuiz. They are moved here so we have one place for all capability definitions. The
+// key of this array is the studentquiz capability and the contents is an array for all question capabilities needed to
+// fulfill the purpose.
 $contextcapabilities = [
     // Allows to view and use the activity.
     'mod/studentquiz:view' => [
-        // Allows to attempt questions.
+        // Allows to attempt all questions.
         'moodle/question:useall'
     ],
     // Allows to create questions.
     'mod/studentquiz:submit' => [
-        // Allows to create questions.
+        // Allows to create edit and tag own questions.
         'moodle/question:add',
         'moodle/question:editmine',
         'moodle/question:tagmine'

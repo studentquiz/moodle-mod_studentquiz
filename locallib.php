@@ -1032,6 +1032,10 @@ function mod_studentquiz_ensure_question_capabilities($context) {
     // context, includeparents is set to true).
     $roles = get_roles_used_in_context($context, true);
     foreach ($roles as $role) {
+        // Get the list of resolved capabilities of this role in this exact context (includes overrides). This list
+        // is based on for which studentquiz capabilities are given to apply question capability overrides.
+        $capresolvednames = array_keys(role_context_capabilities($role->id, $context));
+
         // Get the list of unresolved capabilities of this role in this exact context (so only overrides). This list
         // contains the question capability overrides StudentQuiz is managing.
         $capoverrides = get_capabilities_from_role_on_context($role, $context);
@@ -1040,20 +1044,16 @@ function mod_studentquiz_ensure_question_capabilities($context) {
             $capoverridenames[] = $capoverride->capability;
         }
 
-        // Get the list of resolved capabilities of this role in this exact context (includes overrides). This list
-        // is based on for which studentquiz capabilities are given to apply question capability overrides.
-        $capresolveds = role_context_capabilities($role->id, $context);
-        $capresolvednames = array_keys($capresolveds);
-
         // For each studentquiz cap there are question caps only for this context. So if the question cap is not found,
-        // it has to be assigned. While doing that the studentquiz and question caps will be removed from the list.
+        // it has to be assigned. While doing that the question caps will be removed from the working list.
         foreach ($contextcapabilities as $studentquizcap => $questioncaps) {
             // It's fine for us that the studentquiz capability is set via override, we just don't want to remove
-            // it later, so also remove from the working list.
+            // it later, so also remove that from the working list.
             if (($key = array_search($studentquizcap, $capoverridenames)) !== false) {
                 unset($capoverridenames[$key]);
             }
 
+            // If the studentquiz capability is given resolved, apply the question capability as override if needed.
             if (in_array($studentquizcap, $capresolvednames)) {
                 foreach ($questioncaps as $questioncap) {
                     if (in_array($questioncap, $capoverridenames)) {
