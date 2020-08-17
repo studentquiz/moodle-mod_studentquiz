@@ -80,6 +80,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+        'clonepermissionsfrom' => 'mod/studentquiz:view',
     ),
     // Ability to preview questions other than mine.
     'mod/studentquiz:previewothers' => array(
@@ -99,6 +100,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+        'clonepermissionsfrom' => 'mod/studentquiz:manage',
     ),
     // Ability to move questions into categories.
     'mod/studentquiz:organize' => array(
@@ -108,6 +110,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+        'clonepermissionsfrom' => 'mod/studentquiz:manage',
     ),
     // Ability to edit the settings.
     'mod/studentquiz:manage' => array(
@@ -127,6 +130,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+        'clonepermissionsfrom' => 'mod/studentquiz:manage',
     ),
     // Notifications.
     'mod/studentquiz:emailnotifyquestion' => array(
@@ -170,5 +174,6 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'mod/studentquiz:previewothers',
     ]
 );
