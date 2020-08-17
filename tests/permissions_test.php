@@ -87,17 +87,21 @@ class mod_studentquiz_permissions extends advanced_testcase {
         // Then we assign a capability and run the the ensure function so the context specific
         // capability is added.
         assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
-        mod_studentquiz\permissions\contextoverride::ensurerelation($context,
-            mod_studentquiz\permissions\contextoverride::$studentquizrelation
-        );
+        // Events take over applying the capability overrides, so the following call is redundant. Add these lines
+        // back if the event implementation is removed:
+        // mod_studentquiz\permissions\contextoverride::ensurerelation($context,
+        //     mod_studentquiz\permissions\contextoverride::$studentquizrelation
+        // );
         $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
         // Then we remove that capability again and the user has not anymore the context specific
         // capability.
         unassign_capability('mod/studentquiz:manage', $roleid, $context);
-        mod_studentquiz\permissions\contextoverride::ensurerelation($context,
-            mod_studentquiz\permissions\contextoverride::$studentquizrelation
-        );
+        // Events take over applying the capability overrides, so the following call is redundant. Add these lines
+        // back if the event implementation is removed:
+        // mod_studentquiz\permissions\contextoverride::ensurerelation($context,
+        //     mod_studentquiz\permissions\contextoverride::$studentquizrelation
+        // );
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
     }
 }
