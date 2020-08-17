@@ -37,7 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 class mod_studentquiz_observer {
 
     /**
-     * Observer for the even question_created - Create new record for studentquiz_questions table.
+     * Observer for the event question_created - Create new record for studentquiz_questions table.
      *
      * @param \core\event\question_created $event
      * @throws moodle_exception
@@ -58,7 +58,7 @@ class mod_studentquiz_observer {
     }
 
     /**
-     * Observer for the even question_moved - Create new record for studentquiz_questions table.
+     * Observer for the event question_moved - Create new record for studentquiz_questions table.
      *
      * @param \core\event\question_moved $event
      * @throws coding_exception
@@ -85,7 +85,7 @@ class mod_studentquiz_observer {
     }
 
     /**
-     * Observer for the even studentquiz_digest_changed
+     * Observer for the event studentquiz_digest_changed.
      *
      * @param studentquiz_digest_changed $event
      */
@@ -110,4 +110,122 @@ class mod_studentquiz_observer {
                         'oldtimetosend' => $timetosend, 'status' => 0]);
     }
 
+    /**
+     * Observer for the event \core\event\capability_assigned. Updates context specific capability overrides
+     * if needed.
+     *
+     * @param \core\event\capability_assigned $event
+     */
+    public static function capability_assigned(\core\event\capability_assigned $event) {
+        if (self::has_capability_changed($event->other['capability'])) {
+            self::apply_capabilityoverride($event->courseid);
+        }
+    }
+
+    /**
+     * Observer for the event \core\event\capability_unassigned. Updates context specific capability overrides
+     * if needed.
+     *
+     * @param \core\event\capability_unassigned $event
+     */
+    public static function capability_unassigned(\core\event\capability_unassigned $event) {
+        if (self::has_capability_changed($event->other['capability'])) {
+            self::apply_capabilityoverride($event->courseid);
+        }
+    }
+
+    /**
+     * Observer for the event \core\event\user_enrolment_created. Update context specific capability overrides
+     * if needed.
+     *
+     * @param \core\event\user_enrolment_created $event
+     */
+    public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
+        self::apply_capabilityoverride($event->courseid);
+    }
+
+    /**
+     * Observer for the event \core\event\user_enrolment_updated. Update context specific capability overrides
+     * if needed.
+     *
+     * @param \core\event\user_enrolment_updated $event
+     */
+    public static function user_enrolment_updated(\core\event\user_enrolment_updated $event) {
+        self::apply_capabilityoverride($event->courseid);
+    }
+
+    /**
+     * Observer for the event \core\event\user_enrolment_deleted. Update context specific capability overrides
+     * if needed.
+     *
+     * @param \core\event\user_enrolment_deleted $event
+     */
+    public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
+        self::apply_capabilityoverride($event->courseid);
+    }
+
+    /**
+     * Observer for the event \core\event\course_module_created. Add context specific capability overrides.
+     *
+     * @param \core\event\course_module_created $event
+     */
+    public static function course_module_created(\core\event\course_module_created $event) {
+        if ($event->other["modulename"] == "studentquiz") {
+            self::apply_capabilityoverride_coursemodule($event->objectid);
+        }
+    }
+
+    /**
+     * Check if capability change affects StudentQuizzes
+     *
+     * @param string capability
+     * @return bool
+     */
+    private static function has_capability_changed($capability) {
+        return ((strpos($capability, "mod/studentquiz:") === 0));
+    }
+
+    /**
+     * Apply capability override for course (or system if courseid is empty). This function can be called even if you
+     * don't know if there are StudentQuizzes at all.
+     *
+     * @param int courseid
+    */
+    private static function apply_capabilityoverride($courseid = 0) {
+        global $DB;
+
+        $params = array();
+        if (!empty($courseid)) {
+            $params['course'] = $courseid;
+        }
+
+        $studentquizes = $DB->get_records('studentquiz', $params);
+
+        foreach ($studentquizes as $studentquiz) {
+            self::apply_capabilityoverride_coursemodule($studentquiz->coursemodule);
+        }
+    }
+
+    /**
+     * Apply capability override for coursemodule.
+     * WARNING: Only suitable for StudentQuiz activities. The caller must verify beforehand.
+     *
+     * @param int coursemoduleid
+     */
+    private static function apply_capabilityoverride_coursemodule($coursemoduleid) {
+        $context = \context_module::instance($coursemoduleid);
+
+        mod_studentquiz\permissions\contextoverride::ensurerelation($context,
+            mod_studentquiz\permissions\contextoverride::$studentquizrelation
+        );
+    }
+
+    /**
+     * DO NOT USE! Temporarily allow applying of StudentQuiz capability overrides from the module update process for the
+     * whole system. This is very likely to be a one-time exception to use such a function from outside the events. This
+     * only exists to prevent duplicated code - the called method is intentionally private.
+     */
+    public static function module_update_backwardsfix_capabilityoverrides() {
+        self::apply_capabilityoverride();
+    }
 }

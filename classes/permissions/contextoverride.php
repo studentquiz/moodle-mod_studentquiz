@@ -47,30 +47,34 @@ class contextoverride {
         // Allows to view and use the activity.
         'mod/studentquiz:view' => [
             // Allows to attempt all questions.
-            'moodle/question:useall'
+            'moodle/question:useall',
+            // Required to even be able to see question bank and thus the overview.
+            'moodle/question:viewmine',
         ],
         // Allows to create questions.
         'mod/studentquiz:submit' => [
             // Allows to create edit and tag own questions.
             'moodle/question:add',
             'moodle/question:editmine',
-            'moodle/question:tagmine'
+            'moodle/question:tagmine',
         ],
         // Allows to preview other questions.
         'mod/studentquiz:previewothers' => [
             // Allows to view edit questions in read-only of others.
-            'moodle/question:viewall'
+            'moodle/question:viewall',
         ],
         // Allows to move questions into categories.
         'mod/studentquiz:organize' => [
             // Allows to move questions into categories.
-            'moodle/question:moveall'
+            'moodle/question:moveall',
+            // Allows editing of categories.
+            'moodle/question:managecategory',
         ],
         // Allows to edit and delete questions.
         'mod/studentquiz:manage' => [
             // Allows to edit and delete questions.
-            'moodle/question:editall'
-        ]
+            'moodle/question:editall',
+        ],
     ];
 
     /**
@@ -78,7 +82,10 @@ class contextoverride {
      * All other capability overrides not given in relation are removed!
      * Warning: This functions assigns and unassigns capabilities. If this function is called from a
      * capability_[un]assigned event, it will trigger that event again if it finds out that changes have to be made. The
-     * outcome of this chain of events is uncalculatable and may be uncontrollable and thus should be avoided!
+     * outcome of this chain of events may be uncontrollable and thus should be avoided or filtered very carefully!
+     * Caveat: If this function is called and a role is not anymore present in the enrolment, its capability overrides
+     * are not removed. This is due to how this function gathers the roles in the context so you have a few unused and
+     * inactive capability overrides. If that role is added back, the relation is ensured again.
      *
      * @param context $context to apply the override
      * @param array $relation where keys are needed capabilities and its values an array of capabilities to override

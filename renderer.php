@@ -942,7 +942,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      */
     public function render_select_qtype_form($view) {
         return $view->get_questionbank()->create_new_question_form($view->get_category_id(),
-                has_capability('moodle/question:add', $view->get_context()));
+                has_capability('mod/studentquiz:submit', $view->get_context()));
     }
 
     /**

@@ -122,12 +122,6 @@ class mod_studentquiz_view {
      * Loads the question custom bank view.
      */
     private function load_questionbank() {
-        // Ensure capabilities are set to load question bank. When there are changes to the required capabilities
-        // for different moodles, the capabilities have to be corrected.
-        mod_studentquiz\permissions\contextoverride::ensurerelation($this->context,
-            mod_studentquiz\permissions\contextoverride::$studentquizrelation
-        );
-
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
 
         // Get edit question link setup.
