@@ -122,7 +122,9 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     $context = context_module::instance($studentquiz->coursemodule);
 
     // Leverage add capabilities to add questions in StudentQuiz context.
-    mod_studentquiz_ensure_question_capabilities($context);
+    mod_studentquiz\permissions\contextoverride::ensurerelation($context,
+        mod_studentquiz\permissions\contextoverride::$studentquizrelation
+    );
 
     // Early update context in database so default categories know where the instance can be found.
     $DB->set_field('course_modules', 'instance', $studentquiz->id, array('id' => $context->instanceid));
