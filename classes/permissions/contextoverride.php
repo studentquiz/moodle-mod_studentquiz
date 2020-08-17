@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy Subsystem implementation for mod_required.
+ * Permissions helper to manage context specific overrides.
  *
  * @package    mod_required
  * @copyright  2020 HSR (http://www.hsr.ch)
@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/accesslib.php');
 
 /**
- * Context permissions helper to manage context specific overrides
+ * Permissions helper to manage context specific overrides.
  *
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
