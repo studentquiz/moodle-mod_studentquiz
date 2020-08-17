@@ -178,7 +178,7 @@ class mod_studentquiz_observer {
     /**
      * Check if capability change affects StudentQuizzes
      *
-     * @param string capability
+     * @param string $capability
      * @return bool
      */
     private static function has_capability_changed($capability) {
@@ -189,8 +189,8 @@ class mod_studentquiz_observer {
      * Apply capability override for course (or system if courseid is empty). This function can be called even if you
      * don't know if there are StudentQuizzes at all.
      *
-     * @param int courseid
-    */
+     * @param int $courseid
+     */
     private static function apply_capabilityoverride($courseid = 0) {
         global $DB;
 
@@ -210,7 +210,7 @@ class mod_studentquiz_observer {
      * Apply capability override for coursemodule.
      * WARNING: Only suitable for StudentQuiz activities. The caller must verify beforehand.
      *
-     * @param int coursemoduleid
+     * @param int $coursemoduleid
      */
     private static function apply_capabilityoverride_coursemodule($coursemoduleid) {
         $context = \context_module::instance($coursemoduleid);

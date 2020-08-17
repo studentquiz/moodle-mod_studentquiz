@@ -17,7 +17,7 @@
 /**
  * Permissions helper to manage context specific overrides.
  *
- * @package    mod_required
+ * @package    mod_studentquiz
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
