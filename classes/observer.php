@@ -228,4 +228,15 @@ class mod_studentquiz_observer {
     public static function module_update_backwardsfix_capabilityoverrides() {
         self::apply_capabilityoverride();
     }
+
+    /**
+     * DO NOT USE! Temporarily allow applying of StudentQuiz capability overrides from the view main page for moodles
+     * not supporting the required events. This is very likely to be a one-time exception to use such a function from
+     * outside the events. This only exists to prevent duplicated code - the called method is intentionally private.
+     *
+     * @param int $coursemoduleid
+     */
+    public static function backwardscompatibility_moodle_capabilityoverrides($coursemoduleid) {
+        self::apply_capabilityoverride_coursemodule($coursemoduleid);
+    }
 }

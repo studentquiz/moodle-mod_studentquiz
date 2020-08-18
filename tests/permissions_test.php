@@ -92,18 +92,22 @@ class mod_studentquiz_permissions extends advanced_testcase {
         // First the user doesn't have the context specific capability.
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
 
-        // Then we assign a capability and run the the ensure function so the context specific
-        // capability is added.
+        // Then we assign a capability and run the the ensure function so the context specific capability is added.
         assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
-        // Events take over applying the capability overrides, so the following call is redundant. Add these call to
-        // mod_studentquiz\permissions\contextoverride::ensurerelation back if the event implementation is removed.
+        // Events take over applying mod_studentquiz\permissions\contextoverride::ensurerelation. Some events only
+        // exist in Moodle 38 and later, so we have to manually call the context capability overrides.
+        if ($CFG->branch < 38) {
+            mod_studentquiz_observer::backwardscompatibility_moodle_capabilityoverrides($cmid);
+        }
         $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
-        // Then we remove that capability again and the user has not anymore the context specific
-        // capability.
+        // Then we remove that capability again and the user has not anymore the context specific capability.
         unassign_capability('mod/studentquiz:manage', $roleid, $context);
-        // Events take over applying the capability overrides, so the following call is redundant. Add these call to
-        // mod_studentquiz\permissions\contextoverride::ensurerelation back if the event implementation is removed.
+        // Events take over applying mod_studentquiz\permissions\contextoverride::ensurerelation. Some events only
+        // exist in Moodle 38 and later, so we have to manually call the context capability overrides.
+        if ($CFG->branch < 38) {
+            mod_studentquiz_observer::backwardscompatibility_moodle_capabilityoverrides($cmid);
+        }
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
     }
 }
