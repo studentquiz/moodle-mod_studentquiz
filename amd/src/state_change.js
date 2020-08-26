@@ -35,47 +35,49 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         },
 
         init: function() {
-            var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
-            var changeStateButton = $(t.SELECTOR.CHANGE_STATE_BUTTON);
-            var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
-            var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
-            var lastSelectedState = stateChangeSelect.val();
+            $(document).ready(function() {
+                var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
+                var changeStateButton = $(t.SELECTOR.CHANGE_STATE_BUTTON);
+                var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
+                var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
+                var lastSelectedState = stateChangeSelect.val();
 
-            stateChangeSelect.on('change', function() {
-                if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
-                    stateValueInput.val(stateChangeSelect.val());
-                    changeStateButton.removeAttr('disabled');
-                    submitStateButton.removeAttr('disabled');
-                } else {
-                    changeStateButton.attr('disabled', 'disabled');
-                    submitStateButton.attr('disabled', 'disabled');
-                }
-            });
-
-            submitStateButton.on('click', function() {
-                submitStateButton.attr('disabled', 'disabled');
-                var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
-                require(['core/loadingicon'], function(LoadingIcon) {
-                    var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
-                    LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
+                stateChangeSelect.on('change', function() {
+                    if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
+                        stateValueInput.val(stateChangeSelect.val());
+                        changeStateButton.removeAttr('disabled');
+                        submitStateButton.removeAttr('disabled');
+                    } else {
+                        changeStateButton.attr('disabled', 'disabled');
+                        submitStateButton.attr('disabled', 'disabled');
+                    }
                 });
-                var args = {
-                    courseid: submitStateButton.attr('data-courseid'),
-                    cmid: submitStateButton.attr('data-cmid'),
-                    questionid: submitStateButton.attr('data-questionid'),
-                    state: stateChangeSelect.val()
-                };
-                var failure;
-                var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
-                promise[0].then(function(results) {
-                    Notification.alert(results.status, results.message);
-                    pendingPromise.resolve();
-                    lastSelectedState = stateChangeSelect.val();
-                    // Reload the Studentquiz page.
-                    window.opener.location.reload();
-                    // Each then() should return a value or throw (promise/always-return).
-                    return;
-                }).fail(failure);
+
+                submitStateButton.on('click', function() {
+                    submitStateButton.attr('disabled', 'disabled');
+                    var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
+                    require(['core/loadingicon'], function(LoadingIcon) {
+                        var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
+                        LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
+                    });
+                    var args = {
+                        courseid: submitStateButton.attr('data-courseid'),
+                        cmid: submitStateButton.attr('data-cmid'),
+                        questionid: submitStateButton.attr('data-questionid'),
+                        state: stateChangeSelect.val()
+                    };
+                    var failure;
+                    var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
+                    promise[0].then(function(results) {
+                        Notification.alert(results.status, results.message);
+                        pendingPromise.resolve();
+                        lastSelectedState = stateChangeSelect.val();
+                        // Reload the Studentquiz page.
+                        window.opener.location.reload();
+                        // Each then() should return a value or throw (promise/always-return).
+                        return;
+                    }).fail(failure);
+                });
             });
         },
 
