@@ -51,32 +51,22 @@ class mod_studentquiz_permissions extends advanced_testcase {
     }
 
     /**
-     * Call protected/private method of a class.
+     * Tear down test
      *
-     * @param object $object     Instantiated object that we will run method on.
-     * @param string $methodname Method name to call
-     * @param array  $parameters Array of parameters to pass into method.
-     *
-     * @return mixed Method return.
+     * @throws coding_exception
      */
-    public function invoke_method(&$object, $methodname, array $parameters = array()) {
-        $reflection = new \ReflectionClass(get_class($object));
-        $method = $reflection->getMethod($methodname);
-        $method->setAccessible(true);
-
-        return $method->invokeArgs($object, $parameters);
-    }
-
     public function tearDown() {
         parent::tearDown();
         $this->resetAfterTest();
     }
 
     /**
-     * Test contextoverride function by first testing permissions initially, then
+     * Test context_override function by first testing permissions initially, then
      * after adding a capability and then after removing that capability again.
      */
-    public function test_contextoverride() {
+    public function test_context_override() {
+        global $CFG;
+
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
@@ -94,19 +84,19 @@ class mod_studentquiz_permissions extends advanced_testcase {
 
         // Then we assign a capability and run the the ensure function so the context specific capability is added.
         assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
-        // Events take over applying mod_studentquiz\permissions\contextoverride::ensurerelation. Some events only
+        // Events take over applying mod_studentquiz\access\context_override::ensure_relation. Some events only
         // exist in Moodle 38 and later, so we have to manually call the context capability overrides.
         if ($CFG->branch < 38) {
-            mod_studentquiz_observer::backwardscompatibility_moodle_capabilityoverrides($cmid);
+            mod_studentquiz_observer::module_usage_backwardsfix_capability_override($cmid);
         }
         $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
         // Then we remove that capability again and the user has not anymore the context specific capability.
         unassign_capability('mod/studentquiz:manage', $roleid, $context);
-        // Events take over applying mod_studentquiz\permissions\contextoverride::ensurerelation. Some events only
+        // Events take over applying mod_studentquiz\access\context_override::ensure_relation. Some events only
         // exist in Moodle 38 and later, so we have to manually call the context capability overrides.
         if ($CFG->branch < 38) {
-            mod_studentquiz_observer::backwardscompatibility_moodle_capabilityoverrides($cmid);
+            mod_studentquiz_observer::module_usage_backwardsfix_capability_override($cmid);
         }
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
     }

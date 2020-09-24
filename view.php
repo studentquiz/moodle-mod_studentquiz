@@ -54,7 +54,7 @@ if ($CFG->branch < 37) {
 
 // Some events only exist in Moodle 38 and later, so we have to manually call the context capability overrides.
 if ($CFG->branch < 38) {
-    mod_studentquiz_observer::backwardscompatibility_moodle_capabilityoverrides($cmid);
+    mod_studentquiz_observer::module_usage_backwardsfix_capability_override($cmid);
 }
 
 // If for some weired reason a studentquiz is not aggregated yet, now would be a moment to do so.

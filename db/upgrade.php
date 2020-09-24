@@ -818,7 +818,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2020081700) {
         require_once(__DIR__ . '/../classes/observer.php');
 
-        mod_studentquiz_observer::module_update_backwardsfix_capabilityoverrides();
+        mod_studentquiz_observer::module_update_backwardsfix_capability_override();
 
         upgrade_mod_savepoint(true, 2020081700, 'studentquiz');
     }

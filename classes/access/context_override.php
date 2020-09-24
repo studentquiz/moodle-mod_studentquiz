@@ -15,14 +15,14 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Permissions helper to manage context specific overrides.
+ * Access helper to manage context specific overrides.
  *
  * @package    mod_studentquiz
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_studentquiz\permissions;
+namespace mod_studentquiz\access;
 
 use context;
 
@@ -31,11 +31,11 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/accesslib.php');
 
 /**
- * Permissions helper to manage context specific overrides.
+ * Access helper to manage context specific overrides.
  *
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class contextoverride {
+class context_override {
 
     /**
      * Needed context specific permissions for roles in StudentQuiz. The key of this array is the StudentQuiz
@@ -90,7 +90,7 @@ class contextoverride {
      * @param context $context to apply the override
      * @param array $relation where keys are needed capabilities and its values an array of capabilities to override
      */
-    public static function ensurerelation(context $context, array $relation) {
+    public static function ensure_relation(context $context, array $relation) {
         global $CFG;
 
         // Get a list of roles assigned to this context tree (since it is possible that there are no roles assigned

@@ -118,7 +118,7 @@ class mod_studentquiz_observer {
      */
     public static function capability_assigned(\core\event\capability_assigned $event) {
         if (self::has_capability_changed($event->other['capability'])) {
-            self::apply_capabilityoverride($event->courseid);
+            self::apply_capability_override($event->courseid);
         }
     }
 
@@ -130,7 +130,7 @@ class mod_studentquiz_observer {
      */
     public static function capability_unassigned(\core\event\capability_unassigned $event) {
         if (self::has_capability_changed($event->other['capability'])) {
-            self::apply_capabilityoverride($event->courseid);
+            self::apply_capability_override($event->courseid);
         }
     }
 
@@ -141,7 +141,7 @@ class mod_studentquiz_observer {
      * @param \core\event\user_enrolment_created $event
      */
     public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
-        self::apply_capabilityoverride($event->courseid);
+        self::apply_capability_override($event->courseid);
     }
 
     /**
@@ -151,7 +151,7 @@ class mod_studentquiz_observer {
      * @param \core\event\user_enrolment_updated $event
      */
     public static function user_enrolment_updated(\core\event\user_enrolment_updated $event) {
-        self::apply_capabilityoverride($event->courseid);
+        self::apply_capability_override($event->courseid);
     }
 
     /**
@@ -161,7 +161,7 @@ class mod_studentquiz_observer {
      * @param \core\event\user_enrolment_deleted $event
      */
     public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
-        self::apply_capabilityoverride($event->courseid);
+        self::apply_capability_override($event->courseid);
     }
 
     /**
@@ -171,7 +171,7 @@ class mod_studentquiz_observer {
      */
     public static function course_module_created(\core\event\course_module_created $event) {
         if ($event->other["modulename"] == "studentquiz") {
-            self::apply_capabilityoverride_coursemodule($event->objectid);
+            self::apply_capability_override_coursemodule($event->objectid);
         }
     }
 
@@ -191,7 +191,7 @@ class mod_studentquiz_observer {
      *
      * @param int $courseid
      */
-    private static function apply_capabilityoverride($courseid = 0) {
+    private static function apply_capability_override($courseid = 0) {
         global $DB;
 
         $params = array();
@@ -202,7 +202,7 @@ class mod_studentquiz_observer {
         $studentquizes = $DB->get_records('studentquiz', $params);
 
         foreach ($studentquizes as $studentquiz) {
-            self::apply_capabilityoverride_coursemodule($studentquiz->coursemodule);
+            self::apply_capability_override_coursemodule($studentquiz->coursemodule);
         }
     }
 
@@ -212,11 +212,11 @@ class mod_studentquiz_observer {
      *
      * @param int $coursemoduleid
      */
-    private static function apply_capabilityoverride_coursemodule($coursemoduleid) {
+    private static function apply_capability_override_coursemodule($coursemoduleid) {
         $context = \context_module::instance($coursemoduleid);
 
-        mod_studentquiz\permissions\contextoverride::ensurerelation($context,
-            mod_studentquiz\permissions\contextoverride::$studentquizrelation
+        mod_studentquiz\access\context_override::ensure_relation($context,
+            mod_studentquiz\access\context_override::$studentquizrelation
         );
     }
 
@@ -225,8 +225,8 @@ class mod_studentquiz_observer {
      * whole system. This is very likely to be a one-time exception to use such a function from outside the events. This
      * only exists to prevent duplicated code - the called method is intentionally private.
      */
-    public static function module_update_backwardsfix_capabilityoverrides() {
-        self::apply_capabilityoverride();
+    public static function module_update_backwardsfix_capability_override() {
+        self::apply_capability_override();
     }
 
     /**
@@ -236,7 +236,7 @@ class mod_studentquiz_observer {
      *
      * @param int $coursemoduleid
      */
-    public static function backwardscompatibility_moodle_capabilityoverrides($coursemoduleid) {
-        self::apply_capabilityoverride_coursemodule($coursemoduleid);
+    public static function module_usage_backwardsfix_capability_override($coursemoduleid) {
+        self::apply_capability_override_coursemodule($coursemoduleid);
     }
 }
