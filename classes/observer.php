@@ -95,19 +95,22 @@ class mod_studentquiz_observer {
         date_default_timezone_set('UTC');
         $olddigesttype = $event->other['olddigesttype'];
 
-        if ($olddigesttype == utils::DAILY_DIGEST_TYPE) {
-            $timetosend = strtotime(date('Y-m-d'));
-        } else if ($olddigesttype == utils::WEEKLY_DIGEST_TYPE) {
-            $digestfirstday = $event->other['olddigestfirstday'];
-            $timetosend = utils::calculcate_notification_time_to_send($digestfirstday);
-        }
-        $DB->execute('UPDATE {studentquiz_notification}
+        if ($olddigesttype != utils::NO_DIGEST_TYPE) {
+            if ($olddigesttype == utils::DAILY_DIGEST_TYPE) {
+                $timetosend = strtotime(date('Y-m-d'));
+            } else if ($olddigesttype == utils::WEEKLY_DIGEST_TYPE) {
+                $digestfirstday = $event->other['olddigestfirstday'];
+                $timetosend = utils::calculcate_notification_time_to_send($digestfirstday);
+            }
+            $DB->execute('UPDATE {studentquiz_notification}
                               SET timetosend = :newtimetosend
                             WHERE studentquizid = :studentquizid
                                   AND timetosend = :oldtimetosend
                                   AND status = :status',
-                ['newtimetosend' => strtotime('-1 day', date('Y-m-d')), 'studentquizid' => $event->objectid,
-                        'oldtimetosend' => $timetosend, 'status' => 0]);
+                    ['newtimetosend' => strtotime('-1 day', mktime(0, 0, 0)),
+                            'studentquizid' => $event->objectid,
+                            'oldtimetosend' => $timetosend, 'status' => 0]);
+        }
     }
 
 }
