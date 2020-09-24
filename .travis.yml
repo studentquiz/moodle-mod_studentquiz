@@ -1,24 +1,15 @@
 language: php
 
-sudo: required
-
 notifications:
   email: false
 
+addons:
+  postgresql: "9.6"
+
 services:
   - mysql
-
-addons:
-  postgresql: 9.6
-  firefox: "47.0.1"
-  #chrome: stable
-  apt:
-    packages:
-      # can be omitted because mustache is not in use
-      # - oracle-java8-installer
-      # - oracle-java8-set-default
-      - chromium-chromedriver
-      - openjdk-8-jre-headless
+  - postgresql
+  - docker
 
 cache:
   directories:
@@ -86,20 +77,14 @@ matrix:
     #     mariadb: 10.2
 
 before_install:
-  # php settings
+  # custom php settings
   - echo "upload_max_filesize=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - echo "post_max_size=20M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
-  # moodle-plugin-ci installation (https://github.com/blackboard-open-source/moodle-plugin-ci/blob/master/.travis.dist.yml)
+  # moodle-plugin-ci installation (https://github.com/moodlehq/moodle-plugin-ci/blob/master/.travis.dist.yml)
   - phpenv config-rm xdebug.ini
-  - nvm install 14.2.0
-  - nvm use 14.2.0
   - cd ../..
-  - composer create-project -n --no-dev --prefer-dist blackboard-open-source/moodle-plugin-ci ci ^2
+  - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
-  # chromedriver
-  #- chromedriverversion=$(curl https://chromedriver.storage.googleapis.com/LATEST_RELEASE);
-  #- curl https://chromedriver.storage.googleapis.com/$chromedriverversion/chromedriver_linux64.zip | gunzip - > ci/bin/chromedriver
-  #- chmod +x ci/bin/chromedriver
 
 install:
   - moodle-plugin-ci install
