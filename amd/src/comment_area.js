@@ -64,6 +64,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 CONTAINER_REPLIES: '.studentquiz-container-replies',
                 COMMENT_REPLIES_CONTAINER: '.studentquiz-comment-replies',
                 COMMENT_COUNT: '.studentquiz-comment-postcount',
+                COMMENT_TEXT_CONTAINER: '.studentquiz-comment-text',
                 COMMENT_TEXT: '.studentquiz-comment-text-inside',
                 COMMENT_HISTORY: '.studentquiz-comment-history',
                 COMMENT_REPLIES_TEXT: '.studentquiz-comment-replies .studentquiz-comment-text .studentquiz-comment-text-inside',
@@ -1601,8 +1602,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             response.expanded = item.expanded;
                             Templates.render(t.TEMPLATE_COMMENT, response).done(function(html) {
                                 var el = $(html);
-                                var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' + t.SELECTOR.COMMENT_TEXT;
-                                $(commentTextSelector).parent().html(el.find(t.SELECTOR.COMMENT_TEXT).parent().html());
+                                var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' + t.SELECTOR.COMMENT_TEXT_CONTAINER;
+                                $(commentTextSelector).first().html(el.find(t.SELECTOR.COMMENT_TEXT_CONTAINER).html());
                             });
                             container.empty();
                             self.changeWorkingState(false);
