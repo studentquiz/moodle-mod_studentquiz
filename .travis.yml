@@ -96,8 +96,8 @@ script:
   - moodle-plugin-ci codechecker
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
-  - moodle-plugin-ci mustache || true # Report errors but don't fail the build (known random failures not able to test the files)
-  - moodle-plugin-ci grunt || true # Report errors but don't fail the build (different javascript amd minify files between Moodle < 38 and >= 38)
-  - moodle-plugin-ci phpdoc || true # Report errors but don't fail the build (contain incorrect programmer commments and must be fixed some time)
+  - moodle-plugin-ci mustache
+  - moodle-plugin-ci grunt
+  - moodle-plugin-ci phpdoc
   - moodle-plugin-ci phpunit --coverage-text
   - moodle-plugin-ci behat $( [ "$PROFILE" == "firefox" ] || echo "--profile $PROFILE" )
