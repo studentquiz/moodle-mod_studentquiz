@@ -87,7 +87,7 @@ class mod_studentquiz_permissions extends advanced_testcase {
         // Events take over applying mod_studentquiz\access\context_override::ensure_relation. Some events only
         // exist in Moodle 38 and later, so we have to manually call the context capability overrides.
         if ($CFG->branch < 38) {
-            mod_studentquiz_observer::module_usage_backwardsfix_capability_override($cmid);
+            mod_studentquiz_observer::module_usage_backwardsfix_capability_override($studentquiz->coursemodule);
         }
         $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
@@ -96,7 +96,7 @@ class mod_studentquiz_permissions extends advanced_testcase {
         // Events take over applying mod_studentquiz\access\context_override::ensure_relation. Some events only
         // exist in Moodle 38 and later, so we have to manually call the context capability overrides.
         if ($CFG->branch < 38) {
-            mod_studentquiz_observer::module_usage_backwardsfix_capability_override($cmid);
+            mod_studentquiz_observer::module_usage_backwardsfix_capability_override($studentquiz->coursemodule);
         }
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
     }
