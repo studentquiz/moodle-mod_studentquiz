@@ -47,18 +47,12 @@ $observers = [
                 'callback' => 'mod_studentquiz_observer::capability_unassigned',
         ],
         [
-                'eventname' => '\core\event\user_enrolment_created',
-                'callback' => 'mod_studentquiz_observer::user_enrolment_created',
+                'eventname' => '\core\event\role_assigned',
+                'callback' => 'mod_studentquiz_observer::role_assigned',
         ],
         [
-                'eventname' => '\core\event\user_enrolment_updated',
-                'callback' => 'mod_studentquiz_observer::user_enrolment_updated',
-        ],
-        // The underlying function does not remove capability overrides for that specific role, if this was the last
-        // user with that role.
-        [
-                'eventname' => '\core\event\user_enrolment_deleted',
-                'callback' => 'mod_studentquiz_observer::user_enrolment_deleted',
+                'eventname' => '\core\event\role_unassigned',
+                'callback' => 'mod_studentquiz_observer::role_unassigned',
         ],
         [
                 'eventname' => '\core\event\course_module_created',

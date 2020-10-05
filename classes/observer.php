@@ -138,32 +138,22 @@ class mod_studentquiz_observer {
     }
 
     /**
-     * Observer for the event \core\event\user_enrolment_created. Update context specific capability overrides
+     * Observer for the event \core\event\role_assigned. Update context specific capability overrides
      * if needed.
      *
-     * @param \core\event\user_enrolment_created $event
+     * @param \core\event\role_assigned $event
      */
-    public static function user_enrolment_created(\core\event\user_enrolment_created $event) {
+    public static function role_assigned(\core\event\role_assigned $event) {
         self::apply_capability_override($event->courseid);
     }
 
     /**
-     * Observer for the event \core\event\user_enrolment_updated. Update context specific capability overrides
+     * Observer for the event \core\event\role_unassigned. Update context specific capability overrides
      * if needed.
      *
-     * @param \core\event\user_enrolment_updated $event
+     * @param \core\event\role_unassigned $event
      */
-    public static function user_enrolment_updated(\core\event\user_enrolment_updated $event) {
-        self::apply_capability_override($event->courseid);
-    }
-
-    /**
-     * Observer for the event \core\event\user_enrolment_deleted. Update context specific capability overrides
-     * if needed.
-     *
-     * @param \core\event\user_enrolment_deleted $event
-     */
-    public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
+    public static function role_unassigned(\core\event\role_unassigned $event) {
         self::apply_capability_override($event->courseid);
     }
 
@@ -232,14 +222,4 @@ class mod_studentquiz_observer {
         self::apply_capability_override();
     }
 
-    /**
-     * DO NOT USE! Temporarily allow applying of StudentQuiz capability overrides from the view main page for moodles
-     * not supporting the required events. This is very likely to be a one-time exception to use such a function from
-     * outside the events. This only exists to prevent duplicated code - the called method is intentionally private.
-     *
-     * @param int $coursemoduleid
-     */
-    public static function module_usage_backwardsfix_capability_override($coursemoduleid) {
-        self::apply_capability_override_coursemodule($coursemoduleid);
-    }
 }
