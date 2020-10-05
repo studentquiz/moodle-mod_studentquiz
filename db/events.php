@@ -28,14 +28,41 @@ defined('MOODLE_INTERNAL') || die();
 $observers = [
         [
                 'eventname' => '\core\event\question_created',
-                'callback' => 'mod_studentquiz_observer::question_created'
+                'callback' => 'mod_studentquiz_observer::question_created',
         ],
         [
                 'eventname' => '\core\event\question_moved',
-                'callback' => 'mod_studentquiz_observer::question_moved'
+                'callback' => 'mod_studentquiz_observer::question_moved',
         ],
         [
                 'eventname' => '\mod_studentquiz\event\studentquiz_digest_changed',
-                'callback' => 'mod_studentquiz_observer::digest_changed'
-        ]
+                'callback' => 'mod_studentquiz_observer::digest_changed',
+        ],
+        [
+                'eventname' => '\core\event\capability_assigned',
+                'callback' => 'mod_studentquiz_observer::capability_assigned',
+        ],
+        [
+                'eventname' => '\core\event\capability_unassigned',
+                'callback' => 'mod_studentquiz_observer::capability_unassigned',
+        ],
+        [
+                'eventname' => '\core\event\user_enrolment_created',
+                'callback' => 'mod_studentquiz_observer::user_enrolment_created',
+        ],
+        [
+                'eventname' => '\core\event\user_enrolment_updated',
+                'callback' => 'mod_studentquiz_observer::user_enrolment_updated',
+        ],
+        // The underlying function does not remove capability overrides for that specific role, if this was the last
+        // user with that role.
+        [
+                'eventname' => '\core\event\user_enrolment_deleted',
+                'callback' => 'mod_studentquiz_observer::user_enrolment_deleted',
+        ],
+        [
+                'eventname' => '\core\event\course_module_created',
+                'callback' => 'mod_studentquiz_observer::course_module_created',
+        ],
+        // I assume course_module_deleted removes anyway all capability overrides, so not added here.
 ];

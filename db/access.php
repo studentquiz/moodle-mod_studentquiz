@@ -58,7 +58,7 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
     ),
-    // Ability to see the activity.
+    // Ability to see and use the activity.
     'mod/studentquiz:view' => array(
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -80,6 +80,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+        'clonepermissionsfrom' => 'mod/studentquiz:view',
     ),
     // Ability to preview questions other than mine.
     'mod/studentquiz:previewothers' => array(
@@ -90,6 +91,26 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+    ),
+    // Ability to change the state of questions.
+    'mod/studentquiz:changestate' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'mod/studentquiz:manage',
+    ),
+    // Ability to move questions into categories.
+    'mod/studentquiz:organize' => array(
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => array(
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ),
+        'clonepermissionsfrom' => 'mod/studentquiz:manage',
     ),
     // Ability to edit the settings.
     'mod/studentquiz:manage' => array(
@@ -109,6 +130,7 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ),
+        'clonepermissionsfrom' => 'mod/studentquiz:manage',
     ),
     // Notifications.
     'mod/studentquiz:emailnotifyquestion' => array(
@@ -152,5 +174,6 @@ $capabilities = array(
             'editingteacher' => CAP_ALLOW,
             'manager'        => CAP_ALLOW,
         ],
+        'clonepermissionsfrom' => 'mod/studentquiz:previewothers',
     ]
 );

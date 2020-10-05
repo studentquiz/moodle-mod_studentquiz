@@ -61,11 +61,12 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
             , array('course' => $course->id),  array('anonymrank' => true));
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
+        $context = context_module::instance($this->cm->id);
+
         // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'].
         $_GET['cmid'] = $this->cm->id;
 
-        // Satisfy codechecker: $course $context $cm $studentquiz $userid.
-        $context = context_module::instance($this->cm->id);
+        // Satisfy codechecker: $course $cm $studentquiz $userid.
         $report = new mod_studentquiz_report($this->cm->id);
         $this->viewlib = new mod_studentquiz_view($course, $context, $this->cm,
             $studentquiz, $user->id, $report);
@@ -140,45 +141,5 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
     public function tearDown() {
         parent::tearDown();
         $this->resetAfterTest();
-    }
-
-    /**
-     * Test mod_studentquiz_ensure_question_capabilities function.
-     */
-    public function test_mod_studentquiz_ensure_question_capabilities() {
-        $this->resetAfterTest();
-        $user = $this->getDataGenerator()->create_user();
-        $course = $this->getDataGenerator()->create_course();
-        $roleid = $this->getDataGenerator()->create_role();
-        $context = \context_system::instance();
-        $studentquiz = $this->getDataGenerator()->create_module('studentquiz',
-                ['course' => $course->id], ['anonymrank' => true]);
-        $contextstudentquiz = context_module::instance($studentquiz->coursemodule);
-        $questioncap = [
-                'moodle/question:add',
-                'moodle/question:editmine',
-                'moodle/question:editall',
-                'moodle/question:viewmine',
-                'moodle/question:viewall',
-                'moodle/question:movemine',
-                'moodle/question:moveall'
-        ];
-        $haveonecap = false;
-
-        $this->getDataGenerator()->role_assign($roleid, $user->id, $context->id);
-        $this->setUser($user);
-        assign_capability('mod/studentquiz:manage', CAP_ALLOW, $roleid, $context, true);
-        assign_capability('mod/studentquiz:previewothers', CAP_ALLOW, $roleid, $context, true);
-        assign_capability('mod/studentquiz:view', CAP_ALLOW, $roleid, $context, true);
-
-        mod_studentquiz_ensure_question_capabilities($context);
-
-        foreach ($questioncap as $cap) {
-            if (has_capability($cap, $contextstudentquiz)) {
-                $haveonecap = true;
-                break;
-            }
-        }
-        $this->assertTrue($haveonecap);
     }
 }

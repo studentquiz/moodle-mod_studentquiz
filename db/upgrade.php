@@ -813,5 +813,15 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020051200, 'studentquiz');
     }
 
+    // From now on events take care for all context specific capability overrides. Since the current state
+    // can be incorrect, apply the overrides once for all StudentQuizzes.
+    if ($oldversion < 2020081700) {
+        require_once(__DIR__ . '/../classes/observer.php');
+
+        mod_studentquiz_observer::module_update_backwardsfix_capability_override();
+
+        upgrade_mod_savepoint(true, 2020081700, 'studentquiz');
+    }
+
     return true;
 }
