@@ -50,6 +50,9 @@ class context_override {
             'moodle/question:useall',
             // Required to even be able to see question bank and thus the overview.
             'moodle/question:viewmine',
+            // Required for some question types which create temporary (parts) of the question and move them to the
+            // right place on save. Ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/269
+            'moodle/question:movemine',
         ],
         // Allows to create questions.
         'mod/studentquiz:submit' => [
