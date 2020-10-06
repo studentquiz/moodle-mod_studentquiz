@@ -222,4 +222,15 @@ class mod_studentquiz_observer {
         self::apply_capability_override();
     }
 
+    /**
+     * DO NOT USE! Temporarily allow applying of StudentQuiz capability overrides from the unit tests, where older
+     * moodles don't fire events. This is very likely to be a one-time exception to use such a function from
+     * outside the events. This only exists to prevent duplicated code - the called method is intentionally private.
+     *
+     * @param int $coursemoduleid
+     */
+    public static function module_test_backwardsfix_capability_override($coursemoduleid) {
+        self::apply_capability_override_coursemodule($coursemoduleid);
+    }
+
 }
