@@ -28,7 +28,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2020100500;
+$plugin->version      = 2020100502;
 $plugin->release      = 'v4.3.3';
 $plugin->requires     = 2018051700; // Version MOODLE_35, 3.5.0+.
 $plugin->maturity     = MATURITY_STABLE;
