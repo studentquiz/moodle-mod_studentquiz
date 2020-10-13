@@ -117,6 +117,7 @@ if ($question) {
     }
 
     $options = new question_display_options();
+    $options->flags = question_display_options::EDITABLE;
 
     // Output.
     $title = get_string('previewquestion', 'question', format_string($question->name));

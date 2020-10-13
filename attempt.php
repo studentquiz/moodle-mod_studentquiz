@@ -174,7 +174,7 @@ switch($questionusage->get_question_attempt($slot)->get_state()) {
 $hasrated = false;
 
 $options = new question_display_options();
-
+$options->flags = question_display_options::EDITABLE;
 
 if ($question->qtype instanceof qtype_description
     || $question->qtype instanceof qtype_essay) {
