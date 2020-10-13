@@ -37,6 +37,17 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_hidden_column extends action_column_base {
+    /** @var int */
+    protected $currentuserid;
+
+    /**
+     * Initialise Parameters for join
+     */
+    protected function init() {
+        global $USER;
+        $this->currentuserid = $USER->id;
+    }
+
     /**
      * Column name
      *
@@ -89,11 +100,16 @@ class sq_hidden_column extends action_column_base {
      * @return array 'table_alias' => 'JOIN clause'
      */
     public function get_extra_joins() {
-        $andhidden = "AND sqh.hidden = 0";
+        $hidden = "sqh.hidden = 0";
+        $mine = "q.createdby = $this->currentuserid";
+
+        // Without permission, a user can only see non-hidden question or its their own.
+        $sqlextra = "AND ($hidden OR $mine)";
         if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            $andhidden = "";
+            $sqlextra = "";
         }
-        return array('sqh' => "JOIN {studentquiz_question} sqh ON sqh.questionid = q.id $andhidden");
+
+        return array('sqh' => "JOIN {studentquiz_question} sqh ON sqh.questionid = q.id $sqlextra");
     }
 
     /**
