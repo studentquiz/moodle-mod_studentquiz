@@ -37,6 +37,17 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_hidden_column extends action_column_base {
+    /** @var int */
+    protected $currentuserid;
+
+    /**
+     * Initialise Parameters for join
+     */
+    protected function init() {
+        global $USER;
+        $this->currentuserid = $USER->id;
+    }
+
     /**
      * Column name
      *
