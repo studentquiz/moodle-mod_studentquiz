@@ -44,14 +44,7 @@ class rate_column extends \core_question\bank\column_base {
      * Initialise Parameters for join
      */
     protected function init() {
-        global $DB, $USER, $PAGE;
-        $this->currentuserid = $USER->id;
-        $cmid = $this->qbank->get_most_specific_context()->instanceid;
-        // TODO: Get StudentQuiz id from infrastructure instead of DB!
-        // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
-        $this->studentquizid = $sq->id;
-        // TODO: Sanitize!
+        global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
@@ -93,11 +86,10 @@ class rate_column extends \core_question\bank\column_base {
                                         GROUP BY questionid
                                         ) vo ON vo.questionid = q.id",
                  'myrate' => "LEFT JOIN (
-                                          SELECT rate AS myrate, q.id AS questionid
+                                          SELECT rate AS myrate, q.id AS questionid, rate.userid
                                             FROM {question} q
                                        LEFT JOIN {studentquiz_rate} rate ON q.id = rate.questionid
-                                                 AND rate.userid = " . $this->currentuserid . "
-                                        ) myrate ON myrate.questionid = q.id");
+                                        ) myrate ON myrate.questionid = q.id AND myrate.userid = current.userid");
     }
 
     /**
