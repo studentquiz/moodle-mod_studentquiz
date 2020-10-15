@@ -90,7 +90,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      */
     private $questiongenerator;
     /**
-     * @var stundetquiz generator
+     * @var studentquiz generator
      */
     private $studentquizgenerator;
 

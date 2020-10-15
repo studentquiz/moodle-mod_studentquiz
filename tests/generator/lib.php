@@ -106,7 +106,7 @@ class mod_studentquiz_generator extends testing_module_generator {
 
         $this->ratecount++;
 
-        $record['id'] = $DB->insert_record('studentquiz_comment', $record);
+        $record['id'] = $DB->insert_record('studentquiz_rate', $record);
         return (object) $record;
     }
 }
