@@ -175,5 +175,9 @@ $capabilities = array(
             'manager'        => CAP_ALLOW,
         ],
         'clonepermissionsfrom' => 'mod/studentquiz:previewothers',
+    ],
+    'mod/studentquiz:systemnotifytaskdeleteorphanedquestions' => [
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_SYSTEM
     ]
 );

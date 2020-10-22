@@ -33,5 +33,15 @@ $tasks = [
                 'day' => '*',
                 'month' => '*',
                 'dayofweek' => '*'
+        ],
+        [
+                'classname' => 'mod_studentquiz\task\delete_orphaned_questions',
+                'blocking' => 0,
+                'minute' => '0',
+                'hour' => '0',
+                'day' => '1',
+                'dayofweek' => '*',
+                'month' => '*',
+                'disabled' => 0
         ]
 ];
