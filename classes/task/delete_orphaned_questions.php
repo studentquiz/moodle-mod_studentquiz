@@ -59,7 +59,6 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
             set_time_limit(0);
 
             $timelimit = time() - abs(get_config('studentquiz', 'deleteorphanedtimelimit'));
-                $timelimit = time()-60;
 
             $questions = $DB->get_records_sql(
                     "SELECT *
@@ -73,7 +72,7 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
 
             if (count($questions) == 0) {
 
-                $output .=  get_string('deleteorphanedquestionsnonefound', 'mod_studentquiz');
+                $output .= get_string('deleteorphanedquestionsnonefound', 'mod_studentquiz');
 
             } else {
 
