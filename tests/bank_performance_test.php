@@ -121,7 +121,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
             );
             $result['studentquiz'] = $studentquiz;
 
-            // Get the question category for that studentquiz context
+            // Get the question category for that studentquiz context.
             $cm = get_coursemodule_from_instance('studentquiz', $studentquiz->id);
             $result['cm'] = $cm;
             $ctx = context_module::instance($cm->id);
@@ -147,8 +147,8 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
                 }
             }
 
-            // The first 5 students contribute a comment to all questions
-            for ($s = 0; $s <5; $s++) {
+            // The first 5 students contribute a comment to all questions.
+            for ($s = 0; $s < 5; $s++) {
                 foreach ($questions as $question) {
                     $this->studentquizgenerator->create_comment(array(
                         'questionid' => $question->id,
@@ -157,7 +157,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
                 }
             }
 
-            // All students rate each question
+            // All students rate each question.
             foreach ($students as $student) {
                 foreach ($questions as $question) {
                     $this->studentquizgenerator->create_rate(array(
@@ -178,7 +178,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
     public function test_questionbank_empty_filter() {
         $this->resetAfterTest(true);
 
-        // If we don't activate the lower two, it doesn't make sense to enable this one either. 
+        // If we don't activate the lower two, it doesn't make sense to enable the first one either.
         // Adding 10 instances takes a few minutes, this should not be enabled in CI.
         // Adding 100 instances takes a huuuge amount of time (hours) until ready.
         // Uncomment these lines to run the tests with phpunit.
@@ -221,7 +221,8 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
      * @param int $qbshowtext
      * @return string
      */
-    protected function displayqb($questionbank, $result, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
+    protected function displayqb($questionbank, $result, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0,
+        $qbshowtext = 0) {
         $cat = $result['cat']->id . "," . $result['ctx']->id;
         $questionbank->display('questions', $qpage, $qperpage,
             $cat, $recurse, $showhidden,
