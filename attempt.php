@@ -86,9 +86,12 @@ $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 if (data_submitted()) {
     // On the following navigation steps the question has to be finished and the comment saved.
     if (optional_param('next', null, PARAM_BOOL) || optional_param('finish', null, PARAM_BOOL)) {
-        $transaction = $DB->start_delegated_transaction();
-        $questionusage->finish_question($slot);
-        $transaction->allow_commit();
+        if (!$questionusage->get_question_state($slot)->is_finished()) {
+            $transaction = $DB->start_delegated_transaction();
+            $questionusage->finish_question($slot);
+            question_engine::save_questions_usage_by_activity($questionusage);
+            $transaction->allow_commit();
+        }
     }
 
     // There should be no question data if he has already answered them, as the fields are disabled.
