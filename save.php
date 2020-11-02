@@ -61,6 +61,12 @@ $data->questionid = $questionid;
 switch($save) {
     case 'rate':
         $data->rate = required_param('rate', PARAM_INT);
+
+        // Rating is only valid if the rate is in or between 1 and 5.
+        if ($data->rate < 1 || $data->rate > 5) {
+            print_error('invalidrate');
+        }
+
         mod_studentquiz_save_rate($data);
         break;
 }
