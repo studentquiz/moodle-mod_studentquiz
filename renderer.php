@@ -1575,10 +1575,9 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @param bool $hasprevious
      * @param bool $hasnext
      * @param bool $hasanswered
-     * @param bool $canfinish
      * @return string
      */
-    public function render_navigation_bar($hasprevious, $hasnext, $hasanswered, $canfinish) {
+    public function render_navigation_bar($hasprevious, $hasnext, $hasanswered) {
 
         $col1content = '&nbsp;';
         if ($hasprevious) {
@@ -1592,9 +1591,10 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 
         $content1 = html_writer::div(html_writer::div($col1content, 'pull-left'), 'col-md-4');
 
-        // Not has rated, is done using javascript.
+        // The abort button can always be shown when the question has not been answered yet.
+        // The check if it has been rated is done using javascript.
         $col2content = '';
-        if ($canfinish && ($hasnext || !$hasanswered)) {
+        if (!$hasanswered) {
             $col2content .= html_writer::empty_tag('input', [
                     'type' => 'submit', 'name' => 'finish',
                     'value' => get_string('abort_button', 'studentquiz'),

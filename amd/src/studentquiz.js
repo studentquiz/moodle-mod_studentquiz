@@ -25,7 +25,7 @@
 
 define(['jquery'], function($) {
     return {
-        initialise: function(forcerating, forcecommenting) {
+        initialise: function(forcerating, forcecommenting, isanswered) {
 
             var ratingElements = $(".studentquiz_behaviour .rate .rating .rateable");
             // Ajax request POST on CLICK for add rating.
@@ -44,11 +44,7 @@ define(['jquery'], function($) {
             $('input[name="next"], input[name="previous"], input[name="finish"]').off('click').on('click', function() {
                 var $that = $(this);
 
-                var afterquestion = !$('.im-controls input[type="submit"]').length ||
-                    $('.im-controls input[type="submit"]').filter(function() {
-                        return this.name.match(/^q.+-submit$/);
-                    }).is(':disabled');
-                if (afterquestion) {
+                if (isanswered) {
                     var hasrated = $('.rating span').hasClass('star');
                     var hascommented = $('.studentquiz-comment-container').hasClass('has-comment');
 

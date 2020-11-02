@@ -84,17 +84,61 @@ $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
 if (data_submitted()) {
-    // On the following navigation steps the question has to be finished and the comment saved.
-    if (optional_param('next', null, PARAM_BOOL) || optional_param('finish', null, PARAM_BOOL)) {
-        if (!$questionusage->get_question_state($slot)->is_finished()) {
-            $transaction = $DB->start_delegated_transaction();
+
+    // Once data has been submitted, process actions to save the current question answer state. If the question can be
+    // finished during the attempt (immediatefeedback), then do so. If it can't (adaptive), finish the question once
+    // navigated further in the quiz. After the actions have been processed, proceed the requested navigation.
+    $transaction = $DB->start_delegated_transaction();
+    $isfinishedbefore = $questionusage->get_question_state($slot)->is_finished();
+
+    $qa = $questionusage->get_question_attempt($slot);
+    $sequencecheck = $qa->get_submitted_var($qa->get_control_field_name('sequencecheck'), PARAM_INT);
+    if ($sequencecheck == $qa->get_sequence_check_count()) {
+        // On every submission save the attempt.
+        $questionusage->process_all_actions();
+    }
+
+    // So, immediatefeedback finishes question automatically after successful submit. But adaptive doesn't and it
+    // should be finished manually but only when navigating further.
+    if (!$canfinish && (optional_param('next', null, PARAM_BOOL) || optional_param('finish', null, PARAM_BOOL))) {
+        if (!$isfinishedbefore) {
             $questionusage->finish_question($slot);
-            question_engine::save_questions_usage_by_activity($questionusage);
-            $transaction->allow_commit();
         }
     }
 
-    // There should be no question data if he has already answered them, as the fields are disabled.
+    // We save the attempts always to db, as there is no finish/submission step expected for the user.
+    question_engine::save_questions_usage_by_activity($questionusage);
+    $isfinishedafter = $questionusage->get_question_state($slot)->is_finished();
+
+    // If the question is finished after process but was not before, save the attempt to the progress.
+    if ($isfinishedafter && !$isfinishedbefore) {
+        $q = $questionusage->get_question($slot);
+
+        $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
+            'userid' => $userid, 'studentquizid' => $studentquiz->id));
+        if ($studentquizprogress == false) {
+            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
+        }
+
+        // Any newly finished attempt is wrong when it wasn't right.
+        $studentquizprogress->attempts += 1;
+        $studentquizprogress->lastanswercorrect = 0;
+
+        if ($qa->get_state() == question_state::$gradedright) {
+            $studentquizprogress->correctattempts += 1;
+            $studentquizprogress->lastanswercorrect = 1;
+        }
+
+        if (!empty($studentquizprogress->id)) {
+            $DB->update_record('studentquiz_progress', $studentquizprogress);
+        } else {
+            $studentquizprogress->id = $DB->insert_record('studentquiz_progress', $studentquizprogress, true);
+        }
+    }
+
+    $transaction->allow_commit();
+
+    // Navigate accordingly. If no navigation button has been submitted, then there has been a question answer attempt.
     if (optional_param('next', null, PARAM_BOOL)) {
         if ($hasnext) {
             $actionurl = new moodle_url($actionurl, array('slot' => $slot + 1));
@@ -113,82 +157,25 @@ if (data_submitted()) {
     } else if (optional_param('finish', null, PARAM_BOOL)) {
         redirect($stopurl);
     } else {
-        $qa = $questionusage->get_question_attempt($slot);
-        $sequencecheck = $qa->get_submitted_var($qa->get_control_field_name('sequencecheck'), PARAM_INT);
-        if ($sequencecheck == $qa->get_sequence_check_count()) {
-            // On every submission save the attempt.
-            $questionusage->process_all_actions();
-        }
-        // We save the attempts always to db, as there is no finish/submission step expected for the user.
-        question_engine::save_questions_usage_by_activity($questionusage);
-
-        $q = $questionusage->get_question($slot);
-
-        $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
-            'userid' => $userid, 'studentquizid' => $studentquiz->id));
-        $updatestudentquizprogress = true;
-        if ($studentquizprogress == false) {
-            $updatestudentquizprogress = false;
-            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
-        }
-
-        $studentquizprogress->attempts += 1;
-
-        switch($qa->get_state()) {
-            case question_state::$gradedright:
-                $studentquizprogress->correctattempts += 1;
-                $studentquizprogress->lastanswercorrect = 1;
-                break;
-            case question_state::$gradedwrong:
-            case question_state::$gradedpartial:
-                $studentquizprogress->lastanswercorrect = 0;
-                break;
-            case question_state::$todo:
-            default:
-                break;
-        }
-
-        if ($updatestudentquizprogress) {
-            $DB->update_record('studentquiz_progress', $studentquizprogress);
-        } else {
-            $studentquizprogress->id = $DB->insert_record('studentquiz_progress', $studentquizprogress, true);
-        }
-
-
         redirect($actionurl);
     }
 }
 
-// Has answered?
-$hasanswered = false;
-switch($questionusage->get_question_attempt($slot)->get_state()) {
-    case question_state::$gradedpartial:
-    case question_state::$gradedright:
-    case question_state::$gradedwrong:
-    case question_state::$complete:
-        $hasanswered = true;
-        break;
-    case question_state::$todo:
-    default:
-        $hasanswered = false;
-}
-
-// Is rated?
-$hasrated = false;
+// To support both immediatefeedback and adaptive a question is first answered when the sequence check
+// count is > 1 and the last state was not invalid - invalid usually means usage error from the user and does
+// not count towards an attempt.
+$seqcount = $questionusage->get_question_attempt($slot)->get_sequence_check_count();
+$laststate = $questionusage->get_question_attempt($slot)->get_state();
+$isanswered = (($seqcount > 1) && $laststate != question_state::$invalid);
 
 $options = new question_display_options();
 $options->flags = question_display_options::EDITABLE;
 
 if ($question->qtype instanceof qtype_description
     || $question->qtype instanceof qtype_essay) {
-    $hasanswered = true;
+    $isanswered = true;
     $options->readonly = true;
 }
-
-// TODO do they do anything? $headtags not used anywhere and question_engin..._js returns void.
-$headtags = '';
-$headtags .= $questionusage->render_question_head_html($slot);
-$headtags .= question_engine::initialise_js();
 
 /** @var mod_studentquiz_renderer $output */
 $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
@@ -196,7 +183,8 @@ $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
 $PAGE->set_url($actionurl);
 $jsparams = array(
     boolval($studentquiz->forcerating),
-    boolval($studentquiz->forcecommenting)
+    boolval($studentquiz->forcecommenting),
+    boolval($isanswered)
 );
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise', $jsparams);
 $title = format_string($question->name);
@@ -215,7 +203,7 @@ echo $OUTPUT->header();
 $info = new stdClass();
 $info->total = $questionscount;
 $info->group = 0;
-$info->one = max($slot - (!$hasanswered ? 1 : 0), 0);
+$info->one = max($slot - (!$isanswered ? 1 : 0), 0);
 $texttotal = get_string('num_questions', 'studentquiz', $questionscount);
 $html = '';
 
@@ -236,7 +224,7 @@ $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the state change select box.
 $statechangehtml = $output->render_state_choice($question->id, $course->id, $cmid);
-$navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $hasanswered, $canfinish);
+$navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $isanswered);
 
 // Change state will always first thing below navigation.
 $orders  = [
@@ -244,7 +232,7 @@ $orders  = [
     $statechangehtml
 ];
 
-if ($hasanswered) {
+if ($isanswered) {
     // Get output the rating.
     $ratinghtml = $output->render_rate($question->id, $studentquiz->forcerating);
     // Get output the comments.
@@ -280,4 +268,3 @@ $html .= html_writer::end_tag('form');
 echo $html;
 
 echo $OUTPUT->footer();
-
