@@ -146,16 +146,9 @@ if ($ADMIN->fulltree) {
         '0'
     ));
 
-    $choices = [
-        '15768000' => get_string('settingsdeleteorphanedtime6m', 'studentquiz'),
-        '31536000' => get_string('settingsdeleteorphanedtime1y', 'studentquiz'),
-        '63072000' => get_string('settingsdeleteorphanedtime2y', 'studentquiz'),
-        '94608000' => get_string('settingsdeleteorphanedtime3y', 'studentquiz')];
+    $settings->add(new admin_setting_configduration('studentquiz/deleteorphanedtimelimit',
+        get_string('settingsdeleteorphanedtimelimit', 'studentquiz'),
+        get_string('settingsdeleteorphanedtimelimit_help', 'studentquiz'),
+        1 * YEARSECS));
 
-    $settings->add(new admin_setting_configselect('studentquiz/deleteorphanedtimelimit',
-            get_string('settingsdeleteorphanedtimelimit', 'studentquiz'),
-            get_string('settingsdeleteorphanedtimelimit_help', 'studentquiz'),
-            '31536000',
-            $choices
-    ));
 }

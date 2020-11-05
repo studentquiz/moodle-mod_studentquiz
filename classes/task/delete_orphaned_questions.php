@@ -58,7 +58,7 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
             require_once($CFG->libdir . '/questionlib.php');
             set_time_limit(0);
 
-            $timelimit = time() - abs(get_config('studentquiz', 'deleteorphanedtimelimit'));
+            $timelimit = time() - intval(abs(get_config('studentquiz', 'deleteorphanedtimelimit')));
 
             $questions = $DB->get_records_sql(
                     "SELECT *
@@ -80,51 +80,62 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
 
                     if (isset($question->questionid)) {
 
-                        $a = [
-                            'name' => format_string($question->name),
-                            'qtype' => format_string($question->qtype),
-                            'questionid' => format_string($question->questionid),
-                        ];
+                        try {
 
-                        $output .= get_string('deleteorphanedquestionsquestioninfo', 'mod_studentquiz', $a);
+                            unset($transaction);
+                            $transaction = $DB->start_delegated_transaction();
 
-                        // Delete from question table.
-                        question_delete_question($question->questionid);
+                            $a = [
+                                'name' => format_string($question->name),
+                                'qtype' => format_string($question->qtype),
+                                'questionid' => format_string($question->questionid),
+                            ];
 
-                        if (!$DB->record_exists_sql("SELECT * FROM {question} WHERE id = :questionid",
-                            array('questionid' => $question->questionid))) {
+                            $output .= get_string('deleteorphanedquestionsquestioninfo', 'mod_studentquiz', $a);
 
-                            // Delete from mdl_studentquiz_comment_history.
-                            $success = $DB->delete_records_select('studentquiz_comment_history',
-                                                    "commentid IN (SELECT id FROM {studentquiz_comment}
-                                                    WHERE questionid = :questionid)",
-                                                    array('questionid' => $question->questionid));
+                            // Delete from question table.
+                            question_delete_question($question->questionid);
 
-                            // Delete from mdl_studentquiz_comment.
-                            $success = $success && $DB->delete_records('studentquiz_comment',
-                                                    array('questionid' => $question->questionid));
+                            if (!$DB->record_exists_sql("SELECT * FROM {question} WHERE id = :questionid",
+                                array('questionid' => $question->questionid))) {
 
-                            // Delete from mdl_studentquiz_progress.
-                            $success = $success && $DB->delete_records('studentquiz_progress',
-                                                    array('questionid' => $question->questionid));
+                                // Delete from mdl_studentquiz_comment_history.
+                                $success = $DB->delete_records_select('studentquiz_comment_history',
+                                                        "commentid IN (SELECT id FROM {studentquiz_comment}
+                                                        WHERE questionid = :questionid)",
+                                                        array('questionid' => $question->questionid));
 
-                            // Delete from mdl_studentquiz_question.
-                            $success = $success && $DB->delete_records('studentquiz_question',
-                                                    array('questionid' => $question->questionid));
+                                // Delete from mdl_studentquiz_comment.
+                                $success = $success && $DB->delete_records('studentquiz_comment',
+                                                        array('questionid' => $question->questionid));
 
-                            // Delete from mdl_studentquiz_rate.
-                            $success = $success && $DB->delete_records('studentquiz_rate',
-                                                    array('questionid' => $question->questionid));
+                                // Delete from mdl_studentquiz_progress.
+                                $success = $success && $DB->delete_records('studentquiz_progress',
+                                                        array('questionid' => $question->questionid));
 
-                             $output .= get_string('deleteorphanedquestionssuccessmdlquestion', 'mod_studentquiz');
+                                // Delete from mdl_studentquiz_question.
+                                $success = $success && $DB->delete_records('studentquiz_question',
+                                                        array('questionid' => $question->questionid));
 
-                            if ($success) {
-                                $output .= get_string('deleteorphanedquestionssuccessstudentquiz', 'mod_studentquiz');
+                                // Delete from mdl_studentquiz_rate.
+                                $success = $success && $DB->delete_records('studentquiz_rate',
+                                                        array('questionid' => $question->questionid));
+
+                                $output .= get_string('deleteorphanedquestionssuccessmdlquestion', 'mod_studentquiz');
+
+                                if ($success) {
+                                    $output .= get_string('deleteorphanedquestionssuccessstudentquiz', 'mod_studentquiz');
+                                } else {
+                                    $output .= get_string('deleteorphanedquestionserrorstudentquiz', 'mod_studentquiz');
+                                }
                             } else {
-                                $output .= get_string('deleteorphanedquestionserrorstudentquiz', 'mod_studentquiz');
+                                $output .= get_string('deleteorphanedquestionserrormdlquestion', 'mod_studentquiz');
                             }
-                        } else {
-                            $output .= get_string('deleteorphanedquestionserrormdlquestion', 'mod_studentquiz');
+
+                            $transaction->allow_commit();
+
+                        } catch (Exception $e) {
+                            $transaction->rollback($e);
                         }
                     }
                 }
