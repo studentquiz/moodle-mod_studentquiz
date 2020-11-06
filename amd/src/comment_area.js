@@ -1602,7 +1602,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             response.expanded = item.expanded;
                             Templates.render(t.TEMPLATE_COMMENT, response).done(function(html) {
                                 var el = $(html);
-                                var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' + t.SELECTOR.COMMENT_TEXT_CONTAINER;
+                                var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' +
+                                    t.SELECTOR.COMMENT_TEXT_CONTAINER;
                                 $(commentTextSelector).first().html(el.find(t.SELECTOR.COMMENT_TEXT_CONTAINER).html());
                             });
                             container.empty();
