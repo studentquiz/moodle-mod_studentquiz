@@ -140,4 +140,15 @@ if ($ADMIN->fulltree) {
             utils::ATTO_TOOLBAR
     ));
 
+    $settings->add(new admin_setting_configcheckbox('studentquiz/deleteorphanedquestions',
+        get_string('settingsdeleteorphaned', 'studentquiz'),
+        get_string('settingsdeleteorphaned_help', 'studentquiz'),
+        '0'
+    ));
+
+    $settings->add(new admin_setting_configduration('studentquiz/deleteorphanedtimelimit',
+        get_string('settingsdeleteorphanedtimelimit', 'studentquiz'),
+        get_string('settingsdeleteorphanedtimelimit_help', 'studentquiz'),
+        1 * YEARSECS));
+
 }

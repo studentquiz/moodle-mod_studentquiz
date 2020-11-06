@@ -37,6 +37,10 @@ $messageproviders = array(
     'commentdeleted' => array(
         'capability' => 'mod/studentquiz:emailnotifycommentdeleted'
     ),
+    // Notify administrators that a scheduled task which deletes orphaned questions has run. (Also provides detailed information).
+    'deleteorphanedquestions' => array(
+        'capability' => 'mod/studentquiz:systemnotifytaskdeleteorphanedquestions'
+    ),
     // Notify student that someone has deleted his comment to someone's question. (Info to comment author).
     'minecommentdeleted' => array(
         'capability' => 'mod/studentquiz:emailnotifycommentdeleted'
