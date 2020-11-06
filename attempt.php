@@ -162,7 +162,7 @@ if (data_submitted()) {
 }
 
 // A question is always answered when it is finished. In immediatefeedback this happens immediatly after anwering
-// without an invalid error. With adaptive a question is first answered if there is a graded step which is not null
+// without an invalid error. With adaptive a question is first answered if there is a graded step which is not null.
 $isanswered = $questionusage->get_question_state($slot)->is_finished();
 if (!$isanswered) {
     $behaviour = $questionusage->get_question_attempt($slot)->get_behaviour();
