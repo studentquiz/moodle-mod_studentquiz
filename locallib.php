@@ -979,15 +979,23 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
  * @return array question types with identifier as key and name as value
  */
 function mod_studentquiz_get_question_types() {
-    $types = question_bank::get_creatable_qtypes();
     $returntypes = array();
-    // Don't allow Question type essay anymore.
-    unset($types["essay"]);
+    $types = question_bank::get_creatable_qtypes();
+
+    // Filter out question types which can't be graded automatically
+    foreach ($types as $name => $qtype) {
+        if (!$qtype->is_real_question_type() || $qtype->is_manual_graded()) {
+            unset($types[$name]);
+        }
+    }
+
+    // Get the translated name for displaying purposes
     foreach ($types as $name => $qtype) {
         if ($name != 'randomsamatch') {
             $returntypes[$name] = $qtype->local_name();
         }
     }
+
     return $returntypes;
 }
 
