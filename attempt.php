@@ -161,21 +161,18 @@ if (data_submitted()) {
     }
 }
 
-// To support both immediatefeedback and adaptive a question is first answered when the sequence check
-// count is > 1 and the last state was not invalid - invalid usually means usage error from the user and does
-// not count towards an attempt.
-$seqcount = $questionusage->get_question_attempt($slot)->get_sequence_check_count();
-$laststate = $questionusage->get_question_attempt($slot)->get_state();
-$isanswered = (($seqcount > 1) && $laststate != question_state::$invalid);
+// A question is always answered when it is finished. In immediatefeedback this happens immediatly after anwering
+// without an invalid error. With adaptive a question is first answered if there is a graded step which is not null
+$isanswered = $questionusage->get_question_state($slot)->is_finished();
+if (!$isanswered) {
+    $behaviour = $questionusage->get_question_attempt($slot)->get_behaviour();
+    if ($behaviour instanceof qbehaviour_adaptive) {
+        $isanswered = (null !== $behaviour->get_graded_step());
+    }
+}
 
 $options = new question_display_options();
 $options->flags = question_display_options::EDITABLE;
-
-if ($question->qtype instanceof qtype_description
-    || $question->qtype instanceof qtype_essay) {
-    $isanswered = true;
-    $options->readonly = true;
-}
 
 /** @var mod_studentquiz_renderer $output */
 $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
