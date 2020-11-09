@@ -62,7 +62,7 @@ class comment_simple_editor extends MoodleQuickForm_editor {
         global $CFG;
 
         // HACK: There is no way to correctly force a specific editor. Unfortunately the comment area is highly
-        // specific to the atto editor, both here in php and javascript code. We temporarely fake the atto to be the 
+        // specific to the atto editor, both here in php and javascript code. We temporarely fake the atto to be the
         // only available editor. ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/283.
         $CFG->texteditors = 'atto';
 

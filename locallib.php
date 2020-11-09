@@ -982,14 +982,14 @@ function mod_studentquiz_get_question_types() {
     $returntypes = array();
     $types = question_bank::get_creatable_qtypes();
 
-    // Filter out question types which can't be graded automatically
+    // Filter out question types which can't be graded automatically.
     foreach ($types as $name => $qtype) {
         if (!$qtype->is_real_question_type() || $qtype->is_manual_graded()) {
             unset($types[$name]);
         }
     }
 
-    // Get the translated name for displaying purposes
+    // Get the translated name for displaying purposes.
     foreach ($types as $name => $qtype) {
         if ($name != 'randomsamatch') {
             $returntypes[$name] = $qtype->local_name();
