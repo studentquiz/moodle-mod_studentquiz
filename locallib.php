@@ -901,7 +901,6 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       JOIN {question} q ON q.category = qc.id
                       JOIN {studentquiz_question} sqq ON q.id = sqq.questionid
                      WHERE q.hidden = 0
-                           AND sqq.hidden = 0
                            AND q.parent = 0
                            AND sq.coursemodule = :cmid4
                   GROUP BY creator
@@ -918,7 +917,6 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       JOIN {studentquiz_question} sqq ON q.id = sqq.questionid
                       WHERE q.hidden = 0
                             AND q.parent = 0
-                            AND sqq.hidden = 0
                             AND sq.coursemodule = :cmid5
                    GROUP BY creator
                    ) approvals ON approvals.creator = u.id
