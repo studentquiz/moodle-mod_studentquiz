@@ -934,9 +934,11 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                                JOIN {context} con ON con.instanceid = sq.coursemodule
                                JOIN {question_categories} qc ON qc.contextid = con.id
                                JOIN {question} q ON q.category = qc.id
+                               JOIN {studentquiz_question} sqq ON q.id = sqq.questionid
                           LEFT JOIN {studentquiz_rate} sqv ON q.id = sqv.questionid
                               WHERE q.hidden = 0
                                     AND q.parent = 0
+                                    AND sqq.hidden = 0
                                     AND sq.coursemodule = :cmid6
                            GROUP BY q.id, q.createdby
                            ) avgratingperquestion
