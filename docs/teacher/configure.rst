@@ -27,10 +27,10 @@ Make students anonymous
 
 This will prevent students from seeing the names of the question’s author. However, students will still see their own names on questions they created themselves. Teachers will always see the creator’s names.
 
-Created question factor
+Published question factor
 =======================
 
-Points for each created question
+Points for each published question
 
 Approved question factor
 ========================

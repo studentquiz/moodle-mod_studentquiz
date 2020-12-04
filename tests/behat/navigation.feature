@@ -15,8 +15,8 @@ Feature: Navigation to the pages
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
     And the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber       |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1   |
+      | activity    | name          | intro              | course | idnumber     |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 |
     And the following "questions" exist:
       | questioncategory          | qtype | name          | questiontext                  |
       | Default for StudentQuiz 1 | essay | Test question | Write about whatever you want |
@@ -44,7 +44,7 @@ Feature: Navigation to the pages
 
   Scenario: See the ranking page
     When I navigate to "Ranking" in current page administration
-    Then I should see "Created question factor"
+    Then I should see "Published question factor"
     Then I should see "Latest correct answer factor"
     Then I should see "Total Points"
     Then I should see "Personal progress"
