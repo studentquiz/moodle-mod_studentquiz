@@ -98,7 +98,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $bc->attributes['id'] = 'mod_studentquiz_statblock';
             $bc->attributes['role'] = 'navigation';
             $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
-            $bc->title = html_writer::span(get_string('statistic_block_title', 'studentquiz'));
+            $bc->title = get_string('statistic_block_title', 'studentquiz');
             $bc->content = get_string('please_enrole_message', 'studentquiz');
             return $bc;
         }
@@ -106,7 +106,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->attributes['id'] = 'mod_studentquiz_statblock';
         $bc->attributes['role'] = 'navigation';
         $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
-        $bc->title = html_writer::span(get_string('statistic_block_title', 'studentquiz'));
+        $bc->title = get_string('statistic_block_title', 'studentquiz');
         $info1 = new stdClass();
         $info1->total = $sqstats->questions_available;
         $info1->group = $userstats->last_attempt_exists;
@@ -189,7 +189,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->attributes['id'] = 'mod_studentquiz_rankingblock';
         $bc->attributes['role'] = 'navigation';
         $bc->attributes['aria-labelledby'] = 'mod_studentquiz_navblock_title';
-        $bc->title = html_writer::span($blocktitle);
+        $bc->title = $blocktitle;
         $bc->content = implode('', $rows);
 
         // Add More link to Ranking block.
