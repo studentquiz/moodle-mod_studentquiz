@@ -493,6 +493,7 @@ $string['studentquiz:manage'] = 'Edit and delete questions on StudentQuiz';
 $string['studentquiz:organize'] = 'Move questions into categories on StudentQuiz';
 $string['studentquiz:previewothers'] = 'Preview questions of others on StudentQuiz';
 $string['studentquiz:submit'] = 'Create questions on StudentQuiz';
+$string['studentquiz:systemnotifytaskdeleteorphanedquestions'] = 'Orphaned questions deleted notification';
 $string['studentquiz:unhideanonymous'] = 'Can see real names even when anonymize is active';
 $string['studentquiz:view'] = 'See and use questions on StudentQuiz';
 $string['studentquizname'] = 'StudentQuiz Name';
