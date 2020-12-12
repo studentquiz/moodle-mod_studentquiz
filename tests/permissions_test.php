@@ -38,7 +38,7 @@ class mod_studentquiz_permissions extends advanced_testcase {
      *
      * @throws coding_exception
      */
-    protected function setUp() {
+    protected function setUp():void {
         global $DB;
 
         $user = $this->getDataGenerator()->create_user();
@@ -55,7 +55,7 @@ class mod_studentquiz_permissions extends advanced_testcase {
      *
      * @throws coding_exception
      */
-    public function tearDown() {
+    public function tearDown():void {
         parent::tearDown();
         $this->resetAfterTest();
     }

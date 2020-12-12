@@ -113,7 +113,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @throws dml_exception
      * @throws moodle_exception
      */
-    public function setUp() {
+    public function setUp():void {
         $this->resetAfterTest();
         $generator = $this->getDataGenerator();
         $course = $generator->create_course();
