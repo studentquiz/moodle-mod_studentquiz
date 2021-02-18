@@ -54,9 +54,5 @@ $observers = [
                 'eventname' => '\core\event\role_unassigned',
                 'callback' => 'mod_studentquiz_observer::role_unassigned',
         ],
-        [
-                'eventname' => '\core\event\course_module_created',
-                'callback' => 'mod_studentquiz_observer::course_module_created',
-        ],
         // I assume course_module_deleted removes anyway all capability overrides, so not added here.
 ];

@@ -77,6 +77,47 @@ class context_override {
         ],
     ];
 
+    const ROLES_CHANGED_TIME_CACHE_KEY = 'roleschanged';
+
+    private static function cache_key_for_cm(int $cmid) {
+        return 'cm' . $cmid . 'synced';
+    }
+
+    /**
+     * This method gets called by the observer class whenever roles change somewhere.
+     */
+    public static function roles_setup_has_changed() {
+        $cache = \cache::make('mod_studentquiz', 'permissionssync');
+        $cache->set(self::ROLES_CHANGED_TIME_CACHE_KEY, time());
+    }
+
+    /**
+     * This method should be called from every page where a user interacts with a StudentQuiz.
+     * This ensures that
+     *
+     * @param \context_module $context the context for the studentquiz to check. This must be a studentquiz context.
+     */
+    public static function ensure_permissions_are_right(\context_module $context) {
+        $cache = \cache::make('mod_studentquiz', 'permissionssync');
+        $ourcachekey = self::cache_key_for_cm($context->instanceid);
+
+        $lastsync = $cache->get($ourcachekey);
+        if (!$lastsync) {
+            $syncrequired = true;
+        } else {
+            $lastroleschange = $cache->get(self::ROLES_CHANGED_TIME_CACHE_KEY);
+            // 2 second fudge factor in case there are multi servers with slightly misaligned clocks,
+            // and even on one server, there may be two changes in the same second.
+            $syncrequired = $lastsync < $lastroleschange + 2;
+        }
+
+        if ($syncrequired) {
+            $timenow = time(); // Sync can take more than 1 second. Get the time when we start.
+            self::ensure_relation($context, self::$studentquizrelation);
+            $cache->set($ourcachekey, $timenow);
+        }
+    }
+
     /**
      * Add context specific capabilities as overrides to all roles assigned to this context tree to the given context.
      * All other capability overrides not given in relation are removed!
@@ -90,7 +131,7 @@ class context_override {
      * @param context $context to apply the override
      * @param array $relation where keys are needed capabilities and its values an array of capabilities to override
      */
-    public static function ensure_relation(context $context, array $relation) {
+    private static function ensure_relation(context $context, array $relation) {
         global $CFG;
 
         // Get a list of roles assigned to this context tree (since it is possible that there are no roles assigned

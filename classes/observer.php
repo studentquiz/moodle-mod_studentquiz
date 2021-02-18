@@ -24,6 +24,7 @@
 
 use mod_studentquiz\event\studentquiz_digest_changed;
 use mod_studentquiz\utils;
+use mod_studentquiz\access\context_override;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -120,8 +121,8 @@ class mod_studentquiz_observer {
      * @param \core\event\capability_assigned $event
      */
     public static function capability_assigned(\core\event\capability_assigned $event) {
-        if (self::has_capability_changed($event->other['capability'])) {
-            self::apply_capability_override($event->courseid);
+        if (self::is_studentquiz_capability($event->other['capability'])) {
+            context_override::roles_setup_has_changed();
         }
     }
 
@@ -132,8 +133,8 @@ class mod_studentquiz_observer {
      * @param \core\event\capability_unassigned $event
      */
     public static function capability_unassigned(\core\event\capability_unassigned $event) {
-        if (self::has_capability_changed($event->other['capability'])) {
-            self::apply_capability_override($event->courseid);
+        if (self::is_studentquiz_capability($event->other['capability'])) {
+            context_override::roles_setup_has_changed();
         }
     }
 
@@ -144,7 +145,9 @@ class mod_studentquiz_observer {
      * @param \core\event\role_assigned $event
      */
     public static function role_assigned(\core\event\role_assigned $event) {
-        self::apply_capability_override($event->courseid);
+        // TODO  If, in context_override::ensure_relation, we always synched persmissions for all roles,
+        // then we would not need to listen for role_assigned events. Worth considering.
+        context_override::roles_setup_has_changed();
     }
 
     /**
@@ -154,18 +157,9 @@ class mod_studentquiz_observer {
      * @param \core\event\role_unassigned $event
      */
     public static function role_unassigned(\core\event\role_unassigned $event) {
-        self::apply_capability_override($event->courseid);
-    }
-
-    /**
-     * Observer for the event \core\event\course_module_created. Add context specific capability overrides.
-     *
-     * @param \core\event\course_module_created $event
-     */
-    public static function course_module_created(\core\event\course_module_created $event) {
-        if ($event->other["modulename"] == "studentquiz") {
-            self::apply_capability_override_coursemodule($event->objectid);
-        }
+        // TODO  If, in context_override::ensure_relation, we always synched persmissions for all roles,
+        // then we would not need to listen for role_unassigned events. Worth considering.
+        context_override::roles_setup_has_changed();
     }
 
     /**
@@ -174,63 +168,10 @@ class mod_studentquiz_observer {
      * @param string $capability
      * @return bool
      */
-    private static function has_capability_changed($capability) {
+    private static function is_studentquiz_capability($capability) {
         return ((strpos($capability, "mod/studentquiz:") === 0));
     }
 
-    /**
-     * Apply capability override for course (or system if courseid is empty). This function can be called even if you
-     * don't know if there are StudentQuizzes at all.
-     *
-     * @param int $courseid
-     */
-    private static function apply_capability_override($courseid = 0) {
-        global $DB;
-
-        $params = array();
-        if (!empty($courseid)) {
-            $params['course'] = $courseid;
-        }
-
-        $studentquizes = $DB->get_records('studentquiz', $params);
-
-        foreach ($studentquizes as $studentquiz) {
-            self::apply_capability_override_coursemodule($studentquiz->coursemodule);
-        }
-    }
-
-    /**
-     * Apply capability override for coursemodule.
-     * WARNING: Only suitable for StudentQuiz activities. The caller must verify beforehand.
-     *
-     * @param int $coursemoduleid
-     */
-    private static function apply_capability_override_coursemodule($coursemoduleid) {
-        $context = \context_module::instance($coursemoduleid);
-
-        mod_studentquiz\access\context_override::ensure_relation($context,
-            mod_studentquiz\access\context_override::$studentquizrelation
-        );
-    }
-
-    /**
-     * DO NOT USE! Temporarily allow applying of StudentQuiz capability overrides from the module update process for the
-     * whole system. This is very likely to be a one-time exception to use such a function from outside the events. This
-     * only exists to prevent duplicated code - the called method is intentionally private.
-     */
-    public static function module_update_backwardsfix_capability_override() {
-        self::apply_capability_override();
-    }
-
-    /**
-     * DO NOT USE! Temporarily allow applying of StudentQuiz capability overrides from the unit tests, where older
-     * moodles don't fire events. This is very likely to be a one-time exception to use such a function from
-     * outside the events. This only exists to prevent duplicated code - the called method is intentionally private.
-     *
-     * @param int $coursemoduleid
-     */
-    public static function module_test_backwardsfix_capability_override($coursemoduleid) {
-        self::apply_capability_override_coursemodule($coursemoduleid);
-    }
-
+    // TODO we could add an extra check here, to see if the context of the event is a parent
+    // context of any StudenQuiz activities. That would take one DB query. Not sure if that is a good trade-off.
 }
