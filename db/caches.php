@@ -15,21 +15,23 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
- *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
+ * StudentQuiz cache definitions.
  *
  * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch) <your@email.address>
+ * @category   cache
+ * @copyright  2021 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2021021900;
-$plugin->release      = 'v4.4.1';
-$plugin->requires     = 2018051700; // Version MOODLE_35, 3.5.0+.
-$plugin->maturity     = MATURITY_STABLE;
-$plugin->cron         = 0;
+$definitions = [
+    // This MUST NOT be a local cache, sorry cluster lovers.
+    'permissionssync' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 30,
+    ],
+];

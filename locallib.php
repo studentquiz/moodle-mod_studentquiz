@@ -73,6 +73,7 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
             $context = \context::instance_by_id($contextid);
             $studentquiz->category = question_make_default_categories(array($context));
             $studentquiz->categoryid = $studentquiz->category->id;
+
             return $studentquiz;
         } else {
             return $studentquiz;

@@ -47,6 +47,7 @@ $string['before_answering_end_date'] = 'This StudentQuiz closes for answering on
 $string['before_answering_start_date'] = 'Open for answering from {$a}.';
 $string['before_submission_end_date'] = 'This StudentQuiz closes for question submission on {$a}.';
 $string['before_submission_start_date'] = 'Open for question submission from {$a}.';
+$string['cachedef_permissionssync'] = 'StudentQuiz permission synchronisation tracking';
 $string['cannotcapturecommenthistory'] = 'Can not capture comment history record';
 $string['changeselectedsstate'] = 'Change the state of the following questions:<br /><br />{$a}';
 $string['collapseall'] = 'Collapse all comments';

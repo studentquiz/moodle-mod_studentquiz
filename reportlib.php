@@ -179,8 +179,12 @@ class mod_studentquiz_report {
         }
 
         $this->context = context_module::instance($this->cm->id);
+
         $this->userid = $USER->id;
         $this->availablequestions = mod_studentquiz_count_questions($cmid);
+
+        // Check to see if any roles setup has been changed since we last synced the capabilities.
+        \mod_studentquiz\access\context_override::ensure_permissions_are_right($this->context);
     }
 
     /**
