@@ -362,8 +362,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // This code is called by both POST forms and GET links, so cannot use data_submitted.
         $rawquestions = $_REQUEST;
 
-        // Required permissions when deleting:
-        if (optional_param('deleteselected', false, PARAM_BOOL)) {
+        if (optional_param('deleteselected', false, PARAM_BOOL)) { // Required permissions when deleting...
             // An user can delete a question if either he can manage studentquiz...
             if (!has_capability('mod/studentquiz:manage', $context)) {
                 // Or he is able to actually edit all of those question (and thus deleting), because highly probable
@@ -372,11 +371,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     question_require_capability_on($id, 'edit');
                 }
             }
-        // Required permissions when approving:
-        } else if (optional_param('approveselected', false, PARAM_BOOL)) {
+
+        } else if (optional_param('approveselected', false, PARAM_BOOL)) { // Required permissions when approving...
             require_capability('mod/studentquiz:changestate', $context);
-        } else {
-            // Otherwise no further actions.
+
+        } else { // Otherwise no further actions.
             return false;
         }
 
