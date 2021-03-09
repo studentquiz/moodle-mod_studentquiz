@@ -50,6 +50,9 @@ require_login($cm->course, false, $cm);
 
 // Load context.
 $context = context_module::instance($cm->id);
+
+// Check to see if any roles setup has been changed since we last synced the capabilities.
+\mod_studentquiz\access\context_override::ensure_permissions_are_right($context);
 $studentquiz = mod_studentquiz_load_studentquiz($cm->id, $context->id);
 
 // Comment access check.

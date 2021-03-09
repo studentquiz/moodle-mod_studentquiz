@@ -77,25 +77,65 @@ class context_override {
         ],
     ];
 
+    const ROLES_CHANGED_TIME_CACHE_KEY = 'roleschanged';
+
+    private static function cache_key_for_cm(int $cmid) {
+        return 'cm' . $cmid . 'synced';
+    }
+
     /**
-     * Add context specific capabilities as overrides to all roles assigned to this context tree to the given context.
-     * All other capability overrides not given in relation are removed!
+     * This method gets called by the observer class whenever roles change somewhere.
+     */
+    public static function roles_setup_has_changed() {
+        $cache = \cache::make('mod_studentquiz', 'permissionssync');
+        $cache->set(self::ROLES_CHANGED_TIME_CACHE_KEY, time());
+    }
+
+    /**
+     * This method should be called from every page where a user interacts with a StudentQuiz.
+     * This ensures that
+     *
+     * @param \context_module $context the context for the studentquiz to check. This must be a studentquiz context.
+     */
+    public static function ensure_permissions_are_right(\context_module $context) {
+        $cache = \cache::make('mod_studentquiz', 'permissionssync');
+        $ourcachekey = self::cache_key_for_cm($context->instanceid);
+
+        $lastsync = $cache->get($ourcachekey);
+        if (!$lastsync) {
+            $syncrequired = true;
+        } else {
+            $lastroleschange = $cache->get(self::ROLES_CHANGED_TIME_CACHE_KEY);
+            // 2 second fudge factor in case there are multi servers with slightly misaligned clocks,
+            // and even on one server, there may be two changes in the same second.
+            $syncrequired = $lastsync < $lastroleschange + 2;
+        }
+
+        if ($syncrequired) {
+            $timenow = time(); // Sync can take more than 1 second. Get the time when we start.
+            self::ensure_relation($context, self::$studentquizrelation);
+            $cache->set($ourcachekey, $timenow);
+        }
+    }
+
+    /**
+     * Add context specific question capability overrides to match the StudentQuiz capabilities each role has.
+     *
+     * As well as assigning the capabilities that are needed according to the relation array,
+     * any capability that is mentioned in the array will be removed from roles that don't need it.
+     *
      * Warning: This functions assigns and unassigns capabilities. If this function is called from a
      * capability_[un]assigned event, it will trigger that event again if it finds out that changes have to be made. The
      * outcome of this chain of events may be uncontrollable and thus should be avoided or filtered very carefully!
-     * Caveat: If this function is called and a role is not anymore present in the enrolment, its capability overrides
-     * are not removed. This is due to how this function gathers the roles in the context so you have a few unused and
-     * inactive capability overrides. If that role is added back, the relation is ensured again.
      *
-     * @param context $context to apply the override
+     * @param context $context where to apply the overrides.
      * @param array $relation where keys are needed capabilities and its values an array of capabilities to override
      */
-    public static function ensure_relation(context $context, array $relation) {
-        global $CFG;
+    private static function ensure_relation(context $context, array $relation) {
+        global $DB;
 
-        // Get a list of roles assigned to this context tree (since it is possible that there are no roles assigned
-        // directly to the context, includeparents is set to true).
-        $roles = get_roles_used_in_context($context, true);
+        // We fix all roles here. That way, we don't have to worry about roles being assigned or unassigned in future.
+        $roles = $DB->get_records('role');
         foreach ($roles as $role) {
             // Get the list of resolved capabilities of this role in this exact context (includes overrides). This list
             // represents which capabilities are given to the role.

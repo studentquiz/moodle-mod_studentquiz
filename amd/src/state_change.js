@@ -35,49 +35,61 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
         },
 
         init: function() {
-            $(document).ready(function() {
+
+            var lastSelectedState = $(t.SELECTOR.STATE_SELECT).val();
+
+            // TODO: Something rerenders or manipulates the modal elements, so the event has to be attached to the
+            // document - see #278. Better would be using the dialog framework similiar to the comment_area instead of
+            // putting the dialog together manually in the renderer functions.
+            $(document).on('change', t.SELECTOR.STATE_SELECT, {}, function() {
+                // Since it happens that the modal elements gets rerendered or manipulated in some way, the elements
+                // need to be obtained freshly.
                 var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
                 var changeStateButton = $(t.SELECTOR.CHANGE_STATE_BUTTON);
                 var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
                 var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
-                var lastSelectedState = stateChangeSelect.val();
 
-                stateChangeSelect.on('change', function() {
-                    if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
-                        stateValueInput.val(stateChangeSelect.val());
-                        changeStateButton.removeAttr('disabled');
-                        submitStateButton.removeAttr('disabled');
-                    } else {
-                        changeStateButton.attr('disabled', 'disabled');
-                        submitStateButton.attr('disabled', 'disabled');
-                    }
-                });
-
-                submitStateButton.on('click', function() {
+                // TODO: None of the render functions preselect the current active option so lastSelectedState is
+                // basically always the first option, whose value is '' as well.
+                if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
+                    stateValueInput.val(stateChangeSelect.val());
+                    changeStateButton.removeAttr('disabled');
+                    submitStateButton.removeAttr('disabled');
+                } else {
+                    changeStateButton.attr('disabled', 'disabled');
                     submitStateButton.attr('disabled', 'disabled');
-                    var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
-                    require(['core/loadingicon'], function(LoadingIcon) {
-                        var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
-                        LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
-                    });
-                    var args = {
-                        courseid: submitStateButton.attr('data-courseid'),
-                        cmid: submitStateButton.attr('data-cmid'),
-                        questionid: submitStateButton.attr('data-questionid'),
-                        state: stateChangeSelect.val()
-                    };
-                    var failure;
-                    var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
-                    promise[0].then(function(results) {
-                        Notification.alert(results.status, results.message);
-                        pendingPromise.resolve();
-                        lastSelectedState = stateChangeSelect.val();
-                        // Reload the Studentquiz page.
-                        window.opener.location.reload();
-                        // Each then() should return a value or throw (promise/always-return).
-                        return;
-                    }).fail(failure);
+                }
+            });
+
+            $(document).on('click', t.SELECTOR.SUBMIT_STATE_BUTTON, {}, function() {
+                // Since it happens that the modal elements gets rerendered or manipulated in some way, the elements
+                // need to be obtained freshly.
+                var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
+                var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
+
+                submitStateButton.attr('disabled', 'disabled');
+                var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
+                require(['core/loadingicon'], function(LoadingIcon) {
+                    var parentElement = $(t.SELECTOR.CHANGE_STATE_NOTIFICATION);
+                    LoadingIcon.addIconToContainerRemoveOnCompletion(parentElement, pendingPromise);
                 });
+                var args = {
+                    courseid: submitStateButton.attr('data-courseid'),
+                    cmid: submitStateButton.attr('data-cmid'),
+                    questionid: submitStateButton.attr('data-questionid'),
+                    state: stateChangeSelect.val()
+                };
+                var failure;
+                var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
+                promise[0].then(function(results) {
+                    Notification.alert(results.status, results.message);
+                    pendingPromise.resolve();
+                    lastSelectedState = stateChangeSelect.val();
+                    // Reload the Studentquiz page.
+                    window.opener.location.reload();
+                    // Each then() should return a value or throw (promise/always-return).
+                    return;
+                }).fail(failure);
             });
         },
 

@@ -24,6 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
+use mod_studentquiz\access\context_override;
+
 /**
  * Unit tests permission namespace.
  *
@@ -31,7 +33,7 @@ defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_permissions extends advanced_testcase {
+class mod_studentquiz_permissions_testcase extends advanced_testcase {
 
     /**
      * Setup test
@@ -87,8 +89,10 @@ class mod_studentquiz_permissions extends advanced_testcase {
         // Events take over for applying context_override::ensure_relation. Looks like events in unit tests are only
         // processed in Moodle 38 and later, so we have to manually call the context capability overrides.
         if ($CFG->branch < 38) {
-            mod_studentquiz_observer::module_test_backwardsfix_capability_override($studentquiz->coursemodule);
+            context_override::roles_setup_has_changed();
         }
+        context_override::ensure_permissions_are_right($contextstudentquiz);
+
         $this->assertTrue(has_capability('moodle/question:editall', $contextstudentquiz));
 
         // Then we remove that capability again and the user has not anymore the context specific capability.
@@ -96,8 +100,9 @@ class mod_studentquiz_permissions extends advanced_testcase {
         // Events take over for applying context_override::ensure_relation. Looks like events in unit tests are only
         // processed in Moodle 38 and later, so we have to manually call the context capability overrides.
         if ($CFG->branch < 38) {
-            mod_studentquiz_observer::module_test_backwardsfix_capability_override($studentquiz->coursemodule);
+            context_override::roles_setup_has_changed();
         }
+        context_override::ensure_permissions_are_right($contextstudentquiz);
         $this->assertFalse(has_capability('moodle/question:editall', $contextstudentquiz));
     }
 }

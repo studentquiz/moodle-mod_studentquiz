@@ -115,7 +115,7 @@ class attempts_column extends \core_question\bank\column_base {
         return array(
             'myattempts' => array('field' => 'myattempts',
                 'title' => get_string('number_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylastattempt',
+            'mylastattempt' => array('field' => 'mylastanswercorrect',
                 'title' => get_string('latest_column_name', 'studentquiz')),
         );
     }

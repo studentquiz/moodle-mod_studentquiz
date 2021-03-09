@@ -357,18 +357,28 @@ class studentquiz_bank_view extends \core_question\bank\view {
         global $DB, $OUTPUT;
 
         $context = \context_module::instance($this->studentquiz->coursemodule);
-        if (optional_param('deleteselected', false, PARAM_BOOL)) {
-            require_capability('mod/studentquiz:manage', $context);
-        } else if (optional_param('approveselected', false, PARAM_BOOL)) {
-            require_capability('mod/studentquiz:changestate', $context);
-        } else {
-            // Otherwise no further actions.
-            return false;
-        }
 
         // Make a list of all the questions that are selected.
         // This code is called by both POST forms and GET links, so cannot use data_submitted.
         $rawquestions = $_REQUEST;
+
+        if (optional_param('deleteselected', false, PARAM_BOOL)) { // Required permissions when deleting...
+            // An user can delete a question if either he can manage studentquiz...
+            if (!has_capability('mod/studentquiz:manage', $context)) {
+                // Or he is able to actually edit all of those question (and thus deleting), because highly probable
+                // it is his own question.
+                foreach (mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions) as $id) {
+                    question_require_capability_on($id, 'edit');
+                }
+            }
+
+        } else if (optional_param('approveselected', false, PARAM_BOOL)) { // Required permissions when approving...
+            require_capability('mod/studentquiz:changestate', $context);
+
+        } else { // Otherwise no further actions.
+            return false;
+        }
+
         // Comma separated list of ids of questions to be deleted.
         $questionlist = '';
         // String with names of questions separated by <br /> with.
