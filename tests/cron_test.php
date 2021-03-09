@@ -57,7 +57,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
     /** @var array */
     protected $questions;
 
-    protected function setUp():void {
+    protected function setUp(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();

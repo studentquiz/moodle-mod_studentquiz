@@ -99,7 +99,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
     /**
      * Setup for unit test.
      */
-    protected function setUp():void {
+    protected function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
 
