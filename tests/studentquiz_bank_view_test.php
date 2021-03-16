@@ -129,7 +129,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
      * One user, one studentquiz in one course.
      * @throws coding_exception
      */
-    protected function setUp() {
+    protected function setUp(): void {
         global $DB;
         $user = $this->getDataGenerator()->create_user();
         $this->course = $this->getDataGenerator()->create_course();

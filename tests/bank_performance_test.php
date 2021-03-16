@@ -66,7 +66,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
      * Setup testing scenario
      * @throws coding_exception
      */
-    protected function setUp() {
+    protected function setUp(): void {
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
     }

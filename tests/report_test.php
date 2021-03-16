@@ -72,7 +72,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
      * Setup test
      * @throws coding_exception
      */
-    protected function setUp() {
+    protected function setUp(): void {
         global $DB;
         $this->resetAfterTest();
 

@@ -57,7 +57,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
     /** @var array */
     protected $questions;
 
-    protected function setUp() {
+    protected function setUp(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -138,7 +138,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         $output = ob_get_contents();
         ob_end_clean();
 
-        $this->assertContains('Sending notification for StudentQuiz for question ' .
+        $this->assertStringContainsString('Sending notification for StudentQuiz for question ' .
                 $question->name . ' to ' .
                 $notifydata->recepientname, $output);
 
@@ -166,7 +166,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         $output = ob_get_contents();
         ob_end_clean();
 
-        $this->assertContains('Sending notification for StudentQuiz for question ' .
+        $this->assertStringContainsString('Sending notification for StudentQuiz for question ' .
                 $question->name . ' to ' .
                 $notifydata->recepientname, $output);
     }
@@ -209,7 +209,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         $output = ob_get_contents();
         ob_end_clean();
 
-        $this->assertContains('Sending digest notification for StudentQuiz', $output);
-        $this->assertContains('Sent 1 messages!', $output);
+        $this->assertStringContainsString('Sending digest notification for StudentQuiz', $output);
+        $this->assertStringContainsString('Sent 1 messages!', $output);
     }
 }
