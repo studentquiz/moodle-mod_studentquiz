@@ -504,7 +504,7 @@ class container {
      * @param array $comments
      */
     public function set_user_list($comments) {
-        global $DB;
+        global $CFG, $DB;
         $userids = [];
         foreach ($comments as $comment) {
             if (!in_array($comment->userid, $userids)) {
