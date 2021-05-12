@@ -464,7 +464,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
  * @param stdClass $submitter user object of the sender
  * @param stdClass $data object of replaceable fields for the templates
  *
- * @return int|false as for {@link message_send()}.
+ * @return int|false as for {@see message_send()}.
  */
 function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
     global $DB;
@@ -501,14 +501,14 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
 /**
  * Send notification for comment
  *
- * @todo Support this feature in {@link mod_studentquiz_send_notification} for the next release.
+ * @todo Support this feature in {@see mod_studentquiz_send_notification} for the next release.
  *
  * @param string $event message event string
  * @param stdClass $recipient user object of the intended recipient
  * @param stdClass $submitter user object of the sender
  * @param stdClass $data object of replaceable fields for the templates
  *
- * @return int|false as for {@link message_send()}.
+ * @return int|false as for {@see message_send()}.
  */
 function mod_studentquiz_send_comment_notification($event, $recipient, $submitter, $data) {
     // Prepare the message.

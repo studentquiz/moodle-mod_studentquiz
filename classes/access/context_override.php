@@ -77,8 +77,16 @@ class context_override {
         ],
     ];
 
+    /**
+     * Cache key where the roles changed time is stored.
+     */
     const ROLES_CHANGED_TIME_CACHE_KEY = 'roleschanged';
 
+    /**
+     * Return defined cache key for this course module
+     *
+     * @param int $cmid the course module id
+     */
     private static function cache_key_for_cm(int $cmid) {
         return 'cm' . $cmid . 'synced';
     }
@@ -93,7 +101,6 @@ class context_override {
 
     /**
      * This method should be called from every page where a user interacts with a StudentQuiz.
-     * This ensures that
      *
      * @param \context_module $context the context for the studentquiz to check. This must be a studentquiz context.
      */

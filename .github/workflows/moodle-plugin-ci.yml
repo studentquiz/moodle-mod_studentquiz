@@ -90,7 +90,6 @@ jobs:
       - name: Moodle PHPDoc Checker
         if: ${{ always() }}
         run: moodle-plugin-ci phpdoc
-        continue-on-error: true
 
       - name: Validating
         if: ${{ always() }}
