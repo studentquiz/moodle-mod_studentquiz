@@ -37,6 +37,22 @@
         * actiontype
         * actorname
 
+    Example context (json):
+    {
+        "recipientname": "John Doe",
+        "digesttype": "Weekly",
+        "modulename": "StudentQuiz",
+        "activityurl": "/to/some/where",
+        "notifications": [
+            {
+                "seq": 1,
+                "timestamp": "14 May 2021, 4:17 PM",
+                "questionname": "How many decimals has Pi?",
+                "actiontype": "approved",
+                "actorname": "Nicole Brown"
+            }
+        ]
+    }
 }}
 <div>
     <p>{{# str }} emailautomationnote, studentquiz {{/ str }}</p><br>

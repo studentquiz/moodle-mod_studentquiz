@@ -102,7 +102,6 @@ jobs:
       - name: Mustache Lint
         if: ${{ always() }}
         run: moodle-plugin-ci mustache
-        continue-on-error: true
 
       - name: Grunt
         if: ${{ always() }}
