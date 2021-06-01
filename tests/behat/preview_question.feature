@@ -83,7 +83,7 @@ Feature: Preview a question as a student
     And I switch to "questionpreview" window
     And I should not see "Rate"
     And I should not see "Add comment"
-    And I should see "Note: Rating and comment is not avaiable in Preview mode on your own question"
+    And I should see "Note: Rating and comment is not available in Preview mode on your own question"
 
   @javascript @_switch_window
   Scenario: User with higher student's role post new question, and he/she can comment or rating on new's one
