@@ -502,5 +502,5 @@ $string['studentquizname_help'] = 'The name of this StudentQuiz Activity';
 $string['submissionendbeforestart'] = 'Submissions deadline can not be specified before the open for submissions date';
 $string['tags'] = 'Tags';
 $string['unapprove'] = 'Unapprove';
-$string['notshowratingcomment'] = 'Note: Rating and comment is not avaiable in Preview mode on your own question';
+$string['notshowratingcomment'] = 'Note: Rating and comment is not available in Preview mode on your own question';
 $string['studentquiz:emailnotifyquestion'] = 'Email notify question';
