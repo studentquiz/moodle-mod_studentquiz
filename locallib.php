@@ -905,7 +905,7 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                            AND sqq.hidden = 0
                            AND q.parent = 0
                            AND sq.coursemodule = :cmid4
-                  GROUP BY creator
+                  GROUP BY q.createdby
                   ) creators ON creators.creator = u.id
         -- Approved questions.
         LEFT JOIN (
@@ -921,7 +921,7 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                             AND q.parent = 0
                             AND sqq.hidden = 0
                             AND sq.coursemodule = :cmid5
-                   GROUP BY creator
+                   GROUP BY q.createdby
                    ) approvals ON approvals.creator = u.id
         -- Average of Average Rating of own questions.
         LEFT JOIN (
