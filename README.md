@@ -48,11 +48,12 @@ Supported and tested with:
 
 - Moodle 3.8, 3.9, 3.10, 3.11
 - PHP 7.1, 7.2, 7.3, 7.4
-- Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017
+- Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017 (experimental)
 - Browsers: Firefox, Chrome
 
 Refer to the Moodle release notes for the minimum requirements for PHP and the databases. Other modern browsers should
 be compatible too, it's just not tested or developed against them explicitly.
+SQL Server support is only experimental, as we have no environment and automated tests for it - it can break on any minor update and we rely on feedback and input from the community.
 
 ## Contributing
 
