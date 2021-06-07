@@ -33,24 +33,6 @@ require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
 
-/** @var string default quiz behaviour */
-const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
-/** @var int legacy course section id for the orphaned activities, only used for import fixes */
-const STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER = 999;
-/** @var string generated student quiz placeholder */
-const STUDENTQUIZ_GENERATE_QUIZ_PLACEHOLDER = 'quiz';
-/** @var string generated student quiz intro */
-const STUDENTQUIZ_GENERATE_QUIZ_INTRO = 'Studentquiz';
-/** @var string generated student quiz overduehandling */
-const STUDENTQUIZ_GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
-/** @var string default course section name for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_NAME = 'studentquiz quizzes';
-/** @var string default course section summary for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_SUMMARY = 'all student quizzes';
-/** @var string default course section summaryformat for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT = 1;
-/** @var string default course section visible for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_VISIBLE = false;
 /** @var string default StudentQuiz quiz behaviour */
 const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
