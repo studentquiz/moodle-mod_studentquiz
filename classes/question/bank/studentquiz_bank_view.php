@@ -254,7 +254,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     }
                     redirect($this->baseurl);
                 } else {
-                    print_error('invalidconfirm', 'question');
+                    throw new moodle_exception("invalidconfirm', 'question");
                 }
             }
         }
@@ -265,7 +265,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $category = required_param('category', PARAM_SEQUENCE);
             list($tocategoryid, $contextid) = explode(',', $category);
             if (! $tocategory = $DB->get_record('question_categories', array('id' => $tocategoryid, 'contextid' => $contextid))) {
-                print_error('cannotfindcate', 'question');
+                throw new moodle_exception("cannotfindcate', 'question");
             }
             $tocontext = \context::instance_by_id($contextid);
             require_capability('moodle/question:add', $tocontext);
@@ -312,7 +312,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     }
                     redirect($this->baseurl);
                 } else {
-                    print_error('invalidconfirm', 'question');
+                    throw new moodle_exception("invalidconfirm', 'question");
                 }
             }
         }
