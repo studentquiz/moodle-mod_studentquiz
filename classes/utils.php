@@ -243,7 +243,7 @@ style5 = html';
             ];
             // Send email.
             if (!email_to_user($fakeuser, $from, $subject, null, $mailcontent)) {
-                print_error('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
+                throw new moodle_exception('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
             }
         }
     }
