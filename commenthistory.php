@@ -36,13 +36,13 @@ $commentid = required_param('commentid', PARAM_INT);
 if ($cmid) {
     $cm = get_coursemodule_from_id('studentquiz', $cmid);
     if (!$cm) {
-        print_error('invalidcoursemodule');
+        throw new moodle_exception("invalidcoursemodule");
     }
     if (!$comment = $DB->get_record('studentquiz_comment', ['id' => $commentid])) {
-        print_error('invalidcommentmodule');
+        throw new moodle_exception("invalidcommentmodule");
     }
 } else {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception("invalidcoursemodule");
 }
 
 // Authentication check.
@@ -58,12 +58,12 @@ $studentquiz = mod_studentquiz_load_studentquiz($cm->id, $context->id);
 // Comment access check.
 $question = question_bank::load_question($questionid);
 if (!$question) {
-    print_error('invalidcommenthistorypermission');
+    throw new moodle_exception("invalidcommenthistorypermission");
 }
 
 $container = new container($studentquiz, $question, $cm, $context, $USER);
 if (!$container->can_view_username() && !$USER->id == $comment->userid) {
-    print_error('invalidcommenthistorypermission');
+    throw new moodle_exception("invalidcommenthistorypermission");
 }
 
 $actionurl = new moodle_url('/mod/studentquiz/commenthistory.php',

@@ -62,7 +62,7 @@ if (!$referer) {
 }
 
 if (!$comment->can_report()) {
-    print_error($comment->get_error());
+    throw new moodle_exception($comment->get_error(), "error");
 }
 
 $pagename = get_string('report_comment_pagename', 'studentquiz');

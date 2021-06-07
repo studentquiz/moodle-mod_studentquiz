@@ -73,7 +73,7 @@ class mod_studentquiz_observer {
 
         $newcategory = $DB->get_record('question_categories', ['id' => $event->other['newcategoryid']]);
         if (!$newcategory) {
-            print_error('invalidcategoryid', 'error');
+            throw new moodle_exception("invalidcategoryid', 'error");
         }
 
         $context = context::instance_by_id($newcategory->contextid);
