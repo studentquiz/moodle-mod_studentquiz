@@ -1163,7 +1163,7 @@ function mod_studentquiz_save_rate($data) {
 }
 
 /**
- * Compare and create new record for studentquiz_questions table if need. Only for Moodle version smaller than 3.7
+ * Compare and create new record for studentquiz_questions table if needed.
  *
  * @param object $studentquiz StudentQuiz object
  * @param bool $honorpublish Honor the setting publishnewquestions
