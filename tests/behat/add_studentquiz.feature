@@ -34,4 +34,4 @@ Feature: Activities can be created
     And I am on the "Test quiz name" "mod_studentquiz > View" page
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    Then the field "id_commentdeletionperiod" matches value "0"
+    Then the field "commentdeletionperiod" matches value "0"
