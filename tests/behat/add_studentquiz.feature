@@ -47,4 +47,4 @@ Feature: Activities can be created
     When I follow "Test quiz name"
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    Then the field "id_commentdeletionperiod" matches value "0"
+    Then the field "commentdeletionperiod" matches value "0"
