@@ -533,7 +533,14 @@ class container {
         // Retrieve users from db.
         if (!empty($userids)) {
             list($idsql, $params) = $DB->get_in_or_equal($userids);
-            $fields = implode(',', \core_user\fields::get_name_fields());
+
+            $fields = "";
+            if (utils::moodle_version_is(">=", "311")) {
+                $fields = implode(',', \core_user\fields::get_name_fields());
+            } else {
+                $fields = get_all_user_name_fields(true);
+            }
+
             $query = "SELECT id, $fields
                         FROM {user}
                        WHERE id $idsql";
