@@ -4,6 +4,7 @@ Feature: Activities can be created
   As a teacher
   I need the creation of an activity to work
 
+  @javascript
   Scenario: Check an Activity can be created
     Given the following "users" exist:
       | username | firstname | lastname | email                |
