@@ -244,15 +244,15 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $contextids = provider::get_contexts_for_userid($this->users[0]->id)->get_contextids();
 
         $this->assertCount(2, $contextids);
-        $this->assertContains($this->contexts[0]->id, $contextids);
-        $this->assertContains($this->contexts[1]->id, $contextids);
+        $this->assertContains((string)$this->contexts[0]->id, $contextids);
+        $this->assertContains((string)$this->contexts[1]->id, $contextids);
 
         // Get context for second user.
         $this->create_comment($this->questions[0]->id, $this->users[1]->id);
         $contextids = provider::get_contexts_for_userid($this->users[1]->id)->get_contextids();
         $this->assertCount(2, $contextids);
-        $this->assertContains($this->contexts[0]->id, $contextids);
-        $this->assertContains($this->contexts[1]->id, $contextids);
+        $this->assertContains((string)$this->contexts[0]->id, $contextids);
+        $this->assertContains((string)$this->contexts[1]->id, $contextids);
     }
 
     /**
