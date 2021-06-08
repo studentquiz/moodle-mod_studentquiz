@@ -26,6 +26,8 @@
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
+use mod_studentquiz\utils;
+
 /**
  * Steps definitions related to mod_studentquiz.
  *
@@ -81,7 +83,7 @@ class behat_mod_studentquiz extends behat_base {
     public function i_check_moodle_version($version) {
         global $CFG;
 
-        if ($CFG->branch < $version) {
+        if (utils::moodle_version_is("<", $version)) {
             throw new \Moodle\BehatExtension\Exception\SkippedException();
         }
     }
