@@ -53,7 +53,7 @@ Supported and tested with:
 
 Refer to the Moodle release notes for the minimum requirements for PHP and the databases. Other modern browsers should
 be compatible too, it's just not tested or developed against them explicitly.
-SQL Server support is only experimental, as we have no environment and automated tests for it - it can break on any minor update and we rely on feedback and input from the community.
+SQL Server support is only experimental, as we have [no environment to run automated tests on it yet](https://github.com/moodlehq/moodle-plugin-ci/issues/92). It can break on any minor update and we rely on feedback and input from the community.
 
 ## Contributing
 
