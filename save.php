@@ -41,13 +41,13 @@ $save = required_param('save', PARAM_NOTAGS);
 // Load course and course module requested.
 if ($cmid) {
     if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        print_error('invalidcoursemodule');
+        throw new moodle_exception("invalidcoursemodule");
     }
     if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        print_error('coursemisconf');
+        throw new moodle_exception("coursemisconf");
     }
 } else {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception("invalidcoursemodule");
 }
 
 // Authentication check.
@@ -64,7 +64,7 @@ switch($save) {
 
         // Rating is only valid if the rate is in or between 1 and 5.
         if ($data->rate < 1 || $data->rate > 5) {
-            print_error('invalidrate');
+            throw new moodle_exception("invalidrate");
         }
 
         mod_studentquiz_save_rate($data);

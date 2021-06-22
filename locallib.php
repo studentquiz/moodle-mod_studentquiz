@@ -33,24 +33,6 @@ require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
 
-/** @var string default quiz behaviour */
-const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
-/** @var int legacy course section id for the orphaned activities, only used for import fixes */
-const STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER = 999;
-/** @var string generated student quiz placeholder */
-const STUDENTQUIZ_GENERATE_QUIZ_PLACEHOLDER = 'quiz';
-/** @var string generated student quiz intro */
-const STUDENTQUIZ_GENERATE_QUIZ_INTRO = 'Studentquiz';
-/** @var string generated student quiz overduehandling */
-const STUDENTQUIZ_GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
-/** @var string default course section name for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_NAME = 'studentquiz quizzes';
-/** @var string default course section summary for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_SUMMARY = 'all student quizzes';
-/** @var string default course section summaryformat for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT = 1;
-/** @var string default course section visible for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_VISIBLE = false;
 /** @var string default StudentQuiz quiz behaviour */
 const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
@@ -464,7 +446,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
  * @param stdClass $submitter user object of the sender
  * @param stdClass $data object of replaceable fields for the templates
  *
- * @return int|false as for {@link message_send()}.
+ * @return int|false as for {@see message_send()}.
  */
 function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
     global $DB;
@@ -501,14 +483,14 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
 /**
  * Send notification for comment
  *
- * @todo Support this feature in {@link mod_studentquiz_send_notification} for the next release.
+ * @todo Support this feature in {@see mod_studentquiz_send_notification} for the next release.
  *
  * @param string $event message event string
  * @param stdClass $recipient user object of the intended recipient
  * @param stdClass $submitter user object of the sender
  * @param stdClass $data object of replaceable fields for the templates
  *
- * @return int|false as for {@link message_send()}.
+ * @return int|false as for {@see message_send()}.
  */
 function mod_studentquiz_send_comment_notification($event, $recipient, $submitter, $data) {
     // Prepare the message.
@@ -905,7 +887,7 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                            AND sqq.hidden = 0
                            AND q.parent = 0
                            AND sq.coursemodule = :cmid4
-                  GROUP BY creator
+                  GROUP BY q.createdby
                   ) creators ON creators.creator = u.id
         -- Approved questions.
         LEFT JOIN (
@@ -921,7 +903,7 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                             AND q.parent = 0
                             AND sqq.hidden = 0
                             AND sq.coursemodule = :cmid5
-                   GROUP BY creator
+                   GROUP BY q.createdby
                    ) approvals ON approvals.creator = u.id
         -- Average of Average Rating of own questions.
         LEFT JOIN (
@@ -1163,7 +1145,7 @@ function mod_studentquiz_save_rate($data) {
 }
 
 /**
- * Compare and create new record for studentquiz_questions table if need. Only for Moodle version smaller than 3.7
+ * Compare and create new record for studentquiz_questions table if needed.
  *
  * @param object $studentquiz StudentQuiz object
  * @param bool $honorpublish Honor the setting publishnewquestions

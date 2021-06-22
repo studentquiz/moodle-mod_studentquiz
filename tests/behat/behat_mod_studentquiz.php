@@ -26,6 +26,8 @@
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
+use mod_studentquiz\utils;
+
 /**
  * Steps definitions related to mod_studentquiz.
  *
@@ -40,7 +42,7 @@ class behat_mod_studentquiz extends behat_base {
     /**
      * Behat function to set availability field
      *
-     * @Given /^I set the availability field "(?P<field_string>(?:[^"]|\\")*)" to "(?P<days_value_integer>(?:[^"]|\\")*)" days from now$/
+     * @Given I set the availability field ":field" to ":days" days from now
      * @param string $field Field name.
      * @param int $days Number of days from now.
      */
@@ -74,14 +76,14 @@ class behat_mod_studentquiz extends behat_base {
     /**
      * Behat function to check moodle branch is greater or equal provided value
      *
-     * @Given /^I make sure the current Moodle branch is greater or equal "(?P<version_value_integer>(?:[^"]|\\")*)"$/
+     * @Given I make sure the current Moodle branch is greater or equal ":version"
      *
      * @param int $version
      */
     public function i_check_moodle_version($version) {
         global $CFG;
 
-        if ($CFG->branch < $version) {
+        if (utils::moodle_version_is("<", $version)) {
             throw new \Moodle\BehatExtension\Exception\SkippedException();
         }
     }
@@ -89,7 +91,7 @@ class behat_mod_studentquiz extends behat_base {
     /**
      * Enter the text into the editor, this step will trigger trusted event.
      *
-     * @Given /^I enter the text "([^"]*)" into the "([^"]*)" editor/
+     * @Given I enter the text ":value" into the ":fieldlocator" editor
      *
      * @param string $value
      * @param string $fieldlocator

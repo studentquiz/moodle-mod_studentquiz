@@ -243,7 +243,7 @@ style5 = html';
             ];
             // Send email.
             if (!email_to_user($fakeuser, $from, $subject, null, $mailcontent)) {
-                print_error('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
+                throw new moodle_exception('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
             }
         }
     }
@@ -339,5 +339,75 @@ style5 = html';
             return false;
         }
         return true;
+    }
+
+    /** @var string - Less than operator */
+    const OP_LT = "<";
+    /** @var string - equal operator */
+    const OP_E = "=";
+    /** @var string - greater than operator */
+    const OP_GT = ">";
+
+    /**
+     * Conveniently compare the current moodle version to a provided version in branch format. This function will
+     * inflate version numbers to a three digit number before comparing them. This way moodle minor versions greater
+     * than 9 can be correctly and easily compared.
+     *
+     * Examples:
+     *   utils::moodle_version_is("<", "39");
+     *   utils::moodle_version_is("<=", "310");
+     *   utils::moodle_version_is(">", "39");
+     *   utils::moodle_version_is(">=", "38");
+     *   utils::moodle_version_is("=", "41");
+     *
+     * CFG reference:
+     * $CFG->branch = "311", "310", "39", "38", ...
+     * $CFG->release = "3.11+ (Build: 20210604)", ...
+     * $CFG->version = "2021051700.04", ...
+     *
+     * @param string $operator for the comparison
+     * @param string $version to compare to
+     * @return boolean
+     * @throws coding_exception
+     */
+    public static function moodle_version_is(string $operator, string $version): bool {
+        global $CFG;
+
+        if (strlen($version) == 2) {
+            $version = $version[0]."0".$version[1];
+        }
+
+        $current = $CFG->branch;
+        if (strlen($current) == 2) {
+            $current = $current[0]."0".$current[1];
+        }
+
+        $from = intval($current);
+        $to = intval($version);
+        $ops = str_split($operator);
+
+        foreach ($ops as $op) {
+            switch ($op) {
+                case self::OP_LT:
+                    if ($from < $to) {
+                        return true;
+                    }
+                    break;
+                case self::OP_E:
+                    if ($from == $to) {
+                        return true;
+                    }
+                    break;
+                case self::OP_GT:
+                    if ($from > $to) {
+                        return true;
+                    }
+                    break;
+                default:
+                    throw new \coding_exception('invalid operator '.$op);
+            }
+        }
+
+        return false;
     }
 }

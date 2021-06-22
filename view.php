@@ -47,11 +47,6 @@ $context = $report->get_context();
 $cm = $report->get_coursemodule();
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
-// Since Moodle 37 setting the question data is handled by event question_created.
-if ($CFG->branch < 37) {
-    mod_studentquiz_compare_questions_data($studentquiz);
-}
-
 // If for some weired reason a studentquiz is not aggregated yet, now would be a moment to do so.
 if (!$studentquiz->aggregated) {
     mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_state($studentquiz);

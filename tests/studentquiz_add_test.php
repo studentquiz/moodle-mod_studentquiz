@@ -41,7 +41,7 @@ class mod_studentquiz_add_testcase extends advanced_testcase {
     /**
      * Setup for unit test.
      */
-    protected function setUp() {
+    protected function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
         $this->course = $this->getDataGenerator()->create_course();

@@ -48,7 +48,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
      * Setup test
      * @throws coding_exception
      */
-    protected function setUp() {
+    protected function setUp(): void {
         global $DB;
         $user = $this->getDataGenerator()->create_user();
         // Login as this user.
@@ -138,7 +138,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
         return $method->invokeArgs($object, $parameters);
     }
 
-    public function tearDown() {
+    public function tearDown(): void {
         parent::tearDown();
         $this->resetAfterTest();
     }

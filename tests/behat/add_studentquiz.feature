@@ -4,6 +4,7 @@ Feature: Activities can be created
   As a teacher
   I need the creation of an activity to work
 
+  @javascript
   Scenario: Check an Activity can be created
     Given the following "users" exist:
       | username | firstname | lastname | email                |
@@ -27,7 +28,9 @@ Feature: Activities can be created
 
   @javascript
   Scenario: Check an Activity can be created with comment deletion period = 0.
-    Given the following "users" exist:
+    # In GH Actions works only on > 38
+    Given I make sure the current Moodle branch is greater or equal "39"
+    And the following "users" exist:
       | username | firstname | lastname | email                |
       | teacher1 | Terry1    | Teacher1 | teacher1@example.com |
     And the following "courses" exist:
@@ -47,4 +50,4 @@ Feature: Activities can be created
     When I follow "Test quiz name"
     And I navigate to "Edit settings" in current page administration
     And I expand all fieldsets
-    Then the field with xpath "//*[@id='id_commentdeletionperiod']" matches value "0"
+    Then the field "commentdeletionperiod" matches value "0"

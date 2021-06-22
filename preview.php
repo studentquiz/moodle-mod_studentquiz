@@ -32,13 +32,13 @@ $questionid = required_param('questionid', PARAM_INT);
 // Load course and course module requested.
 if ($cmid) {
     if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        print_error('invalidcoursemodule');
+        throw new moodle_exception("invalidcoursemodule");
     }
     if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        print_error('coursemisconf');
+        throw new moodle_exception("coursemisconf");
     }
 } else {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception("invalidcoursemodule");
 }
 
 // Authentication check.
