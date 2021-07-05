@@ -87,6 +87,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
             'ratequantifier' => 3,
             'correctanswerquantifier' => 2,
             'incorrectanswerquantifier' => -1,
+            'excluderoles' => [3 => 3, 5 => 5],
         ));
         $this->context = context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
@@ -138,6 +139,73 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
 
     public function test_mod_studentquiz_get_user_ranking_table() {
         $this->assertTrue(true);
+    }
+
+    /**
+     * Test the get_roles_to_exclude function.
+     */
+    public function test_mod_studentquiz_get_roles_to_exclude() {
+        set_config('excluderoles', '1,2,3,4', 'studentquiz');
+        set_config('allowedrolestoshow', '3,4,5,6', 'studentquiz');
+
+        $exclude = $this->report->get_roles_to_exclude();
+        $this->assertCount(4, $exclude);
+        // 1 excluded by global config.
+        // 2 excluded by global config.
+        // 3 excluded in the instance of the activity.
+        // 5 excluded in the instance of the activity.
+        // Role 4 should not be excluded because the value in the instance is prefered to the config, and role 4 is in rolestoshow.
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '5'], $exclude);
+
+        // Test if exluderoles is empty.
+        set_config('excluderoles', '', 'studentquiz');
+        set_config('allowedrolestoshow', '', 'studentquiz');
+        $exclude = $this->report->get_roles_to_exclude();
+        // Only 3 and 5 from instance in the activity.
+        $this->assertEqualsCanonicalizing(['3', '5'], $exclude);
+    }
+
+    /**
+     * Test the get_roles_which_can_be_exculded function.
+     */
+    public function test_mod_studentquiz_get_roles_which_can_be_exculded() {
+        set_config('excluderoles', '1,2,3,4', 'studentquiz');
+        set_config('allowedrolestoshow', '3,4,5,6', 'studentquiz');
+
+        $rolescanbeexcluded = mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(4, $rolescanbeexcluded);
+        // The role to show are 3, 4, 5 and 6 since it is defined in rolestoshow.
+        $this->assertEqualsCanonicalizing(['3', '4', '5', '6'], array_keys($rolescanbeexcluded));
+        // Only 3 and 4 are selected by default.
+        $this->assertEquals($rolescanbeexcluded[3]['default'], 1);
+        $this->assertEquals($rolescanbeexcluded[4]['default'], 1);
+        $this->assertEquals($rolescanbeexcluded[5]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[6]['default'], 0);
+
+        // Test if only excluderoles is empty.
+        set_config('excluderoles', '', 'studentquiz');
+        $rolescanbeexcluded = mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(4, $rolescanbeexcluded);
+        $this->assertEqualsCanonicalizing(['3', '4', '5', '6'], array_keys($rolescanbeexcluded));
+        // All roles are not selected by default.
+        $this->assertEquals($rolescanbeexcluded[3]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[4]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[5]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[6]['default'], 0);
+
+        // Test if rolestoshow is empty.
+        set_config('excluderoles', '1,2,3,4', 'studentquiz');
+        set_config('allowedrolestoshow', '', 'studentquiz');
+        // None of the roles are returned.
+        $rolescanbeexcluded = mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(0, $rolescanbeexcluded);
+
+        // Test if both config is empty.
+        set_config('excluderoles', '', 'studentquiz');
+        set_config('allowedrolestoshow', '', 'studentquiz');
+        // None of the roles are returned.
+        $rolescanbeexcluded = mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(0, $rolescanbeexcluded);
     }
 
     public function test_mod_studentquiz_community_stats() {

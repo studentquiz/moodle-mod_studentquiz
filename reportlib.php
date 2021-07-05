@@ -390,9 +390,53 @@ class mod_studentquiz_report {
      * @return moodle_recordset of paginated ranking table
      */
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
-        $excluderoles = (!empty($this->studentquiz->excluderoles)) ? explode(',', $this->studentquiz->excluderoles) : array();
+        $excluderoles = $this->get_roles_to_exclude();
+
         return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
             $excluderoles, 0, $limitfrom, $limitnum);
+    }
+
+    /**
+     * Get an array of roles to exclude from the report. The array is based on the global config and the parameters of the activity.
+     *
+     * @return array The array of roles to exclude.
+     */
+    public function get_roles_to_exclude() {
+        $studentquizexcluderoles = (!empty($this->studentquiz->excluderoles)) ?
+            explode(',', $this->studentquiz->excluderoles) : [];
+        $configexcluderoles = get_config('studentquiz', 'excluderoles');
+        $excluderoles = (!empty($configexcluderoles)) ? explode(',', $configexcluderoles) : [];
+        $configrolestoshow = get_config('studentquiz', 'allowedrolestoshow');
+        $rolestoshow = (!empty($configrolestoshow)) ? explode(',', $configrolestoshow) : [];
+        $rolestoexcludebyconfig = array_diff($excluderoles, $rolestoshow);
+
+        $studentquizexcluderoles = array_unique(array_merge($studentquizexcluderoles, $rolestoexcludebyconfig));
+        if (empty(array_filter($studentquizexcluderoles))) {
+            $studentquizexcluderoles = [];
+        }
+        return $studentquizexcluderoles;
+    }
+
+    /**
+     * Get an array of roles which can be excluded and if those roles are selected by default.
+     *
+     * @return array The array of roles which can be excluded.
+     */
+    public static function get_roles_which_can_be_exculded() {
+        $defaultexcluderoles = explode(',', get_config('studentquiz', 'excluderoles'));
+        $rolestoshow = explode(',', get_config('studentquiz', 'allowedrolestoshow'));
+        $rolescanbeexculded = [];
+        if (!empty(array_filter($rolestoshow))) {
+            foreach (mod_studentquiz_get_roles() as $role => $name) {
+                if (in_array($role, $rolestoshow)) {
+                    $rolescanbeexculded[$role] = ['name' => $name, 'default' => 0];
+                    if (in_array($role, $defaultexcluderoles)) {
+                        $rolescanbeexculded[$role]['default'] = 1;
+                    }
+                }
+            }
+        }
+        return $rolescanbeexculded;
     }
 
     /**
