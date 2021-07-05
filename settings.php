@@ -84,6 +84,18 @@ if ($ADMIN->fulltree) {
         $roles
     ));
 
+    // Replace all value to 0 for default value.
+    $defaultroles = array_map(function($val) {
+        return 1;
+    }, $roles);
+
+    $settings->add(new admin_setting_configmulticheckbox('studentquiz/allowedrolestoshow',
+        get_string('settings_allowedrolestoshow', 'studentquiz'),
+        get_string('settings_allowedrolestoshow_help', 'studentquiz'),
+        $defaultroles,
+        $roles
+    ));
+
     // Show a onetime settings option as info, that we'll uninstall the questionbehavior plugin automatically.
     // Will not show this option if this plugin doesn't exist.
     if (array_key_exists('studentquiz', core_component::get_plugin_list('qbehaviour'))) {
