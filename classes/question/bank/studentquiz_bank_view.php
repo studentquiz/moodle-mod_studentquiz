@@ -460,6 +460,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $joins = array();
         $fields = array('q.hidden', 'q.category', 'q.timecreated', 'q.createdby');
         $tests = array('q.parent = 0', 'q.hidden = 0');
+
+        // Additional fields for inside comparisons, so columns don't introduce the same variables again. This variant
+        // is chosen since we can't use sql variables multiple times in queries, but this way we can compare against
+        // these variables in any wished way multiple times. Usage example: q.createdby = current.userid, if you want
+        // to know the questions created by the current user
+        $joins["current"] = "JOIN (SELECT {$this->userid} as userid, {$this->studentquiz->id} as studentquizid) current";
+
         foreach ($this->requiredcolumns as $column) {
             $extrajoins = $column->get_extra_joins();
             foreach ($extrajoins as $prefix => $join) {

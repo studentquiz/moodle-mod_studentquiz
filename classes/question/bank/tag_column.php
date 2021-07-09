@@ -51,9 +51,7 @@ class tag_column extends \core_question\bank\column_base {
      * Initialise Parameters for join
      */
     protected function init() {
-
-        global $DB, $PAGE;
-
+        global $PAGE;
         // Build context and categoryid here for use later.
         $context = $this->qbank->get_most_specific_context();
         $this->categoryid = question_get_default_category($context->id)->id;

@@ -47,19 +47,7 @@ class attempts_column extends \core_question\bank\column_base {
      * Initialise Parameters for join
      */
     protected function init() {
-
-        global $DB, $USER, $PAGE;
-        $this->currentuserid = $USER->id;
-        // Build context, categoryid and cmid here for use later.
-        $context = $this->qbank->get_most_specific_context();
-        $this->categoryid = question_get_default_category($context->id)->id;
-        $cmid = $context->instanceid;
-        // TODO: Get StudentQuiz id from infrastructure instead of DB!
-        // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
-        $this->studentquizid = $sq->id;
-        $this->studentquiz = $sq;
-        // TODO: Sanitize!
+        global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
@@ -95,8 +83,8 @@ class attempts_column extends \core_question\bank\column_base {
      */
     public function get_extra_joins() {
         return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.questionid = q.id
-                                    AND sp.userid = " . $this->currentuserid . "
-                                    AND sp.studentquizid = " . $this->studentquizid);
+                                    AND sp.userid = current.userid
+                                    AND sp.studentquizid = current.studentquizid");
     }
 
     /**

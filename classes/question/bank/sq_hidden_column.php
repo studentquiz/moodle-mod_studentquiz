@@ -101,7 +101,7 @@ class sq_hidden_column extends action_column_base {
      */
     public function get_extra_joins() {
         $hidden = "sqh.hidden = 0";
-        $mine = "q.createdby = $this->currentuserid";
+        $mine = "q.createdby = current.userid";
 
         // Without permission, a user can only see non-hidden question or its their own.
         $sqlextra = "AND ($hidden OR $mine)";

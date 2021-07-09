@@ -41,22 +41,11 @@ class difficulty_level_column extends \core_question\bank\column_base {
      */
     protected $renderer;
 
-    /** @var \stdClass */
-    protected $studentquiz;
-
     /**
      * Initialise Parameters for join
      */
     protected function init() {
-        global $DB, $USER, $PAGE;
-        $this->currentuserid = $USER->id;
-        $cmid = $this->qbank->get_most_specific_context()->instanceid;
-        // TODO: Get StudentQuiz id from infrastructure instead of DB!
-        // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
-        $this->studentquizid = $sq->id;
-        $this->studentquiz = $sq;
-        // TODO: Sanitize!
+        global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
 
@@ -84,11 +73,10 @@ class difficulty_level_column extends \core_question\bank\column_base {
             return array('dl' => "LEFT JOIN (
                                               SELECT ROUND(1 - AVG(CAST(correctattempts AS DECIMAL) /
                                                        CAST(attempts AS DECIMAL)), 2) AS difficultylevel,
-                                                     questionid
+                                                     questionid, studentquizid
                                                 FROM {studentquiz_progress}
-                                               WHERE studentquizid = " . $this->studentquizid . "
                                             GROUP BY questionid
-                                            ) dl ON dl.questionid = q.id");
+                                            ) dl ON dl.questionid = q.id AND dl.studentquizid = current.studentquizid");
     }
 
     /**
