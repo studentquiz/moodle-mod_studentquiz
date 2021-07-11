@@ -15,6 +15,7 @@ Feature: Create comment as an user
       | student3 | Chris     | Bron     | student3@example.com |
       | student4 | Danny     | Civi     | student4@example.com |
       | student5 | Bob       | Alex     | student5@example.com |
+      | student6 | James     | Potter   | student6@example.com |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
@@ -26,6 +27,7 @@ Feature: Create comment as an user
       | student3 | C1     | student        |
       | student4 | C1     | student        |
       | student5 | C1     | student        |
+      | student6 | C1     | student        |
     And the following "activities" exist:
       | activity    | name          | intro              | course | idnumber     | forcecommenting | publishnewquestion | anonymrank |
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1               | 1                  | 0          |
@@ -95,12 +97,11 @@ Feature: Create comment as an user
     Then I should see "Expand all comments"
     And I should not see "Collapse all comments"
     And I should see "5 of 6" in the ".studentquiz-comment-postcount" "css_element"
-    And I should not see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 6" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     # Click "Expand all comments" button, check that all comments and replies is show.
     When I press "Expand all comments"
     And I wait until the page is ready
@@ -132,12 +133,11 @@ Feature: Create comment as an user
     And I switch to "questionpreview" window
     And I wait until the page is ready
     # We only show max 5 latest comments.
-    Then I should not see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 6" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
 
   @javascript
   Scenario: Test reply comment.
@@ -344,6 +344,20 @@ Feature: Create comment as an user
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
+    # Student 6
+    Given I log in as "student6"
+    And I am on "Course 1" course homepage
+    And I follow "StudentQuiz 1"
+    When I click on "Start Quiz" "button"
+    Then I set the field "True" to "1"
+    And I press "Check"
+    And I wait until the page is ready
+    When I enter the text "Comment 6" into the "Add comment" editor
+    And I press "Add comment"
+    When I enter the text "Comment 7" into the "Add comment" editor
+    And I press "Add comment"
+    And I wait until the page is ready
+    And I log out
     # Log in as admin
     Given I log in as "admin"
     And I am on "Course 1" course homepage
@@ -356,10 +370,11 @@ Feature: Create comment as an user
     When I click on "Date" "link" in the ".studentquiz-comment-filters" "css_element"
     # Prevent behat fails (even single run is fine).
     And I wait until the page is ready
-    Then I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    Then I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
-    Then I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
-    Then I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 7" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 6" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     # Sort Date ASC.
     When I click on "Date" "link" in the ".studentquiz-comment-filters" "css_element"
     And I wait until the page is ready
@@ -367,6 +382,7 @@ Feature: Create comment as an user
     And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
     And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
     And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 6" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     # Sort first name ASC.
     When I click on "Forename" "link" in the ".studentquiz-comment-filters" "css_element"
     And I wait until the page is ready
@@ -374,14 +390,16 @@ Feature: Create comment as an user
     And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
     And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
     And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 7" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     # Sort first name DESC.
     When I click on "Forename" "link" in the ".studentquiz-comment-filters" "css_element"
     # Prevent behat fails (even single run is fine).
     And I wait until the page is ready
-    Then I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 7" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 6" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     # Sort last name ASC.
     When I click on "Surname" "link" in the ".studentquiz-comment-filters" "css_element"
     # Prevent behat fails (even single run is fine).
@@ -390,14 +408,16 @@ Feature: Create comment as an user
     And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
     And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
     And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 7" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     # Sort last name DESC.
     When I click on "Surname" "link" in the ".studentquiz-comment-filters" "css_element"
     # Prevent behat fails (even single run is fine).
     And I wait until the page is ready
-    Then I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
-    And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    Then I should see "Comment 7" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 6" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
+    And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     And I log out
     # Check as student 1.
     Given I log in as "student1"
