@@ -1195,13 +1195,13 @@ EOT;
 
         if ($caneditall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'approveselected',
                     'value' => get_string('state_toggle', 'studentquiz')
             ]);
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'deleteselected',
                     'value' => get_string('delete')
@@ -1210,7 +1210,7 @@ EOT;
 
         if ($canmoveall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'move',
                     'value' => get_string('moveto', 'question')
@@ -1618,7 +1618,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $col2content .= html_writer::empty_tag('input', [
                     'type' => 'submit', 'name' => 'finish',
                     'value' => get_string('abort_button', 'studentquiz'),
-                    'class' => 'btn'
+                    'class' => 'btn btn-secondary'
             ]);
         }
 

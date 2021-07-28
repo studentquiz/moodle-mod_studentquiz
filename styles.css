@@ -143,18 +143,37 @@
     table-layout: auto;
 }
 
+.path-mod-studentquiz #categoryquestions thead tr{
+    border-bottom: 2px solid darkgray;
+}
+
 .path-mod-studentquiz #categoryquestions .header {
     text-align: left;
     white-space: nowrap;
+    padding-bottom: 0.5rem;
+}
+
+.path-mod-studentquiz #categoryquestions .header .fa-sort-asc {
+    vertical-align: sub;
+}
+
+.path-mod-studentquiz #categoryquestions .header .fa-sort-desc {
+    vertical-align: top;
+}
+
+.path-mod-studentquiz #categoryquestions .header.checkbox {
+    vertical-align: top;
 }
 
 .path-mod-studentquiz #categoryquestions th.checkbox,
 .path-mod-studentquiz #categoryquestions td.checkbox {
     padding-left: 10px;
     padding-right: 7px;
+    padding-top: 2px;
 }
 
-.path-mod-studentquiz #categoryquestions .qtype {
+.path-mod-studentquiz #categoryquestions .qtype,
+.path-mod-studentquiz #categoryquestions .state {
     width: auto;
 }
 
@@ -163,13 +182,28 @@
     text-align: center;
     padding: 0;
 }
+.path-mod-studentquiz #categoryquestions .header.qtype {
+    text-align: center;
+}
+.path-mod-studentquiz #categoryquestions .header.state {
+    text-align: left;
+    padding-left: 7px;
+}
 
 .path-mod-studentquiz #categoryquestions .questionname {
     min-width: 180px;
 }
 
-.path-mod-studentquiz #categoryquestions .iconcol {
-    width: 12px;
+.path-mod-studentquiz #categoryquestions .creatorname,
+.path-mod-studentquiz #categoryquestions .tags,
+.path-mod-studentquiz #categoryquestions .attempts,
+.path-mod-studentquiz #categoryquestions .difficultylevel,
+.path-mod-studentquiz #categoryquestions .rates,
+.path-mod-studentquiz #categoryquestions .comment {
+    padding-left: 0.75rem;
+}
+.path-mod-studentquiz #categoryquestions .comment {
+    padding-right: 0.5rem;
 }
 
 .path-mod-studentquiz #categoryquestions .rates,
@@ -196,17 +230,26 @@
 
 .path-mod-studentquiz #categoryquestions td.difficultylevel,
 .path-mod-studentquiz #categoryquestions td.rates {
-    padding-top: 7px;
+    vertical-align: middle;
 }
 
 .path-mod-studentquiz #categoryquestions td.questionname,
 .path-mod-studentquiz #categoryquestions td.creatorname {
     white-space: normal;
-    line-height: 1em;
+    line-height: 1.25em;
 }
 .path-mod-studentquiz #categoryquestions td.state .icon,
 .path-mod-studentquiz #categoryquestions td.qtype .icon {
     margin-right: 0;
+    padding-bottom: 5px;
+}
+
+.path-mod-studentquiz #categoryquestions td.state .icon {
+    padding-bottom: 4px;
+}
+
+.path-mod-studentquiz #categoryquestions .dimmed_text {
+    color: inherit;
 }
 
 .path-mod-studentquiz .studentquiz_behaviour {
@@ -222,6 +265,10 @@
 .path-mod-studentquiz .studentquiz_behaviour .rate {
     margin-top: 20px;
     margin-bottom: 20px;
+}
+
+.path-mod-studentquiz .studentquiz_behaviour .rate .btn {
+    vertical-align: baseline;
 }
 
 .path-mod-studentquiz .studentquiz_behaviour textarea {
@@ -304,8 +351,13 @@
     width: 60px;
 }
 
-.path-mod-studentquiz .modulespecificbuttonscontainer input.btn {
-    margin-right: 5px;
+.path-mod-studentquiz .modulespecificbuttonscontainer {
+    margin: 1rem 0;
+}
+
+.path-mod-studentquiz .modulespecificbuttonscontainer input.btn,
+.path-mod-studentquiz .modulespecificbuttonscontainer select {
+    margin: 0 5px 5px 0;
 }
 
 .path-mod-studentquiz #mod_studentquiz_statblock .report_more_url,
@@ -791,4 +843,14 @@
     height: 20px;
     vertical-align: middle;
     margin: 0 9px 0 0;
+}
+
+.path-mod-studentquiz .createnewquestion {
+    margin: 0.5rem 0;
+}
+
+@media (min-width: 576px){
+    .path-mod-studentquiz .form-inline .form-check {
+        margin-bottom: 0.25rem;
+    }
 }
