@@ -813,5 +813,20 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2020051200, 'studentquiz');
     }
 
+    if ($oldversion < 2021072000) {
+
+        // Define field pinned to be added to studentquiz_question.
+        $table = new xmldb_table('studentquiz_question');
+        $field = new xmldb_field('pinned', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'hidden');
+
+        // Conditionally launch add field pinned.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021072000, 'studentquiz');
+    }
+
     return true;
 }
