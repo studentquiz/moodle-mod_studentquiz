@@ -193,3 +193,40 @@ Feature: Question states and visibility
 
     And "Edit" "link" should not exist in the "TF 01" "table_row"
     And "Edit" "link" should not exist in the "TF 02" "table_row"
+
+  @javascript
+  Scenario: Pin question
+    Given I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "StudentQuiz Test 1"
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "TF 01"
+    And I set the field "Question text" to "The correct answer is false"
+    And I press "id_submitbutton"
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "2"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "TF 02"
+    And I set the field "Question text" to "The correct answer is false"
+    And I press "id_submitbutton"
+    And I log out
+    And I log in as "admin"
+    And I am on "Course 1" course homepage
+    When I follow "StudentQuiz Test 1"
+    Then I should see "TF 01"
+    And I click on "Pin this question" "link" in the "TF 01" "table_row"
+    And "Unpin this question" "link" should exist in the "TF 01" "table_row"
+    And "Unpin this question" "link" should not exist in the "TF 02" "table_row"
+    And "Pinned" "icon" should exist in the "TF 01" "table_row"
+    And "Pinned" "icon" should not exist in the "TF 02" "table_row"
+    And I log out
+    And I log in as "student1"
+    And I am on "Course 1" course homepage
+    And I follow "StudentQuiz Test 1"
+    And I should see "TF 01"
+    And "Pin this question" "link" should not exist in the "TF 01" "table_row"
+    And "Pin this question" "link" should not exist in the "TF 02" "table_row"
+    And "Pinned" "icon" should exist in the "TF 01" "table_row"
+    And "Pinned" "icon" should not exist in the "TF 02" "table_row"

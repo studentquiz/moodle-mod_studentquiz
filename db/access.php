@@ -179,5 +179,14 @@ $capabilities = array(
     'mod/studentquiz:systemnotifytaskdeleteorphanedquestions' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_SYSTEM
-    ]
+    ],
+    'mod/studentquiz:pinquestion' => [
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_MODULE,
+        'archetypes' => [
+            'teacher'        => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW,
+            'manager'        => CAP_ALLOW,
+        ]
+    ],
 );

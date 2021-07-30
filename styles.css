@@ -158,6 +158,12 @@
     width: auto;
 }
 
+.path-mod-studentquiz #categoryquestions td.state {
+    width: 28px;
+    text-align: center;
+    padding: 0;
+}
+
 .path-mod-studentquiz #categoryquestions .questionname {
     min-width: 180px;
 }
@@ -198,7 +204,7 @@
     white-space: normal;
     line-height: 1em;
 }
-
+.path-mod-studentquiz #categoryquestions td.state .icon,
 .path-mod-studentquiz #categoryquestions td.qtype .icon {
     margin-right: 0;
 }

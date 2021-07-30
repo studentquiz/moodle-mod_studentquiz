@@ -445,6 +445,21 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render the content of state pin column.
+     *
+     * @param stdClass $question The row from the $question table, augmented with extra information.
+     * @return string The html string.
+     */
+    public function render_state_pin($question): string {
+        $content = '';
+        if ($question->pinned) {
+            $content = $this->output->pix_icon('i/pinned', get_string('state_pinned', 'studentquiz'), 'mod_forum');
+        }
+
+        return $content;
+    }
+
+    /**
      * Render the content of comment column.
      *
      * @param stdClass $question
@@ -817,12 +832,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         global $CFG;
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
                 . 'mod_studentquiz\\bank\\state_column,'
+                . 'mod_studentquiz\\bank\\state_pin_column,'
                 . 'mod_studentquiz\\bank\\question_name_column,'
                 . 'mod_studentquiz\\bank\\question_text_row,'
                 . 'mod_studentquiz\\bank\\preview_column,'
                 . 'mod_studentquiz\\bank\\sq_edit_action_column,'
                 . 'delete_action_column,'
                 . 'mod_studentquiz\\bank\\sq_hidden_column,'
+                . 'mod_studentquiz\\bank\\toggle_pin_column,'
                 . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
                 . 'mod_studentquiz\\bank\\tag_column,'
                 . 'mod_studentquiz\\bank\\attempts_column,'

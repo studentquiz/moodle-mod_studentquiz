@@ -43,6 +43,8 @@ require_once(__DIR__ . '/preview_column.php');
 require_once(__DIR__ . '/question_name_column.php');
 require_once(__DIR__ . '/sq_hidden_column.php');
 require_once(__DIR__ . '/sq_edit_action_column.php');
+require_once(__DIR__ . '/toggle_pin_column.php');
+require_once(__DIR__ . '/state_pin_column.php');
 
 /**
  * Module instance settings form
@@ -347,6 +349,36 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
             redirect($this->baseurl);
         }
+
+        // Pin a question.
+        if (($pin = optional_param('pin', '', PARAM_INT)) and confirm_sesskey()) {
+             question_require_capability_on($pin, 'edit');
+            $DB->set_field('studentquiz_question', 'pinned', 1, ['questionid' => $pin]);
+            mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'pin');
+            // Purge these questions from the cache.
+            \question_bank::notify_question_edited($pin);
+            // Fix infinite redirect.
+            $this->baseurl->remove_params('pin');
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
+            redirect($this->baseurl);
+        }
+
+        // Unpin a question.
+        if (($pin = optional_param('unpin', '', PARAM_INT)) and confirm_sesskey()) {
+            question_require_capability_on($pin, 'edit');
+            $DB->set_field('studentquiz_question', 'pinned', 0, ['questionid' => $pin]);
+            mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'unpin');
+            // Purge these questions from the cache.
+            \question_bank::notify_question_edited($pin);
+            // Fix infinite redirect.
+            $this->baseurl->remove_params('unpin');
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
+            redirect($this->baseurl);
+        }
     }
 
     /**
@@ -455,6 +487,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * \core_question\bank\search\condition filters.
      */
     protected function build_query() {
+        global $CFG;
+
         // Hard coded setup.
         $params = array();
         $joins = array();
@@ -482,6 +516,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Default sorting.
         if (empty($sorts)) {
             $sorts[] = 'q.timecreated DESC,q.id ASC';
+        }
+
+        if (isset($CFG->questionbankcolumns)) {
+            array_unshift($sorts, 'sqh.pinned DESC');
         }
 
         // Build the where clause and load params from search conditions.
