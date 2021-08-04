@@ -26,6 +26,8 @@ namespace mod_studentquiz;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\dml\sql_join;
+use core_courseformat\output\local\state\cm;
 use external_value;
 use external_single_structure;
 use mod_studentquiz\commentarea\comment;
@@ -409,5 +411,71 @@ style5 = html';
         }
 
         return false;
+    }
+
+    /**
+     * We hide 'All participants' option in group mode. It doesn't make sense to display question of all groups together,
+     * and it makes confusing in reports. If the group = 0, NULL or an invalid group,
+     * we force to chose first available group by default.
+     *
+     * @param stdClass $cm Course module class.
+     */
+    public static function set_default_group($cm) {
+        global $USER;
+
+        $allowedgroups = groups_get_activity_allowed_groups($cm, $USER->id);
+        if ($allowedgroups && !groups_get_activity_group($cm, true, $allowedgroups)) {
+            // Although the UI show that the first group is selected, the param 'group' is not set,
+            // so the groups_get_activity_group() will return wrong value. We have to set it in $_GET to prevent the
+            // problem when user go to the student quiz in the first time.
+            $_GET['group'] = reset($allowedgroups)->id;
+        }
+    }
+
+    /**
+     * Get group joins for creating sql, using field groupid in studentquiz_question table.
+     * If $groupid = 0, return empty sql_join to reduce the complication of the sql.
+     *
+     * @param int $groupid Group id.
+     * @param string $groupidcolumn Group id column for the where clause.
+     * @return sql_join The joins clause will be empty in this case, we just return the wheres and params.
+     */
+    public static function groups_get_questions_joins($groupid = 0, $groupidcolumn = 'sqq.groupid') {
+        static $i = 0;
+        $i++;
+        $alias = 'gid' . $i;
+
+        $joins = '';
+        $wheres = '';
+        $params = [];
+        if ($groupid) {
+            $wheres = "{$groupidcolumn} = :{$alias}";
+            $params[$alias] = $groupid;
+        }
+
+        return new sql_join($joins, $wheres, $params);
+    }
+
+    /**
+     * Get sql join to return users in a group.
+     * To fix the issue in MOODLE_38_STABLE: the groups_get_members_join still return the join clause when we
+     * turn off the group mode.
+     *
+     * @param int $groupid The group id.
+     * @param string $useridcolumn The column of the user id from the calling SQL, e.g. u.id
+     * @param context $context Course context or a context within a course. Mandatory when $groupids includes USERSWITHOUTGROUP
+     * @return sql_join Contains joins, wheres, params
+     * @throws coding_exception if empty or invalid context submitted when $groupid = USERSWITHOUTGROUP
+     */
+    public static function sq_groups_get_members_join($groupid, $useridcolumn, $context = null) {
+        if (!$groupid) {
+            $joins = '';
+            $wheres = '';
+            $params = [];
+
+            return new sql_join($joins, $wheres, $params);
+        }
+
+        return groups_get_members_join($groupid, $useridcolumn, $context);
     }
 }

@@ -26,6 +26,7 @@
 namespace mod_studentquiz\question\bank;
 
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -96,6 +97,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
     private $studentquiz;
 
     /**
+     * @var \core\dml\sql_join Current group join sql.
+     */
+    private $currentgroupjoinsql;
+
+    /**
      * @var int Currently viewing user id.
      */
     protected $userid;
@@ -135,6 +141,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->report = $report;
         $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
+        $currentgroup = groups_get_activity_group($cm, true);
+        $this->currentgroupjoinsql = utils::groups_get_questions_joins($currentgroup, 'sqs.groupid');
         // Init search conditions with filterform state.
         $categorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
@@ -505,6 +513,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $fields = array_merge($fields, $column->get_required_fields());
         }
         $fields = array_unique($fields);
+        if ($this->currentgroupjoinsql->wheres) {
+            $params += $this->currentgroupjoinsql->params;
+            $tests[] = $this->currentgroupjoinsql->wheres;
+        }
 
         // Build the order by clause.
         $sorts = array();
@@ -583,7 +595,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $this->studentquiz->closesubmissionfrom, 'submission');
 
             $questionsubmissionbutton->disabled = !$questionsubmissionallow;
-            $output .= \html_writer::div($OUTPUT->render($questionsubmissionbutton) . $qtypecontainer, 'createnewquestion');
+            $output .= \html_writer::div($OUTPUT->render($questionsubmissionbutton) . $qtypecontainer, 'createnewquestion py-3');
 
             if (!empty($message)) {
                 $output .= $this->renderer->render_availability_message($message, 'mod_studentquiz_submission_info');

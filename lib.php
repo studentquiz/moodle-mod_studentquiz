@@ -58,6 +58,11 @@ function studentquiz_supports($feature) {
             return true;
         case FEATURE_USES_QUESTIONS:
             return true;
+        case FEATURE_GROUPS:
+            return true;
+        case FEATURE_GROUPINGS:
+            return true;
+
         default:
             return null;
     }

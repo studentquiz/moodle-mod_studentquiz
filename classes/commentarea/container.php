@@ -59,6 +59,9 @@ class container {
     /** @var stdClass $context - Context. */
     private $context;
 
+    /** @var int $groupid Group id. */
+    private $groupid;
+
     /** @var array - Array of stored comments. */
     private $storedcomments;
 
@@ -194,6 +197,7 @@ class container {
         $this->question = $question;
         $this->cm = $cm;
         $this->context = $context;
+        $this->groupid = groups_get_activity_group($cm, true);
         $this->storedcomments = null;
         $this->user = $user === null ? clone $USER : $user;
         $this->course = clone $COURSE;
@@ -343,8 +347,30 @@ class container {
      */
     public function get_num_comments() {
         global $DB;
-        return $DB->count_records_select('studentquiz_comment', 'questionid = :questionid AND status <> :status',
-                ['questionid' => $this->get_question()->id, 'status' => utils::COMMENT_HISTORY_DELETE]);
+
+        // Group joins.
+        $groupjoingsql = utils::sq_groups_get_members_join($this->groupid, 'sc.userid', $this->context);
+
+        $sql = "SELECT COUNT(*)
+                  FROM {studentquiz_comment} sc
+                  {$groupjoingsql->joins}";
+
+        $sql .= "
+                 WHERE questionid = :questionid AND status <> :status";
+
+        if ($groupjoingsql->wheres) {
+            $sql .= "
+                       AND {$groupjoingsql->wheres}";
+        }
+
+        $params = [
+            'questionid' => $this->get_question()->id,
+            'status' => utils::COMMENT_HISTORY_DELETE
+        ];
+
+        $params += $groupjoingsql->params;
+
+        return $DB->count_records_sql($sql, $params);
     }
 
     /**
@@ -366,16 +392,19 @@ class container {
         // Check has limit or get all.
         $haslimit = $this->currentlimit > 0;
 
+        // Group joins.
+        $groupjoingsql = utils::sq_groups_get_members_join($this->groupid, 'c.userid', $this->context);
+
         // Build join.
-        $join = '';
+        $join = $groupjoingsql->joins;
         if ($this->is_user_table_sort()) {
-            $join = 'JOIN {user} u ON u.id = c.userid';
+            $join .= ' JOIN {user} u ON u.id = c.userid';
         }
 
         $order = $this->get_sort() . ', ' . $this->basicorder;
 
         // Build a where string a = :a AND b = :b.
-        $where = '';
+        $where = $groupjoingsql->wheres;
         foreach (array_keys($params) as $v) {
             if (!$where) {
                 $where .= "c.$v = :$v";
@@ -383,7 +412,7 @@ class container {
                 $where .= " AND c.$v = :$v";
             }
         }
-
+        $params += $groupjoingsql->params;
         // Build limit.
         $limit = $haslimit ? "LIMIT $this->currentlimit" : '';
 

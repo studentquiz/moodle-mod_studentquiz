@@ -925,6 +925,9 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
                 $contents .= $this->box(format_module_intro('studentquiz', $view->get_studentquiz(),
                     $view->get_cm_id()), 'generalbox', 'intro');
             }
+
+            $contents .= groups_print_activity_menu($view->get_coursemodule(), $view->get_pageurl(), true, true);
+
             $contents .= $this->render_select_qtype_form($view);
         }
 
@@ -1650,6 +1653,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
     public function view_stat(mod_studentquiz_report $report) {
         $output = '';
         $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'));
+        $output .= html_writer::div($report->get_group_title(), 'groupselector');
         $userstats = $report->get_user_stats();
         if (!$userstats) {
             $output .= $this->output->notification(get_string('please_enrole_message', 'studentquiz'), 'notify');
@@ -1806,6 +1810,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      */
     public function view_rank($report) {
         return $this->heading(get_string('reportrank_title', 'studentquiz'))
+            . html_writer::div($report->get_group_title(), 'groupselector')
             . $this->view_quantifier_information($report)
             . $this->view_rank_table($report);
     }

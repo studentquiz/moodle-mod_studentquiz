@@ -269,6 +269,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->groupid = $this->get_mappingid('group', $data->groupid ?? 0);
 
         if (!isset($data->state)) {
             if (isset($data->approved)) {
