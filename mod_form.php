@@ -292,6 +292,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
             $errors['reportingemail'] = get_string('invalidemail', 'studentquiz');
         }
+        if ($data['groupmode'] == VISIBLEGROUPS) {
+            $errors['groupmode'] = get_string('visiblegroupnotyetsupport', 'studentquiz');
+        }
         return $errors;
     }
 

@@ -272,12 +272,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $questions = $data->questions;
         $this->assertCount(2, $questions);
         $this->assertEquals((object) [
-                'name' => $this->questions[0]->name,
-                'approved' => transform::yesno($this->approvals[0]->state)
+            'name' => $this->questions[0]->name,
+            'approved' => transform::yesno($this->approvals[0]->state),
+            'groupid' => $this->approvals[0]->groupid
         ], $questions[$this->questions[0]->id]);
         $this->assertEquals((object) [
-                'name' => $this->questions[1]->name,
-                'approved' => transform::yesno($this->approvals[1]->state)
+            'name' => $this->questions[1]->name,
+            'approved' => transform::yesno($this->approvals[1]->state),
+            'groupid' => $this->approvals[1]->groupid
         ], $questions[$this->questions[1]->id]);
 
         $progresses = $data->progresses;
@@ -321,8 +323,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $questions = $data->questions;
         $this->assertCount(1, $questions);
         $this->assertEquals((object) [
-                'name' => $this->questions[2]->name,
-                'approved' => transform::yesno($this->approvals[2]->state)
+            'name' => $this->questions[2]->name,
+            'approved' => transform::yesno($this->approvals[2]->state),
+            'groupid' => $this->approvals[2]->groupid
         ], $questions[$this->questions[2]->id]);
 
         $rates = $data->rates;
@@ -445,8 +448,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $questions = $data->questions;
         $this->assertCount(1, $questions);
         $this->assertEquals((object) [
-                'name' => $this->questions[3]->name,
-                'approved' => transform::yesno($this->approvals[3]->state)
+            'name' => $this->questions[3]->name,
+            'approved' => transform::yesno($this->approvals[3]->state),
+            'groupid' => $this->approvals[3]->groupid
         ], $questions[$this->questions[3]->id]);
 
         $rates = $data->rates;
@@ -876,9 +880,10 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         global $DB;
 
         $data = (object) [
-                'id' => 0,
-                'questionid' => $questionid,
-                'state' => rand(0, 1)
+            'id' => 0,
+            'questionid' => $questionid,
+            'state' => rand(0, 1),
+            'groupid' => 0
         ];
 
         $data->id = $DB->insert_record('studentquiz_question', $data);

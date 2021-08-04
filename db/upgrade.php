@@ -828,5 +828,26 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021072000, 'studentquiz');
     }
 
+    if ($oldversion < 2021101200) {
+        // Define field groupid to be added to studentquiz_question.
+        $table = new xmldb_table('studentquiz_question');
+        $field = new xmldb_field('groupid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '-1', 'hidden');
+
+        // Conditionally launch add field groupid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define key groupid (foreign) to be added to studentquiz_question.
+        $key = new xmldb_key('groupid', XMLDB_KEY_FOREIGN, ['groupid'], 'groups', ['id']);
+
+        // Launch add key groupid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021101200, 'studentquiz');
+    }
+
     return true;
 }
+

@@ -95,6 +95,13 @@ class provider implements
                 'timemodified' => 'privacy:metadata:studentquiz_comment_history:timemodified',
         ], 'privacy:metadata:studentquiz_comment_history');
 
+        $collection->add_database_table('studentquiz_question', [
+            'questionid' => 'privacy:metadata:studentquiz_question:questionid',
+            'state' => 'privacy:metadata:studentquiz_question:state',
+            'hidden' => 'privacy:metadata:studentquiz_question:hidden',
+            'groupid' => 'privacy:metadata:studentquiz_question:groupid'
+        ], 'privacy:metadata:studentquiz_question');
+
         $collection->add_database_table('studentquiz_attempt', [
                 'studentquizid' => 'privacy:metadata:studentquiz_attempt:studentquizid',
                 'userid' => 'privacy:metadata:studentquiz_attempt:userid',
@@ -200,6 +207,7 @@ class provider implements
         $sql = "SELECT DISTINCT ctx.id AS contextid,
                        q.id AS questionid, q.name AS questionname,
                        CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
+                       question.groupid questiongroupid,
                        q.createdby AS questioncreatedby, q.modifiedby AS questionmodifiedby,
                        rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
@@ -297,7 +305,8 @@ class provider implements
                 // whole question info for us, so we won't include full question info here.
                 $contextdata->questions[$record->questionid] = (object) [
                         'name' => $record->questionname,
-                        'approved' => transform::yesno($record->questionapproved)
+                        'approved' => transform::yesno($record->questionapproved),
+                        'groupid' => $record->questiongroupid
                 ];
             }
 
