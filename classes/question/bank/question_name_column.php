@@ -59,5 +59,4 @@ class question_name_column extends \core_question\bank\question_name_column {
         $labelfor = $this->label_for($question);
         echo $this->renderer->render_question_name_column($question, $rowclasses, $labelfor);
     }
-
 }
