@@ -327,6 +327,7 @@ Feature: Create comment as an user
     And I wait until the page is ready
     And I enter the text "Comment 6" into the "Add comment" editor
     And I press "Add comment"
+    And I wait "1" seconds
     And I enter the text "Comment 7" into the "Add comment" editor
     And I press "Add comment"
     And I wait until the page is ready
