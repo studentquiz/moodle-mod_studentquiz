@@ -1150,7 +1150,7 @@ EOT;
         $canmoveall = has_capability('mod/studentquiz:organize', $catcontext);
 
         $output .= html_writer::start_div('modulespecificbuttonscontainer');
-        $output .= html_writer::tag('strong', '&nbsp;' . get_string('withselected', 'question') . ':');
+        $output .= html_writer::tag('strong', get_string('withselected', 'question') . ':');
         $output .= html_writer::empty_tag('br');
 
         $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
