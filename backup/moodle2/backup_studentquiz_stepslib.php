@@ -112,6 +112,12 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $notifications->add_child($notification);
         $studentquiz->add_child($notifications);
 
+        // Question -> User -> State history.
+        $statehitories = new backup_nested_element('statehistories');
+        $statehistory = new backup_nested_element('state_history', ['userid', 'questionid'], ['state', 'timecreated']);
+        $statehitories->add_child($statehistory);
+        $studentquiz->add_child($statehitories);
+
         // Define data sources.
         $studentquiz->set_source_table('studentquiz',
             array('id' => backup::VAR_ACTIVITYID, 'coursemodule' => backup::VAR_MODID));
@@ -168,6 +174,16 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                                    WHERE sq.id = :studentquizid
                                 ORDER BY ch.commentid, ch.id";
             $commenthistory->set_source_sql($commenthistorysql, ['studentquizid' => backup::VAR_PARENTID]);
+
+            // Only select state histories to questions of this StudentQuiz.
+            $statehistorysql = "SELECT sh.*
+                                  FROM {studentquiz} sq
+                                  JOIN {context} con ON con.instanceid = sq.coursemodule
+                                  JOIN {question_categories} qc ON qc.contextid = con.id
+                             LEFT JOIN {question} q ON q.category = qc.id
+                                  JOIN {studentquiz_state_history} sh ON sh.questionid = q.id
+                                 WHERE sq.id = :studentquizid";
+            $statehistory->set_source_sql($statehistorysql, ['studentquizid' => backup::VAR_PARENTID]);
         }
 
         // Define id annotations.

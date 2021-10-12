@@ -95,6 +95,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                 '/activity/studentquiz/notifications/notification');
         $paths[] = $notification;
 
+        // Restore State histories.
+        $statehistories = new restore_path_element('state_history',
+            '/activity/studentquiz/statehistories/state_history');
+        $paths[] = $statehistories;
+
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
     }
@@ -326,6 +331,26 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     }
 
     /**
+     * Process state history data.
+     *
+     * @param array $data parsed element data
+     */
+    protected function process_state_history($data) {
+        global $DB;
+
+        // If the path content is null, we will fix it after excuting.
+        if (!isset($data)) {
+            return;
+        }
+
+        $data = (object) $data;
+        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('studentquiz_state_history', $data);
+    }
+
+    /**
      * Post-execution actions per activity
      */
     protected function after_execute() {
@@ -367,6 +392,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         // Workaround setting default question state if no state data is available.
         // ref: https://tracker.moodle.org/browse/MDL-67406.
         mod_studentquiz_fix_all_missing_question_state_after_restore($this->get_courseid());
+        // Fix restore legacy data without path content.
+        utils::fix_all_missing_question_state_history_after_restore($this->get_courseid());
     }
 
     /**

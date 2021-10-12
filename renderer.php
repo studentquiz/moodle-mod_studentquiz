@@ -1586,6 +1586,16 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             'content' => $publiccommentstab
         ];
 
+        if (utils::can_view_state_history($cmid, $question)) {
+            $statehistoryrenderer = $this->page->get_renderer('mod_studentquiz', 'state_history');
+            $statehistorytab = $statehistoryrenderer->state_history_table($question);
+            $tabs[] = [
+                'id' => 'state_history-tab',
+                'name' => get_string('history', 'mod_studentquiz'),
+                'content' => $statehistorytab
+            ];
+        }
+
         utils::mark_question_comment_current_active_tab($tabs);
         $context = [
             'tabs' => $tabs
@@ -1671,6 +1681,81 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         $content3 = html_writer::div(html_writer::div($col3content, 'pull-right'), 'col-md-4');
 
         return html_writer::div($content1 . $content2 . $content3, 'mod-studentquiz-attempt-nav row');
+    }
+}
+/**
+ * State history renderer.
+ */
+class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
+
+    /** @var string - Define name of Student Quiz mod. */
+    const MODNAME = 'mod_studentquiz';
+
+    /**
+     * Render state history table.
+     *
+     * @param question_definition $question Question definition object.
+     * @return string The content render.
+     */
+    public function state_history_table(question_definition $question): string {
+
+        $table = new html_table();
+        $table->head  = [
+            get_string('time'),
+            get_string('action', 'question'),
+        ];
+
+        list($statehistories, $users) = utils::get_state_history_data($question);
+
+        if (get_string_manager()->string_exists('strftimedatetimeshortaccurate', 'core_langconfig')) {
+            $formatdate = get_string('strftimedatetimeshortaccurate', 'core_langconfig');
+        } else {
+            $formatdate = get_string('strftimedatetimeshort', 'core_langconfig');
+        }
+
+        foreach ($statehistories as $statehistory) {
+            $table->data[] = [
+                userdate($statehistory->timecreated, $formatdate),
+                $this->get_desc_action($statehistory->state) . $this->action_author($users[$statehistory->userid])
+            ];
+        }
+
+        return html_writer::tag('h5', get_string('statehistory', 'studentquiz'), ['class' => 'statehistoryheader mt-2']) .
+            html_writer::tag('div', html_writer::table($table, true), ['class' => 'statehistorybody']);
+    }
+
+    /**
+     * Action author's profile link.
+     *
+     * @param stdClass $user The user object.
+     * @return string The link to user's profile.
+     */
+    public function action_author(\stdClass $user): string {
+        if ($user->deleted) {
+            return html_writer::div(get_string('deleteduser', 'mod_forum'));
+        }
+
+        return html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $this->page->course->id]),
+            fullname($user), ['class' => 'd-table-cell']);
+    }
+
+    /**
+     * Description of state.
+     *
+     * @param int $state State of question.
+     * @return string Description of state.
+     */
+    public function get_desc_action(int $state): string {
+        $states = studentquiz_helper::get_state_names_description();
+        if ($state == studentquiz_helper::STATE_NEW) {
+            return get_string('descriptionofstatenew', 'studentquiz');
+        }
+
+        if ($state == studentquiz_helper::STATE_SHOW || $state == studentquiz_helper::STATE_HIDE) {
+            return get_string('descriptionofvisibility', 'studentquiz', ['visibility' => $states[$state]]);
+        }
+
+        return get_string('descriptioncofstate', 'studentquiz', ['state' => $states[$state]]);
     }
 }
 

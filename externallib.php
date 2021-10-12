@@ -24,6 +24,7 @@
  */
 
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -80,10 +81,12 @@ class mod_studentquiz_external extends external_api {
         }
 
         mod_studentquiz_change_state_visibility($questionid, $type, $value);
+        utils::question_save_action($questionid, null, $state);
 
         // Additionally always unhide the question when it got approved.
-        if ($state == studentquiz_helper::STATE_APPROVED) {
+        if ($state == studentquiz_helper::STATE_APPROVED && utils::check_is_question_hidden($questionid)) {
             mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
+            utils::question_save_action($questionid, get_admin()->id, studentquiz_helper::STATE_SHOW);
         }
 
         $course = get_course($courseid);
