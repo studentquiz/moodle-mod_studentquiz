@@ -28,10 +28,12 @@ defined('MOODLE_INTERNAL') || die();
 
 use core\dml\sql_join;
 use core_courseformat\output\local\state\cm;
+use core_question\bank\search\hidden_condition;
 use external_value;
 use external_single_structure;
 use mod_studentquiz\commentarea\comment;
 use moodle_url;
+use mod_studentquiz\local\studentquiz_helper;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.
@@ -70,6 +72,9 @@ style5 = html';
 
     /** @var string - User preference question active tab. */
     const USER_PREFERENCE_QUESTION_ACTIVE_TAB = 'mod_studentquiz_question_active_tab';
+
+    /** @var int Hidden question. */
+    const HIDDEN  = 1;
 
     /**
      * Get Comment Area web service comment reply structure.
@@ -548,6 +553,24 @@ style5 = html';
     }
 
     /**
+     * Can the current user view the state_history table of this question.
+     *
+     * @param int $cmid Course module id.
+     * @param \question_definition $question Question definition object.
+     * @return bool Question's state.
+     */
+    public static function can_view_state_history($cmid, $question) {
+        global $USER;
+
+        $context = \context_module::instance($cmid);
+        if (!has_capability('mod/studentquiz:canselfratecomment', $context) && $USER->id != $question->createdby) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
      * Get current state of question.
      *
      * @param \stdClass $question Question.
@@ -571,5 +594,131 @@ style5 = html';
             'id' => $userid,
             'course' => $courseid
         ]);
+    }
+
+    /**
+     * Saving the action change state.
+     *
+     * @param int $questionid Id of question
+     * @param int|null $userid
+     * @param int $state The state of the question in the StudentQuiz.
+     * @param int $timecreated The time do action.
+     * @return bool|int True or new id
+     */
+    public static function question_save_action(int $questionid, int $userid = null, int $state, int $timecreated = null) {
+        global $DB, $USER;
+
+        $data = new \stdClass();
+        $data->questionid = $questionid;
+        $data->userid = isset($userid) ? $userid : $USER->id;
+        $data->state = $state;
+        $data->timecreated = isset($timecreated) ? $timecreated : time();
+
+        return $DB->insert_record('studentquiz_state_history', $data);
+    }
+
+    /**
+     * Finds all the questions missing the state history information and create the default state history for imports
+     * into the database.
+     *
+     * @param int|null $courseorigid
+     * @return void
+     */
+    public static function fix_all_missing_question_state_history_after_restore($courseorigid=null): void {
+        global $DB;
+
+        $params = [];
+        if (!empty($courseorigid)) {
+            $params['course'] = $courseorigid;
+        }
+
+        $studentquizes = $DB->get_records('studentquiz', $params);
+        $transaction = $DB->start_delegated_transaction();
+
+        try {
+            foreach ($studentquizes as $studentquiz) {
+                $context = \context_module::instance($studentquiz->coursemodule);
+                $studentquiz = mod_studentquiz_load_studentquiz($studentquiz->coursemodule, $context->id);
+
+                $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
+                          FROM {studentquiz} sq
+                          JOIN {context} con ON con.instanceid = sq.coursemodule
+                          JOIN {question_categories} qc ON qc.contextid = con.id
+                          JOIN {question} q ON q.category = qc.id
+                          JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                         WHERE sq.coursemodule = :coursemodule
+                               AND qc.id = :categoryid";
+
+                $params = [
+                    'coursemodule' => $studentquiz->coursemodule,
+                    'categoryid' => $studentquiz->categoryid
+                ];
+                $sqquestions = $DB->get_records_sql($sql, $params);
+
+                if ($sqquestions) {
+                    foreach ($sqquestions as $sqquestion) {
+                        if (!$DB->count_records('studentquiz_state_history', ['questionid' => $sqquestion->questionid])) {
+                            // Create action new question by onwer.
+                            self::question_save_action($sqquestion->questionid, $sqquestion->createdby,
+                                studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+
+                            if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
+                                self::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $DB->commit_delegated_transaction($transaction);
+        } catch (Exception $e) {
+            $DB->rollback_delegated_transaction($transaction, $e);
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * Get state history data.
+     *
+     * @param \question_definition $question Question definition object.
+     * @return array State histories and Users array.
+     */
+    public static function get_state_history_data($question): array {
+        global $DB;
+
+        $statehistories = $DB->get_records('studentquiz_state_history', ['questionid' => $question->id]);
+        $users = self::get_users_change_state($statehistories);
+
+        return [$statehistories, $users];
+    }
+
+    /**
+     * List of users do action change state.
+     *
+     * @param array $statehistories Lists of state histories.
+     * @return array List of users do action change state.
+     */
+    public static function get_users_change_state(array $statehistories): array {
+        global $DB;
+
+        $userids = [];
+        foreach ($statehistories as $statehistory) {
+            $userids[$statehistory->userid] = 1;
+        }
+
+        return $DB->get_records_list('user', 'id', array_keys($userids), '', '*');
+    }
+
+    /**
+     * Get current visibility of question.
+     *
+     * @param int $questionid Question's id.
+     * @return bool Question's visibility hide/show.
+     */
+    public static function check_is_question_hidden(int $questionid): bool {
+        global $DB;
+        $ishidden = $DB->get_field('studentquiz_question', 'hidden', ['questionid' => $questionid]);
+
+        return $ishidden == self::HIDDEN;
     }
 }

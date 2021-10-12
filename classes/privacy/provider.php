@@ -36,6 +36,7 @@ use \core_privacy\local\request\writer;
 use \core_privacy\local\metadata\collection;
 use \core_privacy\local\request\transform;
 use mod_studentquiz\commentarea\container;
+use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 
 interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider
@@ -120,6 +121,13 @@ class provider implements
                 'timetosend' => 'privacy:metadata:studentquiz_notification:timetosend'
         ], 'privacy:metadata:studentquiz_attempt');
 
+        $collection->add_database_table('studentquiz_state_history', [
+            'questionid' => 'privacy:metadata:studentquiz_state_history:questionid',
+            'userid' => 'privacy:metadata:studentquiz_state_history:userid',
+            'state' => 'privacy:metadata:studentquiz_state_history:state',
+            'timecreated' => 'privacy:metadata:studentquiz_state_history:timecreated'
+        ], 'privacy:metadata:studentquiz_attempt');
+
         $collection->add_user_preference(container::USER_PREFERENCE_SORT, 'privacy:metadata:' . container::USER_PREFERENCE_SORT);
         $collection->add_user_preference(utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB,
             'privacy:metadata:' . utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB);
@@ -153,6 +161,7 @@ class provider implements
                        AND attempt.studentquizid = sq.id
              LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
              LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
+             LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.questionid = q.id
                  WHERE (
                          question.id IS NOT NULL
                          OR rate.id IS NOT NULL
@@ -160,7 +169,7 @@ class provider implements
                          OR progress.questionid IS NOT NULL
                          OR attempt.id IS NOT NULL
                          OR commenthistory.id IS NOT NULL
-                         OR notificationjoin.studentquizid IS NOT NULL
+                         OR statehistory.id IS NOT NULL
                        )
                        AND (
                              q.createdby = :createduser
@@ -171,6 +180,7 @@ class provider implements
                              OR attempt.userid = :attemptuser
                              OR commenthistory.userid = :commenthistoryuser
                              OR notificationjoin.recipientid = :notificationuser
+                             OR statehistory.userid = :statehistoryuser
                            )";
 
         $params = [
@@ -182,7 +192,8 @@ class provider implements
                 'progressuser' => $userid,
                 'attemptuser' => $userid,
                 'commenthistoryuser' => $userid,
-                'notificationuser' => $userid
+                'notificationuser' => $userid,
+                'statehistoryuser' => $userid
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -229,7 +240,10 @@ class provider implements
                        commenthistory.action AS commenthistoryaction, commenthistory.timemodified AS commenthistorytimemodified,
                        notificationjoin.id AS notificationid, notificationjoin.studentquizid AS notificationstudentquizid,
                        notificationjoin.content AS notificationcontent, notificationjoin.recipientid AS notificationrecipientid,
-                       notificationjoin.status AS notificationstatus, notificationjoin.timetosend AS notificationtimetosend
+                       notificationjoin.status AS notificationstatus, notificationjoin.timetosend AS notificationtimetosend,
+                       statehistory.id AS statehistoryid, statehistory.questionid AS statehistoryquestionid,
+                       statehistory.state AS statehistorystate, statehistory.userid AS statehistoryuserid,
+                       statehistory.timecreated AS statehistorytimecreated
                   FROM {context} ctx
                   JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
                        AND contextlevel = :contextmodule
@@ -244,6 +258,7 @@ class provider implements
              LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
                        AND attempt.studentquizid = sq.id
              LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
+             LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.questionid = q.id
                  WHERE (
                          question.id IS NOT NULL
                          OR rate.id IS NOT NULL
@@ -252,6 +267,7 @@ class provider implements
                          OR attempt.id IS NOT NULL
                          OR commenthistory.id IS NOT NULL
                          OR notificationjoin.id IS NOT NULL
+                         OR statehistory.id IS NOT NULL
                        )
                        AND (
                              q.createdby = :createduser
@@ -262,6 +278,7 @@ class provider implements
                              OR attempt.userid = :attemptuser
                              OR commenthistory.userid = :commenthistoryuser
                              OR notificationjoin.recipientid = :notificationuser
+                             OR statehistory.userid = :statehistoryuser
                            )
                        AND ctx.id {$contextsql}
               ORDER BY ctx.id ASC";
@@ -275,7 +292,8 @@ class provider implements
                 'progressuser' => $userid,
                 'attemptuser' => $userid,
                 'commenthistoryuser' => $userid,
-                'notificationuser' => $userid
+                'notificationuser' => $userid,
+                'statehistoryuser' => $userid
         ];
         $params += $contextparam;
 
@@ -301,6 +319,7 @@ class provider implements
                     $contextdata->attempts = [];
                     $contextdata->commenthistory = [];
                     $contextdata->notifications = [];
+                    $contextdata->statehistory = [];
                 }
             }
 
@@ -383,6 +402,18 @@ class provider implements
                         'status' => $record->notificationstatus,
                         'timetosend' => !is_null($record->notificationtimetosend) ?
                                 transform::datetime($record->notificationtimetosend) : null
+                ];
+            }
+
+            // Export state history.
+            if (!empty($record->statehistoryid) && $userid == $record->statehistoryuserid) {
+                $states = studentquiz_helper::get_state_names_description();
+                $contextdata->statehistory[$record->statehistoryid] = (object) [
+                        'questionid' => $record->statehistoryquestionid,
+                        'userid' => transform::user($record->statehistoryuserid),
+                        'state' => $states[$record->statehistorystate],
+                        'timecreated' => !is_null($record->statehistorytimecreated) ?
+                                transform::datetime($record->statehistorytimecreated) : null
                 ];
             }
         }
@@ -486,6 +517,9 @@ class provider implements
                                               )", [
                 'coursemodule' => $context->instanceid
         ]);
+
+        // Delete state histories belong to this context.
+        $DB->execute("DELETE FROM {studentquiz_state_history} WHERE questionid {$questionsql}", $questionparams);
     }
 
     /**
@@ -579,6 +613,11 @@ class provider implements
 
         // Delete notifications of user.
         $DB->execute("DELETE FROM {studentquiz_notification} WHERE recipientid = :userid", ['userid' => $userid]);
+
+        // Delete state history belong to user within approved context.
+        $DB->execute("DELETE FROM {studentquiz_state_history}
+                       WHERE questionid {$questionsql}
+                             AND userid = :userid", ['userid' => $userid] + $questionparams);
     }
 
     /**
@@ -679,6 +718,16 @@ class provider implements
                   JOIN {studentquiz_notification} notif ON notif.studentquizid = sq.id
                  WHERE cm.id = :instanceid";
         $userlist->add_from_sql('recipientid', $sql, $params);
+
+        // User change state question.
+        $sql = "SELECT sh.userid
+                  FROM {course_modules} cm
+                  JOIN {modules} m ON m.id = cm.module AND m.name = :modulename
+                  JOIN {question_categories} qc ON qc.contextid = :contextid
+                  JOIN {question} q ON q.category = qc.id
+                  JOIN {studentquiz_state_history} sh ON sh.questionid = q.id
+                 WHERE cm.id = :instanceid";
+        $userlist->add_from_sql('userid', $sql, $params);
     }
 
     /**
@@ -752,6 +801,11 @@ class provider implements
         // Delete notifications belong to users.
         $DB->execute("DELETE FROM {studentquiz_notification}
                             WHERE recipientid {$userinsql}", $userinparams);
+
+        // Delete state histories belong to users.
+        $DB->execute("DELETE FROM {studentquiz_state_history}
+                       WHERE questionid {$questionsql}
+                             AND userid {$userinsql}", $questionparams + $userinparams);
     }
 
     /**

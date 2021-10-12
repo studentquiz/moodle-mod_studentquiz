@@ -29,6 +29,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
@@ -860,6 +861,47 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2021102100, 'studentquiz');
+    }
+
+    if ($oldversion < 2021102500) {
+        // Define table studentquiz_state_history to be created.
+        $table = new xmldb_table('studentquiz_state_history');
+
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('state', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+
+        // Add key.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+
+        // Conditionally launch create table for studentquiz_state_history.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+
+            $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
+                      FROM {studentquiz_question} sqq
+                      JOIN {question} q ON q.id = sqq.questionid";
+            $sqquestions = $DB->get_records_sql($sql);
+
+            $transaction = $DB->start_delegated_transaction();
+            foreach ($sqquestions as $sqquestion) {
+                // Create action new question by onwer.
+                utils::question_save_action($sqquestion->questionid, $sqquestion->createdby,
+                    studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+
+                if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
+                    utils::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
+                }
+            }
+            $transaction->allow_commit();
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021102500, 'studentquiz');
     }
 
     return true;

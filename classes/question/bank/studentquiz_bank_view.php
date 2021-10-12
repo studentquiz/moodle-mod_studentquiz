@@ -251,11 +251,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             }
 
                             mod_studentquiz_change_state_visibility($questionid, $type, $value);
+                            utils::question_save_action($questionid, null, $state);
                             mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
 
                             // Additionally always unhide the question when it got approved.
-                            if ($state == studentquiz_helper::STATE_APPROVED) {
+                            if ($state == studentquiz_helper::STATE_APPROVED && utils::check_is_question_hidden($questionid)) {
                                 mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
+                                utils::question_save_action($questionid, get_admin()->id, studentquiz_helper::STATE_SHOW);
                             }
                         }
                     }
@@ -333,6 +335,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (($unhide = optional_param('unhide', '', PARAM_INT)) and confirm_sesskey()) {
             question_require_capability_on($unhide, 'edit');
             $DB->set_field('studentquiz_question', 'hidden', 0, ['questionid' => $unhide]);
+            utils::question_save_action($unhide, null, studentquiz_helper::STATE_SHOW);
             mod_studentquiz_state_notify($unhide, $this->course, $this->cm, 'unhidden');
 
             // Purge these questions from the cache.
@@ -349,6 +352,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         if (($hide = optional_param('hide', '', PARAM_INT)) and confirm_sesskey()) {
             question_require_capability_on($hide, 'edit');
             $DB->set_field('studentquiz_question', 'hidden', 1, ['questionid' => $hide]);
+            utils::question_save_action($hide, null, studentquiz_helper::STATE_HIDE);
             mod_studentquiz_state_notify($hide, $this->course, $this->cm, 'hidden');
             // Purge these questions from the cache.
             \question_bank::notify_question_edited($hide);

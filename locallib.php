@@ -1117,9 +1117,14 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
             'groupid' => $groupid
         ];
 
+        utils::question_save_action($id, null, studentquiz_helper::STATE_NEW);
+
         if ($honorpublish) {
             if (isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion) {
                 $params['hidden'] = 1;
+            }
+            if (isset($studentquiz->publishnewquestion) && $studentquiz->publishnewquestion) {
+                utils::question_save_action($id, get_admin()->id, studentquiz_helper::STATE_SHOW);
             }
         } else {
             if ($hidden) {

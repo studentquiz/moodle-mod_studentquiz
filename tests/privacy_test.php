@@ -29,6 +29,7 @@ global $CFG;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\tests\provider_testcase;
+use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\privacy\provider;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\writer;
@@ -102,6 +103,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      */
     protected $subcontext;
 
+    /** @var array The state histories record. */
+    protected $statehistories;
+
     /**
      * @var string
      */
@@ -169,6 +173,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 self::create_question_approval($this->questions[1]->id),
                 self::create_question_approval($this->questions[2]->id),
                 self::create_question_approval($this->questions[3]->id),
+        ];
+
+        // Create state histories.
+        $this->statehistories = [
+            self::create_state_history($this->questions[0]->id, $this->users[0]->id),
+            self::create_state_history($this->questions[1]->id, $this->users[0]->id),
+            self::create_state_history($this->questions[2]->id, $this->users[0]->id),
+            self::create_state_history($this->questions[3]->id, $this->users[1]->id),
         ];
 
         // Create rates.
@@ -284,6 +296,24 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
             'pinned' => transform::yesno($this->approvals[1]->pinned)
         ], $questions[$this->questions[1]->id]);
 
+        $statehistories = $data->statehistory;
+        $this->assertCount(4, $statehistories);
+        $states = studentquiz_helper::get_state_names_description();
+        $this->assertEquals((object) [
+            'state' => $states[$this->statehistories[0]->state],
+            'questionid' => $this->statehistories[0]->questionid,
+            'userid' => transform::user($this->statehistories[0]->userid),
+            'timecreated' => $this->statehistories[0]->timecreated > 0 ?
+                transform::datetime($this->statehistories[0]->timecreated) : 0,
+        ], $statehistories[$this->statehistories[0]->id]);
+        $this->assertEquals((object) [
+            'state' => $states[$this->statehistories[1]->state],
+            'questionid' => $this->statehistories[1]->questionid,
+            'userid' => transform::user($this->statehistories[1]->userid),
+            'timecreated' => $this->statehistories[1]->timecreated > 0 ?
+                transform::datetime($this->statehistories[1]->timecreated) : 0,
+        ], $statehistories[$this->statehistories[1]->id]);
+
         $progresses = $data->progresses;
         $this->assertCount(2, $progresses);
         $this->assertEquals((object) [
@@ -330,6 +360,16 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
             'groupid' => $this->approvals[2]->groupid,
             'pinned' => transform::yesno($this->approvals[2]->pinned),
         ], $questions[$this->questions[2]->id]);
+
+        $statehistories = $data->statehistory;
+        $this->assertCount(2, $statehistories);
+        $this->assertEquals((object) [
+            'state' => $states[$this->statehistories[2]->state],
+            'questionid' => $this->statehistories[2]->questionid,
+            'userid' => transform::user($this->statehistories[2]->userid),
+            'timecreated' => $this->statehistories[2]->timecreated > 0 ?
+                transform::datetime($this->statehistories[2]->timecreated) : 0,
+        ], $statehistories[$this->statehistories[2]->id]);
 
         $rates = $data->rates;
         $this->assertCount(1, $rates);
@@ -434,6 +474,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ], $comments[$this->comments[1]->id]);
 
         $this->assertEmpty($data->questions);
+        $this->assertEmpty($data->statehistory);
 
         $commenthistory = $data->commenthistory;
         $this->assertCount(2, $commenthistory);
@@ -459,6 +500,17 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
             'groupid' => $this->approvals[3]->groupid,
             'pinned' => transform::yesno($this->approvals[3]->pinned),
         ], $questions[$this->questions[3]->id]);
+
+        $statehistories = $data->statehistory;
+        $this->assertCount(2, $statehistories);
+        $states = studentquiz_helper::get_state_names_description();
+        $this->assertEquals((object) [
+            'state' => $states[$this->statehistories[3]->state],
+            'questionid' => $this->statehistories[3]->questionid,
+            'userid' => transform::user($this->statehistories[3]->userid),
+            'timecreated' => $this->statehistories[3]->timecreated > 0 ?
+                transform::datetime($this->statehistories[3]->timecreated) : 0,
+        ], $statehistories[$this->statehistories[3]->id]);
 
         $rates = $data->rates;
         $this->assertCount(1, $rates);
@@ -554,6 +606,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_notification} WHERE studentquizid = :studentquizid", [
                 'studentquizid' => $this->studentquiz[0]->id
         ]));
+        $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_state_history} WHERE questionid {$questionsql}"
+                , $questionparams));
 
         // Check personal data belong to second context is still existed.
         list($questionsql, $questionparams) =
@@ -575,6 +629,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_notification} WHERE studentquizid = :studentquizid", [
                 'studentquizid' => $this->studentquiz[1]->id
         ]));
+        $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_state_history} WHERE questionid {$questionsql}"
+                , $questionparams));
     }
 
     /**
@@ -628,6 +684,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         // Deleted all notifications.
         $this->assertFalse($DB->record_exists('studentquiz_notification', ['recipientid' => $this->users[0]->id]));
 
+        $this->assertFalse($DB->record_exists('studentquiz_state_history', $params));
+
         // Test root comment became blank.
         $commentafterdelete = $DB->get_record('studentquiz_comment', ['id' => $rootcomment->id]);
         $this->assertEquals($rootcomment->id, $commentafterdelete->id);
@@ -646,6 +704,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertTrue($DB->record_exists('studentquiz_attempt', $params));
         $this->assertTrue($DB->record_exists('studentquiz_comment', $params));
         $this->assertTrue($DB->record_exists('studentquiz_progress', $params));
+        $this->assertTrue($DB->record_exists('studentquiz_state_history', $params));
     }
 
     /**
@@ -792,6 +851,23 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     }
 
     /**
+     * Test get users in context with question's change state condition.
+     */
+    public function test_get_users_in_context_change_state() {
+        // Another user create question, then user change state question.
+        $anotheruser = $this->getDataGenerator()->create_user();
+
+        $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
+        $this->create_state_history($question->id, $this->users[0]->id);
+
+        $userlist = new userlist($this->contexts[2], $this->component);
+        provider::get_users_in_context($userlist);
+
+        $this->assertCount(2, $userlist);
+        $this->assertEquals([$anotheruser->id, $this->users[0]->id], $userlist->get_userids());
+    }
+
+    /**
      * Test delete data for users from one context.
      *
      * @throws coding_exception
@@ -840,6 +916,9 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $notifications = $DB->get_records('studentquiz_notification', ['recipientid' => $this->users[0]->id]);
         $this->assertCount(0, $notifications);
 
+        $statehistories = $DB->get_records('studentquiz_state_history', $sqlparams);
+        $this->assertCount(2, $statehistories);
+
         // Test data belong to the second user still exist.
         $sqlparams = ['userid' => $this->users[1]->id];
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
@@ -849,6 +928,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertTrue($DB->record_exists('studentquiz_comment', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_comment_history', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_notification', ['recipientid' => $this->users[1]->id]));
+        $this->assertTrue($DB->record_exists('studentquiz_state_history', $sqlparams));
     }
 
     /**
@@ -1054,6 +1134,30 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ];
 
         $data->id = $DB->insert_record('studentquiz_notification', $data);
+
+        return $data;
+    }
+
+    /**
+     * Create state histories data for user.
+     *
+     * @param int $questionid
+     * @param int $userid
+     * @return object
+     * @throws dml_exception
+     */
+    protected function create_state_history($questionid, $userid) {
+        global $DB;
+
+        $data = (object) [
+            'id' => 0,
+            'state' => rand(0, 1),
+            'questionid' => $questionid,
+            'userid' => $userid,
+            'timecreated' => rand(1000000000, 2000000000)
+        ];
+
+        $data->id = $DB->insert_record('studentquiz_state_history', $data);
 
         return $data;
     }

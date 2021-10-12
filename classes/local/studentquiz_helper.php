@@ -68,6 +68,11 @@ class studentquiz_helper {
     const STATE_DELETE = 5;
 
     /**
+     * @var int STATE_SHOW state constant for show
+     */
+    const STATE_SHOW = 6;
+
+    /**
      * Statename offers string representation for state codes. Probably only use for translation hints.
      * @var array constant to text
      */
@@ -115,4 +120,19 @@ class studentquiz_helper {
         return $DB->count_records_sql($sql, $params);
     }
 
+    /** Get list description of state name.
+     *
+     * @return array List descriptions of state name.
+     */
+    public static function get_state_names_description(): array {
+        return [
+            self::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
+            self::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
+            self::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
+            self::STATE_HIDE => get_string('hidden', 'studentquiz'),
+            self::STATE_DELETE => get_string('deleted', 'studentquiz'),
+            self::STATE_SHOW => get_string('show'),
+            self::STATE_NEW => get_string('new')
+        ];
+    }
 }
