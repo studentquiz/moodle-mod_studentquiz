@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Represent sq_hiden column in studentquiz_bank_view
+ * Represent sq_hiden action in studentquiz_bank_view
  *
  * @package mod_studentquiz
  * @author Huong Nguyen <huongnv13@gmail.com>
@@ -25,18 +25,18 @@
 
 namespace mod_studentquiz\bank;
 
-use core_question\bank\action_column_base;
+use core_question\bank\menu_action_column_base;
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Represent sq_hiden column in studentquiz_bank_view
+ * Represent sq_hiden action in studentquiz_bank_view
  *
  * @author Huong Nguyen <huongnv13@gmail.com>
  * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_hidden_column extends action_column_base {
+class sq_hidden_action_column extends menu_action_column_base {
     /** @var int */
     protected $currentuserid;
 
@@ -46,6 +46,7 @@ class sq_hidden_column extends action_column_base {
     protected function init() {
         global $USER;
         $this->currentuserid = $USER->id;
+        parent::init();
     }
 
     /**
@@ -56,33 +57,6 @@ class sq_hidden_column extends action_column_base {
      */
     public function get_name() {
         return 'sq_hidden';
-    }
-
-    /**
-     * Title for this column. Not used if is_sortable returns an array.
-     *
-     * @return string Title of column
-     */
-    protected function get_title() {
-        return '';
-    }
-
-    /**
-     * Output the contents of this column.
-     *
-     * @param object $question the row from the $question table, augmented with extra information.
-     * @param string $rowclasses CSS class names that should be applied to this row of output.
-     */
-    protected function display_content($question, $rowclasses) {
-        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            if ($question->sq_hidden) {
-                $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
-                $this->print_icon('t/show', get_string('show'), $url);
-            } else {
-                $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
-                $this->print_icon('t/hide', get_string('hide'), $url);
-            }
-        }
     }
 
     /**
@@ -120,5 +94,29 @@ class sq_hidden_column extends action_column_base {
      */
     public function get_required_fields() {
         return ['sqh.hidden AS sq_hidden'];
+    }
+
+    /**
+     * Override method to get url and label for show/hidden action of the studentquiz.
+     *
+     * @param \stdClass $question The row from the $question table, augmented with extra information.
+     * @return array With three elements.
+     *      $url - The URL to perform the action.
+     *      $icon - The icon for this action.
+     *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon)
+     */
+    protected function get_url_icon_and_label(\stdClass $question): array {
+
+        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+            if ($question->sq_hidden) {
+                $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
+                return [$url, 't/show', get_string('show')];
+            } else {
+                $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
+                return [$url, 't/hide', get_string('hide')];
+            }
+        }
+
+        return [null, null, null];
     }
 }

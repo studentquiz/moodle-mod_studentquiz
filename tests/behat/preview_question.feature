@@ -26,7 +26,7 @@ Feature: Preview a question as a student
   @javascript @_switch_window
   Scenario: Question preview shows the question, can be answered and commented
     When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
-    And I click on "Preview" "link" in the "Test question to be previewed" "table_row"
+    When I choose "Preview" action for "Test question to be previewed" in the question bank
     And I switch to "questionpreview" window
     Then the state of "What is pi to two d.p.?" question is shown as "Not complete"
     #Then "Rate" "field" should exist
@@ -74,7 +74,7 @@ Feature: Preview a question as a student
     And I set the field "Question text" to "The correct answer is true"
     And I press "id_submitbutton"
     # Turn back and click to Preview link to validate role.
-    And I click on "Preview" "link" in the "Example question 1" "table_row"
+    When I choose "Preview" action for "Example question 1" in the question bank
     And I switch to "questionpreview" window
     And I should not see "Rate"
     And I should not see "Add comment"
@@ -92,7 +92,7 @@ Feature: Preview a question as a student
     And I set the field "Question text" to "The correct answer is true"
     And I press "id_submitbutton"
     # Turn back and click to Preview link to validate role.
-    And I click on "Preview" "link" in the "Example question 2" "table_row"
+    When I choose "Preview" action for "Example question 2" in the question bank
     And I switch to "questionpreview" window
     And ".rate" "css_element" should exist
     And "Add comment" "field" should exist

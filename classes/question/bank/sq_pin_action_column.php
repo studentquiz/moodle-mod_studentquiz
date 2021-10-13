@@ -17,19 +17,17 @@
 
 namespace mod_studentquiz\bank;
 
-use core_question\bank\edit_action_column;
-use mod_studentquiz\local\studentquiz_helper;
-use core_question\bank\action_column_base;
+use core_question\bank\menu_action_column_base;
 use moodle_url;
 
 /**
- * Represent toggle pin action in studentquiz_bank_view
+ * Represent pin action in studentquiz_bank_view
  *
  * @package mod_studentquiz
  * @copyright 2021 The Open University.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class toggle_pin_column extends action_column_base {
+class sq_pin_action_column extends menu_action_column_base {
     /** @var mod_studentquiz Renderer of student quiz. */
     protected $renderer;
 
@@ -52,15 +50,6 @@ class toggle_pin_column extends action_column_base {
     }
 
     /**
-     * Title for this column. Not used if is_sortable returns an array.
-     *
-     * @return string Title of column.
-     */
-    protected function get_title() {
-        return '';
-    }
-
-    /**
      * Get required fields.
      *
      * @return array Fields required.
@@ -69,25 +58,29 @@ class toggle_pin_column extends action_column_base {
         return array('sqh.pinned AS pinned');
     }
 
+
     /**
-     * Output the contents of this column.
+     * Override method to get url and label for pin action of the studentquiz.
      *
-     * @param object $question The row from the $question table, augmented with extra information.
-     * @param string $rowclasses CSS class names that should be applied to this row of output.
+     * @param \stdClass $question The row from the $question table, augmented with extra information.
+     * @return array With three elements.
+     *      $url - The URL to perform the action.
+     *      $icon - The icon for this action.
+     *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon)
      */
-    protected function display_content($question, $rowclasses) {
+    protected function get_url_icon_and_label(\stdClass $question): array {
         $output = '';
         if (has_capability('mod/studentquiz:pinquestion', $this->qbank->get_most_specific_context())) {
             if ($question->pinned) {
                 $url = new moodle_url($this->qbank->base_url(), ['unpin' => $question->id, 'sesskey' => sesskey()]);
-                $output = $this->print_icon('i/star', get_string('unpin', 'studentquiz'), $url);
+                return [$url, 'i/star', get_string('unpin', 'studentquiz')];
             } else {
                 $url = new moodle_url($this->qbank->base_url(), ['pin' => $question->id, 'sesskey' => sesskey()]);
-                $output = $this->print_icon('t/emptystar', get_string('pin', 'studentquiz'), $url);
+                return [$url, 't/emptystar', get_string('pin', 'studentquiz')];
             }
         }
 
-        echo $output;
+        return [null, null, null];
     }
 
 }
