@@ -40,21 +40,23 @@ defined('MOODLE_INTERNAL') || die();
 class sq_edit_action_column extends edit_action_column {
 
     /**
-     * Output the contents of this column.
+     * Override method to get url and label for edit action of the studentquiz.
      *
-     * @param object $question the row from the $question table, augmented with extra information.
-     * @param string $rowclasses CSS class names that should be applied to this row of output.
+     * @param \stdClass $question The row from the $question table, augmented with extra information.
+     * @return array With three elements.
+     *      $url - The URL to perform the action.
+     *      $icon - The icon for this action.
+     *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon)
      */
-    protected function display_content($question, $rowclasses) {
-        $canedit = true;
+    protected function get_url_icon_and_label(\stdClass $question): array {
+
         if (($question->state == studentquiz_helper::STATE_APPROVED || $question->state == studentquiz_helper::STATE_DISAPPROVED) &&
                 !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
             // Do not render Edit icon if Question is in approved/disapproved state for Student.
-            $canedit = false;
+            return [null, null, null];
         }
-        if ($canedit) {
-            parent::display_content($question, $rowclasses);
-        }
+
+        return parent::get_url_icon_and_label($question);
     }
 
 }

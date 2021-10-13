@@ -27,6 +27,8 @@
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
 use mod_studentquiz\utils;
+use Behat\Mink\Exception\ExpectationException as ExpectationException;
+use Behat\Mink\Exception\ElementNotFoundException as ElementNotFoundException;
 
 /**
  * Steps definitions related to mod_studentquiz.
@@ -187,5 +189,69 @@ class behat_mod_studentquiz extends behat_base {
     protected function get_cm_by_studentquiz_name(string $name): stdClass {
         $studentquiz = $this->get_studentquiz_by_name($name);
         return get_coursemodule_from_instance('studentquiz', $studentquiz->id, $studentquiz->course);
+    }
+
+    /**
+     * Checks that the specified question's action menu does not contain an action.
+     *
+     * @Then I should not see :action action for :questionname in the question bank
+     * @throws ExpectationException
+     * @param string $action Action in the menu action
+     * @param string $questionname Question we look in.
+     */
+    public function assert_question_not_contains_action_item($action, $questionname) {
+        try {
+            $node = $this->get_node_in_container('link', $action, 'table_row', $questionname);
+        } catch (ElementNotFoundException $e) {
+            return;
+        }
+
+        $msg = '"' . $action . '" action was found in the "' . $questionname . '" question menu action';
+        $exception = new ExpectationException($msg, $this->getSession());
+
+        if (!$this->running_javascript()) {
+            throw $exception;
+        }
+
+        $this->spin(
+            function($context, $args) {
+                if ($args->isVisible()) {
+                    return true;
+                }
+
+                return false;
+            }, $node, behat_base::get_reduced_timeout(), $exception, true);
+    }
+
+    /**
+     * Checks that the specified question's action menu does not contain an action.
+     *
+     * @Then I should see :action action for :questionname in the question bank
+     * @throws ExpectationException
+     * @param string $action Action in the menu action.
+     * @param string $questionname Question we look in.
+     */
+    public function assert_question_contains_action_item($action, $questionname) {
+        $msg = '"' . $action . '" action was not found in the "' . $questionname . '" question menu action';
+        $exception = new ExpectationException($msg, $this->getSession());
+
+        try {
+            $node = $this->get_node_in_container('link', $action, 'table_row', $questionname);
+        } catch (ElementNotFoundException $e) {
+            throw $exception;
+        }
+
+        if (!$this->running_javascript()) {
+            return;
+        }
+
+        $this->spin(
+            function($context, $args) {
+                if ($args->isVisible()) {
+                    return false;
+                }
+
+                return true;
+            }, $node, behat_base::get_reduced_timeout(), $exception, true);
     }
 }

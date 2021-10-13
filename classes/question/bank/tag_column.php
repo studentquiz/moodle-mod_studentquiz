@@ -35,7 +35,7 @@ use mod_studentquiz\local\db;
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tag_column extends \core_question\bank\column_base {
+class tag_column extends studentquiz_column_base {
 
     /**
      * @var bool

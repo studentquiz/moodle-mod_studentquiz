@@ -125,7 +125,7 @@ Feature: Create comment as an user
     And I should see "Replies" in the ".studentquiz-comment-item:nth-child(6) .studentquiz-comment-totalreply" "css_element"
     # Check in preview.
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page
-    And I click on "Preview" "link" in the "Test question to be previewed" "table_row"
+    When I choose "Preview" action for "Test question to be previewed" in the question bank
     And I switch to "questionpreview" window
     And I wait until the page is ready
     # We only show max 5 latest comments.
