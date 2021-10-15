@@ -284,6 +284,10 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             $data->hidden = 0;
         }
 
+        if (!isset($data->pinned)) {
+            $data->pinned = 0;
+        }
+
         $DB->insert_record('studentquiz_question', $data);
     }
 
