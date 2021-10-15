@@ -99,6 +99,7 @@ class provider implements
             'questionid' => 'privacy:metadata:studentquiz_question:questionid',
             'state' => 'privacy:metadata:studentquiz_question:state',
             'hidden' => 'privacy:metadata:studentquiz_question:hidden',
+            'pinned' => 'privacy:metadata:studentquiz_question:pinned',
             'groupid' => 'privacy:metadata:studentquiz_question:groupid'
         ], 'privacy:metadata:studentquiz_question');
 
@@ -207,7 +208,7 @@ class provider implements
         $sql = "SELECT DISTINCT ctx.id AS contextid,
                        q.id AS questionid, q.name AS questionname,
                        CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
-                       question.groupid questiongroupid,
+                       question.groupid questiongroupid, question.pinned AS questionpinned,
                        q.createdby AS questioncreatedby, q.modifiedby AS questionmodifiedby,
                        rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
@@ -306,7 +307,8 @@ class provider implements
                 $contextdata->questions[$record->questionid] = (object) [
                         'name' => $record->questionname,
                         'approved' => transform::yesno($record->questionapproved),
-                        'groupid' => $record->questiongroupid
+                        'groupid' => $record->questiongroupid,
+                        'pinned' => transform::yesno($record->questionpinned)
                 ];
             }
 

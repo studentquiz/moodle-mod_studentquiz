@@ -274,12 +274,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertEquals((object) [
             'name' => $this->questions[0]->name,
             'approved' => transform::yesno($this->approvals[0]->state),
-            'groupid' => $this->approvals[0]->groupid
+            'groupid' => $this->approvals[0]->groupid,
+            'pinned' => transform::yesno($this->approvals[0]->pinned)
         ], $questions[$this->questions[0]->id]);
         $this->assertEquals((object) [
             'name' => $this->questions[1]->name,
             'approved' => transform::yesno($this->approvals[1]->state),
-            'groupid' => $this->approvals[1]->groupid
+            'groupid' => $this->approvals[1]->groupid,
+            'pinned' => transform::yesno($this->approvals[1]->pinned)
         ], $questions[$this->questions[1]->id]);
 
         $progresses = $data->progresses;
@@ -325,7 +327,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertEquals((object) [
             'name' => $this->questions[2]->name,
             'approved' => transform::yesno($this->approvals[2]->state),
-            'groupid' => $this->approvals[2]->groupid
+            'groupid' => $this->approvals[2]->groupid,
+            'pinned' => transform::yesno($this->approvals[2]->pinned),
         ], $questions[$this->questions[2]->id]);
 
         $rates = $data->rates;
@@ -450,7 +453,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertEquals((object) [
             'name' => $this->questions[3]->name,
             'approved' => transform::yesno($this->approvals[3]->state),
-            'groupid' => $this->approvals[3]->groupid
+            'groupid' => $this->approvals[3]->groupid,
+            'pinned' => transform::yesno($this->approvals[3]->pinned),
         ], $questions[$this->questions[3]->id]);
 
         $rates = $data->rates;
@@ -883,6 +887,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
             'id' => 0,
             'questionid' => $questionid,
             'state' => rand(0, 1),
+            'pinned' => rand(0, 1),
             'groupid' => 0
         ];
 

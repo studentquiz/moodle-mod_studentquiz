@@ -251,6 +251,7 @@ $string['privacy:metadata:studentquiz_question'] = 'Store question related prope
 $string['privacy:metadata:studentquiz_question:questionid'] = 'ID of the question';
 $string['privacy:metadata:studentquiz_question:state'] = 'Property whether the question is approved, disapprove, new or changed';
 $string['privacy:metadata:studentquiz_question:hidden'] = 'Property whether the question hidden or not';
+$string['privacy:metadata:studentquiz_question:pinned'] = 'Property whether the question pinned or not';
 $string['privacy:metadata:studentquiz_question:groupid'] = 'ID of group that question belong to';
 $string['privacy:metadata:mod_studentquiz_comment_sort'] = 'A user preference for comment filter type.';
 $string['privacy:metadata:studentquiz_notification'] = 'Notification queue';
