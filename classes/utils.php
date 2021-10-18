@@ -61,6 +61,15 @@ style3 = superscript, subscript
 style4 = unorderedlist, orderedlist
 style5 = html';
 
+    /** @var string - Comment type public. */
+    const COMMENT_TYPE_PUBLIC = 0;
+
+    /** @var string - Comment type private. */
+    const COMMENT_TYPE_PRIVATE = 1;
+
+    /** @var string - User preference question active tab. */
+    const USER_PREFERENCE_QUESTION_ACTIVE_TAB = 'mod_studentquiz_question_active_tab';
+
     /**
      * Get Comment Area web service comment reply structure.
      *
@@ -324,22 +333,26 @@ style5 = html';
     }
 
     /**
-     * Check permision can self comment and rating.
+     * Check permision can self comment.
      *
-     * @param question_definition $question Current Question stdClass
+     * @param \question_definition $question Current Question stdClass
      * @param int $cmid Current Cmid
+     * @param int $type Comment type.
      * @return boolean
      */
-    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid) {
+    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid,
+             $type = self::COMMENT_TYPE_PUBLIC) {
         global $USER, $PAGE;
+
         $context = \context_module::instance($cmid);
-        if (
-            $PAGE->pagetype == 'mod-studentquiz-preview'
-            && $USER->id == $question->createdby
-            && !has_capability('mod/studentquiz:canselfratecomment', $context)
-        ) {
-            return false;
+        if ($PAGE->pagetype == 'mod-studentquiz-preview' && !has_capability('mod/studentquiz:canselfratecomment', $context)) {
+            if ($type == self::COMMENT_TYPE_PUBLIC || !get_config('studentquiz', 'showprivatecomment') ||
+                    $USER->id != $question->createdby ||
+                    self::get_question_state($question) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
+                return false;
+            }
         }
+
         return true;
     }
 
@@ -477,5 +490,70 @@ style5 = html';
         }
 
         return groups_get_members_join($groupid, $useridcolumn, $context);
+    }
+
+    /**
+     * Mark the active tab in question comment tabs.
+     *
+     * @param array $tabs All tabs.
+     * @return void.
+     */
+    public static function mark_question_comment_current_active_tab(&$tabs): void {
+        $currentactivetab = '';
+        if (get_config('studentquiz', 'showprivatecomment')) {
+            // First view default is private comment tab.
+            $currentactivetab = get_user_preferences(self::USER_PREFERENCE_QUESTION_ACTIVE_TAB, self::COMMENT_TYPE_PRIVATE);
+        }
+
+        $found = false;
+        if ($currentactivetab) {
+            foreach ($tabs as $key => $tab) {
+                if ($tab['id'] == $currentactivetab) {
+                    $tabs[$key]['active'] = true;
+                    $found = true;
+                }
+            }
+        }
+
+        // If we can not found any tab, just active the first tab.
+        if (!$found) {
+            $tabs[0]['active'] = true;
+        }
+    }
+
+    /**
+     * Can the current user view the private comment of this question.
+     *
+     * @param int $cmid Course module id.
+     * @param \question_definition $question Question definition object.
+     * @return bool Question's state.
+     */
+    public static function can_view_private_comment($cmid, $question) {
+        global $USER;
+
+        if (!get_config('studentquiz', 'showprivatecomment')) {
+            return false;
+        }
+
+        $context = \context_module::instance($cmid);
+        if (!has_capability('mod/studentquiz:canselfratecomment', $context)) {
+            if ($USER->id != $question->createdby) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get current state of question.
+     *
+     * @param \stdClass $question Question.
+     * @return int Question's state.
+     */
+    public static function get_question_state($question) {
+        global $DB;
+
+        return $DB->get_field('studentquiz_question', 'state', ['questionid' => $question->id]);
     }
 }

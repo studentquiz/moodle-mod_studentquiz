@@ -848,6 +848,20 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021101200, 'studentquiz');
     }
 
+    if ($oldversion < 2021102100) {
+
+        // Define field type to be added to studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'status');
+
+        // Conditionally launch add field type.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021102100, 'studentquiz');
+    }
+
     return true;
 }
 

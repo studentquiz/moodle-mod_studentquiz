@@ -349,6 +349,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[3]->created),
                 'parentid' => $this->comments[3]->parentid,
                 'status' => !is_null($this->comments[3]->status) ? $this->comments[3]->status : 0,
+                'type' => !is_null($this->comments[3]->type) ? $this->comments[3]->type : 0,
                 'timemodified' => $this->comments[3]->timemodified > 0 ? transform::datetime($this->comments[3]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[3]->usermodified) ? transform::user($this->comments[3]->usermodified) :
                         null
@@ -414,6 +415,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[0]->created),
                 'parentid' => $this->comments[0]->parentid,
                 'status' => !is_null($this->comments[0]->status) ? $this->comments[0]->status : 0,
+                'type' => !is_null($this->comments[0]->type) ? $this->comments[0]->type : 0,
                 'timemodified' => $this->comments[0]->timemodified > 0 ? transform::datetime($this->comments[0]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[0]->usermodified) ? transform::user($this->comments[0]->usermodified) :
                         null
@@ -425,6 +427,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[1]->created),
                 'parentid' => $this->comments[1]->parentid,
                 'status' => !is_null($this->comments[1]->status) ? $this->comments[1]->status : 0,
+                'type' => !is_null($this->comments[1]->type) ? $this->comments[1]->type : 0,
                 'timemodified' => $this->comments[1]->timemodified > 0 ? transform::datetime($this->comments[1]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[1]->usermodified) ? transform::user($this->comments[1]->usermodified) :
                         null
@@ -475,6 +478,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[2]->created),
                 'parentid' => $this->comments[2]->parentid,
                 'status' => !is_null($this->comments[2]->status) ? $this->comments[2]->status : 0,
+                'type' => !is_null($this->comments[2]->type) ? $this->comments[2]->type : 0,
                 'timemodified' => $this->comments[2]->timemodified > 0 ? transform::datetime($this->comments[2]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[2]->usermodified) ? transform::user($this->comments[2]->usermodified) :
                         null
@@ -489,6 +493,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[4]->created),
                 'parentid' => $this->comments[3]->id,
                 'status' => !is_null($this->comments[4]->status) ? $this->comments[4]->status : 0,
+                'type' => !is_null($this->comments[4]->type) ? $this->comments[4]->type : 0,
                 'timemodified' => $this->comments[4]->timemodified > 0 ? transform::datetime($this->comments[4]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[4]->usermodified) ? transform::user($this->comments[4]->usermodified) :
                         null
@@ -502,6 +507,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[5]->created),
                 'parentid' => $this->comments[3]->id,
                 'status' => !is_null($this->comments[5]->status) ? $this->comments[5]->status : 0,
+                'type' => !is_null($this->comments[5]->type) ? $this->comments[5]->type : 0,
                 'timemodified' => $this->comments[5]->timemodified > 0 ? transform::datetime($this->comments[5]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[5]->usermodified) ? transform::user($this->comments[5]->usermodified) :
                         null

@@ -60,7 +60,7 @@ class validate_comment_form extends \moodleform {
         }
 
         $context = \context_module::instance($params['cmid']);
-        $unique = $questionid . '_' . $commentid;
+        $unique = $questionid . '_' . $params['type'] . '_' . $commentid;
 
         $submitlabel = \get_string($formtype, 'mod_studentquiz');
         $mform->addElement('studentquiz_comment_editor', 'message', $submitlabel,

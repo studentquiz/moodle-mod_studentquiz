@@ -29,24 +29,12 @@ Feature: Preview a question as a student
     When I choose "Preview" action for "Test question to be previewed" in the question bank
     And I switch to "questionpreview" window
     Then the state of "What is pi to two d.p.?" question is shown as "Not complete"
-    #Then "Rate" "field" should exist
-    #Then I should see "Rate" in the ".rate" "css_element"
-    And ".rate" "css_element" should exist
-    And "Add comment" "field" should exist
-    #And I should see "Add comment" in the ".comments p" "css_element"
-    #And ".comments" "css_element" should exist
     And I should see "No comments"
     And I set the field "Answer:" to "3.14"
     And I press "Check"
     And I wait until the page is ready
     And the state of "What is pi to two d.p.?" question is shown as "Correct"
-    And ".rateable[data-rate='4']" "css_element" should exist
-    And I click on ".rateable[data-rate='4']" "css_element"
-    And ".star[data-rate='4']" "css_element" should exist
-    And ".star-empty[data-rate='4']" "css_element" should not exist
-    And ".star[data-rate='5']" "css_element" should not exist
-    And ".star-empty[data-rate='5']" "css_element" should exist
-    And I enter the text "Very good question" into the "Add comment" editor
+    And I enter the text "Very good question" into the "Add public comment" editor
     And I press "Add comment"
     And I wait until the page is ready
     And I should see "Very good question"
@@ -78,7 +66,7 @@ Feature: Preview a question as a student
     And I switch to "questionpreview" window
     And I should not see "Rate"
     And I should not see "Add comment"
-    And I should see "Note: Rating and comment is not available in Preview mode on your own question"
+    And I should see "Rating and public commenting are not available for your own question in Preview mode."
 
   @javascript @_switch_window
   Scenario: User with higher student's role post new question, and he/she can comment or rating on new's one
@@ -94,9 +82,8 @@ Feature: Preview a question as a student
     # Turn back and click to Preview link to validate role.
     When I choose "Preview" action for "Example question 2" in the question bank
     And I switch to "questionpreview" window
-    And ".rate" "css_element" should exist
-    And "Add comment" "field" should exist
-    And I enter the text "Comment test" into the "Add comment" editor
+    And "Add public comment" "field" should exist
+    And I enter the text "Comment test" into the "Add public comment" editor
     And I press "Add comment"
     And I wait until the page is ready
     And I should see "Comment test"

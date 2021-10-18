@@ -57,7 +57,8 @@ class get_comments_api extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'numbertoshow' => new external_value(PARAM_INT, 'Number of comments to show, 0 will return all comments/replies',
                         VALUE_DEFAULT, container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT),
-                'sort' => new external_value(PARAM_TEXT, 'Sort type', false)
+                'sort' => new external_value(PARAM_TEXT, 'Sort type', false),
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
         ]);
     }
 
@@ -88,20 +89,22 @@ class get_comments_api extends external_api {
      * @param int $cmid - CM ID.
      * @param int $numbertoshow - Number comments to show.
      * @param string $sort - Type of sort.
+     * @param int $type - Comment type.
      * @return array
      */
-    public static function get_comments($questionid, $cmid, $numbertoshow, $sort) {
+    public static function get_comments($questionid, $cmid, $numbertoshow, $sort, $type) {
 
         $params = self::validate_parameters(self::get_comments_parameters(), [
                 'questionid' => $questionid,
                 'cmid' => $cmid,
                 'numbertoshow' => $numbertoshow,
-                'sort' => $sort
+                'sort' => $sort,
+                'type' => $type
         ]);
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, $sort);
+        $commentarea = new container($studentquiz, $question, $cm, $context, null, $sort, $type);
         $comments = $commentarea->fetch_all($numbertoshow);
 
         $data = [];

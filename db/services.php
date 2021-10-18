@@ -73,6 +73,14 @@ $functions = [
                 'description' => 'Edit comment',
                 'type'        => 'write',
                 'ajax'        => true
+        ],
+        // Update current active tab.
+        'mod_studentquiz_update_active_tab' => [
+            'classname'   => 'mod_studentquiz\local\external\update_active_tab_api',
+            'methodname'  => 'update_active_tab',
+            'description' => 'Update current active tab to user preferences',
+            'type'        => 'write',
+            'ajax'        => true
         ]
 ];
 $services = [

@@ -189,7 +189,8 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
                 ],
                 'questionid' => $questionid,
                 'cmid' => $this->cm->id,
-                'replyto' => $replyto
+                'replyto' => $replyto,
+                'type' => utils::COMMENT_TYPE_PUBLIC
         ];
         $id = $this->commentarea->create_comment((object) $data);
         return $this->get_comment_by_id($id, $convert);
@@ -514,6 +515,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $comment = $this->create_comment($this->rootid, $q1->id, $text, false);
         $formdata = new \stdClass();
         $formdata->message['text'] = 'Edited comment';
+        $formdata->type = utils::COMMENT_TYPE_PUBLIC;
         // Try to update.
         $comment->update_comment($formdata);
         // Get new data.

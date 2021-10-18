@@ -22,6 +22,7 @@
     Example context (json):
     {
         "id": "question_comment_area_29",
+        "notallowcommenttext": "Comment is not allow",
         "postform": "",
         "comments": [
             {
@@ -67,7 +68,7 @@
     {{/postform}}
     {{^postform}}
         <div class="studentquiz-not-display-comment">
-            {{#str}} notshowratingcomment, mod_studentquiz {{/str}}
+            {{notallowcommenttext}}
         </div>
     {{/postform}}
     <div class="studentquiz-comment-filter {{^comments}}hide-comment-filter{{/comments}}">

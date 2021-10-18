@@ -26,6 +26,7 @@ namespace mod_studentquiz\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core_form\util;
 use \core_privacy\local\request\approved_contextlist;
 use \core_privacy\local\request\approved_userlist;
 use \core_privacy\local\request\contextlist;
@@ -82,6 +83,7 @@ class provider implements
                 'created' => 'privacy:metadata:studentquiz_comment:created',
                 'parentid' => 'privacy:metadata:studentquiz_comment:parentid',
                 'status' => 'privacy:metadata:studentquiz_comment:status',
+                'type' => 'privacy:metadata:studentquiz_comment:type',
                 'timemodified' => 'privacy:metadata:studentquiz_comment:timemodified',
                 'usermodified' => 'privacy:metadata:studentquiz_comment:usermodified'
 
@@ -119,6 +121,8 @@ class provider implements
         ], 'privacy:metadata:studentquiz_attempt');
 
         $collection->add_user_preference(container::USER_PREFERENCE_SORT, 'privacy:metadata:' . container::USER_PREFERENCE_SORT);
+        $collection->add_user_preference(utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB,
+            'privacy:metadata:' . utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB);
 
         return $collection;
     }
@@ -213,7 +217,7 @@ class provider implements
                        rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
                        comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
                        comment.userid AS commentuserid, comment.created AS commentcreate,
-                       comment.parentid AS commentparentid, comment.status AS commentstatus,
+                       comment.parentid AS commentparentid, comment.status AS commentstatus, comment.type AS commenttype,
                        comment.timemodified AS commenttimemodified, comment.usermodified AS commentusermodified,
                        progress.questionid AS progressquestionid, progress.userid AS progressuserid,
                        progress.studentquizid AS progressstudentquizid, progress.lastanswercorrect AS progresslastanswercorrect,
@@ -330,6 +334,7 @@ class provider implements
                         'created' => transform::datetime($record->commentcreate),
                         'parentid' => $record->commentparentid,
                         'status' => $record->commentstatus,
+                        'type' => $record->commenttype,
                         'timemodified' => !is_null($record->commenttimemodified) ?
                                 transform::datetime($record->commenttimemodified) : null,
                         'usermodified' => $record->commentusermodified
@@ -814,7 +819,11 @@ class provider implements
         $preferences = [
                 container::USER_PREFERENCE_SORT => ['string' => get_string('privacy:metadata:' . container::USER_PREFERENCE_SORT,
                         'mod_studentquiz'),
-                        'bool' => false]
+                        'bool' => false],
+                utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB => [
+                    'string' => get_string('privacy:metadata:' . utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB, 'mod_studentquiz'),
+                    'bool' => false
+                ]
         ];
         foreach ($preferences as $key => $preference) {
             $value = get_user_preferences($key, null, $userid);
