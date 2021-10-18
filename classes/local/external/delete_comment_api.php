@@ -55,6 +55,7 @@ class delete_comment_api extends external_api {
                 'questionid' => new external_value(PARAM_INT, 'Question ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'commentid' => new external_value(PARAM_INT, 'Comment ID'),
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
         ]);
     }
 
@@ -78,20 +79,22 @@ class delete_comment_api extends external_api {
      * @param int $questionid - Question ID.
      * @param int $cmid - CM ID.
      * @param int $commentid - Comment ID which will be edited.
+     * @param int $type - Comment type.
      * @return \stdClass
      */
-    public static function delete_comment($questionid, $cmid, $commentid) {
+    public static function delete_comment($questionid, $cmid, $commentid, $type) {
 
         // Validate web service's parameters.
         $params = self::validate_parameters(self::delete_comment_parameters(), array(
                 'questionid' => $questionid,
                 'cmid' => $cmid,
-                'commentid' => $commentid
+                'commentid' => $commentid,
+                'type' => $type
         ));
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context);
+        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
 
         $comment = $commentarea->query_comment_by_id($params['commentid']);
 

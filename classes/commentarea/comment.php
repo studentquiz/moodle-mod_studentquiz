@@ -414,6 +414,7 @@ class comment {
         $object->rownumber = isset($comment->rownumber) ? $comment->rownumber : $comment->id;
         $object->root = $this->is_root_comment();
         $object->status = $this->data->status;
+        $object->type = $comment->type;
         // Check is this comment is deleted and user permission to view deleted comment.
         $object->deleteuser = new \stdClass();
         if ($this->is_deleted() && !$canviewdeleted) {
@@ -476,7 +477,8 @@ class comment {
         }
         $object->allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode(
             $this->get_container()->get_question(),
-            $this->get_container()->get_cmid()
+            $this->get_container()->get_cmid(),
+            $comment->type
         );
         return $object;
     }
@@ -581,6 +583,7 @@ class comment {
         $data->timemodified = time();
         $data->usermodified = $this->get_user_id();
         $data->status = utils::COMMENT_HISTORY_EDIT;
+        $data->type = $datacomment->type;
         return $DB->update_record('studentquiz_comment', $data);
     }
 

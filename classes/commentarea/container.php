@@ -110,6 +110,10 @@ class container {
     /** @var bool - Can view deleted. */
     public $canviewdeleted = false;
 
+    /** @var int Comment type. */
+    private $type;
+
+
     /** @var int - Comment/reply deletion period default - 10 minutes. */
     const DELETION_PERIOD_DEFAULT = 10;
 
@@ -190,8 +194,11 @@ class container {
      * @param mixed $context - Context instance.
      * @param stdClass $user - User instance.
      * @param string $sort - Sort type.
+     * @param int $type Comment type.
+
      */
-    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null, $sort = '') {
+    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null,
+            $sort = '', $type = utils::COMMENT_TYPE_PUBLIC) {
         global $USER, $COURSE;
         $this->studentquiz = $studentquiz;
         $this->question = $question;
@@ -203,6 +210,7 @@ class container {
         $this->course = clone $COURSE;
         $this->ismoderator = has_capability('mod/studentquiz:previewothers', $context);
         $this->canviewdeleted = $this->ismoderator;
+        $this->type = $type;
 
         // If not force commenting, always true.
         $this->refresh_has_comment();
@@ -356,7 +364,7 @@ class container {
                   {$groupjoingsql->joins}";
 
         $sql .= "
-                 WHERE questionid = :questionid AND status <> :status";
+                 WHERE questionid = :questionid AND status <> :status AND sc.type = :type";
 
         if ($groupjoingsql->wheres) {
             $sql .= "
@@ -365,7 +373,8 @@ class container {
 
         $params = [
             'questionid' => $this->get_question()->id,
-            'status' => utils::COMMENT_HISTORY_DELETE
+            'status' => utils::COMMENT_HISTORY_DELETE,
+            'type' => $this->type
         ];
 
         $params += $groupjoingsql->params;
@@ -384,6 +393,7 @@ class container {
         global $DB;
 
         $params['questionid'] = $this->get_question()->id;
+        $params['type'] = $this->type;
 
         // Set limit.
         if (is_numeric($numbertoshow) && $numbertoshow > 0) {
@@ -505,6 +515,7 @@ class container {
         $comment->usermodified = $this->get_user()->id;
         $comment->status = utils::COMMENT_HISTORY_CREATE;
         $comment->created = time();
+        $comment->type = $data->type;
         $id = $DB->insert_record('studentquiz_comment', $comment);
         // Write log.
         $this->log(self::COMMENT_CREATED, $comment);
@@ -629,15 +640,17 @@ class container {
      *
      * @param int $questionid
      * @param int $userid
+     * @param int $type Comment type.
      * @return bool
      */
-    public static function has_comment(int $questionid, $userid) {
+    public static function has_comment(int $questionid, $userid, $type = utils::COMMENT_TYPE_PUBLIC) {
         global $DB;
         return $DB->record_exists_select('studentquiz_comment',
-                'questionid = :questionid AND userid = :userid AND status <> :status', [
+                'questionid = :questionid AND userid = :userid AND status <> :status and type = :type', [
                         'questionid' => $questionid,
                         'userid' => $userid,
-                        'status' => utils::COMMENT_HISTORY_DELETE
+                        'status' => utils::COMMENT_HISTORY_DELETE,
+                        'type' => $type
                 ]);
     }
 
@@ -651,7 +664,7 @@ class container {
         if (!$this->get_studentquiz()->forcecommenting) {
             $this->checkhascomment = true;
         } else {
-            $this->checkhascomment = self::has_comment($this->get_question()->id, $this->get_user()->id);
+            $this->checkhascomment = self::has_comment($this->get_question()->id, $this->get_user()->id, $this->type);
         }
         return $this;
     }

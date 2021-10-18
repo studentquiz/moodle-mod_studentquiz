@@ -217,6 +217,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
         $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
+        $data->type = $data->type ?? utils::COMMENT_TYPE_PUBLIC;
 
         // If is a reply (parentid != 0).
         if (!empty($data->parentid)) {

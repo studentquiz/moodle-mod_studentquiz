@@ -153,7 +153,7 @@ if ($question) {
 
     echo html_writer::end_tag('form');
 
-    echo $output->render_comment($cmid, $question->id, $USER->id, $highlight);
+    echo $output->render_comment_nav_tabs($cmid, $question, $USER->id, $highlight);
 } else {
     echo $OUTPUT->notification(get_string('deletedquestiontext', 'qtype_missingtype'));
 }

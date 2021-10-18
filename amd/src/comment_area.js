@@ -137,6 +137,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     sortable: [],
                     workingState: false,
                     isNoComment: false,
+                    type: 0,
 
                     /**
                      * Init function.
@@ -172,6 +173,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.referer = el.data('referer');
                         self.sortFeature = params.sortfeature;
                         self.sortable = el.data('sortable');
+                        self.type = params.type;
 
                         // Get all language strings.
                         self.string = el.data('strings');
@@ -194,7 +196,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     initServerRender: function() {
                         var self = this;
                         self.changeWorkingState(true);
-                        $(t.SELECTOR.COMMENT_ITEM).each(function() {
+                        self.elementSelector.find(t.SELECTOR.COMMENT_ITEM).each(function() {
                             var id = $(this).data('id');
                             var attrs = $(this).find(t.SELECTOR.SPAN_COMMENT_ID + id);
                             var replies = [];
@@ -207,7 +209,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 numberofreply: attrs.data('numberofreply'),
                                 expanded: self.expand,
                                 replies: replies,
-                                root: true
+                                root: true,
+                                type: self.type
                             };
                             self.bindCommentEvent(comment);
                         });
@@ -346,7 +349,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Hide no comment.
                             $(t.SELECTOR.NO_COMMENT).hide();
                             var rootId = t.ROOT_COMMENT_VALUE;
-                            var unique = self.questionId + '_' + rootId;
+                            var unique = self.questionId + '_' + self.type + '_' + rootId;
                             var formSelector = self.formSelector;
                             var formData = self.convertFormToJson(formSelector);
                             // Check message field.
@@ -376,7 +379,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     // Clear atto editor data.
                                     if (!formSelector.find('#id_editor_question_' + unique + 'editable').is(':visible')) {
                                         // HTML mode. Switch back to normal mode.
-                                        $(t.SELECTOR.ATTO_HTML_BUTTON).trigger('click');
+                                        self.elementSelector.find(t.SELECTOR.ATTO_HTML_BUTTON).trigger('click');
                                     }
                                     formSelector.find('#id_editor_question_' + unique + 'editable').empty();
                                     formSelector.find(t.SELECTOR.TEXTAREA).trigger('change');
@@ -396,7 +399,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         });
 
                         // Bind events filter sort.
-                        $(t.SELECTOR.COMMENT_FILTER_ITEM).on('click', function(e) {
+                        self.elementSelector.find(t.SELECTOR.COMMENT_FILTER_ITEM).on('click', function(e) {
                             e.preventDefault();
                             // Check if current state is working, return.
                             if (self.workingState) {
@@ -443,7 +446,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Note: new text is the opposite of current sort type (old type).
 
                             // Reset all filter elements to its default.
-                            $(t.SELECTOR.COMMENT_FILTER_ITEM).not(this).each(function() {
+                            self.elementSelector.find(t.SELECTOR.COMMENT_FILTER_ITEM).not(this).each(function() {
                                 var each = $(this);
                                 var eachName = $(this).find(t.SELECTOR.COMMENT_FILTER_NAME);
                                 var eachType = $(this).find(t.SELECTOR.COMMENT_FILTER_TYPE);
@@ -488,7 +491,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var self = this;
                         var params = self.getParamsBeforeCallApi({
                             numbertoshow: numberToShow,
-                            sort: self.sortFeature
+                            sort: self.sortFeature,
+                            type: self.type
                         });
                         var promise = ajax.call([{
                             methodname: t.ACTION_GET_ALL,
@@ -507,6 +511,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var self = this;
                         params.questionid = self.questionId;
                         params.cmid = self.cmId;
+                        params.type = self.type;
                         return params;
                     },
 
@@ -586,16 +591,16 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             total: total
                         });
 
-                        var noCommentSelector = $(t.SELECTOR.NO_COMMENT);
-                        var filter = $(t.SELECTOR.COMMENT_FILTER);
-                        var emptyReplies = self.checkEmptyElement($(t.SELECTOR.CONTAINER_REPLIES));
+                        var noCommentSelector = self.elementSelector.find(t.SELECTOR.NO_COMMENT);
+                        var filter = self.elementSelector.find(t.SELECTOR.COMMENT_FILTER);
+                        var emptyReplies = self.checkEmptyElement(self.elementSelector.find(t.SELECTOR.CONTAINER_REPLIES));
                         // Note: Admin will see deleted comments. Make sure replies container is empty.
                         if (self.lastCurrentCount === 0 && emptyReplies && self.isNoComment) {
-                            $(t.SELECTOR.CONTAINER_REPLIES).hide();
+                            self.elementSelector.find(t.SELECTOR.CONTAINER_REPLIES).hide();
                             filter.hide();
                             noCommentSelector.show();
                         } else {
-                            $(t.SELECTOR.CONTAINER_REPLIES).show();
+                            self.elementSelector.find(t.SELECTOR.CONTAINER_REPLIES).show();
                             noCommentSelector.hide();
                             filter.show();
                         }
@@ -802,7 +807,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     expandComment: function(id) {
                         var self = this;
                         var params = self.getParamsBeforeCallApi({
-                            commentid: id
+                            commentid: id,
+                            type: self.type
                         });
                         var promise = ajax.call([{
                             methodname: t.ACTION_EXPAND,
@@ -1006,7 +1012,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             target.append(el);
                             if (!self.lastCurrentCount) {
                                 // This is the first reply.
-                                $(t.SELECTOR.COMMENT_FILTER).removeClass(t.SELECTOR.COMMENT_FILTER_HIDE);
+                                self.elementSelector.find(t.SELECTOR.COMMENT_FILTER).removeClass(t.SELECTOR.COMMENT_FILTER_HIDE);
                                 self.updateCommentCount(1, 1);
                                 self.btnExpandAll.prop('disabled', true);
                                 self.btnExpandAll.hide();
@@ -1037,7 +1043,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var params = self.getParamsBeforeCallApi({
                             replyto: item.id,
                             cancelbutton: true,
-                            forcecommenting: self.forceCommenting
+                            forcecommenting: self.forceCommenting,
+                            type: self.type
                         });
                         // Clear error message on the main form to prevent Atto editor from focusing to old message.
                         var attoWrap = self.formSelector.find(t.SELECTOR.ATTO_EDITOR_WRAP);
@@ -1053,7 +1060,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form reply.
-                            var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' + item.id + 'editable';
+                            var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' +
+                                self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentFormEvent(fragmentForm, item);
                             M.util.js_complete(t.ACTION_LOAD_FRAGMENT_FORM);
@@ -1222,7 +1230,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                             self.deleteTarget.expanded);
 
                                         // Delete success, begin to call template and render the page again.
-                                        var commentSelector = $(t.SELECTOR.COMMENT_ID + convertedCommentData.id);
+                                        var commentSelector = self.elementSelector.find(t.SELECTOR.COMMENT_ID +
+                                            convertedCommentData.id);
 
                                         var deletedComments = 1;
 
@@ -1278,7 +1287,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
 
                                 // Focus back to delete button when user hide modal.
                                 modal.getRoot().on(ModalEvents.hidden, function() {
-                                    var el = $(t.SELECTOR.COMMENT_ID + self.deleteTarget.id);
+                                    var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + self.deleteTarget.id);
                                     // Focus on different element base on comment or reply.
                                     if (self.deleteTarget.root) {
                                         el.find(t.SELECTOR.BTN_DELETE).first().focus();
@@ -1374,7 +1383,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     setHasComment: function(value) {
                         var self = this;
-                        var container = $(t.SELECTOR.CONTAINER);
+                        var container = self.elementSelector;
                         var hasCommentClass = t.HAS_COMMENT_CLASS;
                         if (!self.forceCommenting) {
                             self.hasComment = true;
@@ -1537,7 +1546,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form.
-                            var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' + item.id + 'editable';
+                            var textFragmentFormId = '#id_editor_question_' + self.questionId +
+                                '_' + self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentEditFormEvent(fragmentForm, item);
                             M.util.js_complete(t.ACTION_LOAD_FRAGMENT_EDIT_FORM);
@@ -1591,7 +1601,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         };
                         self.editComment(params).then(function(response) {
                             // Hide error if exists.
-                            $(t.SELECTOR.COMMENT_ERROR).addClass('hide');
+                            self.elementSelector.find(t.SELECTOR.COMMENT_ERROR).addClass('hide');
                             var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
                             self.lastFocusElement = el.find(t.SELECTOR.BTN_EDIT);
                             if (self.lastFocusElement.length === 0) {
@@ -1604,7 +1614,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 var el = $(html);
                                 var commentTextSelector = t.SELECTOR.COMMENT_ID + response.id + ' ' +
                                     t.SELECTOR.COMMENT_TEXT_CONTAINER;
-                                $(commentTextSelector).first().html(el.find(t.SELECTOR.COMMENT_TEXT_CONTAINER).html());
+                                self.elementSelector.find(commentTextSelector).first().html(el.find(
+                                    t.SELECTOR.COMMENT_TEXT_CONTAINER).html());
                             });
                             container.empty();
                             self.changeWorkingState(false);
