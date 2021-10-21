@@ -74,7 +74,7 @@ $string['difficulty_level_column_name'] = 'Difficulty';
 $string['difficulty_title'] = 'Difficulty bar';
 $string['delete'] = 'Delete';
 $string['deletecomment'] = 'Delete comment';
-$string['deletedbyuser'] = 'This post was deleted by {$a->user} on {$a->date}.';
+$string['deletedbyuser'] = 'This post was deleted by <a href="{$a->profileurl}" >{$a->fullname}</a> on {$a->date}.';
 $string['deletedbyauthor'] = 'This post was deleted on {$a}.';
 $string['deletedcomment'] = 'Deleted post.';
 $string['describe_already_deleted'] = 'This comment is already deleted.';
@@ -85,6 +85,7 @@ $string['editcomment'] = 'Edit comment';
 $string['emailautomationnote'] = 'Please note that this is an automated system message – this email address is not monitored.';
 $string['editedcomment_last_edit'] = 'Last edited: ';
 $string['editedcommenthistory'] = 'Edited by the {$a->lastesteditedcommentauthorname} on {$a->lastededitedcommenttime}';
+$string['editedcommenthistorywithuserlink'] = 'Edited by the <a href="{$a->lastesteditedcommentauthorprofileurl}">{$a->lastesteditedcommentauthorname}</a> on {$a->lastededitedcommenttime}';
 $string['editedcommenthistorylinktext'] = 'History';
 $string['emailcommentaddedbody'] = 'Dear {$a->recepientname},
 

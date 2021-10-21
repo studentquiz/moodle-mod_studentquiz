@@ -571,6 +571,7 @@ class container {
             $users = $DB->get_records_sql($query, $params);
             foreach ($users as $user) {
                 $user->fullname = fullname($user);
+                $user->profileurl = utils::get_user_profile_url($user->id, $this->get_course()->id);
                 $this->userlist[$user->id] = $user;
             }
         }
@@ -583,6 +584,7 @@ class container {
      */
     public function add_user_to_user_list($userid) {
         $user = \core_user::get_user($userid);
+        $user->profileurl = utils::get_user_profile_url($user->id, $this->get_course()->id);
         $user->fullname = fullname($user);
         $this->userlist[$user->id] = $user;
     }
@@ -906,6 +908,7 @@ class container {
     public function extract_comment_history_to_render($commenthistories): array {
         $outputresults = [];
         $userinfocacheset = [];
+        $profileurl = [];
         foreach ($commenthistories as $commenthistory) {
             $instance = new stdClass();
             $instance->id = $commenthistory->id;
@@ -916,12 +919,15 @@ class container {
                 if ($this->can_view_username() || $this->get_user()->id == $commenthistory->userid) {
                     $user = \core_user::get_user($commenthistory->userid);
                     $instance->authorname = fullname($user, true);
+                    $instance->authorprofileurl = utils::get_user_profile_url($user->id, $this->get_course()->id);
                 } else {
                     $instance->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $instance->rownumber);
                 }
                 $userinfocacheset[$commenthistory->userid] = $instance->authorname;
+                $profileurl[$commenthistory->userid] = $instance->authorprofileurl;
             } else {
                 $instance->authorname = $userinfocacheset[$commenthistory->userid];
+                $instance->authorprofileurl = $profileurl[$commenthistory->userid];
             }
 
             $outputresults[] = $instance;

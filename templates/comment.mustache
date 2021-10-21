@@ -32,8 +32,8 @@
         "canviewdeleted": true,
         "canreply": true,
         "deleleuser": {
-            "firstname": "",
-            "lastname": ""
+            "fullname": "",
+            "profileurl": ""
         },
         "deleted": false,
         "deletedtime": 0,
@@ -41,6 +41,7 @@
         "rownumber": 1,
         "root": true,
         "authorname": "Teacher",
+        "authorprofileurl": "",
         "posttime": "6 December 2019, 4:06 PM",
         "canedit": true,
         "replies": [
@@ -56,8 +57,8 @@
                 "canviewdeleted": true,
                 "canreply": true,
                 "deleleuser": {
-                    "firstname": "",
-                    "lastname": ""
+                    "fullname": "",
+                    "profileurl": ""
                 },
                 "deleted": false,
                 "deletedtime": 0,
@@ -65,6 +66,7 @@
                 "rownumber": 2,
                 "root": false,
                 "authorname": "Teacher",
+                "authorprofileurl": "",
                 "posttime": "6 December 2019, 4:08 PM",
                 "canedit": true,
                 "allowselfcommentrating": true
@@ -81,7 +83,12 @@
                 <div class="studentquiz-comment-author">
                     <span class="studentquiz-comment-postdate">{{posttime}}</span>
                     <span> | </span>
-                    {{authorname}}
+                    {{#authorprofileurl}}
+                        <a href={{authorprofileurl}}>{{authorname}}</a>
+                    {{/authorprofileurl}}
+                    {{^authorprofileurl}}
+                        {{authorname}}
+                    {{/authorprofileurl}}
                     {{#root}}
                         {{#expanded}}
                             <a class="studentquiz-comment-collapselink" href="#" title="{{#str}} collapsecomment, mod_studentquiz {{/str}}">
@@ -103,7 +110,8 @@
                         <strong>{{#str}} deletedcomment, mod_studentquiz{{/str}}</strong>
                         {{#str}}
                             deletedbyuser, mod_studentquiz, {
-                            "user": {{# quote }} {{deleteuser.firstname}} {{deleteuser.lastname}} {{/ quote }},
+                            "fullname": {{# quote }} {{deleteuser.fullname}} {{deleteuser.profilelink}} {{/ quote }},
+                            "profileurl": {{# quote }} {{deleteuser.profileurl}} {{/ quote }},
                             "date": {{# quote }}{{ deletedtime }}{{/ quote }}
                             }
                         {{/str}}
@@ -169,7 +177,12 @@
             <div class="studentquiz-comment-author">
                 <span class="studentquiz-comment-postdate">{{posttime}}</span>
                 <span> | </span>
-                {{authorname}}
+                {{#authorprofileurl}}
+                    <a href={{authorprofileurl}}>{{authorname}}</a>
+                {{/authorprofileurl}}
+                {{^authorprofileurl}}
+                    {{authorname}}
+                {{/authorprofileurl}}
                 {{#root}}
                     {{#expanded}}
                         <a class="studentquiz-comment-collapselink" href="#" title="{{#str}} collapsecomment, mod_studentquiz {{/str}}">
@@ -198,7 +211,7 @@
                 {{#canedit}}
                     {{#isedithistory}}
                         <div class="studentquiz-comment-history">
-                            {{commenthistorymetadata}}
+                            {{{commenthistorymetadata}}}
                             (<a href="#"
                                 onclick="window.open('{{{ commenthistorylink }}}', '{{#str}} commenthistory, mod_studentquiz {{/str}}', 'scrollbars=1,resizable=1,width=800,height=600'); return false;"
                                 target="_blank">{{#str}} editedcommenthistorylinktext, mod_studentquiz {{/str}}</a>)
