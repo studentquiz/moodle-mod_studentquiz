@@ -421,23 +421,27 @@ class comment {
             // If this comment is deleted and user don't have permission to view then we hide following information.
             $object->title = '';
             $object->authorname = '';
+            $object->authorprofileurl = '';
             $object->posttime = '';
-            $object->deleteuser->firstname = '';
-            $object->deleteuser->lastname = '';
+            $object->deleteuser->fullname = '';
+            $object->deleteuser->profileurl = '';
         } else {
             if ($container->can_view_username() || $this->is_creator()) {
-                $object->authorname = $this->get_user()->fullname;
+                $user = $this->get_user();
+                $object->authorname = $user->fullname;
+                $object->authorprofileurl = $user->profileurl->out();
             } else {
                 $object->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $object->rownumber);
+                $object->authorprofileurl = '';
             }
             $object->posttime = userdate($this->get_created(), $this->strings['timeformat']);
             if ($this->is_deleted()) {
                 $deleteuser = $this->get_delete_user();
-                $object->deleteuser->firstname = $deleteuser->firstname;
-                $object->deleteuser->lastname = $deleteuser->lastname;
+                $object->deleteuser->fullname = $deleteuser->fullname;
+                $object->deleteuser->profileurl = $deleteuser->profileurl->out();
             } else {
-                $object->deleteuser->firstname = '';
-                $object->deleteuser->lastname = '';
+                $object->deleteuser->fullname = '';
+                $object->deleteuser->profileurl = '';
             }
         }
         $object->deleted = $this->is_deleted();
@@ -455,13 +459,22 @@ class comment {
             if ($this->data->userid == $comment->usermodified) {
                 $editedcommenthistoryuser = get_string('comment_author', 'mod_studentquiz');
             } else if ($container->can_view_username()) {
-                $editedcommenthistoryuser = fullname(\core_user::get_user($comment->usermodified));
+                $user = \core_user::get_user($comment->usermodified);
+                $editedcommenthistoryuser = fullname($user);
+                $editedcommenthistoryuserurl = utils::get_user_profile_url($user->id,
+                    $this->get_container()->get_course()->id)->out();
             } else {
                 $editedcommenthistoryuser = get_string('anonymous_user_name', 'mod_studentquiz', $object->rownumber);
             }
 
             if ($object->deleted) {
                 $object->commenthistorymetadata = userdate($this->get_latest_edited_time(), $this->strings['timeformat']);
+            } else if (!empty($editedcommenthistoryuserurl)) {
+                $object->commenthistorymetadata = get_string('editedcommenthistorywithuserlink', 'mod_studentquiz', [
+                    'lastesteditedcommentauthorname' => $editedcommenthistoryuser,
+                    'lastededitedcommenttime' => userdate($this->get_latest_edited_time(), $this->strings['timeformat']),
+                    'lastesteditedcommentauthorprofileurl' => $editedcommenthistoryuserurl
+                ]);
             } else {
                 $object->commenthistorymetadata = get_string('editedcommenthistory', 'mod_studentquiz', [
                         'lastesteditedcommentauthorname' => $editedcommenthistoryuser,

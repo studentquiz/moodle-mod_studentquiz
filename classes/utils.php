@@ -31,6 +31,7 @@ use core_courseformat\output\local\state\cm;
 use external_value;
 use external_single_structure;
 use mod_studentquiz\commentarea\comment;
+use moodle_url;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.
@@ -84,12 +85,13 @@ style5 = html';
                 'shortcontent' => new external_value(PARAM_RAW, 'Comment short content'),
                 'numberofreply' => new external_value(PARAM_INT, 'Number of reply for this comment'),
                 'authorname' => new external_value(PARAM_TEXT, 'Author of this comment'),
+                'authorprofileurl' => new external_value(PARAM_TEXT, 'Profile url author of this comment'),
                 'posttime' => new external_value(PARAM_RAW, 'Comment create time'),
                 'deleted' => new external_value(PARAM_BOOL, 'Comment is deleted or not'),
                 'deletedtime' => new external_value(PARAM_RAW, 'Comment edited time, if not deleted return 0'),
                 'deleteuser' => new external_single_structure([
-                        'firstname' => new external_value(PARAM_TEXT, 'Delete user first name'),
-                        'lastname' => new external_value(PARAM_TEXT, 'Delete user last name'),
+                        'fullname' => new external_value(PARAM_TEXT, 'Delete user first name'),
+                        'profileurl' => new external_value(PARAM_TEXT, 'Delete user last name'),
                 ]),
                 'candelete' => new external_value(PARAM_BOOL, 'Can delete this comment or not.'),
                 'canreply' => new external_value(PARAM_BOOL, 'Can reply this comment or not.'),
@@ -555,5 +557,19 @@ style5 = html';
         global $DB;
 
         return $DB->get_field('studentquiz_question', 'state', ['questionid' => $question->id]);
+    }
+
+    /**
+     * Get the url to view an user's profile.
+     *
+     * @param int $userid The userid
+     * @param int $courseid The courseid
+     * @return moodle_url
+     */
+    public static function get_user_profile_url(int $userid, int $courseid): moodle_url {
+        return new moodle_url('/user/view.php', [
+            'id' => $userid,
+            'course' => $courseid
+        ]);
     }
 }

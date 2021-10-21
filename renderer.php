@@ -172,11 +172,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         foreach ($ranking as $row) {
             if ($currentuserid == $row->userid || !$anonymise) {
                 $author = user_get_users_by_id(array($row->userid))[$row->userid];
-                $name = fullname($author);
+                $name = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             } else {
                 $name = $anonymname;
             }
-            $rows[] = \html_writer::div($rank . '. ' . $name .
+            $rankname = \html_writer::div($rank . '. ' . $name);
+            $rows[] = \html_writer::div($rankname .
                 html_writer::span(html_writer::tag('b' , round($row->points)),
                     '', array('style' => 'float: right;')));
             $rank++;
@@ -391,7 +392,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         } else {
             $author = core_user::get_user($question->createdby);
             if ($author) {
-                $output .= html_writer::tag('span', fullname($author));
+                $userprofilelink = html_writer::link(utils::get_user_profile_url($author->id,
+                    $this->page->course->id), fullname($author));
+                $output .= html_writer::tag('span', $userprofilelink);
             } else {
                 // Cannot find the user. Leave it blank.
                 $output .= html_writer::tag('span', '');
@@ -1961,7 +1964,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 }
             }
             $author = user_get_users_by_id(array($ur->userid))[$ur->userid];
-            $username = fullname($author);
+            $username = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             if ($report->is_anonymized() && $ur->userid != $userid) {
                 $username = get_string('creator_anonym_fullname', 'studentquiz');
             }

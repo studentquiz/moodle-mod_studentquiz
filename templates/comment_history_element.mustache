@@ -32,7 +32,12 @@
         <div class="studentquiz-comment-author">
             <span class="studentquiz-comment-postdate">{{ posttime }}</span>
             <span> | </span>
-            {{ authorname }}
+            {{#authorprofileurl}}
+                <a href={{authorprofileurl}}>{{authorname}}</a>
+            {{/authorprofileurl}}
+            {{^authorprofileurl}}
+                {{authorname}}
+            {{/authorprofileurl}}
         </div>
         <div class="studentquiz-comment-text">
             {{{ content }}}
