@@ -119,28 +119,22 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->content = html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
-                .html_writer::span('<b class="stat last-attempt-correct">' .$userstats->last_attempt_correct .'</b>', '',
-                    array('style' => 'float: right;color:#5cb85c;')))
+                .html_writer::span($userstats->last_attempt_correct, '', ['class' => "stat badge last-attempt-correct"]))
             . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_incorrect', 'studentquiz')
-                .html_writer::span('<b class="stat last-attempt-incorrect">' .$userstats->last_attempt_incorrect .'</b>', '',
-                    array('style' => 'float: right;color:#d9534f;')))
+                .html_writer::span($userstats->last_attempt_incorrect, '', ['class' => 'stat badge last-attempt-incorrect']))
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span(
-                    '<b class="stat never-answered">' . ($unansweredquestions) .'</b>',
-                    '', array('style' => 'float: right;color:#f0ad4e;')))
+                .html_writer::span($unansweredquestions, '', ['class' => 'stat badge never-answered']))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->questions_approved .'</b>', '',
-                    array('style' => 'float: right;color:#28A745;')))
+                . html_writer::span($userstats->questions_approved, '', ['class' => 'stat badge approvals']))
             . html_writer::div(get_string('statistic_block_disapprovals', 'studentquiz')
-                        . html_writer::span('<b>' . $userstats->questions_disapproved . '</b>', '',
-                                ['style' => 'float: right;color:#d9534f;']))
+                . html_writer::span($userstats->questions_disapproved, '', ['class' => 'stat badge disapprovals']))
                 . html_writer::div(get_string('statistic_block_new_changed', 'studentquiz')
-                        . html_writer::span('<b>' . ($userstats->questions_created - $userstats->questions_approved -
-                                        $userstats->questions_disapproved) . '</b>', '',
-                                ['style' => 'float: right;color:#f0ad4e;']));
+                . html_writer::span(
+                    ($userstats->questions_created - $userstats->questions_approved - $userstats->questions_disapproved),
+                    '', ['class' => 'stat badge changed']));
 
         // Add More link to Stat block.
         $reporturl = new moodle_url('/mod/studentquiz/reportstat.php', ['id' => $cmid]);

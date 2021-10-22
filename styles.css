@@ -792,3 +792,26 @@
     vertical-align: middle;
     margin: 0 9px 0 0;
 }
+
+.path-mod-studentquiz span.stat {
+    float: right;
+    font-size: 100%;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+.path-mod-studentquiz span.stat.approvals,
+.path-mod-studentquiz span.stat.last-attempt-correct {
+    color: #000;
+    background-color: #28a745;
+}
+.path-mod-studentquiz span.stat.disapprovals,
+.path-mod-studentquiz span.stat.last-attempt-incorrect {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.path-mod-studentquiz span.stat.changed,
+.path-mod-studentquiz span.stat.never-answered {
+    color: #212529;
+    background-color: #ffc107;
+}
