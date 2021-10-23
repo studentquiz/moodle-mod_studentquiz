@@ -71,11 +71,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             'maxlength', 255, 'client');
 
         // Adding the standard "intro" and "introformat" fields.
-        if ($CFG->branch >= 29) {
-            $this->standard_intro_elements();
-        } else {
-            $this->add_intro_editor();
-        }
+        $this->standard_intro_elements();
 
         // Field question publishing.
         $publishingoptions = [
@@ -295,6 +291,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         }
         if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
             $errors['reportingemail'] = get_string('invalidemail', 'studentquiz');
+        }
+        if ($data['groupmode'] == VISIBLEGROUPS) {
+            $errors['groupmode'] = get_string('visiblegroupnotyetsupport', 'studentquiz');
         }
         return $errors;
     }

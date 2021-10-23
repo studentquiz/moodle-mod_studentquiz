@@ -94,6 +94,14 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
                     'firstname' => 'Bob',
                     'lastname' => 'Alex'
             ],
+            [
+                    'firstname' => 'Ely',
+                    'lastname' => 'Potter'
+            ],
+            [
+                    'firstname' => 'Flashy',
+                    'lastname' => 'Granger'
+            ],
     ];
 
     /**
@@ -181,7 +189,8 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
                 ],
                 'questionid' => $questionid,
                 'cmid' => $this->cm->id,
-                'replyto' => $replyto
+                'replyto' => $replyto,
+                'type' => utils::COMMENT_TYPE_PUBLIC
         ];
         $id = $this->commentarea->create_comment((object) $data);
         return $this->get_comment_by_id($id, $convert);
@@ -334,56 +343,62 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         // Test sort by date asc.
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_DATE_ASC);
-        $comments = $commentarea->fetch_all();
+        $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
         $this->assertEquals($this->users[2]->id, $comments[2]->get_comment_data()->userid);
         $this->assertEquals($this->users[3]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[4]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by desc.
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_DATE_DESC);
-        $comments = $commentarea->fetch_all();
-        $this->assertEquals($this->users[0]->id, $comments[3]->get_comment_data()->userid);
-        $this->assertEquals($this->users[1]->id, $comments[2]->get_comment_data()->userid);
-        $this->assertEquals($this->users[2]->id, $comments[1]->get_comment_data()->userid);
-        $this->assertEquals($this->users[3]->id, $comments[0]->get_comment_data()->userid);
+        $comments = $commentarea->fetch_all(5);
+        $this->assertEquals($this->users[5]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[4]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by first name asc.
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_FIRSTNAME_ASC);
-        $comments = $commentarea->fetch_all();
+        $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[3]->id, $comments[1]->get_comment_data()->userid);
         $this->assertEquals($this->users[1]->id, $comments[2]->get_comment_data()->userid);
         $this->assertEquals($this->users[2]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[4]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by first name desc.
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_FIRSTNAME_DESC);
-        $comments = $commentarea->fetch_all();
-        $this->assertEquals($this->users[2]->id, $comments[0]->get_comment_data()->userid);
-        $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
-        $this->assertEquals($this->users[3]->id, $comments[2]->get_comment_data()->userid);
-        $this->assertEquals($this->users[0]->id, $comments[3]->get_comment_data()->userid);
+        $comments = $commentarea->fetch_all(5);
+        $this->assertEquals($this->users[5]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[4]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[3]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by last name asc.
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_LASTNAME_ASC);
-        $comments = $commentarea->fetch_all();
+        $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[3]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
         $this->assertEquals($this->users[2]->id, $comments[2]->get_comment_data()->userid);
         $this->assertEquals($this->users[0]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[5]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by last name desc.
         $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_LASTNAME_DESC);
-        $comments = $commentarea->fetch_all();
-        $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
-        $this->assertEquals($this->users[2]->id, $comments[1]->get_comment_data()->userid);
-        $this->assertEquals($this->users[1]->id, $comments[2]->get_comment_data()->userid);
-        $this->assertEquals($this->users[3]->id, $comments[3]->get_comment_data()->userid);
+        $comments = $commentarea->fetch_all(5);
+        $this->assertEquals($this->users[4]->id, $comments[0]->get_comment_data()->userid);
+        $this->assertEquals($this->users[5]->id, $comments[1]->get_comment_data()->userid);
+        $this->assertEquals($this->users[0]->id, $comments[2]->get_comment_data()->userid);
+        $this->assertEquals($this->users[2]->id, $comments[3]->get_comment_data()->userid);
+        $this->assertEquals($this->users[1]->id, $comments[4]->get_comment_data()->userid);
     }
 
     /**
@@ -500,6 +515,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $comment = $this->create_comment($this->rootid, $q1->id, $text, false);
         $formdata = new \stdClass();
         $formdata->message['text'] = 'Edited comment';
+        $formdata->type = utils::COMMENT_TYPE_PUBLIC;
         // Try to update.
         $comment->update_comment($formdata);
         // Get new data.

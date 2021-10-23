@@ -244,15 +244,15 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $contextids = provider::get_contexts_for_userid($this->users[0]->id)->get_contextids();
 
         $this->assertCount(2, $contextids);
-        $this->assertContains($this->contexts[0]->id, $contextids);
-        $this->assertContains($this->contexts[1]->id, $contextids);
+        $this->assertContains((string)$this->contexts[0]->id, $contextids);
+        $this->assertContains((string)$this->contexts[1]->id, $contextids);
 
         // Get context for second user.
         $this->create_comment($this->questions[0]->id, $this->users[1]->id);
         $contextids = provider::get_contexts_for_userid($this->users[1]->id)->get_contextids();
         $this->assertCount(2, $contextids);
-        $this->assertContains($this->contexts[0]->id, $contextids);
-        $this->assertContains($this->contexts[1]->id, $contextids);
+        $this->assertContains((string)$this->contexts[0]->id, $contextids);
+        $this->assertContains((string)$this->contexts[1]->id, $contextids);
     }
 
     /**
@@ -272,12 +272,16 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $questions = $data->questions;
         $this->assertCount(2, $questions);
         $this->assertEquals((object) [
-                'name' => $this->questions[0]->name,
-                'approved' => transform::yesno($this->approvals[0]->state)
+            'name' => $this->questions[0]->name,
+            'approved' => transform::yesno($this->approvals[0]->state),
+            'groupid' => $this->approvals[0]->groupid,
+            'pinned' => transform::yesno($this->approvals[0]->pinned)
         ], $questions[$this->questions[0]->id]);
         $this->assertEquals((object) [
-                'name' => $this->questions[1]->name,
-                'approved' => transform::yesno($this->approvals[1]->state)
+            'name' => $this->questions[1]->name,
+            'approved' => transform::yesno($this->approvals[1]->state),
+            'groupid' => $this->approvals[1]->groupid,
+            'pinned' => transform::yesno($this->approvals[1]->pinned)
         ], $questions[$this->questions[1]->id]);
 
         $progresses = $data->progresses;
@@ -321,8 +325,10 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $questions = $data->questions;
         $this->assertCount(1, $questions);
         $this->assertEquals((object) [
-                'name' => $this->questions[2]->name,
-                'approved' => transform::yesno($this->approvals[2]->state)
+            'name' => $this->questions[2]->name,
+            'approved' => transform::yesno($this->approvals[2]->state),
+            'groupid' => $this->approvals[2]->groupid,
+            'pinned' => transform::yesno($this->approvals[2]->pinned),
         ], $questions[$this->questions[2]->id]);
 
         $rates = $data->rates;
@@ -343,6 +349,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[3]->created),
                 'parentid' => $this->comments[3]->parentid,
                 'status' => !is_null($this->comments[3]->status) ? $this->comments[3]->status : 0,
+                'type' => !is_null($this->comments[3]->type) ? $this->comments[3]->type : 0,
                 'timemodified' => $this->comments[3]->timemodified > 0 ? transform::datetime($this->comments[3]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[3]->usermodified) ? transform::user($this->comments[3]->usermodified) :
                         null
@@ -408,6 +415,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[0]->created),
                 'parentid' => $this->comments[0]->parentid,
                 'status' => !is_null($this->comments[0]->status) ? $this->comments[0]->status : 0,
+                'type' => !is_null($this->comments[0]->type) ? $this->comments[0]->type : 0,
                 'timemodified' => $this->comments[0]->timemodified > 0 ? transform::datetime($this->comments[0]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[0]->usermodified) ? transform::user($this->comments[0]->usermodified) :
                         null
@@ -419,6 +427,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[1]->created),
                 'parentid' => $this->comments[1]->parentid,
                 'status' => !is_null($this->comments[1]->status) ? $this->comments[1]->status : 0,
+                'type' => !is_null($this->comments[1]->type) ? $this->comments[1]->type : 0,
                 'timemodified' => $this->comments[1]->timemodified > 0 ? transform::datetime($this->comments[1]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[1]->usermodified) ? transform::user($this->comments[1]->usermodified) :
                         null
@@ -445,8 +454,10 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $questions = $data->questions;
         $this->assertCount(1, $questions);
         $this->assertEquals((object) [
-                'name' => $this->questions[3]->name,
-                'approved' => transform::yesno($this->approvals[3]->state)
+            'name' => $this->questions[3]->name,
+            'approved' => transform::yesno($this->approvals[3]->state),
+            'groupid' => $this->approvals[3]->groupid,
+            'pinned' => transform::yesno($this->approvals[3]->pinned),
         ], $questions[$this->questions[3]->id]);
 
         $rates = $data->rates;
@@ -467,6 +478,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[2]->created),
                 'parentid' => $this->comments[2]->parentid,
                 'status' => !is_null($this->comments[2]->status) ? $this->comments[2]->status : 0,
+                'type' => !is_null($this->comments[2]->type) ? $this->comments[2]->type : 0,
                 'timemodified' => $this->comments[2]->timemodified > 0 ? transform::datetime($this->comments[2]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[2]->usermodified) ? transform::user($this->comments[2]->usermodified) :
                         null
@@ -481,6 +493,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[4]->created),
                 'parentid' => $this->comments[3]->id,
                 'status' => !is_null($this->comments[4]->status) ? $this->comments[4]->status : 0,
+                'type' => !is_null($this->comments[4]->type) ? $this->comments[4]->type : 0,
                 'timemodified' => $this->comments[4]->timemodified > 0 ? transform::datetime($this->comments[4]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[4]->usermodified) ? transform::user($this->comments[4]->usermodified) :
                         null
@@ -494,6 +507,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'created' => transform::datetime($this->comments[5]->created),
                 'parentid' => $this->comments[3]->id,
                 'status' => !is_null($this->comments[5]->status) ? $this->comments[5]->status : 0,
+                'type' => !is_null($this->comments[5]->type) ? $this->comments[5]->type : 0,
                 'timemodified' => $this->comments[5]->timemodified > 0 ? transform::datetime($this->comments[5]->timemodified) : 0,
                 'usermodified' => !is_null($this->comments[5]->usermodified) ? transform::user($this->comments[5]->usermodified) :
                         null
@@ -876,9 +890,11 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         global $DB;
 
         $data = (object) [
-                'id' => 0,
-                'questionid' => $questionid,
-                'state' => rand(0, 1)
+            'id' => 0,
+            'questionid' => $questionid,
+            'state' => rand(0, 1),
+            'pinned' => rand(0, 1),
+            'groupid' => 0
         ];
 
         $data->id = $DB->insert_record('studentquiz_question', $data);

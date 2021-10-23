@@ -34,13 +34,13 @@ $highlight = optional_param('highlight', 0, PARAM_INT);
 // Load course and course module requested.
 if ($cmid) {
     if (!$cm = get_coursemodule_from_id('studentquiz', $cmid)) {
-        print_error('invalidcoursemodule');
+        throw new moodle_exception("invalidcoursemodule");
     }
     if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-        print_error('coursemisconf');
+        throw new moodle_exception("coursemisconf");
     }
 } else {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception("invalidcoursemodule");
 }
 
 // Authentication check.

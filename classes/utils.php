@@ -26,9 +26,12 @@ namespace mod_studentquiz;
 
 defined('MOODLE_INTERNAL') || die();
 
+use core\dml\sql_join;
+use core_courseformat\output\local\state\cm;
 use external_value;
 use external_single_structure;
 use mod_studentquiz\commentarea\comment;
+use moodle_url;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.
@@ -59,6 +62,15 @@ style3 = superscript, subscript
 style4 = unorderedlist, orderedlist
 style5 = html';
 
+    /** @var string - Comment type public. */
+    const COMMENT_TYPE_PUBLIC = 0;
+
+    /** @var string - Comment type private. */
+    const COMMENT_TYPE_PRIVATE = 1;
+
+    /** @var string - User preference question active tab. */
+    const USER_PREFERENCE_QUESTION_ACTIVE_TAB = 'mod_studentquiz_question_active_tab';
+
     /**
      * Get Comment Area web service comment reply structure.
      *
@@ -73,12 +85,13 @@ style5 = html';
                 'shortcontent' => new external_value(PARAM_RAW, 'Comment short content'),
                 'numberofreply' => new external_value(PARAM_INT, 'Number of reply for this comment'),
                 'authorname' => new external_value(PARAM_TEXT, 'Author of this comment'),
+                'authorprofileurl' => new external_value(PARAM_TEXT, 'Profile url author of this comment'),
                 'posttime' => new external_value(PARAM_RAW, 'Comment create time'),
                 'deleted' => new external_value(PARAM_BOOL, 'Comment is deleted or not'),
                 'deletedtime' => new external_value(PARAM_RAW, 'Comment edited time, if not deleted return 0'),
                 'deleteuser' => new external_single_structure([
-                        'firstname' => new external_value(PARAM_TEXT, 'Delete user first name'),
-                        'lastname' => new external_value(PARAM_TEXT, 'Delete user last name'),
+                        'fullname' => new external_value(PARAM_TEXT, 'Delete user first name'),
+                        'profileurl' => new external_value(PARAM_TEXT, 'Delete user last name'),
                 ]),
                 'candelete' => new external_value(PARAM_BOOL, 'Can delete this comment or not.'),
                 'canreply' => new external_value(PARAM_BOOL, 'Can reply this comment or not.'),
@@ -243,7 +256,7 @@ style5 = html';
             ];
             // Send email.
             if (!email_to_user($fakeuser, $from, $subject, null, $mailcontent)) {
-                print_error('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
+                throw new moodle_exception('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
             }
         }
     }
@@ -322,22 +335,241 @@ style5 = html';
     }
 
     /**
-     * Check permision can self comment and rating.
+     * Check permision can self comment.
      *
-     * @param question_definition $question Current Question stdClass
+     * @param \question_definition $question Current Question stdClass
      * @param int $cmid Current Cmid
+     * @param int $type Comment type.
      * @return boolean
      */
-    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid) {
+    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid,
+             $type = self::COMMENT_TYPE_PUBLIC) {
         global $USER, $PAGE;
+
         $context = \context_module::instance($cmid);
-        if (
-            $PAGE->pagetype == 'mod-studentquiz-preview'
-            && $USER->id == $question->createdby
-            && !has_capability('mod/studentquiz:canselfratecomment', $context)
-        ) {
+        if ($PAGE->pagetype == 'mod-studentquiz-preview' && !has_capability('mod/studentquiz:canselfratecomment', $context)) {
+            if ($type == self::COMMENT_TYPE_PUBLIC || !get_config('studentquiz', 'showprivatecomment') ||
+                    $USER->id != $question->createdby ||
+                    self::get_question_state($question) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /** @var string - Less than operator */
+    const OP_LT = "<";
+    /** @var string - equal operator */
+    const OP_E = "=";
+    /** @var string - greater than operator */
+    const OP_GT = ">";
+
+    /**
+     * Conveniently compare the current moodle version to a provided version in branch format. This function will
+     * inflate version numbers to a three digit number before comparing them. This way moodle minor versions greater
+     * than 9 can be correctly and easily compared.
+     *
+     * Examples:
+     *   utils::moodle_version_is("<", "39");
+     *   utils::moodle_version_is("<=", "310");
+     *   utils::moodle_version_is(">", "39");
+     *   utils::moodle_version_is(">=", "38");
+     *   utils::moodle_version_is("=", "41");
+     *
+     * CFG reference:
+     * $CFG->branch = "311", "310", "39", "38", ...
+     * $CFG->release = "3.11+ (Build: 20210604)", ...
+     * $CFG->version = "2021051700.04", ...
+     *
+     * @param string $operator for the comparison
+     * @param string $version to compare to
+     * @return boolean
+     * @throws coding_exception
+     */
+    public static function moodle_version_is(string $operator, string $version): bool {
+        global $CFG;
+
+        if (strlen($version) == 2) {
+            $version = $version[0]."0".$version[1];
+        }
+
+        $current = $CFG->branch;
+        if (strlen($current) == 2) {
+            $current = $current[0]."0".$current[1];
+        }
+
+        $from = intval($current);
+        $to = intval($version);
+        $ops = str_split($operator);
+
+        foreach ($ops as $op) {
+            switch ($op) {
+                case self::OP_LT:
+                    if ($from < $to) {
+                        return true;
+                    }
+                    break;
+                case self::OP_E:
+                    if ($from == $to) {
+                        return true;
+                    }
+                    break;
+                case self::OP_GT:
+                    if ($from > $to) {
+                        return true;
+                    }
+                    break;
+                default:
+                    throw new \coding_exception('invalid operator '.$op);
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * We hide 'All participants' option in group mode. It doesn't make sense to display question of all groups together,
+     * and it makes confusing in reports. If the group = 0, NULL or an invalid group,
+     * we force to chose first available group by default.
+     *
+     * @param stdClass $cm Course module class.
+     */
+    public static function set_default_group($cm) {
+        global $USER;
+
+        $allowedgroups = groups_get_activity_allowed_groups($cm, $USER->id);
+        if ($allowedgroups && !groups_get_activity_group($cm, true, $allowedgroups)) {
+            // Although the UI show that the first group is selected, the param 'group' is not set,
+            // so the groups_get_activity_group() will return wrong value. We have to set it in $_GET to prevent the
+            // problem when user go to the student quiz in the first time.
+            $_GET['group'] = reset($allowedgroups)->id;
+        }
+    }
+
+    /**
+     * Get group joins for creating sql, using field groupid in studentquiz_question table.
+     * If $groupid = 0, return empty sql_join to reduce the complication of the sql.
+     *
+     * @param int $groupid Group id.
+     * @param string $groupidcolumn Group id column for the where clause.
+     * @return sql_join The joins clause will be empty in this case, we just return the wheres and params.
+     */
+    public static function groups_get_questions_joins($groupid = 0, $groupidcolumn = 'sqq.groupid') {
+        static $i = 0;
+        $i++;
+        $alias = 'gid' . $i;
+
+        $joins = '';
+        $wheres = '';
+        $params = [];
+        if ($groupid) {
+            $wheres = "{$groupidcolumn} = :{$alias}";
+            $params[$alias] = $groupid;
+        }
+
+        return new sql_join($joins, $wheres, $params);
+    }
+
+    /**
+     * Get sql join to return users in a group.
+     * To fix the issue in MOODLE_38_STABLE: the groups_get_members_join still return the join clause when we
+     * turn off the group mode.
+     *
+     * @param int $groupid The group id.
+     * @param string $useridcolumn The column of the user id from the calling SQL, e.g. u.id
+     * @param context $context Course context or a context within a course. Mandatory when $groupids includes USERSWITHOUTGROUP
+     * @return sql_join Contains joins, wheres, params
+     * @throws coding_exception if empty or invalid context submitted when $groupid = USERSWITHOUTGROUP
+     */
+    public static function sq_groups_get_members_join($groupid, $useridcolumn, $context = null) {
+        if (!$groupid) {
+            $joins = '';
+            $wheres = '';
+            $params = [];
+
+            return new sql_join($joins, $wheres, $params);
+        }
+
+        return groups_get_members_join($groupid, $useridcolumn, $context);
+    }
+
+    /**
+     * Mark the active tab in question comment tabs.
+     *
+     * @param array $tabs All tabs.
+     * @return void.
+     */
+    public static function mark_question_comment_current_active_tab(&$tabs): void {
+        $currentactivetab = '';
+        if (get_config('studentquiz', 'showprivatecomment')) {
+            // First view default is private comment tab.
+            $currentactivetab = get_user_preferences(self::USER_PREFERENCE_QUESTION_ACTIVE_TAB, self::COMMENT_TYPE_PRIVATE);
+        }
+
+        $found = false;
+        if ($currentactivetab) {
+            foreach ($tabs as $key => $tab) {
+                if ($tab['id'] == $currentactivetab) {
+                    $tabs[$key]['active'] = true;
+                    $found = true;
+                }
+            }
+        }
+
+        // If we can not found any tab, just active the first tab.
+        if (!$found) {
+            $tabs[0]['active'] = true;
+        }
+    }
+
+    /**
+     * Can the current user view the private comment of this question.
+     *
+     * @param int $cmid Course module id.
+     * @param \question_definition $question Question definition object.
+     * @return bool Question's state.
+     */
+    public static function can_view_private_comment($cmid, $question) {
+        global $USER;
+
+        if (!get_config('studentquiz', 'showprivatecomment')) {
             return false;
         }
+
+        $context = \context_module::instance($cmid);
+        if (!has_capability('mod/studentquiz:canselfratecomment', $context)) {
+            if ($USER->id != $question->createdby) {
+                return false;
+            }
+        }
+
         return true;
+    }
+
+    /**
+     * Get current state of question.
+     *
+     * @param \stdClass $question Question.
+     * @return int Question's state.
+     */
+    public static function get_question_state($question) {
+        global $DB;
+
+        return $DB->get_field('studentquiz_question', 'state', ['questionid' => $question->id]);
+    }
+
+    /**
+     * Get the url to view an user's profile.
+     *
+     * @param int $userid The userid
+     * @param int $courseid The courseid
+     * @return moodle_url
+     */
+    public static function get_user_profile_url(int $userid, int $courseid): moodle_url {
+        return new moodle_url('/user/view.php', [
+            'id' => $userid,
+            'course' => $courseid
+        ]);
     }
 }

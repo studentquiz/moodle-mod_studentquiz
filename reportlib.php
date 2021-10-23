@@ -64,6 +64,11 @@ class mod_studentquiz_report {
     protected $availablequestions;
 
     /**
+     * @var int Group id.
+     */
+    private $groupid;
+
+    /**
      * Get number of available questions
      *
      * @return int
@@ -97,8 +102,8 @@ class mod_studentquiz_report {
      */
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
-            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id());
-            $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id());
+            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->groupid);
+            $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id(), $this->groupid);
             $this->studentquizstats->questions_available = $this->questionstats->questions_available;
             $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;
             $this->studentquizstats->questions_questions_approved = $this->questionstats->questions_approved;
@@ -119,7 +124,7 @@ class mod_studentquiz_report {
      */
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
-            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(),
+            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->groupid,
                 $this->get_quantifiers(), $this->get_user_id());
             return $this->userrankingstats;
         } else {
@@ -182,6 +187,9 @@ class mod_studentquiz_report {
 
         $this->userid = $USER->id;
         $this->availablequestions = mod_studentquiz_count_questions($cmid);
+
+        \mod_studentquiz\utils::set_default_group($this->cm);
+        $this->groupid = groups_get_activity_group($this->cm, true);
 
         // Check to see if any roles setup has been changed since we last synced the capabilities.
         \mod_studentquiz\access\context_override::ensure_permissions_are_right($this->context);
@@ -338,6 +346,28 @@ class mod_studentquiz_report {
     }
 
     /**
+     * Get the group title
+     *
+     * @return string
+     */
+    public function get_group_title() {
+        $grouptitle = '';
+        if ($groupmode = groups_get_activity_groupmode($this->cm)) {
+            if ($this->groupid) {
+                $groupname = groups_get_group_name($this->groupid);
+                if ($groupmode == VISIBLEGROUPS) {
+                    $grouplabel = get_string('groupsvisible');
+                } else {
+                    $grouplabel = get_string('groupsseparate');
+                }
+                $grouptitle = $grouplabel.': '.$groupname;
+            }
+        }
+
+        return $grouptitle;
+    }
+
+    /**
      * Is admin check
      * @return bool
      */
@@ -361,7 +391,7 @@ class mod_studentquiz_report {
      */
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
         $excluderoles = (!empty($this->studentquiz->excluderoles)) ? explode(',', $this->studentquiz->excluderoles) : array();
-        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->get_quantifiers(),
+        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
             $excluderoles, 0, $limitfrom, $limitnum);
     }
 

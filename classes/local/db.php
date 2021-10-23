@@ -42,12 +42,18 @@ class db {
     const DBFAMILY_POSTGRES = 'postgres';
 
     /**
+     * @var string DBFAMILY_MSSQL
+     */
+    const DBFAMILY_MSSQL = 'mssql';
+
+    /**
      * group_concat is a helper function to extend the database abstraction. It returns the function used by the current
      * selected database driver for concatenating a column when the query is grouped.
      *
      * - MySQL: GROUP_CONCAT (https://dev.mysql.com/doc/refman/8.0/en/group-by-functions.html)
      * - MariaDB: GROUP_CONCAT (https://mariadb.com/kb/en/group_concat/)
      * - PostgreSQL: https://www.postgresql.org/docs/9.0/functions-aggregate.html
+     * - SQL Server: https://docs.microsoft.com/en-us/sql/t-sql/functions/string-agg-transact-sql?view=sql-server-2017
      *
      * @param string $field name
      * @return string
@@ -60,6 +66,7 @@ class db {
             case self::DBFAMILY_MYSQL:
                 return "GROUP_CONCAT($field)";
             case self::DBFAMILY_POSTGRES:
+            case self::DBFAMILY_MSSQL:
                 return "STRING_AGG($field, ',')";
             default:
                 throw new \coding_exception("Unsupported database family: $family");

@@ -26,6 +26,7 @@
  */
 
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,24 +34,6 @@ require_once($CFG->libdir . '/questionlib.php');
 require_once($CFG->dirroot . '/course/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
 
-/** @var string default quiz behaviour */
-const STUDENTQUIZ_BEHAVIOUR = 'studentquiz';
-/** @var int legacy course section id for the orphaned activities, only used for import fixes */
-const STUDENTQUIZ_OLD_ORPHANED_SECTION_NUMBER = 999;
-/** @var string generated student quiz placeholder */
-const STUDENTQUIZ_GENERATE_QUIZ_PLACEHOLDER = 'quiz';
-/** @var string generated student quiz intro */
-const STUDENTQUIZ_GENERATE_QUIZ_INTRO = 'Studentquiz';
-/** @var string generated student quiz overduehandling */
-const STUDENTQUIZ_GENERATE_QUIZ_OVERDUEHANDLING = 'autosubmit';
-/** @var string default course section name for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_NAME = 'studentquiz quizzes';
-/** @var string default course section summary for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_SUMMARY = 'all student quizzes';
-/** @var string default course section summaryformat for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_SUMMARYFORMAT = 1;
-/** @var string default course section visible for the orphaned activities */
-const STUDENTQUIZ_COURSE_SECTION_VISIBLE = false;
 /** @var string default StudentQuiz quiz behaviour */
 const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
 
@@ -464,7 +447,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
  * @param stdClass $submitter user object of the sender
  * @param stdClass $data object of replaceable fields for the templates
  *
- * @return int|false as for {@link message_send()}.
+ * @return int|false as for {@see message_send()}.
  */
 function mod_studentquiz_send_notification($event, $recipient, $submitter, $data) {
     global $DB;
@@ -501,14 +484,14 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
 /**
  * Send notification for comment
  *
- * @todo Support this feature in {@link mod_studentquiz_send_notification} for the next release.
+ * @todo Support this feature in {@see mod_studentquiz_send_notification} for the next release.
  *
  * @param string $event message event string
  * @param stdClass $recipient user object of the intended recipient
  * @param stdClass $submitter user object of the sender
  * @param stdClass $data object of replaceable fields for the templates
  *
- * @return int|false as for {@link message_send()}.
+ * @return int|false as for {@see message_send()}.
  */
 function mod_studentquiz_send_comment_notification($event, $recipient, $submitter, $data) {
     // Prepare the message.
@@ -715,37 +698,49 @@ function mod_studentquiz_get_comments_with_creators($questionid) {
 /**
  * Get Paginated ranking data ordered (DESC) by points, questions_created, questions_approved, rates_average
  * @param int $cmid Course module id of the StudentQuiz considered.
+ * @param int $groupid Group id
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
  * @param []int $excluderoles array of role ids to exclude
  * @param int $limitfrom return a subset of records, starting at this point (optional).
  * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
  * @return moodle_recordset of paginated ranking table
  */
-function mod_studentquiz_get_user_ranking_table($cmid, $quantifiers, $excluderoles=array(), $limitfrom = 0, $limitnum = 0) {
+function mod_studentquiz_get_user_ranking_table($cmid, $groupid, $quantifiers, $excluderoles=array(),
+        $limitfrom = 0, $limitnum = 0) {
     global $DB;
+
     $select = mod_studentquiz_helper_attempt_stat_select();
-    $joins = mod_studentquiz_helper_attempt_stat_joins($excluderoles);
+    $attemptstastjoins = mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderoles);
     $statsbycat = ' ) statspercategory GROUP BY userid';
     $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
             .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
-    $res = $DB->get_recordset_sql($select.$joins.$statsbycat.$order,
-        array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-              'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
-        , 'questionquantifier' => $quantifiers->question
-        , 'approvedquantifier' => $quantifiers->approved
-        , 'ratequantifier' => $quantifiers->rate
-        , 'correctanswerquantifier' => $quantifiers->correctanswer
-        , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
-        ), $limitfrom, $limitnum);
+    $params = [
+        'cmid1' => $cmid,
+        'cmid2' => $cmid,
+        'cmid3' => $cmid,
+        'cmid4' => $cmid,
+        'cmid5' => $cmid,
+        'cmid6' => $cmid,
+        'cmid7' => $cmid,
+        'questionquantifier' => $quantifiers->question,
+        'approvedquantifier' => $quantifiers->approved,
+        'ratequantifier' => $quantifiers->rate,
+        'correctanswerquantifier' => $quantifiers->correctanswer,
+        'incorrectanswerquantifier' => $quantifiers->incorrectanswer
+    ];
+    $params += $attemptstastjoins->params;
+    $res = $DB->get_recordset_sql("$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres} $statsbycat $order",
+            $params, $limitfrom, $limitnum);
     return $res;
 }
 
 /**
  * Get aggregated studentquiz data
  * @param int $cmid Course module id of the StudentQuiz considered.
+ * @param int $groupid Group id.
  * @return moodle_recordset of paginated ranking table
  */
-function mod_studentquiz_community_stats($cmid) {
+function mod_studentquiz_community_stats($cmid, $groupid) {
     global $DB;
     $select = 'SELECT '
         .' count(*) participants,'
@@ -767,38 +762,55 @@ function mod_studentquiz_community_stats($cmid) {
         .' COALESCE(sum(lastattempt.last_attempt_exists), 0) last_attempt_exists,'
         .' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct,'
         .' COALESCE(sum(lastattempt.last_attempt_incorrect), 0) last_attempt_incorrect';
-    $joins = mod_studentquiz_helper_attempt_stat_joins();
-    $rs = $DB->get_record_sql($select.$joins,
-        array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-            'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
-        ));
+    $attemptstastjoins = mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid);
+    $params = [
+        'cmid1' => $cmid,
+        'cmid2' => $cmid,
+        'cmid3' => $cmid,
+        'cmid4' => $cmid,
+        'cmid5' => $cmid,
+        'cmid6' => $cmid,
+        'cmid7' => $cmid
+    ];
+    $params += $attemptstastjoins->params;
+    $rs = $DB->get_record_sql("$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres}", $params);
     return $rs;
 }
 
 /**
  * Get aggregated studentquiz data
+ *
  * @param int $cmid Course module id of the StudentQuiz considered.
+ * @param int $groupid Group id.
  * @param stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
- * @param int $userid
+ * @param int $userid User id.
  * @return array of user ranking stats
  * TODO: use mod_studentquiz_report_record type
+ * @throws dml_exception
  */
-function mod_studentquiz_user_stats($cmid, $quantifiers, $userid) {
+function mod_studentquiz_user_stats($cmid, $groupid, $quantifiers, $userid) {
     global $DB;
     $select = mod_studentquiz_helper_attempt_stat_select();
-    $joins = mod_studentquiz_helper_attempt_stat_joins();
+    $attemptstastjoins = mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid);
     $addwhere = ' AND u.id = :userid ';
     $statsbycat = ' ) statspercategory GROUP BY userid';
-    $rs = $DB->get_record_sql($select.$joins.$addwhere.$statsbycat,
-        array('cmid1' => $cmid, 'cmid2' => $cmid, 'cmid3' => $cmid,
-            'cmid4' => $cmid, 'cmid5' => $cmid, 'cmid6' => $cmid, 'cmid7' => $cmid
-        , 'questionquantifier' => $quantifiers->question
-        , 'approvedquantifier' => $quantifiers->approved
-        , 'ratequantifier' => $quantifiers->rate
-        , 'correctanswerquantifier' => $quantifiers->correctanswer
-        , 'incorrectanswerquantifier' => $quantifiers->incorrectanswer
-            , 'userid' => $userid
-        ));
+    $params = [
+        'cmid1' => $cmid,
+        'cmid2' => $cmid,
+        'cmid3' => $cmid,
+        'cmid4' => $cmid,
+        'cmid5' => $cmid,
+        'cmid6' => $cmid,
+        'cmid7' => $cmid,
+        'questionquantifier' => $quantifiers->question,
+        'approvedquantifier' => $quantifiers->approved,
+        'ratequantifier' => $quantifiers->rate,
+        'correctanswerquantifier' => $quantifiers->correctanswer,
+        'incorrectanswerquantifier' => $quantifiers->incorrectanswer,
+        'userid' => $userid
+    ];
+    $params += $attemptstastjoins->params;
+    $rs = $DB->get_record_sql("$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres} $addwhere $statsbycat ", $params);
     return $rs;
 }
 
@@ -870,12 +882,15 @@ function mod_studentquiz_helper_attempt_stat_select() {
 /**
  * Helper query for attempt stat joins
  *
- * @param array $excluderoles
- * @return string
+ * @param int $cmid Course module id.
+ * @param int $groupid Group id.
+ * @param array $excluderoles Roles list to exclude.
+ * @return \core\dml\sql_join Join object.
  * TODO: Refactor: There must be a better way to do this!
+ * @throws coding_exception
  */
-function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
-    $sql = " FROM {studentquiz} sq
+function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderoles = []): \core\dml\sql_join {
+    $join = " FROM {studentquiz} sq
              -- Get this Studentquiz Question category.
              JOIN {context} con ON con.instanceid = sq.coursemodule
                   AND con.contextlevel = ".CONTEXT_MODULE."
@@ -887,12 +902,15 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
              JOIN {role_assignments} ra ON cctx.id = ra.contextid
              JOIN {user} u ON u.id = ra.userid";
     if (!empty($excluderoles)) {
-        $sql .= "
+        $join .= "
             -- Only not excluded roles
             JOIN {role} r ON r.id = ra.roleid
                 AND r.id NOT IN (".implode(',', $excluderoles).")";
     }
-    $sql .= "
+
+    // We just count the questions create by user in current group.
+    $groupjoinquestioncreatebyuser = utils::groups_get_questions_joins($groupid);
+    $join .= "
         -- Question created by user.
         LEFT JOIN (
                     SELECT count(*) AS countq, q.createdby AS creator
@@ -904,9 +922,18 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                      WHERE q.hidden = 0
                            AND sqq.hidden = 0
                            AND q.parent = 0
-                           AND sq.coursemodule = :cmid4
-                  GROUP BY creator
-                  ) creators ON creators.creator = u.id
+                           AND sq.coursemodule = :cmid4";
+    if ($groupjoinquestioncreatebyuser->wheres) {
+        $join .= "
+                            AND $groupjoinquestioncreatebyuser->wheres";
+    }
+    $join .= "
+                  GROUP BY q.createdby
+                  ) creators ON creators.creator = u.id";
+
+    // We just count the approved questions in current group.
+    $groupjoinapprovedquestion = utils::groups_get_questions_joins($groupid);
+    $join .= "
         -- Approved questions.
         LEFT JOIN (
                     SELECT count(*) AS countq, q.createdby AS creator,
@@ -920,9 +947,18 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       WHERE q.hidden = 0
                             AND q.parent = 0
                             AND sqq.hidden = 0
-                            AND sq.coursemodule = :cmid5
-                   GROUP BY creator
-                   ) approvals ON approvals.creator = u.id
+                            AND sq.coursemodule = :cmid5";
+    if ($groupjoinapprovedquestion->wheres) {
+        $join .= "
+                            AND $groupjoinapprovedquestion->wheres";
+    }
+    $join .= "
+                   GROUP BY q.createdby
+                   ) approvals ON approvals.creator = u.id";
+
+    // We just count the ratings of current group's members.
+    $groupjoinratingsql = utils::groups_get_questions_joins($groupid);
+    $join .= "
         -- Average of Average Rating of own questions.
         LEFT JOIN (
                     SELECT createdby, AVG(avg_rate_perq) AS avgv, SUM(num_rate_perq) AS countv,
@@ -940,12 +976,21 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                               WHERE q.hidden = 0
                                     AND q.parent = 0
                                     AND sqq.hidden = 0
-                                    AND sq.coursemodule = :cmid6
+                                    AND sq.coursemodule = :cmid6";
+    if ($groupjoinratingsql->wheres) {
+        $join .= "
+                                    AND $groupjoinratingsql->wheres";
+    }
+
+    $join .= "
                            GROUP BY q.id, q.createdby
                            ) avgratingperquestion
                   GROUP BY createdby
                   ) rates ON rates.createdby = u.id";
-        $sql .= "
+
+    // We just collect the attempts for questions in current group.
+    $groupjoinattemptsql = utils::groups_get_questions_joins($groupid);
+    $join .= "
         LEFT JOIN (
                     SELECT sp.userid, COUNT(*) AS last_attempt_exists, SUM(lastanswercorrect) AS last_attempt_correct,
                            SUM(1 - lastanswercorrect) AS last_attempt_incorrect
@@ -955,7 +1000,15 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       JOIN {studentquiz_question} sqq ON sp.questionid = sqq.questionid
                      WHERE sq.coursemodule = :cmid2
                            AND q.hidden = 0
-                           AND sqq.hidden = 0
+                           AND sqq.hidden = 0";
+    if ($groupjoinattemptsql->wheres) {
+        $join .= "
+                           AND $groupjoinattemptsql->wheres";
+    }
+
+    // We just calculate the stats for questions in current group.
+    $groupjoinstatstsql = utils::groups_get_questions_joins($groupid);
+    $join .= "
                   GROUP BY sp.userid
                   ) lastattempt ON lastattempt.userid = u.id
         LEFT JOIN (
@@ -967,14 +1020,31 @@ function mod_studentquiz_helper_attempt_stat_joins($excluderoles=array()) {
                       JOIN {studentquiz_question} sqq ON sp.questionid = sqq.questionid
                      WHERE sq.coursemodule = :cmid1
                            AND q.hidden = 0
-                           AND sqq.hidden = 0
+                           AND sqq.hidden = 0";
+
+    if ($groupjoinstatstsql->wheres) {
+        $join .= "
+                           AND $groupjoinstatstsql->wheres";
+    }
+
+    $join .= "
                   GROUP BY sp.userid
                   ) attempts ON attempts.userid = u.id";
+
     // Question attempts: sum of number of graded attempts per question.
-    $sql .= "
+    $groupjoingsql = utils::sq_groups_get_members_join($groupid, 'u.id', \context_module::instance($cmid));
+    $join .= ' ' . $groupjoingsql->joins;
+    $where = "
             WHERE sq.coursemodule = :cmid3";
 
-    return $sql;
+    if ($groupjoingsql->wheres) {
+        $where .= "
+                  AND $groupjoingsql->wheres";
+    }
+
+    $params = $groupjoinquestioncreatebyuser->params + $groupjoinapprovedquestion->params +
+        $groupjoinratingsql->params + $groupjoinattemptsql->params + $groupjoinstatstsql->params + $groupjoingsql->params;
+    return new \core\dml\sql_join($join, $where, $params);
 }
 
 /**
@@ -1039,9 +1109,12 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
     // Check if record exist.
     if (!$DB->count_records('studentquiz_question', array('questionid' => $id)) ) {
         $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
+        $cm = get_coursemodule_from_id('studentquiz', $cmid);
+        $groupid = groups_get_activity_group($cm, true);
         $params = [
             'questionid' => $id,
-            'state' => studentquiz_helper::STATE_NEW
+            'state' => studentquiz_helper::STATE_NEW,
+            'groupid' => $groupid
         ];
 
         if ($honorpublish) {
@@ -1066,6 +1139,7 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
  */
 function mod_studentquiz_count_questions($cmid) {
     global $DB;
+
     $sql = "SELECT COUNT(*)
               FROM {studentquiz} sq
               -- Get this StudentQuiz question category.
@@ -1077,17 +1151,20 @@ function mod_studentquiz_count_questions($cmid) {
                    AND q.parent = 0
                    AND sq.coursemodule = :cmid";
     $rs = $DB->count_records_sql($sql, array('cmid' => $cmid));
+
     return $rs;
 }
 
 /**
  * This query collects aggregated information about the questions in this StudentQuiz.
  *
- * @param int $cmid
+ * @param int $cmid Course module id.
+ * @param int $groupid Group id.
  * @throws dml_exception
  */
-function mod_studentquiz_question_stats($cmid) {
+function mod_studentquiz_question_stats($cmid, $groupid) {
     global $DB;
+
     $sql = "SELECT COUNT(*) AS questions_available,
                    AVG(rating.avg_rating) AS average_rating,
                    SUM(CASE WHEN sqq.state = 1 THEN 1 ELSE 0 END) AS questions_approved
@@ -1107,12 +1184,28 @@ function mod_studentquiz_question_stats($cmid) {
                   LEFT JOIN {studentquiz_rate} sqr ON sqr.questionid = q.id
                       WHERE sq.coursemodule = :cmid2
                    GROUP BY q.id
-                   ) rating ON rating.questionid = q.id
-             WHERE q.hidden = 0
-                   AND sqq.hidden = 0
-                   AND q.parent = 0
-                   AND sq.coursemodule = :cmid1";
-    $rs = $DB->get_record_sql($sql, array('cmid1' => $cmid, 'cmid2' => $cmid));
+                   ) rating ON rating.questionid = q.id ";
+    $sqlwheres = [
+        'q.hidden = 0',
+        'sqq.hidden = 0',
+        'q.parent = 0',
+        'sq.coursemodule = :cmid1'
+    ];
+    $params = [
+        'cmid1' => $cmid,
+        'cmid2' => $cmid
+    ];
+
+    if ($groupid) {
+        $groupjoinsql = utils::groups_get_questions_joins($groupid);
+        $sql .= $groupjoinsql->joins;
+        $sqlwheres[] = $groupjoinsql->wheres;
+        $params += $groupjoinsql->params;
+    }
+
+    $sql .= ' WHERE ' . implode(' AND ', $sqlwheres);
+    $rs = $DB->get_record_sql($sql, $params);
+
     return $rs;
 }
 
@@ -1163,7 +1256,7 @@ function mod_studentquiz_save_rate($data) {
 }
 
 /**
- * Compare and create new record for studentquiz_questions table if need. Only for Moodle version smaller than 3.7
+ * Compare and create new record for studentquiz_questions table if needed.
  *
  * @param object $studentquiz StudentQuiz object
  * @param bool $honorpublish Honor the setting publishnewquestions

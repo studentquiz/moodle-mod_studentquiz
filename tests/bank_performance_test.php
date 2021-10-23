@@ -185,6 +185,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
         // $this->create_instance_measured(1);
         // $this->create_instance_measured(10);
         // $this->create_instance_measured(100);
+        // End.
     }
 
     /**

@@ -22,19 +22,16 @@ Feature: Backup and restore of moodle exports
     And I press "Save changes"
     And I restore "<file>" backup into a new course using this options:
     And I log out
-    Then the following "course enrolments" exist:
+    And the following "course enrolments" exist:
       | user     | course   | role    |
       | student1 | <course> | student |
-    And I log in as "student1"
-    And I am on "<course>" course homepage
-    And I follow "<studentquiz>"
-    And I should see "Create new question"
+    And I am on the "<studentquiz>" "mod_studentquiz > View" page logged in as "student1"
+    Then I should see "Create new question"
     And "Start Quiz" "button" should exist
     # TODO: These backups have good data selection, we could test for existence and correctness of these
     # TODO: A scenario with the new studentquiz so other datas could be tested too
 
     Examples:
       | file                                                       | course     | studentquiz   |
-      | backup-moodle2-course-one-moodle_31_sq203.mbz              | Course One | StudentQuiz 1 |
       | backup-moodle2-course-two-moodle_35_sq404_missingstate.mbz | Course Two | StudentQuiz 1 |
       | backup-moodle2-course-two-moodle_35_sq404_correctstate.mbz | Course Two | StudentQuiz 1 |

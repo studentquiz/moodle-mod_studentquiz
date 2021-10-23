@@ -5,8 +5,7 @@ Feature: Restore of studentquizzes in moodle exports contain question answers
   I need to be able to restore the moodles backups from studentquizzes before, during and after aggregated codebase
 
   Legend:
-  - earlybefore: The StudentQuiz codebase when it still was using mod_quiz (<= 2.0.3)
-  - before: The StudentQuiz codebase before aggregated was introduced (<= v3.2.0)
+  - before: The StudentQuiz codebase before aggregated was introduced (<= v3.2.0, >= v3.1.0)
   - during: The StudentQuiz codebase during aggregated was active (>= v3.2.1, <= v3.3.0), which had a setting aggregated:
   - 0: which was the old calculation using the question engine (equals before)
   - 1: which is the new calculation using studentquiz_progress table (equals after)
@@ -26,9 +25,7 @@ Feature: Restore of studentquizzes in moodle exports contain question answers
     And I upload "mod/studentquiz/tests/fixtures/<file>" file to "Files" filemanager
     And I press "Save changes"
     And I restore "<file>" backup into a new course using this options:
-    And I am on "<course>" course homepage
-    And I follow "<studentquiz>"
-    When I navigate to "Ranking" in current page administration
+    And I am on the "<studentquiz>" "mod_studentquiz > Ranking" page
     Then "1" row "Points for latest correct attemps" column of "rankingtable" table should contain "<pos_1_correct_answered_points>"
     And "1" row "Total Points" column of "rankingtable" table should contain "<pos_1_total_points>"
     And "2" row "Points for latest correct attemps" column of "rankingtable" table should contain "<pos_2_correct_answered_points>"

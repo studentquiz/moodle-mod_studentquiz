@@ -27,6 +27,7 @@ namespace mod_studentquiz\commentarea\form;
 defined('MOODLE_INTERNAL') || die();
 
 use mod_studentquiz\commentarea\container;
+use mod_studentquiz\utils;
 
 require_once($CFG->libdir . '/form/editor.php');
 
@@ -84,22 +85,27 @@ class comment_form {
         if (!$this->editmode) {
             $commentid = isset($params['replyto']) && $params['replyto'] ? $params['replyto'] : 0;
             $submitlabel = $commentid == container::PARENTID ? 'add_comment' : 'add_reply';
-            $textarealabel = $submitlabel;
+            if ($params['type'] == utils::COMMENT_TYPE_PRIVATE) {
+                $textarealabelstring = $commentid == container::PARENTID ? get_config('studentquiz', 'privatecomment') :
+                    get_string('add_reply', 'mod_studentquiz');
+            } else {
+                $textarealabelstring = $commentid == container::PARENTID ? get_string('addpubliccomment', 'mod_studentquiz') :
+                    get_string('add_reply', 'mod_studentquiz');
+            }
         } else {
             if (!isset($params['commentid']) || !isset($params['formdata'])) {
                 throw new \moodle_exception('missingparam', 'studentquiz');
             }
             $commentid = $params['commentid'];
             $submitlabel = 'savechanges';
-            $textarealabel = 'editcomment';
+            $textarealabelstring = get_string('editcomment', 'mod_studentquiz');
         }
 
         $context = \context_module::instance($params['cmid']);
 
-        $submitlabelstring = \get_string($submitlabel, 'mod_studentquiz');
-        $textarealabelstring = \get_string($textarealabel, 'mod_studentquiz');
+        $submitlabelstring = get_string($submitlabel, 'mod_studentquiz');
 
-        $unique = $questionid . '_' . $commentid;
+        $unique = $questionid . '_' . $params['type'] . '_' . $commentid;
         $id = 'studentquiz_customeditor_' . $unique;
 
         // Setup editor.
@@ -114,8 +120,8 @@ class comment_form {
             unset($params['formdata']);
         }
 
-        $required = \get_string('required');
-        $placeholder = \get_string('editorplaceholder', 'mod_studentquiz');
+        $required = get_string('required');
+        $placeholder = get_string('editorplaceholder', 'mod_studentquiz');
         $html = \html_writer::start_div('comment-area-form', [
                 'data-textarea-placeholder' => $placeholder
         ]);
@@ -137,7 +143,12 @@ class comment_form {
         if ($this->forcecommenting) {
             $requiredicon = \html_writer::span($OUTPUT->pix_icon('req', $required), 'req');
         }
-        $helpicon = $OUTPUT->help_icon('comment_help', 'mod_studentquiz');
+
+        if ($params['type'] == utils::COMMENT_TYPE_PRIVATE) {
+            $helpicon = $OUTPUT->help_icon('addprivatecomment', 'mod_studentquiz');
+        } else {
+            $helpicon = $OUTPUT->help_icon('comment_help', 'mod_studentquiz');
+        }
 
         // Write label.
         $labelcontent = \html_writer::tag('label', $textarealabelstring, [
@@ -178,7 +189,7 @@ class comment_form {
         $html .= \html_writer::div($submitbtn, 'form-group fitem');
 
         if ($this->cancelbutton) {
-            $cancelbtn = \html_writer::tag('button', \get_string('cancel'), [
+            $cancelbtn = \html_writer::tag('button', get_string('cancel'), [
                     'name' => 'cancel',
                     'id' => 'id_cancel',
                     'class' => 'btn btn-secondary',
@@ -205,7 +216,7 @@ class comment_form {
         $html = \html_writer::start_div('row comment-errors');
         $html .= \html_writer::start_div('col-md-12 form-inline felement');
         $html .= \html_writer::div(
-                \get_string('comment_error', 'studentquiz')
+                get_string('comment_error', 'studentquiz')
                 , 'hide error comment-error');
         $html .= \html_writer::end_div();
         $html .= \html_writer::end_div();

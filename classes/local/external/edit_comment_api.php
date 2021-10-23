@@ -61,6 +61,7 @@ class edit_comment_api extends external_api {
                         'text' => new external_value(PARAM_RAW, 'Message of the post'),
                         'format' => new external_value(PARAM_TEXT, 'Format of the message')
                 ]),
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
         ]);
     }
 
@@ -81,20 +82,22 @@ class edit_comment_api extends external_api {
      * @param int $cmid - ID of CM.
      * @param int $commentid - ID of comment to edit.
      * @param string $message - Comment message.
+     * @param int $type - Comment type.
      * @return \stdClass
      */
-    public static function edit_comment($questionid, $cmid, $commentid, $message) {
+    public static function edit_comment($questionid, $cmid, $commentid, $message, $type) {
         global $PAGE;
         $params = self::validate_parameters(self::edit_comment_parameters(), [
                 'questionid' => $questionid,
                 'cmid' => $cmid,
                 'commentid' => $commentid,
-                'message' => $message
+                'message' => $message,
+                'type' => $type
         ]);
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context);
+        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
 
         $comment = $commentarea->query_comment_by_id($params['commentid']);
         if (!$comment) {
@@ -119,7 +122,8 @@ class edit_comment_api extends external_api {
                         'questionid' => $params['questionid'],
                         'cmid' => $params['cmid'],
                         'commentid' => $params['commentid'],
-                        'editmode' => true
+                        'editmode' => true,
+                        'type' => $params['type']
                 ]
         ], 'post', '', null, true, $formdata);
 

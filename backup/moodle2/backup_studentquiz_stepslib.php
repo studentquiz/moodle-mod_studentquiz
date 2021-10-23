@@ -67,7 +67,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
 
         // StudentQuiz -> Question.
         $questions = new backup_nested_element('questions');
-        $question = new backup_nested_element('question', array('questionid'), array('state', 'hidden'));
+        $question = new backup_nested_element('question', array('questionid'), array('state', 'hidden', 'groupid', 'pinned'));
         $questions->add_child($question);
         $studentquiz->add_child($questions);
 
@@ -87,7 +87,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         // Comment -> Question, User.
         $comments = new backup_nested_element('comments');
         $comment = new backup_nested_element('comment', ['usermodified', 'questionid', 'userid', 'id'], [
-                'comment', 'created', 'parentid', 'status', 'timemodified'
+                'comment', 'created', 'parentid', 'status', 'type', 'timemodified'
         ]);
         $comments->add_child($comment);
         $studentquiz->add_child($comments);
@@ -175,6 +175,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $progress->annotate_ids('question', 'questionid');
         $attempt->annotate_ids('user', 'userid');
         $question->annotate_ids('question', 'questionid');
+        $question->annotate_ids('group', 'groupid');
         $rate->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'userid');
         $comment->annotate_ids('user', 'usermodified');

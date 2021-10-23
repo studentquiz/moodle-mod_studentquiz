@@ -26,10 +26,12 @@
 namespace mod_studentquiz\question\bank;
 
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ .'/../../../locallib.php');
+require_once(__DIR__ . '/studentquiz_column_base.php');
 require_once(__DIR__ . '/question_bank_filter.php');
 require_once(__DIR__ . '/question_text_row.php');
 require_once(__DIR__ . '/rate_column.php');
@@ -41,8 +43,11 @@ require_once(__DIR__ . '/state_column.php');
 require_once(__DIR__ . '/anonym_creator_name_column.php');
 require_once(__DIR__ . '/preview_column.php');
 require_once(__DIR__ . '/question_name_column.php');
-require_once(__DIR__ . '/sq_hidden_column.php');
+require_once(__DIR__ . '/sq_hidden_action_column.php');
 require_once(__DIR__ . '/sq_edit_action_column.php');
+require_once(__DIR__ . '/sq_pin_action_column.php');
+require_once(__DIR__ . '/state_pin_column.php');
+require_once(__DIR__ . '/sq_edit_menu_column.php');
 
 /**
  * Module instance settings form
@@ -94,6 +99,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
     private $studentquiz;
 
     /**
+     * @var \core\dml\sql_join Current group join sql.
+     */
+    private $currentgroupjoinsql;
+
+    /**
      * @var int Currently viewing user id.
      */
     protected $userid;
@@ -133,6 +143,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->report = $report;
         $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
+        $currentgroup = groups_get_activity_group($cm, true);
+        $this->currentgroupjoinsql = utils::groups_get_questions_joins($currentgroup, 'sqs.groupid');
         // Init search conditions with filterform state.
         $categorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
@@ -254,7 +266,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     }
                     redirect($this->baseurl);
                 } else {
-                    print_error('invalidconfirm', 'question');
+                    throw new moodle_exception("invalidconfirm', 'question");
                 }
             }
         }
@@ -265,7 +277,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $category = required_param('category', PARAM_SEQUENCE);
             list($tocategoryid, $contextid) = explode(',', $category);
             if (! $tocategory = $DB->get_record('question_categories', array('id' => $tocategoryid, 'contextid' => $contextid))) {
-                print_error('cannotfindcate', 'question');
+                throw new moodle_exception("cannotfindcate', 'question");
             }
             $tocontext = \context::instance_by_id($contextid);
             require_capability('moodle/question:add', $tocontext);
@@ -312,7 +324,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     }
                     redirect($this->baseurl);
                 } else {
-                    print_error('invalidconfirm', 'question');
+                    throw new moodle_exception("invalidconfirm', 'question");
                 }
             }
         }
@@ -342,6 +354,36 @@ class studentquiz_bank_view extends \core_question\bank\view {
             \question_bank::notify_question_edited($hide);
             // Fix infinite redirect.
             $this->baseurl->remove_params('hide');
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
+            redirect($this->baseurl);
+        }
+
+        // Pin a question.
+        if (($pin = optional_param('pin', '', PARAM_INT)) and confirm_sesskey()) {
+             question_require_capability_on($pin, 'edit');
+            $DB->set_field('studentquiz_question', 'pinned', 1, ['questionid' => $pin]);
+            mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'pin');
+            // Purge these questions from the cache.
+            \question_bank::notify_question_edited($pin);
+            // Fix infinite redirect.
+            $this->baseurl->remove_params('pin');
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
+            redirect($this->baseurl);
+        }
+
+        // Unpin a question.
+        if (($pin = optional_param('unpin', '', PARAM_INT)) and confirm_sesskey()) {
+            question_require_capability_on($pin, 'edit');
+            $DB->set_field('studentquiz_question', 'pinned', 0, ['questionid' => $pin]);
+            mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'unpin');
+            // Purge these questions from the cache.
+            \question_bank::notify_question_edited($pin);
+            // Fix infinite redirect.
+            $this->baseurl->remove_params('unpin');
             foreach ($rawquestionids as $id) {
                 $this->baseurl->remove_params('q' . $id);
             }
@@ -455,6 +497,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * \core_question\bank\search\condition filters.
      */
     protected function build_query() {
+        global $CFG;
+
         // Hard coded setup.
         $params = array();
         $joins = array();
@@ -471,6 +515,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $fields = array_merge($fields, $column->get_required_fields());
         }
         $fields = array_unique($fields);
+        if ($this->currentgroupjoinsql->wheres) {
+            $params += $this->currentgroupjoinsql->params;
+            $tests[] = $this->currentgroupjoinsql->wheres;
+        }
 
         // Build the order by clause.
         $sorts = array();
@@ -482,6 +530,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Default sorting.
         if (empty($sorts)) {
             $sorts[] = 'q.timecreated DESC,q.id ASC';
+        }
+
+        if (isset($CFG->questionbankcolumns)) {
+            array_unshift($sorts, 'sqh.pinned DESC');
         }
 
         // Build the where clause and load params from search conditions.
@@ -545,7 +597,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                     $this->studentquiz->closesubmissionfrom, 'submission');
 
             $questionsubmissionbutton->disabled = !$questionsubmissionallow;
-            $output .= \html_writer::div($OUTPUT->render($questionsubmissionbutton) . $qtypecontainer, 'createnewquestion');
+            $output .= \html_writer::div($OUTPUT->render($questionsubmissionbutton) . $qtypecontainer, 'createnewquestion py-3');
 
             if (!empty($message)) {
                 $output .= $this->renderer->render_availability_message($message, 'mod_studentquiz_submission_info');
@@ -637,8 +689,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     protected function get_row_classes($question, $rowcount) {
         $classes = parent::get_row_classes($question, $rowcount);
-        if (isset($question->sq_hidden) && $question->sq_hidden) {
-            $classes[] = 'dimmed_text';
+        if (($key = array_search('dimmed_text', $classes)) !== false) {
+            unset($classes[$key]);
         }
         return $classes;
     }

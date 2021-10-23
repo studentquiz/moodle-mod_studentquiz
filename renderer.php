@@ -172,11 +172,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         foreach ($ranking as $row) {
             if ($currentuserid == $row->userid || !$anonymise) {
                 $author = user_get_users_by_id(array($row->userid))[$row->userid];
-                $name = fullname($author);
+                $name = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             } else {
                 $name = $anonymname;
             }
-            $rows[] = \html_writer::div($rank . '. ' . $name .
+            $rankname = \html_writer::div($rank . '. ' . $name);
+            $rows[] = \html_writer::div($rankname .
                 html_writer::span(html_writer::tag('b' , round($row->points)),
                     '', array('style' => 'float: right;')));
             $rank++;
@@ -391,7 +392,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         } else {
             $author = core_user::get_user($question->createdby);
             if ($author) {
-                $output .= html_writer::tag('span', fullname($author));
+                $userprofilelink = html_writer::link(utils::get_user_profile_url($author->id,
+                    $this->page->course->id), fullname($author));
+                $output .= html_writer::tag('span', $userprofilelink);
             } else {
                 // Cannot find the user. Leave it blank.
                 $output .= html_writer::tag('span', '');
@@ -439,6 +442,21 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                     'sesskey' => sesskey()
             ]);
             $content = html_writer::link($url, $content, ['title' => $title]);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Render the content of state pin column.
+     *
+     * @param stdClass $question The row from the $question table, augmented with extra information.
+     * @return string The html string.
+     */
+    public function render_state_pin($question): string {
+        $content = '';
+        if ($question->pinned) {
+            $content = $this->output->pix_icon('i/pinned', get_string('state_pinned', 'studentquiz'), 'mod_forum');
         }
 
         return $content;
@@ -817,12 +835,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         global $CFG;
         $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
                 . 'mod_studentquiz\\bank\\state_column,'
+                . 'mod_studentquiz\\bank\\state_pin_column,'
                 . 'mod_studentquiz\\bank\\question_name_column,'
                 . 'mod_studentquiz\\bank\\question_text_row,'
-                . 'mod_studentquiz\\bank\\preview_column,'
                 . 'mod_studentquiz\\bank\\sq_edit_action_column,'
+                . 'mod_studentquiz\\bank\\preview_column,'
                 . 'delete_action_column,'
-                . 'mod_studentquiz\\bank\\sq_hidden_column,'
+                . 'mod_studentquiz\\bank\\sq_hidden_action_column,'
+                . 'mod_studentquiz\\bank\\sq_pin_action_column,'
+                . 'mod_studentquiz\\bank\\sq_edit_menu_column,'
                 . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
                 . 'mod_studentquiz\\bank\\tag_column,'
                 . 'mod_studentquiz\\bank\\attempts_column,'
@@ -908,6 +929,9 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
                 $contents .= $this->box(format_module_intro('studentquiz', $view->get_studentquiz(),
                     $view->get_cm_id()), 'generalbox', 'intro');
             }
+
+            $contents .= groups_print_activity_menu($view->get_coursemodule(), $view->get_pageurl(), true, true);
+
             $contents .= $this->render_select_qtype_form($view);
         }
 
@@ -1150,7 +1174,7 @@ EOT;
         $canmoveall = has_capability('mod/studentquiz:organize', $catcontext);
 
         $output .= html_writer::start_div('modulespecificbuttonscontainer');
-        $output .= html_writer::tag('strong', '&nbsp;' . get_string('withselected', 'question') . ':');
+        $output .= html_writer::tag('strong', get_string('withselected', 'question') . ':');
         $output .= html_writer::empty_tag('br');
 
         $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
@@ -1425,9 +1449,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                              question_display_options $options, $cmid,
                              $userid) {
         global $COURSE;
-        $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
-        $forcerating = boolval($studentquiz->forcerating);
-        return $this->render_state_choice($question->id, $COURSE->id, $cmid). $this->render_rate($question->id, $forcerating);
+        return $this->render_state_choice($question->id, $COURSE->id, $cmid);
     }
 
     /**
@@ -1530,13 +1552,52 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     public function render_comment($cmid, $questionid, $userid, $highlight = 0) {
         $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
         return html_writer::div(
+            html_writer::div(
                 html_writer::div(
-                        html_writer::div(
-                                $renderer->render_comment_area($questionid, $userid, $cmid, $highlight),
-                                'comment_list'),
-                        'comments'
-                ), 'studentquiz_behaviour'
+                    $renderer->render_comment_area($questionid, $userid, $cmid, $highlight),
+                    'comment_list'),
+                'comments'
+            ), 'studentquiz_behaviour'
         );
+    }
+
+    /**
+     * Generate html for Private comments, public comments and state history tabs.
+     *
+     * @param int $cmid Course module id.
+     * @param question_definition $question Question definition object.
+     * @param int $userid User id.
+     * @param int $highlight Highlight comment ID.
+     * @return string HTML fragment.
+     */
+    public function render_comment_nav_tabs($cmid, $question, $userid, $highlight = 0) {
+        $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
+        $tabs = [];
+
+        if (utils::can_view_private_comment($cmid, $question)) {
+            $privatecommentstab = $renderer->render_comment_area($question->id, $userid, $cmid, $highlight,
+                utils::COMMENT_TYPE_PRIVATE);
+            $tabs[] = [
+                'id' => 'private-comments-tab',
+                'name' => get_string('privatecomments', 'mod_studentquiz'),
+                'content' => $privatecommentstab,
+            ];
+
+        }
+
+        $publiccommentstab = $renderer->render_comment_area($question->id, $userid, $cmid, $highlight, utils::COMMENT_TYPE_PUBLIC);
+        $tabs[] = [
+            'id' => 'public-comments-tab',
+            'name' => get_string('publiccomments', 'mod_studentquiz'),
+            'content' => $publiccommentstab
+        ];
+
+        utils::mark_question_comment_current_active_tab($tabs);
+        $context = [
+            'tabs' => $tabs
+        ];
+
+        return $this->render_from_template('mod_studentquiz/question_tabs', $context);
     }
 
     /**
@@ -1633,6 +1694,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
     public function view_stat(mod_studentquiz_report $report) {
         $output = '';
         $output .= $this->heading(get_string('reportquiz_stats_title', 'studentquiz'));
+        $output .= html_writer::div($report->get_group_title(), 'groupselector');
         $userstats = $report->get_user_stats();
         if (!$userstats) {
             $output .= $this->output->notification(get_string('please_enrole_message', 'studentquiz'), 'notify');
@@ -1789,6 +1851,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      */
     public function view_rank($report) {
         return $this->heading(get_string('reportrank_title', 'studentquiz'))
+            . html_writer::div($report->get_group_title(), 'groupselector')
             . $this->view_quantifier_information($report)
             . $this->view_rank_table($report);
     }
@@ -1901,7 +1964,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 }
             }
             $author = user_get_users_by_id(array($ur->userid))[$ur->userid];
-            $username = fullname($author);
+            $username = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             if ($report->is_anonymized() && $ur->userid != $userid) {
                 $username = get_string('creator_anonym_fullname', 'studentquiz');
             }
@@ -1952,17 +2015,17 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
      * @param int $userid - User id.
      * @param int $cmid - Course module id.
      * @param int $highlight - Highlight comment ID.
+     * @param int $commenttype Comment Type.
      * @return string HTML fragment
      */
-    public function render_comment_area($questionid, $userid, $cmid, $highlight = 0) {
-        $id = 'question_comment_area_' . $questionid;
+    public function render_comment_area($questionid, $userid, $cmid, $highlight = 0, $commenttype = utils::COMMENT_TYPE_PUBLIC) {
+        $id = 'question_comment_area_' . $questionid . '_' . $commenttype;
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
-        $commentarea = new container($studentquiz, $question, $cm, $context);
+        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $commenttype);
         $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
-        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($question, $cmid);
-
+        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($question, $cmid, $commenttype);
         if ($highlight != 0) {
             $numbertoshow = 0;
         }
@@ -2038,7 +2101,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'highlight' => $highlight,
                 'expand' => $isexpand,
                 'sortfeature' => $sortfeature,
-                'isnocomment' => empty($res)
+                'isnocomment' => empty($res),
+                'type' => $commenttype
         ];
 
         $count = utils::count_comments_and_replies($res);
@@ -2079,7 +2143,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                     'questionid' => $questionid,
                     'cmid' => $cmid,
                     'cancelbutton' => false,
-                    'forcecommenting' => $forcecommenting
+                    'forcecommenting' => $forcecommenting,
+                    'type' => $commenttype
             ]);
         }
 
@@ -2089,8 +2154,15 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'total' => $total
         ]);
 
+        if ($commenttype == utils::COMMENT_TYPE_PRIVATE) {
+            $notallowcommenttext = get_string('nofurtherprivatecomments', 'mod_studentquiz');
+        } else {
+            $notallowcommenttext = get_string('notshowratingcomment', 'mod_studentquiz');
+        }
+
         return $this->output->render_from_template(self::MODNAME . '/comment_area', [
                 'id' => $id,
+                'notallowcommenttext' => $notallowcommenttext,
                 'postform' => $allowselfcommentrating ? $mform->get_html() : null,
                 'comments' => $res,
                 'commentcountstring' => $commentcountstring,

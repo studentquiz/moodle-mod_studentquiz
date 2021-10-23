@@ -32,13 +32,13 @@ $questionid = required_param('questionid', PARAM_INT);
 // Load course and course module requested.
 if ($cmid) {
     if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        print_error('invalidcoursemodule');
+        throw new moodle_exception("invalidcoursemodule");
     }
     if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        print_error('coursemisconf');
+        throw new moodle_exception("coursemisconf");
     }
 } else {
-    print_error('invalidcoursemodule');
+    throw new moodle_exception("invalidcoursemodule");
 }
 
 // Authentication check.
@@ -153,7 +153,7 @@ if ($question) {
 
     echo html_writer::end_tag('form');
 
-    echo $output->render_comment($cmid, $question->id, $USER->id, $highlight);
+    echo $output->render_comment_nav_tabs($cmid, $question, $USER->id, $highlight);
 } else {
     echo $OUTPUT->notification(get_string('deletedquestiontext', 'qtype_missingtype'));
 }

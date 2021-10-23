@@ -60,6 +60,7 @@ class create_comment_api extends external_api {
                         'text' => new external_value(PARAM_RAW, 'Message of the post'),
                         'format' => new external_value(PARAM_TEXT, 'Format of the message')
                 ]),
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
         ]);
     }
 
@@ -80,20 +81,22 @@ class create_comment_api extends external_api {
      * @param int $cmid - ID of CM
      * @param int $replyto - ID of comment reply to (0 if top level comment).
      * @param string $message - Comment message.
+     * @param int $type - Comment type.
      * @return \stdClass
      */
-    public static function create_comment($questionid, $cmid, $replyto, $message) {
+    public static function create_comment($questionid, $cmid, $replyto, $message, $type) {
         global $PAGE;
         $params = self::validate_parameters(self::create_comment_parameters(), [
                 'questionid' => $questionid,
                 'cmid' => $cmid,
                 'replyto' => $replyto,
-                'message' => $message
+                'message' => $message,
+                'type' => $type
         ]);
 
         list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context);
+        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
 
         if ($params['replyto'] != container::PARENTID) {
             $replytocomment = $commentarea->query_comment_by_id($params['replyto']);
@@ -118,6 +121,7 @@ class create_comment_api extends external_api {
                         'questionid' => $params['questionid'],
                         'cmid' => $params['cmid'],
                         'replyto' => $params['replyto'],
+                        'type' => $params['type']
                 ]
         ], 'post', '', null, true, $formdata);
 

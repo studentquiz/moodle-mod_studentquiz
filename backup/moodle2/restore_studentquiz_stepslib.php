@@ -46,7 +46,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     /**
      * Defines structure of path elements to be processed during the restore
      *
-     * @return array of {@link restore_path_element}
+     * @return array of {@see restore_path_element}
      */
     protected function define_structure() {
 
@@ -217,6 +217,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
         $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
+        $data->type = $data->type ?? utils::COMMENT_TYPE_PUBLIC;
 
         // If is a reply (parentid != 0).
         if (!empty($data->parentid)) {
@@ -269,6 +270,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->groupid = $this->get_mappingid('group', $data->groupid ?? 0);
 
         if (!isset($data->state)) {
             if (isset($data->approved)) {
@@ -281,6 +283,10 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         if (!isset($data->hidden)) {
             $data->hidden = 0;
+        }
+
+        if (!isset($data->pinned)) {
+            $data->pinned = 0;
         }
 
         $DB->insert_record('studentquiz_question', $data);

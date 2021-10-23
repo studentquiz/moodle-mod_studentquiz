@@ -59,6 +59,9 @@ class container {
     /** @var stdClass $context - Context. */
     private $context;
 
+    /** @var int $groupid Group id. */
+    private $groupid;
+
     /** @var array - Array of stored comments. */
     private $storedcomments;
 
@@ -66,7 +69,7 @@ class container {
     private $studentquiz;
 
     /** @var string - Basic order to get comments. */
-    private $basicorder = 'c.created ASC';
+    private $basicorder = 'c.created DESC';
 
     /** @var object|stdClass - Current user of Moodle. Only call it once when __construct */
     private $user;
@@ -106,6 +109,10 @@ class container {
 
     /** @var bool - Can view deleted. */
     public $canviewdeleted = false;
+
+    /** @var int Comment type. */
+    private $type;
+
 
     /** @var int - Comment/reply deletion period default - 10 minutes. */
     const DELETION_PERIOD_DEFAULT = 10;
@@ -187,18 +194,23 @@ class container {
      * @param mixed $context - Context instance.
      * @param stdClass $user - User instance.
      * @param string $sort - Sort type.
+     * @param int $type Comment type.
+
      */
-    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null, $sort = '') {
+    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null,
+            $sort = '', $type = utils::COMMENT_TYPE_PUBLIC) {
         global $USER, $COURSE;
         $this->studentquiz = $studentquiz;
         $this->question = $question;
         $this->cm = $cm;
         $this->context = $context;
+        $this->groupid = groups_get_activity_group($cm, true);
         $this->storedcomments = null;
         $this->user = $user === null ? clone $USER : $user;
         $this->course = clone $COURSE;
         $this->ismoderator = has_capability('mod/studentquiz:previewothers', $context);
         $this->canviewdeleted = $this->ismoderator;
+        $this->type = $type;
 
         // If not force commenting, always true.
         $this->refresh_has_comment();
@@ -343,8 +355,31 @@ class container {
      */
     public function get_num_comments() {
         global $DB;
-        return $DB->count_records_select('studentquiz_comment', 'questionid = :questionid AND status <> :status',
-                ['questionid' => $this->get_question()->id, 'status' => utils::COMMENT_HISTORY_DELETE]);
+
+        // Group joins.
+        $groupjoingsql = utils::sq_groups_get_members_join($this->groupid, 'sc.userid', $this->context);
+
+        $sql = "SELECT COUNT(*)
+                  FROM {studentquiz_comment} sc
+                  {$groupjoingsql->joins}";
+
+        $sql .= "
+                 WHERE questionid = :questionid AND status <> :status AND sc.type = :type";
+
+        if ($groupjoingsql->wheres) {
+            $sql .= "
+                       AND {$groupjoingsql->wheres}";
+        }
+
+        $params = [
+            'questionid' => $this->get_question()->id,
+            'status' => utils::COMMENT_HISTORY_DELETE,
+            'type' => $this->type
+        ];
+
+        $params += $groupjoingsql->params;
+
+        return $DB->count_records_sql($sql, $params);
     }
 
     /**
@@ -358,6 +393,7 @@ class container {
         global $DB;
 
         $params['questionid'] = $this->get_question()->id;
+        $params['type'] = $this->type;
 
         // Set limit.
         if (is_numeric($numbertoshow) && $numbertoshow > 0) {
@@ -366,29 +402,19 @@ class container {
         // Check has limit or get all.
         $haslimit = $this->currentlimit > 0;
 
+        // Group joins.
+        $groupjoingsql = utils::sq_groups_get_members_join($this->groupid, 'c.userid', $this->context);
+
         // Build join.
-        $join = '';
+        $join = $groupjoingsql->joins;
         if ($this->is_user_table_sort()) {
-            $join = 'JOIN {user} u ON u.id = c.userid';
+            $join .= ' JOIN {user} u ON u.id = c.userid';
         }
 
-        $userpreferencesort = $this->get_sort();
-
-        // If have limit, always get latest.
-        if ($haslimit) {
-            $order = 'c.created DESC';
-            if ($this->is_user_table_sort()) {
-                $order = $userpreferencesort . ', ' . $order;
-            }
-        } else {
-            $order = $this->get_sort();
-            if ($this->is_user_table_sort()) {
-                $order = $userpreferencesort . ', ' . $this->basicorder;
-            }
-        }
+        $order = $this->get_sort() . ', ' . $this->basicorder;
 
         // Build a where string a = :a AND b = :b.
-        $where = '';
+        $where = $groupjoingsql->wheres;
         foreach (array_keys($params) as $v) {
             if (!$where) {
                 $where .= "c.$v = :$v";
@@ -396,7 +422,7 @@ class container {
                 $where .= " AND c.$v = :$v";
             }
         }
-
+        $params += $groupjoingsql->params;
         // Build limit.
         $limit = $haslimit ? "LIMIT $this->currentlimit" : '';
 
@@ -411,9 +437,6 @@ class container {
 
         $data = [];
         if (!empty($roots)) {
-            if ($haslimit) {
-                $roots = $this->resort($roots);
-            }
             list($ids, $listids) = $DB->get_in_or_equal(array_column($roots, 'id'));
             $query = "SELECT *
                         FROM {studentquiz_comment}
@@ -492,6 +515,7 @@ class container {
         $comment->usermodified = $this->get_user()->id;
         $comment->status = utils::COMMENT_HISTORY_CREATE;
         $comment->created = time();
+        $comment->type = $data->type;
         $id = $DB->insert_record('studentquiz_comment', $comment);
         // Write log.
         $this->log(self::COMMENT_CREATED, $comment);
@@ -520,7 +544,7 @@ class container {
      * @param array $comments
      */
     public function set_user_list($comments) {
-        global $DB;
+        global $CFG, $DB;
         $userids = [];
         foreach ($comments as $comment) {
             if (!in_array($comment->userid, $userids)) {
@@ -533,13 +557,21 @@ class container {
         // Retrieve users from db.
         if (!empty($userids)) {
             list($idsql, $params) = $DB->get_in_or_equal($userids);
-            $fields = get_all_user_name_fields(true);
+
+            $fields = "";
+            if (utils::moodle_version_is(">=", "311")) {
+                $fields = implode(',', \core_user\fields::get_name_fields());
+            } else {
+                $fields = get_all_user_name_fields(true);
+            }
+
             $query = "SELECT id, $fields
                         FROM {user}
                        WHERE id $idsql";
             $users = $DB->get_records_sql($query, $params);
             foreach ($users as $user) {
                 $user->fullname = fullname($user);
+                $user->profileurl = utils::get_user_profile_url($user->id, $this->get_course()->id);
                 $this->userlist[$user->id] = $user;
             }
         }
@@ -552,6 +584,7 @@ class container {
      */
     public function add_user_to_user_list($userid) {
         $user = \core_user::get_user($userid);
+        $user->profileurl = utils::get_user_profile_url($user->id, $this->get_course()->id);
         $user->fullname = fullname($user);
         $this->userlist[$user->id] = $user;
     }
@@ -609,15 +642,17 @@ class container {
      *
      * @param int $questionid
      * @param int $userid
+     * @param int $type Comment type.
      * @return bool
      */
-    public static function has_comment(int $questionid, $userid) {
+    public static function has_comment(int $questionid, $userid, $type = utils::COMMENT_TYPE_PUBLIC) {
         global $DB;
         return $DB->record_exists_select('studentquiz_comment',
-                'questionid = :questionid AND userid = :userid AND status <> :status', [
+                'questionid = :questionid AND userid = :userid AND status <> :status and type = :type', [
                         'questionid' => $questionid,
                         'userid' => $userid,
-                        'status' => utils::COMMENT_HISTORY_DELETE
+                        'status' => utils::COMMENT_HISTORY_DELETE,
+                        'type' => $type
                 ]);
     }
 
@@ -631,7 +666,7 @@ class container {
         if (!$this->get_studentquiz()->forcecommenting) {
             $this->checkhascomment = true;
         } else {
-            $this->checkhascomment = self::has_comment($this->get_question()->id, $this->get_user()->id);
+            $this->checkhascomment = self::has_comment($this->get_question()->id, $this->get_user()->id, $this->type);
         }
         return $this;
     }
@@ -851,38 +886,6 @@ class container {
     }
 
     /**
-     * Re-sort data when get limit (limit always get latest).
-     *
-     * @param array $data
-     * @return array
-     */
-    private function resort($data) {
-        // If sort by date desc, do not need re-sort.
-        if ($this->sortfeature === self::SORT_DATE_DESC) {
-            return $data;
-        }
-        // If sort by user name, keep name as it is. But sort time created DESC => ASC.
-        if ($this->is_user_table_sort()) {
-            $orders = [];
-            foreach ($data as $k => $v) {
-                $orders[$v->userid][] = $k;
-            }
-            foreach ($orders as $k => $v) {
-                $orders[$k] = array_reverse($v);
-            }
-            $res = [];
-            foreach ($orders as $v) {
-                foreach ($v as $commentid) {
-                    $res["$commentid"] = $data[$commentid];
-                }
-            }
-            return $res;
-        }
-        // Otherwise just reverse data.
-        return array_reverse($data, true);
-    }
-
-    /**
      * Get comment history by given comment id
      *
      * @param int $commentid Comment id for filter data
@@ -905,6 +908,7 @@ class container {
     public function extract_comment_history_to_render($commenthistories): array {
         $outputresults = [];
         $userinfocacheset = [];
+        $profileurl = [];
         foreach ($commenthistories as $commenthistory) {
             $instance = new stdClass();
             $instance->id = $commenthistory->id;
@@ -915,12 +919,15 @@ class container {
                 if ($this->can_view_username() || $this->get_user()->id == $commenthistory->userid) {
                     $user = \core_user::get_user($commenthistory->userid);
                     $instance->authorname = fullname($user, true);
+                    $instance->authorprofileurl = utils::get_user_profile_url($user->id, $this->get_course()->id);
                 } else {
                     $instance->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $instance->rownumber);
                 }
                 $userinfocacheset[$commenthistory->userid] = $instance->authorname;
+                $profileurl[$commenthistory->userid] = $instance->authorprofileurl;
             } else {
                 $instance->authorname = $userinfocacheset[$commenthistory->userid];
+                $instance->authorprofileurl = $profileurl[$commenthistory->userid];
             }
 
             $outputresults[] = $instance;

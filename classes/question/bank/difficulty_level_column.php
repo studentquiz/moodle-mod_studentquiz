@@ -33,7 +33,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class difficulty_level_column extends \core_question\bank\column_base {
+class difficulty_level_column extends studentquiz_column_base {
 
     /**
      * Renderer
