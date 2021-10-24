@@ -104,7 +104,11 @@ class attempts_column extends studentquiz_column_base {
      * @return array additional fields
      */
     public function get_required_fields() {
-        return array('sp.attempts AS myattempts', 'sp.lastanswercorrect AS mylastanswercorrect');
+        return [
+            'sp.attempts AS myattempts',
+            'sp.lastanswercorrect AS mylastanswercorrect',
+            '(CASE WHEN sp.attempts = 0 THEN NULL ELSE sp.lastanswercorrect END) as mylastanswercorrectforsort'
+        ];
     }
 
     /**
@@ -115,7 +119,7 @@ class attempts_column extends studentquiz_column_base {
         return array(
             'myattempts' => array('field' => 'myattempts',
                 'title' => get_string('number_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylastanswercorrect',
+            'mylastattempt' => array('field' => 'mylastanswercorrectforsort',
                 'title' => get_string('latest_column_name', 'studentquiz')),
         );
     }

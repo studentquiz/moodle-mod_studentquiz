@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/studentquiz/db" VERSION="2021102500" COMMENT="mod_studentquiz database layout"
+<XMLDB PATH="mod/studentquiz/db" VERSION="2021102502" COMMENT="mod_studentquiz database layout"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -70,6 +70,8 @@
         <FIELD NAME="lastanswercorrect" TYPE="int" LENGTH="2" NOTNULL="true" SEQUENCE="false" COMMENT="0: last answer was wrong or undefined, 1: last answer was correct"/>
         <FIELD NAME="attempts" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="number of attempts to answer this question"/>
         <FIELD NAME="correctattempts" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Number of correct answers"/>
+        <FIELD NAME="lastreadprivatecomment" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Last time read private comment"/>
+        <FIELD NAME="lastreadpubliccomment" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Last time read public comment"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

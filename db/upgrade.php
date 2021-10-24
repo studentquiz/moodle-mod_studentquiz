@@ -863,7 +863,35 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021102100, 'studentquiz');
     }
 
-    if ($oldversion < 2021102500) {
+    if ($oldversion < 2021102501) {
+
+        // Define field lastreadprivatecomment to be added to studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $field = new xmldb_field('lastreadprivatecomment', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'correctattempts');
+
+        // Conditionally launch add field lastreadprivatecomment.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field lastreadpubliccomment to be added to studentquiz_progress.
+        $field = new xmldb_field('lastreadpubliccomment', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'lastreadprivatecomment');
+
+        // Conditionally launch add field lastreadpubliccomment.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // We assume that all old user which have attempted the question have read all comments.
+        $time = time();
+        $DB->set_field('studentquiz_progress', 'lastreadprivatecomment', $time);
+        $DB->set_field('studentquiz_progress', 'lastreadpubliccomment', $time);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021102501, 'studentquiz');
+    }
+
+    if ($oldversion < 2021102502) {
         // Define table studentquiz_state_history to be created.
         $table = new xmldb_table('studentquiz_state_history');
 
@@ -901,7 +929,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         // Studentquiz savepoint reached.
-        upgrade_mod_savepoint(true, 2021102500, 'studentquiz');
+        upgrade_mod_savepoint(true, 2021102502, 'studentquiz');
     }
 
     return true;

@@ -321,14 +321,18 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'studentquizid' => $this->progresses[0]->studentquizid,
                 'lastanswercorrect' => transform::yesno($this->progresses[0]->lastanswercorrect),
                 'attempts' => $this->progresses[0]->attempts,
-                'correctattempts' => $this->progresses[0]->correctattempts
+                'correctattempts' => $this->progresses[0]->correctattempts,
+                'lastreadprivatecomment' => transform::datetime($this->progresses[0]->lastreadprivatecomment),
+                'lastreadpubliccomment' => transform::datetime($this->progresses[0]->lastreadpubliccomment)
         ], $progresses[$this->progresses[0]->questionid]);
         $this->assertEquals((object) [
                 'userid' => transform::user($this->progresses[1]->userid),
                 'studentquizid' => $this->progresses[1]->studentquizid,
                 'lastanswercorrect' => transform::yesno($this->progresses[1]->lastanswercorrect),
                 'attempts' => $this->progresses[1]->attempts,
-                'correctattempts' => $this->progresses[1]->correctattempts
+                'correctattempts' => $this->progresses[1]->correctattempts,
+                'lastreadprivatecomment' => transform::datetime($this->progresses[1]->lastreadprivatecomment),
+                'lastreadpubliccomment' => transform::datetime($this->progresses[1]->lastreadpubliccomment)
         ], $progresses[$this->progresses[1]->questionid]);
 
         $attempts = $data->attempts;
@@ -402,7 +406,10 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
                 'studentquizid' => $this->progresses[2]->studentquizid,
                 'lastanswercorrect' => transform::yesno($this->progresses[2]->lastanswercorrect),
                 'attempts' => $this->progresses[2]->attempts,
-                'correctattempts' => $this->progresses[2]->correctattempts
+                'correctattempts' => $this->progresses[2]->correctattempts,
+                'lastreadprivatecomment' => transform::datetime($this->progresses[2]->lastreadprivatecomment),
+                'lastreadpubliccomment' => transform::datetime($this->progresses[2]->lastreadpubliccomment)
+
         ], $progresses[$this->progresses[2]->questionid]);
 
         $attempts = $data->attempts;
@@ -1077,12 +1084,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         global $DB;
 
         $data = (object) [
-                'questionid' => $questionid,
-                'userid' => $userid,
-                'studentquizid' => $studentquizid,
-                'lastanswercorrect' => rand(0, 1),
-                'attempts' => rand(1, 1000),
-                'correctattempts' => rand(1, 1000),
+            'questionid' => $questionid,
+            'userid' => $userid,
+            'studentquizid' => $studentquizid,
+            'lastanswercorrect' => rand(0, 1),
+            'attempts' => rand(1, 1000),
+            'correctattempts' => rand(1, 1000),
+            'lastreadprivatecomment' => rand(1, 10000),
+            'lastreadpubliccomment' => rand(1, 10000)
         ];
 
         $DB->insert_record('studentquiz_progress', $data, false);
