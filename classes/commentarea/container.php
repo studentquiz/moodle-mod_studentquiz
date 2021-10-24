@@ -320,6 +320,9 @@ class container {
                 $list[] = $comment;
             }
         }
+
+        $this->update_comment_last_read();
+
         return $list;
     }
 
@@ -934,5 +937,22 @@ class container {
         }
 
         return $outputresults;
+    }
+
+    /**
+     * Update the last time read comment for question.
+     *
+     * @param int|null $time Time to update.
+     * @return void
+     */
+    public function update_comment_last_read($time = null): void {
+        $questionprogress = utils::get_studentquiz_progress($this->question->id, $this->user->id, $this->studentquiz->id);
+        if ($this->type == utils::COMMENT_TYPE_PRIVATE) {
+            $questionprogress->lastreadprivatecomment = $time ?? time();
+        } else if ($this->type == utils::COMMENT_TYPE_PUBLIC) {
+            $questionprogress->lastreadpubliccomment = $time ?? time();
+        }
+
+        utils::update_studentquiz_progress($questionprogress);
     }
 }

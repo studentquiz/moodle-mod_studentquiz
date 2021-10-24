@@ -611,4 +611,23 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->setUser($this->users[0]);
         $this->assertFalse(has_capability('mod/studentquiz:canselfratecomment', $this->context));
     }
+
+    /**
+     * Test update comment last read.
+     */
+    public function test_update_comment_last_read() {
+        $time1 = time();
+        $time2 = $time1 + 1000;
+        $question = $this->questions[0];
+        $user = $this->users[0];
+        $commentarea1 = new \mod_studentquiz\commentarea\container($this->studentquiz, $question, $this->cm,
+            $this->context, $this->users[0], '', 0);
+        $commentarea2 = new \mod_studentquiz\commentarea\container($this->studentquiz, $question, $this->cm,
+            $this->context, $this->users[0], '', 1);
+        $commentarea1->update_comment_last_read($time1);
+        $commentarea2->update_comment_last_read($time2);
+        $result = utils::get_studentquiz_progress($question->id, $user->id, $this->studentquiz->id);
+        $this->assertEquals($time1, $result->lastreadpubliccomment);
+        $this->assertEquals($time2, $result->lastreadprivatecomment);
+    }
 }

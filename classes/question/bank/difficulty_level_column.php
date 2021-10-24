@@ -86,7 +86,7 @@ class difficulty_level_column extends studentquiz_column_base {
                                                        CAST(attempts AS DECIMAL)), 2) AS difficultylevel,
                                                      questionid
                                                 FROM {studentquiz_progress}
-                                               WHERE studentquizid = " . $this->studentquizid . "
+                                               WHERE studentquizid = {$this->studentquizid} AND attempts > 0
                                             GROUP BY questionid
                                             ) dl ON dl.questionid = q.id");
     }
@@ -96,9 +96,13 @@ class difficulty_level_column extends studentquiz_column_base {
      * @return array fieldname in array
      */
     public function get_required_fields() {
-        return array('dl.difficultylevel',
-            'ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)),2) AS mydifficulty',
-            'sp.correctattempts AS mycorrectattempts');
+        return ['dl.difficultylevel',
+                     '(CASE WHEN sp.attempts > 0 THEN
+                            ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)), 2)
+                            ELSE 0
+                       END) AS mydifficulty
+                ',
+            'sp.correctattempts AS mycorrectattempts'];
     }
 
     /**

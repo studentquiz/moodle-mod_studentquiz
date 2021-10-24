@@ -69,12 +69,14 @@ class provider implements
                 'userid' => 'privacy:metadata:studentquiz_rate:userid'
         ], 'privacy:metadata:studentquiz_rate');
         $collection->add_database_table('studentquiz_progress', [
-                'questionid' => 'privacy:metadata:studentquiz_progress:questionid',
-                'userid' => 'privacy:metadata:studentquiz_progress:userid',
-                'studentquizid' => 'privacy:metadata:studentquiz_progress:studentquizid',
-                'lastanswercorrect' => 'privacy:metadata:studentquiz_progress:lastanswercorrect',
-                'attempts' => 'privacy:metadata:studentquiz_progress:attempts',
-                'correctattempts' => 'privacy:metadata:studentquiz_progress:correctattempts'
+            'questionid' => 'privacy:metadata:studentquiz_progress:questionid',
+            'userid' => 'privacy:metadata:studentquiz_progress:userid',
+            'studentquizid' => 'privacy:metadata:studentquiz_progress:studentquizid',
+            'lastanswercorrect' => 'privacy:metadata:studentquiz_progress:lastanswercorrect',
+            'attempts' => 'privacy:metadata:studentquiz_progress:attempts',
+            'correctattempts' => 'privacy:metadata:studentquiz_progress:correctattempts',
+            'lastreadprivatecomment' => 'privacy:metadata:studentquiz_progress:lastreadprivatecomment',
+            'lastreadpubliccomment' => 'privacy:metadata:studentquiz_progress:lastreadpubliccomment'
         ], 'privacy:metadata:studentquiz_progress');
 
         $collection->add_database_table('studentquiz_comment', [
@@ -233,6 +235,8 @@ class provider implements
                        progress.questionid AS progressquestionid, progress.userid AS progressuserid,
                        progress.studentquizid AS progressstudentquizid, progress.lastanswercorrect AS progresslastanswercorrect,
                        progress.attempts AS progressattempts, progress.correctattempts AS progresscorrectattempts,
+                       progress.lastreadprivatecomment as progresslastreadprivatecomment,
+                       progress.lastreadpubliccomment as progresslastreadpubliccomment,
                        attempt.id AS attemptid, attempt.studentquizid AS attempstudentquizid,attempt.userid AS attemptuserid,
                        attempt.questionusageid AS attemptquestionusageid, attempt.categoryid AS attemptcategoryid,
                        commenthistory.id AS commenthistoryid, commenthistory.commentid AS commenthistorycommentid,
@@ -379,7 +383,9 @@ class provider implements
                         'studentquizid' => $record->progressstudentquizid,
                         'lastanswercorrect' => transform::yesno($record->progresslastanswercorrect),
                         'attempts' => $record->progressattempts,
-                        'correctattempts' => $record->progresscorrectattempts
+                        'correctattempts' => $record->progresscorrectattempts,
+                        'lastreadprivatecomment' => transform::datetime($record->progresslastreadprivatecomment),
+                        'lastreadpubliccomment' => transform::datetime($record->progresslastreadpubliccomment)
                 ];
             }
 

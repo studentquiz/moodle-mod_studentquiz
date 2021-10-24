@@ -82,6 +82,7 @@ $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id
 $PAGE->set_url($view->get_pageurl());
 $PAGE->set_title($view->get_title());
 $PAGE->set_heading($COURSE->fullname);
+$PAGE->set_cm($cm, $course);
 
 // Process actions.
 $view->process_actions();

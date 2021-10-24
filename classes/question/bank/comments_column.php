@@ -63,7 +63,7 @@ class comment_column extends studentquiz_column_base {
      * @return string column title
      */
     protected function get_title() {
-        return get_string('comment_veryshort', 'studentquiz');
+        return get_string('comment_column_name', 'studentquiz');
     }
 
     /**
@@ -90,12 +90,29 @@ class comment_column extends studentquiz_column_base {
      */
     public function get_extra_joins() {
         $deletedstatus = utils::COMMENT_HISTORY_DELETE;
-        return array('co' => "LEFT JOIN (
-                                          SELECT COUNT(comment) AS comment, questionid
-                                            FROM {studentquiz_comment}
-                                           WHERE status <> {$deletedstatus}
-                                        GROUP BY questionid
-                                        ) co ON co.questionid = q.id");
+        $typepublic = utils::COMMENT_TYPE_PUBLIC;
+        $typeprivate = utils::COMMENT_TYPE_PRIVATE;
+        $joins = [];
+        $joins['copub'] = "LEFT JOIN (
+                                      SELECT COUNT(comment) AS publiccomment,
+                                             max(created) as lasteditpubliccomment,
+                                             questionid
+                                        FROM {studentquiz_comment}
+                                       WHERE status <> {$deletedstatus}
+                                             AND type = {$typepublic}
+                                    GROUP BY questionid
+                                    ) copub ON copub.questionid = q.id";
+        $joins['copri'] = "LEFT JOIN (
+                                      SELECT COUNT(comment) AS privatecomment,
+                                             max(created) as lasteditprivatecomment,
+                                             questionid
+                                        FROM {studentquiz_comment}
+                                       WHERE status <> {$deletedstatus}
+                                             AND type = {$typeprivate}
+                                    GROUP BY questionid
+                                    ) copri ON copri.questionid = q.id";
+        return $joins;
+
     }
 
     /**
@@ -103,7 +120,14 @@ class comment_column extends studentquiz_column_base {
      * @return array sql query join additional
      */
     public function get_required_fields() {
-        return array('co.comment');
+        return [
+            'copub.publiccomment',
+            'copri.privatecomment',
+            'copub.lasteditpubliccomment',
+            'copri.lasteditprivatecomment',
+            'sp.lastreadpubliccomment',
+            'sp.lastreadprivatecomment'
+            ];
     }
 
     /**
@@ -111,6 +135,19 @@ class comment_column extends studentquiz_column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'co.comment';
+        if (get_config('studentquiz', 'showprivatecomment')) {
+            return [
+                'publiccomment' => [
+                    'field' => 'copub.publiccomment',
+                    'title' => get_string('public', 'studentquiz')
+                ],
+                'privatecomment' => [
+                    'field' => 'copri.privatecomment',
+                    'title' => get_string('private', 'studentquiz')
+                ]
+            ];
+        } else {
+            return 'copub.publiccomment';
+        }
     }
 }

@@ -74,10 +74,12 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
  * @param int $lastanswercorrect
  * @param int $attempts
  * @param int $correctattempts
+ * @param int $lastreadprivatecomment
+ * @param int $lastreadpubliccomment
  * @return stdClass
  */
 function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $studentquizid, $lastanswercorrect = 0,
-    $attempts = 0, $correctattempts = 0) {
+    $attempts = 0, $correctattempts = 0, $lastreadprivatecomment = 0, $lastreadpubliccomment = 0) {
     $studentquizprogress = new stdClass();
     $studentquizprogress->questionid = $questionid;
     $studentquizprogress->userid = $userid;
@@ -85,6 +87,8 @@ function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $st
     $studentquizprogress->lastanswercorrect = $lastanswercorrect;
     $studentquizprogress->attempts = $attempts;
     $studentquizprogress->correctattempts = $correctattempts;
+    $studentquizprogress->lastreadprivatecomment = $lastreadprivatecomment;
+    $studentquizprogress->lastreadpubliccomment = $lastreadpubliccomment;
 
     return $studentquizprogress;
 }
@@ -215,9 +219,10 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
     $studentquizprogresses = array();
 
     foreach ($records as $r) {
+        $time = time();
         $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class(
             $r->questionid, $r->userid, $studentquizid,
-            $r->lastanswercorrect, $r->attempts, $r->correctattempts);
+            $r->lastanswercorrect, $r->attempts, $r->correctattempts, $time, $time);
         array_push($studentquizprogresses, $studentquizprogress);
     }
 
@@ -993,7 +998,7 @@ function mod_studentquiz_helper_attempt_stat_joins($cmid, $groupid, $excluderole
     $join .= "
         LEFT JOIN (
                     SELECT sp.userid, COUNT(*) AS last_attempt_exists, SUM(lastanswercorrect) AS last_attempt_correct,
-                           SUM(1 - lastanswercorrect) AS last_attempt_incorrect
+                           SUM(CASE WHEN attempts > 0 and lastanswercorrect = 0 THEN 1 ELSE 0 END) AS last_attempt_incorrect
                       FROM {studentquiz_progress} sp
                       JOIN {studentquiz} sq ON sq.id = sp.studentquizid
                       JOIN {question} q ON q.id = sp.questionid

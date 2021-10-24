@@ -74,7 +74,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         // StudentQuiz -> Question -> Student.
         $progresses = new backup_nested_element('progresses');
         $progress = new backup_nested_element('progress', array('questionid', 'userid'),
-            array('lastanswercorrect', 'attempts', 'correctattempts'));
+            array('lastanswercorrect', 'attempts', 'correctattempts', 'lastreadprivatecomment', 'lastreadpubliccomment'));
         $progresses->add_child($progress);
         $studentquiz->add_child($progresses);
 

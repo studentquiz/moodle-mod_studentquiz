@@ -912,4 +912,28 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Instance is anonymized and isn't allowed to unhide that.
         return true;
     }
+
+    /**
+     * Deal with a sort name of the form columnname, or colname_subsort by
+     * breaking it up, validating the bits that are present, and returning them.
+     * If there is no subsort, then $subsort is returned as ''.
+     *
+     * @param string $sort the sort parameter to process.
+     * @return array array($colname, $subsort).
+     */
+    protected function parse_subsort($sort) {
+        // When we sort by public/private comments and turn off the setting studentquiz | privatecomment,
+        // the parse_subsort function will throw exception. We should redirect to the base_url after cleaning all sort params.
+        $showprivatecomment = get_config('studentquiz', 'showprivatecomment');
+        if ($showprivatecomment && $sort == 'mod_studentquiz\bank\comment_column' ||
+                !$showprivatecomment && ($sort == 'mod_studentquiz\bank\comment_column-privatecomment' ||
+                $sort == 'mod_studentquiz\bank\comment_column-publiccomment')) {
+            for ($i = 1; $i <= self::MAX_SORTS; $i++) {
+                $this->baseurl->remove_params('qbs' . $i);
+            }
+            redirect($this->base_url());
+        }
+
+        return parent::parse_subsort($sort);
+    }
 }
