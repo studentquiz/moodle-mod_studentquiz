@@ -1167,7 +1167,7 @@ EOT;
         $caneditall = has_capability('mod/studentquiz:manage', $catcontext);
         $canmoveall = has_capability('mod/studentquiz:organize', $catcontext);
 
-        $output .= html_writer::start_div('modulespecificbuttonscontainer');
+        $output .= html_writer::start_div('modulespecificbuttonscontainer my-3');
         $output .= html_writer::tag('strong', get_string('withselected', 'question') . ':');
         $output .= html_writer::empty_tag('br');
 
@@ -1192,13 +1192,13 @@ EOT;
 
         if ($caneditall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'approveselected',
                     'value' => get_string('state_toggle', 'studentquiz')
             ]);
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'deleteselected',
                     'value' => get_string('delete')
@@ -1207,7 +1207,7 @@ EOT;
 
         if ($canmoveall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'move',
                     'value' => get_string('moveto', 'question')
