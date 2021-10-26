@@ -16,9 +16,9 @@
 /**
  * Javascript for save rating and save, remove and listing comments
  *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @module    mod_studentquiz/studentquiz
+ * @copyright 2017 HSR (http://www.hsr.ch)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /* jshint latedef:nofunc */

@@ -19,9 +19,9 @@ import Notification from "core/notification";
 /**
  * Javascript for question-nav-tabs.
  *
- * @package mod_studentquiz
+ * @module    mod_studentquiz/question_nav_tabs
  * @copyright 2021 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**

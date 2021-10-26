@@ -16,9 +16,9 @@
 /*
  * Control the element in comment area.
  *
- * @package mod_studentquiz
+ * @module    mod_studentquiz/comment_area
  * @copyright 2020 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
