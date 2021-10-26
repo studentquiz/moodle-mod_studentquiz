@@ -1699,7 +1699,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $col2content .= html_writer::empty_tag('input', [
                     'type' => 'submit', 'name' => 'finish',
                     'value' => get_string('abort_button', 'studentquiz'),
-                    'class' => 'btn'
+                    'class' => 'btn btn-secondary'
             ]);
         }
 
