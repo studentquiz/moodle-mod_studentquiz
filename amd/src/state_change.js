@@ -16,10 +16,9 @@
 /**
  * Javascript for state change dialog
  *
- * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
+ * @module    mod_studentquiz/state_change
  * @copyright 2019 HSR (http://www.hsr.ch)
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
