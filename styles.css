@@ -815,3 +815,7 @@
     color: #212529;
     background-color: #ffc107;
 }
+
+.path-mod-studentquiz .studentquiz_behaviour .rate .btn {
+    vertical-align: baseline;
+}
