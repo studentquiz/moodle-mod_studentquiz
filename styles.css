@@ -194,11 +194,6 @@
     font-weight: normal;
 }
 
-.path-mod-studentquiz #categoryquestions td.difficultylevel,
-.path-mod-studentquiz #categoryquestions td.rates {
-    padding-top: 7px;
-}
-
 .path-mod-studentquiz #categoryquestions td.questionname,
 .path-mod-studentquiz #categoryquestions td.creatorname {
     white-space: normal;
@@ -819,3 +814,14 @@
 .path-mod-studentquiz .studentquiz_behaviour .rate .btn {
     vertical-align: baseline;
 }
+
+.path-mod-studentquiz #categoryquestions td.state .icon {
+    padding-bottom: 5px;
+}
+
+.path-mod-studentquiz #categoryquestions .header.qtype,
+.path-mod-studentquiz #categoryquestions .header.state {
+    text-align: center;
+}
+
+
