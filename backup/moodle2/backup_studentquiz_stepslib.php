@@ -197,6 +197,8 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
         $comment->annotate_ids('user', 'usermodified');
         $commenthistory->annotate_ids('user', 'userid');
         $notification->annotate_ids('studentquiz', 'studentquizid');
+        $statehistory->annotate_ids('user', 'userid');
+        $statehistory->annotate_ids('question', 'questionid');
 
         // Define file annotations (we do not use itemid in this example).
         $studentquiz->annotate_files('mod_studentquiz', 'intro', null);
