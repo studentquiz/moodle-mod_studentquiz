@@ -77,6 +77,18 @@ $renderer->init_question_table_wanted_columns();
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
 
+// Redirect to overview if there are no selected questions.
+if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('deleteselected', false, PARAM_BOOL)) &&
+        !optional_param('confirm', '', PARAM_ALPHANUM) ||
+        optional_param('move', false, PARAM_BOOL)) {
+    if (!mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST)) {
+        $baseurl = $view->get_questionbank()->base_url();
+        $baseurl->remove_params('deleteselected', 'approveselected', 'move');
+        redirect($baseurl, get_string('noquestionsselectedtodoaction', 'studentquiz'),
+            null, \core\output\notification::NOTIFY_WARNING);
+    }
+}
+
 // Since this page has 2 forms interacting with each other, all params must be passed in GET, thus
 // $PAGE->url will be as it has recieved the request.
 $PAGE->set_url($view->get_pageurl());

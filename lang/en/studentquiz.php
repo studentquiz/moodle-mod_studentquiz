@@ -225,6 +225,7 @@ $string['no_mylastattempt_label'] = 'The question is not attempted';
 $string['no_questions_add'] = 'There are no questions in this StudentQuiz. Feel free to add some questions.';
 $string['no_questions_filter'] = 'None of the questions matched your filter criteria. Reset the filter to see all.';
 $string['no_questions_selected_message'] = 'Please select at least one question to start the quiz.';
+$string['noquestionsselectedtodoaction'] = 'Please select one or more questions before selecting this action.';
 $string['no_rates'] = 'n.a.';
 $string['no_tags'] = 'n.a.';
 $string['nofurtherprivatecomments'] = 'No further private comments are allowed once a question is \'Approved\'';

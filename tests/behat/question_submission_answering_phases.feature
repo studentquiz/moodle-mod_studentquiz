@@ -113,6 +113,7 @@ Feature: Question submission and answering will follow the availability setting
     And the "Create new question" "button" should be disabled
     And I should see "Open for question submission from"
 
+  @javascript
   Scenario: Availability settings for question answering
     When I am on the "StudentQuiz Test" "mod_studentquiz > View" page logged in as "admin"
     Then the "Start Quiz" "button" should be enabled
