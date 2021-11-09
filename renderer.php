@@ -1214,14 +1214,17 @@ EOT;
 
         if ($hasquestionincategory) {
             $params = [
-                    'class' => 'btn btn-primary form-submit',
-                    'type' => 'submit',
-                    'name' => 'startquiz',
-                    'value' => get_string('start_quiz_button', 'studentquiz')
+                'class' => 'btn btn-primary form-submit',
+                'type' => 'submit',
+                'name' => 'startquiz',
+                'value' => get_string('start_quiz_button', 'studentquiz'),
+                'disabled' => true
             ];
 
-            if (!$answeringallow) {
-                $params['disabled'] = 'disabled';
+            if ($answeringallow) {
+                $params['data-action'] = 'toggle';
+                $params['data-togglegroup'] = 'qbank';
+                $params['data-toggle'] = 'action';
             }
 
             $output .= html_writer::empty_tag('input', $params);
@@ -1229,25 +1232,37 @@ EOT;
 
         if ($caneditall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn btn-secondary',
-                    'type' => 'submit',
-                    'name' => 'approveselected',
-                    'value' => get_string('state_toggle', 'studentquiz')
+                'class' => 'btn btn-secondary',
+                'type' => 'submit',
+                'name' => 'approveselected',
+                'value' => get_string('state_toggle', 'studentquiz'),
+                'data-action' => 'toggle',
+                'data-togglegroup' => 'qbank',
+                'data-toggle' => 'action',
+                'disabled' => true
             ]);
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn btn-secondary',
-                    'type' => 'submit',
-                    'name' => 'deleteselected',
-                    'value' => get_string('delete')
+                'class' => 'btn btn-secondary',
+                'type' => 'submit',
+                'name' => 'deleteselected',
+                'value' => get_string('delete'),
+                'data-action' => 'toggle',
+                'data-togglegroup' => 'qbank',
+                'data-toggle' => 'action',
+                'disabled' => true,
             ]);
         }
 
         if ($canmoveall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn btn-secondary',
-                    'type' => 'submit',
-                    'name' => 'move',
-                    'value' => get_string('moveto', 'question')
+                'class' => 'btn btn-secondary',
+                'type' => 'submit',
+                'name' => 'move',
+                'value' => get_string('moveto', 'question'),
+                'data-action' => 'toggle',
+                'data-togglegroup' => 'qbank',
+                'data-toggle' => 'action',
+                'disabled' => true,
             ]);
             ob_start();
             question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
