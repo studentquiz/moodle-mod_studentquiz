@@ -727,7 +727,7 @@ style5 = html';
     public static function get_state_history_data($question): array {
         global $DB;
 
-        $statehistories = $DB->get_records('studentquiz_state_history', ['questionid' => $question->id]);
+        $statehistories = $DB->get_records('studentquiz_state_history', ['questionid' => $question->id], 'timecreated, id');
         $users = self::get_users_change_state($statehistories);
 
         return [$statehistories, $users];
