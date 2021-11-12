@@ -545,6 +545,7 @@ class provider implements
         $user = $contextlist->get_user();
         $userid = $user->id;
         $guestuserid = guest_user()->id;
+        $adminid = get_admin()->id;
 
         list($contextsql, $contextparam) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
@@ -620,10 +621,16 @@ class provider implements
         // Delete notifications of user.
         $DB->execute("DELETE FROM {studentquiz_notification} WHERE recipientid = :userid", ['userid' => $userid]);
 
-        // Delete state history belong to user within approved context.
-        $DB->execute("DELETE FROM {studentquiz_state_history}
-                       WHERE questionid {$questionsql}
-                             AND userid = :userid", ['userid' => $userid] + $questionparams);
+        // If user created questions, change the question state owner to guest by set the field userid guest user.
+        $DB->execute("UPDATE {studentquiz_state_history}
+                         SET userid = :guestuserid
+                       WHERE userid = :userid
+                             AND state = :questionstate", ['guestuserid' => $guestuserid,
+                             'questionstate' => studentquiz_helper::STATE_NEW, 'userid' => $userid] + $questionparams);
+        // If user changes state of questions, change the question state owner to admin by set the field userid admin user.
+        $DB->execute("UPDATE {studentquiz_state_history}
+                         SET userid = :adminid
+                       WHERE userid = :userid", ['adminid' => $adminid, 'userid' => $userid] + $questionparams);
     }
 
     /**
@@ -766,6 +773,7 @@ class provider implements
         }
 
         $guestuserid = guest_user()->id;
+        $adminid = get_admin()->id;
 
         list($questionsql, $questionparams) = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
         // If user created questions, change the owner to guest by set the field User ID guest user.
@@ -808,10 +816,18 @@ class provider implements
         $DB->execute("DELETE FROM {studentquiz_notification}
                             WHERE recipientid {$userinsql}", $userinparams);
 
-        // Delete state histories belong to users.
-        $DB->execute("DELETE FROM {studentquiz_state_history}
+        // If user created questions, change the question state owner to guest by set the field userid guest user.
+        $DB->execute("UPDATE {studentquiz_state_history}
+                         SET userid = :guestuserid
                        WHERE questionid {$questionsql}
-                             AND userid {$userinsql}", $questionparams + $userinparams);
+                             AND (userid {$userinsql})
+                             AND state = :questionstate", ['guestuserid' => $guestuserid,
+                             'questionstate' => studentquiz_helper::STATE_NEW] + $questionparams + $userinparams);
+        // If user changes state of questions, change the question state owner to admin by set the field userid admin user.
+        $DB->execute("UPDATE {studentquiz_state_history}
+                         SET userid = :adminid
+                       WHERE questionid {$questionsql}
+                             AND (userid {$userinsql})", ['adminid' => $adminid] + $questionparams + $userinparams);
     }
 
     /**
