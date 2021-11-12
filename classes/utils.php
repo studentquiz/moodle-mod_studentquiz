@@ -673,49 +673,45 @@ style5 = html';
             $params['course'] = $courseorigid;
         }
 
-        $studentquizes = $DB->get_records('studentquiz', $params);
         $transaction = $DB->start_delegated_transaction();
+        $studentquizes = $DB->get_recordset_select('studentquiz', 'course = :course', $params);
 
-        try {
-            foreach ($studentquizes as $studentquiz) {
-                $context = \context_module::instance($studentquiz->coursemodule);
-                $studentquiz = mod_studentquiz_load_studentquiz($studentquiz->coursemodule, $context->id);
+        foreach ($studentquizes as $studentquiz) {
+            $context = \context_module::instance($studentquiz->coursemodule);
+            $studentquiz = mod_studentquiz_load_studentquiz($studentquiz->coursemodule, $context->id);
 
-                $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
-                          FROM {studentquiz} sq
-                          JOIN {context} con ON con.instanceid = sq.coursemodule
-                          JOIN {question_categories} qc ON qc.contextid = con.id
-                          JOIN {question} q ON q.category = qc.id
-                          JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
-                         WHERE sq.coursemodule = :coursemodule
-                               AND qc.id = :categoryid";
+            $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
+                      FROM {studentquiz} sq
+                      JOIN {context} con ON con.instanceid = sq.coursemodule
+                      JOIN {question_categories} qc ON qc.contextid = con.id
+                      JOIN {question} q ON q.category = qc.id
+                      JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                     WHERE sq.coursemodule = :coursemodule
+                           AND qc.id = :categoryid
+                           AND NOT EXISTS (SELECT 1 FROM {studentquiz_state_history} WHERE questionid = q.id)";
 
-                $params = [
-                    'coursemodule' => $studentquiz->coursemodule,
-                    'categoryid' => $studentquiz->categoryid
-                ];
-                $sqquestions = $DB->get_records_sql($sql, $params);
+            $params = [
+                'coursemodule' => $studentquiz->coursemodule,
+                'categoryid' => $studentquiz->categoryid
+            ];
+            $sqquestions = $DB->get_recordset_sql($sql, $params);
 
-                if ($sqquestions) {
-                    foreach ($sqquestions as $sqquestion) {
-                        if (!$DB->count_records('studentquiz_state_history', ['questionid' => $sqquestion->questionid])) {
-                            // Create action new question by onwer.
-                            self::question_save_action($sqquestion->questionid, $sqquestion->createdby,
-                                studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+            if ($sqquestions) {
+                foreach ($sqquestions as $sqquestion) {
+                    // Create action new question by onwer.
+                    self::question_save_action($sqquestion->questionid, $sqquestion->createdby,
+                        studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
 
-                            if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                                self::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
-                            }
-                        }
+                    if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
+                        self::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
                     }
                 }
             }
-
-            $DB->commit_delegated_transaction($transaction);
-        } catch (Exception $e) {
-            $DB->rollback_delegated_transaction($transaction, $e);
-            throw new Exception($e->getMessage());
+            $sqquestions->close();
         }
+
+        $studentquizes->close();
+        $transaction->allow_commit();
     }
 
     /**

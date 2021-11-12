@@ -884,6 +884,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         global $DB;
 
         $guestid = guest_user()->id;
+        $adminid = get_admin()->id;
 
         $approveduserlist = new \core_privacy\local\request\approved_userlist($this->contexts[0], 'mod_studentquiz', [
             $this->users[0]->id
@@ -901,6 +902,14 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertEquals($this->users[0]->id, $questions[$this->questions[2]->id]->modifiedby);
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->modifiedby);
+
+        // Check question state history owner of deleting user is change to admin.
+        $statehistories = $DB->get_records('studentquiz_state_history');
+        $this->assertCount(8, $statehistories);
+        $this->assertEquals($adminid, $statehistories[$this->statehistories[0]->id]->userid);
+        $this->assertEquals($adminid, $statehistories[$this->statehistories[1]->id]->userid);
+        $this->assertEquals($this->users[0]->id, $statehistories[$this->statehistories[2]->id]->userid);
+        $this->assertEquals($this->users[1]->id, $statehistories[$this->statehistories[3]->id]->userid);
 
         // Check personal data of other tables are deleted for first user and first context.
         $sqlparams = ['userid' => $this->users[0]->id];
@@ -923,9 +932,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $notifications = $DB->get_records('studentquiz_notification', ['recipientid' => $this->users[0]->id]);
         $this->assertCount(0, $notifications);
 
-        $statehistories = $DB->get_records('studentquiz_state_history', $sqlparams);
-        $this->assertCount(2, $statehistories);
-
         // Test data belong to the second user still exist.
         $sqlparams = ['userid' => $this->users[1]->id];
         $this->assertEquals($this->users[1]->id, $questions[$this->questions[3]->id]->createdby);
@@ -935,7 +941,6 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $this->assertTrue($DB->record_exists('studentquiz_comment', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_comment_history', $sqlparams));
         $this->assertTrue($DB->record_exists('studentquiz_notification', ['recipientid' => $this->users[1]->id]));
-        $this->assertTrue($DB->record_exists('studentquiz_state_history', $sqlparams));
     }
 
     /**
