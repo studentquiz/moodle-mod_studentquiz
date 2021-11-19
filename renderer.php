@@ -503,7 +503,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 $privatecontext['numberofcomments'] = get_string('no_comment', 'studentquiz');
             }
 
-            $privatecomment = '&nbsp;' . $this->render_from_template('mod_studentquiz/questionbank_comment_badge',
+            $privatecomment = '&nbsp;|&nbsp;' . $this->render_from_template('mod_studentquiz/questionbank_comment_badge',
                 $privatecontext);
         }
 
