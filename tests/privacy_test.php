@@ -298,7 +298,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
 
         $statehistories = $data->statehistory;
         $this->assertCount(4, $statehistories);
-        $states = studentquiz_helper::get_state_names_description();
+        $states = studentquiz_helper::get_state_descriptions();
         $this->assertEquals((object) [
             'state' => $states[$this->statehistories[0]->state],
             'questionid' => $this->statehistories[0]->questionid,
@@ -510,7 +510,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
 
         $statehistories = $data->statehistory;
         $this->assertCount(2, $statehistories);
-        $states = studentquiz_helper::get_state_names_description();
+        $states = studentquiz_helper::get_state_descriptions();
         $this->assertEquals((object) [
             'state' => $states[$this->statehistories[3]->state],
             'questionid' => $this->statehistories[3]->questionid,

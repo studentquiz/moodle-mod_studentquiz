@@ -124,7 +124,7 @@ class studentquiz_helper {
      *
      * @return array List descriptions of state name.
      */
-    public static function get_state_names_description(): array {
+    public static function get_state_descriptions(): array {
         return [
             self::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
             self::STATE_APPROVED => get_string('state_approved', 'studentquiz'),

@@ -87,3 +87,26 @@ Feature: Preview a question as a student
     And I press "Add comment"
     And I wait until the page is ready
     And I should see "Comment test"
+
+  @javascript @_switch_window
+  Scenario: Preview question display current state.
+    When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    Then I should see "Adding a True/False question"
+    And I set the field "Question name" to "TF 01"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+
+    And I log out
+    And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I choose "Preview" action for "TF 01" in the question bank
+    And I switch to "questionpreview" window
+    And I should see "Change state from New to:"
+    And I set the field "statetype" to "Approved"
+    And I click on "Change state" "button"
+    And I switch to the main window
+    And I choose "Preview" action for "TF 01" in the question bank
+    And I switch to "questionpreview" window
+    And I should see "Change state from Approved to:"

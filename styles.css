@@ -286,7 +286,6 @@
     display: block;
 }
 
-.path-mod-studentquiz .change-question-state select#menustatetype,
 .path-mod-studentquiz .change-question-state button#change_state {
     margin-left: 10px;
 }
