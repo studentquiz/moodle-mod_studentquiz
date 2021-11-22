@@ -413,7 +413,7 @@ class provider implements
 
             // Export state history.
             if (!empty($record->statehistoryid) && $userid == $record->statehistoryuserid) {
-                $states = studentquiz_helper::get_state_names_description();
+                $states = studentquiz_helper::get_state_descriptions();
                 $contextdata->statehistory[$record->statehistoryid] = (object) [
                         'questionid' => $record->statehistoryquestionid,
                         'userid' => transform::user($record->statehistoryuserid),

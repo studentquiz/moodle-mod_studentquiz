@@ -772,4 +772,40 @@ style5 = html';
             return get_string('commentplural', 'studentquiz');
         }
     }
+
+    /**
+     * List of states of questions.
+     *
+     * @param array $questionids Array of question's id.
+     * @return array List of states.
+     */
+    public static function get_states(array $questionids): array {
+        global $DB;
+
+        return $DB->get_records_list('studentquiz_question', 'questionid', $questionids, '', 'questionid, state');
+    }
+
+    /**
+     * Get state of question.
+     *
+     * @param int $questionid Question's id.
+     * @return int State of question.
+     */
+    public static function get_state_question(int $questionid): int {
+        global $DB;
+
+        return $DB->get_field('studentquiz_question', 'state', ['questionid' => $questionid]);
+    }
+
+    /**
+     * List of questionnames of questions.
+     *
+     * @param array $questionids Array of question's id.
+     * @return array List of questionnames.
+     */
+    public static function get_question_names(array $questionids): array {
+        global $DB;
+
+        return $DB->get_records_list('question', 'id', $questionids, '', 'id, name');
+    }
 }

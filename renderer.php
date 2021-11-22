@@ -1408,6 +1408,56 @@ EOT;
     }
 
     /**
+     * Render current state names of questions.
+     *
+     * @param array $questions List of questions.
+     * @param bool $inuse True if at least one question is being used by the quiz.
+     * @return string HTML current states.
+     */
+    public function render_current_state_questions(array $questions, bool $inuse): string {
+        $output = '';
+        $questionnametitle = \html_writer::div(get_string('question'), 'font-weight-bold col-12 col-md-8');
+        $statenametitle = \html_writer::div(get_string('current_state', 'studentquiz'), 'font-weight-bold col-6 col-md-4');
+        $output .= \html_writer::div($questionnametitle . $statenametitle, 'row');
+
+        foreach ($questions as $question) {
+            $questionname = \html_writer::span($question->name, 'col-12 col-md-8');
+            $questionstate = \html_writer::span($question->state, 'col-6 col-md-4');
+            $output .= \html_writer::div($questionname . $questionstate, 'row');
+        }
+
+        if ($inuse) {
+            $output .= $this->render_explaintion_question_in_use();
+        }
+        $output .= \html_writer::div(get_string('changestateto', 'studentquiz'), 'mt-3');
+
+        return $output;
+    }
+
+    /**
+     * Render explaintion about questions in use.
+     *
+     * @return string HTML explaintion about questions in use.
+     */
+    public function render_explaintion_question_in_use(): string {
+        return \html_writer::div(get_string('questionsinuse', 'studentquiz'), 'mt-3');
+    }
+
+    /**
+     * Render Names of questions.
+     * @param array $questions List of questions.
+     * @return string HTML Names of questions.
+     */
+    public function render_question_names(array $questions): string {
+        $output = '';
+        foreach ($questions as $question) {
+            $output .= \html_writer::div($question->name, '');
+        }
+
+        return $output;
+    }
+
+    /**
      * Render state change dialog
      *
      * @param string $message Message to display
@@ -1458,7 +1508,7 @@ EOT;
                 'data-aria-autofocus' => 'true'
         ];
         $output .= $this->box_start('modal-body', 'modal-body', $attributes);
-        $output .= html_writer::tag('p', $message);
+        $output .= html_writer::div($message, 'mb-2');
         $output .= html_writer::select($states, 'statetype');
         $output .= $this->box_end();
         $output .= $this->box_start('modal-footer', 'modal-footer');
@@ -1667,6 +1717,8 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     public function render_state_choice($questionid, $courseid, $cmid) {
         $output = '';
         if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
+            $currentstate = utils::get_state_question($questionid);
+            $statenames = studentquiz_helper::get_state_descriptions();
             $states = [
                     studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
                     studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
@@ -1675,7 +1727,8 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     studentquiz_helper::STATE_DELETE => get_string('delete')
             ];
             $output .= html_writer::start_span('change-question-state');
-            $output .= html_writer::tag('label', get_string('state_column_name', 'studentquiz'), ['for' => 'statetype']);
+            $output .= html_writer::div(get_string('changecurrentstate', 'studentquiz',
+                $statenames[$currentstate]), 'current-state mb-2');
             $output .= html_writer::select($states, 'statetype');
             $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
                     ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $questionid,
@@ -1798,7 +1851,7 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
      * @return string Description of state.
      */
     public function get_desc_action(int $state): string {
-        $states = studentquiz_helper::get_state_names_description();
+        $states = studentquiz_helper::get_state_descriptions();
         if ($state == studentquiz_helper::STATE_NEW) {
             return get_string('descriptionofstatenew', 'studentquiz');
         }
