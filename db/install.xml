@@ -124,6 +124,9 @@
         <KEY NAME="commentid" TYPE="foreign" FIELDS="commentid" REFTABLE="studentquiz_comment" REFFIELDS="id"/>
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="studentquiz_question" COMMENT="Store question related properties">
       <FIELDS>
@@ -156,6 +159,9 @@
         <KEY NAME="questionusageid" TYPE="foreign" FIELDS="questionusageid" REFTABLE="question_usages" REFFIELDS="id"/>
         <KEY NAME="categoryid" TYPE="foreign" FIELDS="categoryid" REFTABLE="question_categories" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="studentquiz_notification" COMMENT="Notification queue">
       <FIELDS>
@@ -171,6 +177,9 @@
         <KEY NAME="studentquizid" TYPE="foreign" FIELDS="studentquizid" REFTABLE="studentquiz" REFFIELDS="id"/>
         <KEY NAME="recipientid" TYPE="foreign" FIELDS="recipientid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="recipientid" UNIQUE="false" FIELDS="recipientid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="studentquiz_state_history" COMMENT="Store the history of question's states.">
       <FIELDS>

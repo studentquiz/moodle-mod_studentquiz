@@ -944,6 +944,38 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021102502, 'studentquiz');
     }
 
+    if ($oldversion < 2021112400) {
+        // Define index userid (not unique) to be added to studentquiz_comment_history.
+        $table = new xmldb_table('studentquiz_comment_history');
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+        // Add index to studentquiz_comment_history field.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index userid (not unique) to be added to studentquiz_attempt.
+        $table = new xmldb_table('studentquiz_attempt');
+        $index = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+
+        // Add index to studentquiz_attempt field.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index recipientid (not unique) to be added to studentquiz_notification.
+        $table = new xmldb_table('studentquiz_notification');
+        $index = new xmldb_index('recipientid', XMLDB_INDEX_NOTUNIQUE, ['recipientid']);
+
+        // Add index to studentquiz_notification field.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021112400, 'studentquiz');
+    }
+
     return true;
 }
 
