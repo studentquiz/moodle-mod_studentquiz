@@ -148,58 +148,51 @@ class provider implements
 
         // Get activity context if user created/modified the question or their data exist in these table
         // base on user ID field: rate, comment, progress, attempt.
-        $sql = "SELECT DISTINCT ctx.id
-                  FROM {context} ctx
-                  JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                       AND contextlevel = :contextmodule
-                  JOIN {question_categories} ca ON ca.contextid = ctx.id
-             LEFT JOIN {question} q ON q.category = ca.id
-             LEFT JOIN {studentquiz_question} question ON question.questionid = q.id
-             LEFT JOIN {studentquiz_rate} rate ON rate.questionid = q.id
-             LEFT JOIN {studentquiz_comment} comment ON comment.questionid = q.id
-             LEFT JOIN {studentquiz_progress} progress ON progress.questionid = q.id
-                       AND progress.studentquizid = sq.id
-             LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
-                       AND attempt.studentquizid = sq.id
-             LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
-             LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
-             LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.questionid = q.id
-                 WHERE (
+        $usercolumns = [
+            'q.createdby',
+            'q.modifiedby',
+            'rate.userid',
+            'comment.userid',
+            'progress.userid',
+            'attempt.userid',
+            'commenthistory.userid',
+            'notificationjoin.recipientid',
+            'statehistory.userid',
+        ];
+        foreach ($usercolumns as $usercolumn) {
+            $sql = "SELECT DISTINCT ctx.id
+                FROM {context} ctx
+                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                    AND contextlevel = :contextmodule
+                JOIN {question_categories} ca ON ca.contextid = ctx.id
+                LEFT JOIN {question} q ON q.category = ca.id
+                LEFT JOIN {studentquiz_question} question ON question.questionid = q.id
+                LEFT JOIN {studentquiz_rate} rate ON rate.questionid = q.id
+                LEFT JOIN {studentquiz_comment} comment ON comment.questionid = q.id
+                LEFT JOIN {studentquiz_progress} progress ON progress.questionid = q.id
+                    AND progress.studentquizid = sq.id
+                LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
+                    AND attempt.studentquizid = sq.id
+                LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
+                LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
+                LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.questionid = q.id
+                WHERE (
                          question.id IS NOT NULL
                          OR rate.id IS NOT NULL
                          OR comment.id IS NOT NULL
                          OR progress.questionid IS NOT NULL
                          OR attempt.id IS NOT NULL
                          OR commenthistory.id IS NOT NULL
+                         OR notificationjoin.id IS NOT NULL
                          OR statehistory.id IS NOT NULL
-                       )
-                       AND (
-                             q.createdby = :createduser
-                             OR q.modifiedby = :modifieduser
-                             OR rate.userid = :rateuser
-                             OR comment.userid = :commentuser
-                             OR progress.userid = :progressuser
-                             OR attempt.userid = :attemptuser
-                             OR commenthistory.userid = :commenthistoryuser
-                             OR notificationjoin.recipientid = :notificationuser
-                             OR statehistory.userid = :statehistoryuser
-                           )";
-
-        $params = [
+                )
+                    AND $usercolumn = :userid";
+            $params = [
                 'contextmodule' => CONTEXT_MODULE,
-                'createduser' => $userid,
-                'modifieduser' => $userid,
-                'rateuser' => $userid,
-                'commentuser' => $userid,
-                'progressuser' => $userid,
-                'attemptuser' => $userid,
-                'commenthistoryuser' => $userid,
-                'notificationuser' => $userid,
-                'statehistoryuser' => $userid
-        ];
-
-        $contextlist->add_from_sql($sql, $params);
-
+                'userid' => $userid,
+            ];
+            $contextlist->add_from_sql($sql, $params);
+        }
         return $contextlist;
     }
 
@@ -221,49 +214,66 @@ class provider implements
         $userid = $user->id;
 
         list($contextsql, $contextparam) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
-
-        $sql = "SELECT DISTINCT ctx.id AS contextid,
-                       q.id AS questionid, q.name AS questionname,
-                       CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
-                       question.groupid questiongroupid, question.pinned AS questionpinned,
-                       q.createdby AS questioncreatedby, q.modifiedby AS questionmodifiedby,
-                       rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
-                       comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
-                       comment.userid AS commentuserid, comment.created AS commentcreate,
-                       comment.parentid AS commentparentid, comment.status AS commentstatus, comment.type AS commenttype,
-                       comment.timemodified AS commenttimemodified, comment.usermodified AS commentusermodified,
-                       progress.questionid AS progressquestionid, progress.userid AS progressuserid,
-                       progress.studentquizid AS progressstudentquizid, progress.lastanswercorrect AS progresslastanswercorrect,
-                       progress.attempts AS progressattempts, progress.correctattempts AS progresscorrectattempts,
-                       progress.lastreadprivatecomment as progresslastreadprivatecomment,
-                       progress.lastreadpubliccomment as progresslastreadpubliccomment,
-                       attempt.id AS attemptid, attempt.studentquizid AS attempstudentquizid,attempt.userid AS attemptuserid,
-                       attempt.questionusageid AS attemptquestionusageid, attempt.categoryid AS attemptcategoryid,
-                       commenthistory.id AS commenthistoryid, commenthistory.commentid AS commenthistorycommentid,
-                       commenthistory.content AS commenthistorycontent, commenthistory.userid AS commenthistoryuserid,
-                       commenthistory.action AS commenthistoryaction, commenthistory.timemodified AS commenthistorytimemodified,
-                       notificationjoin.id AS notificationid, notificationjoin.studentquizid AS notificationstudentquizid,
-                       notificationjoin.content AS notificationcontent, notificationjoin.recipientid AS notificationrecipientid,
-                       notificationjoin.status AS notificationstatus, notificationjoin.timetosend AS notificationtimetosend,
-                       statehistory.id AS statehistoryid, statehistory.questionid AS statehistoryquestionid,
-                       statehistory.state AS statehistorystate, statehistory.userid AS statehistoryuserid,
-                       statehistory.timecreated AS statehistorytimecreated
-                  FROM {context} ctx
-                  JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                       AND contextlevel = :contextmodule
-                  JOIN {question_categories} ca ON ca.contextid = ctx.id
-             LEFT JOIN {question} q ON q.category = ca.id
-             LEFT JOIN {studentquiz_question} question ON question.questionid = q.id
-             LEFT JOIN {studentquiz_rate} rate ON rate.questionid = q.id
-             LEFT JOIN {studentquiz_comment} comment ON comment.questionid = q.id
-             LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
-             LEFT JOIN {studentquiz_progress} progress ON progress.questionid = q.id
-                       AND progress.studentquizid = sq.id
-             LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
-                       AND attempt.studentquizid = sq.id
-             LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
-             LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.questionid = q.id
-                 WHERE (
+        $params = [
+            'contextmodule' => CONTEXT_MODULE,
+            'userid' => $userid,
+        ];
+        $params += $contextparam;
+        $usercolumns = [
+            'q.createdby',
+            'q.modifiedby',
+            'rate.userid',
+            'comment.userid',
+            'progress.userid',
+            'attempt.userid',
+            'commenthistory.userid',
+            'notificationjoin.recipientid',
+            'statehistory.userid',
+        ];
+        $allcontextdata = [];
+        foreach ($usercolumns as $usercolumn) {
+            $sql = "SELECT DISTINCT ctx.id AS contextid,
+                    q.id AS questionid, q.name AS questionname,
+                    CASE WHEN question.state = 1 THEN question.state ELSE 0 END AS questionapproved,
+                    question.groupid questiongroupid, question.pinned AS questionpinned,
+                    q.createdby AS questioncreatedby, q.modifiedby AS questionmodifiedby,
+                    rate.id AS rateid, rate.rate AS raterate, rate.questionid AS ratequestionid, rate.userid AS rateuserid,
+                    comment.id AS commentid, comment.comment AS commentcomment, comment.questionid AS commentquestionid,
+                    comment.userid AS commentuserid, comment.created AS commentcreate,
+                    comment.parentid AS commentparentid, comment.status AS commentstatus, comment.type AS commenttype,
+                    comment.timemodified AS commenttimemodified, comment.usermodified AS commentusermodified,
+                    progress.questionid AS progressquestionid, progress.userid AS progressuserid,
+                    progress.studentquizid AS progressstudentquizid, progress.lastanswercorrect AS progresslastanswercorrect,
+                    progress.attempts AS progressattempts, progress.correctattempts AS progresscorrectattempts,
+                    progress.lastreadprivatecomment as progresslastreadprivatecomment,
+                    progress.lastreadpubliccomment as progresslastreadpubliccomment,
+                    attempt.id AS attemptid, attempt.studentquizid AS attempstudentquizid,attempt.userid AS attemptuserid,
+                    attempt.questionusageid AS attemptquestionusageid, attempt.categoryid AS attemptcategoryid,
+                    commenthistory.id AS commenthistoryid, commenthistory.commentid AS commenthistorycommentid,
+                    commenthistory.content AS commenthistorycontent, commenthistory.userid AS commenthistoryuserid,
+                    commenthistory.action AS commenthistoryaction, commenthistory.timemodified AS commenthistorytimemodified,
+                    notificationjoin.id AS notificationid, notificationjoin.studentquizid AS notificationstudentquizid,
+                    notificationjoin.content AS notificationcontent, notificationjoin.recipientid AS notificationrecipientid,
+                    notificationjoin.status AS notificationstatus, notificationjoin.timetosend AS notificationtimetosend,
+                    statehistory.id AS statehistoryid, statehistory.questionid AS statehistoryquestionid,
+                    statehistory.state AS statehistorystate, statehistory.userid AS statehistoryuserid,
+                    statehistory.timecreated AS statehistorytimecreated
+                FROM {context} ctx
+                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                    AND contextlevel = :contextmodule
+                JOIN {question_categories} ca ON ca.contextid = ctx.id
+                LEFT JOIN {question} q ON q.category = ca.id
+                LEFT JOIN {studentquiz_question} question ON question.questionid = q.id
+                LEFT JOIN {studentquiz_rate} rate ON rate.questionid = q.id
+                LEFT JOIN {studentquiz_comment} comment ON comment.questionid = q.id
+                LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
+                LEFT JOIN {studentquiz_progress} progress ON progress.questionid = q.id
+                    AND progress.studentquizid = sq.id
+                LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
+                    AND attempt.studentquizid = sq.id
+                LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
+                LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.questionid = q.id
+                WHERE (
                          question.id IS NOT NULL
                          OR rate.id IS NOT NULL
                          OR comment.id IS NOT NULL
@@ -272,49 +282,16 @@ class provider implements
                          OR commenthistory.id IS NOT NULL
                          OR notificationjoin.id IS NOT NULL
                          OR statehistory.id IS NOT NULL
-                       )
-                       AND (
-                             q.createdby = :createduser
-                             OR q.modifiedby = :modifieduser
-                             OR rate.userid = :rateuser
-                             OR comment.userid = :commentuser
-                             OR progress.userid = :progressuser
-                             OR attempt.userid = :attemptuser
-                             OR commenthistory.userid = :commenthistoryuser
-                             OR notificationjoin.recipientid = :notificationuser
-                             OR statehistory.userid = :statehistoryuser
-                           )
-                       AND ctx.id {$contextsql}
-              ORDER BY ctx.id ASC";
+                )
+                    AND $usercolumn = :userid
+                    AND ctx.id {$contextsql}
+                ORDER BY ctx.id ASC";
+            $recordset = $DB->get_recordset_sql($sql, $params);
 
-        $params = [
-                'contextmodule' => CONTEXT_MODULE,
-                'createduser' => $userid,
-                'modifieduser' => $userid,
-                'rateuser' => $userid,
-                'commentuser' => $userid,
-                'progressuser' => $userid,
-                'attemptuser' => $userid,
-                'commenthistoryuser' => $userid,
-                'notificationuser' => $userid,
-                'statehistoryuser' => $userid
-        ];
-        $params += $contextparam;
-
-        $recordset = $DB->get_recordset_sql($sql, $params);
-
-        $subcontext = [get_string('pluginname', 'mod_studentquiz')];
-        $context = null;
-        $contextdata = null;
-        foreach ($recordset as $record) {
-            if (empty($context->id) || $context->id != $record->contextid) {
-                if (!empty($contextdata)) {
-                    writer::with_context($context)->export_data($subcontext, $contextdata);
-                    $contextdata = null;
-                }
-
-                if (empty($contextdata)) {
-                    $context = \context::instance_by_id($record->contextid);
+            foreach ($recordset as $record) {
+                $contextid = $record->contextid;
+                if (!array_key_exists($contextid, $allcontextdata)) {
+                    $context = \context::instance_by_id($contextid);
                     $contextdata = helper::get_context_data($context, $user);
                     $contextdata->questions = [];
                     $contextdata->rates = [];
@@ -324,109 +301,112 @@ class provider implements
                     $contextdata->commenthistory = [];
                     $contextdata->notifications = [];
                     $contextdata->statehistory = [];
+                    $allcontextdata[$contextid] = $contextdata;
+                }
+                $contextdata = $allcontextdata[$contextid];
+
+                // Export question's approval info.
+                if (!empty($record->questionid) && ($userid == $record->questioncreatedby || $userid == $record->questionmodifiedby)) {
+                    // Purpose of this one is to export the approved status since Moodle have already export
+                    // whole question info for us, so we won't include full question info here.
+                    $contextdata->questions[$record->questionid] = (object) [
+                            'name' => $record->questionname,
+                            'approved' => transform::yesno($record->questionapproved),
+                            'groupid' => $record->questiongroupid,
+                            'pinned' => transform::yesno($record->questionpinned)
+                    ];
+                }
+
+                // Export rating.
+                if (!empty($record->rateid) && $userid == $record->rateuserid) {
+                    $contextdata->rates[$record->rateid] = (object) [
+                            'rate' => $record->raterate,
+                            'questionid' => $record->ratequestionid,
+                            'userid' => transform::user($record->rateuserid)
+                    ];
+                }
+
+                // Export comments.
+                if (!empty($record->commentid) && $userid == $record->commentuserid) {
+                    $contextdata->comments[$record->commentid] = (object) [
+                            'comment' => $record->commentcomment,
+                            'questionid' => $record->commentquestionid,
+                            'userid' => transform::user($record->commentuserid),
+                            'created' => transform::datetime($record->commentcreate),
+                            'parentid' => $record->commentparentid,
+                            'status' => $record->commentstatus,
+                            'type' => $record->commenttype,
+                            'timemodified' => !is_null($record->commenttimemodified) ?
+                                    transform::datetime($record->commenttimemodified) : null,
+                            'usermodified' => $record->commentusermodified
+                    ];
+                }
+
+                // Export comment history.
+                if (!empty($record->commenthistoryid) && $userid == $record->commenthistoryuserid) {
+                    $contextdata->commenthistory[$record->commenthistoryid] = (object) [
+                            'commentid' => $record->commenthistorycommentid,
+                            'content' => $record->commenthistorycontent,
+                            'userid' => transform::user($record->commenthistoryuserid),
+                            'action' => $record->commenthistoryaction,
+                            'timemodified' => !is_null($record->commenthistorytimemodified) ?
+                                    transform::datetime($record->commenthistorytimemodified) : null
+                    ];
+                }
+
+                // Export progresses.
+                if (!empty($record->progressquestionid) && $userid == $record->progressuserid) {
+                    $contextdata->progresses[$record->progressquestionid] = (object) [
+                            'userid' => transform::user($record->progressuserid),
+                            'studentquizid' => $record->progressstudentquizid,
+                            'lastanswercorrect' => transform::yesno($record->progresslastanswercorrect),
+                            'attempts' => $record->progressattempts,
+                            'correctattempts' => $record->progresscorrectattempts,
+                            'lastreadprivatecomment' => transform::datetime($record->progresslastreadprivatecomment),
+                            'lastreadpubliccomment' => transform::datetime($record->progresslastreadpubliccomment)
+                    ];
+                }
+
+                // Export attempts.
+                if (!empty($record->attemptid) && $userid == $record->attemptuserid) {
+                    $contextdata->attempts[$record->attemptid] = (object) [
+                            'studentquizid' => $record->attempstudentquizid,
+                            'userid' => transform::user($record->attemptuserid),
+                            'questionusageid' => $record->attemptquestionusageid,
+                            'categoryid' => $record->attemptcategoryid
+                    ];
+                }
+
+                // Export notifications.
+                if (!empty($record->notificationid) && $userid == $record->notificationid) {
+                    $contextdata->notifications[$record->notificationid] = (object) [
+                            'studentquizid' => $record->notificationstudentquizid,
+                            'content' => $record->notificationcontent,
+                            'recipientid' => transform::user($record->notificationrecipientid),
+                            'status' => $record->notificationstatus,
+                            'timetosend' => !is_null($record->notificationtimetosend) ?
+                                    transform::datetime($record->notificationtimetosend) : null
+                    ];
+                }
+
+                // Export state history.
+                if (!empty($record->statehistoryid) && $userid == $record->statehistoryuserid) {
+                    $states = studentquiz_helper::get_state_names_description();
+                    $contextdata->statehistory[$record->statehistoryid] = (object) [
+                            'questionid' => $record->statehistoryquestionid,
+                            'userid' => transform::user($record->statehistoryuserid),
+                            'state' => $states[$record->statehistorystate],
+                            'timecreated' => !is_null($record->statehistorytimecreated) ?
+                                    transform::datetime($record->statehistorytimecreated) : null
+                    ];
                 }
             }
-
-            // Export question's approval info.
-            if (!empty($record->questionid) && ($userid == $record->questioncreatedby || $userid == $record->questionmodifiedby)) {
-                // Purpose of this one is to export the approved status since Moodle have already export
-                // whole question info for us, so we won't include full question info here.
-                $contextdata->questions[$record->questionid] = (object) [
-                        'name' => $record->questionname,
-                        'approved' => transform::yesno($record->questionapproved),
-                        'groupid' => $record->questiongroupid,
-                        'pinned' => transform::yesno($record->questionpinned)
-                ];
-            }
-
-            // Export rating.
-            if (!empty($record->rateid) && $userid == $record->rateuserid) {
-                $contextdata->rates[$record->rateid] = (object) [
-                        'rate' => $record->raterate,
-                        'questionid' => $record->ratequestionid,
-                        'userid' => transform::user($record->rateuserid)
-                ];
-            }
-
-            // Export comments.
-            if (!empty($record->commentid) && $userid == $record->commentuserid) {
-                $contextdata->comments[$record->commentid] = (object) [
-                        'comment' => $record->commentcomment,
-                        'questionid' => $record->commentquestionid,
-                        'userid' => transform::user($record->commentuserid),
-                        'created' => transform::datetime($record->commentcreate),
-                        'parentid' => $record->commentparentid,
-                        'status' => $record->commentstatus,
-                        'type' => $record->commenttype,
-                        'timemodified' => !is_null($record->commenttimemodified) ?
-                                transform::datetime($record->commenttimemodified) : null,
-                        'usermodified' => $record->commentusermodified
-                ];
-            }
-
-            // Export comment history.
-            if (!empty($record->commenthistoryid) && $userid == $record->commenthistoryuserid) {
-                $contextdata->commenthistory[$record->commenthistoryid] = (object) [
-                        'commentid' => $record->commenthistorycommentid,
-                        'content' => $record->commenthistorycontent,
-                        'userid' => transform::user($record->commenthistoryuserid),
-                        'action' => $record->commenthistoryaction,
-                        'timemodified' => !is_null($record->commenthistorytimemodified) ?
-                                transform::datetime($record->commenthistorytimemodified) : null
-                ];
-            }
-
-            // Export progresses.
-            if (!empty($record->progressquestionid) && $userid == $record->progressuserid) {
-                $contextdata->progresses[$record->progressquestionid] = (object) [
-                        'userid' => transform::user($record->progressuserid),
-                        'studentquizid' => $record->progressstudentquizid,
-                        'lastanswercorrect' => transform::yesno($record->progresslastanswercorrect),
-                        'attempts' => $record->progressattempts,
-                        'correctattempts' => $record->progresscorrectattempts,
-                        'lastreadprivatecomment' => transform::datetime($record->progresslastreadprivatecomment),
-                        'lastreadpubliccomment' => transform::datetime($record->progresslastreadpubliccomment)
-                ];
-            }
-
-            // Export attempts.
-            if (!empty($record->attemptid) && $userid == $record->attemptuserid) {
-                $contextdata->attempts[$record->attemptid] = (object) [
-                        'studentquizid' => $record->attempstudentquizid,
-                        'userid' => transform::user($record->attemptuserid),
-                        'questionusageid' => $record->attemptquestionusageid,
-                        'categoryid' => $record->attemptcategoryid
-                ];
-            }
-
-            // Export notifications.
-            if (!empty($record->notificationid) && $userid == $record->notificationid) {
-                $contextdata->notifications[$record->notificationid] = (object) [
-                        'studentquizid' => $record->notificationstudentquizid,
-                        'content' => $record->notificationcontent,
-                        'recipientid' => transform::user($record->notificationrecipientid),
-                        'status' => $record->notificationstatus,
-                        'timetosend' => !is_null($record->notificationtimetosend) ?
-                                transform::datetime($record->notificationtimetosend) : null
-                ];
-            }
-
-            // Export state history.
-            if (!empty($record->statehistoryid) && $userid == $record->statehistoryuserid) {
-                $states = studentquiz_helper::get_state_names_description();
-                $contextdata->statehistory[$record->statehistoryid] = (object) [
-                        'questionid' => $record->statehistoryquestionid,
-                        'userid' => transform::user($record->statehistoryuserid),
-                        'state' => $states[$record->statehistorystate],
-                        'timecreated' => !is_null($record->statehistorytimecreated) ?
-                                transform::datetime($record->statehistorytimecreated) : null
-                ];
-            }
+            $recordset->close();
         }
-        $recordset->close();
 
-        // Import last context data.
-        if (!empty($contextdata)) {
+        $subcontext = [get_string('pluginname', 'mod_studentquiz')];
+        foreach ($allcontextdata as $contextid => $contextdata) {
+            $context = \context::instance_by_id($contextid);
             writer::with_context($context)->export_data($subcontext, $contextdata);
         }
     }
