@@ -159,6 +159,9 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->forcecommenting)) {
             $data->forcecommenting = get_config('studentquiz', 'forcecommenting');
         }
+        if (empty($data->privatecommenting)) {
+            $data->privatecommenting = get_config('studentquiz', 'showprivatecomment');
+        }
         if (!isset($data->commentdeletionperiod)) {
             $data->commentdeletionperiod = get_config('studentquiz', 'commentediting_deletionperiod');
         }

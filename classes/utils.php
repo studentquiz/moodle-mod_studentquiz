@@ -345,15 +345,16 @@ style5 = html';
      * @param \question_definition $question Current Question stdClass
      * @param int $cmid Current Cmid
      * @param int $type Comment type.
+     * @param bool $privatecommenting Does this studentquiz enable private commenting?
      * @return boolean
      */
     public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid,
-             $type = self::COMMENT_TYPE_PUBLIC) {
+             $type = self::COMMENT_TYPE_PUBLIC, $privatecommenting = false) {
         global $USER, $PAGE;
 
         $context = \context_module::instance($cmid);
         if ($PAGE->pagetype == 'mod-studentquiz-preview' && !has_capability('mod/studentquiz:canselfratecomment', $context)) {
-            if ($type == self::COMMENT_TYPE_PUBLIC || !get_config('studentquiz', 'showprivatecomment') ||
+            if ($type == self::COMMENT_TYPE_PUBLIC || !$privatecommenting ||
                     $USER->id != $question->createdby ||
                     self::get_question_state($question) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
                 return false;
@@ -503,11 +504,12 @@ style5 = html';
      * Mark the active tab in question comment tabs.
      *
      * @param array $tabs All tabs.
+     * @param bool $privatecommenting Does the studentquiz enable private commenting?
      * @return void.
      */
-    public static function mark_question_comment_current_active_tab(&$tabs): void {
+    public static function mark_question_comment_current_active_tab(&$tabs, $privatecommenting = false): void {
         $currentactivetab = '';
-        if (get_config('studentquiz', 'showprivatecomment')) {
+        if ($privatecommenting) {
             // First view default is private comment tab.
             $currentactivetab = get_user_preferences(self::USER_PREFERENCE_QUESTION_ACTIVE_TAB, self::COMMENT_TYPE_PRIVATE);
         }
@@ -536,12 +538,14 @@ style5 = html';
      *
      * @param int $cmid Course module id.
      * @param \question_definition $question Question definition object.
+     * @param bool $privatecommenting Does the studentquiz enable private commenting?
+
      * @return bool Question's state.
      */
-    public static function can_view_private_comment($cmid, $question) {
+    public static function can_view_private_comment($cmid, $question, $privatecommenting = false) {
         global $USER;
 
-        if (!get_config('studentquiz', 'showprivatecomment')) {
+        if (!$privatecommenting) {
             return false;
         }
 

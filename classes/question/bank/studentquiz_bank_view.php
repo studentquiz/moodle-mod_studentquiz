@@ -922,6 +922,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
+     * Get Studentquiz object of question bank.
+     * @return \stdClass studentquiz object.
+     */
+    public function get_studentquiz() {
+        return $this->studentquiz;
+    }
+
+    /**
      * Deal with a sort name of the form columnname, or colname_subsort by
      * breaking it up, validating the bits that are present, and returning them.
      * If there is no subsort, then $subsort is returned as ''.
@@ -932,7 +940,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     protected function parse_subsort($sort) {
         // When we sort by public/private comments and turn off the setting studentquiz | privatecomment,
         // the parse_subsort function will throw exception. We should redirect to the base_url after cleaning all sort params.
-        $showprivatecomment = get_config('studentquiz', 'showprivatecomment');
+        $showprivatecomment = $this->studentquiz->privatecommenting;
         if ($showprivatecomment && $sort == 'mod_studentquiz\bank\comment_column' ||
                 !$showprivatecomment && ($sort == 'mod_studentquiz\bank\comment_column-privatecomment' ||
                 $sort == 'mod_studentquiz\bank\comment_column-publiccomment')) {

@@ -80,7 +80,8 @@ class comment_column extends studentquiz_column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $output = $this->renderer->render_comment_column($question, $rowclasses);
+        $privatecommenting = $this->qbank->get_studentquiz()->privatecommenting;
+        $output = $this->renderer->render_comment_column($question, $rowclasses, $privatecommenting);
         echo $output;
     }
 
@@ -135,7 +136,7 @@ class comment_column extends studentquiz_column_base {
      * @return string field name
      */
     public function is_sortable() {
-        if (get_config('studentquiz', 'showprivatecomment')) {
+        if ($this->qbank->get_studentquiz()->privatecommenting) {
             return [
                 'publiccomment' => [
                     'field' => 'copub.publiccomment',

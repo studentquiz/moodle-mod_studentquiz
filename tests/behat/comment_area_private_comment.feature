@@ -4,8 +4,6 @@ Feature: As a user I can add private comment and view private comment in my own 
   Background:
     # 'I set the field' doesn't work on Moodle <= 35
     Given I make sure the current Moodle branch is greater or equal "36"
-    And the following config values are set as admin:
-      | showprivatecomment | 1 | studentquiz |
     And the following "users" exist:
       | username | firstname | lastname | email                |
       | teacher1 | The       | Teacher  | teacher1@example.com |
@@ -20,8 +18,8 @@ Feature: As a user I can add private comment and view private comment in my own 
       | student1 | C1     | student        |
       | student2 | C1     | student        |
     And the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber     | forcecommenting | publishnewquestion | anonymrank |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1               | 1                  | 0          |
+      | activity    | name          | intro              | course | idnumber     | forcecommenting | publishnewquestion | anonymrank | privatecommenting |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1               | 1                  | 0          | 1                 |
 
   @javascript
   Scenario: Students can create and view private and public comments in his own question
