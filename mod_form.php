@@ -188,6 +188,12 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addHelpButton('forcecommenting', 'settings_forcecommenting', 'studentquiz');
         $mform->setDefault('forcecommenting', get_config('studentquiz', 'forcecommenting'));
 
+        // Field enable private commenting.
+        $mform->addElement('checkbox', 'privatecommenting', get_string('settings_privatecommenting', 'studentquiz'));
+        $mform->setType('privatecommenting', PARAM_INT);
+        $mform->addHelpButton('privatecommenting', 'settings_privatecommenting', 'studentquiz');
+        $mform->setDefault('privatecommenting', get_config('studentquiz', 'showprivatecomment'));
+
         // Comment deletion period.
         $mform->addElement('select', 'commentdeletionperiod',
                 get_string('settings_commentdeletionperiod', 'studentquiz'),

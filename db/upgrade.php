@@ -944,6 +944,24 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021102502, 'studentquiz');
     }
 
+    if ($oldversion < 2021120200) {
+        // Define field privatecommenting to be added to studentquiz.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('privatecommenting', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'digestfirstday');
+
+        // Conditionally launch add field privatecommenting.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Update old data to set the privatecommenting to the current site config.
+        $privatecommenting = get_config('studentquiz', 'showprivatecomment');
+        $DB->set_field('studentquiz', 'privatecommenting', $privatecommenting);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2021120200, 'studentquiz');
+    }
+
     return true;
 }
 

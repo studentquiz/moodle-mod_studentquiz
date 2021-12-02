@@ -461,9 +461,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      *
      * @param stdClass $question
      * @param array $rowclasses
+     * @param bool $privatecommenting Does this studentquiz enable private commenting?
      * @return string
      */
-    public function render_comment_column($question, $rowclasses) {
+    public function render_comment_column($question, $rowclasses, $privatecommenting = false) {
         $publiccontext = [
             'tooltiptext' => get_string('commentcolumnexplainpublic', 'studentquiz'),
             'sronlytext' => get_string('public', 'studentquiz') . ' ' .
@@ -485,7 +486,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         $privatecomment = '';
 
-        if (utils::can_view_private_comment($this->page->cm->id, $question)) {
+        if (utils::can_view_private_comment($this->page->cm->id, $question, $privatecommenting)) {
             $privatecontext = [
                 'tooltiptext' => get_string('commentcolumnexplainprivate', 'studentquiz'),
                 'sronlytext' => get_string('private', 'studentquiz') . ' ' .
@@ -1614,13 +1615,14 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @param question_definition $question Question definition object.
      * @param int $userid User id.
      * @param int $highlight Highlight comment ID.
+     * @param bool $privatecommenting Does the studentquiz enable private commenting?
      * @return string HTML fragment.
      */
-    public function render_comment_nav_tabs($cmid, $question, $userid, $highlight = 0) {
+    public function render_comment_nav_tabs($cmid, $question, $userid, $highlight = 0, $privatecommenting = false) {
         $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
         $tabs = [];
 
-        if (utils::can_view_private_comment($cmid, $question)) {
+        if (utils::can_view_private_comment($cmid, $question, $privatecommenting)) {
             $privatecommentstab = $renderer->render_comment_area($question->id, $userid, $cmid, $highlight,
                 utils::COMMENT_TYPE_PRIVATE);
             $tabs[] = [
@@ -1648,7 +1650,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             ];
         }
 
-        utils::mark_question_comment_current_active_tab($tabs);
+        utils::mark_question_comment_current_active_tab($tabs, $privatecommenting);
         $context = [
             'tabs' => $tabs
         ];
@@ -2156,7 +2158,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $commenttype);
         $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
-        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($question, $cmid, $commenttype);
+        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($question, $cmid, $commenttype,
+            $studentquiz->privatecommenting);
         if ($highlight != 0) {
             $numbertoshow = 0;
         }

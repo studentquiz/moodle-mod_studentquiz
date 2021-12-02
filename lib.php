@@ -119,6 +119,10 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
         $studentquiz->forcecommenting = 0;
     }
 
+    if (!isset($studentquiz->privatecommenting)) {
+        $studentquiz->privatecommenting = 0;
+    }
+
     // New StudentQuiz instances use the aggregated mode.
     $studentquiz->aggregated = 1;
 
@@ -174,6 +178,10 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
 
     if (!isset($studentquiz->forcecommenting)) {
         $studentquiz->forcecommenting = 0;
+    }
+
+    if (!isset($studentquiz->privatecommenting)) {
+        $studentquiz->privatecommenting = 0;
     }
 
     if (!isset($studentquiz->commentdeletionperiod)) {
