@@ -98,7 +98,8 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                             'timestamp' => $data['messagedata']->timestamp,
                             'questionname' => $data['messagedata']->questionname,
                             'actiontype' => $data['eventname'],
-                            'actorname' => $data['messagedata']->actorname
+                            'actorname' => $data['messagedata']->actorname,
+                            'isstudent' => $data['messagedata']->isstudent,
                     ];
                 }
                 $fullmessagehtml = $renderer->render_from_template('mod_studentquiz/digest_email_notification', $contentdata);

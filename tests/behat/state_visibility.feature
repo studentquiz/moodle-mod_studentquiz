@@ -229,3 +229,36 @@ Feature: Question states and visibility
     And I should not see "Pin question" action for "TF 02" in the question bank
     And "Pinned" "icon" should exist in the "TF 01" "table_row"
     And "Pinned" "icon" should not exist in the "TF 02" "table_row"
+
+  @javascript @_switch_window
+  Scenario: The student can not delete the question when the question has been approved state
+    When I am on the "StudentQuiz Test 2" "mod_studentquiz > View" page logged in as "student1"
+
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "TF 01"
+    And I set the field "Question text" to "The correct answer is false"
+    And I press "id_submitbutton"
+
+    And I choose "Preview" action for "TF 01" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Reviewable"
+    And I click on "Change state" "button"
+    And I switch to the main window
+
+    And I log out
+    And I am on the "StudentQuiz Test 2" "mod_studentquiz > View" page logged in as "admin"
+    And I choose "Preview" action for "TF 01" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Approved"
+    And I click on "Change state" "button"
+    And I switch to the main window
+
+    And I log out
+    And I am on the "StudentQuiz Test 2" "mod_studentquiz > View" page logged in as "student1"
+    And I choose "Preview" action for "TF 01" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Delete"
+    And I click on "Change state" "button"
+    And I should see "This question cannot be deleted because it has been Approved."

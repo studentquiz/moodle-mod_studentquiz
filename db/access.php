@@ -189,4 +189,13 @@ $capabilities = array(
             'manager'        => CAP_ALLOW,
         ]
     ],
+    'mod/studentquiz:emailnotifyreviewablequestion' => [
+        'riskbitmask' => RISK_PERSONAL,
+        'captype' => 'read',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'teacher' => CAP_ALLOW,
+            'editingteacher' => CAP_ALLOW
+        ]
+    ],
 );

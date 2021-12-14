@@ -254,7 +254,7 @@ function mod_studentquiz_check_created_permission($cmid) {
  *
  * @param stdClass $question object
  * @param stdClass $recepient user object receiving the notification
- * @param int $actor user object triggering the notification
+ * @param stdClass $actor user object triggering the notification
  * @param stdClass $course course object
  * @param stdClass $module course module object
  * @return stdClass Data object with course, module, question, student and teacher info
@@ -297,9 +297,14 @@ function mod_studentquiz_prepare_notify_data($question, $recepient, $actor, $cou
     $data->actorusername = $actor->username;
 
     // Set to anonymous student and manager if needed.
+    $context = \context_course::instance($course->id);
+    $isstudent = !is_enrolled($context, $recepient->id, 'mod/studentquiz:manage');
+    $data->isstudent = $isstudent;
     if ($studentquiz->anonymrank) {
-        $data->recepientname = get_string('creator_anonym_fullname', 'studentquiz');
-        $data->actorname = get_string('manager_anonym_fullname', 'studentquiz');
+        $anonymousstudent = get_string('creator_anonym_fullname', 'studentquiz');
+        $anonymousmanager = get_string('manager_anonym_fullname', 'studentquiz');
+        $data->recepientname = $isstudent ? $anonymousstudent : $anonymousmanager;
+        $data->actorname = $isstudent ? $anonymousmanager : $anonymousstudent;
     }
 
     // Notification settings.
@@ -327,6 +332,7 @@ function mod_studentquiz_state_notify($questionid, $course, $module, $type) {
                 studentquiz_helper::STATE_APPROVED => 'approved',
                 studentquiz_helper::STATE_NEW => 'new',
                 studentquiz_helper::STATE_CHANGED => 'changed',
+                studentquiz_helper::STATE_REVIEWABLE => 'reviewable',
         ];
         $event = $states[$state];
     } else {
@@ -358,6 +364,28 @@ function mod_studentquiz_notify_comment_deleted($comment, $course, $module) {
     $successtoauthor = mod_studentquiz_event_notification_comment('deleted', $comment, $course, $module);
     $successtocommenter = mod_studentquiz_event_notification_minecomment('deleted', $comment, $course, $module);
     return $successtoauthor || $successtocommenter;
+}
+
+/**
+ * Notify question to teacher/tutor that an event occurred when the author change question's state to reviewable.
+ * @param int $questionid ID of the student's questions.
+ * @param stdClass $course Course object.
+ * @param stdClass $module Course module object.
+ */
+function mod_studentquiz_notify_reviewable_question(int $questionid, stdClass $course, stdClass $module) {
+    global $DB, $USER;
+
+    $question = $DB->get_record('question', ['id' => $questionid], 'id, name, timemodified, createdby, modifiedby');
+
+    $context = \context_course::instance($course->id);
+    $actor = \core_user::get_user($USER->id);
+    $recipients = get_enrolled_users($context, 'mod/studentquiz:emailnotifyreviewablequestion', 0, 'u.*', null, 0, 0, true);
+
+    foreach ($recipients as $recipient) {
+        $data = mod_studentquiz_prepare_notify_data($question, $recipient, $actor, $course, $module);
+        mod_studentquiz_send_notification(studentquiz_helper::$statename[studentquiz_helper::STATE_REVIEWABLE],
+            $recipient, $actor, $data);
+    }
 }
 
 /**

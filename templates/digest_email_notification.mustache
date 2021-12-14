@@ -49,7 +49,8 @@
                 "timestamp": "14 May 2021, 4:17 PM",
                 "questionname": "How many decimals has Pi?",
                 "actiontype": "approved",
-                "actorname": "Nicole Brown"
+                "actorname": "Nicole Brown",
+                "isstudent": false
             }
         ]
     }
@@ -67,11 +68,22 @@
             <div>---------------------------------------------------------------------</div>
             <div>{{# str }} emaildigestbody_section_title, studentquiz, { "seq": {{# quote }} {{ seq }} {{/ quote }}, "timestamp": {{# quote }} {{ timestamp }}  {{/ quote }}} {{/ str }}</div>
             <div>---------------------------------------------------------------------</div>
-            <div>{{# str }} emaildigestbody_section_content, studentquiz, {
+            <div>
+            {{#isstudent}}
+                {{# str }} emaildigestbody_section_content, studentquiz, {
                 "questionname": {{# quote }} {{ questionname }} {{/ quote }},
                 "actiontype": {{# quote }} {{ actiontype }} {{/ quote }},
                 "actorname": {{# quote }} {{ actorname }} {{/ quote }}
                 } {{/ str }}
+
+            {{/isstudent}}
+            {{^isstudent}}
+                {{# str }} emailnoityfyreviewablequestion_section_content, studentquiz, {
+                    "questionname": {{# quote }} {{ questionname }} {{/ quote }},
+                    "actorname": {{# quote }} {{ actorname }} {{/ quote }}
+                } 
+                {{/ str }}
+            {{/isstudent}}
             </div>
         </div>
         <br>
