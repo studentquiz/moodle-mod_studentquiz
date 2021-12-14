@@ -224,7 +224,7 @@ $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cm
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the state change select box.
-$statechangehtml = $output->render_state_choice($question->id, $course->id, $cmid);
+$statechangehtml = $output->render_state_choice($question, $course->id, $cmid);
 $navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $isanswered);
 
 // Change state will always first thing below navigation.

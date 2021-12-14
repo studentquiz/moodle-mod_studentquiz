@@ -421,6 +421,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             studentquiz_helper::STATE_APPROVED,
             studentquiz_helper::STATE_NEW,
             studentquiz_helper::STATE_CHANGED,
+            studentquiz_helper::STATE_REVIEWABLE,
         ))) {
             throw new coding_exception('Invalid question state '.$question->state.' for question id '.$question->id.'');
         }
@@ -872,7 +873,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 . 'mod_studentquiz\\bank\\question_text_row,'
                 . 'mod_studentquiz\\bank\\sq_edit_action_column,'
                 . 'mod_studentquiz\\bank\\preview_column,'
-                . 'delete_action_column,'
+                . 'mod_studentquiz\\bank\\sq_delete_action_column,'
                 . 'mod_studentquiz\\bank\\sq_hidden_action_column,'
                 . 'mod_studentquiz\\bank\\sq_pin_action_column,'
                 . 'mod_studentquiz\\bank\\sq_edit_menu_column,'
@@ -1496,8 +1497,9 @@ EOT;
                 studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
                 studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
                 studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
+                studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
                 studentquiz_helper::STATE_HIDE => get_string('hide'),
-                studentquiz_helper::STATE_DELETE => get_string('delete')
+                studentquiz_helper::STATE_DELETE => get_string('delete'),
         ];
         $output = $this->box_start('generalbox modal modal-dialog modal-in-page show', 'notice', $attributes);
         $output .= $this->box_start('modal-content', 'modal-content');
@@ -1546,7 +1548,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                              question_display_options $options, $cmid,
                              $userid) {
         global $COURSE;
-        return $this->render_state_choice($question->id, $COURSE->id, $cmid);
+        return $this->render_state_choice($question, $COURSE->id, $cmid);
     }
 
     /**
@@ -1711,33 +1713,50 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Render state choice for specific question
      *
-     * @param int $questionid
+     * @param question_definition $question The current question.
      * @param int $courseid
      * @param int $cmid
      * @return string HTML state choice select box
      */
-    public function render_state_choice($questionid, $courseid, $cmid) {
+    public function render_state_choice(\question_definition $question, int $courseid, int $cmid) {
+        global $USER;
+
         $output = '';
-        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
-            $currentstate = utils::get_state_question($questionid);
-            $statenames = studentquiz_helper::get_state_descriptions();
-            $states = [
-                    studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
-                    studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
-                    studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-                    studentquiz_helper::STATE_HIDE => get_string('hide'),
-                    studentquiz_helper::STATE_DELETE => get_string('delete')
-            ];
-            $output .= html_writer::start_span('change-question-state');
-            $output .= html_writer::div(get_string('changecurrentstate', 'studentquiz',
-                $statenames[$currentstate]), 'current-state mb-2');
-            $output .= html_writer::select($states, 'statetype');
-            $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
-                    ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $questionid,
-                            'data-courseid' => $courseid, 'data-cmid' => $cmid, 'disabled' => 'disabled']);
-            $output .= html_writer::end_span();
-            $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
+        if (!has_capability('mod/studentquiz:canselfratecomment', $this->page->context) &&
+            $USER->id != $question->createdby &&
+            !has_capability('mod/studentquiz:changestate', $this->page->context)) {
+            return;
         }
+        $states = [
+            studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
+            studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
+            studentquiz_helper::STATE_DELETE => get_string('delete'),
+        ];
+
+        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
+            $states = [
+                studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
+                studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
+                studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
+                studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
+                studentquiz_helper::STATE_HIDE => get_string('hide'),
+                studentquiz_helper::STATE_DELETE => get_string('delete'),
+            ];
+        }
+
+        $currentstate = utils::get_state_question($question->id);
+        $statenames = studentquiz_helper::get_state_descriptions();
+        $output .= html_writer::start_span('change-question-state');
+        $output .= html_writer::div(get_string('changecurrentstate', 'studentquiz',
+            $statenames[$currentstate]), 'current-state mb-2');
+        $output .= html_writer::tag('label', get_string('state_column_name', 'studentquiz'), ['for' => 'statetype']);
+        $output .= html_writer::select($states, 'statetype');
+        $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
+                ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $question->id,
+                        'data-courseid' => $courseid, 'data-cmid' => $cmid, 'disabled' => 'disabled']);
+        $output .= html_writer::end_span();
+        $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
+
         return \html_writer::div($output, 'studentquiz_behaviour');
     }
 

@@ -49,6 +49,7 @@ require_once(__DIR__ . '/sq_edit_action_column.php');
 require_once(__DIR__ . '/sq_pin_action_column.php');
 require_once(__DIR__ . '/state_pin_column.php');
 require_once(__DIR__ . '/sq_edit_menu_column.php');
+require_once(__DIR__ . '/sq_delete_action_column.php');
 
 /**
  * Module instance settings form
@@ -732,6 +733,9 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \toggle_filter_checkbox('only_changed_state',
                 get_string('state_changed', 'studentquiz'), false, 'sqs.state',
                 ['approved'], 2, studentquiz_helper::STATE_CHANGED);
+        $this->fields[] = new \toggle_filter_checkbox('only_reviewable_state',
+                get_string('state_reviewable', 'studentquiz'), false, 'sqs.state',
+                ['approved'], 2, studentquiz_helper::STATE_REVIEWABLE);
 
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
             get_string('filter_label_onlygood', 'studentquiz'),

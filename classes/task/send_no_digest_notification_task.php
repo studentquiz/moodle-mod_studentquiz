@@ -56,7 +56,10 @@ class send_no_digest_notification_task extends \core\task\adhoc_task {
                 'actorname' => $data->messagedata->actorname,
                 'timestamp' => $data->messagedata->timestamp,
                 'questionurl' => $data->messagedata->questionurl,
-                'eventname' => $data->eventname
+                'eventname' => $data->eventname,
+                'isstudent' => $data->messagedata->isstudent,
+                'courseshortname' => $data->messagedata->courseshortname,
+
         ];
         $fullmessagehtml = $renderer->render_from_template('mod_studentquiz/single_email_notification', $contentdata);
 

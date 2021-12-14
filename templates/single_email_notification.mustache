@@ -34,6 +34,7 @@
     * actorname
     * timestamp
     * questionurl
+    * isstudent
 
     Example context (json):
     {
@@ -44,13 +45,16 @@
         "eventname": "approved",
         "actorname": "Nicole Brown",
         "timestamp": "14 May 2021, 4:17 PM",
-        "questionurl": "/to/some/where"
+        "questionurl": "/to/some/where",
+        "isstudent": false,
+        "courseshortname": "OU101-21J"
     }
 }}
 <div>
     <p>{{# str }} emailautomationnote, studentquiz {{/ str }}</p><br>
     <p>{{# str }} emailsalutation, studentquiz, {{ recipientname }} {{/ str }}</p>
     <p>
+    {{#isstudent}}
         {{# str }} emailsinglebody, studentquiz, {
             "questionname": {{# quote }} {{ questionname }} {{/ quote }},
             "modulename": {{# quote }} {{ modulename }} {{/ quote }},
@@ -60,6 +64,17 @@
             "timestamp": {{# quote }} {{ timestamp }} {{/ quote }}
             }
         {{/ str }}
+    {{/isstudent}}
+    {{^isstudent}}
+        {{# str }} emailnoityfyreviewablequestionsinglebody, studentquiz, {
+            "questionname": {{# quote }} {{ questionname }} {{/ quote }},
+            "modulename": {{# quote }} {{ modulename }} {{/ quote }},
+            "courseshortname": {{# quote }} {{ courseshortname }} {{/ quote }},
+            "actorname": {{# quote }} {{ actorname }} {{/ quote }},
+            "timestamp": {{# quote }} {{ timestamp }} {{/ quote }}
+            }
+        {{/ str }}
+    {{/isstudent}}
     </p>
     <p>{{# str }} emailsinglebody_reviewlink, studentquiz {{/ str }}<a href="{{ questionurl }}">{{ questionurl }}</a>.</p>
 </div>

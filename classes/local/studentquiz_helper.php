@@ -73,6 +73,11 @@ class studentquiz_helper {
     const STATE_SHOW = 6;
 
     /**
+     * @var int STATE_REVIEWABLE state constant for reviewable.
+     */
+    const STATE_REVIEWABLE = 7;
+
+    /**
      * Statename offers string representation for state codes. Probably only use for translation hints.
      * @var array constant to text
      */
@@ -81,6 +86,7 @@ class studentquiz_helper {
         self::STATE_APPROVED => 'approved',
         self::STATE_NEW => 'new',
         self::STATE_CHANGED => 'changed',
+        self::STATE_REVIEWABLE => 'reviewable',
         self::STATE_HIDE => 'hidden',
         self::STATE_DELETE => 'deleted',
     );
@@ -132,7 +138,8 @@ class studentquiz_helper {
             self::STATE_HIDE => get_string('hidden', 'studentquiz'),
             self::STATE_DELETE => get_string('deleted', 'studentquiz'),
             self::STATE_SHOW => get_string('show'),
-            self::STATE_NEW => get_string('new')
+            self::STATE_NEW => get_string('new'),
+            self::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
         ];
     }
 }

@@ -126,6 +126,8 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
                 'messagedata' => $notifydata,
                 'questionurl' => $notifydata->questionurl,
                 'questionname' => $notifydata->questionname,
+                'isstudent' => $notifydata->isstudent,
+                'courseshortname' => $notifydata->courseshortname
         ];
 
         // Execute the cron.
@@ -191,6 +193,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
                 'messagedata' => $notifydata,
                 'questionurl' => $notifydata->questionurl,
                 'questionname' => $notifydata->questionname,
+                'isstudent' => $notifydata->isstudent
         ];
 
         $notificationqueue = new stdClass();
