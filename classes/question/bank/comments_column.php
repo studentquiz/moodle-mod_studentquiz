@@ -45,7 +45,7 @@ class comment_column extends studentquiz_column_base {
     /**
      * Initialise
      */
-    public function init() {
+    public function init() :void {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -89,7 +89,7 @@ class comment_column extends studentquiz_column_base {
      * Get the left join for comments
      * @return array modified select left join
      */
-    public function get_extra_joins() {
+    public function get_extra_joins() :array {
         $deletedstatus = utils::COMMENT_HISTORY_DELETE;
         $typepublic = utils::COMMENT_TYPE_PUBLIC;
         $typeprivate = utils::COMMENT_TYPE_PRIVATE;
@@ -120,7 +120,7 @@ class comment_column extends studentquiz_column_base {
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_required_fields() {
+    public function get_required_fields() :array{
         return [
             'copub.publiccomment',
             'copri.privatecomment',

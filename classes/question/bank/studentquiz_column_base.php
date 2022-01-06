@@ -36,7 +36,7 @@ abstract class studentquiz_column_base extends \core_question\bank\column_base {
      * @param object $question The row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
-    public function display($question, $rowclasses) {
+    public function display($question, $rowclasses) :void {
         $this->extraclasses = [];
         if (!empty($question->sq_hidden)) {
             $this->extraclasses[] = 'dimmed_text';

@@ -65,7 +65,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
     /**
      * Loads config of current userid and can see
      */
-    public function init() {
+    public function init() :void {
         global $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $this->anonymousname = get_string('creator_anonym_fullname', 'studentquiz');
@@ -77,7 +77,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
      * @param  stdClass $question Questionbank from database
      * @param  string $rowclasses
      */
-    protected function display_content($question, $rowclasses) {
+    protected function display_content($question, $rowclasses) :void {
         $this->anonymize = $this->qbank->is_anonymized();
         $output = $this->renderer->render_anonym_creator_name_column(
                 $this->anonymize, $question, $this->currentuserid, $this->anonymousname, $rowclasses);
@@ -89,7 +89,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
      * @param object $question The row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
-    public function display($question, $rowclasses) {
+    public function display($question, $rowclasses) :void {
         $this->extraclasses = [];
         if (!empty($question->sq_hidden)) {
             $this->extraclasses[] = 'dimmed_text';

@@ -43,7 +43,7 @@ class rate_column extends studentquiz_column_base {
     /**
      * Initialise Parameters for join
      */
-    protected function init() {
+    protected function init() : void{
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
@@ -86,7 +86,7 @@ class rate_column extends studentquiz_column_base {
      * Get the left join for rating
      * @return array modified select left join
      */
-    public function get_extra_joins() {
+    public function get_extra_joins() : array {
         return array('vo' => "LEFT JOIN (
                                           SELECT ROUND(avg(rate), 2) AS rate, questionid
                                             FROM {studentquiz_rate}
@@ -104,7 +104,7 @@ class rate_column extends studentquiz_column_base {
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_required_fields() {
+    public function get_required_fields() : array{
         return array('vo.rate', 'myrate.myrate');
     }
 

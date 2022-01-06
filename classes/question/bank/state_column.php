@@ -43,7 +43,7 @@ class state_column extends \core_question\bank\column_base {
     /**
      * Initialise
      */
-    public function init() {
+    public function init() : void {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -86,7 +86,7 @@ class state_column extends \core_question\bank\column_base {
      * Get the left join for approved
      * @return array modified select left join
      */
-    public function get_extra_joins() {
+    public function get_extra_joins() : array {
         return array('sqs' => " LEFT JOIN {studentquiz_question} sqs ON sqs.questionid = q.id");
     }
 
@@ -94,7 +94,7 @@ class state_column extends \core_question\bank\column_base {
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_required_fields() {
+    public function get_required_fields() : array {
         return array('sqs.state AS state');
     }
 

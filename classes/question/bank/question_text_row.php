@@ -66,7 +66,7 @@ class question_text_row extends \core_question\bank\row_base {
      * @param object $question the row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
-    public function display($question, $rowclasses) {
+    public function display($question, $rowclasses) : void {
 
     }
 
@@ -74,7 +74,7 @@ class question_text_row extends \core_question\bank\row_base {
      * Get the extra join text
      * @return array join text
      */
-    public function get_extra_joins() {
+    public function get_extra_joins() : array{
         return array('qc' => 'JOIN {question_categories} qc ON qc.id = q.category');
     }
 
@@ -82,7 +82,7 @@ class question_text_row extends \core_question\bank\row_base {
      * Get required fields
      * @return array get all required fields
      */
-    public function get_required_fields() {
+    public function get_required_fields() : array{
         return array('q.id', 'q.questiontext', 'q.questiontextformat', 'qc.contextid');
     }
 }
