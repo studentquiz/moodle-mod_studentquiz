@@ -14,20 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_studentquiz\local;
+
 /**
- * Helper class for StudentQuiz
+ * Additional DB abstraction toolset.
  *
  * @package mod_studentquiz
  * @copyright 2020 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace mod_studentquiz\local;
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Additional DB abstraction toolset.
  */
 class db {
 

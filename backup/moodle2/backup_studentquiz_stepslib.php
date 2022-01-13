@@ -15,17 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Define all the backup steps that will be used by the backup_studentquiz_activity_structure_step
- *
- * @package   mod_studentquiz
- * @category  backup
- * @copyright 2017 HSR (http://www.hsr.ch)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die;
-
-/**
  * Define the complete StudentQuiz structure for backup, with file and id annotations
  *
  * @package   mod_studentquiz

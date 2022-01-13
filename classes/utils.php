@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Class that holds utility functions used by mod_studentquiz.
- *
- * @package mod_studentquiz
- * @copyright 2020 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz;
-
-defined('MOODLE_INTERNAL') || die();
 
 use core\dml\sql_join;
 use core_courseformat\output\local\state\cm;

@@ -14,25 +14,15 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Represent edit action in studentquiz_bank_view
- *
- * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
 
 use core_question\bank\edit_action_column;
 use mod_studentquiz\local\studentquiz_helper;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Represent edit action in studentquiz_bank_view
  *
+ * @package mod_studentquiz
  * @author Huong Nguyen <huongnv13@gmail.com>
  * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

@@ -14,13 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for (some of) mod/studentquiz/viewlib.php.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
+
+use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,7 +60,7 @@ const QUESTION_DEFAULT_NAME = 'Question';
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_bank_view_test extends advanced_testcase {
+class bank_view_test extends \advanced_testcase {
     /**
      * @var course module
      */
@@ -97,13 +93,13 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     /**
      * Run questionbank.
      *
-     * @return \mod_studentquiz\question\bank\studentquiz_bank_view
-     * @throws mod_studentquiz_view_exception
-     * @throws moodle_exception
+     * @return studentquiz_bank_view
+     * @throws \mod_studentquiz_view_exception
+     * @throws \moodle_exception
      */
     public function run_questionbank() {
         global $PAGE;
-        $PAGE->set_url(new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
+        $PAGE->set_url(new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
         $PAGE->set_context($this->ctx);
         // Hard coded.
         $pagevars = array(
@@ -113,10 +109,10 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
             'showallprinted' => 0,
         );
 
-        $report = new mod_studentquiz_report($this->cm->id);
-        $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            new question_edit_contexts(context_module::instance($this->cm->id))
-            , new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
+        $report = new \mod_studentquiz_report($this->cm->id);
+        $questionbank = new studentquiz_bank_view(
+            new \question_edit_contexts(\context_module::instance($this->cm->id))
+            , new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
             , $this->course
             , $this->cm
             , $this->studentquiz
@@ -141,7 +137,7 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->cm = get_coursemodule_from_instance('studentquiz', $this->studentquiz->id);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $this->ctx = context_module::instance($this->cm->id);
+        $this->ctx = \context_module::instance($this->cm->id);
 
         // Retrieve created category by context.
         $this->cat = question_get_default_category($this->ctx->id);
@@ -170,11 +166,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * Create question rate
-     * @param stdClass $question
+     * @param \stdClass $question
      * @param int $userid
      */
     protected function create_rate($question, $userid) {
-        $raterecord = new stdClass();
+        $raterecord = new \stdClass();
         $raterecord->rate = 5;
         $raterecord->questionid = $question->id;
         $raterecord->userid = $userid;
@@ -182,11 +178,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * Create question comment
-     * @param stdClass $question
+     * @param \stdClass $question
      * @param int $userid
      */
     protected function create_comment($question, $userid) {
-        $commentrecord = new stdClass();
+        $commentrecord = new \stdClass();
         $commentrecord->questionid = $question->id;
         $commentrecord->userid = $userid;
 
@@ -222,13 +218,13 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * Display question bank
-     * @param mod_studentquiz\question\bank\studentquiz_bank_view $questionbank
+     * @param studentquiz_bank_view $questionbank
      * @param int $qpage
      * @param int $qperpage
      * @param int $recurse
      * @param int $showhidden
      * @param int $qbshowtext
-     * @return string
+     * @return html Output.
      */
     protected function displayqb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
         $cat = $this->cat->id . "," . $this->ctx->id;

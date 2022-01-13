@@ -14,24 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Represent sq_hiden action in studentquiz_bank_view
- *
- * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
 
 use core_question\bank\menu_action_column_base;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Represent sq_hiden action in studentquiz_bank_view
  *
+ * @package mod_studentquiz
  * @author Huong Nguyen <huongnv13@gmail.com>
  * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later

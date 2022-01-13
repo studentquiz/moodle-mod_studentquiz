@@ -18,8 +18,6 @@ namespace mod_studentquiz\bank;
 
 use core_question\bank\edit_menu_column;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Represent edit column in studentquiz_bank_view which gathers together all the actions into a menu.
  *

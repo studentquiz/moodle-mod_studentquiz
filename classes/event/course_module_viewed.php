@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Defines the view event.
- *
- * @package    mod_studentquiz
- * @copyright   2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\event;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * The mod_studentquiz instance viewed event class

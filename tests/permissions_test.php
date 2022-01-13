@@ -14,15 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests permission namespace.
- *
- * @package    mod_studentquiz
- * @copyright  2020 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
+namespace mod_studentquiz;
 
 use mod_studentquiz\access\context_override;
 
@@ -33,12 +25,12 @@ use mod_studentquiz\access\context_override;
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_permissions_testcase extends advanced_testcase {
+class permissions_test extends \advanced_testcase {
 
     /**
      * Setup test
      *
-     * @throws coding_exception
+     * @throws \coding_exception
      */
     protected function setUp(): void {
         global $DB;
@@ -55,7 +47,7 @@ class mod_studentquiz_permissions_testcase extends advanced_testcase {
     /**
      * Tear down test
      *
-     * @throws coding_exception
+     * @throws \coding_exception
      */
     public function tearDown(): void {
         parent::tearDown();
@@ -67,8 +59,6 @@ class mod_studentquiz_permissions_testcase extends advanced_testcase {
      * after adding a capability and then after removing that capability again.
      */
     public function test_context_override() {
-        global $CFG;
-
         $this->resetAfterTest();
         $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
@@ -76,7 +66,7 @@ class mod_studentquiz_permissions_testcase extends advanced_testcase {
         $context = \context_system::instance();
         $studentquiz = $this->getDataGenerator()->create_module('studentquiz',
                 ['course' => $course->id], ['anonymrank' => true]);
-        $contextstudentquiz = context_module::instance($studentquiz->coursemodule);
+        $contextstudentquiz = \context_module::instance($studentquiz->coursemodule);
 
         $this->getDataGenerator()->role_assign($roleid, $user->id, $context->id);
         $this->setUser($user);

@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Data provider tests for booking system module.
- *
- * @package    mod_studentquiz
- * @copyright  2018 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
+namespace mod_studentquiz;
 
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
@@ -33,15 +23,15 @@ use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\privacy\provider;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\writer;
-use mod_studentquiz\utils;
 
 /**
  * Data provider testcase class.
  *
  * @package    mod_studentquiz
+ * @copyright  2018 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_privacy_testcase extends provider_testcase {
+class privacy_test extends provider_testcase {
 
     /**
      * @var array
@@ -114,8 +104,8 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Set up data required for the test case.
      *
-     * @throws dml_exception
-     * @throws moodle_exception
+     * @throws \dml_exception
+     * @throws \moodle_exception
      */
     public function setUp(): void {
         $this->resetAfterTest();
@@ -144,15 +134,15 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         $cmid3 = $generator->create_module('studentquiz', $studentquizdata)->cmid;
 
         $this->studentquiz = [
-                mod_studentquiz_load_studentquiz($cmid1, context_module::instance($cmid1)->id),
-                mod_studentquiz_load_studentquiz($cmid2, context_module::instance($cmid2)->id),
-                mod_studentquiz_load_studentquiz($cmid3, context_module::instance($cmid3)->id),
+                mod_studentquiz_load_studentquiz($cmid1, \context_module::instance($cmid1)->id),
+                mod_studentquiz_load_studentquiz($cmid2, \context_module::instance($cmid2)->id),
+                mod_studentquiz_load_studentquiz($cmid3, \context_module::instance($cmid3)->id),
         ];
 
         $this->contexts = [
-                context_module::instance($this->studentquiz[0]->coursemodule),
-                context_module::instance($this->studentquiz[1]->coursemodule),
-                context_module::instance($this->studentquiz[2]->coursemodule)
+                \context_module::instance($this->studentquiz[0]->coursemodule),
+                \context_module::instance($this->studentquiz[1]->coursemodule),
+                \context_module::instance($this->studentquiz[2]->coursemodule)
         ];
 
         // Create questions for StudentQuiz.
@@ -249,7 +239,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Test get context list for user id.
      *
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_get_contexts_for_userid() {
         // Get contexts for the first user.
@@ -271,7 +261,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test export data for second user.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_export_first_user_data() {
         $contextids = [$this->contexts[0]->id, $this->contexts[1]->id];
@@ -431,7 +421,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test export data for second user.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_export_second_user_data() {
         $contextids = [$this->contexts[0]->id, $this->contexts[1]->id];
@@ -586,7 +576,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test delete data for all user in the context.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_delete_data_for_all_users_in_context() {
         global $DB;
@@ -643,7 +633,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Test delete personal data for one user.
      *
-     * @throws dml_exception
+     * @throws \dml_exception
      * @throws coding_exception
      */
     public function test_delete_data_for_user() {
@@ -662,7 +652,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
 
         // Delete data belong to first user.
         // When running the whole cronjob, privacy task for Question plugin will be called before StudentQuiz.
-        core_question\privacy\provider::delete_data_for_user($appctx);
+        \core_question\privacy\provider::delete_data_for_user($appctx);
         provider::delete_data_for_user($appctx);
 
         // Check question owner of deleting user is change to guest.
@@ -744,7 +734,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test get users in context with question's rating condition.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_get_users_in_context_rating() {
         // Another user create question, then first user rate it.
@@ -770,7 +760,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test get users in context with question's comment condition.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_get_users_in_context_comment() {
         // Another user create question, then first user comment it.
@@ -796,7 +786,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test get users in context with question's comment condition.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_get_users_in_context_comment_history() {
         // Another user create question, then first user comment it.
@@ -816,7 +806,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Test get users in context with question's attempt condition.
      *
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_get_users_in_context_attempt() {
         // Create attempt for the first user.
@@ -838,7 +828,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
     /**
      * Test get users in context with question's notification condition.
      *
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_get_users_in_context_notification() {
         // Create attempt for the first user.
@@ -878,7 +868,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * Test delete data for users from one context.
      *
      * @throws coding_exception
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     public function test_delete_data_for_users() {
         global $DB;
@@ -968,7 +958,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
         ));
 
         $this->setUser($rootuser);
-        return question_bank::load_question($question->id);
+        return \question_bank::load_question($question->id);
     }
 
     /**
@@ -976,7 +966,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      *
      * @param int $questionid
      * @return object
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     protected function create_question_approval($questionid) {
         global $DB;
@@ -1000,7 +990,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @param int $questionid
      * @param int $userid
      * @return object
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     protected function create_rate($questionid, $userid) {
         global $DB;
@@ -1028,7 +1018,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @param int $edit
      * @param int $edituserid
      * @return object
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     protected function create_comment($questionid, $userid, $parentid = 0, $delete = 0, $deleteuserid = 0, $edit = 0,
         $edituserid = 0) {
@@ -1083,7 +1073,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @param int $userid
      * @param int $studentquizid
      * @return object
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     protected function create_progress($questionid, $userid, $studentquizid) {
         global $DB;
@@ -1111,7 +1101,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @param int $userid
      * @param int $categoryid
      * @return object
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     protected function create_attempt($studentquizid, $userid, $categoryid) {
         global $DB;
@@ -1135,7 +1125,7 @@ class mod_studentquiz_privacy_testcase extends provider_testcase {
      * @param int $studentquizid
      * @param int $userid
      * @return object
-     * @throws dml_exception
+     * @throws \dml_exception
      */
     protected function create_notification($studentquizid, $userid) {
         global $DB;
