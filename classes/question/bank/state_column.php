@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Representing approved column
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represent state column in studentquiz_bank_view
  *
+ * @package mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

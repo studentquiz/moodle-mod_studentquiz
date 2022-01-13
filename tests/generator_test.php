@@ -14,16 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Data generator test
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
-
+namespace mod_studentquiz;
 
 /**
  * Data generator test
@@ -32,11 +23,11 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_generator_testcase extends advanced_testcase {
+class generator_test extends \advanced_testcase {
 
     /**
      * Test create comment
-     * @throws coding_exception
+     * @throws \coding_exception
      */
     public function test_create_comment() {
         global $DB;
@@ -51,7 +42,7 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
         $count = $DB->count_records('studentquiz_comment');
         $user = $this->getDataGenerator()->create_user();
 
-        $commentrecord = new stdClass();
+        $commentrecord = new \stdClass();
         $commentrecord->questionid = $question->id;
         $commentrecord->userid = $user->id;
 
@@ -61,7 +52,7 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
 
     /**
      * Test create rate
-     * @throws coding_exception
+     * @throws \coding_exception
      */
     public function test_create_rate() {
         global $DB;
@@ -77,7 +68,7 @@ class mod_studentquiz_generator_testcase extends advanced_testcase {
 
         $user = $this->getDataGenerator()->create_user();
 
-        $raterecord = new stdClass();
+        $raterecord = new \stdClass();
         $raterecord->rate = 5;
         $raterecord->questionid = $question->id;
         $raterecord->userid = $user->id;

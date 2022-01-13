@@ -14,18 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for comment area.
- *
- * @package    mod_studentquiz
- * @copyright  2020 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
+namespace mod_studentquiz;
 
 use mod_studentquiz\commentarea\comment;
-use mod_studentquiz\utils;
 
 /**
  * Unit tests for comment area.
@@ -34,20 +25,20 @@ use mod_studentquiz\utils;
  * @copyright  2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_comment_testcase extends advanced_testcase {
+class comment_test extends \advanced_testcase {
 
     /**
-     * @var stdClass the StudentQuiz activity created in setUp.
+     * @var \stdClass the StudentQuiz activity created in setUp.
      */
     protected $studentquiz;
 
     /**
-     * @var context_module the corresponding activity context.
+     * @var \context_module the corresponding activity context.
      */
     protected $context;
 
     /**
-     * @var stdClass the corresponding course_module.
+     * @var \stdClass the corresponding course_module.
      */
     protected $cm;
 
@@ -61,19 +52,19 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
      */
     protected $questions;
 
-    /** @var mod_studentquiz\commentarea\container */
+    /** @var commentarea\container */
     protected $commentarea;
 
     /** @var int - Value of Root comment. */
     protected $rootid;
 
-    /** @var stdClass - Course. */
+    /** @var \stdClass - Course. */
     protected $course;
 
-    /** @var mod_studentquiz\commentarea\container - Comment area has disabled period setting. */
+    /** @var commentarea\container - Comment area has disabled period setting. */
     protected $commentareanoperiod;
 
-    /** @var mod_studentquiz\commentarea\container - Comment area has enable period setting. */
+    /** @var commentarea\container - Comment area has enable period setting. */
     protected $commentareahasperiod;
 
     /** @var array - Users list. */
@@ -123,7 +114,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
                 'forcecommenting' => 1,
                 'publishnewquestion' => 1
         ));
-        $this->context = context_module::instance($activity->cmid);
+        $this->context = \context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
 
@@ -147,9 +138,9 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
 
         $this->questions = [$q1, $q2];
 
-        $this->commentarea = new \mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm,
+        $this->commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm,
             $this->context, $this->users[0]);
-        $this->rootid = \mod_studentquiz\commentarea\container::PARENTID;
+        $this->rootid = commentarea\container::PARENTID;
 
         $this->generate_comment_list_for_sort();
 
@@ -162,7 +153,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
      *
      * @param int $id - Comment ID.
      * @param bool $convert - Is convert to object data.
-     * @return comment|stdClass
+     * @return comment|\stdClass
      */
     private function get_comment_by_id($id, $convert = true) {
         $comment = $this->commentarea->query_comment_by_id($id);
@@ -201,10 +192,10 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
      */
     public function test_initial() {
         $question = $this->questions[0];
-        $this->equalTo($question->id, $this->commentarea->get_question()->id);
-        $this->equalTo($this->cm->id, $this->commentarea->get_cmid());
-        $this->equalTo($this->studentquiz->id, $this->commentarea->get_studentquiz()->id);
-        $this->equalTo($this->context->id, $this->commentarea->get_context()->id);
+        $this->assertEquals($question->id, $this->commentarea->get_question()->id);
+        $this->assertEquals($this->cm->id, $this->commentarea->get_cmid());
+        $this->assertEquals($this->studentquiz->id, $this->commentarea->get_studentquiz()->id);
+        $this->assertEquals($this->context->id, $this->commentarea->get_context()->id);
     }
 
     /**
@@ -304,7 +295,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         // Re-init SQ.
         $this->studentquiz = mod_studentquiz_load_studentquiz($this->cm->id, $this->context->id);
         // Re-init comment area.
-        $this->commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context);
+        $this->commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context);
         $comment = $this->get_comment_by_id($comment->get_id(), false);
         // Now report is turned on. It will return true.
         $this->assertTrue($comment->can_report());
@@ -341,7 +332,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $q1 = $this->questions[1];
         $base = $this->commentarea;
         // Test sort by date asc.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_DATE_ASC);
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
@@ -351,7 +342,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->assertEquals($this->users[4]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by desc.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_DATE_DESC);
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[5]->id, $comments[0]->get_comment_data()->userid);
@@ -361,7 +352,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->assertEquals($this->users[1]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by first name asc.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_FIRSTNAME_ASC);
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
@@ -371,7 +362,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->assertEquals($this->users[4]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by first name desc.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_FIRSTNAME_DESC);
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[5]->id, $comments[0]->get_comment_data()->userid);
@@ -381,7 +372,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->assertEquals($this->users[3]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by last name asc.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_LASTNAME_ASC);
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[3]->id, $comments[0]->get_comment_data()->userid);
@@ -391,7 +382,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $this->assertEquals($this->users[5]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by last name desc.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $base::SORT_LASTNAME_DESC);
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[4]->id, $comments[0]->get_comment_data()->userid);
@@ -409,7 +400,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         $user = $this->users[0];
         $q1 = $this->questions[1];
         $this->setUser($user);
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context);
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context);
         $sortable = $commentarea->get_sortable();
         // Ok we can only sort by date.
         $this->assertEquals([
@@ -418,32 +409,32 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         ], $sortable);
 
         // Try to pass sort firstname asc. Expect FAIL.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_FIRSTNAME_ASC);
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_FIRSTNAME_ASC);
 
         // Try to pass sort firstname desc. Expect FAIL.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_FIRSTNAME_DESC);
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_FIRSTNAME_DESC);
 
         // Try to pass sort lastname asc. Expect FAIL.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_LASTNAME_ASC);
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_LASTNAME_ASC);
 
         // Try to pass sort lastname desc. Expect FAIL.
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_LASTNAME_DESC);
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_LASTNAME_DESC);
 
         // Try to pass sort date desc. Of course it works!
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_DATE_DESC);
         $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_DESC);
 
         // Try to pass sort date asc. Of course it works!
-        $commentarea = new mod_studentquiz\commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
+        $commentarea = new commentarea\container($this->studentquiz, $q1, $this->cm, $this->context, null,
                 $commentarea::SORT_DATE_ASC);
         $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_ASC);
     }
@@ -462,7 +453,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
      * Set up SQ disabled period setting + seed some comments.
      *
      * @param int $period
-     * @return \mod_studentquiz\commentarea\container
+     * @return commentarea\container
      */
     private function seed_studentquiz_period_setting($period) {
         global $DB;
@@ -473,7 +464,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
                 'forcecommenting' => 1,
                 'publishnewquestion' => 1
         ));
-        $context = context_module::instance($activity->cmid);
+        $context = \context_module::instance($activity->cmid);
 
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $studentquiz->commentdeletionperiod = $period;
@@ -490,7 +481,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
         ]);
         $q1 = \question_bank::load_question($q1->id);
 
-        $commentarea = new \mod_studentquiz\commentarea\container($studentquiz, $q1, $cm, $context, $this->users[0]);
+        $commentarea = new commentarea\container($studentquiz, $q1, $cm, $context, $this->users[0]);
 
         // Seed a comment.
         $DB->insert_record('studentquiz_comment', (object) [
@@ -591,7 +582,7 @@ class mod_studentquiz_comment_testcase extends advanced_testcase {
      * Test extract comment histories to render.
      */
     public function test_extract_comment_histories_to_render() {
-        $mockhistory = new stdClass();
+        $mockhistory = new \stdClass();
         $mockhistory->id = 1;
         $mockhistory->timemodified = 1;
         $mockhistory->userid = $this->users[0]->id;

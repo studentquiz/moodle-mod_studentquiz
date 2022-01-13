@@ -39,8 +39,7 @@ use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 
-interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider
-{
+interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider {
 }
 
 require_once($CFG->libdir . '/questionlib.php');

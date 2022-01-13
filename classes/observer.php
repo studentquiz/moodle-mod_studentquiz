@@ -14,19 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Event observers supported by this module
- *
- * @package mod_studentquiz
- * @copyright 2019 Huong Nguyen <huongnv13@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use mod_studentquiz\event\studentquiz_digest_changed;
 use mod_studentquiz\utils;
 use mod_studentquiz\access\context_override;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Event observers supported by this module

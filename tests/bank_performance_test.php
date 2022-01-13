@@ -14,13 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for the question bank query performance.
- *
- * @package    mod_studentquiz
- * @copyright  2020 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
+
+use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -52,7 +48,7 @@ require_once($CFG->dirroot . '/question/editlib.php');
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_bank_performance_test extends advanced_testcase {
+class bank_performance_test extends \advanced_testcase {
     /**
      * @var question generator
      */
@@ -64,7 +60,6 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
 
     /**
      * Setup testing scenario
-     * @throws coding_exception
      */
     protected function setUp(): void {
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -75,9 +70,8 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
      * Run questionbank.
      *
      * @param array $result with the last studentquiz and its relations
-     * @return \mod_studentquiz\question\bank\studentquiz_bank_view
-     * @throws mod_studentquiz_view_exception
-     * @throws moodle_exception
+     * @return studentquiz_bank_view
+     * @throws \moodle_exception
      */
     public function run_questionbank($result) {
         global $PAGE;
@@ -92,8 +86,8 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
         );
 
         $report = new mod_studentquiz_report($result['cm']->id);
-        $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            new question_edit_contexts(context_module::instance($result['cm']->id)),
+        $questionbank = new studentquiz_bank_view(
+            new question_edit_contexts(\context_module::instance($result['cm']->id)),
             new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
             $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
         return $questionbank;
@@ -124,7 +118,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
             // Get the question category for that studentquiz context.
             $cm = get_coursemodule_from_instance('studentquiz', $studentquiz->id);
             $result['cm'] = $cm;
-            $ctx = context_module::instance($cm->id);
+            $ctx = \context_module::instance($cm->id);
             $result['ctx'] = $ctx;
             $cat = question_get_default_category($ctx->id);
             $result['cat'] = $cat;
@@ -213,7 +207,7 @@ class mod_studentquiz_bank_performance_test extends advanced_testcase {
 
     /**
      * Display question bank
-     * @param mod_studentquiz\question\bank\studentquiz_bank_view $questionbank
+     * @param studentquiz_bank_view $questionbank
      * @param array $result with the last studentquiz and its relations
      * @param int $qpage
      * @param int $qperpage

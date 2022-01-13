@@ -14,19 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_studentquiz\event;
+
 /**
  * The mod_studentquiz comment created event.
  *
  * @package    mod_studentquiz
  * @copyright  2017 HSR
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace mod_studentquiz\event;
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * The mod_studentquiz comment created event
  */
 class comment_created extends \core\event\comment_created {
 

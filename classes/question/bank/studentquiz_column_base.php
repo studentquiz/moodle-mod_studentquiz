@@ -16,8 +16,6 @@
 
 namespace mod_studentquiz\bank;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Represent studentquiz column base in studentquiz_bank_view
  *

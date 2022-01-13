@@ -14,15 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for studentquiz add new instance.
- *
- * @package    mod_studentquiz
- * @copyright  2020 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
+namespace mod_studentquiz;
 
 use mod_studentquiz\commentarea\container;
 
@@ -33,9 +25,9 @@ use mod_studentquiz\commentarea\container;
  * @copyright  2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_add_testcase extends advanced_testcase {
+class add_test extends \advanced_testcase {
 
-    /** @var stdClass - Course. */
+    /** @var \stdClass - Course. */
     protected $course;
 
     /**
@@ -87,7 +79,7 @@ class mod_studentquiz_add_testcase extends advanced_testcase {
      * Create new studentquiz.
      *
      * @param int $period
-     * @return stdClass
+     * @return \stdClass
      */
     private function create_studentquiz($period) {
         $course = $this->course;

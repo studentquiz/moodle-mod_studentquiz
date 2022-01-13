@@ -14,15 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Cron test.
- *
- * @package    mod_studentquiz
- * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die();
+namespace mod_studentquiz;
 
 /**
  * Cron test.
@@ -31,27 +23,27 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_cron_testcase extends advanced_testcase {
+class cron_test extends \advanced_testcase {
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $course;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $student1;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $student2;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $teacher;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $studentquizdata;
 
     /** @var int */
     protected $cmid;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $studentquiz;
 
     /** @var array */
@@ -94,7 +86,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         ];
 
         $this->cmid = $generator->create_module('studentquiz', $this->studentquizdata)->cmid;
-        $this->studentquiz = mod_studentquiz_load_studentquiz($this->cmid, context_module::instance($this->cmid)->id);
+        $this->studentquiz = mod_studentquiz_load_studentquiz($this->cmid, \context_module::instance($this->cmid)->id);
 
         // Prepare question.
         $this->setUser($this->student1);
@@ -103,8 +95,8 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
                 ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]);
         $this->questions[1] = $questiongenerator->create_question('truefalse', null,
                 ['name' => 'Student 2 Question', 'category' => $this->studentquiz->categoryid]);
-        question_bank::load_question($this->questions[0]->id);
-        question_bank::load_question($this->questions[1]->id);
+        \question_bank::load_question($this->questions[0]->id);
+        \question_bank::load_question($this->questions[1]->id);
         $DB->insert_record('studentquiz_question', (object) ['questionid' => $this->questions[0]->id, 'state' => 0]);
         $DB->insert_record('studentquiz_question', (object) ['questionid' => $this->questions[1]->id, 'state' => 1]);
     }
@@ -131,7 +123,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         // Execute the cron.
         ob_start();
         cron_setup_user();
-        $cron = new \mod_studentquiz\task\send_no_digest_notification_task();
+        $cron = new task\send_no_digest_notification_task();
         $cron->set_custom_data($customdata);
         $cron->set_component('mod_studentquiz');
         $cron->execute();
@@ -159,7 +151,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         // Execute the cron.
         ob_start();
         cron_setup_user();
-        $cron = new \mod_studentquiz\task\send_no_digest_notification_task();
+        $cron = new task\send_no_digest_notification_task();
         $cron->set_custom_data($customdata);
         $cron->set_component('mod_studentquiz');
         $cron->execute();
@@ -193,7 +185,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
                 'questionname' => $notifydata->questionname,
         ];
 
-        $notificationqueue = new stdClass();
+        $notificationqueue = new \stdClass();
         $notificationqueue->studentquizid = $notifydata->moduleid;
         $notificationqueue->content = serialize($customdata);
         $notificationqueue->recipientid = $this->student2->id;
@@ -203,7 +195,7 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
         // Execute the cron.
         ob_start();
         cron_setup_user();
-        $cron = new \mod_studentquiz\task\send_digest_notification_task();
+        $cron = new task\send_digest_notification_task();
         $cron->set_component('mod_studentquiz');
         $cron->execute();
         $output = ob_get_contents();
