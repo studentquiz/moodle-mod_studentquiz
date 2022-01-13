@@ -106,7 +106,10 @@ Feature: Preview a question as a student
     And I should see "Change state from New to:"
     And I set the field "statetype" to "Approved"
     And I click on "Change state" "button"
+    And I should see "Change state from Approved to:"
     And I switch to the main window
     And I choose "Preview" action for "TF 01" in the question bank
     And I switch to "questionpreview" window
     And I should see "Change state from Approved to:"
+    And I set the field "statetype" to "Approved"
+    And the "Change state" "button" should be disabled
