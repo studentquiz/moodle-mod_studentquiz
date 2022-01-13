@@ -1753,7 +1753,8 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         $output .= html_writer::select($states, 'statetype');
         $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
                 ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $question->id,
-                        'data-courseid' => $courseid, 'data-cmid' => $cmid, 'disabled' => 'disabled']);
+                        'data-courseid' => $courseid, 'data-cmid' => $cmid, 'disabled' => 'disabled',
+                        'data-currentstate' => $currentstate]);
         $output .= html_writer::end_span();
         $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
 
