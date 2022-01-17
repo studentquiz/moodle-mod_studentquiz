@@ -540,8 +540,9 @@ style5 = html';
         }
 
         $context = \context_module::instance($cmid);
-        if (!has_capability('mod/studentquiz:canselfratecomment', $context)) {
-            if ($USER->id != $question->createdby) {
+        if (!has_capability('mod/studentquiz:cancommentprivately', $context)) {
+            if (!has_capability('mod/studentquiz:canselfcommentprivately', $context) ||
+                    $USER->id != $question->createdby) {
                 return false;
             }
         }
@@ -560,7 +561,7 @@ style5 = html';
         global $USER;
 
         $context = \context_module::instance($cmid);
-        if (!has_capability('mod/studentquiz:canselfratecomment', $context) && $USER->id != $question->createdby) {
+        if (!has_capability('mod/studentquiz:changestate', $context) && $USER->id != $question->createdby) {
             return false;
         }
 
