@@ -53,6 +53,8 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                        AND status = :status';
         $studentquizids = $DB->get_records_sql_menu($sql, ['timetosend' => strtotime(date('Y-m-d')), 'status' => 0]);
 
+        $dailystring = get_string('daily', 'mod_studentquiz');
+        $weeklystring = get_string('weekly', 'mod_studentquiz');
         $recordids = [];
         $messagetotal = 0;
         foreach ($studentquizids as $studentquizid => $notused) {
@@ -74,7 +76,7 @@ class send_digest_notification_task extends \core\task\scheduled_task {
             foreach ($recipients as $userid => $datas) {
                 $contentdata = [
                         'recipientname' => $datas[0]['messagedata']->recepientname,
-                        'digesttype' => $studentquiz->digesttype == 1 ? 'Daily' : 'Weekly',
+                        'digesttype' => $studentquiz->digesttype == 1 ? $dailystring : $weeklystring,
                         'modulename' => $studentquiz->name,
                         'activityurl' => (new moodle_url('/mod/studentquiz/view.php',
                                 ['cmid' => $studentquiz->coursemodule]))->out(),
