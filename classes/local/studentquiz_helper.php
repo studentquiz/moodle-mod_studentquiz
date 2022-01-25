@@ -116,6 +116,7 @@ class studentquiz_helper {
     }
 
     /** Get list description of state name.
+     * That is the past participle in singular.
      *
      * @return array List descriptions of state name.
      */
@@ -124,10 +125,10 @@ class studentquiz_helper {
             self::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
             self::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
             self::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-            self::STATE_HIDE => get_string('hidden', 'studentquiz'),
-            self::STATE_DELETE => get_string('deleted', 'studentquiz'),
-            self::STATE_SHOW => get_string('show'),
-            self::STATE_NEW => get_string('new'),
+            self::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
+            self::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
+            self::STATE_SHOW => get_string('state_shown', 'studentquiz'),
+            self::STATE_NEW => get_string('state_new', 'studentquiz'),
             self::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
         ];
     }
