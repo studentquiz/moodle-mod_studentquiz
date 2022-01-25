@@ -259,6 +259,6 @@ Feature: Question states and visibility
     And I am on the "StudentQuiz Test 2" "mod_studentquiz > View" page logged in as "student1"
     And I choose "Preview" action for "TF 01" in the question bank
     And I switch to "questionpreview" window
-    And I set the field "statetype" to "Delete"
+    And I set the field "statetype" to "Deleted"
     And I click on "Change state" "button"
-    And I should see "This question cannot be deleted because it has been Approved."
+    And I should see "This question cannot be deleted because it has been approved."

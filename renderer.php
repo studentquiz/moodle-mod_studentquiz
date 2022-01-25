@@ -1498,8 +1498,8 @@ EOT;
                 studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
                 studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
                 studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
-                studentquiz_helper::STATE_HIDE => get_string('hide'),
-                studentquiz_helper::STATE_DELETE => get_string('delete'),
+                studentquiz_helper::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
+                studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
         ];
         $output = $this->box_start('generalbox modal modal-dialog modal-in-page show', 'notice', $attributes);
         $output .= $this->box_start('modal-content', 'modal-content');
@@ -1730,7 +1730,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         $states = [
             studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
             studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
-            studentquiz_helper::STATE_DELETE => get_string('delete'),
+            studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
         ];
 
         if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
@@ -1739,8 +1739,8 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                 studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
                 studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
                 studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
-                studentquiz_helper::STATE_HIDE => get_string('hide'),
-                studentquiz_helper::STATE_DELETE => get_string('delete'),
+                studentquiz_helper::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
+                studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
             ];
         }
 
