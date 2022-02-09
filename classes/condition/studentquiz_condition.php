@@ -205,8 +205,8 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 return 'dl.';
             case 'rate':
                 return 'vo.';
-            case 'comment':
-                return 'co.';
+            case 'publiccomment':
+                return 'copub.';
             case 'state':
                 return 'sqs.';
             case 'firstname':
