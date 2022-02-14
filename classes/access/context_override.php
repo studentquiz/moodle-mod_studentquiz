@@ -136,7 +136,7 @@ class context_override {
      * outcome of this chain of events may be uncontrollable and thus should be avoided or filtered very carefully!
      *
      * @param context $context where to apply the overrides.
-     * @param array $relation where keys are needed capabilities and its values an array of capabilities to override
+     * @param array $relation where keys are StudentQuiz capabilities and its values are array of needed capabilities.
      */
     private static function ensure_relation(context $context, array $relation) {
         global $DB;
@@ -144,54 +144,24 @@ class context_override {
         // We fix all roles here. That way, we don't have to worry about roles being assigned or unassigned in future.
         $roles = $DB->get_records('role');
         foreach ($roles as $role) {
-            // Get the list of resolved capabilities of this role in this exact context (includes overrides). This list
-            // represents which capabilities are given to the role.
-            $resolvedcapnames = array();
-            foreach (role_context_capabilities($role->id, $context) as $cap => $permission) {
-                if (in_array($cap, array_keys($relation)) && $permission == CAP_ALLOW) {
-                    $resolvedcapnames[] = $cap;
-                }
-            }
+            // Get all permissions of role in context and its parent contexts (including overrides and defaults).
+            $rolecontextcapabilities = role_context_capabilities($role->id, $context);
 
-            // Get the list of unresolved capabilities of this role in this exact context (so only overrides).
-            $overridecapnames = array();
-            foreach (get_capabilities_from_role_on_context($role, $context) as $capoverride) {
-                if ($capoverride->permission == CAP_ALLOW) {
-                    $overridecapnames[] = $capoverride->capability;
-                }
-            }
-
-            // For each required cap there are override caps only for this context. So if the override cap is not found,
-            // it has to be assigned. While doing that the override caps will be removed from the working list.
-            foreach ($relation as $requiredcap => $overridecaps) {
-                // It's fine for us that the required capability is set via override, we just don't want to remove
-                // it later, so also remove that from the working list.
-                if (($key = array_search($requiredcap, $overridecapnames)) !== false) {
-                    unset($overridecapnames[$key]);
-                }
-
-                // If the required capability is given resolved, apply the override capability if needed.
-                if (in_array($requiredcap, $resolvedcapnames)) {
-                    foreach ($overridecaps as $overridecap) {
-                        if (in_array($overridecap, $overridecapnames)) {
-                            // Capability already set, no changes needed, so remove it from the working list to prevent
-                            // removing it.
-                            if (($key = array_search($overridecap, $overridecapnames)) !== false) {
-                                unset($overridecapnames[$key]);
-                            }
-                        } else {
-                            // Capability missing, add it.
-                            assign_capability($overridecap, CAP_ALLOW, $role->id, $context, true);
+            foreach ($relation as $sqcap => $neededcaps) {
+                // We assign the needed capabilities to the role if the StudentQuiz capability is CAP_ALLOW.
+                // Un-assign the needed capabilities of the role if the StudentQuiz capability is not CAP_ALLOW.
+                if (isset($rolecontextcapabilities[$sqcap]) && $rolecontextcapabilities[$sqcap] == CAP_ALLOW) {
+                    foreach ($neededcaps as $neededcap) {
+                        if (!isset($rolecontextcapabilities[$neededcap])
+                                || $rolecontextcapabilities[$neededcap] != CAP_ALLOW) {
+                            assign_capability($neededcap, CAP_ALLOW, $role->id, $context, true);
                         }
                     }
+                } else {
+                    foreach ($neededcaps as $neededcap) {
+                        unassign_capability($neededcap, $role->id, $context);
+                    }
                 }
-            }
-
-            // After going through, all remaining caps are excessive have to be usassigned. If there are capabilities in
-            // the list not related to required or override, they have no meaning anyway, since this list only contains
-            // unresolved capabilities.
-            foreach ($overridecapnames as $capoverridename) {
-                unassign_capability($capoverridename, $role->id, $context);
             }
         }
     }
