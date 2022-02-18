@@ -1722,9 +1722,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         global $USER;
 
         $output = '';
-        if (!has_capability('mod/studentquiz:canselfratecomment', $this->page->context) &&
-            $USER->id != $question->createdby &&
-            !has_capability('mod/studentquiz:changestate', $this->page->context)) {
+        if ($USER->id != $question->createdby && !has_capability('mod/studentquiz:changestate', $this->page->context)) {
             return;
         }
         $states = [
