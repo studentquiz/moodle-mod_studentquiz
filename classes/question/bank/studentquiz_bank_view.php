@@ -137,12 +137,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars, $report) {
         $this->set_filter_post_data();
-        parent::__construct($contexts, $pageurl, $course, $cm);
         global $USER, $PAGE;
         $this->pagevars = $pagevars;
         $this->studentquiz = $studentquiz;
         $this->userid = $USER->id;
         $this->report = $report;
+        parent::__construct($contexts, $pageurl, $course, $cm);
         $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
         $currentgroup = groups_get_activity_group($cm, true);
