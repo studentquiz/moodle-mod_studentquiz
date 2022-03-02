@@ -430,7 +430,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $title = get_string('state_change_tooltip_'.$statename, 'studentquiz');
         $content = $this->output->pix_icon('state_'.$statename, '', 'studentquiz');
 
-        if (question_has_capability_on($question, 'editall')) {
+        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
             $url = new moodle_url($baseurl, [
                     'approveselected' => $question->id,
                     'q' . $question->id => 1,
@@ -1233,16 +1233,18 @@ EOT;
         }
 
         if ($caneditall) {
-            $output .= html_writer::empty_tag('input', [
-                'class' => 'btn btn-secondary',
-                'type' => 'submit',
-                'name' => 'approveselected',
-                'value' => get_string('state_toggle', 'studentquiz'),
-                'data-action' => 'toggle',
-                'data-togglegroup' => 'qbank',
-                'data-toggle' => 'action',
-                'disabled' => true
-            ]);
+            if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
+                $output .= html_writer::empty_tag('input', [
+                    'class' => 'btn btn-secondary',
+                    'type' => 'submit',
+                    'name' => 'approveselected',
+                    'value' => get_string('state_toggle', 'studentquiz'),
+                    'data-action' => 'toggle',
+                    'data-togglegroup' => 'qbank',
+                    'data-toggle' => 'action',
+                    'disabled' => true
+                ]);
+            }
             $output .= html_writer::empty_tag('input', [
                 'class' => 'btn btn-secondary',
                 'type' => 'submit',

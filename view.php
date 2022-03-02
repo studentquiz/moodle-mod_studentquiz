@@ -87,6 +87,10 @@ if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('del
         redirect($baseurl, get_string('noquestionsselectedtodoaction', 'studentquiz'),
             null, \core\output\notification::NOTIFY_WARNING);
     }
+    if (!has_capability('mod/studentquiz:changestate', $PAGE->context) && optional_param('approveselected', false, PARAM_BOOL)) {
+        redirect(new moodle_url('view.php', array('id' => $cmid)), get_string('nopermissions', 'error',
+            get_string('studentquiz:changestate', 'studentquiz')), null, \core\output\notification::NOTIFY_WARNING);
+    }
 }
 
 // Since this page has 2 forms interacting with each other, all params must be passed in GET, thus
