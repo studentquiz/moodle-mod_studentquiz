@@ -2,8 +2,8 @@
 
 [![Latest Release](https://img.shields.io/github/v/release/studentquiz/moodle-mod_studentquiz?sort=semver&color=orange)](https://github.com/studentquiz/moodle-mod_studentquiz/releases)
 [![Build Status](https://github.com/studentquiz/moodle-mod_studentquiz/workflows/Moodle%20Plugin%20CI/badge.svg?branch=master)](https://github.com/studentquiz/moodle-mod_studentquiz/actions?query=workflow%3A%22Moodle+Plugin+CI%22+branch%3Amaster)
-[![PHP Support](https://img.shields.io/badge/php-7.1_--_7.4-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
-[![Moodle Support](https://img.shields.io/badge/Moodle-%3E%3D%203.8-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
+[![PHP Support](https://img.shields.io/badge/php-7.2_--_7.4-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
+[![Moodle Support](https://img.shields.io/badge/Moodle-%3E%3D%203.9-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
 [![License GPL-3.0](https://img.shields.io/github/license/studentquiz/moodle-mod_studentquiz?color=lightgrey)](https://github.com/studentquiz/moodle-mod_studentquiz/blob/master/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/studentquiz/moodle-mod_studentquiz)](https://github.com/studentquiz/moodle-mod_studentquiz/graphs/contributors)
 
@@ -46,8 +46,8 @@ You can find manuals for each role in the [manuals website](https://docs.moodle.
 
 Supported and tested with:
 
-- Moodle 3.8, 3.9, 3.10, 3.11
-- PHP 7.1, 7.2, 7.3, 7.4
+- Moodle 3.9, 3.10, 3.11
+- PHP 7.2, 7.3, 7.4
 - Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017 (experimental)
 - Browsers: Firefox, Chrome
 
