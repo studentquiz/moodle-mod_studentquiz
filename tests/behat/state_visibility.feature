@@ -270,6 +270,7 @@ Feature: Question states and visibility
     Given the following "permission overrides" exist:
       | capability                  | permission | role    | contextlevel | reference |
       | mod/studentquiz:changestate | Allow      | teacher | Course       | C1        |
+      | mod/studentquiz:manage      | Allow      | teacher | Course       | C1        |
     When I am on the "StudentQuiz Test 1" "mod_studentquiz > View" page logged in as "teacher1"
     And I click on "Create new question" "button"
     And I set the field "item_qtype_truefalse" to "1"
@@ -278,6 +279,7 @@ Feature: Question states and visibility
     And I set the field "Question text" to "The correct answer is false"
     And I press "id_submitbutton"
 
+    And "Change state" "button" should exist
     And I choose "Preview" action for "TF 01" in the question bank
     And I switch to "questionpreview" window
     And the "menustatetype" select box should contain "Disapproved"
@@ -291,6 +293,8 @@ Feature: Question states and visibility
     Then the following "permission overrides" exist:
       | capability                  | permission | role    | contextlevel | reference |
       | mod/studentquiz:changestate | Prevent    | teacher | Course       | C1        |
+    And I reload the page
+    And "Change state" "button" should not exist
     And I choose "Preview" action for "TF 01" in the question bank
     And I switch to "questionpreview" window
     And the "menustatetype" select box should contain "Changed"
