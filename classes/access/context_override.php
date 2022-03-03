@@ -14,67 +14,62 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Access helper to manage context specific overrides.
- *
- * @package    mod_studentquiz
- * @copyright  2020 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\access;
 
 use context;
 
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->libdir . '/accesslib.php');
-
 /**
  * Access helper to manage context specific overrides.
  *
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_studentquiz
+ * @copyright 2020 HSR (http://www.hsr.ch)
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class context_override {
 
     /**
-     * Needed context specific permissions for roles in StudentQuiz. The key of this array is the StudentQuiz
-     * capability and its contents is an array for all question capabilities needed to fulfill the purpose.
-     *
-     * @var array studentquiz capability relation
+     * @var array This stores, for each StudentQuiz capability, the core question capabilities required to make it work.
      */
     public static $studentquizrelation = [
-        // Allows to view and use the activity.
+
+        // Any access to the activity.
         'mod/studentquiz:view' => [
-            // Allows to attempt all questions.
-            'moodle/question:useall',
-            // Required to even be able to see question bank and thus the overview.
-            'moodle/question:viewmine',
+            'moodle/question:useall', // Attempt all questions.
+            'moodle/question:viewmine', // Required to even see the question bank and thus the overview.
         ],
-        // Allows to create questions.
+
+        // Allows users to create questions.
         'mod/studentquiz:submit' => [
             // Allows to create edit and tag own questions.
             'moodle/question:add',
             'moodle/question:editmine',
             'moodle/question:tagmine',
         ],
-        // Allows to preview other questions.
+
+        // Preview any questions.
         'mod/studentquiz:previewothers' => [
-            // Allows to view edit questions in read-only of others.
-            'moodle/question:viewall',
+            'moodle/question:viewall', // Allows read-only view of the edit question form.
         ],
-        // Allows to move questions into categories.
+
+        // Allows moving questions into categories.
         'mod/studentquiz:organize' => [
-            // Allows to move questions into categories.
             'moodle/question:moveall',
-            // Allows editing of categories.
-            'moodle/question:managecategory',
+            'moodle/question:managecategory', // Allows editing of categories.
         ],
-        // Allows to edit and delete questions.
+
+        // Allows editing and deleting any question.
         'mod/studentquiz:manage' => [
-            // Allows to edit and delete questions.
             'moodle/question:editall',
         ],
+    ];
+
+    /** @var array these are the capabilities which exist in 'all' and 'mine' pairs. */
+    protected static $capswithallandmine = [
+        'moodle/question:edit' => 1,
+        'moodle/question:view' => 1,
+        'moodle/question:use' => 1,
+        'moodle/question:move' => 1,
+        'moodle/question:tag' => 1,
     ];
 
     /**
@@ -86,8 +81,9 @@ class context_override {
      * Return defined cache key for this course module
      *
      * @param int $cmid the course module id
+     * @return string the cache key.
      */
-    private static function cache_key_for_cm(int $cmid) {
+    private static function cache_key_for_cm(int $cmid): string {
         return 'cm' . $cmid . 'synced';
     }
 
@@ -120,7 +116,7 @@ class context_override {
 
         if ($syncrequired) {
             $timenow = time(); // Sync can take more than 1 second. Get the time when we start.
-            self::ensure_relation($context, self::$studentquizrelation);
+            self::ensure_relation($context);
             $cache->set($ourcachekey, $timenow);
         }
     }
@@ -128,70 +124,94 @@ class context_override {
     /**
      * Add context specific question capability overrides to match the StudentQuiz capabilities each role has.
      *
-     * As well as assigning the capabilities that are needed according to the relation array,
-     * any capability that is mentioned in the array will be removed from roles that don't need it.
+     * There are various standard Moodle capabilities which need to be assigned if a role has certain
+     * StudentQuiz capabilities. The link between the two is set in the $studentquizrelation array above.
      *
-     * Warning: This functions assigns and unassigns capabilities. If this function is called from a
-     * capability_[un]assigned event, it will trigger that event again if it finds out that changes have to be made. The
-     * outcome of this chain of events may be uncontrollable and thus should be avoided or filtered very carefully!
+     * In this code, the capabilities that we might assign or un-assign are referred to as 'managed capabilities'.
+     *
+     * As well as adding ALLOW overrides for the capabilities that are needed, we also remove any unnecessary
+     * overrides of managed capabilities which are not required.
+     *
+     * Warning: This functions assigns and un-assigns capabilities. If this function is called from a
+     * capability_[un]assigned event handler, that could lead to an infinite loop. However, this is not
+     * currently an issue, because the handlers in mod_studentquiz_observer only respond to changes
+     * in StudentQuiz capabilities, and they are never managed capabilities.
      *
      * @param context $context where to apply the overrides.
-     * @param array $relation where keys are needed capabilities and its values an array of capabilities to override
      */
-    private static function ensure_relation(context $context, array $relation) {
+    private static function ensure_relation(context $context) {
         global $DB;
 
-        // We fix all roles here. That way, we don't have to worry about roles being assigned or unassigned in future.
+        // Get a list of all the capabilities we manage.
+        $allmanagedcapabilities = [];
+        foreach (self::$studentquizrelation as $managedcapabilities) {
+            foreach ($managedcapabilities as $capability) {
+                $allmanagedcapabilities[$capability] = 1;
+            }
+        }
+
+        // We fix all roles here. That way, we don't have to worry about roles being assigned or unassigned in the future.
         $roles = $DB->get_records('role');
         foreach ($roles as $role) {
-            // Get the list of resolved capabilities of this role in this exact context (includes overrides). This list
-            // represents which capabilities are given to the role.
-            $resolvedcapnames = array();
-            foreach (role_context_capabilities($role->id, $context) as $cap => $permission) {
-                if (in_array($cap, array_keys($relation)) && $permission == CAP_ALLOW) {
-                    $resolvedcapnames[] = $cap;
-                }
-            }
-
-            // Get the list of unresolved capabilities of this role in this exact context (so only overrides).
-            $overridecapnames = array();
-            foreach (get_capabilities_from_role_on_context($role, $context) as $capoverride) {
-                if ($capoverride->permission == CAP_ALLOW) {
-                    $overridecapnames[] = $capoverride->capability;
-                }
-            }
-
-            // For each required cap there are override caps only for this context. So if the override cap is not found,
-            // it has to be assigned. While doing that the override caps will be removed from the working list.
-            foreach ($relation as $requiredcap => $overridecaps) {
-                // It's fine for us that the required capability is set via override, we just don't want to remove
-                // it later, so also remove that from the working list.
-                if (($key = array_search($requiredcap, $overridecapnames)) !== false) {
-                    unset($overridecapnames[$key]);
-                }
-
-                // If the required capability is given resolved, apply the override capability if needed.
-                if (in_array($requiredcap, $resolvedcapnames)) {
-                    foreach ($overridecaps as $overridecap) {
-                        if (in_array($overridecap, $overridecapnames)) {
-                            // Capability already set, no changes needed, so remove it from the working list to prevent
-                            // removing it.
-                            if (($key = array_search($overridecap, $overridecapnames)) !== false) {
-                                unset($overridecapnames[$key]);
-                            }
-                        } else {
-                            // Capability missing, add it.
-                            assign_capability($overridecap, CAP_ALLOW, $role->id, $context, true);
-                        }
+            // Examine the permissions this role currently has here.
+            // - For the managed capabilities, we track which permission the role currently has for them.
+            // - Based in the combination of StudentQuiz permissions the role has, we work out which of the managed
+            // capabilities are required.
+            $currentpermissions = role_context_capabilities($role->id, $context);
+            $permissionsrequired = [];
+            foreach ($currentpermissions as $capability => $permission) {
+                if (isset(self::$studentquizrelation[$capability]) && $permission == CAP_ALLOW) {
+                    foreach (self::$studentquizrelation[$capability] as $requiredcapability) {
+                        $permissionsrequired[$requiredcapability] = CAP_ALLOW;
                     }
                 }
             }
 
-            // After going through, all remaining caps are excessive have to be usassigned. If there are capabilities in
-            // the list not related to required or override, they have no meaning anyway, since this list only contains
-            // unresolved capabilities.
-            foreach ($overridecapnames as $capoverridename) {
-                unassign_capability($capoverridename, $role->id, $context);
+            // Now we look through the capabilities that are required, and if we are going require any 'all' capability,
+            // then we don't need to require the equivalent 'mine' capability.
+            foreach (self::$capswithallandmine as $capability => $notused) {
+                if (isset($permissionsrequired[$capability . 'all'])) {
+                    unset($permissionsrequired[$capability . 'mine']);
+                }
+            }
+
+            // Now, remove any existing overrides of the managed capabilities that are not required.
+            $existingoverrides = get_capabilities_from_role_on_context($role, $context);
+            foreach ($existingoverrides as $override) {
+                if (!isset($allmanagedcapabilities[$override->capability])) {
+                    continue; // Not a managed capability. Skip.
+                }
+
+                if (isset($permissionsrequired[$override->capability])) {
+                    continue; // This override should exist. Skip.
+                }
+
+                unassign_capability($override->capability, $role->id, $context);
+            }
+
+            // After doing that it is important to re-fetch the current permissions.
+            $currentpermissions = role_context_capabilities($role->id, $context);
+
+            // Finally, we assign any capabilities which are required, and which the role does not already have.
+            foreach ($permissionsrequired as $capability => $notused) {
+                if (isset($currentpermissions[$capability]) && $currentpermissions[$capability] == CAP_ALLOW) {
+                    // Role already has the capability.
+                    continue;
+                }
+                if (substr($capability, -4) === 'mine') {
+                    // Role should have 'mine' capability. Do they already have the equivalent 'all' one?
+                    $basecapability = substr($capability, 0, -4);
+                    if (isset(self::$capswithallandmine[$basecapability])) {
+                        $allcapability = $basecapability . 'all';
+                        if (isset($currentpermissions[$allcapability]) && $currentpermissions[$allcapability] == CAP_ALLOW) {
+                            // Role already has the all capability.
+                            continue;
+                        }
+                    }
+                }
+
+                // We need to add the override.
+                assign_capability($capability, CAP_ALLOW, $role->id, $context, true);
             }
         }
     }
