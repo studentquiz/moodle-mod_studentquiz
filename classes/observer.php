@@ -129,30 +129,6 @@ class mod_studentquiz_observer {
     }
 
     /**
-     * Observer for the event \core\event\role_assigned. Update context specific capability overrides
-     * if needed.
-     *
-     * @param \core\event\role_assigned $event
-     */
-    public static function role_assigned(\core\event\role_assigned $event) {
-        // TODO  If, in context_override::ensure_relation, we always synched persmissions for all roles,
-        // then we would not need to listen for role_assigned events. Worth considering.
-        context_override::roles_setup_has_changed();
-    }
-
-    /**
-     * Observer for the event \core\event\role_unassigned. Update context specific capability overrides
-     * if needed.
-     *
-     * @param \core\event\role_unassigned $event
-     */
-    public static function role_unassigned(\core\event\role_unassigned $event) {
-        // TODO  If, in context_override::ensure_relation, we always synched persmissions for all roles,
-        // then we would not need to listen for role_unassigned events. Worth considering.
-        context_override::roles_setup_has_changed();
-    }
-
-    /**
      * Check if capability change affects StudentQuizzes
      *
      * @param string $capability
