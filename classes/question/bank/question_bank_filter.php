@@ -163,7 +163,7 @@ class studentquiz_user_filter_date extends user_filter_date {
                     }
                 }
                 if (!empty($dateselector)) {
-                    $isbefore = optional_param('timecreated_sdt', 0, PARAM_INT);
+                    $isbefore = optional_param_array('timecreated_sdt', 0, PARAM_INT);
                     if ($isbefore && $isbefore['enabled']) {
                         // The first active element is "Day" selection.
                         $targetelement = $dateselector[0];
@@ -423,19 +423,19 @@ class user_filter_number extends studentquiz_user_filter_text {
         // When a count doesn't find anything, it will return NULL, so we have to account for that.
         switch($operator) {
             case 0: // Higher.
-                $res = "$field > :$name1 OR ($field IS NULL AND 0 > :$name2)";
+                $res = "$field > :$name1 OR ($field IS NULL AND 0.0 > :$name2)";
                 $params[$name1] = $value;
                 $params[$name2] = $value;
                 break;
             case 1: // Lower.
-                $res = "$field < :$name1 OR ($field IS NULL AND 0 < :$name2)";
+                $res = "$field < :$name1 OR ($field IS NULL AND 0.0 < :$name2)";
                 $params[$name1] = $value;
                 $params[$name2] = $value;
                 break;
             case 2: // Equal to.
                 $res = $DB->sql_equal($field, ":$name1", true, false)
                         . " OR ($field IS NULL AND " .
-                        $DB->sql_equal("0", ":$name2", true, false) . ")";
+                        $DB->sql_equal("0.0", ":$name2", true, false) . ")";
                 $params[$name1] = floatval($value);
                 $params[$name2] = floatval($value);
                 break;
@@ -443,6 +443,38 @@ class user_filter_number extends studentquiz_user_filter_text {
                 return '';
         }
         return array($res, $params);
+    }
+
+    /**
+     * Retrieves data from the form data.
+     *
+     * @param object $formdata data submited with the form.
+     *
+     * @return mixed array filter data or false when filter not set.
+     */
+    public function check_data($formdata) {
+        $data = parent::check_data($formdata);
+
+        if (!isset($data['value']) || !is_numeric($data['value']) ||
+                $data['value'] < 0 || $data['value'] > PHP_INT_MAX) {
+            return false;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Adds controls specific to this filter in the form.
+     *
+     * @param object $mform A MoodleForm object to setup.
+     */
+    public function setupForm(&$mform) { // @codingStandardsIgnoreLine
+        parent::setupForm($mform);
+        $rules["$this->_name"] = [
+            [null, 'numeric', null, 'client'],
+        ];
+
+        $mform->addGroupRule($this->_name . '_grp', $rules);
     }
 }
 
@@ -454,16 +486,16 @@ class user_filter_percent extends user_filter_number {
     /**
      * Return sql snippet comparing data is between 0 and 100%
      *
-     * @param mixed $data
-     * @return array
+     * @param array $data Filter settings.
+     * @return array Sql string and $params.
      */
     public function get_sql_filter($data) {
-        $val = round($data->value, 0);
+        $val = round($data['value'], 0);
         if ($val > 100 or $val < 0) {
             return '';
         }
         if ($val > 1) {
-            $data->value = $val / 100;
+            $data['value'] = $val / 100;
         }
         return parent::get_sql_filter($data);
     }

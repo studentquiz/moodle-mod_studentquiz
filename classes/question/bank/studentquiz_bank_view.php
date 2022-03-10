@@ -826,7 +826,15 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * but the moodle filter form can only process POST, so we need to copy them there.
      */
     private function modify_base_url() {
-        $this->baseurl->params($_GET);
+        $paramsget = $_GET;
+
+        // Url parameters values can not be arrays, so we get the processed data of form to get the timestamp instead of array.
+        if ($data = $this->filterform->get_data()) {
+            $paramsget['timecreated_sdt'] = $data->timecreated_sdt;
+            $paramsget['timecreated_edt'] = $data->timecreated_edt;
+        }
+
+        $this->baseurl->params($paramsget);
     }
 
     /**
@@ -843,12 +851,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
             redirect($pageurl);
         }
 
-        $this->modify_base_url();
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(),
             array('cmid' => $this->cm->id)
         );
+        $this->modify_base_url();
     }
 
     /**
