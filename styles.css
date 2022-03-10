@@ -822,3 +822,15 @@
 .path-mod-studentquiz #categoryquestions .header.state {
     text-align: center;
 }
+/* CSS style for message validation form, because the align-items-center is set important in the parent of form-group. */
+@media only screen and (min-width: 396px) {
+    .path-mod-studentquiz #form-advanced-div .form-control-feedback.invalid-feedback {
+        position: absolute;
+    }
+}
+
+@media only screen and (min-width: 576px) {
+    .path-mod-studentquiz #form-advanced-div .form-control-feedback.invalid-feedback {
+        margin-top: 4.5em;
+    }
+}
