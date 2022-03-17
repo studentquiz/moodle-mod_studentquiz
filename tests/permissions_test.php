@@ -106,6 +106,7 @@ class permissions_test extends \advanced_testcase {
      * The overrides arrays should look like ['-mod/studentquiz:submit', '+mod/studentquiz:previewothers']
      * where + means add/allow that capability, and - means remove/prevent it.
      *
+     * @covers \mod_studentquiz\access\context_override::ensure_permissions_are_right
      * @dataProvider ensure_permissions_are_right_testcases
      *
      * @param string $roleshortname the role name to use in this tests (if not a know role, a new blank role will be used).

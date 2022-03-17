@@ -30,7 +30,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
-$questionid = required_param('questionid', PARAM_INT);
+$studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $commentid = required_param('commentid', PARAM_INT);
 
 // Load course and course module requested.
@@ -55,20 +55,19 @@ $context = context_module::instance($cm->id);
 // Check to see if any roles setup has been changed since we last synced the capabilities.
 \mod_studentquiz\access\context_override::ensure_permissions_are_right($context);
 $studentquiz = mod_studentquiz_load_studentquiz($cm->id, $context->id);
+$studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid, null, $studentquiz, $cm, $context);
 
 // Comment access check.
-$question = question_bank::load_question($questionid);
-if (!$question) {
+if (!$studentquizquestion) {
     throw new moodle_exception("invalidcommenthistorypermission");
 }
-
-$container = new container($studentquiz, $question, $cm, $context, $USER);
+$container = new container($studentquizquestion, $USER);
 if (!$container->can_view_username() && !$USER->id == $comment->userid) {
     throw new moodle_exception("invalidcommenthistorypermission");
 }
 
 $actionurl = new moodle_url('/mod/studentquiz/commenthistory.php',
-        ['cmid' => $cmid, 'questionid' => $questionid, 'commentid' => $commentid]);
+        ['cmid' => $cmid, 'studentquizquestionid' => $studentquizquestionid, 'commentid' => $commentid]);
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'comment_history');
 $title = get_string('commenthistory', 'mod_studentquiz');
@@ -80,5 +79,5 @@ $PAGE->set_url($actionurl);
 utils::require_access_to_a_relevant_group($cm, $context);
 
 echo $OUTPUT->header();
-echo $renderer->render_comment_history($questionid, $commentid, $cmid);
+echo $renderer->render_comment_history($container, $commentid);
 echo $OUTPUT->footer();

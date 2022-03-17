@@ -36,7 +36,7 @@ class comment_column extends studentquiz_column_base {
     /**
      * Initialise
      */
-    public function init() {
+    public function init(): void {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -53,7 +53,7 @@ class comment_column extends studentquiz_column_base {
      * Get title to return the very short column name
      * @return string column title
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('comment_column_name', 'studentquiz');
     }
 
@@ -61,7 +61,7 @@ class comment_column extends studentquiz_column_base {
      * Get title tip to return the full column name
      * @return string column title
      */
-    protected function get_title_tip() {
+    public function get_title_tip() {
         return get_string('comment_column_name', 'studentquiz');
     }
 
@@ -80,7 +80,7 @@ class comment_column extends studentquiz_column_base {
      * Get the left join for comments
      * @return array modified select left join
      */
-    public function get_extra_joins() {
+    public function get_extra_joins(): array {
         $deletedstatus = utils::COMMENT_HISTORY_DELETE;
         $typepublic = utils::COMMENT_TYPE_PUBLIC;
         $typeprivate = utils::COMMENT_TYPE_PRIVATE;
@@ -88,21 +88,21 @@ class comment_column extends studentquiz_column_base {
         $joins['copub'] = "LEFT JOIN (
                                       SELECT COUNT(comment) AS publiccomment,
                                              max(created) as lasteditpubliccomment,
-                                             questionid
+                                             studentquizquestionid
                                         FROM {studentquiz_comment}
                                        WHERE status <> {$deletedstatus}
                                              AND type = {$typepublic}
-                                    GROUP BY questionid
-                                    ) copub ON copub.questionid = q.id";
+                                    GROUP BY studentquizquestionid
+                                    ) copub ON copub.studentquizquestionid = sqq.id";
         $joins['copri'] = "LEFT JOIN (
                                       SELECT COUNT(comment) AS privatecomment,
                                              max(created) as lasteditprivatecomment,
-                                             questionid
+                                             studentquizquestionid
                                         FROM {studentquiz_comment}
                                        WHERE status <> {$deletedstatus}
                                              AND type = {$typeprivate}
-                                    GROUP BY questionid
-                                    ) copri ON copri.questionid = q.id";
+                                    GROUP BY studentquizquestionid
+                                    ) copri ON copri.studentquizquestionid  = sqq.id";
         return $joins;
 
     }
@@ -111,7 +111,7 @@ class comment_column extends studentquiz_column_base {
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_required_fields() {
+    public function get_required_fields(): array {
         return [
             'copub.publiccomment',
             'copri.privatecomment',

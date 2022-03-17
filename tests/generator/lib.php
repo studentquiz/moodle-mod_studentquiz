@@ -78,8 +78,8 @@ class mod_studentquiz_generator extends testing_module_generator {
         $this->commentcount++;
 
         $defaults = array(
-            'comment' => 'Test comment ' . $this->commentcount,
-            'created' => time()
+                'comment' => 'Test comment ' . $this->commentcount,
+                'created' => time()
         );
 
         $record = $this->datagenerator->combine_defaults_and_record($defaults, $record);

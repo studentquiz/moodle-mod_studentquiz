@@ -41,6 +41,7 @@ class add_test extends \advanced_testcase {
 
     /**
      * Test add studentquiz with deletion period = 0.
+     * @coversNothing
      */
     public function test_add_studentquiz_with_zero_period() {
         $studentquiz = $this->create_studentquiz(0);
@@ -49,6 +50,7 @@ class add_test extends \advanced_testcase {
 
     /**
      * Test add studentquiz with normal deletion period.
+     * @coversNothing
      *
      * @dataProvider period_provider
      * @param int $period - Deletion period number.

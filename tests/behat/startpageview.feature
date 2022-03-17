@@ -21,6 +21,7 @@ Feature: View comprehensive information about this studentquiz activity
     And the following "activities" exist:
       | activity    | name          | intro              | course | idnumber     | publishnewquestion |
       | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1                  |
+    And I change window size to "large"
 
   @javascript
   Scenario: Check if the default filter settings are visible
@@ -95,8 +96,9 @@ Feature: View comprehensive information about this studentquiz activity
     And I should see "Question 2"
     And I should not see "Question 1"
     And I click on "Reset" "button"
-
-    And I click on "Mine" "link"
+    And I wait until the page is ready
+    # Click the correct Mine link.
+    And I click on "Mine" "link" in the ".containsadvancedelements" "css_element"
     And I press "id_submitbutton"
     And I should see "Question 1"
     And I should not see "Question 2"

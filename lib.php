@@ -250,6 +250,26 @@ function studentquiz_delete_instance($id) {
     $DB->delete_records('studentquiz_attempt', ['studentquizid' => $id]);
     $DB->delete_records('studentquiz_notification', ['studentquizid' => $id]);
 
+    $studentquizquestions = $DB->get_recordset('studentquiz_question', ['studentquizid' => $id], '', 'id');
+    foreach ($studentquizquestions as $studentquizquestion) {
+        $DB->delete_records('studentquiz_rate', ['studentquizquestionid' => $studentquizquestion->id]);
+        $DB->delete_records('studentquiz_progress', ['studentquizquestionid' => $studentquizquestion->id, 'studentquizid' => $id]);
+        // Get comment history belong to comment.
+        $comments = $DB->get_records('studentquiz_comment', ['studentquizquestionid' => $studentquizquestion->id], '', 'id');
+        if ($comments) {
+            $commentids = array_column($comments, 'id');
+            list($commentsql, $commentparams) = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
+            $DB->delete_records_select('studentquiz_comment_history', "commentid $commentsql", $commentparams);
+        }
+        $DB->delete_records('studentquiz_comment', ['studentquizquestionid' => $studentquizquestion->id], '', 'id');
+        $DB->delete_records('studentquiz_state_history', ['studentquizquestionid' => $studentquizquestion->id], '', 'id');
+        $DB->delete_records('question_references', ['itemid' => $studentquizquestion->id,
+                'component' => STUDENTQUIZ_COMPONENT_QR, 'questionarea' => STUDENTQUIZ_QUESTIONAREA_QR]);
+    }
+    $DB->delete_records('studentquiz_attempt', ['studentquizid' => $id]);
+    $DB->delete_records('studentquiz_notification', ['studentquizid' => $id]);
+    $DB->delete_records('studentquiz_question', ['studentquizid' => $id]);
+
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
     $DB->delete_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
@@ -459,10 +479,6 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
     }
 
     // Add the navigation items.
-    $studentquiznode->add_node(navigation_node::create(get_string('modulename', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/view.php', array('id' => $PAGE->cm->id)),
-        navigation_node::TYPE_SETTING, null, 'mod_studentquiz_dashboard',
-        new pix_icon('i/cohort', '')), $beforekey);
     $studentquiznode->add_node(navigation_node::create(get_string('reportquiz_stats_title', 'studentquiz'),
         new moodle_url('/mod/studentquiz/reportstat.php', array('id' => $PAGE->cm->id)),
         navigation_node::TYPE_SETTING, null, 'mod_studentquiz_statistics',
@@ -520,7 +536,7 @@ function mod_studentquiz_output_fragment_commentform($params) {
     $cancelbutton = isset($params['cancelbutton']) ? $params['cancelbutton'] : false;
     // Assign data to edit post form, this will also check for session key.
     $mform = new \mod_studentquiz\commentarea\form\comment_form([
-            'questionid' => $params['questionid'],
+            'studentquizquestionid' => $params['studentquizquestionid'],
             'cmid' => $params['cmid'],
             'replyto' => $params['replyto'],
             'forcecommenting' => $params['forcecommenting'],
@@ -542,8 +558,8 @@ function mod_studentquiz_output_fragment_commenteditform($params) {
     }
     $cancelbutton = isset($params['cancelbutton']) ? $params['cancelbutton'] : false;
 
-    list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
-    $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $params['type']);
+    $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
+    $commentarea = new container($studentquizquestion, null, '', $params['type']);
     $comment = $commentarea->query_comment_by_id($params['commentid']);
     if (!$comment) {
         throw new moodle_exception('invalidcomment', 'studentquiz');
@@ -551,7 +567,7 @@ function mod_studentquiz_output_fragment_commenteditform($params) {
 
     $formdata = ['text' => $comment->get_comment_data()->comment];
     $mform = new \mod_studentquiz\commentarea\form\comment_form([
-            'questionid' => $params['questionid'],
+            'studentquizquestionid' => $params['studentquizquestionid'],
             'cmid' => $params['cmid'],
             'commentid' => $params['commentid'],
             'forcecommenting' => $params['forcecommenting'],

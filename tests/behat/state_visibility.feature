@@ -22,6 +22,8 @@ Feature: Question states and visibility
       | student1 | C1     | student |
       | student2 | C1     | student |
       | teacher1 | C1     | teacher |
+    # Set window size to large so we can see the navigation.
+    And I change window size to "large"
 
   @javascript
   Scenario: Test Publish new questions setting

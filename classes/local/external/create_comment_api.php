@@ -53,7 +53,7 @@ class create_comment_api extends external_api {
      */
     public static function create_comment_parameters() {
         return new external_function_parameters([
-                'questionid' => new external_value(PARAM_INT, 'Question ID'),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'SQ Question ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'replyto' => new external_value(PARAM_INT, 'Comment ID to to reply.'),
                 'message' => new external_function_parameters([
@@ -77,26 +77,27 @@ class create_comment_api extends external_api {
     /**
      * Get comments belong to question.
      *
-     * @param int $questionid - ID of question.
+     * @param int $studentquizquestionid - ID of SQ question.
      * @param int $cmid - ID of CM
      * @param int $replyto - ID of comment reply to (0 if top level comment).
      * @param string $message - Comment message.
      * @param int $type - Comment type.
      * @return \stdClass
      */
-    public static function create_comment($questionid, $cmid, $replyto, $message, $type) {
+    public static function create_comment($studentquizquestionid, $cmid, $replyto, $message, $type) {
         global $PAGE;
         $params = self::validate_parameters(self::create_comment_parameters(), [
-                'questionid' => $questionid,
+                'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'replyto' => $replyto,
                 'message' => $message,
                 'type' => $type
         ]);
 
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
+        $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
+        $context = $studentquizquestion->get_context();
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
+        $commentarea = new container($studentquizquestion, null, '', $type);
 
         if ($params['replyto'] != container::PARENTID) {
             $replytocomment = $commentarea->query_comment_by_id($params['replyto']);
@@ -118,7 +119,7 @@ class create_comment_api extends external_api {
 
         $mform = new validate_comment_form('', [
                 'params' => [
-                        'questionid' => $params['questionid'],
+                        'studentquizquestionid' => $params['studentquizquestionid'],
                         'cmid' => $params['cmid'],
                         'replyto' => $params['replyto'],
                         'type' => $params['type']
@@ -127,7 +128,7 @@ class create_comment_api extends external_api {
 
         // Validate form data.
         $validatedata = $mform->get_data();
-
+        $validatedata->studentquizquestionid = $studentquizquestion->get_id();
         if (!$validatedata) {
             $errors = array_merge($mform->validation($formdata, []), $mform->get_form_errors());
             throw new \moodle_exception('error_form_validation', 'studentquiz', '', json_encode($errors));

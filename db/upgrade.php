@@ -994,6 +994,185 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022052300.02, 'studentquiz');
     }
 
+    if ($oldversion < 2022020200.01) {
+        // Upgrade studentquiz_question table questionid field to studentquizid.
+        $table = new xmldb_table('studentquiz_question');
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            if ($dbman->field_exists($table, $field)) {
+                // Launch rename field state.
+                $dbman->rename_field($table, $field, 'studentquizid');
+            }
+            // Add FK key.
+            $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
+            // Define key questionid (foreign) to be dropped.
+            $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+            // Launch drop key category.
+            $dbman->drop_key($table, $key);
+        }
+
+        // Upgrade studentquiz_rate, studentquiz_comment table questionid field to studentquizquestionid.
+        // Same change steps.
+        $tablenames = ['studentquiz_rate', 'studentquiz_comment'];
+        foreach ($tablenames as $tablename) {
+            $table = new xmldb_table($tablename);
+            if ($dbman->table_exists($table)) {
+                $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+                if ($dbman->field_exists($table, $field)) {
+                    // Launch rename field state.
+                    $dbman->rename_field($table, $field, 'studentquizquestionid');
+                }
+                // Add new FK key.
+                $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
+                        ['studentquizquestionid'], 'studentquiz_question', ['id']);
+                // Define key questionid (foreign) to be dropped.
+                $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+                // Launch drop old key questionid.
+                $dbman->drop_key($table, $key);
+                $newindex = new xmldb_index('studentquizquestionid', XMLDB_INDEX_NOTUNIQUE, ['studentquizquestionid']);
+                // Conditionally launch add new index.
+                if (!$dbman->index_exists($table, $newindex)) {
+                    $dbman->add_index($table, $index);
+                }
+                $oldindex = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+                // Conditionally remove old index.
+                if ($dbman->index_exists($table, $oldindex)) {
+                    $dbman->drop_index($table, $index);
+                }
+            }
+        }
+
+        // Upgrade studentquiz_progress table questionid field to studentquizquestionid.
+        $table = new xmldb_table('studentquiz_progress');
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER,
+                    '10', null, XMLDB_NOTNULL, null, null);
+            if ($dbman->field_exists($table, $field)) {
+                // Launch rename field state.
+                $dbman->rename_field($table, $field, 'studentquizquestionid');
+            }
+            // Add new FK key.
+            $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
+                    ['studentquizquestionid'], 'studentquiz_question', ['id']);
+            // Add unique key.
+            $table->add_key('studentquizquestioniduseridstudentquizid', XMLDB_KEY_UNIQUE,
+                    ['studentquizquestionid', 'userid', 'studentquizid']);
+
+            // Define key questionid (foreign) to be dropped.
+            $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+            // Launch drop old key questionid.
+            $dbman->drop_key($table, $key);
+
+            // Define old unique key to be dropped.
+            $key = new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, ['questionid', 'userid', 'studentquizid']);
+            // Launch drop old unique key.
+            $dbman->drop_key($table, $key);
+
+            $newindex = new xmldb_index('studentquizquestionid', XMLDB_INDEX_NOTUNIQUE, ['studentquizquestionid']);
+            // Conditionally launch add new index.
+            if (!$dbman->index_exists($table, $newindex)) {
+                $dbman->add_index($table, $index);
+            }
+            $oldindex = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+            // Conditionally remove old index.
+            if ($dbman->index_exists($table, $oldindex)) {
+                $dbman->drop_index($table, $index);
+            }
+        }
+
+        // Upgrade studentquiz_state_history table questionid field to studentquizquestionid.
+        $table = new xmldb_table('studentquiz_state_history');
+        if ($dbman->table_exists($table)) {
+            $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+            if ($dbman->field_exists($table, $field)) {
+                // Launch rename field state.
+                $dbman->rename_field($table, $field, 'studentquizquestionid');
+            }
+
+            // Add new FK key.
+            $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
+                    ['studentquizquestionid'], 'studentquiz_question', ['id']);
+            // Define key questionid (foreign) to be dropped.
+            $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+            // Launch drop old key questionid.
+            $dbman->drop_key($table, $key);
+        }
+        upgrade_mod_savepoint(true, 2022020200.01, 'studentquiz');
+    }
+
+    if ($oldversion < 2022020200.02) {
+        // Upgrade migration data from 3.9 to 4.0.
+        $transaction = $DB->start_delegated_transaction();
+        // Count all questions to be migrated (for progress bar).
+        // Get all questions belong to StudentQuiz when we still using questionid.
+        $sql = 'SELECT q.id as questionid, sq.id as studentquizid, sqq.id as studentquizquestionid,
+                       sqq.id as studentquizquestionid, qc.contextid as contextid,
+                       qbe.id as questionbankentryid
+                  FROM {question} q
+                  JOIN {question_versions} qv ON q.id = qv.questionid
+                  JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                  JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                  JOIN {context} ctx ON ctx.id = qc.contextid
+                  JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                  JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
+                ';
+        // Get all records in question table belong to studentquiz.
+        $questions = $DB->get_recordset_sql($sql);
+        foreach ($questions as $question) {
+            upgrade_set_timeout(60);
+
+            $sqqrecord = new stdClass();
+            $sqqrecord->id = $question->studentquizquestionid;
+            $sqqrecord->studentquizid = $question->studentquizid;
+            $DB->update_record('studentquiz_question', $sqqrecord);
+
+            // Get all the rates belong to to old questionid.
+            $rates = $DB->get_records('studentquiz_rate',
+                    ['studentquizquestionid' => $question->questionid], '', 'id, studentquizquestionid');
+            foreach ($rates as $rate) {
+                $rate->studentquizquestionid = $sqqrecord->id;
+                $DB->update_record('studentquiz_rate', $rate);
+            }
+
+            // Get all the progress belong to to old questionid.
+            $progresses = $DB->get_records('studentquiz_progress',
+                    ['studentquizquestionid' => $question->questionid], '', 'id, studentquizquestionid');
+            foreach ($progresses as $progress) {
+                $progress->studentquizquestionid = $sqqrecord->id;
+                $DB->update_record('studentquiz_progress', $progress);
+            }
+
+            // Get all the comment belong to to old questionid.
+            $comments = $DB->get_records('studentquiz_comment',
+                    ['studentquizquestionid' => $question->questionid], '', 'id, studentquizquestionid');
+            foreach ($comments as $comment) {
+                $comment->studentquizquestionid = $sqqrecord->id;
+                $DB->update_record('studentquiz_comment', $comment);
+            }
+
+            // Get all the state histories belong to to old questionid.
+            $statehistories = $DB->get_records('studentquiz_state_history',
+                    ['studentquizquestionid' => $question->questionid], '', 'id, studentquizquestionid');
+            foreach ($statehistories as $statehistory) {
+                $comment->studentquizquestionid = $sqqrecord->id;
+                $DB->update_record('studentquiz_state_history', $statehistory);
+            }
+            // Create a SQQ reference.
+            $referenceparams = [
+                    'usingcontextid' => $question->contextid,
+                    'itemid' => $sqqrecord->id,
+                    'component' => STUDENTQUIZ_COMPONENT_QR,
+                    'questionarea' => STUDENTQUIZ_QUESTIONAREA_QR,
+                    'questionbankentryid' => $question->questionbankentryid,
+                    'version' => null
+            ];
+            $DB->insert_record('question_references', (object) $referenceparams);
+        }
+        $questions->close();
+        $transaction->allow_commit();
+        upgrade_mod_savepoint(true, 2022020200.02, 'studentquiz');
+    }
+
     return true;
 }
 

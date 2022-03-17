@@ -19,11 +19,14 @@ Feature: Question states history
       | student1 | C1     | student |
       | student2 | C1     | student |
       | teacher  | C1     | teacher |
+    # Set window size to large so we can see the navigation.
+    And I change window size to "large"
 
   @javascript @_switch_window
   Scenario: Teachers can see author of action in state history table
     When I am on the "StudentQuiz Test 1" "mod_studentquiz > View" page logged in as "student1"
-
+    # Set window size to large so we can see the navigation.
+    And I change window size to "large"
     And I click on "Create new question" "button"
     And I set the field "item_qtype_truefalse" to "1"
     And I click on "Add" "button" in the "Choose a question type to add" "dialogue"

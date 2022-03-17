@@ -16,7 +16,7 @@
 
 namespace mod_studentquiz\bank;
 
-use core_question\bank\delete_action_column;
+use qbank_deletequestion\delete_action_column;
 use mod_studentquiz\local\studentquiz_helper;
 
 /**

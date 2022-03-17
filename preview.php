@@ -23,12 +23,14 @@
  */
 use mod_studentquiz\utils;
 
+use mod_studentquiz\local\studentquiz_question;
+
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/viewlib.php');
 
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
-$questionid = required_param('questionid', PARAM_INT);
+$studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 
 // Load course and course module requested.
 if ($cmid) {
@@ -58,10 +60,17 @@ $actionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $cmi
 $PAGE->set_url($actionurl);
 
 utils::require_access_to_a_relevant_group($module, $context, get_string('studentquiz:preview', 'studentquiz'));
+try {
+    $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
+    $studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid,
+            null, $studentquiz, $module, $context);
+} catch (moodle_exception $e) {
+    throw new moodle_exception("invalidconfirmdata', 'error");
+}
 
 // Lookup question.
 try {
-    $question = question_bank::load_question($questionid);
+    $question = $studentquizquestion->get_question();
     // A user can view this page if it is his question or he is allowed to view others questions.
     if ($question->createdby != $USER->id) {
         require_capability('mod/studentquiz:previewothers', $context);
@@ -77,6 +86,7 @@ try {
 }
 
 // Get and validate existing preview, or start a new one.
+$actionurl = new moodle_url('/mod/studentquiz/preview.php', ['cmid' => $cmid, 'studentquizquestionid' => $studentquizquestionid]);
 $previewid = optional_param('previewid', 0, PARAM_INT);
 $highlight = optional_param('highlight', 0, PARAM_INT);
 
@@ -141,9 +151,9 @@ $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
 
 echo $OUTPUT->header();
 if ($question) {
-    echo html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
-        'enctype' => 'multipart/form-data', 'id' => 'responseform'));
-    echo html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field'));
+    echo html_writer::start_tag('form', ['method' => 'post', 'action' => $actionurl,
+        'enctype' => 'multipart/form-data', 'id' => 'responseform']);
+    echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field']);
 
     echo $quba->render_question($slot, $options, 'i');
 
@@ -151,12 +161,11 @@ if ($question) {
     $PAGE->requires->strings_for_js(array(
         'closepreview',
     ), 'question');
-
-    echo $output->feedback($question, $options, $cmid, $USER->id);
+    echo $output->render_state_choice($studentquizquestion);
 
     echo html_writer::end_tag('form');
 
-    echo $output->render_comment_nav_tabs($cmid, $question, $USER->id, $highlight, $studentquiz->privatecommenting);
+    echo $output->render_comment_nav_tabs($studentquizquestion, $USER->id, $highlight, $studentquiz->privatecommenting);
 } else {
     echo $OUTPUT->notification(get_string('deletedquestiontext', 'qtype_missingtype'));
 }

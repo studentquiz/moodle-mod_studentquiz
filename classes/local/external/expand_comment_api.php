@@ -53,7 +53,7 @@ class expand_comment_api extends external_api {
      */
     public static function expand_comment_parameters() {
         return new external_function_parameters([
-                'questionid' => new external_value(PARAM_INT, 'Question ID'),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'SQQ ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'commentid' => new external_value(PARAM_INT, 'Comment ID'),
                 'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
@@ -77,24 +77,25 @@ class expand_comment_api extends external_api {
     /**
      * Get posts belong to diccussion.
      *
-     * @param int $questionid - Question ID
+     * @param int $studentquizquestionid - SQQ ID
      * @param int $cmid - CM ID
      * @param int $commentid - Comment ID
      * @param int $type - Comment type.
      * @return mixed
      */
-    public static function expand_comment($questionid, $cmid, $commentid, $type) {
+    public static function expand_comment($studentquizquestionid, $cmid, $commentid, $type) {
 
         $params = self::validate_parameters(self::expand_comment_parameters(), [
-                'questionid' => $questionid,
+                'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'commentid' => $commentid,
                 'type' => $type
         ]);
 
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
+        $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
+        $context = $studentquizquestion->get_context();
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
+        $commentarea = new container($studentquizquestion, null, '', $type);
 
         $comment = $commentarea->query_comment_by_id($params['commentid']);
 

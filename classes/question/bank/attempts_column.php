@@ -37,7 +37,7 @@ class attempts_column extends studentquiz_column_base {
     /**
      * Initialise Parameters for join
      */
-    protected function init() {
+    protected function init(): void {
 
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
@@ -66,7 +66,7 @@ class attempts_column extends studentquiz_column_base {
      * Get title
      * @return string column title
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('myattempts_column_name', 'studentquiz');
     }
 
@@ -84,8 +84,8 @@ class attempts_column extends studentquiz_column_base {
      * Get the left join for progress
      * @return array modified select left join
      */
-    public function get_extra_joins() {
-        return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.questionid = q.id
+    public function get_extra_joins(): array {
+        return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.studentquizquestionid = sqq.id
                                     AND sp.userid = " . $this->currentuserid . "
                                     AND sp.studentquizid = " . $this->studentquizid);
     }
@@ -94,7 +94,7 @@ class attempts_column extends studentquiz_column_base {
      * Get fields for this column
      * @return array additional fields
      */
-    public function get_required_fields() {
+    public function get_required_fields(): array {
         return [
             'sp.attempts AS myattempts',
             'sp.lastanswercorrect AS mylastanswercorrect',

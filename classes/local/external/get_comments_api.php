@@ -53,7 +53,7 @@ class get_comments_api extends external_api {
      */
     public static function get_comments_parameters() {
         return new external_function_parameters([
-                'questionid' => new external_value(PARAM_INT, 'Question ID'),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'SQQ ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'numbertoshow' => new external_value(PARAM_INT, 'Number of comments to show, 0 will return all comments/replies',
                         VALUE_DEFAULT, container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT),
@@ -85,26 +85,27 @@ class get_comments_api extends external_api {
     /**
      * Get comments belong to question.
      *
-     * @param int $questionid - Question ID.
+     * @param int $studentquizquestionid - Student quiz question Id.
      * @param int $cmid - CM ID.
      * @param int $numbertoshow - Number comments to show.
      * @param string $sort - Type of sort.
      * @param int $type - Comment type.
      * @return array
      */
-    public static function get_comments($questionid, $cmid, $numbertoshow, $sort, $type) {
+    public static function get_comments($studentquizquestionid, $cmid, $numbertoshow, $sort, $type) {
 
         $params = self::validate_parameters(self::get_comments_parameters(), [
-                'questionid' => $questionid,
+                'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'numbertoshow' => $numbertoshow,
                 'sort' => $sort,
                 'type' => $type
         ]);
 
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
+        $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
+        $context = $studentquizquestion->get_context();
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, $sort, $type);
+        $commentarea = new container($studentquizquestion, null, $sort, $type);
         $comments = $commentarea->fetch_all($numbertoshow);
 
         $data = [];

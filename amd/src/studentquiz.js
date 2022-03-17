@@ -110,7 +110,13 @@ define(['jquery'], function($) {
         var $cmIdField = $element.closest('form').find('.cmid_field');
         var cmid = $cmIdField.attr('value');
         $.post(M.cfg.wwwroot + '/mod/studentquiz/save.php',
-            {save: 'rate', cmid: cmid, questionid: $element.attr('data-questionid'), sesskey: M.cfg.sesskey, rate: rate},
+            {
+                save: 'rate',
+                cmid: cmid,
+                studentquizquestionid: $element.attr('data-studentquizquestionid'),
+                sesskey: M.cfg.sesskey,
+                rate: rate
+            },
             function() {
                 var $ratingStars = $that.closest('.rating').children('span');
                 $ratingStars.removeClass('star');

@@ -79,6 +79,8 @@ Feature: As a user I can add private comment and view private comment in my own 
     And I switch to the main window
     And I log out
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "student1"
+    # We need a little taller window because we need to ensure that the "Preview" button is visible in the viewport.
+    And I change window size to "1366x968"
     And I choose "Preview" action for "Question 1" in the question bank
     And I switch to "questionpreview" window
     And I should see "Approved the question"

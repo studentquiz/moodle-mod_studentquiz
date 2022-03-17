@@ -75,7 +75,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                 var args = {
                     courseid: submitStateButton.attr('data-courseid'),
                     cmid: submitStateButton.attr('data-cmid'),
-                    questionid: submitStateButton.attr('data-questionid'),
+                    studentquizquestionid: submitStateButton.attr('data-studentquizquestionid'),
                     state: stateChangeSelect.val()
                 };
                 var failure;

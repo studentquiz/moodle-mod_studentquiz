@@ -23,7 +23,7 @@ namespace mod_studentquiz\bank;
  * @copyright  2018 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class question_name_column extends \core_question\bank\question_name_column {
+class question_name_column extends \qbank_viewquestionname\viewquestionname_column_helper {
 
     /** @var \stdClass */
     protected $renderer;
@@ -37,7 +37,7 @@ class question_name_column extends \core_question\bank\question_name_column {
     /**
      * Loads config of current userid and can see
      */
-    public function init() {
+    public function init(): void {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
         $this->context = $this->qbank->get_most_specific_context();
@@ -48,7 +48,7 @@ class question_name_column extends \core_question\bank\question_name_column {
      * @param object $question
      * @param string $rowclasses
      */
-    protected function display_content($question, $rowclasses) {
+    protected function display_content($question, $rowclasses): void {
         $labelfor = $this->label_for($question);
         echo $this->renderer->render_question_name_column($question, $rowclasses, $labelfor);
     }
@@ -58,7 +58,7 @@ class question_name_column extends \core_question\bank\question_name_column {
      * @param object $question The row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
-    public function display($question, $rowclasses) {
+    public function display($question, $rowclasses): void {
         $this->extraclasses = [];
         if (!empty($question->sq_hidden)) {
             $this->extraclasses[] = 'dimmed_text';

@@ -51,11 +51,16 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
             $timelimit = time() - intval(abs(get_config('studentquiz', 'deleteorphanedtimelimit')));
 
             $questions = $DB->get_records_sql(
-                    "SELECT *
-                    FROM {studentquiz_question} sq
-                    JOIN {question} q ON sq.questionid = q.id
-                    WHERE (sq.state = 0 OR q.hidden = 1) AND :timelimit - q.timemodified > 0
-                    ORDER BY sq.questionid ASC", array('timelimit' => $timelimit));
+                    "SELECT q.*, sqq.id as studentquizquestionid
+                       FROM {studentquiz_question} sqq
+                       JOIN {question_references} qr ON qr.itemid = sqq.id
+                            AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                            AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
+                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
+                       JOIN {question} q ON qv.questionid = q.id
+                      WHERE sq.state = 0 AND :timelimit - q.timemodified > 0
+                   ORDER BY q.questionid ASC", ['timelimit' => $timelimit]);
 
             // Process questionids and generate output.
             $output = "";
@@ -68,7 +73,7 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
 
                 foreach ($questions as $question) {
 
-                    if (isset($question->questionid)) {
+                    if (isset($question->id)) {
 
                         try {
 
@@ -84,32 +89,32 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
                             $output .= get_string('deleteorphanedquestionsquestioninfo', 'mod_studentquiz', $a);
 
                             // Delete from question table.
-                            question_delete_question($question->questionid);
+                            question_delete_question($question->id);
 
                             if (!$DB->record_exists_sql("SELECT * FROM {question} WHERE id = :questionid",
-                                array('questionid' => $question->questionid))) {
+                                ['questionid' => $question->id])) {
 
                                 // Delete from mdl_studentquiz_comment_history.
                                 $success = $DB->delete_records_select('studentquiz_comment_history',
                                                         "commentid IN (SELECT id FROM {studentquiz_comment}
-                                                        WHERE questionid = :questionid)",
-                                                        array('questionid' => $question->questionid));
+                                                        WHERE studentquizquestionid = :studentquizquestionid)",
+                                                        ['studentquizquestionid' => $question->studentquizquestionid]);
 
                                 // Delete from mdl_studentquiz_comment.
                                 $success = $success && $DB->delete_records('studentquiz_comment',
-                                                        array('questionid' => $question->questionid));
+                                                        ['studentquizquestionid' => $question->studentquizquestionid]);
 
                                 // Delete from mdl_studentquiz_progress.
                                 $success = $success && $DB->delete_records('studentquiz_progress',
-                                                        array('questionid' => $question->questionid));
+                                                        ['studentquizquestionid' => $question->studentquizquestionid]);
 
                                 // Delete from mdl_studentquiz_question.
                                 $success = $success && $DB->delete_records('studentquiz_question',
-                                                        array('questionid' => $question->questionid));
+                                                        ['id' => $question->studentquizquestionid]);
 
                                 // Delete from mdl_studentquiz_rate.
                                 $success = $success && $DB->delete_records('studentquiz_rate',
-                                                        array('questionid' => $question->questionid));
+                                                        ['studentquizquestionid' => $question->studentquizquestionid]);
 
                                 $output .= get_string('deleteorphanedquestionssuccessmdlquestion', 'mod_studentquiz');
 

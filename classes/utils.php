@@ -17,13 +17,12 @@
 namespace mod_studentquiz;
 
 use core\dml\sql_join;
-use core_courseformat\output\local\state\cm;
-use core_question\bank\search\hidden_condition;
 use external_value;
 use external_single_structure;
 use mod_studentquiz\commentarea\comment;
 use moodle_url;
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\local\studentquiz_question;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.
@@ -77,7 +76,7 @@ style5 = html';
     public static function get_comment_area_webservice_comment_reply_structure() {
         return [
                 'id' => new external_value(PARAM_INT, 'Comment ID'),
-                'questionid' => new external_value(PARAM_INT, 'Question ID'),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'studentquizquestionid ID'),
                 'parentid' => new external_value(PARAM_INT, 'Parent comment ID'),
                 'content' => new external_value(PARAM_RAW, 'Comment content'),
                 'shortcontent' => new external_value(PARAM_RAW, 'Comment short content'),
@@ -112,16 +111,13 @@ style5 = html';
     /**
      * Get data need for comment area.
      *
-     * @param int $questionid - Question ID.
+     * @param int $studentquizquestionid - SQ Question ID.
      * @param int $cmid - Course Module ID.
-     * @return array
+     * @return studentquiz_question $studentquizquestion
      */
-    public static function get_data_for_comment_area($questionid, $cmid) {
-        $cm = get_coursemodule_from_id('studentquiz', $cmid);
-        $context = \context_module::instance($cm->id);
-        $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
-        $question = \question_bank::load_question($questionid);
-        return [$question, $cm, $context, $studentquiz];
+    public static function get_data_for_comment_area($studentquizquestionid, $cmid) {
+        $studentquizquestion = new studentquiz_question($studentquizquestionid);
+        return $studentquizquestion;
     }
 
     /**
@@ -315,21 +311,21 @@ style5 = html';
     /**
      * Check permision can self comment.
      *
-     * @param \question_definition $question Current Question stdClass
+     * @param studentquiz_question $studentquizquestion Current studentquiz question stdClass
      * @param int $cmid Current Cmid
      * @param int $type Comment type.
      * @param bool $privatecommenting Does this studentquiz enable private commenting?
      * @return boolean
      */
-    public static function allow_self_comment_and_rating_in_preview_mode(\question_definition $question, $cmid,
+    public static function allow_self_comment_and_rating_in_preview_mode(studentquiz_question $studentquizquestion, $cmid,
              $type = self::COMMENT_TYPE_PUBLIC, $privatecommenting = false) {
         global $USER, $PAGE;
-
+        $question = $studentquizquestion->get_question();
         $context = \context_module::instance($cmid);
         if ($PAGE->pagetype == 'mod-studentquiz-preview' && !has_capability('mod/studentquiz:canselfratecomment', $context)) {
             if ($type == self::COMMENT_TYPE_PUBLIC || !$privatecommenting ||
                     $USER->id != $question->createdby ||
-                    self::get_question_state($question) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
+                    self::get_question_state($studentquizquestion) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
                 return false;
             }
         }
@@ -555,13 +551,13 @@ style5 = html';
     /**
      * Get current state of question.
      *
-     * @param \stdClass $question Question.
+     * @param studentquiz_question $studentquizquestion studentquizquestion instance.
      * @return int Question's state.
      */
-    public static function get_question_state($question) {
+    public static function get_question_state($studentquizquestion) {
         global $DB;
 
-        return $DB->get_field('studentquiz_question', 'state', ['questionid' => $question->id]);
+        return $DB->get_field('studentquiz_question', 'state', ['id' => $studentquizquestion->id]);
     }
 
     /**
@@ -584,15 +580,16 @@ style5 = html';
      * @param int $qid Question Id.
      * @param int $userid User Id.
      * @param int $studentquizid Studentquiz Id.
+     * @param int $sqqid studentquizquestion Id.
      * @return \stdClass Studentquiz progress object.
      */
-    public static function get_studentquiz_progress($qid, $userid, $studentquizid): \stdClass {
+    public static function get_studentquiz_progress($qid, $userid, $studentquizid, $sqqid): \stdClass {
         global $DB;
 
-        $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $qid,
+        $studentquizprogress = $DB->get_record('studentquiz_progress', array('studentquizquestionid' => $sqqid,
             'userid' => $userid, 'studentquizid' => $studentquizid));
         if ($studentquizprogress == false) {
-            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($qid, $userid, $studentquizid);
+            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($qid, $userid, $studentquizid, $sqqid);
         }
 
         return $studentquizprogress;
@@ -619,18 +616,19 @@ style5 = html';
     /**
      * Saving the action change state.
      *
-     * @param int $questionid Id of question
+     * @param int $studentquizquestionid Id of studentquizquestion.
      * @param int|null $userid
      * @param int $state The state of the question in the StudentQuiz.
      * @param int $timecreated The time do action.
      * @return bool|int True or new id
      */
-    public static function question_save_action(int $questionid, ?int $userid, int $state, int $timecreated = null) {
-        global $DB;
+    public static function question_save_action(int $studentquizquestionid, int $userid = null, int $state,
+            int $timecreated = null) {
+        global $DB, $USER;
 
         $data = new \stdClass();
-        $data->questionid = $questionid;
-        $data->userid = $userid;
+        $data->studentquizquestionid = $studentquizquestionid;
+        $data->userid = isset($userid) ? $userid : $USER->id;
         $data->state = $state;
         $data->timecreated = isset($timecreated) ? $timecreated : time();
 
@@ -659,15 +657,19 @@ style5 = html';
             $context = \context_module::instance($studentquiz->coursemodule);
             $studentquiz = mod_studentquiz_load_studentquiz($studentquiz->coursemodule, $context->id);
 
-            $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
+            $sql = "SELECT sqq.id as studentquizquestionid, sqq.state, q.createdby, q.timecreated
                       FROM {studentquiz} sq
-                      JOIN {context} con ON con.instanceid = sq.coursemodule
-                      JOIN {question_categories} qc ON qc.contextid = con.id
-                      JOIN {question} q ON q.category = qc.id
-                      JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                      JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
+                      JOIN {question_references} qr ON qr.itemid = sqq.id
+                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                      JOIN {question_categories} qc ON qc.contextid = qr.usingcontextid
+                      JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
+                      JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
+                      JOIN {question} q ON qv.questionid = q.id
                      WHERE sq.coursemodule = :coursemodule
                            AND qc.id = :categoryid
-                           AND NOT EXISTS (SELECT 1 FROM {studentquiz_state_history} WHERE questionid = q.id)";
+                           AND NOT EXISTS (SELECT 1 FROM {studentquiz_state_history} WHERE studentquizquestionid = sqq.id)";
 
             $params = [
                 'coursemodule' => $studentquiz->coursemodule,
@@ -678,11 +680,11 @@ style5 = html';
             if ($sqquestions) {
                 foreach ($sqquestions as $sqquestion) {
                     // Create action new question by onwer.
-                    self::question_save_action($sqquestion->questionid, $sqquestion->createdby,
+                    self::question_save_action($sqquestion->studentquizquestionid, $sqquestion->createdby,
                         studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
 
                     if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                        self::question_save_action($sqquestion->questionid, null, $sqquestion->state, null);
+                        self::question_save_action($sqquestion->studentquizquestionid, get_admin()->id, $sqquestion->state, null);
                     }
                 }
             }
@@ -696,13 +698,14 @@ style5 = html';
     /**
      * Get state history data.
      *
-     * @param \question_definition $question Question definition object.
+     * @param int $studentquizquestionid Student quiz question Id.
      * @return array State histories and Users array.
      */
-    public static function get_state_history_data($question): array {
+    public static function get_state_history_data($studentquizquestionid): array {
         global $DB;
 
-        $statehistories = $DB->get_records('studentquiz_state_history', ['questionid' => $question->id], 'timecreated, id');
+        $statehistories = $DB->get_records('studentquiz_state_history', ['studentquizquestionid' => $studentquizquestionid],
+                'timecreated, id');
         $users = self::get_users_change_state($statehistories);
 
         return [$statehistories, $users];
@@ -727,19 +730,6 @@ style5 = html';
     }
 
     /**
-     * Get current visibility of question.
-     *
-     * @param int $questionid Question's id.
-     * @return bool Question's visibility hide/show.
-     */
-    public static function check_is_question_hidden(int $questionid): bool {
-        global $DB;
-        $ishidden = $DB->get_field('studentquiz_question', 'hidden', ['questionid' => $questionid]);
-
-        return $ishidden == self::HIDDEN;
-    }
-
-    /**
      * Return 'comment' or 'comments' base on the $numberofcomments.
      *
      * @param int $numberofcomments The studentquiz progress object.
@@ -761,20 +751,22 @@ style5 = html';
      */
     public static function get_states(array $questionids): array {
         global $DB;
-
-        return $DB->get_records_list('studentquiz_question', 'questionid', $questionids, '', 'questionid, state');
-    }
-
-    /**
-     * Get state of question.
-     *
-     * @param int $questionid Question's id.
-     * @return int State of question.
-     */
-    public static function get_state_question(int $questionid): int {
-        global $DB;
-
-        return $DB->get_field('studentquiz_question', 'state', ['questionid' => $questionid]);
+        list ($conditionquestionids, $params) = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+        $sql = "SELECT q.id, sqq.state
+              FROM {studentquiz_question} sqq
+              JOIN {question_references} qr ON qr.itemid = sqq.id
+                   AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
+                   AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+              JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
+              JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
+                                      SELECT MAX(version)
+                                        FROM {question_versions}
+                                       WHERE questionbankentryid = qbe.id AND status = :ready
+                                  )
+              JOIN {question} q ON q.id = qv.questionid
+             WHERE q.id $conditionquestionids";
+        $params['ready'] = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        return $DB->get_records_sql($sql, $params);
     }
 
     /**

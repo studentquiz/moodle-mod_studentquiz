@@ -17,7 +17,7 @@
 
 namespace mod_studentquiz\bank;
 
-use core_question\bank\action_column_base;
+use core_question\local\bank\action_column_base;
 
 /**
  * Represent question is pinned or not in studentquiz_bank_view
@@ -33,7 +33,7 @@ class state_pin_column extends action_column_base {
     /**
      * Init method.
      */
-    protected function init() {
+    protected function init(): void {
         global $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
@@ -53,7 +53,7 @@ class state_pin_column extends action_column_base {
      *
      * @return string Title of column.
      */
-    protected function get_title() {
+    public function get_title(): string {
         return '';
     }
 

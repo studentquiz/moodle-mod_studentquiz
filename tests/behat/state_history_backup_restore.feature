@@ -13,7 +13,8 @@ Feature: Restore of studentquizzes in moodle exports without state history table
   @javascript @_file_upload @_switch_window
   Scenario: Restore moodle backups containing old StudentQuiz activity without state history table
     When I am on "Course 1" course homepage
-    And I navigate to "Restore" in current page administration
+    And I navigate to "Course reuse" in current page administration
+    And I select "Restore" from the "jump" singleselect
     And I press "Manage backup files"
     And I upload "mod/studentquiz/tests/fixtures/backup-moodle2-course-3-sqo-20211011-missing_state_history.mbz" file to "Files" filemanager
     And I press "Save changes"

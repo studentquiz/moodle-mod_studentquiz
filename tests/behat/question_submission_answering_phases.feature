@@ -57,7 +57,7 @@ Feature: Question submission and answering will follow the availability setting
     Then the "Create new question" "button" should be enabled
 
     # Enable only for Open for question submission (Future)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_opensubmissionfrom_enabled" to "1"
     And I set the availability field "opensubmissionfrom" to "+5" days from now
@@ -66,7 +66,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "Open for question submission from"
 
     # Enable only for Open for question submission (Past)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the availability field "opensubmissionfrom" to "-5" days from now
     And I press "Save and display"
@@ -74,7 +74,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should not see "Open for question submission from"
 
     # Enable only for Close for question submission (Past)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_opensubmissionfrom_enabled" to "0"
     And I set the field "id_closesubmissionfrom_enabled" to "1"
@@ -84,7 +84,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "This StudentQuiz closed for question submission on"
 
     # Enable only for Close for question submission (Future)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the availability field "closesubmissionfrom" to "+5" days from now
     And I press "Save and display"
@@ -92,7 +92,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "This StudentQuiz closes for question submission on"
 
     # Enable both Open and Close for question submission (Open in the Past)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_opensubmissionfrom_enabled" to "1"
     And I set the field "id_closesubmissionfrom_enabled" to "1"
@@ -103,7 +103,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "This StudentQuiz closes for question submission on"
 
     # Enable both Open and Close for question submission (Open in the Future)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_opensubmissionfrom_enabled" to "1"
     And I set the field "id_closesubmissionfrom_enabled" to "1"
@@ -119,7 +119,7 @@ Feature: Question submission and answering will follow the availability setting
     Then the "Start Quiz" "button" should be enabled
 
     # Enable only for Open for question answering (Future)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_openansweringfrom_enabled" to "1"
     And I set the availability field "openansweringfrom" to "+5" days from now
@@ -128,7 +128,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "Open for answering from"
 
     # Enable only for Open for question answering (Past)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the availability field "openansweringfrom" to "-5" days from now
     And I press "Save and display"
@@ -136,7 +136,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should not see "Open for answering from"
 
     # Enable only for Close for question answering (Past)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_openansweringfrom_enabled" to "0"
     And I set the field "id_closeansweringfrom_enabled" to "1"
@@ -146,7 +146,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "This StudentQuiz closed for answering on"
 
     # Enable only for Close for question answering (Future)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the availability field "closeansweringfrom" to "+5" days from now
     And I press "Save and display"
@@ -154,7 +154,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "This StudentQuiz closes for answering on"
 
     # Enable both Open and Close for question answering (Open in the Past)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_openansweringfrom_enabled" to "1"
     And I set the field "id_closeansweringfrom_enabled" to "1"
@@ -165,7 +165,7 @@ Feature: Question submission and answering will follow the availability setting
     And I should see "This StudentQuiz closes for answering on"
 
     # Enable both Open and Close for question answering (Open in the Future)
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "id_openansweringfrom_enabled" to "1"
     And I set the field "id_closeansweringfrom_enabled" to "1"

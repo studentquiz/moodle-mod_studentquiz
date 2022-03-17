@@ -131,12 +131,17 @@ class report_test extends \advanced_testcase {
         $this->setAdminUser();
     }
 
+    /**
+     * Nothing
+     * @coversNothing
+     */
     public function test_mod_studentquiz_get_user_ranking_table() {
         $this->assertTrue(true);
     }
 
     /**
      * Test the get_roles_to_exclude function.
+     * @covers \mod_studentquiz_report::get_roles_to_exclude
      */
     public function test_mod_studentquiz_get_roles_to_exclude() {
         set_config('excluderoles', '1,2,3,4', 'studentquiz');
@@ -161,6 +166,7 @@ class report_test extends \advanced_testcase {
 
     /**
      * Test the get_roles_which_can_be_exculded function.
+     * @covers \mod_studentquiz_report::get_roles_which_can_be_exculded
      */
     public function test_mod_studentquiz_get_roles_which_can_be_exculded() {
         set_config('excluderoles', '1,2,3,4', 'studentquiz');
@@ -202,15 +208,27 @@ class report_test extends \advanced_testcase {
         $this->assertCount(0, $rolescanbeexcluded);
     }
 
+    /**
+     * Nothing
+     * @coversNothing
+     */
     public function test_mod_studentquiz_community_stats() {
         $this->assertTrue(true);
     }
 
+    /**
+     * test mod_studentquiz_user_stats
+     * @covers \mod_studentquiz_user_stats
+     */
     public function test_mod_studentquiz_user_stats() {
         $userstats = mod_studentquiz_user_stats($this->cm->id, 0, $this->report->get_quantifiers(), $this->users[0]->id);
         $this->assertEquals(0, $userstats->questions_created);
     }
 
+    /**
+     * test mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps
+     * @covers \mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps
+     */
     public function test_mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps() {
         $studentquizprogresses = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps(
                 $this->studentquiz->id, $this->context);

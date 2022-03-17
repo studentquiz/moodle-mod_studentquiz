@@ -66,6 +66,10 @@ class viewlib_test extends \advanced_testcase {
             $studentquiz, $user->id, $report);
     }
 
+    /**
+     * Test has_question_ids
+     * @coversNothing
+     */
     public function test_has_question_ids() {
         $result = $this->viewlib->has_question_ids();
         self::assertFalse($result);
@@ -73,10 +77,18 @@ class viewlib_test extends \advanced_testcase {
 
     // Is testable with setUser in setup to mock login.
     // that is not allowed in testings and unmockable.
+    /**
+     * Nothing
+     * @coversNothing
+     */
     public function test_show_questionbank() {
 
     }
 
+    /**
+     * test_get_viewurl
+     * @coversNothing
+     */
     public function test_get_viewurl() {
         $viewurl = $this->viewlib->get_viewurl();
         $expectedurl = new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id));
@@ -84,6 +96,10 @@ class viewlib_test extends \advanced_testcase {
         $this->assertTrue($expectedurl->compare($viewurl, URL_MATCH_EXACT));
     }
 
+    /**
+     * test_get_title
+     * @coversNothing
+     */
     public function test_get_title() {
         $result = $this->viewlib->get_title();
         self::assertEquals('StudentQuiz: studentquiz 0', $result);
@@ -91,6 +107,7 @@ class viewlib_test extends \advanced_testcase {
 
     /**
      * TODO Write tests for public functions
+     * @coversNothing
      * generate_quiz_with_filtered_ids($ids)
      * generate_quiz_with_selected_ids($submitdata)
      * show_questionbank()

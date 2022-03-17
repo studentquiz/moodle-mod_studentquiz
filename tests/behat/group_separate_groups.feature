@@ -36,10 +36,10 @@ Feature: Students can create questions and practice in separate groups.
 
   @javascript
   Scenario: Students can create questions and practice in separate groups
-    When I log in as "student1"
-    And I am on "Course 1" course homepage
+    Given I am on the "C1" "Course" page logged in as "student1"
+    # Set window size to large so we can see the navigation.
+    And I change window size to "large"
     And I follow "StudentQuiz 1"
-
     And I set the field "Separate groups" to "Group 1"
     And I click on "Create new question" "button"
     And I set the field "item_qtype_truefalse" to "1"
@@ -49,7 +49,7 @@ Feature: Students can create questions and practice in separate groups.
     And I press "id_submitbutton"
     And I log out
 
-    And I log in as "student2"
+    Given I am on the "C1" "Course" page logged in as "student2"
     And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
     Then I should see "Separate groups: Group 1"
@@ -62,10 +62,10 @@ Feature: Students can create questions and practice in separate groups.
     And I press "id_submitbutton"
     And I log out
 
-    And I log in as "student3"
-    And I am on "Course 1" course homepage
+    Given I am on the "C1" "Course" page logged in as "student3"
     And I follow "StudentQuiz 1"
     And I should see "Separate groups: Group 2"
+    And I wait until the page is ready
     And I click on "Create new question" "button"
     And I set the field "item_qtype_truefalse" to "1"
     And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
@@ -75,10 +75,10 @@ Feature: Students can create questions and practice in separate groups.
     And I press "id_submitbutton"
     And I log out
 
-    And I log in as "student1"
-    And I am on "Course 1" course homepage
+    Given I am on the "C1" "Course" page logged in as "student1"
     And I follow "StudentQuiz 1"
     And I set the field "Separate groups" to "Group 1"
+    And I wait until the page is ready
     And I should see "Question of Student 1"
     And I should see "Question of Student 2"
     And I should not see "Question of Student 3"
@@ -87,6 +87,7 @@ Feature: Students can create questions and practice in separate groups.
     And I should see "2" in the ".stat.never-answered" "css_element"
 
     And I set the field "Separate groups" to "Group 2"
+    And I wait until the page is ready
     And I should not see "Question of Student 1"
     And I should not see "Question of Student 2"
     And I should see "Question of Student 3"
@@ -96,6 +97,7 @@ Feature: Students can create questions and practice in separate groups.
 
     # Start the quiz in Group 1.
     And I set the field "Separate groups" to "Group 1"
+    And I wait until the page is ready
     And I click on "Start Quiz" "button"
     And I set the field "True" to "1"
     And I press "Check"

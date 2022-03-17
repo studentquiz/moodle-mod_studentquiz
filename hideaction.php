@@ -15,28 +15,29 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Ajax requests to this script saves the ratings and comments.
+ * Single action: Hide/Unhide question in SQ
  *
  * Require POST params:
- * "save" can be "rate" or "comment" (save type),
- * "questionid" is necessary for every request,
- * "rate" is necessary if the save type is "rate"
- * "text" is necessary if the save type is "comment"
+ * "studentquizquestionid" is necessary for every request,
+ * "courseid" is necessary for every request,
+ * "cmid" is necessary for every request,
+ * "sesskey" is necessary for every request
+ * "hide" is necessary if the save type is "comment"
  *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package mod_studentquiz
+ * @copyright 2022 The Open University
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-define('AJAX_SCRIPT', true);
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
 // Get parameters.
-$cmid = optional_param('cmid', 0, PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
-$save = required_param('save', PARAM_NOTAGS);
+$courseid = required_param('courseid', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
+$returnurl = required_param('returnurl', PARAM_LOCALURL);
+$hide = required_param('hide', PARAM_INT);
 
 // Load course and course module requested.
 if ($cmid) {
@@ -54,21 +55,11 @@ if ($cmid) {
 require_login($module->course, false, $module);
 require_sesskey();
 
-$data = new \stdClass();
-$data->userid = $USER->id;
-$data->studentquizquestionid = $studentquizquestionid;
+$studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
 
-switch($save) {
-    case 'rate':
-        $data->rate = required_param('rate', PARAM_INT);
-
-        // Rating is only valid if the rate is in or between 1 and 5.
-        if ($data->rate < 1 || $data->rate > 5) {
-            throw new moodle_exception("invalidrate");
-        }
-
-        mod_studentquiz_save_rate($data);
-        break;
-}
-
-header('Content-Type: text/html; charset=utf-8');
+$hidestatus = $hide ? \mod_studentquiz\local\studentquiz_helper::STATE_HIDE : \mod_studentquiz\local\studentquiz_helper::STATE_SHOW;
+$hidenotification = $hide ? 'hidden' : 'unhidden';
+$DB->set_field('studentquiz_question', 'hidden', $hide, ['id' => $studentquizquestionid]);
+$studentquizquestion->save_action($hidestatus, $USER->id);
+mod_studentquiz_state_notify($studentquizquestion, $course, $module, $hidenotification);
+redirect($returnurl);

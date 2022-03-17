@@ -23,6 +23,8 @@
  */
 use mod_studentquiz\utils;
 
+use mod_studentquiz\local\studentquiz_question;
+
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(__DIR__ . '/locallib.php');
@@ -83,6 +85,7 @@ $returnurl = $returnurl ? new moodle_url($returnurl) : new moodle_url('/mod/stud
 // Reroute this to attempt summary page if desired.
 // Get Current Question.
 $question = $questionusage->get_question($slot);
+$studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question, $studentquiz, $cm, $context);
 // Navigatable?
 $questionscount = count($questionids);
 $hasnext = $slot < $questionscount;
@@ -118,12 +121,12 @@ if (data_submitted()) {
 
     // If the question is finished after process but was not before, save the attempt to the progress.
     if ($isfinishedafter && !$isfinishedbefore) {
-        $q = $questionusage->get_question($slot);
-
-        $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
-            'userid' => $userid, 'studentquizid' => $studentquiz->id));
+        $studentquizprogress = $DB->get_record('studentquiz_progress',
+            ['studentquizquestionid' => $studentquizquestion->get_id(),
+            'userid' => $userid, 'studentquizid' => $studentquiz->id]);
         if ($studentquizprogress == false) {
-            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
+            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($question->id, $userid, $studentquiz->id,
+                $studentquizquestion->get_id());
         }
 
         // Any newly finished attempt is wrong when it wasn't right.
@@ -228,7 +231,7 @@ $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cm
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the state change select box.
-$statechangehtml = $output->render_state_choice($question, $course->id, $cmid);
+$statechangehtml = $output->render_state_choice($studentquizquestion);
 $navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $isanswered);
 
 // Change state will always first thing below navigation.
@@ -239,9 +242,9 @@ $orders  = [
 
 if ($isanswered) {
     // Get output the rating.
-    $ratinghtml = $output->render_rate($question->id, $studentquiz->forcerating);
+    $ratinghtml = $output->render_rate($studentquizquestion, $studentquiz->forcerating);
     // Get output the comments.
-    $commenthtml = $output->render_comment($cmid, $question->id, $userid, $highlight);
+    $commenthtml = $output->render_comment($studentquizquestion, $userid, $highlight);
     // If force rating and commenting, then it will above navigation.
     if ($studentquiz->forcerating && $studentquiz->forcecommenting) {
          $orders = array_merge([

@@ -87,7 +87,7 @@ class bank_performance_test extends \advanced_testcase {
 
         $report = new mod_studentquiz_report($result['cm']->id);
         $questionbank = new studentquiz_bank_view(
-            new question_edit_contexts(\context_module::instance($result['cm']->id)),
+            new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),
             new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
             $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
         return $questionbank;
@@ -168,6 +168,7 @@ class bank_performance_test extends \advanced_testcase {
 
     /**
      * Test questionbank empty filter
+     * @coversNothing
      */
     public function test_questionbank_empty_filter() {
         $this->resetAfterTest(true);

@@ -543,7 +543,7 @@ Feature: Create comment as an user
   @javascript
   Scenario: Test enable/disable edit feature.
     When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "Comment editing/deletion period (minutes)" to "0"
     And I press "Save and display"

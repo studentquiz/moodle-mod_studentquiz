@@ -16,6 +16,8 @@
 
 namespace mod_studentquiz;
 
+use mod_studentquiz\local\studentquiz_question;
+
 /**
  * Cron test.
  *
@@ -48,6 +50,9 @@ class cron_test extends \advanced_testcase {
 
     /** @var array */
     protected $questions;
+
+    /** @var array */
+    protected $studentquizquestions;
 
     protected function setUp(): void {
         global $DB;
@@ -95,20 +100,20 @@ class cron_test extends \advanced_testcase {
                 ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]);
         $this->questions[1] = $questiongenerator->create_question('truefalse', null,
                 ['name' => 'Student 2 Question', 'category' => $this->studentquiz->categoryid]);
-        \question_bank::load_question($this->questions[0]->id);
-        \question_bank::load_question($this->questions[1]->id);
-        $DB->insert_record('studentquiz_question', (object) ['questionid' => $this->questions[0]->id, 'state' => 0]);
-        $DB->insert_record('studentquiz_question', (object) ['questionid' => $this->questions[1]->id, 'state' => 1]);
+        $this->questions[0] = \question_bank::load_question($this->questions[0]->id);
+        $this->questions[1] = \question_bank::load_question($this->questions[1]->id);
+        $this->studentquizquestions[0] = studentquiz_question::get_studentquiz_question_from_question($this->questions[0]);
+        $this->studentquizquestions[1] = studentquiz_question::get_studentquiz_question_from_question($this->questions[1]);
     }
 
     /**
      * Test send_no_digest_notification_task
+     * @covers \mod_studentquiz\task\send_digest_notification_task
      */
     public function test_send_no_digest_notification_task() {
-        global $DB;
-        $question = $DB->get_record('question', ['id' => $this->questions[0]->id],
-                'id, name, timemodified, createdby, modifiedby');
-        $notifydata = mod_studentquiz_prepare_notify_data($question, $this->student1, get_admin(), $this->course,
+        $question = $this->questions[0];
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+                $this->student1, get_admin(), $this->course,
                 get_coursemodule_from_id('studentquiz', $this->cmid));
         $customdata = [
                 'eventname' => 'questionchanged',
@@ -136,9 +141,9 @@ class cron_test extends \advanced_testcase {
                 $question->name . ' to ' .
                 $notifydata->recepientname, $output);
 
-        $question = $DB->get_record('question', ['id' => $this->questions[1]->id],
-                'id, name, timemodified, createdby, modifiedby');
-        $notifydata = mod_studentquiz_prepare_notify_data($question, $this->student2, get_admin(), $this->course,
+        $question = $this->questions[1];
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[1],
+                $this->student2, get_admin(), $this->course,
                 get_coursemodule_from_id('studentquiz', $this->cmid));
         $customdata = [
                 'eventname' => 'questionchanged',
@@ -167,14 +172,14 @@ class cron_test extends \advanced_testcase {
 
     /**
      * Test send_no_digest_notification_task
+     * @covers \mod_studentquiz\task\send_digest_notification_task
      */
     public function test_send_digest_notification_task() {
         global $DB;
         date_default_timezone_set('UTC');
 
-        $question = $DB->get_record('question', ['id' => $this->questions[0]->id],
-                'id, name, timemodified, createdby, modifiedby');
-        $notifydata = mod_studentquiz_prepare_notify_data($question, $this->student1, get_admin(), $this->course,
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+                $this->student1, get_admin(), $this->course,
                 get_coursemodule_from_id('studentquiz', $this->cmid));
 
         $customdata = [

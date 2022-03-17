@@ -24,6 +24,7 @@
  */
 
 use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
 
 defined('MOODLE_INTERNAL') || die();
@@ -50,7 +51,7 @@ class mod_studentquiz_external extends external_api {
         return new external_function_parameters([
                 'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_REQUIRED),
                 'cmid' => new external_value(PARAM_INT, 'CM id', VALUE_REQUIRED),
-                'questionid' => new external_value(PARAM_INT, 'Question id', VALUE_REQUIRED),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'SQQ id', VALUE_REQUIRED),
                 'state' => new external_value(PARAM_INT, 'Question state', VALUE_REQUIRED)
         ]);
     }
@@ -60,14 +61,14 @@ class mod_studentquiz_external extends external_api {
      *
      * @param int $courseid Course id
      * @param int $cmid Course module id
-     * @param int $questionid Question id
+     * @param int $studentquizquestionid Studentquizquestionid
      * @param int $state State value
      * @return array Response
      * @throws coding_exception
      * @throws dml_exception
      */
-    public static function change_question_state($courseid, $cmid, $questionid, $state) {
-        global $PAGE, $USER;
+    public static function change_question_state($courseid, $cmid, $studentquizquestionid, $state) {
+        global $PAGE;
 
         if ($state == studentquiz_helper::STATE_HIDE) {
             $type = 'hidden';
@@ -83,8 +84,13 @@ class mod_studentquiz_external extends external_api {
         // Student can not delete the question when the question is in approved state.
         $context = \context_course::instance($courseid);
         $canmanage = has_capability('mod/studentquiz:manage', $context);
+        $contextmodule = context_module::instance($cmid);
+        $cm = get_coursemodule_from_id('studentquiz', $cmid);
+        $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
+        $studentquizquestion = new studentquiz_question($studentquizquestionid, null, $studentquiz);
+
         if (!$canmanage && $state == studentquiz_helper::STATE_DELETE) {
-            if (utils::get_state_question($questionid) == studentquiz_helper::STATE_APPROVED) {
+            if ($studentquizquestion->get_state() == studentquiz_helper::STATE_APPROVED) {
                 $result = [];
                 $result['status'] = get_string('api_state_change_error_title', 'studentquiz');
                 $result['message'] = get_string('api_state_change_error_content', 'studentquiz');
@@ -92,25 +98,23 @@ class mod_studentquiz_external extends external_api {
             }
         }
 
-        mod_studentquiz_change_state_visibility($questionid, $type, $value);
-        utils::question_save_action($questionid, $USER->id, $state);
+        $studentquizquestion->change_state_visibility($type, $value);
+        $studentquizquestion->save_action($state);
 
         // Additionally always unhide the question when it got approved.
-        if ($state == studentquiz_helper::STATE_APPROVED && utils::check_is_question_hidden($questionid)) {
-            mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
-            utils::question_save_action($questionid, null, studentquiz_helper::STATE_SHOW);
+        if ($state == studentquiz_helper::STATE_APPROVED && $studentquizquestion->is_hidden()) {
+            $studentquizquestion->change_state_visibility( 'hidden', 0);
+            $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, get_admin()->id);
         }
 
         $course = get_course($courseid);
-        $cm = get_coursemodule_from_id('studentquiz', $cmid);
-        $context = context_module::instance($cmid);
-        $PAGE->set_context($context);
+        $PAGE->set_context($contextmodule);
         if (!$canmanage) {
             if ($state == studentquiz_helper::STATE_REVIEWABLE) {
-                mod_studentquiz_notify_reviewable_question($questionid, $course, $cm);
+                mod_studentquiz_notify_reviewable_question($studentquizquestion, $course, $cm);
             }
         } else {
-            mod_studentquiz_state_notify($questionid, $course, $cm, $type);
+            mod_studentquiz_state_notify($studentquizquestion, $course, $cm, $type);
         }
         $result = [];
         $result['status'] = get_string('api_state_change_success_title', 'studentquiz');

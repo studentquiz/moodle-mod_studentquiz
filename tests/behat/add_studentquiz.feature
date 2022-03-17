@@ -32,6 +32,6 @@ Feature: Activities can be created
       | Description                               | Test quiz description |
       | Comment editing/deletion period (minutes) | 0                     |
     And I am on the "Test quiz name" "mod_studentquiz > View" page
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     Then the field "commentdeletionperiod" matches value "0"

@@ -25,6 +25,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(__DIR__ . '/locallib.php');
+
+use mod_studentquiz\local\studentquiz_question;
 /**
  * This class loads and represents the state for the main view.
  *
@@ -143,22 +145,19 @@ class mod_studentquiz_view {
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
             // Ensure we have a studentquiz_question record.
+            // Since we don't can modify the core, we need to get the studentquizquestion.
+            $question = \question_bank::load_question($lastchanged);
+            $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question,
+                    $this->studentquiz, $cm);
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
             mod_studentquiz_state_notify($lastchanged, $this->course, $this->cm, 'changed');
             $thispageurl->remove_params('lastchanged');
             redirect($thispageurl);
         }
+
         $this->qbpagevar = array_merge($pagevars, $params);
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
-    }
-
-    /**
-     * Use this method to process actions on this view.
-     */
-    public function process_actions() {
-        // TODO: Process actions of questionbank could redirect!
-        $this->questionbank->process_actions();
     }
 
     /**

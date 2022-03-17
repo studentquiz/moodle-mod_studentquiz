@@ -214,7 +214,7 @@ class studentquiz_condition extends \core_question\bank\search\condition {
             case 'publiccomment':
                 return 'copub.';
             case 'state':
-                return 'sqs.';
+                return 'sqq.';
             case 'firstname':
             case 'lastname':
                 return 'uc.';

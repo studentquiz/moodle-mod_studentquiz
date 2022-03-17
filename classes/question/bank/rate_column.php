@@ -34,7 +34,7 @@ class rate_column extends studentquiz_column_base {
     /**
      * Initialise Parameters for join
      */
-    protected function init() {
+    protected function init(): void {
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
@@ -59,7 +59,7 @@ class rate_column extends studentquiz_column_base {
      * Get title
      * @return string column title
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('rate_column_name', 'studentquiz');
     }
 
@@ -77,25 +77,24 @@ class rate_column extends studentquiz_column_base {
      * Get the left join for rating
      * @return array modified select left join
      */
-    public function get_extra_joins() {
+    public function get_extra_joins(): array {
         return array('vo' => "LEFT JOIN (
-                                          SELECT ROUND(avg(rate), 2) AS rate, questionid
+                                          SELECT ROUND(avg(rate), 2) AS rate, studentquizquestionid
                                             FROM {studentquiz_rate}
-                                        GROUP BY questionid
-                                        ) vo ON vo.questionid = q.id",
+                                        GROUP BY studentquizquestionid
+                                        ) vo ON vo.studentquizquestionid = sqq.id",
                  'myrate' => "LEFT JOIN (
-                                          SELECT rate AS myrate, q.id AS questionid
-                                            FROM {question} q
-                                       LEFT JOIN {studentquiz_rate} rate ON q.id = rate.questionid
-                                                 AND rate.userid = " . $this->currentuserid . "
-                                        ) myrate ON myrate.questionid = q.id");
+                                          SELECT rate AS myrate, studentquizquestionid
+                                            FROM {studentquiz_rate} rate
+                                           WHERE rate.userid = " . $this->currentuserid . "
+                                        ) myrate ON myrate.studentquizquestionid = sqq.id");
     }
 
     /**
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_required_fields() {
+    public function get_required_fields(): array {
         return array('vo.rate', 'myrate.myrate');
     }
 
