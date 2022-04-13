@@ -822,15 +822,15 @@
 .path-mod-studentquiz #categoryquestions .header.state {
     text-align: center;
 }
-/* CSS style for message validation form, because the align-items-center is set important in the parent of form-group. */
-@media only screen and (min-width: 396px) {
-    .path-mod-studentquiz #form-advanced-div .form-control-feedback.invalid-feedback {
-        position: absolute;
-    }
-}
 
-@media only screen and (min-width: 576px) {
-    .path-mod-studentquiz #form-advanced-div .form-control-feedback.invalid-feedback {
-        margin-top: 4.5em;
-    }
+/* Specific CSS override align-items-center, we need to prevent align-items: center in the form-group. */
+.path-mod-studentquiz #fgroup_id_rate_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_rate_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_difficultylevel_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_publiccomment_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_myrate_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_myattempts_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_mydifficulty_grp div.align-items-center {
+    /* stylelint-disable-next-line declaration-no-important */
+    align-items: flex-start !important;
 }
