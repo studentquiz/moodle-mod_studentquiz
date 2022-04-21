@@ -76,6 +76,8 @@ if ($pagename) {
     $PAGE->navbar->add($pagename);
 }
 
+utils::require_access_to_a_relevant_group($cm, $context);
+
 // Keep referer url.
 $action = (new moodle_url($PAGE->url, ['referer' => $referer]))->out(false);
 

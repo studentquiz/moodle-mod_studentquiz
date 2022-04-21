@@ -819,7 +819,8 @@
 }
 
 .path-mod-studentquiz #categoryquestions .header.qtype,
-.path-mod-studentquiz #categoryquestions .header.state {
+.path-mod-studentquiz #categoryquestions .header.state,
+.path-mod-studentquiz .studentquizerrormessage {
     text-align: center;
 }
 

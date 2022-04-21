@@ -67,6 +67,31 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
+     * Render custom error message, so we can write the behat test for it.
+     *
+     * @param string $errormessage Error message.
+     * @param string $title Page's title.
+     * @return void
+     */
+    public function render_error_message(string $errormessage, string $title) : void {
+        if ($title) {
+            $this->page->set_title($title);
+        }
+        // We need to remove settings menu for view page because we are using custom error message.
+        if ($settingmenu = $this->page->settingsnav->find('modulesettings', \navigation_node::TYPE_SETTING)) {
+            $settingmenu->remove();
+        }
+        echo $this->output->header();
+        echo $this->output->notification($errormessage, 'error', false);
+        $courseurl = new moodle_url('/course/view.php', ['id' => $this->page->course->id]);
+
+        $backtocourse = new single_button($courseurl, get_string('back_to_course_button', 'studentquiz'),
+            'get', true);
+        echo html_writer::div($this->render($backtocourse), 'studentquizerrormessage');
+        echo $this->output->footer();
+    }
+
+    /**
      * Render one table cell.
      *
      * @param string $text

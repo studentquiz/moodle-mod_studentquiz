@@ -23,6 +23,7 @@
  */
 
 use mod_studentquiz\commentarea\container;
+use mod_studentquiz\utils;
 
 require_once('../../config.php');
 require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
@@ -75,6 +76,8 @@ $PAGE->set_pagelayout('popup');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_url($actionurl);
+
+utils::require_access_to_a_relevant_group($cm, $context);
 
 echo $OUTPUT->header();
 echo $renderer->render_comment_history($questionid, $commentid, $cmid);
