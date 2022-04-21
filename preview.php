@@ -21,6 +21,7 @@
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use mod_studentquiz\utils;
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/viewlib.php');
@@ -51,6 +52,12 @@ $context = context_module::instance($module->id);
 \mod_studentquiz\access\context_override::ensure_permissions_are_right($context);
 
 $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
+$output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
+$PAGE->set_pagelayout('popup');
+$actionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $cmid, 'questionid' => $questionid));
+$PAGE->set_url($actionurl);
+
+utils::require_access_to_a_relevant_group($module, $context, get_string('studentquiz:preview', 'studentquiz'));
 
 // Lookup question.
 try {
@@ -70,7 +77,6 @@ try {
 }
 
 // Get and validate existing preview, or start a new one.
-$actionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $cmid, 'questionid' => $questionid));
 $previewid = optional_param('previewid', 0, PARAM_INT);
 $highlight = optional_param('highlight', 0, PARAM_INT);
 
@@ -129,11 +135,8 @@ if ($question) {
 } else {
     $title = get_string('deletedquestion', 'qtype_missingtype');
 }
-$output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
-$PAGE->set_pagelayout('popup');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->set_url($actionurl);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
 
 echo $OUTPUT->header();

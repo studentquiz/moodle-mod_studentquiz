@@ -819,7 +819,8 @@
 }
 
 .path-mod-studentquiz #categoryquestions .header.qtype,
-.path-mod-studentquiz #categoryquestions .header.state {
+.path-mod-studentquiz #categoryquestions .header.state,
+.path-mod-studentquiz .studentquizerrormessage {
     text-align: center;
 }
 /* CSS style for message validation form, because the align-items-center is set important in the parent of form-group. */

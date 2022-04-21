@@ -479,7 +479,8 @@ style5 = html';
      * @throws coding_exception if empty or invalid context submitted when $groupid = USERSWITHOUTGROUP
      */
     public static function sq_groups_get_members_join($groupid, $useridcolumn, $context = null) {
-        if (!$groupid) {
+        // Don't need to join with group members if the user has the capability 'moodle/site:accessallgroups'.
+        if (!$groupid || has_capability('moodle/site:accessallgroups', $context)) {
             $joins = '';
             $wheres = '';
             $params = [];
@@ -802,5 +803,25 @@ style5 = html';
         global $DB;
 
         return $DB->get_records_list('question', 'id', $questionids, '', 'id, name');
+    }
+
+    /**
+     * Makes security checks for viewing. Will return an error message if the user cannot access the student quiz.
+     *
+     * @param object $cm - The course module object.
+     * @param \context $context The context module.
+     * @param string $title Page's title.
+     * @return void
+     */
+    public static function require_access_to_a_relevant_group(object $cm, \context $context, string $title = ''): void {
+        global $COURSE, $PAGE;
+        $groupmode = (int)groups_get_activity_groupmode($cm, $COURSE);
+        $currentgroup = groups_get_activity_group($cm, true);
+
+        if ($groupmode === SEPARATEGROUPS && !$currentgroup && !has_capability('moodle/site:accessallgroups', $context)) {
+            $renderer = $PAGE->get_renderer('mod_studentquiz');
+            $renderer->render_error_message(get_string('error_permission', 'studentquiz'), $title);
+            exit();
+        }
     }
 }

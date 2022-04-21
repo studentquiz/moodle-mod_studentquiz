@@ -7,15 +7,19 @@ Feature: Students can create questions and practice in separate groups.
       | student1 | Student   | One      | student1@example.com |
       | student2 | Student   | Two      | student2@example.com |
       | student3 | Student   | Three    | student3@example.com |
+      | student4 | Student   | Four     | student4@example.com |
+      | teacher  | Teacher   | One      | teacher@example.com  |
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
 
     And the following "course enrolments" exist:
-      | user     | course | role    |
-      | student1 | C1     | student |
-      | student2 | C1     | student |
-      | student3 | C1     | student |
+      | user     | course | role           |
+      | student1 | C1     | student        |
+      | student2 | C1     | student        |
+      | student3 | C1     | student        |
+      | student4 | C1     | student        |
+      | teacher  | C1     | editingteacher |
     And the following "groups" exist:
       | name    | course | idnumber |
       | Group 1 | C1     | G1       |
@@ -123,3 +127,31 @@ Feature: Students can create questions and practice in separate groups.
     And I should see "Separate groups: Group 1"
     And "Student One" "text" should appear before "Student Two" "text"
     And I should not see "Student Three"
+
+  @javascript
+  Scenario: Students without a group will not be able to access the Student Quiz activity in separate groups.
+    Given I am on the "C1" "Course" page logged in as "student4"
+    And I follow "StudentQuiz 1"
+    Then I should see "Sorry, but you need to be part of a group to see this page."
+    And "Back to course" "button" should exist
+
+  @javascript
+  Scenario: Teacher without a group but has the capability 'moodle/site:accessallgroups' can write a comment on Student Quiz in separate groups.
+    Given I am on the "C1" "Course" page logged in as "admin"
+    And I follow "StudentQuiz 1"
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "Question of Student 1"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+    And I log out
+    And I am on the "C1" "Course" page logged in as "teacher"
+    And I follow "StudentQuiz 1"
+    And I click on "Start Quiz" "button"
+    And I set the field "True" to "1"
+    And I press "Check"
+    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I press "Add comment"
+    And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
