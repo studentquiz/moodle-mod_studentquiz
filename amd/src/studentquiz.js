@@ -88,8 +88,12 @@ define(['jquery'], function($) {
 
         // Select all questions.
         selectAllQuestions: function() {
-            $(document).ready(function() {
-                $('#qbheadercheckbox').trigger('click');
+            let headerCheckbox = document.getElementById('qbheadercheckbox');
+
+            require(['core/checkbox-toggleall'], () => {
+                if (!headerCheckbox.checked) {
+                    headerCheckbox.click();
+                }
             });
         }
     };
