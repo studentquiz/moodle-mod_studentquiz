@@ -24,6 +24,7 @@
 use mod_studentquiz\utils;
 
 use mod_studentquiz\local\studentquiz_question;
+use \mod_studentquiz\local\studentquiz_progress;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
@@ -125,8 +126,8 @@ if (data_submitted()) {
             ['studentquizquestionid' => $studentquizquestion->get_id(),
             'userid' => $userid, 'studentquizid' => $studentquiz->id]);
         if ($studentquizprogress == false) {
-            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($question->id, $userid, $studentquiz->id,
-                $studentquizquestion->get_id());
+            $studentquizprogress = studentquiz_progress::get_studentquiz_progress_from_studentquiz_question($studentquizquestion,
+                $userid);
         }
 
         // Any newly finished attempt is wrong when it wasn't right.

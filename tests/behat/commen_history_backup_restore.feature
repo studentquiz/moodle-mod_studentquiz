@@ -12,7 +12,8 @@ Feature: Restore of studentquizzes in moodle exports with comment histories
   @javascript @_file_upload @_switch_window
   Scenario: Restore moodle backups containing history comments.
     Given I am on the "C1" "Course" page logged in as "admin"
-    And I navigate to "Restore" in current page administration
+    And I navigate to "Course reuse" in current page administration
+    And I select "Restore" from the "jump" singleselect
     And I press "Manage backup files"
     And I upload "mod/studentquiz/tests/fixtures/backup-moodle311-c1-historycomment.mbz" file to "Files" filemanager
     And I press "Save changes"

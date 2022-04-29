@@ -98,7 +98,6 @@ class mod_studentquiz_view {
      * @param stdClass $studentquiz loaded studentquiz
      * @param int $userid loaded user
      * @param mod_studentquiz_report $report
-     * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($course, $context, $cm, $studentquiz, $userid, $report) {
 
@@ -150,11 +149,19 @@ class mod_studentquiz_view {
             $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question,
                     $this->studentquiz, $cm);
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
-            mod_studentquiz_state_notify($lastchanged, $this->course, $this->cm, 'changed');
+            mod_studentquiz_state_notify($studentquizquestion, $this->course, $this->cm, 'changed');
             $thispageurl->remove_params('lastchanged');
             redirect($thispageurl);
         }
 
+        // Remove qids when the form is submitted page size.
+        if ($changepagesize = optional_param('changepagesize', 0, PARAM_INT) && confirm_sesskey()) {
+            $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
+            foreach ($rawquestionids as $id) {
+                $thispageurl->remove_params('q' . $id);
+            }
+            $thispageurl->remove_params('changepagesize');
+        }
         $this->qbpagevar = array_merge($pagevars, $params);
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);

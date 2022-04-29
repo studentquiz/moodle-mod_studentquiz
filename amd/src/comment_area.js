@@ -112,7 +112,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     btnCollapseAll: null,
                     addComment: null,
                     containerSelector: null,
-                    studentquizquestionid: null,
+                    studentQuizQuestionId: null,
                     dialogue: null,
                     loadingIcon: null,
                     lastFocusElement: null,
@@ -157,8 +157,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.containerSelector = el.find(t.SELECTOR.CONTAINER_REPLIES);
                         self.loadingIcon = el.find(t.SELECTOR.LOADING_ICON);
                         self.formSelector = el.find(t.SELECTOR.FORM_SELECTOR);
-
-                        self.studentquizquestionid = parseInt(el.data('studentquizquestionid'));
+                        self.studentQuizQuestionId = parseInt(el.data('studentquizquestionid'));
                         self.contextId = parseInt(el.data('contextid'));
                         self.userId = parseInt(el.data('userid'));
                         self.numberToShow = parseInt(el.data('numbertoshow'));
@@ -349,7 +348,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Hide no comment.
                             $(t.SELECTOR.NO_COMMENT).hide();
                             var rootId = t.ROOT_COMMENT_VALUE;
-                            var unique = self.studentquizquestionid + '_' + self.type + '_' + rootId;
+                            var unique = self.studentQuizQuestionId + '_' + self.type + '_' + rootId;
                             var formSelector = self.formSelector;
                             var formData = self.convertFormToJson(formSelector);
                             // Check message field.
@@ -509,7 +508,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     getParamsBeforeCallApi: function(params) {
                         var self = this;
-                        params.studentquizquestionid = self.studentquizquestionid;
+                        params.studentquizquestionid = self.studentQuizQuestionId;
                         params.cmid = self.cmId;
                         params.type = self.type;
                         return params;
@@ -1060,7 +1059,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form reply.
-                            var textFragmentFormId = '#id_editor_question_' + self.studentquizquestionid + '_' +
+                            var textFragmentFormId = '#id_editor_question_' + self.studentQuizQuestionId + '_' +
                                 self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentFormEvent(fragmentForm, item);
@@ -1546,7 +1545,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form.
-                            var textFragmentFormId = '#id_editor_question_' + self.studentquizquestionid +
+                            var textFragmentFormId = '#id_editor_question_' + self.studentQuizQuestionId +
                                 '_' + self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentEditFormEvent(fragmentForm, item);

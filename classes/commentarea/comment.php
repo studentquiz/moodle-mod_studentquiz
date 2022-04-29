@@ -538,8 +538,8 @@ class comment {
                 'cmid' => $this->get_container()->get_cmid(),
                 'questionid' => $questiondata->id,
                 'commentid' => $commentid,
-                'type' => $this->get_container()->get_type()
-                'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id(),
+                'type' => $this->get_container()->get_type(),
+                'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id()
         ];
         $url = new \moodle_url(self::ABUSE_PAGE, $params);
         return $url->out();

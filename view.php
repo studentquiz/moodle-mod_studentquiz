@@ -46,13 +46,13 @@ require_login($report->get_course(), false, $report->get_coursemodule());
 $course = $report->get_course();
 $context = $report->get_context();
 $cm = $report->get_coursemodule();
+
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
 // If for some weired reason a studentquiz is not aggregated yet, now would be a moment to do so.
 if (!$studentquiz->aggregated) {
     mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_state($studentquiz);
 }
-
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
 $baseurl = $view->get_questionbank()->base_url();
@@ -103,6 +103,9 @@ if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('del
             get_string('studentquiz:changestate', 'studentquiz')), null, \core\output\notification::NOTIFY_WARNING);
     }
 }
+if (optional_param('approveselected', false, PARAM_BOOL)) {
+    redirect($baseurl);
+}
 
 // Since this page has 2 forms interacting with each other, all params must be passed in GET, thus
 // $PAGE->url will be as it has recieved the request.
@@ -112,9 +115,6 @@ $PAGE->set_heading($COURSE->fullname);
 $PAGE->set_cm($cm, $course);
 
 utils::require_access_to_a_relevant_group($cm, $context);
-
-// Process actions.
-$view->process_actions();
 
 // Trigger completion.
 mod_studentquiz_completion($course, $cm);

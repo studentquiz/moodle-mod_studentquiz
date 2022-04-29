@@ -26,6 +26,7 @@ use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 use mod_studentquiz\local\studentquiz_question;
+use \mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -858,14 +859,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Allow to config which columns will be used for Question table.
-     */
-    public function init_question_table_wanted_columns() {
-        global $CFG;
-        $CFG->questionbankcolumns = STUDENTQUIZ_DEFAULT_COLUMN;
-    }
-
-    /**
      * Get sortable fields for difficulty level column.
      *
      * @return array
@@ -927,8 +920,8 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      */
     public function get_columns_for_question_bank_view(mod_studentquiz\question\bank\studentquiz_bank_view $view) {
         return [
-            new \core_question\bank\checkbox_column($view),
-            new \core_question\bank\question_type_column($view),
+            new core_question\local\bank\checkbox_column($view),
+            new qbank_viewquestiontype\question_type_column($view),
             new \mod_studentquiz\bank\state_column($view),
             new \mod_studentquiz\bank\state_pin_column($view),
             new \mod_studentquiz\bank\question_name_column($view),
@@ -1047,25 +1040,6 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
             return $this->output->notification(get_string('no_questions_filter', 'studentquiz'), 'notifysuccess');
         }
         return $this->output->notification(get_string('no_questions_add', 'studentquiz'), 'notifysuccess');
-    }
-
-    /**
-     * Render questions table form.
-     *
-     * @param array $questionslist
-     */
-    public function render_question_form($questionslist) {
-        $output = '';
-
-        $output .= html_writer::start_tag('form', [
-                'method' => 'get',
-                'action' => ''
-        ]);
-        $output .= html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
-        $output .= $questionslist;
-        $output .= html_writer::end_tag('form');
-
-        return $output;
     }
 
     /**
@@ -1260,7 +1234,8 @@ EOT;
                     'data-action' => 'toggle',
                     'data-togglegroup' => 'qbank',
                     'data-toggle' => 'action',
-                    'disabled' => true
+                    'disabled' => true,
+                    'formmethod' => 'post',
                 ]);
             }
             $output .= html_writer::empty_tag('input', [
@@ -1274,6 +1249,7 @@ EOT;
                 'data-togglegroup' => 'qbank',
                 'data-toggle' => 'action',
                 'disabled' => true,
+                'formmethod' => 'post',
             ]);
         }
 
@@ -1289,6 +1265,7 @@ EOT;
                 'data-togglegroup' => 'qbank',
                 'data-toggle' => 'action',
                 'disabled' => true,
+                'formmethod' => 'post',
             ]);
             ob_start();
             \qbank_managecategories\helper::question_category_select_menu($addcontexts, false, 0,
@@ -1572,7 +1549,6 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @param boolean $readonly describes if rating is readonly
      * @param boolean $forcerating True if enforce rating is turned on
      * @return string HTML fragment
-     * @throws coding_exception
      */
     protected function rate_choices(studentquiz_question $studentquizquestion, $selected, $readonly, $forcerating = true) {
         $output = '';
@@ -1630,7 +1606,6 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      * @param studentquiz_question $studentquizquestion studentquiz_question object.
      * @param boolean $forcerating True if enforce rating is turned on.
      * @return string HTML fragment
-     * @throws dml_exception
      */
     public function render_rate(studentquiz_question $studentquizquestion, $forcerating = true) {
         global $DB, $USER;
@@ -2114,7 +2089,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      *
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @return string $rank report table
-     * @throws coding_exception
      * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
      */
     public function view_rank_table($report) {

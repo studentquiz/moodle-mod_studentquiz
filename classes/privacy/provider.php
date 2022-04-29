@@ -156,8 +156,8 @@ class provider implements
              LEFT JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
              LEFT JOIN {question} q ON q.id = qv.questionid
              LEFT JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
              LEFT JOIN {studentquiz_question} question ON question.studentquizid = sq.id AND question.id = qr.itemid
              LEFT JOIN {studentquiz_rate} rate ON rate.studentquizquestionid = question.id
              LEFT JOIN {studentquiz_comment} comment ON comment.studentquizquestionid = question.id
@@ -199,7 +199,7 @@ class provider implements
                 'attemptuser' => $userid,
                 'commenthistoryuser' => $userid,
                 'notificationuser' => $userid,
-                'statehistoryuser' => $userid
+                'statehistoryuser' => $userid,
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -211,8 +211,6 @@ class provider implements
      * Export all user data for the specified user, in the specified contexts.
      *
      * @param approved_contextlist $contextlist The approved contexts to export information for.
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
@@ -262,8 +260,8 @@ class provider implements
              LEFT JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
              LEFT JOIN {question} q ON q.id = qv.questionid
              LEFT JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
              LEFT JOIN {studentquiz_question} question ON question.studentquizid = sq.id AND question.id = qr.itemid
              LEFT JOIN {studentquiz_rate} rate ON rate.studentquizquestionid = question.id
              LEFT JOIN {studentquiz_comment} comment ON comment.studentquizquestionid = question.id
@@ -308,7 +306,7 @@ class provider implements
                 'attemptuser' => $userid,
                 'commenthistoryuser' => $userid,
                 'notificationuser' => $userid,
-                'statehistoryuser' => $userid
+                'statehistoryuser' => $userid,
         ];
         $params += $contextparam;
 
@@ -446,8 +444,6 @@ class provider implements
      * Delete all data for all users in the specified context.
      *
      * @param \context $context The specific context to delete data for.
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
     public static function delete_data_for_all_users_in_context(\context $context) {
         global $DB;
@@ -462,8 +458,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionid = q.id
                   JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                  WHERE qbe.questioncategoryid IN (
                                        SELECT id
@@ -472,7 +468,7 @@ class provider implements
                                       )";
 
         $params = [
-                'contextid' => $context->id
+            'contextid' => $context->id,
         ];
 
         $records = $DB->get_records_sql($sql, $params);
@@ -508,8 +504,8 @@ class provider implements
         // Delete question_references for all studentquiz_question.
         $DB->execute("DELETE FROM {question_references}
                                  WHERE itemid {$studentquizquestionsql}
-                                       AND component = '" . STUDENTQUIZ_COMPONENT_QR ."'
-                                       AND questionarea = '". STUDENTQUIZ_QUESTIONAREA_QR ."'", $studentquizquestionparams);
+                                       AND component = 'mod_studentquiz'
+                                       AND questionarea = 'studentquiz_question'", $studentquizquestionparams);
 
         // Delete rates belong to this context.
         $DB->execute("DELETE FROM {studentquiz_rate}
@@ -558,8 +554,6 @@ class provider implements
      * Delete all user data for the specified user, in the specified contexts.
      *
      * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         global $DB;
@@ -580,8 +574,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionid = q.id
                   JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                  WHERE qbe.questioncategoryid IN (
                                        SELECT id
@@ -683,7 +677,7 @@ class provider implements
         $params = [
             'instanceid' => $context->instanceid,
             'modulename' => 'studentquiz',
-            'contextid' => $userlist->get_context()->id
+            'contextid' => $userlist->get_context()->id,
         ];
 
         // Question's creator.
@@ -716,8 +710,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
                   JOIN {question} q ON q.id = qv.questionid
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                   JOIN {studentquiz_rate} r ON r.studentquizquestionid = sqq.id
                  WHERE cm.id = :instanceid";
@@ -732,8 +726,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
                   JOIN {question} q ON q.id = qv.questionid
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                   JOIN {studentquiz_comment} c ON c.studentquizquestionid = sqq.id
                  WHERE cm.id = :instanceid";
@@ -747,8 +741,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
                   JOIN {question} q ON q.id = qv.questionid
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                   JOIN {studentquiz_comment} c ON c.studentquizquestionid = sqq.id
                   JOIN {studentquiz_comment_history} h ON h.commentid = c.id
@@ -764,8 +758,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
                   JOIN {question} q ON q.id = qv.questionid
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                   JOIN {studentquiz_progress} p ON p.studentquizquestionid = sqq.id
                  WHERE cm.id = :instanceid";
@@ -800,8 +794,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
                   JOIN {question} q ON q.id = qv.questionid
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                   JOIN {studentquiz_state_history} sh ON sh.studentquizquestionid = sqq.id
                  WHERE cm.id = :instanceid";
@@ -812,8 +806,6 @@ class provider implements
      * Delete multiple users within a single context.
      *
      * @param approved_userlist $userlist The approved context and user information to delete information for.
-     * @throws \coding_exception
-     * @throws \dml_exception
      */
     public static function delete_data_for_users(approved_userlist $userlist) {
         global $DB;
@@ -829,8 +821,8 @@ class provider implements
                   JOIN {question_versions} qv ON qv.questionid = q.id
                   JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
                   JOIN {question_references} qr ON qr.questionbankentryid = qbe.id
-                       AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                       AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
                   JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
                  WHERE qbe.questioncategoryid IN (SELECT id
                                         FROM {question_categories} c

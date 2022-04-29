@@ -25,6 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/locallib.php');
 
+use mod_studentquiz\statistics_calculator;
+
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
@@ -102,8 +104,8 @@ class mod_studentquiz_report {
      */
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
-            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->groupid);
-            $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id(), $this->groupid);
+            $this->studentquizstats = statistics_calculator::get_community_stats($this->get_cm_id(), $this->groupid);
+            $this->questionstats = statistics_calculator::get_question_stats($this->get_cm_id(), $this->groupid);
             $this->studentquizstats->questions_available = $this->questionstats->questions_available;
             $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;
             $this->studentquizstats->questions_questions_approved = $this->questionstats->questions_approved;
@@ -124,7 +126,7 @@ class mod_studentquiz_report {
      */
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
-            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->groupid,
+            $this->userrankingstats = statistics_calculator::get_user_stats($this->get_cm_id(), $this->groupid,
                 $this->get_quantifiers(), $this->get_user_id());
             return $this->userrankingstats;
         } else {
@@ -167,7 +169,6 @@ class mod_studentquiz_report {
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid course_module id
-     * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($cmid) {
         global $DB, $USER;
@@ -392,8 +393,8 @@ class mod_studentquiz_report {
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
         $excluderoles = $this->get_roles_to_exclude();
 
-        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
-            $excluderoles, 0, $limitfrom, $limitnum);
+        return statistics_calculator::get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
+            $excluderoles, $limitfrom, $limitnum);
     }
 
     /**

@@ -121,7 +121,6 @@ class studentquiz_user_filter_text extends user_filter_text {
      * Adds controls specific to this filter in the form.
      *
      * @param object $mform a MoodleForm object to setup
-     * @throws coding_exception
      */
     public function setupForm(&$mform) { // @codingStandardsIgnoreLine
         parent::setupForm($mform);

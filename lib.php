@@ -226,49 +226,26 @@ function studentquiz_delete_instance($id) {
     if (! $studentquiz = $DB->get_record('studentquiz', ['id' => $id])) {
         return false;
     }
-    $params = ['contextmodule' => CONTEXT_MODULE, 'studentquizid' => $id];
-    $sql = "questionid IN (SELECT q.id
-                             FROM {context} ctx
-                             JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                  AND contextlevel = :contextmodule
-                             JOIN {question_categories} ca ON ca.contextid = ctx.id
-                             JOIN {question} q ON q.category = ca.id
-                            WHERE sq.id = :studentquizid
-                          )";
+    $sql = "studentquizquestionid IN (SELECT id FROM {studentquiz_question} WHERE studentquizid = :studentquizid)";
+    $params = ['studentquizid' => $id];
 
     $DB->delete_records_select('studentquiz_rate', $sql, $params);
     $DB->delete_records_select('studentquiz_progress', $sql, $params);
-    $comments = $DB->get_records_select('studentquiz_comment', $sql, $params, '', 'id');
-    if (!empty($comments)) {
+    $comments = $DB->get_records_select('studentquiz_comment',
+        $sql, $params, '', 'id');
+    if ($comments) {
         $commentids = array_column($comments, 'id');
         list($commentsql, $commentparams) = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
         $DB->delete_records_select('studentquiz_comment_history', "commentid $commentsql", $commentparams);
     }
     $DB->delete_records_select('studentquiz_comment', $sql, $params);
     $DB->delete_records_select('studentquiz_state_history', $sql, $params);
-    $DB->delete_records_select('studentquiz_question', $sql, $params);
-    $DB->delete_records('studentquiz_attempt', ['studentquizid' => $id]);
-    $DB->delete_records('studentquiz_notification', ['studentquizid' => $id]);
-
-    $studentquizquestions = $DB->get_recordset('studentquiz_question', ['studentquizid' => $id], '', 'id');
-    foreach ($studentquizquestions as $studentquizquestion) {
-        $DB->delete_records('studentquiz_rate', ['studentquizquestionid' => $studentquizquestion->id]);
-        $DB->delete_records('studentquiz_progress', ['studentquizquestionid' => $studentquizquestion->id, 'studentquizid' => $id]);
-        // Get comment history belong to comment.
-        $comments = $DB->get_records('studentquiz_comment', ['studentquizquestionid' => $studentquizquestion->id], '', 'id');
-        if ($comments) {
-            $commentids = array_column($comments, 'id');
-            list($commentsql, $commentparams) = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
-            $DB->delete_records_select('studentquiz_comment_history', "commentid $commentsql", $commentparams);
-        }
-        $DB->delete_records('studentquiz_comment', ['studentquizquestionid' => $studentquizquestion->id], '', 'id');
-        $DB->delete_records('studentquiz_state_history', ['studentquizquestionid' => $studentquizquestion->id], '', 'id');
-        $DB->delete_records('question_references', ['itemid' => $studentquizquestion->id,
-                'component' => STUDENTQUIZ_COMPONENT_QR, 'questionarea' => STUDENTQUIZ_QUESTIONAREA_QR]);
-    }
-    $DB->delete_records('studentquiz_attempt', ['studentquizid' => $id]);
-    $DB->delete_records('studentquiz_notification', ['studentquizid' => $id]);
-    $DB->delete_records('studentquiz_question', ['studentquizid' => $id]);
+    $DB->delete_records_select('question_references', 'itemid IN (SELECT id FROM {studentquiz_question}
+         WHERE studentquizid = :studentquizid) AND component = :component AND questionarea = :questionarea',
+        ['studentquizid' => $id, 'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']);
+    $DB->delete_records('studentquiz_attempt', $params);
+    $DB->delete_records('studentquiz_notification', $params);
+    $DB->delete_records('studentquiz_question', $params);
 
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);

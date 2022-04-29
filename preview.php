@@ -56,7 +56,7 @@ $context = context_module::instance($module->id);
 $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
 $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
 $PAGE->set_pagelayout('popup');
-$actionurl = new moodle_url('/mod/studentquiz/preview.php', array('cmid' => $cmid, 'questionid' => $questionid));
+$actionurl = new moodle_url('/mod/studentquiz/preview.php', ['cmid' => $cmid, 'studentquizquestionid' => $studentquizquestionid]);
 $PAGE->set_url($actionurl);
 
 utils::require_access_to_a_relevant_group($module, $context, get_string('studentquiz:preview', 'studentquiz'));

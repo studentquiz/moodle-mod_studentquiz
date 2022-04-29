@@ -23,6 +23,7 @@ use mod_studentquiz\commentarea\comment;
 use moodle_url;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\local\studentquiz_question;
+use \core_question\local\bank\question_version_status;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.
@@ -360,7 +361,6 @@ style5 = html';
      * @param string $operator for the comparison
      * @param string $version to compare to
      * @return boolean
-     * @throws coding_exception
      */
     public static function moodle_version_is(string $operator, string $version): bool {
         global $CFG;
@@ -455,7 +455,6 @@ style5 = html';
      * @param string $useridcolumn The column of the user id from the calling SQL, e.g. u.id
      * @param context $context Course context or a context within a course. Mandatory when $groupids includes USERSWITHOUTGROUP
      * @return sql_join Contains joins, wheres, params
-     * @throws coding_exception if empty or invalid context submitted when $groupid = USERSWITHOUTGROUP
      */
     public static function sq_groups_get_members_join($groupid, $useridcolumn, $context = null) {
         // Don't need to join with group members if the user has the capability 'moodle/site:accessallgroups'.
@@ -575,45 +574,6 @@ style5 = html';
     }
 
     /**
-     * Get studentquiz progress.
-     *
-     * @param int $qid Question Id.
-     * @param int $userid User Id.
-     * @param int $studentquizid Studentquiz Id.
-     * @param int $sqqid studentquizquestion Id.
-     * @return \stdClass Studentquiz progress object.
-     */
-    public static function get_studentquiz_progress($qid, $userid, $studentquizid, $sqqid): \stdClass {
-        global $DB;
-
-        $studentquizprogress = $DB->get_record('studentquiz_progress', array('studentquizquestionid' => $sqqid,
-            'userid' => $userid, 'studentquizid' => $studentquizid));
-        if ($studentquizprogress == false) {
-            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($qid, $userid, $studentquizid, $sqqid);
-        }
-
-        return $studentquizprogress;
-    }
-
-    /**
-     * Update studentquiz progress object into db.
-     *
-     * @param \stdClass $studentquizprogress The studentquiz progress object.
-     * @return bool|int
-     */
-    public static function update_studentquiz_progress(\stdClass $studentquizprogress) {
-        global $DB;
-
-        if (!empty($studentquizprogress->id)) {
-            $result = $DB->update_record('studentquiz_progress', $studentquizprogress);
-        } else {
-            $result = $studentquizprogress->id = $DB->insert_record('studentquiz_progress', $studentquizprogress, true);
-        }
-
-        return $result;
-    }
-
-    /**
      * Saving the action change state.
      *
      * @param int $studentquizquestionid Id of studentquizquestion.
@@ -622,13 +582,13 @@ style5 = html';
      * @param int $timecreated The time do action.
      * @return bool|int True or new id
      */
-    public static function question_save_action(int $studentquizquestionid, int $userid = null, int $state,
+    public static function question_save_action(int $studentquizquestionid, ?int $userid, int $state,
             int $timecreated = null) {
-        global $DB, $USER;
+        global $DB;
 
         $data = new \stdClass();
         $data->studentquizquestionid = $studentquizquestionid;
-        $data->userid = isset($userid) ? $userid : $USER->id;
+        $data->userid = $userid;
         $data->state = $state;
         $data->timecreated = isset($timecreated) ? $timecreated : time();
 
@@ -661,8 +621,8 @@ style5 = html';
                       FROM {studentquiz} sq
                       JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
                       JOIN {question_references} qr ON qr.itemid = sqq.id
-                           AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                           AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                           AND qr.component = 'mod_studentquiz'
+                           AND qr.questionarea = 'studentquiz_question'
                       JOIN {question_categories} qc ON qc.contextid = qr.usingcontextid
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
@@ -673,7 +633,7 @@ style5 = html';
 
             $params = [
                 'coursemodule' => $studentquiz->coursemodule,
-                'categoryid' => $studentquiz->categoryid
+                'categoryid' => $studentquiz->categoryid,
             ];
             $sqquestions = $DB->get_recordset_sql($sql, $params);
 
@@ -684,7 +644,7 @@ style5 = html';
                         studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
 
                     if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                        self::question_save_action($sqquestion->studentquizquestionid, get_admin()->id, $sqquestion->state, null);
+                        self::question_save_action($sqquestion->studentquizquestionid, null, $sqquestion->state, null);
                     }
                 }
             }
@@ -755,8 +715,8 @@ style5 = html';
         $sql = "SELECT q.id, sqq.state
               FROM {studentquiz_question} sqq
               JOIN {question_references} qr ON qr.itemid = sqq.id
-                   AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                   AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                   AND qr.component = 'mod_studentquiz'
+                   AND qr.questionarea = 'studentquiz_question'
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -765,7 +725,9 @@ style5 = html';
                                   )
               JOIN {question} q ON q.id = qv.questionid
              WHERE q.id $conditionquestionids";
-        $params['ready'] = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+
+        $params['ready'] = question_version_status::QUESTION_STATUS_READY;
+
         return $DB->get_records_sql($sql, $params);
     }
 

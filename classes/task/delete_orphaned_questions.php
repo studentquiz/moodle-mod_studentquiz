@@ -54,13 +54,14 @@ class delete_orphaned_questions extends \core\task\scheduled_task {
                     "SELECT q.*, sqq.id as studentquizquestionid
                        FROM {studentquiz_question} sqq
                        JOIN {question_references} qr ON qr.itemid = sqq.id
-                            AND qr.component = '" . STUDENTQUIZ_COMPONENT_QR . "'
-                            AND qr.questionarea = '" . STUDENTQUIZ_QUESTIONAREA_QR . "'
+                            AND qr.component = 'mod_studentquiz'
+                            AND qr.questionarea = 'studentquiz_question'
                        JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                        JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid
                        JOIN {question} q ON qv.questionid = q.id
                       WHERE sq.state = 0 AND :timelimit - q.timemodified > 0
-                   ORDER BY q.questionid ASC", ['timelimit' => $timelimit]);
+                   ORDER BY q.questionid ASC",
+                    ['timelimit' => $timelimit]);
 
             // Process questionids and generate output.
             $output = "";

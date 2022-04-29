@@ -74,14 +74,6 @@ class state_column extends \core_question\local\bank\column_base {
     }
 
     /**
-     * Get the left join for approved
-     * @return array modified select left join
-     */
-    public function get_extra_joins(): array {
-        return [];
-    }
-
-    /**
      * Get sql query join for this column
      * @return array sql query join additional
      */

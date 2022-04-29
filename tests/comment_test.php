@@ -18,6 +18,7 @@ namespace mod_studentquiz;
 
 use mod_studentquiz\commentarea\comment;
 use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\local\studentquiz_progress;
 
 /**
  * Unit tests for comment area.
@@ -246,8 +247,8 @@ class comment_test extends \advanced_testcase {
      * @param int $expectedlength Expected length of the shorten text.
      */
     public function test_shorten_comment(string $content, string $expected, int $expectedlength): void {
-        $q1 = $this->questions[0];
-        $comment = $this->create_comment($this->rootid, $q1->id, $content);
+        $sq1 = $this->studentquizquestions[0];
+        $comment = $this->create_comment($this->rootid, $sq1->id, $content);
         $this->assertEquals($expectedlength, strlen($comment->shortcontent));
         $this->assertEquals($expected, $comment->shortcontent);
     }
@@ -255,6 +256,7 @@ class comment_test extends \advanced_testcase {
     /**
      * Data provider for test_shorten_comment().
      *
+     * @coversNothing
      * @return array
      */
     public function test_shorten_comment_provider(): array {
@@ -674,14 +676,13 @@ class comment_test extends \advanced_testcase {
     public function test_update_comment_last_read() {
         $time1 = time();
         $time2 = $time1 + 1000;
-        $question = $this->questions[0];
         $sqq1 = $this->studentquizquestions[0];
         $user = $this->users[0];
         $commentarea1 = new \mod_studentquiz\commentarea\container($sqq1, $this->users[0], '', 0);
         $commentarea2 = new \mod_studentquiz\commentarea\container($sqq1, $this->users[0], '', 1);
         $commentarea1->update_comment_last_read($time1);
         $commentarea2->update_comment_last_read($time2);
-        $result = utils::get_studentquiz_progress($question->id, $user->id, $this->studentquiz->id, $sqq1->id);
+        $result = studentquiz_progress::get_studentquiz_progress($sqq1, $user->id);
         $this->assertEquals($time1, $result->lastreadpubliccomment);
         $this->assertEquals($time2, $result->lastreadprivatecomment);
     }

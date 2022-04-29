@@ -23,6 +23,8 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 require_once($CFG->dirroot . '/mod/studentquiz/viewlib.php');
 require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 
+use mod_studentquiz\statistics_calculator;
+
 /**
  * Unit tests for mod/studentquiz/reportstat.php.
  *
@@ -64,7 +66,6 @@ class report_test extends \advanced_testcase {
 
     /**
      * Setup test
-     * @throws \coding_exception
      */
     protected function setUp(): void {
         global $DB;
@@ -129,14 +130,6 @@ class report_test extends \advanced_testcase {
 
         \question_engine::save_questions_usage_by_activity($questionusage);
         $this->setAdminUser();
-    }
-
-    /**
-     * Nothing
-     * @coversNothing
-     */
-    public function test_mod_studentquiz_get_user_ranking_table() {
-        $this->assertTrue(true);
     }
 
     /**
@@ -217,11 +210,11 @@ class report_test extends \advanced_testcase {
     }
 
     /**
-     * test mod_studentquiz_user_stats
-     * @covers \mod_studentquiz_user_stats
+     * Test get_user_stats
+     * @covers \mod_studentquiz\statistics_calculator::get_user_stats
      */
     public function test_mod_studentquiz_user_stats() {
-        $userstats = mod_studentquiz_user_stats($this->cm->id, 0, $this->report->get_quantifiers(), $this->users[0]->id);
+        $userstats = statistics_calculator::get_user_stats($this->cm->id, 0, $this->report->get_quantifiers(), $this->users[0]->id);
         $this->assertEquals(0, $userstats->questions_created);
     }
 

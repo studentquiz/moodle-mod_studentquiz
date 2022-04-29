@@ -25,6 +25,11 @@ namespace mod_studentquiz;
  */
 class utils_test extends \advanced_testcase {
 
+    /**
+     * Test send report function
+     *
+     * @covers \mod_studentquiz\utils::send_report
+     */
     public function test_send_report() {
         global $CFG;
         $this->resetAfterTest();

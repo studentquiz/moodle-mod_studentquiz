@@ -52,13 +52,12 @@ global $OUTPUT, $PAGE, $COURSE, $USER;
 $context = $studentquizquestion->get_context();
 $studentquiz = $studentquizquestion->get_studentquiz();
 
-$commentarea = new container($studentquizquestion);
+$commentarea = new container($studentquizquestion, null, '', $type);
 $comment = $commentarea->query_comment_by_id($pageparams['commentid']);
-
 // Prepare preview comment report url.
 $previewurl = (new moodle_url('/mod/studentquiz/preview.php', [
         'cmid' => $cm->id,
-        'questionid' => $question->id,
+        'studentquizquestionid' => $studentquizquestionid,
         'highlight' => $comment->get_id(),
         'type' => $type
 ]))->out(false);

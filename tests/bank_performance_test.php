@@ -71,7 +71,6 @@ class bank_performance_test extends \advanced_testcase {
      *
      * @param array $result with the last studentquiz and its relations
      * @return studentquiz_bank_view
-     * @throws \moodle_exception
      */
     public function run_questionbank($result) {
         global $PAGE;

@@ -31,7 +31,6 @@ class mod_studentquiz_observer {
      * Observer for the event question_created - Create new record for studentquiz_questions table.
      *
      * @param \core\event\question_created $event
-     * @throws moodle_exception
      */
     public static function question_created(\core\event\question_created $event) {
         global $CFG;
@@ -52,9 +51,6 @@ class mod_studentquiz_observer {
      * Observer for the event question_moved - Create new record for studentquiz_questions table.
      *
      * @param \core\event\question_moved $event
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
      */
     public static function question_moved(\core\event\question_moved $event) {
         global $DB, $CFG;

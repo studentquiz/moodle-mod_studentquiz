@@ -40,7 +40,6 @@ class viewlib_test extends \advanced_testcase {
 
     /**
      * Setup test
-     * @throws \coding_exception
      */
     protected function setUp(): void {
         global $DB;

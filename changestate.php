@@ -90,13 +90,13 @@ if ($approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM
                 $question = question_bank::load_question($questionid);
                 $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
                 $studentquizquestion->change_state_visibility($type, $value);
-                $studentquizquestion->save_action($state);
+                $studentquizquestion->save_action($state, $USER->id);
                 mod_studentquiz_state_notify($studentquizquestion, $course, $cm, $type);
 
                 // Additionally always unhide the question when it got approved.
                 if ($state == studentquiz_helper::STATE_APPROVED && $studentquizquestion->is_hidden()) {
                     $studentquizquestion->change_state_visibility('hidden', 0);
-                    $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, get_admin()->id);
+                    $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, null);
                 }
             }
         }

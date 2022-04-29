@@ -39,7 +39,6 @@ class generator_test extends \advanced_testcase {
 
     /**
      * Setup test
-     * @throws \coding_exception
      */
     protected function setUp(): void {
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
@@ -66,7 +65,6 @@ class generator_test extends \advanced_testcase {
     /**
      * Test create comment
      * @covers \mod_studentquiz\commentarea\container::create_comment
-     * @throws \coding_exception
      */
     public function test_create_comment() {
         global $DB;
@@ -87,7 +85,6 @@ class generator_test extends \advanced_testcase {
     /**
      * Test create rate
      * @coversNothing
-     * @throws \coding_exception
      */
     public function test_create_rate() {
         global $DB;

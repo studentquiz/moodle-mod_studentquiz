@@ -19,6 +19,7 @@ namespace mod_studentquiz\commentarea;
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
 use stdClass;
+use \mod_studentquiz\local\studentquiz_progress;
 
 /**
  * Container class for comment area.
@@ -275,7 +276,7 @@ class container {
 
     /**
      * Get studentquiz_question instance.
-     * @return studentquiz_question|object|stdClass
+     * @return studentquiz_question
      */
     public function get_studentquiz_question() {
         return $this->studentquizquestion;
@@ -609,7 +610,6 @@ class container {
      * Should use in construct only.
      *
      * @return bool
-     * @throws \coding_exception
      */
     public function can_view_username() {
         if ($this->ismoderator) {
@@ -946,15 +946,14 @@ class container {
      * @return void
      */
     public function update_comment_last_read($time = null): void {
-        $questionprogress = utils::get_studentquiz_progress($this->question->id, $this->user->id, $this->studentquiz->id,
-            $this->studentquizquestion->get_id());
+        $questionprogress = studentquiz_progress::get_studentquiz_progress($this->get_studentquiz_question(), $this->user->id);
         if ($this->type == utils::COMMENT_TYPE_PRIVATE) {
             $questionprogress->lastreadprivatecomment = $time ?? time();
         } else if ($this->type == utils::COMMENT_TYPE_PUBLIC) {
             $questionprogress->lastreadpubliccomment = $time ?? time();
         }
 
-        utils::update_studentquiz_progress($questionprogress);
+        studentquiz_progress::update_studentquiz_progress($questionprogress);
     }
 
     /**

@@ -95,8 +95,6 @@ class bank_view_test extends \advanced_testcase {
      * Run questionbank.
      *
      * @return studentquiz_bank_view
-     * @throws \mod_studentquiz_view_exception
-     * @throws \moodle_exception
      */
     public function run_questionbank() {
         global $PAGE;
@@ -125,7 +123,6 @@ class bank_view_test extends \advanced_testcase {
     /**
      * Setup testing scenario
      * One user, one studentquiz in one course.
-     * @throws coding_exception
      */
     protected function setUp(): void {
         global $DB;
@@ -150,7 +147,8 @@ class bank_view_test extends \advanced_testcase {
     }
 
     /**
-     * Test mod_studentquiz\question\bank\studentquiz_bank_view::wanted_columns.
+     * Test wanted_columns function.
+     * @covers \mod_studentquiz\question\bank\studentquiz_bank_view::wanted_columns.
      */
     public function test_wanted_columns() {
         $this->resetAfterTest(true);
@@ -161,8 +159,8 @@ class bank_view_test extends \advanced_testcase {
         $method->setAccessible(true);
         $requiredcolumns = $method->invokeArgs($questionbank, [$questionbank]);
 
-        $this->assertInstanceOf('core_question\bank\checkbox_column', $requiredcolumns[0]);
-        $this->assertInstanceOf('core_question\bank\question_type_column', $requiredcolumns[1]);
+        $this->assertInstanceOf('core_question\local\bank\checkbox_column', $requiredcolumns[0]);
+        $this->assertInstanceOf('qbank_viewquestiontype\question_type_column', $requiredcolumns[1]);
         $this->assertInstanceOf('mod_studentquiz\bank\state_column', $requiredcolumns[2]);
         $this->assertInstanceOf('mod_studentquiz\bank\state_pin_column', $requiredcolumns[3]);
         $this->assertInstanceOf('mod_studentquiz\bank\question_name_column', $requiredcolumns[4]);

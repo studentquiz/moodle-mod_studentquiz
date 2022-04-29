@@ -28,6 +28,7 @@ namespace mod_studentquiz\question\bank;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 use stdClass;
+use \core_question\local\bank\question_version_status;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -239,14 +240,14 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
                 'qv' => 'JOIN {question_versions} qv ON qv.questionid = q.id',
                 'qbe' => 'JOIN {question_bank_entries} qbe on qbe.id = qv.questionbankentryid',
                 'qc' => 'JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid',
-                'qr' => 'JOIN {question_references} qr ON qr.questionbankentryid = qbe.id AND qv.version = (SELECT MAX(v.version)
+                'qr' => "JOIN {question_references} qr ON qr.questionbankentryid = qbe.id AND qv.version = (SELECT MAX(v.version)
                                           FROM {question_versions} v
                                           JOIN {question_bank_entries} be
                                             ON be.id = v.questionbankentryid
                                          WHERE be.id = qbe.id)
-                              AND qr.component = \'' . STUDENTQUIZ_COMPONENT_QR . '\'
-                              AND qr.questionarea = \'' . STUDENTQUIZ_QUESTIONAREA_QR . '\'
-                              AND qc.contextid = qr.usingcontextid',
+                              AND qr.component = 'mod_studentquiz'
+                              AND qr.questionarea = 'studentquiz_question'
+                              AND qc.contextid = qr.usingcontextid",
                 'sqq' => 'JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid'
         ];
         $fields = [
@@ -259,7 +260,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
                 'q.timecreated',
                 'q.createdby',
         ];
-        $stateready = \core_question\local\bank\question_version_status::QUESTION_STATUS_READY;
+        $stateready = question_version_status::QUESTION_STATUS_READY;
         $tests = [
                 'q.parent = 0',
                 "qv.status = '$stateready'",
@@ -382,7 +383,9 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
         $category = $this->get_current_category($categoryandcontext);
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
-        $output .= \html_writer::start_tag('form', ['action' => $pageurl, 'method' => 'post', 'id' => 'questionsubmit']);
+        $output .= \html_writer::start_tag('form', ['action' => '', 'method' => 'get', 'id' => 'questionsubmit']);
+        $output .= \html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
+
         $output .= \html_writer::start_tag('fieldset', array('class' => 'invisiblefieldset', 'style' => 'display:block;'));
 
         $output .= $this->renderer->render_hidden_field($this->cm->id, $this->baseurl, $perpage);
@@ -554,8 +557,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
 
     /**
      * Initialize filter form
-     * @param \moodle_url $pageurl
-     * @throws \coding_exception missing url param exception
+     * @param moodle_url $pageurl
      */
     private function initialize_filter_form($pageurl) {
         $this->isfilteractive = false;
@@ -568,7 +570,6 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
             $pageurl->params(['id' => $this->cm->id]);
             redirect($pageurl->out());
         }
-
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(false),
@@ -676,9 +677,9 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
     /**
      *  Return the all the required column for the view.
      *
-     * @return \question_bank_column_base[]
+     * @return array \question_bank_column_base[]
      */
-    protected function wanted_columns() {
+    protected function wanted_columns(): array {
         global $PAGE;
         $renderer = $PAGE->get_renderer('mod_studentquiz');
         $this->requiredcolumns = $renderer->get_columns_for_question_bank_view($this);

@@ -181,15 +181,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function process_progress($data) {
         global $DB;
         $data = (object)$data;
-        // Pre 4.0 version legacy backup.
-        if (!empty($data->questionid)) {
-            $newquestionid = $this->get_mappingid('question', $data->questionid);
-            $question = question_bank::load_question($newquestionid);
-            $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
-            $data->studentquizquestionid = $sq->get_id();
-        } else {
-            $data->studentquizquestionid = $this->get_mappingid('question', $data->studentquizquestionid);
-        }
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $data->studentquizid = $this->get_new_parentid('studentquiz');
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('studentquiz_progress', $data);
@@ -203,16 +195,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function process_rate($data) {
         global $DB;
         $data = (object) $data;
-        // Pre 4.0 version legacy backup.
-        if (!empty($data->questionid)) {
-            $newquestionid = $this->get_mappingid('question', $data->questionid);
-            $question = question_bank::load_question($newquestionid);
-
-            $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
-            $data->studentquizquestionid = $sq->get_id();
-        } else {
-            $data->studentquizquestionid = $this->get_mappingid('question', $data->studentquizquestionid);
-        }
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('studentquiz_rate', $data);
     }
@@ -226,16 +209,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         global $DB;
         $data = (object) $data;
         $oldid = $data->id;
-        // Pre 4.0 version legacy backup.
-        if (!empty($data->questionid)) {
-            $newquestionid = $this->get_mappingid('question', $data->questionid);
-            $question = question_bank::load_question($newquestionid);
-
-            $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
-            $data->studentquizquestionid = $sq->get_id();
-        } else {
-            $data->studentquizquestionid = $this->get_mappingid('question', $data->studentquizquestionid);
-        }
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $data->usermodified = $this->get_mappingid('user', $data->usermodified);
         $data->type = $data->type ?? utils::COMMENT_TYPE_PUBLIC;
@@ -324,8 +298,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $referenceparams = [
                 'usingcontextid' => $contextid,
                 'itemid' => $studentquizquestionid,
-                'component' => STUDENTQUIZ_COMPONENT_QR,
-                'questionarea' => STUDENTQUIZ_QUESTIONAREA_QR,
+                'component' => 'mod_studentquiz',
+                'questionarea' => 'studentquiz_question',
                 'questionbankentryid' => $question->questionbankentryid,
                 'version' => null
         ];
@@ -375,18 +349,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         }
 
         $data = (object) $data;
-        // Pre 4.0 version legacy backup.
-        if (!empty($data->questionid)) {
-            $newquestionid = $this->get_mappingid('question', $data->questionid);
-            $question = question_bank::load_question($newquestionid);
-
-            $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
-            $data->studentquizquestionid = $sq->get_id();
-        } else {
-            $data->studentquizquestionid = $this->get_mappingid('question', $data->studentquizquestionid);
-        }
-        $data->userid = $this->get_mappingid('user', $data->userid);
-
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $DB->insert_record('studentquiz_state_history', $data);
     }
 
@@ -447,5 +410,24 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             return null;
         }
         return $this->get_mappingid($type, $oldid);
+    }
+
+    /**
+     * Get correct studentquizquestionid base on data from backup or legacy backup files.
+     *
+     * @param stdClass $data column and row data from backup xml.
+     * @return bool|int|mixed
+     */
+    private function get_studentquizquestionid_from_data($data) {
+        // Pre 4.0 version legacy backup.
+        if (!empty($data->questionid)) {
+            $newquestionid = $this->get_mappingid('question', $data->questionid);
+            $question = question_bank::load_question($newquestionid);
+            $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
+            $studentquizquestionid = $sq->get_id();
+        } else {
+            $studentquizquestionid = $this->get_mappingid('question', $data->studentquizquestionid);
+        }
+        return $studentquizquestionid;
     }
 }

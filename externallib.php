@@ -50,8 +50,8 @@ class mod_studentquiz_external extends external_api {
     public static function change_question_state_parameters() {
         return new external_function_parameters([
                 'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_REQUIRED),
-                'cmid' => new external_value(PARAM_INT, 'CM id', VALUE_REQUIRED),
-                'studentquizquestionid' => new external_value(PARAM_INT, 'SQQ id', VALUE_REQUIRED),
+                'cmid' => new external_value(PARAM_INT, 'coursemodule id', VALUE_REQUIRED),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'id of studentquiz_question table', VALUE_REQUIRED),
                 'state' => new external_value(PARAM_INT, 'Question state', VALUE_REQUIRED)
         ]);
     }
@@ -61,14 +61,12 @@ class mod_studentquiz_external extends external_api {
      *
      * @param int $courseid Course id
      * @param int $cmid Course module id
-     * @param int $studentquizquestionid Studentquizquestionid
+     * @param int $studentquizquestionid StudentQuiz-Question id,
      * @param int $state State value
      * @return array Response
-     * @throws coding_exception
-     * @throws dml_exception
      */
     public static function change_question_state($courseid, $cmid, $studentquizquestionid, $state) {
-        global $PAGE;
+        global $PAGE, $USER;
 
         if ($state == studentquiz_helper::STATE_HIDE) {
             $type = 'hidden';
@@ -99,12 +97,12 @@ class mod_studentquiz_external extends external_api {
         }
 
         $studentquizquestion->change_state_visibility($type, $value);
-        $studentquizquestion->save_action($state);
+        $studentquizquestion->save_action($state, $USER->id);
 
         // Additionally always unhide the question when it got approved.
         if ($state == studentquiz_helper::STATE_APPROVED && $studentquizquestion->is_hidden()) {
             $studentquizquestion->change_state_visibility( 'hidden', 0);
-            $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, get_admin()->id);
+            $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, null);
         }
 
         $course = get_course($courseid);

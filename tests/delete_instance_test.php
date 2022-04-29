@@ -128,12 +128,11 @@ class delete_instance_test extends \advanced_testcase {
      * @param int $studenquizid StudentQuiz id.
      * @param int $commentid Comment id.
      * @param int $expected Number of record exist in the database.
-     * @throws \dml_exception
      */
     private function check_sq_instance_data($studentquizquestionid, $studenquizid, $commentid, $expected): void {
         global $DB;
         $reference = $DB->count_records('question_references', ['itemid' => $studentquizquestionid,
-                'component' => STUDENTQUIZ_COMPONENT_QR, 'questionarea' => STUDENTQUIZ_QUESTIONAREA_QR]);
+                'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']);
         $comment = $DB->count_records('studentquiz_comment', ['studentquizquestionid' => $studentquizquestionid]);
         $commenthistory = $DB->count_records('studentquiz_comment_history', ['commentid' => $commentid]);
         $statehistory = $DB->count_records('studentquiz_state_history', ['studentquizquestionid' => $studentquizquestionid]);
