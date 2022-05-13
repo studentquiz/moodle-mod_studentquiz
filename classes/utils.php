@@ -642,7 +642,7 @@ style5 = html';
      * @param int $timecreated The time do action.
      * @return bool|int True or new id
      */
-    public static function question_save_action(int $questionid, int $userid = null, int $state, int $timecreated = null) {
+    public static function question_save_action(int $questionid, ?int $userid, int $state, int $timecreated = null) {
         global $DB, $USER;
 
         $data = new \stdClass();
