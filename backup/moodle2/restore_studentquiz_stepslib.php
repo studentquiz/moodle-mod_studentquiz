@@ -70,7 +70,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         // Restore Comment Histories.
         $commenthistories = new restore_path_element('comment_history',
-                '/activity/studentquiz/commenthistories/comment');
+                '/activity/studentquiz/comments/comment/commenthistories/comment_history');
         $paths[] = $commenthistories;
 
         // Restore Question meta.
@@ -211,20 +211,21 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $oldid = $data->id;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
-        $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
+        $data->usermodified = $this->get_mappingid('user', $data->usermodified);
         $data->type = $data->type ?? utils::COMMENT_TYPE_PUBLIC;
 
         // If is a reply (parentid != 0).
         if (!empty($data->parentid)) {
-            if ($newparentid = $this->get_mappingid('studentquiz_comment', $data->parentid)) {
+            if ($newparentid = $this->get_mappingid('comment', $data->parentid)) {
                 $data->parentid = $newparentid;
             } else {
                 $data->parentid = \mod_studentquiz\commentarea\container::PARENTID;
             }
         }
 
-        if ($data->edited > 0) {
+        if (isset($data->edited) && $data->edited > 0) {
+            $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
+
             $commenthistory = new stdClass();
             $commenthistory->commentid = $data->id;
             $commenthistory->content = $data->comment;
@@ -238,7 +239,9 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             $data->timemodified = $data->edited;
         }
 
-        if ($data->deleted > 0) {
+        if (isset($data->deleted) && $data->deleted > 0) {
+            $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
+
             $commenthistory = new stdClass();
             $commenthistory->commentid = $data->id;
             $commenthistory->content = '';
@@ -253,7 +256,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         }
 
         $newid = $DB->insert_record('studentquiz_comment', $data);
-        $this->set_mapping('studentquiz_comment', $oldid, $newid, true);
+        $this->set_mapping('comment', $oldid, $newid, true);
     }
 
     /**
@@ -297,12 +300,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         global $DB;
 
         $data = (object) $data;
-        $data->id = $this->get_mappingid('id', $data->id);
-        $data->commentid = $this->get_mappingid('commentid', $data->commentid);
-        $data->content = $this->get_mappingid('content', $data->content);
-        $data->userid = $this->get_mappingid('userid', $data->userid);
-        $data->action = $this->get_mappingid('action', $data->action);
-        $data->timemodified = $this->get_mappingid('timemodified', $data->timemodified);
+        $data->commentid = $this->get_new_parentid('comment');
+        $data->userid = $this->get_mappingid('user', $data->userid);
 
         $DB->insert_record('studentquiz_comment_history', $data);
     }

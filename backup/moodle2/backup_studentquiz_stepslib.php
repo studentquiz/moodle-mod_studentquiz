@@ -153,16 +153,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
             $comment->set_source_sql($commentsql, array('studentquizid' => backup::VAR_PARENTID));
 
             // Only select comment histories to questions of this StudentQuiz.
-            $commenthistorysql = "SELECT ch.*
-                                    FROM {studentquiz} sq
-                                    JOIN {context} con ON con.instanceid = sq.coursemodule
-                                    JOIN {question_categories} qc ON qc.contextid = con.id
-                               LEFT JOIN {question} q ON q.category = qc.id
-                                    JOIN {studentquiz_comment} comment ON comment.questionid = q.id
-                               LEFT JOIN {studentquiz_comment_history} ch ON ch.commentid = comment.id
-                                   WHERE sq.id = :studentquizid
-                                ORDER BY ch.commentid, ch.id";
-            $commenthistory->set_source_sql($commenthistorysql, ['studentquizid' => backup::VAR_PARENTID]);
+            $commenthistory->set_source_table('studentquiz_comment_history', ['commentid' => backup::VAR_PARENTID]);
 
             // Only select state histories to questions of this StudentQuiz.
             $statehistorysql = "SELECT sh.*
