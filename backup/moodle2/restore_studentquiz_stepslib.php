@@ -335,7 +335,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         $data = (object) $data;
         $data->questionid = $this->get_mappingid('question', $data->questionid);
-        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->userid = !empty($data->userid) ? $this->get_mappingid('user', $data->userid) : null;
 
         $DB->insert_record('studentquiz_state_history', $data);
     }

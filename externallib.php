@@ -93,12 +93,12 @@ class mod_studentquiz_external extends external_api {
         }
 
         mod_studentquiz_change_state_visibility($questionid, $type, $value);
-        utils::question_save_action($questionid, null, $state);
+        utils::question_save_action($questionid, $USER->id, $state);
 
         // Additionally always unhide the question when it got approved.
         if ($state == studentquiz_helper::STATE_APPROVED && utils::check_is_question_hidden($questionid)) {
             mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
-            utils::question_save_action($questionid, get_admin()->id, studentquiz_helper::STATE_SHOW);
+            utils::question_save_action($questionid, null, studentquiz_helper::STATE_SHOW);
         }
 
         $course = get_course($courseid);

@@ -1866,9 +1866,10 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
         }
 
         foreach ($statehistories as $statehistory) {
+            $author = !empty($users[$statehistory->userid]) ? $this->action_author($users[$statehistory->userid]) : '-';
             $table->data[] = [
                 userdate($statehistory->timecreated, $formatdate),
-                $this->get_desc_action($statehistory->state) . $this->action_author($users[$statehistory->userid])
+                $this->get_desc_action($statehistory->state) . ' ' . $author
             ];
         }
 

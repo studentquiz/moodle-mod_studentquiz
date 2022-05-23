@@ -643,11 +643,11 @@ style5 = html';
      * @return bool|int True or new id
      */
     public static function question_save_action(int $questionid, ?int $userid, int $state, int $timecreated = null) {
-        global $DB, $USER;
+        global $DB;
 
         $data = new \stdClass();
         $data->questionid = $questionid;
-        $data->userid = isset($userid) ? $userid : $USER->id;
+        $data->userid = $userid;
         $data->state = $state;
         $data->timecreated = isset($timecreated) ? $timecreated : time();
 
@@ -699,7 +699,7 @@ style5 = html';
                         studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
 
                     if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                        self::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
+                        self::question_save_action($sqquestion->questionid, null, $sqquestion->state, null);
                     }
                 }
             }
@@ -736,9 +736,10 @@ style5 = html';
 
         $userids = [];
         foreach ($statehistories as $statehistory) {
-            $userids[$statehistory->userid] = 1;
+            if (!empty($statehistory->userid)) {
+                $userids[$statehistory->userid] = 1;
+            }
         }
-
         return $DB->get_records_list('user', 'id', array_keys($userids), '', '*');
     }
 
