@@ -225,7 +225,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * Check for commands on this page and modify variables as necessary.
      */
     public function process_actions() {
-        global $DB;
+        global $DB, $USER;
         // This code is called by both POST forms and GET links, so cannot use data_submitted.
         $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
 
@@ -253,13 +253,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
                             }
 
                             mod_studentquiz_change_state_visibility($questionid, $type, $value);
-                            utils::question_save_action($questionid, null, $state);
+                            utils::question_save_action($questionid, $USER->id, $state);
                             mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
 
                             // Additionally always unhide the question when it got approved.
                             if ($state == studentquiz_helper::STATE_APPROVED && utils::check_is_question_hidden($questionid)) {
                                 mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
-                                utils::question_save_action($questionid, get_admin()->id, studentquiz_helper::STATE_SHOW);
+                                utils::question_save_action($questionid, null, studentquiz_helper::STATE_SHOW);
                             }
                         }
                     }

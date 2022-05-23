@@ -962,6 +962,38 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021120200, 'studentquiz');
     }
 
+    if ($oldversion < 2022052300.01) {
+
+        // Changing nullability of field userid on table studentquiz_state_history to null.
+        $table = new xmldb_table('studentquiz_state_history');
+        $field = new xmldb_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'questionid');
+
+        $oldindex = new xmldb_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        // Conditionally remove old index from userid FK since we are allowed nullable.
+        if ($dbman->index_exists($table, $oldindex)) {
+            $dbman->drop_index($table, $oldindex);
+        }
+
+        // Launch change of nullability for field userid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->change_field_notnull($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022052300.01, 'studentquiz');
+    }
+
+    if ($oldversion < 2022052300.02) {
+        upgrade_set_timeout(3600);
+        $transaction = $DB->start_delegated_transaction();
+        $DB->execute("UPDATE {studentquiz_state_history}
+                         SET userid = NULL
+                       WHERE userid = ? AND state = ?", [get_admin()->id, studentquiz_helper::STATE_SHOW]);
+        $transaction->allow_commit();
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022052300.02, 'studentquiz');
+    }
+
     return true;
 }
 

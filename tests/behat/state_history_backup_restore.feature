@@ -24,4 +24,4 @@ Feature: Restore of studentquizzes in moodle exports without state history table
     And I switch to "questionpreview" window
     Then I click on "History" "link"
     And I should see "James Potter" in the "Question saved ('Draft')" "table_row"
-    And I should see "Admin User" in the "Question set to 'Approved'" "table_row"
+    And I should see "-" in the "Question set to 'Approved'" "table_row"
