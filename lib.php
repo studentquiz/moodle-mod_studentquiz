@@ -223,9 +223,32 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
 function studentquiz_delete_instance($id) {
     global $DB;
 
-    if (! $studentquiz = $DB->get_record('studentquiz', array('id' => $id))) {
+    if (! $studentquiz = $DB->get_record('studentquiz', ['id' => $id])) {
         return false;
     }
+    $params = ['contextmodule' => CONTEXT_MODULE, 'studentquizid' => $id];
+    $sql = "questionid IN (SELECT q.id
+                             FROM {context} ctx
+                             JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                                  AND contextlevel = :contextmodule
+                             JOIN {question_categories} ca ON ca.contextid = ctx.id
+                             JOIN {question} q ON q.category = ca.id
+                            WHERE sq.id = :studentquizid
+                          )";
+
+    $DB->delete_records_select('studentquiz_rate', $sql, $params);
+    $DB->delete_records_select('studentquiz_progress', $sql, $params);
+    $comments = $DB->get_records_select('studentquiz_comment', $sql, $params, '', 'id');
+    if (!empty($comments)) {
+        $commentids = array_column($comments, 'id');
+        list($commentsql, $commentparams) = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
+        $DB->delete_records_select('studentquiz_comment_history', "commentid $commentsql", $commentparams);
+    }
+    $DB->delete_records_select('studentquiz_comment', $sql, $params);
+    $DB->delete_records_select('studentquiz_state_history', $sql, $params);
+    $DB->delete_records_select('studentquiz_question', $sql, $params);
+    $DB->delete_records('studentquiz_attempt', ['studentquizid' => $id]);
+    $DB->delete_records('studentquiz_notification', ['studentquizid' => $id]);
 
     $role = $DB->get_record('role', array('shortname' => 'student'));
     $context = context_module::instance($studentquiz->coursemodule);
