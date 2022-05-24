@@ -587,9 +587,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $caption = get_string('createnewquestion', 'studentquiz');
 
         if ($canadd) {
-            $returnurl = new \moodle_url('/mod/studentquiz/view.php', array(
-                'id' => $this->studentquiz->coursemodule
-            ));
+            $qperpage = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
+            $returnurl = new \moodle_url('/mod/studentquiz/view.php', [
+                'id' => $this->studentquiz->coursemodule, 'qperpage' => $qperpage
+            ]);
             $params = array(
                 // TODO: MAGIC CONSTANT!
                 'returnurl' => $returnurl->out_as_local_url(false),

@@ -141,7 +141,8 @@ class mod_studentquiz_view {
             // Ensure we have a studentquiz_question record.
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
             mod_studentquiz_state_notify($lastchanged, $this->course, $this->cm, 'changed');
-            redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));
+            redirect(new moodle_url('/mod/studentquiz/view.php', ['id' => $this->get_cm_id(),
+                'qperpage' => $pagevars['qperpage']]));
         }
 
         $this->qbpagevar = $pagevars;
