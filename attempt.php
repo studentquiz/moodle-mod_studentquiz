@@ -49,6 +49,8 @@ require_login($cm->course, false, $cm);
 
 $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
+$returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
+
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
 
 $context = context_module::instance($cm->id);
@@ -75,11 +77,10 @@ if (!in_array($slot, $slots)) {
         $DB->update_record('studentquiz_attempt', $attempt);
     }
 }
-
-$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
+$actionurl = new moodle_url('/mod/studentquiz/attempt.php', ['cmid' => $cmid, 'id' =>
+    $attemptid, 'slot' => $slot, 'returnurl' => $returnurl]);
+$returnurl = $returnurl ? new moodle_url($returnurl) : new moodle_url('/mod/studentquiz/view.php', ['id' => $cmid]);
 // Reroute this to attempt summary page if desired.
-$stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid));
-
 // Get Current Question.
 $question = $questionusage->get_question($slot);
 // Navigatable?
@@ -149,7 +150,7 @@ if (data_submitted()) {
             $actionurl = new moodle_url($actionurl, array('slot' => $slot + 1));
             redirect($actionurl);
         } else {
-            redirect($stopurl);
+            redirect($returnurl);
         }
     } else if (optional_param('previous', null, PARAM_BOOL)) {
         if ($hasprevious) {
@@ -160,7 +161,7 @@ if (data_submitted()) {
             redirect($actionurl);
         }
     } else if (optional_param('finish', null, PARAM_BOOL)) {
-        redirect($stopurl);
+        redirect($returnurl);
     } else {
         redirect($actionurl);
     }

@@ -128,7 +128,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * Constructor assuming we already have the necessary data loaded.
      *
      * @param \core_question\bank\question_edit_contexts $contexts
-     * @param \core_question\bank\moodle_url $pageurl
+     * @param \moodle_url $pageurl
      * @param object $course
      * @param object|null $cm
      * @param object $studentquiz
@@ -397,10 +397,11 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Remove qids when the form is submitted page size.
-        if ((optional_param('qperpage', 0, PARAM_INT)) and confirm_sesskey()) {
+        if ($changepagesize = optional_param('changepagesize', 0, PARAM_INT) && confirm_sesskey()) {
             foreach ($rawquestionids as $id) {
                 $this->baseurl->remove_params('q' . $id);
             }
+            $this->baseurl->remove_params('changepagesize');
         }
     }
 
@@ -594,9 +595,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $caption = get_string('createnewquestion', 'studentquiz');
 
         if ($canadd) {
-            $returnurl = new \moodle_url('/mod/studentquiz/view.php', array(
-                'id' => $this->studentquiz->coursemodule
-            ));
+            $returnurl = $this->baseurl;
             $params = array(
                 // TODO: MAGIC CONSTANT!
                 'returnurl' => $returnurl->out_as_local_url(false),
@@ -654,7 +653,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         $output .= \html_writer::start_tag('fieldset', array('class' => 'invisiblefieldset', 'style' => 'display:block;'));
 
-        $output .= $this->renderer->render_hidden_field($this->cm->id, $this->get_filtered_question_ids(), $this->baseurl);
+        $output .= $this->renderer->render_hidden_field($this->cm->id, $this->baseurl, $perpage);
 
         $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(),
             $addcontexts, $category);
@@ -828,29 +827,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Modify base url for ordering.
-     * We have two forms in the view.php page which need to interact with each other. All params are sent through GET,
-     * but the moodle filter form can only process POST, so we need to copy them there.
-     */
-    private function modify_base_url() {
-        $paramsget = $_GET;
-
-        // Url parameters values can not be arrays, so we get the processed data of form to get the timestamp instead of array.
-        if ($data = $this->filterform->get_data()) {
-            if ($data->timecreated_sdt) {
-                $paramsget['timecreated_sdt'] = $data->timecreated_sdt;
-            }
-            if ($data->timecreated_edt) {
-                $paramsget['timecreated_edt'] = $data->timecreated_edt;
-            }
-        }
-
-        $this->baseurl->params($paramsget);
-    }
-
-    /**
      * Initialize filter form
-     * @param moodle_url $pageurl
+     * @param \moodle_url $pageurl
      * @throws \coding_exception missing url param exception
      */
     private function initialize_filter_form($pageurl) {
@@ -859,15 +837,17 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // If reset button was pressed, redirect the user again to the page.
         // This means all submitted data is intentionally lost and thus the form clean again.
         if (optional_param('resetbutton', false, PARAM_ALPHA)) {
-            redirect($pageurl);
+            // Reset to clean state.
+            $pageurl->remove_all_params();
+            $pageurl->params(['id' => $this->cm->id]);
+            redirect($pageurl->out());
         }
 
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
-            $pageurl->out(),
-            array('cmid' => $this->cm->id)
+            $pageurl->out(false),
+            array_merge(['cmid' => $this->cm->id], $this->pagevars)
         );
-        $this->modify_base_url();
     }
 
     /**
@@ -917,15 +897,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->totalnumber = $counterquestions;
         $rs->close();
         return $questions;
-    }
-
-    /**
-     * Get all filtered question ids qith q prefix
-     * @return array question ids with q prefix
-     * @deprecated TODO: This should nowhere be necessary!
-     */
-    private function get_filtered_question_ids() {
-        return $this->displayedquestionsids;
     }
 
     /**

@@ -51,3 +51,50 @@ Feature: Test pagination for StudentQuiz
     And I should see "Test question 2"
     And I should not see "Test question 1"
     And I should not see "Test question 3"
+
+  @javascript
+  Scenario: Users edit question should keep the same pagination.
+    Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I set the field "qperpage" to "25"
+    And I press enter
+    And I choose "Edit question" action for "Test question 5" in the question bank
+    And I press "id_submitbutton"
+    Then "input[name='changepagesize']" "css_element" should not exist
+    And I should see "Test question 24"
+
+  @javascript
+  Scenario: Users create question should keep the same pagination.
+    Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I set the field "qperpage" to "25"
+    And I press enter
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "TF 01"
+    And I set the field "Question text" to "The correct answer is false"
+    And I press "id_submitbutton"
+    Then "input[name='changepagesize']" "css_element" should not exist
+    And I should see "TF 01"
+    And I should see "Test question 24"
+
+  @javascript
+  Scenario: Users using filter should keep the same pagination.
+    Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I set the field "qperpage" to "25"
+    And I press enter
+    And I click on "New" "link"
+    And I press "id_submitbutton"
+    Then "input[name='changepagesize']" "css_element" should not exist
+    And I should see "Test question 24"
+
+  @javascript
+  Scenario: Users using start quiz button should keep the same pagination.
+    Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I set the field "qperpage" to "25"
+    And I press enter
+    And I click on "#qbheadercheckbox" "css_element"
+    And I click on "tr.r0 > td" "css_element" in the "Test question 1" "table_row"
+    And I click on "Start Quiz" "button"
+    And I press "Abort"
+    Then "input[name='changepagesize']" "css_element" should not exist
+    And I should see "Test question 24"
