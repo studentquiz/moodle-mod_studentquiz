@@ -123,16 +123,20 @@ class mod_studentquiz_view {
      */
     private function load_questionbank() {
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-
+        $params = $_GET;
         // Get edit question link setup.
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
         $pagevars['qperpage'] = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
         $pagevars['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-
         $this->pageurl = new moodle_url($thispageurl);
-
+        foreach ($params as $key => $value) {
+            if ($key == 'timecreated_sdt' || $key == 'timecreated_edt') {
+                $value = http_build_query($value);
+            }
+            $thispageurl->param($key, $value);
+        }
         // Trigger notification if user got returned from the question edit form.
         // TODO: Shouldn't this be somewhere outside of load_questionbank(), as this is clearly not relevant for showing the
         // question bank?
@@ -141,11 +145,10 @@ class mod_studentquiz_view {
             // Ensure we have a studentquiz_question record.
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
             mod_studentquiz_state_notify($lastchanged, $this->course, $this->cm, 'changed');
-            redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));
+            $thispageurl->remove_params('lastchanged');
+            redirect($thispageurl);
         }
-
-        $this->qbpagevar = $pagevars;
-
+        $this->qbpagevar = array_merge($pagevars, $params);
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
     }

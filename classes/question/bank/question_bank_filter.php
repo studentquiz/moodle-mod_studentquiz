@@ -97,9 +97,12 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
         $group[] = $mform->createElement('submit', 'resetbutton', get_string('reset'));
         $mform->addGroup($group, 'buttons', '', ' ', false);
-
         $mform->addElement('hidden', 'cmid', $this->_customdata['cmid']);
         $mform->setType('cmid', PARAM_RAW);
+        if (!empty($this->_customdata['qperpage'])) {
+            $mform->addElement('hidden', 'qperpage', $this->_customdata['qperpage']);
+            $mform->setType('qperpage', PARAM_INT);
+        }
     }
 
 }

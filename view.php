@@ -53,6 +53,10 @@ if (!$studentquiz->aggregated) {
     mod_studentquiz_migrate_single_studentquiz_instances_to_aggregated_state($studentquiz);
 }
 
+// Load view.
+$view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
+$baseurl = $view->get_questionbank()->base_url();
+
 // Redirect if we have received valid data.
 // Usually we should use submitted_data(), but since we have two forms merged and exchanging their values
 // using GET params, we can't use that.
@@ -61,8 +65,13 @@ if (!empty($_GET)) {
         if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($_GET))) {
             if ($attempt = mod_studentquiz_generate_attempt($ids, $studentquiz, $USER->id)) {
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
+                $baseurl->remove_params('startquiz');
+                foreach ($ids as $id) {
+                    $baseurl->remove_params('q' . $id);
+                }
                 redirect(new moodle_url('/mod/studentquiz/attempt.php',
-                    array('cmid' => $cmid, 'id' => $attempt->id, 'slot' => $questionusage->get_first_question_number())));
+                    ['cmid' => $cmid, 'id' => $attempt->id, 'slot' => $questionusage->get_first_question_number(),
+                        'returnurl' => $baseurl->out_as_local_url(false)]));
             }
         }
         // Redirect to overview to clear submit.
@@ -74,15 +83,11 @@ if (!empty($_GET)) {
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 
-// Load view.
-$view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
-
 // Redirect to overview if there are no selected questions.
 if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('deleteselected', false, PARAM_BOOL)) &&
         !optional_param('confirm', '', PARAM_ALPHANUM) ||
         optional_param('move', false, PARAM_BOOL)) {
     if (!mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST)) {
-        $baseurl = $view->get_questionbank()->base_url();
         $baseurl->remove_params('deleteselected', 'approveselected', 'move');
         redirect($baseurl, get_string('noquestionsselectedtodoaction', 'studentquiz'),
             null, \core\output\notification::NOTIFY_WARNING);

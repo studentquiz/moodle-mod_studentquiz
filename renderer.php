@@ -1360,6 +1360,11 @@ EOT;
                         'value' => $perpage,
                         'class' => 'form-control'
                     ]);
+                    $selectionperpage .= \html_writer::empty_tag('input', [
+                        'type' => 'hidden',
+                        'name' => 'changepagesize',
+                        'value' => 1,
+                    ]);
                     $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
                 }
                 $pagingbaroutput .= $this->output->render($pagingbar);
@@ -1387,16 +1392,16 @@ EOT;
      * Generate hidden fields for Questions table form.
      *
      * @param int $cmid
-     * @param array $filterquestionids
      * @param moodle_url $baseurl
+     * @param int $perpage
      * @return string
      */
-    public function render_hidden_field($cmid, $filterquestionids, $baseurl) {
+    public function render_hidden_field(int $cmid, moodle_url $baseurl, int $perpage): string {
         $output = '';
 
         $output .= $this->generate_hidden_input('sesskey', sesskey());
         $output .= $this->generate_hidden_input('id', $cmid);
-        $output .= $this->generate_hidden_input('filtered_question_ids', implode(',', $filterquestionids));
+        $output .= $this->generate_hidden_input('qperpage', $perpage);
 
         $output .= \html_writer::input_hidden_params($baseurl, ['qperpage']);
 
