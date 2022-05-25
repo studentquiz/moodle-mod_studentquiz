@@ -887,30 +887,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Allow to config which columns will be used for Question table.
-     */
-    public function init_question_table_wanted_columns() {
-        global $CFG;
-        $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
-                . 'mod_studentquiz\\bank\\state_column,'
-                . 'mod_studentquiz\\bank\\state_pin_column,'
-                . 'mod_studentquiz\\bank\\question_name_column,'
-                . 'mod_studentquiz\\bank\\question_text_row,'
-                . 'mod_studentquiz\\bank\\sq_edit_action_column,'
-                . 'mod_studentquiz\\bank\\preview_column,'
-                . 'mod_studentquiz\\bank\\sq_delete_action_column,'
-                . 'mod_studentquiz\\bank\\sq_hidden_action_column,'
-                . 'mod_studentquiz\\bank\\sq_pin_action_column,'
-                . 'mod_studentquiz\\bank\\sq_edit_menu_column,'
-                . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
-                . 'mod_studentquiz\\bank\\tag_column,'
-                . 'mod_studentquiz\\bank\\attempts_column,'
-                . 'mod_studentquiz\\bank\\difficulty_level_column,'
-                . 'mod_studentquiz\\bank\\rate_column,'
-                . 'mod_studentquiz\\bank\\comment_column';
-    }
-
-    /**
      * Get sortable fields for difficulty level column.
      *
      * @return array
@@ -962,6 +938,34 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output .= html_writer::end_div();
 
         return $output;
+    }
+
+    /**
+     * Get all the required columns for StudentQuiz view.
+     *
+     * @param mod_studentquiz\question\bank\studentquiz_bank_view $view
+     * @return array
+     */
+    public function get_columns_for_question_bank_view(mod_studentquiz\question\bank\studentquiz_bank_view $view) {
+        return [
+            new \core_question\bank\checkbox_column($view),
+            new \core_question\bank\question_type_column($view),
+            new \mod_studentquiz\bank\state_column($view),
+            new \mod_studentquiz\bank\state_pin_column($view),
+            new \mod_studentquiz\bank\question_name_column($view),
+            new \mod_studentquiz\bank\sq_edit_action_column($view),
+            new \mod_studentquiz\bank\preview_column($view),
+            new \mod_studentquiz\bank\sq_delete_action_column($view),
+            new \mod_studentquiz\bank\sq_hidden_action_column($view),
+            new \mod_studentquiz\bank\sq_pin_action_column($view),
+            new \mod_studentquiz\bank\sq_edit_menu_column($view),
+            new \mod_studentquiz\bank\anonym_creator_name_column($view),
+            new \mod_studentquiz\bank\tag_column($view),
+            new \mod_studentquiz\bank\attempts_column($view),
+            new \mod_studentquiz\bank\difficulty_level_column($view),
+            new \mod_studentquiz\bank\rate_column($view),
+            new \mod_studentquiz\bank\comment_column($view),
+        ];
     }
 
 }

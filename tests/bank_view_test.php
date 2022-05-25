@@ -101,6 +101,7 @@ class bank_view_test extends \advanced_testcase {
         global $PAGE;
         $PAGE->set_url(new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
         $PAGE->set_context($this->ctx);
+        $PAGE->set_cm($this->cm);
         // Hard coded.
         $pagevars = array(
             'recurse' => true,
@@ -145,6 +146,37 @@ class bank_view_test extends \advanced_testcase {
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
 
         $this->create_random_questions(20, $user->id);
+    }
+
+    /**
+     * Test mod_studentquiz\question\bank\studentquiz_bank_view::wanted_columns.
+     */
+    public function test_wanted_columns() {
+        $this->resetAfterTest(true);
+
+        $questionbank = $this->run_questionbank();
+        $reflector = new \ReflectionClass('mod_studentquiz\question\bank\studentquiz_bank_view');
+        $method = $reflector->getMethod('wanted_columns');
+        $method->setAccessible(true);
+        $requiredcolumns = $method->invokeArgs($questionbank, [$questionbank]);
+
+        $this->assertInstanceOf('core_question\bank\checkbox_column', $requiredcolumns[0]);
+        $this->assertInstanceOf('core_question\bank\question_type_column', $requiredcolumns[1]);
+        $this->assertInstanceOf('mod_studentquiz\bank\state_column', $requiredcolumns[2]);
+        $this->assertInstanceOf('mod_studentquiz\bank\state_pin_column', $requiredcolumns[3]);
+        $this->assertInstanceOf('mod_studentquiz\bank\question_name_column', $requiredcolumns[4]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_action_column', $requiredcolumns[5]);
+        $this->assertInstanceOf('mod_studentquiz\bank\preview_column', $requiredcolumns[6]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_delete_action_column', $requiredcolumns[7]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_hidden_action_column', $requiredcolumns[8]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_pin_action_column', $requiredcolumns[9]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_menu_column', $requiredcolumns[10]);
+        $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[11]);
+        $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[12]);
+        $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[13]);
+        $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[14]);
+        $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[15]);
+        $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[16]);
     }
 
     /**
