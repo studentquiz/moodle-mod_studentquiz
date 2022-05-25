@@ -964,4 +964,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         return parent::parse_subsort($sort);
     }
+
+    /**
+     *  Return the all the required column for the view.
+     *
+     * @return \question_bank_column_base[]
+     */
+    protected function wanted_columns() {
+        global $PAGE;
+        $renderer = $PAGE->get_renderer('mod_studentquiz');
+        $this->requiredcolumns = $renderer->get_columns_for_question_bank_view($this);
+        return $this->requiredcolumns;
+    }
 }

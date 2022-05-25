@@ -73,7 +73,6 @@ if (!empty($_GET)) {
 }
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
-$renderer->init_question_table_wanted_columns();
 
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
