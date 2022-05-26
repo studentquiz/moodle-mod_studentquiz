@@ -61,3 +61,12 @@ Feature: Filtering in Studentquiz view.
     Then I press "id_submitbutton"
     And I should see "Test question 1"
     And I should see "Test question 2"
+
+  @javascript
+  Scenario: Using filter without Creation filter should not causing warning.
+    When I am on the "StudentQuiz Test 1" "mod_studentquiz > View" page logged in as "admin"
+    And I click on "New" "link"
+    And I press "id_submitbutton"
+    And I click on "Sort by Question ascending" "link"
+    Then I should see "Test question 1"
+    And I should see "Test question 2"

@@ -830,8 +830,12 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Url parameters values can not be arrays, so we get the processed data of form to get the timestamp instead of array.
         if ($data = $this->filterform->get_data()) {
-            $paramsget['timecreated_sdt'] = $data->timecreated_sdt;
-            $paramsget['timecreated_edt'] = $data->timecreated_edt;
+            if ($data->timecreated_sdt) {
+                $paramsget['timecreated_sdt'] = $data->timecreated_sdt;
+            }
+            if ($data->timecreated_edt) {
+                $paramsget['timecreated_edt'] = $data->timecreated_edt;
+            }
         }
 
         $this->baseurl->params($paramsget);
