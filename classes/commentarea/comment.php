@@ -533,7 +533,8 @@ class comment {
         $params = [
                 'cmid' => $this->get_container()->get_cmid(),
                 'questionid' => $questiondata->id,
-                'commentid' => $commentid
+                'commentid' => $commentid,
+                'type' => $this->get_container()->get_type()
         ];
         $url = new \moodle_url(self::ABUSE_PAGE, $params);
         return $url->out();

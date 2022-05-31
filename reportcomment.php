@@ -33,28 +33,27 @@ $cmid = required_param('cmid', PARAM_INT);
 $questionid = required_param('questionid', PARAM_INT);
 $commentid = required_param('commentid', PARAM_INT);
 $referer = optional_param('referer', null, PARAM_URL);
-
+$type = optional_param('type', 0, PARAM_INT);
 $pageparams = [
         'cmid' => $cmid,
         'questionid' => $questionid,
         'commentid' => $commentid,
+        'type' => $type
 ];
-
 list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($pageparams['questionid'], $pageparams['cmid']);
 
 // Authentication check.
 require_login($cm->course, false, $cm);
 
 global $OUTPUT, $PAGE, $COURSE, $USER;
-
-$commentarea = new container($studentquiz, $question, $cm, $context);
+$commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
 $comment = $commentarea->query_comment_by_id($pageparams['commentid']);
-
 // Prepare preview comment report url.
 $previewurl = (new moodle_url('/mod/studentquiz/preview.php', [
         'cmid' => $cm->id,
         'questionid' => $question->id,
-        'highlight' => $comment->get_id()
+        'highlight' => $comment->get_id(),
+        'type' => $type
 ]))->out(false);
 
 if (!$referer) {
