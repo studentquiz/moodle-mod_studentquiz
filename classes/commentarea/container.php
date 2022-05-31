@@ -945,4 +945,13 @@ class container {
 
         utils::update_studentquiz_progress($questionprogress);
     }
+
+    /**
+     * Get type for comment area.
+     *
+     * @return int
+     */
+    public function get_type(): int {
+        return $this->type;
+    }
 }
