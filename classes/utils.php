@@ -114,16 +114,41 @@ style5 = html';
      * @return string
      */
     public static function nice_shorten_text($text, $length = 40) {
+        $text = htmlentities($text, null, 'utf-8');
+        $text = str_replace('&nbsp;', ' ', $text);
+        $text = html_entity_decode($text);
         $text = trim($text);
         // Replace image tag by placeholder text.
-        $text = preg_replace('/<img.*?>/', get_string('image_placeholder', 'mod_studentquiz'), $text);
-        $text = mb_convert_encoding($text, "HTML-ENTITIES", "UTF-8");
+        $text = preg_replace('/<img.*?>/', get_string('image_placeholder', 'studentquiz'), $text);
         // Trim the multiple spaces to single space and multiple lines to one line.
         $text = preg_replace('!\s+!', ' ', $text);
         $summary = shorten_text($text, $length);
         $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
         $dots = $summary != $text ? '...' : '';
         return $summary . $dots;
+    }
+
+    /**
+     * Convert html format to plaintext with single line.
+     * @param string $content
+     * @return string
+     */
+    public static function html_to_text(string $content): string {
+        // Convert &nbsp; to space so we can trim multiple space.
+        $content = htmlentities($content, null, 'utf-8');
+        $content = str_replace('&nbsp;', ' ', $content);
+        $content = html_entity_decode($content);
+        // Only add spacing after block tags or end line tag.
+        $blocktags = ['address', 'article', 'aside', 'audio', 'blockquote', 'canvas', 'dd', 'div', 'dl', 'fieldset', 'figcaption',
+            'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'noscript', 'ol',
+            'output', 'p', 'pre', 'section', 'table', 'tfoot', 'ul', 'video', 'br', 'li'];
+        $regexptags = implode('|', $blocktags);
+        $text = preg_replace('/(<(?:\/){0,1}(?:' . $regexptags . ')[^>]*(?:\/)?>)/i', '$1 ', $content);
+        $text = strip_tags(
+            preg_replace('~<script.*?</script>~s', '', $text), '<img><del>');
+        // Remove multiple spaces.
+        $text = trim(preg_replace('/\s+/i', ' ', $text));
+        return $text;
     }
 
     /**
