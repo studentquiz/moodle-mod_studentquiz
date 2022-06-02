@@ -395,6 +395,13 @@ class studentquiz_bank_view extends \core_question\bank\view {
             }
             redirect($this->baseurl);
         }
+
+        // Remove qids when the form is submitted page size.
+        if ((optional_param('qperpage', 0, PARAM_INT)) and confirm_sesskey()) {
+            foreach ($rawquestionids as $id) {
+                $this->baseurl->remove_params('q' . $id);
+            }
+        }
     }
 
     /**
