@@ -229,6 +229,18 @@ class comment_test extends \advanced_testcase {
     }
 
     /**
+     * Test create comment with long content and multiple line.
+     * @covers \comment::create_comment
+     */
+    public function test_create_comment_with_multiple_line() {
+        $q1 = $this->questions[0];
+        $text = '<p>Root comment with multiple line content</p><p>Line 2</p><p>Line 3</p><p>Line 4: simply dummy text of the.</p>';
+        $comment = $this->create_comment($this->rootid, $q1->id, $text, true);
+        $this->assertEquals(comment::SHORTEN_LENGTH, strlen($comment->shortcontent));
+        $this->assertStringContainsString('simply ...', $comment->shortcontent);
+    }
+
+    /**
      * Test delete comment.
      */
     public function test_delete_comment() {

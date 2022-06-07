@@ -30,7 +30,7 @@ use popup_action;
 class comment {
 
     /** @var int - Shorten text with maximum length. */
-    const SHORTEN_LENGTH = 160;
+    const SHORTEN_LENGTH = 75;
 
     /** @var string - Allowable tags when shorten text. */
     const ALLOWABLE_TAGS = '<img>';
@@ -394,7 +394,10 @@ class comment {
         $object->questionid = $comment->questionid;
         $object->parentid = $comment->parentid;
         $object->content = $comment->comment;
-        $object->shortcontent = utils::nice_shorten_text(strip_tags($comment->comment, self::ALLOWABLE_TAGS), self::SHORTEN_LENGTH);
+        // Convert the html content to text and treat the html in the content as normal text.
+        // Example : Loren isum <br> sample tag <p>.
+        $object->shortcontent = htmlspecialchars(html_to_text($comment->comment, 75, false));
+        $object->shortcontent = shorten_text($object->shortcontent, self::SHORTEN_LENGTH, false, '...');
         $object->numberofreply = $this->get_total_replies();
         $object->plural = $this->get_reply_plural_text($object);
         $object->candelete = $this->can_delete();

@@ -185,7 +185,6 @@ $string['filter_label_tags'] = 'Tag';
 $string['finish_button'] = 'Finish';
 $string['history'] = 'History';
 $string['hidden'] = 'Hidden';
-$string['image_placeholder'] = ' [Image] ';
 $string['includingunread'] = ' (including unread)';
 $string['invalidcomment'] = 'invalidcomment';
 $string['invalidemail'] = 'This email address is not valid. Please enter a single email address.';

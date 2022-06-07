@@ -107,26 +107,6 @@ style5 = html';
     }
 
     /**
-     * Truncate text.
-     *
-     * @param string $text - Full text.
-     * @param int $length - Max length of text.
-     * @return string
-     */
-    public static function nice_shorten_text($text, $length = 40) {
-        $text = trim($text);
-        // Replace image tag by placeholder text.
-        $text = preg_replace('/<img.*?>/', get_string('image_placeholder', 'mod_studentquiz'), $text);
-        $text = mb_convert_encoding($text, "HTML-ENTITIES", "UTF-8");
-        // Trim the multiple spaces to single space and multiple lines to one line.
-        $text = preg_replace('!\s+!', ' ', $text);
-        $summary = shorten_text($text, $length);
-        $summary = preg_replace('~\s*\.\.\.(<[^>]*>)*$~', '$1', $summary);
-        $dots = $summary != $text ? '...' : '';
-        return $summary . $dots;
-    }
-
-    /**
      * Get data need for comment area.
      *
      * @param int $questionid - Question ID.
