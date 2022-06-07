@@ -160,6 +160,17 @@ Feature: Create comment as an user
     And I should see "Reply" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
 
   @javascript
+  Scenario: Test reply comment with long content
+    When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I click on "Start Quiz" "button"
+    And I set the field "True" to "1"
+    And I press "Check"
+    And I enter the text "Comment 1 with long content: simply dummy text of the printing and typesetting industry." into the "Add public comment" editor
+    And I press "Add comment"
+    And I press "Collapse all comments"
+    Then I should see "Comment 1 with long content: simply dummy text of the printing ..."
+
+  @javascript
   Scenario: Test delete comment feature.
     # Save document into course 1.
     When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
