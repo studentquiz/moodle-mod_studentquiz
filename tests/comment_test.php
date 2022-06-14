@@ -229,15 +229,47 @@ class comment_test extends \advanced_testcase {
     }
 
     /**
-     * Test create comment with long content and multiple line.
-     * @covers \comment::create_comment
+     *
+     * Test shortcontent of comment in convert_to_object.
+     * @dataProvider test_shorten_comment_provider
+     * @covers \mod_studentquiz\commentarea\comment::convert_to_object
+     * @param string $content Content before convert to shorten content.
+     * @param string $expected Expected result.
+     * @param int $expectedlength Expected length of the shorten text.
      */
-    public function test_create_comment_with_multiple_line() {
+    public function test_shorten_comment(string $content, string $expected, int $expectedlength): void {
         $q1 = $this->questions[0];
-        $text = '<p>Root comment with multiple line content</p><p>Line 2</p><p>Line 3</p><p>Line 4: simply dummy text of the.</p>';
-        $comment = $this->create_comment($this->rootid, $q1->id, $text, true);
-        $this->assertEquals(comment::SHORTEN_LENGTH, strlen($comment->shortcontent));
-        $this->assertStringContainsString('simply ...', $comment->shortcontent);
+        $comment = $this->create_comment($this->rootid, $q1->id, $content);
+        $this->assertEquals($expectedlength, strlen($comment->shortcontent));
+        $this->assertEquals($expected, $comment->shortcontent);
+    }
+
+    /**
+     * Data provider for test_shorten_comment().
+     *
+     * @return array
+     */
+    public function test_shorten_comment_provider(): array {
+
+        return [
+            'Root comment with newline html content' => [
+                '<p>Root comment with html linebreak content</p><p>Line 2</p><p>Line 3</p><p>Line 4: simply dummy text of the.</p>',
+                "Root comment with html linebreak content\n\nLine 2\n\nLine 3\n\nLine 4: simply...",
+                75
+            ],
+            'Comment with escape html enity' => [
+                '<p dir="ltr" style="text-align: left;">Test shortened text with html enity&lt;br&gt;</p>',
+                "Test shortened text with html enity&lt;br&gt;",
+                45
+            ],
+            'Comment with multiple normal line break' => [
+                'Comment with multiple normal line break
+                Line 2
+                Line 3',
+                "Comment with multiple normal line break Line 2 Line 3",
+                53
+            ]
+        ];
     }
 
     /**

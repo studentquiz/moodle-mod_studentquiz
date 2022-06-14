@@ -379,12 +379,11 @@ class comment {
     }
 
     /**
-     * Convert data to object (use for api response).
+     * Convert comment->data property to object and add extra properties (use for api response).
      *
      * @return \stdClass
      */
     public function convert_to_object() {
-        global $OUTPUT;
 
         $comment = $this->data;
         $container = $this->get_container();
@@ -393,11 +392,12 @@ class comment {
         $object->id = $comment->id;
         $object->questionid = $comment->questionid;
         $object->parentid = $comment->parentid;
-        $object->content = $comment->comment;
-        // Convert the html content to text and treat the html in the content as normal text.
-        // Example : Loren isum <br> sample tag <p>.
-        $object->shortcontent = htmlspecialchars(html_to_text($comment->comment, 75, false));
-        $object->shortcontent = shorten_text($object->shortcontent, self::SHORTEN_LENGTH, false, '...');
+        $object->content = format_text($comment->comment, FORMAT_HTML);
+        // Because html_to_text will convert escaped html entity to html.
+        // We want to escape the "<" and ">" characters so html entity will display in browser as text for short content.
+        // So we use s() to convert it back.
+        $object->shortcontent = s(content_to_text($comment->comment, FORMAT_HTML));
+        $object->shortcontent = shorten_text($object->shortcontent, self::SHORTEN_LENGTH);
         $object->numberofreply = $this->get_total_replies();
         $object->plural = $this->get_reply_plural_text($object);
         $object->candelete = $this->can_delete();
