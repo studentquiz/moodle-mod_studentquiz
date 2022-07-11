@@ -243,6 +243,7 @@ $string['number_column_name'] = 'Number';
 $string['numberreply'] = '{$a} Replies';
 $string['onlyrootcommentcanreply'] = 'Only first level of comment can be reply';
 $string['pagesize'] = 'Page size:';
+$string['pagesize_invalid_input'] = 'Error: a specified page size must be a valid numeric value.';
 $string['pin'] = 'Pin question';
 $string['please_enrole_message'] = 'Please enroll in this course to see your personal progress';
 $string['pluginadministration'] = 'StudentQuiz Administration';
