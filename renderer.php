@@ -1329,15 +1329,16 @@ EOT;
         $shouldshownavigation = false;
         $shouldshowall = false;
         $shouldshowpaging = false;
+        $defaultperpage = utils::DEFAULT_QUESTIONS_PER_PAGE;
         if (!$pagevars['showall']) {
             if ($totalnumber > $perpage) {
                 $shouldshownavigation = true;
                 $shouldshowall = true;
                 $shouldshowpaging = true;
             } else {
-                if ($perpage > DEFAULT_QUESTIONS_PER_PAGE) {
+                if ($perpage > $defaultperpage) {
                     $shouldshownavigation = true;
-                    $perpage = 20;
+                    $perpage = $defaultperpage;
                 }
             }
         } else {
@@ -1355,10 +1356,11 @@ EOT;
                         'class' => 'btn'
                     ]);
                     $selectionperpage .= \html_writer::empty_tag('input', [
-                        'type' => 'text',
+                        'type' => 'number',
                         'name' => 'qperpage',
                         'value' => $perpage,
-                        'class' => 'form-control'
+                        'class' => 'form-control',
+                        'min' => 1
                     ]);
                     $selectionperpage .= \html_writer::empty_tag('input', [
                         'type' => 'hidden',

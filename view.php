@@ -79,6 +79,12 @@ if (!empty($_GET)) {
                 get_string('no_questions_selected_message', 'studentquiz'),
                 null, \core\output\notification::NOTIFY_WARNING);
     }
+    if (!optional_param('qperpage', utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT)) {
+        // Invalid page size param in the URL.
+        redirect(new \moodle_url('view.php', ['id' => $cmid]),
+            get_string('pagesize_invalid_input', 'studentquiz'),
+            null, \core\output\notification::NOTIFY_ERROR);
+    }
 }
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');

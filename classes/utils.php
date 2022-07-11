@@ -66,6 +66,9 @@ style5 = html';
     /** @var int Hidden question. */
     const HIDDEN  = 1;
 
+    /** @var int default StudentQuiz page size. */
+    const DEFAULT_QUESTIONS_PER_PAGE = 20;
+
     /**
      * Get Comment Area web service comment reply structure.
      *
