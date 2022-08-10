@@ -28,8 +28,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2022052300.02;
-$plugin->release      = 'v4.6.0';
+$plugin->version      = 2022052400;
+$plugin->incompatible = 400; // A Moodle 4.0 version will be released when it is ready, hopefully soon.
+$plugin->release      = 'v4.7.0';
 $plugin->requires     = 2020061500; // Version MOODLE_3.9, 3.9.0+.
 $plugin->maturity     = MATURITY_STABLE;
 $plugin->cron         = 0;
