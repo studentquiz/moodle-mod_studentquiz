@@ -232,7 +232,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Approve selected questions.
         if (optional_param('approveselected', false, PARAM_BOOL)) {
             // If teacher has already confirmed the action.
-            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
+            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) && confirm_sesskey()) {
                 // TODO: What? Security by obscurity? Needs a look closer, probably best by using the capability :manage!
                 $approveselected = required_param('approveselected', PARAM_RAW);
                 $state = required_param('state', PARAM_INT);
@@ -277,7 +277,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
 
         // Move selected questions to new category. Unfortunately there is no easy question lib method for moving
         // questions into other categories.
-        if (optional_param('move', false, PARAM_BOOL) and confirm_sesskey()) {
+        if (optional_param('move', false, PARAM_BOOL) && confirm_sesskey()) {
             $category = required_param('category', PARAM_SEQUENCE);
             list($tocategoryid, $contextid) = explode(',', $category);
             if (! $tocategory = $DB->get_record('question_categories', array('id' => $tocategoryid, 'contextid' => $contextid))) {
@@ -309,7 +309,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // Delete selected questions from the category.
         if (optional_param('deleteselected', false, PARAM_BOOL)) {
             // If teacher has already confirmed the action.
-            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
+            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) && confirm_sesskey()) {
                 $deleteselected = required_param('deleteselected', PARAM_RAW);
                 if ($confirm == md5($deleteselected)) {
                     if ($questionlist = explode(',', $deleteselected)) {
@@ -334,7 +334,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Unhide a question.
-        if (($unhide = optional_param('unhide', '', PARAM_INT)) and confirm_sesskey()) {
+        if (($unhide = optional_param('unhide', '', PARAM_INT)) && confirm_sesskey()) {
             question_require_capability_on($unhide, 'edit');
             $DB->set_field('studentquiz_question', 'hidden', 0, ['questionid' => $unhide]);
             utils::question_save_action($unhide, null, studentquiz_helper::STATE_SHOW);
@@ -351,7 +351,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Hide a question.
-        if (($hide = optional_param('hide', '', PARAM_INT)) and confirm_sesskey()) {
+        if (($hide = optional_param('hide', '', PARAM_INT)) && confirm_sesskey()) {
             question_require_capability_on($hide, 'edit');
             $DB->set_field('studentquiz_question', 'hidden', 1, ['questionid' => $hide]);
             utils::question_save_action($hide, null, studentquiz_helper::STATE_HIDE);
@@ -367,7 +367,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Pin a question.
-        if (($pin = optional_param('pin', '', PARAM_INT)) and confirm_sesskey()) {
+        if (($pin = optional_param('pin', '', PARAM_INT)) && confirm_sesskey()) {
              question_require_capability_on($pin, 'edit');
             $DB->set_field('studentquiz_question', 'pinned', 1, ['questionid' => $pin]);
             mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'pin');
@@ -382,7 +382,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
 
         // Unpin a question.
-        if (($pin = optional_param('unpin', '', PARAM_INT)) and confirm_sesskey()) {
+        if (($pin = optional_param('unpin', '', PARAM_INT)) && confirm_sesskey()) {
             question_require_capability_on($pin, 'edit');
             $DB->set_field('studentquiz_question', 'pinned', 0, ['questionid' => $pin]);
             mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'unpin');
