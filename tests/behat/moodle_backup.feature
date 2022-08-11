@@ -12,13 +12,10 @@ Feature: Backup and restore of moodle exports
       | username | firstname | lastname | email                |
       | student1 | Sam1      | Student1 | student1@example.com |
       | teacher1 | Sam1      | Teacher1 | teacher1@example.com |
-    And I log in as "admin"
 
   @javascript @_file_upload
   Scenario Outline: Restore moodle backups containing old StudentQuiz activity
-    When I am on "Course 1" course homepage
-    And I navigate to "Course reuse" in current page administration
-    And I select "Restore" from the "jump" singleselect
+    When I am on the "Course 1" "restore" page logged in as "admin"
     And I press "Manage backup files"
     And I upload "mod/studentquiz/tests/fixtures/<file>" file to "Files" filemanager
     And I press "Save changes"

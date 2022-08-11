@@ -15,13 +15,10 @@ Feature: Restore of studentquizzes in moodle exports contain question answers
     Given the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
-    And I log in as "admin"
 
   @javascript @_file_upload
   Scenario Outline: Restore moodle backups containing old StudentQuiz activity
-    When I am on "Course 1" course homepage
-    And I navigate to "Course reuse" in current page administration
-    And I select "Restore" from the "jump" singleselect
+    When I am on the "Course 1" "restore" page logged in as "admin"
     And I press "Manage backup files"
     And I upload "mod/studentquiz/tests/fixtures/<file>" file to "Files" filemanager
     And I press "Save changes"

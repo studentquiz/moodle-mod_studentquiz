@@ -677,7 +677,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
     /**
      *  Return the all the required column for the view.
      *
-     * @return array \question_bank_column_base[]
+     * @return \question_bank_column_base[]
      */
     protected function wanted_columns(): array {
         global $PAGE;
