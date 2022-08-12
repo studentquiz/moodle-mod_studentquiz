@@ -27,8 +27,8 @@
 
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
-use \core_question\local\bank\question_version_status;
-use \mod_studentquiz\local\studentquiz_progress;
+use core_question\local\bank\question_version_status;
+use mod_studentquiz\local\studentquiz_progress;
 
 defined('MOODLE_INTERNAL') || die();
 

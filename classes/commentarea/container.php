@@ -19,7 +19,7 @@ namespace mod_studentquiz\commentarea;
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
 use stdClass;
-use \mod_studentquiz\local\studentquiz_progress;
+use mod_studentquiz\local\studentquiz_progress;
 
 /**
  * Container class for comment area.

@@ -23,7 +23,7 @@ use mod_studentquiz\commentarea\comment;
 use moodle_url;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\local\studentquiz_question;
-use \core_question\local\bank\question_version_status;
+use core_question\local\bank\question_version_status;
 
 /**
  * Class that holds utility functions used by mod_studentquiz.

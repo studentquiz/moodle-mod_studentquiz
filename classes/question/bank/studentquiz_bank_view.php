@@ -28,7 +28,7 @@ namespace mod_studentquiz\question\bank;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 use stdClass;
-use \core_question\local\bank\question_version_status;
+use core_question\local\bank\question_version_status;
 
 defined('MOODLE_INTERNAL') || die();
 

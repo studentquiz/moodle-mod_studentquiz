@@ -26,7 +26,7 @@ use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 use mod_studentquiz\local\studentquiz_question;
-use \mod_studentquiz\question\bank\studentquiz_bank_view;
+use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 

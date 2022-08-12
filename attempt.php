@@ -24,7 +24,7 @@
 use mod_studentquiz\utils;
 
 use mod_studentquiz\local\studentquiz_question;
-use \mod_studentquiz\local\studentquiz_progress;
+use mod_studentquiz\local\studentquiz_progress;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');

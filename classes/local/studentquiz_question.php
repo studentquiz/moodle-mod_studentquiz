@@ -19,7 +19,7 @@ namespace mod_studentquiz\local;
 use question_definition;
 use stdClass;
 use mod_studentquiz\utils;
-use \core_question\local\bank\question_version_status;
+use core_question\local\bank\question_version_status;
 
 /**
  * Container class for studentquiz question.

@@ -16,7 +16,7 @@
 
 namespace mod_studentquiz;
 
-use \core_question\local\bank\question_version_status;
+use core_question\local\bank\question_version_status;
 
 /**
  * Staticstic calculator class contain all the logic related to student quiz stats.
