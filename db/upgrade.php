@@ -1010,27 +1010,23 @@ function xmldb_studentquiz_upgrade($oldversion) {
         foreach ($tablenames as $tablename) {
             $table = new xmldb_table($tablename);
             if ($dbman->table_exists($table)) {
-                $table = new xmldb_table($tablename);
-                if ($dbman->table_exists($table)) {
-                    $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-                    if ($dbman->field_exists($table, $field)) {
-                        // Launch rename field state.
-                        $dbman->rename_field($table, $field, 'studentquizquestionid');
-                    }
-                    // Add new FK key.
-                    $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
-                        ['studentquizquestionid'], 'studentquiz_question', ['id']);
-                    // Define key questionid (foreign) to be dropped.
-                    $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
-                    // Launch drop old key questionid.
-                    $dbman->drop_key($table, $key);
-                    $oldindex = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
-                    // Conditionally remove old index.
-                    if ($dbman->index_exists($table, $oldindex)) {
-                        $dbman->drop_index($table, $index);
-                    }
+                $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+                if ($dbman->field_exists($table, $field)) {
+                    // Launch rename field state.
+                    $dbman->rename_field($table, $field, 'studentquizquestionid');
                 }
-
+                // Add new FK key.
+                $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
+                    ['studentquizquestionid'], 'studentquiz_question', ['id']);
+                // Define key questionid (foreign) to be dropped.
+                $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+                // Launch drop old key questionid.
+                $dbman->drop_key($table, $key);
+                $oldindex = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+                // Conditionally remove old index.
+                if ($dbman->index_exists($table, $oldindex)) {
+                    $dbman->drop_index($table, $index);
+                }
             }
         }
 
