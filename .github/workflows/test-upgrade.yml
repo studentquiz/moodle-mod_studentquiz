@@ -1,0 +1,130 @@
+name: Moodle Plugin CI
+
+on:
+  push:
+    paths:
+      - db/upgrade.php
+      - db/install.xml
+      - .github/workflows/test-upgrade.yml
+  pull_request:
+    paths:
+      - db/upgrade.php
+      - db/install.xml
+      - .github/workflows/test-upgrade.yml
+
+jobs:
+  test:
+    runs-on: ubuntu-18.04
+
+    services:
+      postgres:
+        image: postgres:14
+        env:
+          POSTGRES_USER: 'root'
+          POSTGRES_HOST_AUTH_METHOD: 'trust'
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+      mariadb:
+        image: mariadb:10.5
+        env:
+          MYSQL_USER: 'root'
+          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+
+    # PHP Compatibility Matrix Moodle             End of life
+    # Moodle 4.0: php7.3, php7.4, php8.0 (exp)      Nov 2023
+    # earlier versions of Moodle and php are not included, as support was dropped
+
+    strategy:
+      matrix:
+        # Overall strategy is to run as few jobs as possible, but:
+        # - each php version at least once
+        # - each moodle version at least once
+        # - each database at least once
+        include:
+          - php: '7.3'
+            database: mariadb
+            moodle-starting-branch: MOODLE_311_STABLE
+            plugin-starting-branch: MOODLE_3X_STABLE
+            backup-file: "mod/studentquiz/tests/fixtures/backup-moodle2-course-2-311-with-questiondata.mbz"
+            moodle-upgrade-branch: MOODLE_400_STABLE
+
+          - php: '8.0'
+            database: pgsql
+            moodle-starting-branch: MOODLE_311_STABLE
+            plugin-starting-branch: MOODLE_3X_STABLE
+            backup-file: backup-moodle2-course-2-311-with-questiondata.mbz
+            moodle-upgrade-branch: MOODLE_400_STABLE
+
+    steps:
+      - name: Checkout Moodle ${{ matrix.moodle-starting-branch }}
+        uses: actions/checkout@v2
+        with:
+          repository: moodle/moodle
+          path: moodle
+          ref: ${{ matrix.moodle-starting-branch }}
+          fetch-depth: 0 # Full checkout so we can switch branches later.
+
+      - name: Check out StudentQuiz code ${{ matrix.plugin-starting-branch }}
+        uses: actions/checkout@v2
+        with:
+          ref: ${{ matrix.plugin-starting-branch }}
+          path: moodle/mod/studentquiz
+          fetch-depth: 0 # Full checkout so we can switch branches later.
+
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pgsql, mysqli
+          ini-values: max_input_vars=5000
+          coverage: none
+
+#      - name: Read .nvmrc
+#        run: echo "##[set-output name=NVMRC;]$(cat .nvmrc)"
+#        id: nvm
+#
+#      - name: Use Node.js (.nvmrc)
+#        uses: actions/setup-node@v1
+#        with:
+#          node-version: "${{ steps.nvm.outputs.NVMRC }}"
+
+      - name: Install Moodle ${{ matrix.moodle-starting-branch }}
+        run: |
+          cd moodle
+          sudo -u www-data /usr/bin/php admin/cli/install.php \
+              --dbtype=${{ matrix.database }} \
+              --wwwroot=http://localhost/moodle/ \
+              --fullname="StudentQuiz upgrade test" \
+              --shortname=SQU \
+              --adminpass="Admin-1;" \
+              --non-interactive \
+              --agree-license \
+              --allow-unstable
+
+      - name: Restore backup
+        run: |
+          cd moodle
+          sudo -u www-data /usr/bin/php admin/cli/restore_backup.php \
+              --file= ${{ matrix.backup-file }} \
+              --categoryid=1
+
+      - name: Update code to ${{ matrix.moodle-upgrade-branch }} and StudentQuiz ${{ github.ref }}
+        run: |
+          cd moodle
+          git checkout ${{ matrix.moodle-upgrade-branch }}
+          cd mod/studentquiz
+          git checkout ${{ github.ref }}
+
+      - name: Run the moodle upgrade
+        run: |
+          cd moodle
+          sudo -u www-data /usr/bin/php admin/cli/upgrade.php \
+              --non-interactive \
+              --allow-unstable
+
+      - name: Test result of upgrade
+        run: echo "We should find a way to do that."
