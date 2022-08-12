@@ -36,7 +36,7 @@ jobs:
         # - each moodle version at least once
         # - each database at least once
         include:
-          - {php: '7.4', moodle-branch: master, database: mariadb}
+          - {php: '7.3', moodle-branch: MOODLE_400_STABLE, database: mariadb}
           - {php: '8.0', moodle-branch: master, database: pgsql}
 
     steps:
