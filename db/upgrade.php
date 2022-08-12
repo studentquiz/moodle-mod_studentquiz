@@ -987,7 +987,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022052300.02, 'studentquiz');
     }
 
-    if ($oldversion < 2022080300.01) {
+    if ($oldversion < 2022080301) {
         // Upgrade studentquiz_question table questionid field to studentquizid.
         $table = new xmldb_table('studentquiz_question');
         if ($dbman->table_exists($table)) {
@@ -1084,10 +1084,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
             // Launch drop old key questionid.
             $dbman->drop_key($table, $key);
         }
-        upgrade_mod_savepoint(true, 2022080300.01, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080301, 'studentquiz');
     }
 
-    if ($oldversion < 2022080300.02) {
+    if ($oldversion < 2022080302) {
         // Before Upgrade migration data from 3.9 to 4.0.
         // We need to create temporary question reference so we can update it later using item = questionid.
         $transaction = $DB->start_delegated_transaction();
@@ -1103,10 +1103,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
                              JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
                              JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.02, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080302, 'studentquiz');
     }
 
-    if ($oldversion < 2022080300.03) {
+    if ($oldversion < 2022080303) {
         // Upgrade migration data from 3.9 to 4.0.
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
@@ -1123,9 +1123,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                   ) as sqd
                             WHERE sqq1.studentquizid = sqd.questionid");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.03, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080303, 'studentquiz');
     }
-    if ($oldversion < 2022080300.04) {
+    if ($oldversion < 2022080304) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
         $DB->execute("UPDATE {studentquiz_rate} sr
@@ -1141,9 +1141,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                   ) as sqd
                             WHERE sr.studentquizquestionid = sqd.questionid");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.04, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080304, 'studentquiz');
     }
-    if ($oldversion < 2022080300.05) {
+    if ($oldversion < 2022080305) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
         $DB->execute("UPDATE {studentquiz_progress} sp
@@ -1159,9 +1159,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                   ) as sqd
                             WHERE sp.studentquizquestionid = sqd.questionid");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.05, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080305, 'studentquiz');
     }
-    if ($oldversion < 2022080300.06) {
+    if ($oldversion < 2022080306) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
         $DB->execute("UPDATE {studentquiz_comment} sc
@@ -1177,9 +1177,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                   ) as sqd
                             WHERE sc.studentquizquestionid = sqd.questionid");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.06, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080306, 'studentquiz');
     }
-    if ($oldversion < 2022080300.07) {
+    if ($oldversion < 2022080307) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
         $DB->execute("UPDATE {studentquiz_state_history} ssh
@@ -1195,9 +1195,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                   ) as sqd
                             WHERE ssh.studentquizquestionid = sqd.questionid");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.07, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080307, 'studentquiz');
     }
-    if ($oldversion < 2022080300.08) {
+    if ($oldversion < 2022080308) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
         // Update the temporary question reference with correct studentquizquestionid.
@@ -1214,7 +1214,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                   ) as sqd
                             WHERE qrd.itemid = sqd.questionid");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080300.08, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080308, 'studentquiz');
     }
 
     return true;
