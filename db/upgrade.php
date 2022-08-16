@@ -988,231 +988,469 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080301) {
-        // Upgrade studentquiz_question table questionid field to studentquizid.
+        // Upgrade add new field studentquizid  to studentquiz_question table.
         $table = new xmldb_table('studentquiz_question');
-        if ($dbman->table_exists($table)) {
-            $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-            if ($dbman->field_exists($table, $field)) {
-                // Launch rename field state.
-                $dbman->rename_field($table, $field, 'studentquizid');
-            }
-            // Add FK key.
-            $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
-            // Define key questionid (foreign) to be dropped.
-            $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
-            // Launch drop key category.
-            $dbman->drop_key($table, $key);
+        $field = new xmldb_field('studentquizid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'id');
+
+        // Conditionally launch add field studentquizid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
         }
 
-        // Upgrade studentquiz_rate, studentquiz_comment table questionid field to studentquizquestionid.
-        // Same change steps.
-        $tablenames = ['studentquiz_rate', 'studentquiz_comment'];
-        foreach ($tablenames as $tablename) {
-            $table = new xmldb_table($tablename);
-            if ($dbman->table_exists($table)) {
-                $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-                if ($dbman->field_exists($table, $field)) {
-                    // Launch rename field state.
-                    $dbman->rename_field($table, $field, 'studentquizquestionid');
-                }
-                // Add new FK key.
-                $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
-                    ['studentquizquestionid'], 'studentquiz_question', ['id']);
-                // Define key questionid (foreign) to be dropped.
-                $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
-                // Launch drop old key questionid.
-                $dbman->drop_key($table, $key);
-                $oldindex = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
-                // Conditionally remove old index.
-                if ($dbman->index_exists($table, $oldindex)) {
-                    $dbman->drop_index($table, $index);
-                }
-            }
-        }
-
-        // Upgrade studentquiz_progress table questionid field to studentquizquestionid.
-        $table = new xmldb_table('studentquiz_progress');
-        if ($dbman->table_exists($table)) {
-
-            $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER,
-                '10', null, XMLDB_NOTNULL, null, null);
-            if ($dbman->field_exists($table, $field)) {
-                // Launch rename field state.
-                $dbman->rename_field($table, $field, 'studentquizquestionid');
-            }
-            // Define key questionid (foreign) to be dropped.
-            $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
-            // Launch drop old key questionid.
-            $dbman->drop_key($table, $key);
-
-            // Define old unique key to be dropped.
-            $key = new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, ['questionid', 'userid', 'studentquizid']);
-            // Launch drop old unique key.
-            $dbman->drop_key($table, $key);
-
-            $oldindex = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
-            // Conditionally remove old index.
-            if ($dbman->index_exists($table, $oldindex)) {
-                $dbman->drop_index($table, $index);
-            }
-            // Add new FK key.
-            $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
-                ['studentquizquestionid'], 'studentquiz_question', ['id']);
-            // Add unique key.
-            $table->add_key('studentquizid-studentquizquestionid-userid', XMLDB_KEY_UNIQUE,
-                    ['studentquizid', 'studentquizquestionid', 'userid']);
-        }
-
-        // Upgrade studentquiz_state_history table questionid field to studentquizquestionid.
-        $table = new xmldb_table('studentquiz_state_history');
-        if ($dbman->table_exists($table)) {
-            $field = new xmldb_field('questionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-            if ($dbman->field_exists($table, $field)) {
-                // Launch rename field state.
-                $dbman->rename_field($table, $field, 'studentquizquestionid');
-            }
-
-            // Add new FK key.
-            $table->add_key('studentquizquestionid', XMLDB_KEY_FOREIGN,
-                    ['studentquizquestionid'], 'studentquiz_question', ['id']);
-            // Define key questionid (foreign) to be dropped.
-            $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
-            // Launch drop old key questionid.
-            $dbman->drop_key($table, $key);
-        }
+        // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2022080301, 'studentquiz');
     }
 
     if ($oldversion < 2022080302) {
-        // Before Upgrade migration data from 3.9 to 4.0.
-        // We need to create temporary question reference so we can update it later using item = questionid.
+        // Define key studentquizid (foreign) to be added to studentquiz_question.
+        $table = new xmldb_table('studentquiz_question');
+        $key = new xmldb_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
+
+        // Launch add key studentquizid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080302, 'studentquiz');
+    }
+    if ($oldversion < 2022080303) {
+        // Define field studentquizquestionid to be added to studentquiz_rate.
+        $table = new xmldb_table('studentquiz_rate');
+        $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'rate');
+
+        // Conditionally launch add field studentquizquestionid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080303, 'studentquiz');
+    }
+    if ($oldversion < 2022080304) {
+
+        // Define key studentquizquestionid (foreign) to be added to studentquiz_rate.
+        $table = new xmldb_table('studentquiz_rate');
+        $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
+
+        // Launch add key studentquizquestionid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080304, 'studentquiz');
+    }
+    if ($oldversion < 2022080305) {
+
+        // Define field studentquizquestionid to be added to studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'comment');
+
+        // Conditionally launch add field studentquizquestionid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080305, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080306) {
+
+        // Define key studentquizquestionid (foreign) to be added to studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
+
+        // Launch add key studentquizquestionid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080306, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080307) {
+
+        // Define field studentquizquestionid to be added to studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'id');
+
+        // Conditionally launch add field studentquizquestionid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080307, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080308) {
+
+        // Define key studentquizquestionid (foreign) to be added to studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
+
+        // Launch add key studentquizquestionid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080308, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080309) {
+
+        // Define field studentquizquestionid to be added to studentquiz_state_history.
+        $table = new xmldb_table('studentquiz_state_history');
+        $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'id');
+
+        // Conditionally launch add field studentquizquestionid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080309, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080310) {
+
+        // Define key studentquizquestionid (foreign) to be added to studentquiz_state_history.
+        $table = new xmldb_table('studentquiz_state_history');
+        $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
+
+        // Launch add key studentquizquestionid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080310, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080311) {
+        // Upgrade migration data from 3.9 to 4.0.
+        $transaction = $DB->start_delegated_transaction();
+        upgrade_set_timeout(3600);
+        $DB->execute("UPDATE {studentquiz_question}
+                         SET studentquizid =
+                             (SELECT sq.id
+                                FROM {question} q
+                                JOIN {question_versions} qv ON q.id = qv.questionid
+                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                JOIN {context} ctx ON ctx.id = qc.contextid
+                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                               WHERE {studentquiz_question}.questionid = q.id
+                             )
+                       ");
+        $transaction->allow_commit();
+        upgrade_mod_savepoint(true, 2022080311, 'studentquiz');
+    }
+    if ($oldversion < 2022080312) {
+        $transaction = $DB->start_delegated_transaction();
+        upgrade_set_timeout(3600);
+
+        $DB->execute("UPDATE {studentquiz_rate}
+                         SET studentquizquestionid =
+                             (SELECT sqq.id
+                                FROM {question} q
+                                JOIN {question_versions} qv ON q.id = qv.questionid
+                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                JOIN {context} ctx ON ctx.id = qc.contextid
+                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                               WHERE {studentquiz_rate}.questionid = sqq.questionid
+                             )
+                     ");
+        $transaction->allow_commit();
+        upgrade_mod_savepoint(true, 2022080312, 'studentquiz');
+    }
+    if ($oldversion < 2022080313) {
+        $transaction = $DB->start_delegated_transaction();
+        upgrade_set_timeout(3600);
+        $DB->execute("UPDATE {studentquiz_progress}
+                         SET studentquizquestionid =
+                             (SELECT sqq.id
+                                FROM {question} q
+                                JOIN {question_versions} qv ON q.id = qv.questionid
+                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                JOIN {context} ctx ON ctx.id = qc.contextid
+                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                               WHERE {studentquiz_progress}.questionid = sqq.questionid
+                             )
+                       ");
+
+        $transaction->allow_commit();
+        upgrade_mod_savepoint(true, 2022080313, 'studentquiz');
+    }
+    if ($oldversion < 2022080314) {
+        $transaction = $DB->start_delegated_transaction();
+        upgrade_set_timeout(3600);
+
+        $DB->execute("UPDATE {studentquiz_comment}
+                         SET studentquizquestionid =
+                             (SELECT sqq.id
+                                FROM {question} q
+                                JOIN {question_versions} qv ON q.id = qv.questionid
+                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                JOIN {context} ctx ON ctx.id = qc.contextid
+                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                               WHERE {studentquiz_comment}.questionid = sqq.questionid
+                             )
+                       ");
+
+        $transaction->allow_commit();
+        upgrade_mod_savepoint(true, 2022080314, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080315) {
+        $transaction = $DB->start_delegated_transaction();
+        upgrade_set_timeout(3600);
+        $DB->execute("UPDATE {studentquiz_state_history}
+                         SET studentquizquestionid =
+                             (SELECT sqq.id
+                                FROM {question} q
+                                JOIN {question_versions} qv ON q.id = qv.questionid
+                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
+                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
+                                JOIN {context} ctx ON ctx.id = qc.contextid
+                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
+                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
+                               WHERE {studentquiz_state_history}.questionid = sqq.questionid
+                             )
+                       ");
+        $transaction->allow_commit();
+        upgrade_mod_savepoint(true, 2022080315, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080316) {
+        // Create studentquiz question references.
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
         $DB->execute("INSERT INTO {question_references}
                                   (usingcontextid, itemid, component, questionarea, questionbankentryid, version)
-                           SELECT qc.contextid, q.id, 'mod_studentquiz', 'studentquiz_question', qbe.id, null
+                           SELECT qc.contextid, sqq.id, 'mod_studentquiz', 'studentquiz_question', qbe.id, null
                              FROM {question} q
                              JOIN {question_versions} qv ON q.id = qv.questionid
                              JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
                              JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
                              JOIN {context} ctx ON ctx.id = qc.contextid
                              JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                             JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id");
+                             JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
+                            WHERE sqq.questionid = q.id");
         $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080302, 'studentquiz');
+        upgrade_mod_savepoint(true, 2022080316, 'studentquiz');
     }
 
-    if ($oldversion < 2022080303) {
-        // Upgrade migration data from 3.9 to 4.0.
-        $transaction = $DB->start_delegated_transaction();
-        upgrade_set_timeout(3600);
-        $DB->execute("UPDATE {studentquiz_question} sqq1
-                             SET studentquizid = sqd.studentquizid
-                             FROM (SELECT sq.id as studentquizid, q.id as questionid
-                                     FROM {question} q
-                                     JOIN {question_versions} qv ON q.id = qv.questionid
-                                     JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                     JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                     JOIN {context} ctx ON ctx.id = qc.contextid
-                                     JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                     JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
-                                  ) as sqd
-                            WHERE sqq1.studentquizid = sqd.questionid");
-        $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080303, 'studentquiz');
+    if ($oldversion < 2022080317) {
+
+        // Define index questionid (not unique) to be dropped form studentquiz_rate.
+        $table = new xmldb_table('studentquiz_rate');
+        $index = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+
+        // Conditionally launch drop index questionid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080317, 'studentquiz');
     }
-    if ($oldversion < 2022080304) {
-        $transaction = $DB->start_delegated_transaction();
-        upgrade_set_timeout(3600);
-        $DB->execute("UPDATE {studentquiz_rate} sr
-                             SET studentquizquestionid = sqd.studentquizquestionid
-                             FROM (SELECT sqq.id as studentquizquestionid, q.id as questionid
-                                     FROM {question} q
-                                     JOIN {question_versions} qv ON q.id = qv.questionid
-                                     JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                     JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                     JOIN {context} ctx ON ctx.id = qc.contextid
-                                     JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                     JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
-                                  ) as sqd
-                            WHERE sr.studentquizquestionid = sqd.questionid");
-        $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080304, 'studentquiz');
+
+    if ($oldversion < 2022080318) {
+
+        // Define key questionid (foreign) to be dropped form studentquiz_rate.
+        $table = new xmldb_table('studentquiz_rate');
+        $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+
+        // Launch drop key questionid.
+        $dbman->drop_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080318, 'studentquiz');
     }
-    if ($oldversion < 2022080305) {
-        $transaction = $DB->start_delegated_transaction();
-        upgrade_set_timeout(3600);
-        $DB->execute("UPDATE {studentquiz_progress} sp
-                             SET studentquizquestionid = sqd.studentquizquestionid
-                             FROM (SELECT sqq.id as studentquizquestionid, q.id as questionid
-                                     FROM {question} q
-                                     JOIN {question_versions} qv ON q.id = qv.questionid
-                                     JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                     JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                     JOIN {context} ctx ON ctx.id = qc.contextid
-                                     JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                     JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
-                                  ) as sqd
-                            WHERE sp.studentquizquestionid = sqd.questionid");
-        $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080305, 'studentquiz');
+    if ($oldversion < 2022080319) {
+
+        // Define field questionid to be dropped from studentquiz_rate.
+        $table = new xmldb_table('studentquiz_rate');
+        $field = new xmldb_field('questionid');
+
+        // Conditionally launch drop field questionid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080319, 'studentquiz');
     }
-    if ($oldversion < 2022080306) {
-        $transaction = $DB->start_delegated_transaction();
-        upgrade_set_timeout(3600);
-        $DB->execute("UPDATE {studentquiz_comment} sc
-                             SET studentquizquestionid = sqd.studentquizquestionid
-                             FROM (SELECT sqq.id as studentquizquestionid, q.id as questionid
-                                     FROM {question} q
-                                     JOIN {question_versions} qv ON q.id = qv.questionid
-                                     JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                     JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                     JOIN {context} ctx ON ctx.id = qc.contextid
-                                     JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                     JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
-                                  ) as sqd
-                            WHERE sc.studentquizquestionid = sqd.questionid");
-        $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080306, 'studentquiz');
+
+    if ($oldversion < 2022080320) {
+
+        // Define index questionid (not unique) to be dropped form studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $index = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+
+        // Conditionally launch drop index questionid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080320, 'studentquiz');
     }
-    if ($oldversion < 2022080307) {
-        $transaction = $DB->start_delegated_transaction();
-        upgrade_set_timeout(3600);
-        $DB->execute("UPDATE {studentquiz_state_history} ssh
-                             SET studentquizquestionid = sqd.studentquizquestionid
-                             FROM (SELECT sqq.id as studentquizquestionid, q.id as questionid
-                                     FROM {question} q
-                                     JOIN {question_versions} qv ON q.id = qv.questionid
-                                     JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                     JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                     JOIN {context} ctx ON ctx.id = qc.contextid
-                                     JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                     JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
-                                  ) as sqd
-                            WHERE ssh.studentquizquestionid = sqd.questionid");
-        $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080307, 'studentquiz');
+
+    if ($oldversion < 2022080321) {
+
+        // Define key questionid (foreign) to be dropped form studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+
+        // Launch drop key questionid.
+        $dbman->drop_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080321, 'studentquiz');
     }
-    if ($oldversion < 2022080308) {
-        $transaction = $DB->start_delegated_transaction();
-        upgrade_set_timeout(3600);
-        // Update the temporary question reference with correct studentquizquestionid.
-        $DB->execute("UPDATE {question_references} qrd
-                             SET itemid = sqd.studentquizquestionid
-                             FROM (SELECT sqq.id as studentquizquestionid, q.id as questionid
-                                     FROM {question} q
-                                     JOIN {question_versions} qv ON q.id = qv.questionid
-                                     JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                     JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                     JOIN {context} ctx ON ctx.id = qc.contextid
-                                     JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                     JOIN {studentquiz_question} sqq ON sqq.studentquizid = q.id
-                                  ) as sqd
-                            WHERE qrd.itemid = sqd.questionid");
-        $transaction->allow_commit();
-        upgrade_mod_savepoint(true, 2022080308, 'studentquiz');
+
+    if ($oldversion < 2022080322) {
+
+        // Define field questionid to be dropped from studentquiz_comment.
+        $table = new xmldb_table('studentquiz_comment');
+        $field = new xmldb_field('questionid');
+
+        // Conditionally launch drop field questionid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080322, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080323) {
+
+        // Define index questionid (not unique) to be dropped form studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $index = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
+
+        // Conditionally launch drop index questionid.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080323, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080324) {
+
+        // Define key questionid (foreign) to be dropped form studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+
+        // Launch drop key questionid.
+        $dbman->drop_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080324, 'studentquiz');
+    }
+    if ($oldversion < 2022080325) {
+
+        // Define key questioniduseridstudentquizid (unique) to be dropped form studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $key = new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, ['questionid', 'userid', 'studentquizid']);
+
+        // Launch drop key questioniduseridstudentquizid.
+        $dbman->drop_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080325, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080326) {
+
+        // Define key studentquizid-studentquizquestionid-userid (unique) to be added to studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $key = new xmldb_key('studentquizid-studentquizquestionid-userid', XMLDB_KEY_UNIQUE,
+            ['studentquizid', 'studentquizquestionid', 'userid']);
+
+        // Launch add key studentquizid-studentquizquestionid-userid.
+        $dbman->add_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080326, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080327) {
+
+        // Define field questionid to be dropped from studentquiz_progress.
+        $table = new xmldb_table('studentquiz_progress');
+        $field = new xmldb_field('questionid');
+
+        // Conditionally launch drop field questionid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080327, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080328) {
+
+        // Define key questionid (foreign) to be dropped form studentquiz_state_history.
+        $table = new xmldb_table('studentquiz_state_history');
+        $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+
+        // Launch drop key questionid.
+        $dbman->drop_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080328, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080329) {
+
+        // Define field questionid to be dropped from studentquiz_state_history.
+        $table = new xmldb_table('studentquiz_state_history');
+        $field = new xmldb_field('questionid');
+
+        // Conditionally launch drop field questionid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080329, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080330) {
+
+        // Define key questionid (foreign) to be dropped form studentquiz_question.
+        $table = new xmldb_table('studentquiz_question');
+        $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+
+        // Launch drop key questionid.
+        $dbman->drop_key($table, $key);
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080330, 'studentquiz');
+    }
+
+    if ($oldversion < 2022080331) {
+
+        // Define field questionid to be dropped from studentquiz_question.
+        $table = new xmldb_table('studentquiz_question');
+        $field = new xmldb_field('questionid');
+
+        // Conditionally launch drop field questionid.
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2022080331, 'studentquiz');
     }
 
     return true;
 }
-
