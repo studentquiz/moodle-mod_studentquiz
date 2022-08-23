@@ -987,6 +987,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022052300.02, 'studentquiz');
     }
 
+    // Upgrade to Moodle 4.0 starts here.
+    // The upgrade has three main phases:
+    // - Steps ...01 to ...10 creates new fields and the related indexes that will be used in the future DB structure.
+    // - Steps ...11 to ...16 populates the data in the new columns from the existing data.
+    // - Steps ...17 to ...31 then drop the old indexes and columns that are no longer required.
+
     if ($oldversion < 2022080301) {
         // Upgrade add new field studentquizid  to studentquiz_question table.
         $table = new xmldb_table('studentquiz_question');
@@ -1121,10 +1127,13 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2022080310, 'studentquiz');
     }
 
+    // Upgrade from 3.x to 4.0 - data migration starts here.
+
     if ($oldversion < 2022080311) {
-        // Upgrade migration data from 3.9 to 4.0.
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
+
+        // Populate the studentquiz_question.studentquizid column.
         $DB->execute("UPDATE {studentquiz_question}
                          SET studentquizid =
                              (SELECT sq.id
@@ -1145,6 +1154,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
 
+        // Populate the studentquiz_rate.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_rate}
                          SET studentquizquestionid =
                              (SELECT sqq.id
@@ -1161,9 +1171,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080312, 'studentquiz');
     }
+
     if ($oldversion < 2022080313) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
+
+        // Populate the studentquiz_progress.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_progress}
                          SET studentquizquestionid =
                              (SELECT sqq.id
@@ -1185,6 +1198,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
 
+        // Populate the studentquiz_comment.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_comment}
                          SET studentquizquestionid =
                              (SELECT sqq.id
@@ -1206,6 +1220,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2022080315) {
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
+
+        // Populate the studentquiz_state_history.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_state_history}
                          SET studentquizquestionid =
                              (SELECT sqq.id
@@ -1224,9 +1240,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080316) {
-        // Create studentquiz question references.
         $transaction = $DB->start_delegated_transaction();
         upgrade_set_timeout(3600);
+
+        // Create the studentquiz question references.
         $DB->execute("INSERT INTO {question_references}
                                   (usingcontextid, itemid, component, questionarea, questionbankentryid, version)
                            SELECT qc.contextid, sqq.id, 'mod_studentquiz', 'studentquiz_question', qbe.id, null
@@ -1241,6 +1258,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080316, 'studentquiz');
     }
+
+    // Upgrade from 3.x to 4.0 - dropping old columns starts here.
 
     if ($oldversion < 2022080317) {
 
@@ -1451,6 +1470,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2022080331, 'studentquiz');
     }
+
+    // End of the Moodle 4.0 upgrade.
 
     return true;
 }
