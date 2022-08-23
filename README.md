@@ -46,10 +46,11 @@ You can find manuals for each role in the [manuals website](https://docs.moodle.
 
 Supported and tested with:
 
-- Moodle 3.9, 3.10, 3.11
-- PHP 7.2, 7.3, 7.4
+- Moodle 4.0 - if you need a version compatible with earlier versions of Moodle, look on the
+  (MOODLE_3X_STABLE branch)[https://github.com/studentquiz/moodle-mod_studentquiz/tree/MOODLE_3X_STABLE]
+- PHP 7.3, 7.4, 8.0
 - Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017 (experimental)
-- Browsers: Firefox, Chrome
+- Browsers: Firefox, Chrome, Safari, Edge
 
 Refer to the Moodle release notes for the minimum requirements for PHP and the databases. Other modern browsers should
 be compatible too, it's just not tested or developed against them explicitly.
@@ -67,3 +68,4 @@ people and universities around the world in our [Issue Tracker](https://github.c
 [GNU General Public License v3.0](https://github.com/studentquiz/moodle-mod_studentquiz/blob/master/LICENSE)
 
 (c) [Hochschule für Technik Rapperswil](https://www.hsr.ch/)
+(c) [The Open University](https://www.open.ac.uk/)
