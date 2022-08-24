@@ -1018,6 +1018,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2022080302, 'studentquiz');
     }
+
     if ($oldversion < 2022080303) {
         // Define field studentquizquestionid to be added to studentquiz_rate.
         $table = new xmldb_table('studentquiz_rate');
@@ -1031,8 +1032,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2022080303, 'studentquiz');
     }
-    if ($oldversion < 2022080304) {
 
+    if ($oldversion < 2022080304) {
         // Define key studentquizquestionid (foreign) to be added to studentquiz_rate.
         $table = new xmldb_table('studentquiz_rate');
         $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
@@ -1043,8 +1044,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Studentquiz savepoint reached.
         upgrade_mod_savepoint(true, 2022080304, 'studentquiz');
     }
-    if ($oldversion < 2022080305) {
 
+    if ($oldversion < 2022080305) {
         // Define field studentquizquestionid to be added to studentquiz_comment.
         $table = new xmldb_table('studentquiz_comment');
         $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'comment');
@@ -1059,7 +1060,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080306) {
-
         // Define key studentquizquestionid (foreign) to be added to studentquiz_comment.
         $table = new xmldb_table('studentquiz_comment');
         $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
@@ -1072,7 +1072,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080307) {
-
         // Define field studentquizquestionid to be added to studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'id');
@@ -1087,7 +1086,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080308) {
-
         // Define key studentquizquestionid (foreign) to be added to studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
@@ -1100,7 +1098,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080309) {
-
         // Define field studentquizquestionid to be added to studentquiz_state_history.
         $table = new xmldb_table('studentquiz_state_history');
         $field = new xmldb_field('studentquizquestionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'id');
@@ -1115,7 +1112,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080310) {
-
         // Define key studentquizquestionid (foreign) to be added to studentquiz_state_history.
         $table = new xmldb_table('studentquiz_state_history');
         $key = new xmldb_key('studentquizquestionid', XMLDB_KEY_FOREIGN, ['studentquizquestionid'], 'studentquiz_question', ['id']);
@@ -1135,7 +1131,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Populate the studentquiz_question.studentquizid column.
         $DB->execute("UPDATE {studentquiz_question}
-                         SET studentquizid =
+                         SET studentquizid = COALESCE(
                              (SELECT sq.id
                                 FROM {question} q
                                 JOIN {question_versions} qv ON q.id = qv.questionid
@@ -1145,7 +1141,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
                                 JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
                                 JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
                                WHERE {studentquiz_question}.questionid = q.id
-                             )
+                             ), 0)
                        ");
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080311, 'studentquiz');
@@ -1156,17 +1152,11 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Populate the studentquiz_rate.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_rate}
-                         SET studentquizquestionid =
-                             (SELECT sqq.id
-                                FROM {question} q
-                                JOIN {question_versions} qv ON q.id = qv.questionid
-                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                JOIN {context} ctx ON ctx.id = qc.contextid
-                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
-                               WHERE {studentquiz_rate}.questionid = sqq.questionid
-                             )
+                         SET studentquizquestionid = (
+                             SELECT id
+                               FROM {studentquiz_question}
+                              WHERE questionid = {studentquiz_rate}.questionid
+                         )
                      ");
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080312, 'studentquiz');
@@ -1178,18 +1168,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Populate the studentquiz_progress.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_progress}
-                         SET studentquizquestionid =
-                             (SELECT sqq.id
-                                FROM {question} q
-                                JOIN {question_versions} qv ON q.id = qv.questionid
-                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                JOIN {context} ctx ON ctx.id = qc.contextid
-                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
-                               WHERE {studentquiz_progress}.questionid = sqq.questionid
-                             )
-                       ");
+                         SET studentquizquestionid = (
+                             SELECT id
+                               FROM {studentquiz_question}
+                              WHERE questionid = {studentquiz_progress}.questionid
+                         )
+                     ");
 
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080313, 'studentquiz');
@@ -1200,18 +1184,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Populate the studentquiz_comment.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_comment}
-                         SET studentquizquestionid =
-                             (SELECT sqq.id
-                                FROM {question} q
-                                JOIN {question_versions} qv ON q.id = qv.questionid
-                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                JOIN {context} ctx ON ctx.id = qc.contextid
-                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
-                               WHERE {studentquiz_comment}.questionid = sqq.questionid
-                             )
-                       ");
+                         SET studentquizquestionid = (
+                             SELECT id
+                               FROM {studentquiz_question}
+                              WHERE questionid = {studentquiz_comment}.questionid
+                         )
+                     ");
 
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080314, 'studentquiz');
@@ -1223,18 +1201,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Populate the studentquiz_state_history.studentquizquestionid column.
         $DB->execute("UPDATE {studentquiz_state_history}
-                         SET studentquizquestionid =
-                             (SELECT sqq.id
-                                FROM {question} q
-                                JOIN {question_versions} qv ON q.id = qv.questionid
-                                JOIN {question_bank_entries} qbe ON qv.questionbankentryid = qbe.id
-                                JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid
-                                JOIN {context} ctx ON ctx.id = qc.contextid
-                                JOIN {studentquiz} sq ON sq.coursemodule = ctx.instanceid
-                                JOIN {studentquiz_question} sqq ON sqq.questionid = q.id
-                               WHERE {studentquiz_state_history}.questionid = sqq.questionid
-                             )
-                       ");
+                         SET studentquizquestionid = (
+                             SELECT id
+                               FROM {studentquiz_question}
+                              WHERE questionid = {studentquiz_state_history}.questionid
+                         )
+                     ");
         $transaction->allow_commit();
         upgrade_mod_savepoint(true, 2022080315, 'studentquiz');
     }
