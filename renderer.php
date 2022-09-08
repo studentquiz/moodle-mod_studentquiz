@@ -940,6 +940,21 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         ];
     }
 
+    /**
+     * This is renderer function to support other theme to override the question form html.
+     *
+     * @param string $questionslist the questions list html content.
+     * @return string
+     */
+    public function render_question_form(string $questionslist): string {
+        $output = \html_writer::start_tag('form', ['action' => '', 'method' => 'get', 'id' => 'questionsubmit']);
+        $output .= \html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
+        $output .= $questionslist;
+        $output .= \html_writer::end_tag('form');
+
+        return $output;
+    }
+
 }
 
 /**

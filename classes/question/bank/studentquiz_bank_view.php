@@ -383,8 +383,6 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
         $category = $this->get_current_category($categoryandcontext);
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
-        $output .= \html_writer::start_tag('form', ['action' => '', 'method' => 'get', 'id' => 'questionsubmit']);
-        $output .= \html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
 
         $output .= \html_writer::start_tag('fieldset', array('class' => 'invisiblefieldset', 'style' => 'display:block;'));
 
@@ -405,8 +403,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
             $addcontexts, $category);
 
         $output .= \html_writer::end_tag('fieldset');
-        $output .= \html_writer::end_tag('form');
-
+        $output = $this->renderer->render_question_form($output);
         $output .= $this->renderer->display_javascript_snippet();
 
         echo $output;
