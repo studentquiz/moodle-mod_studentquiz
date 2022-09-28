@@ -931,6 +931,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             new \mod_studentquiz\bank\sq_hidden_action_column($view),
             new \mod_studentquiz\bank\sq_pin_action_column($view),
             new \mod_studentquiz\bank\sq_edit_menu_column($view),
+            new qbank_history\version_number_column($view),
             new \mod_studentquiz\bank\anonym_creator_name_column($view),
             new \mod_studentquiz\bank\tag_column($view),
             new \mod_studentquiz\bank\attempts_column($view),

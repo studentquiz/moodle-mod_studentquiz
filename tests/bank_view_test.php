@@ -170,12 +170,13 @@ class bank_view_test extends \advanced_testcase {
         $this->assertInstanceOf('mod_studentquiz\bank\sq_hidden_action_column', $requiredcolumns[8]);
         $this->assertInstanceOf('mod_studentquiz\bank\sq_pin_action_column', $requiredcolumns[9]);
         $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_menu_column', $requiredcolumns[10]);
-        $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[11]);
-        $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[12]);
-        $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[13]);
-        $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[14]);
-        $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[15]);
-        $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[16]);
+        $this->assertInstanceOf('qbank_history\version_number_column', $requiredcolumns[11]);
+        $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[12]);
+        $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[13]);
+        $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[14]);
+        $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[15]);
+        $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[16]);
+        $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[17]);
     }
 
     /**
