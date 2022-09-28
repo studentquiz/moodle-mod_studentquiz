@@ -57,8 +57,10 @@ Feature: Test pagination for StudentQuiz
     Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
     And I set the field "qperpage" to "25"
     And I press enter
+    Then I should see "v1"
     And I choose "Edit question" action for "Test question 5" in the question bank
     And I press "id_submitbutton"
+    And I should see "v2"
     Then "input[name='changepagesize']" "css_element" should not exist
     And I should see "Test question 24"
 
