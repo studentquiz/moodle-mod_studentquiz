@@ -59,6 +59,8 @@ Feature: Test pagination for StudentQuiz
     And I press enter
     Then I should see "v1"
     And I choose "Edit question" action for "Test question 5" in the question bank
+    # This scenario will fail in 4.0.x until MDL-75917 is done #
+    And I should not see "Question status"
     And I press "id_submitbutton"
     And I should see "v2"
     Then "input[name='changepagesize']" "css_element" should not exist
