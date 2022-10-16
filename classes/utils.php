@@ -744,6 +744,23 @@ style5 = html';
     }
 
     /**
+     * Make sure questions created/edited in StudentQuiz is always ready.
+     *
+     * @param int $questionid Question id.
+     * @return bool
+     */
+    public static function ensure_studentquiz_question_status_is_always_ready(int $questionid): bool {
+        global $DB;
+        $versionrecord = $DB->get_record('question_versions', ['questionid' => $questionid]);
+        // Only update question status when we have status different than 'ready'.
+        if ($versionrecord->status !== question_version_status::QUESTION_STATUS_READY) {
+            $versionrecord->status = question_version_status::QUESTION_STATUS_READY;
+            return $DB->update_record('question_versions', $versionrecord);
+        }
+        return false;
+    }
+
+    /**
      * Makes security checks for viewing. Will return an error message if the user cannot access the student quiz.
      *
      * @param object $cm - The course module object.

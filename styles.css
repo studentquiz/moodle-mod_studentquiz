@@ -836,6 +836,6 @@
     align-items: flex-start !important;
 }
 /* This css styling won't work in 4.0.x until MDL-75917 is done. */
-.cm-type-studentquiz #fitem_id_status {
+body.cm-type-studentquiz.path-question-type #fitem_id_status {
     display: none;
 }
