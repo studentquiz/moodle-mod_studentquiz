@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_studentquiz;
+use core_question\local\bank\question_version_status;
 
 /**
  * Unit tests for (some of) classes/utils.php
@@ -103,6 +104,72 @@ class utils_test extends \advanced_testcase {
         $this->expectException(\moodle_exception::class);
         utils::send_report($formdata, $recipients, $customdata, $options);
         $sink->close();
+    }
+
+    /**
+     * Test cases for the ensure_studentquiz_question_status_is_always_ready tests.
+     *
+     * @return array
+     */
+    public function ensure_studentquiz_question_status_is_always_ready_testcases(): array {
+        return [
+            'ready' => [
+                'ready', false
+            ],
+            'draft' => [
+                'draft', true
+            ],
+            'hidden' => [
+                'hidden', true
+            ],
+        ];
+    }
+
+    /**
+     * Test ensure_studentquiz_question_status_is_always_ready function
+     *
+     * @dataProvider ensure_studentquiz_question_status_is_always_ready_testcases
+     * @covers \mod_studentquiz\utils::ensure_studentquiz_question_status_is_always_ready
+     *
+     * @param string $status question status. E.g: ready, hidden, draft.
+     * @param bool $expected Expected result when we run the query.
+     */
+    public function test_ensure_studentquiz_question_status_is_always_ready(string $status, bool $expected): void {
+        global $DB;
+        $this->resetAfterTest();
+        // Setup.
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+
+        $activity = $generator->create_module('studentquiz', [
+            'course' => $course->id,
+            'anonymrank' => true,
+            'forcecommenting' => 1,
+        ]);
+        $context = \context_module::instance($activity->cmid);
+        $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
+        $question = $questiongenerator->create_question('truefalse', null,
+            ['name' => 'TF1', 'category' => $studentquiz->categoryid]);
+        // We can't change the question status due to core hardcode without change the get_question_form_data function.
+        // See question/tests/generator/lib.php line 93.
+        // So we need to update again.
+        $versionrecord = $DB->get_record('question_versions', ['questionid' => $question->id]);
+        $versionrecord->status = $status;
+        $DB->update_record('question_versions', $versionrecord);
+        $oldquestionversion = get_question_version($question->id);
+        $oldquestionversion = reset($oldquestionversion);
+
+        // Execute.
+        $result = utils::ensure_studentquiz_question_status_is_always_ready($question->id);
+        // Load question version again to get the latest status.
+        $newquestionversion = get_question_version($question->id);
+        $newquestionversion = reset($newquestionversion);
+
+        // Assert.
+        $this->assertEquals($status, $oldquestionversion->status);
+        $this->assertEquals($expected, $result);
+        $this->assertEquals(question_version_status::QUESTION_STATUS_READY, $newquestionversion->status);
     }
 
 }

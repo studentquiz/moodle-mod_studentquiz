@@ -43,6 +43,23 @@ class mod_studentquiz_observer {
             $cm = $modinfo->get_cm($event->contextinstanceid);
             if ($cm->modname == 'studentquiz') {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $event->contextinstanceid);
+                utils::ensure_studentquiz_question_status_is_always_ready($event->objectid);
+            }
+        }
+    }
+
+    /**
+     * Observer for the event question_updated - Update question for studentquiz_questions table.
+     *
+     * @param \core\event\question_updated $event
+     */
+    public static function question_updated(\core\event\question_updated $event): void {
+        if ($event->contextlevel == CONTEXT_MODULE) {
+            $modinfo = get_fast_modinfo($event->courseid);
+
+            $cm = $modinfo->get_cm($event->contextinstanceid);
+            if ($cm->modname == 'studentquiz') {
+                utils::ensure_studentquiz_question_status_is_always_ready($event->objectid);
             }
         }
     }
