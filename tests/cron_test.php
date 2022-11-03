@@ -81,13 +81,13 @@ class cron_test extends \advanced_testcase {
 
         // Prepare studentquiz.
         $this->studentquizdata = [
-                'course' => $this->course->id,
-                'anonymrank' => false,
-                'questionquantifier' => 10,
-                'approvedquantifier' => 5,
-                'ratequantifier' => 3,
-                'correctanswerquantifier' => 2,
-                'incorrectanswerquantifier' => -1,
+            'course' => $this->course->id,
+            'anonymrank' => true,
+            'questionquantifier' => 10,
+            'approvedquantifier' => 5,
+            'ratequantifier' => 3,
+            'correctanswerquantifier' => 2,
+            'incorrectanswerquantifier' => -1,
         ];
 
         $this->cmid = $generator->create_module('studentquiz', $this->studentquizdata)->cmid;
@@ -211,5 +211,44 @@ class cron_test extends \advanced_testcase {
 
         $this->assertStringContainsString('Sending digest notification for StudentQuiz', $output);
         $this->assertStringContainsString('Sent 1 messages!', $output);
+    }
+
+    /**
+     * Test mod_studentquiz_prepare_notify_data
+     *
+     * @covers ::mod_studentquiz_prepare_notify_data
+     */
+    public function test_mod_studentquiz_prepare_notify_data(): void {
+
+        // All data providers are executed the setUp method.
+        // Because of that you can't access any variables you create there from within a data provider.
+        // So we can't use provider here despite we have similar steps.
+
+        // Recipient is student.
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            $this->student1, get_admin(), $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+        $anonstudent = get_string('creator_anonym_fullname', 'studentquiz');
+        $anonmanager = get_string('manager_anonym_fullname', 'studentquiz');
+
+        $this->assertEquals(true, $notifydata->isstudent);
+        $this->assertEquals($anonstudent, $notifydata->recepientname);
+        $this->assertEquals($anonmanager, $notifydata->actorname);
+
+        // Recipient is admin.
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            get_admin(), $this->student1, $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+
+        $this->assertEquals(false, $notifydata->isstudent);
+        $this->assertEquals($anonmanager, $notifydata->recepientname);
+        $this->assertEquals($anonstudent, $notifydata->actorname);
+
+        // Recipient is teacher enrol in the course.
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            $this->teacher, get_admin(), $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+
+        $this->assertEquals(false, $notifydata->isstudent);
+        $this->assertEquals($anonmanager, $notifydata->recepientname);
+        $this->assertEquals($anonstudent, $notifydata->actorname);
+
     }
 }
