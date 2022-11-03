@@ -280,7 +280,7 @@ function mod_studentquiz_prepare_notify_data($studentquizquestion, $recepient, $
 
     // Set to anonymous student and manager if needed.
     $context = \context_course::instance($course->id);
-    $isstudent = !is_enrolled($context, $recepient->id, 'mod/studentquiz:manage');
+    $isstudent = is_enrolled($context, $recepient->id) && !has_capability('mod/studentquiz:manage', $context, $recepient->id);
     $data->isstudent = $isstudent;
     if ($studentquiz->anonymrank) {
         $anonymousstudent = get_string('creator_anonym_fullname', 'studentquiz');
