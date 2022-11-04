@@ -1435,6 +1435,19 @@ EOT;
     }
 
     /**
+     * Render warning message when we don't have permission to add question.
+     *
+     * @param string $message warning message you want to display.
+     * @return string HTML string
+     */
+    public function render_warning_message(string $message): string {
+        $output = \html_writer::start_div('mod_studenquiz_warning');
+        $output .= $message;
+        $output .= \html_writer::end_div();
+        return $output;
+    }
+
+    /**
      * Render current state names of questions.
      *
      * @param array $questions List of questions.
