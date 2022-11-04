@@ -362,7 +362,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
                 $output .= $this->renderer->render_availability_message($message, 'mod_studentquiz_submission_info');
             }
         } else {
-            $output .= get_string('nopermissionadd', 'question');
+            $output .= $this->renderer->render_warning_message(get_string('nopermissionadd', 'question'));
         }
         echo $output;
     }
