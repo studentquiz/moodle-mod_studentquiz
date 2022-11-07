@@ -36,7 +36,7 @@ class add_test extends \advanced_testcase {
     protected function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
-        $this->course = $this->getDataGenerator()->create_course();
+        $this->course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
     }
 
     /**
@@ -61,6 +61,22 @@ class add_test extends \advanced_testcase {
     }
 
     /**
+     * Test add studentquiz with expected completion time.
+     *
+     * @covers ::studentquiz_process_event
+     */
+    public function test_add_studentquiz_with_expected_completion() {
+        global $DB;
+        $futuretime = strtotime('+1 day');
+        $studentquiz = $this->create_studentquiz(0, $futuretime);
+        $studentquizvevent = $DB->get_record('event', ['courseid' => $this->course->id,
+            'modulename' => 'studentquiz', 'instance' => $studentquiz->id]);
+
+        $this->assertEquals($studentquizvevent->timestart, $futuretime);
+        $this->assertEquals($studentquizvevent->timesort, $futuretime);
+    }
+
+    /**
      * Generate 5 random periods.
      *
      * @see test_add_studentquiz_with_normal_period()
@@ -81,13 +97,17 @@ class add_test extends \advanced_testcase {
      * Create new studentquiz.
      *
      * @param int $period
+     * @param int|null $completionexpected Unix time for completion expected. E.g: 1667805330.
      * @return \stdClass
      */
-    private function create_studentquiz($period) {
+    private function create_studentquiz(int $period, ?int $completionexpected = null): \stdClass {
         $course = $this->course;
         return $this->getDataGenerator()->create_module('studentquiz', [
-                'course' => $course->id,
-                'commentdeletionperiod' => $period
+            'course' => $course->id,
+            'commentdeletionperiod' => $period,
+            'completion' => 2,
+            'completionview' => 1,
+            'completionexpected' => $completionexpected,
         ]);
     }
 }
