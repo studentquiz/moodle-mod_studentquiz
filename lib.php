@@ -135,6 +135,7 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
 
     // Add default module context question category.
     question_make_default_categories(array($context));
+    studentquiz_process_event($studentquiz);
 
     return $studentquiz->id;
 }
@@ -206,7 +207,7 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
     }
 
     $result = $DB->update_record('studentquiz', $studentquiz);
-
+    studentquiz_process_event($studentquiz);
     return $result;
 }
 
@@ -226,6 +227,10 @@ function studentquiz_delete_instance($id) {
     if (! $studentquiz = $DB->get_record('studentquiz', ['id' => $id])) {
         return false;
     }
+    // Delete event in calendar when deleting studentquiz.
+    $studentquiz->completionexpected = null;
+    studentquiz_process_event($studentquiz);
+
     $sql = "studentquizquestionid IN (SELECT id FROM {studentquiz_question} WHERE studentquizid = :studentquizid)";
     $params = ['studentquizid' => $id];
 
@@ -254,6 +259,17 @@ function studentquiz_delete_instance($id) {
     $DB->delete_records('studentquiz', array('id' => $studentquiz->id));
 
     return true;
+}
+
+/**
+ * Add student quiz event to calendar.
+ *
+ * @param object $studentquiz
+ */
+function studentquiz_process_event(object $studentquiz): void {
+    $completiontimeexpected = !empty($studentquiz->completionexpected) ? $studentquiz->completionexpected : null;
+    \core_completion\api::update_completion_date_event($studentquiz->coursemodule,
+        'studentquiz', $studentquiz->id, $completiontimeexpected);
 }
 
 /**
@@ -556,4 +572,39 @@ function mod_studentquiz_output_fragment_commenteditform($params) {
     ]);
 
     return $mform->get_html();
+}
+
+/**
+ * This function receives a calendar event and returns the action associated with it, or null if there is none.
+ *
+ * This is used by block_myoverview/timeline in order to display the event appropriately. If null is returned then the event
+ * is not displayed on the block.
+ *
+ * @param calendar_event $event
+ * @param \core_calendar\action_factory $factory
+ * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
+ * @return \core_calendar\local\event\entities\action_interface|null
+ */
+function mod_studentquiz_core_calendar_provide_event_action(calendar_event $event,
+    \core_calendar\action_factory $factory, int $userid = 0): ?\core_calendar\local\event\entities\action_interface {
+    global $USER;
+    if (!$userid) {
+        $userid = $USER->id;
+    }
+    $cm = get_fast_modinfo($event->courseid, $userid)->instances['studentquiz'][$event->instance];
+    if (!$cm->uservisible) {
+        // The module is not visible to the user for any reason.
+        return null;
+    }
+    $completion = new \completion_info($cm->get_course());
+    $completiondata = $completion->get_data($cm, false, $userid);
+    if ($completiondata->completionstate != COMPLETION_INCOMPLETE) {
+        return null;
+    }
+    return $factory->create_instance(
+        get_string('view'),
+        new \moodle_url('/mod/studentquiz/view.php', ['id' => $cm->id]),
+        1,
+        true
+    );
 }
