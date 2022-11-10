@@ -1157,9 +1157,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Clean up bad data for studentquiz_rate.
         $DB->execute("DELETE
                         FROM {studentquiz_rate}
-                       WHERE questionid IN (SELECT questionid
+                       WHERE questionid NOT IN (SELECT questionid
                                               FROM {studentquiz_question}
-                                             WHERE studentquizid = -1)
+                                             WHERE studentquizid <> -1)
                     ");
 
         $transaction->allow_commit();
@@ -1173,9 +1173,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Clean up bad data for studentquiz_progress.
         $DB->execute("DELETE
                         FROM {studentquiz_progress}
-                       WHERE questionid IN (SELECT questionid
+                       WHERE questionid NOT IN (SELECT questionid
                                               FROM {studentquiz_question}
-                                             WHERE studentquizid = -1)
+                                             WHERE studentquizid <> -1)
                     ");
 
         $transaction->allow_commit();
@@ -1189,9 +1189,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Clean up bad data for studentquiz_comment.
         $DB->execute("DELETE
                         FROM {studentquiz_comment}
-                       WHERE questionid IN (SELECT questionid
+                       WHERE questionid NOT IN (SELECT questionid
                                               FROM {studentquiz_question}
-                                             WHERE studentquizid = -1)
+                                             WHERE studentquizid <> -1)
                     ");
 
         $transaction->allow_commit();
@@ -1221,9 +1221,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Clean up bad data for studentquiz_state_history.
         $DB->execute("DELETE
                         FROM {studentquiz_state_history}
-                       WHERE questionid IN (SELECT questionid
+                       WHERE questionid NOT IN (SELECT questionid
                                               FROM {studentquiz_question}
-                                             WHERE studentquizid = -1)
+                                             WHERE studentquizid <> -1)
                     ");
 
         $transaction->allow_commit();
