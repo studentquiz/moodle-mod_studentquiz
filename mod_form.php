@@ -284,7 +284,8 @@ class mod_studentquiz_mod_form extends moodleform_mod {
      * @return array
      */
     public function validation($data, $files) {
-        $errors = array();
+        $errors = parent::validation($data, $files);
+
         if (!isset($data['allowedqtypes'])) {
             $errors['allowedqtypes'] = get_string('needtoallowatleastoneqtype', 'studentquiz');
         }
