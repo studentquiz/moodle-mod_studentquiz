@@ -3,7 +3,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/studentquiz/moodle-mod_studentquiz?sort=semver&color=orange)](https://github.com/studentquiz/moodle-mod_studentquiz/releases)
 [![Build Status](https://github.com/studentquiz/moodle-mod_studentquiz/workflows/Moodle%20Plugin%20CI/badge.svg?branch=master)](https://github.com/studentquiz/moodle-mod_studentquiz/actions?query=workflow%3A%22Moodle+Plugin+CI%22+branch%3Amaster)
 [![PHP Support](https://img.shields.io/badge/php-7.2_--_8.0-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
-[![Moodle Support](https://img.shields.io/badge/Moodle-%3E%3D%203.9 -- 3.11-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
+[![Moodle Support](https://img.shields.io/badge/Moodle-3.9 -- 3.11-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
 [![License GPL-3.0](https://img.shields.io/github/license/studentquiz/moodle-mod_studentquiz?color=lightgrey)](https://github.com/studentquiz/moodle-mod_studentquiz/blob/master/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/studentquiz/moodle-mod_studentquiz)](https://github.com/studentquiz/moodle-mod_studentquiz/graphs/contributors)
 
@@ -40,7 +40,7 @@ For changes and instructions please read the [Release Notes](https://github.com/
 
 ## Documentation
 
-You can find manuals for each role in the [manuals website](https://docs.moodle.org/38/en/StudentQuiz_module).
+You can find manuals for each role in the [manuals website](https://docs.moodle.org/40/en/StudentQuiz_module).
 
 ## Compatibility
 
