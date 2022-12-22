@@ -15,20 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines the version and other meta-info about the plugin
+ * StudentQuiz activity version information.
  *
- * Setting the $plugin->version to 0 prevents the plugin from being installed.
- * See https://docs.moodle.org/dev/version.php for more info.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch) <your@email.address>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_studentquiz
+ * @copyright 2017 HSR (http://www.hsr.ch) <your@email.address>
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component    = 'mod_studentquiz';
-$plugin->version      = 2022080343;
-$plugin->release      = 'v5.0.0';
-$plugin->requires     = 2022020200; // Version MOODLE_4.0.
-$plugin->cron         = 0;
+$plugin->version   = 2022122200;
+$plugin->requires  = 2022020200; // Version MOODLE_4.0.
+$plugin->component = 'mod_studentquiz';
+$plugin->maturity  = MATURITY_STABLE;
+$plugin->release   = 'v5.1.0';
