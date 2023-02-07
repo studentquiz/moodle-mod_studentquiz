@@ -223,6 +223,7 @@ Feature: Question states and visibility
     And I should see "Unpin question" action for "TF 01" in the question bank
     And I should not see "Unpin question" action for "TF 02" in the question bank
     And "Pinned" "icon" should exist in the "TF 01" "table_row"
+    And "Pinned" "icon" should exist in the "#categoryquestions tr.r0" "css_element"
     And "Pinned" "icon" should not exist in the "TF 02" "table_row"
     And I log out
     And I log in as "student1"
@@ -232,6 +233,7 @@ Feature: Question states and visibility
     And I should not see "Pin question" action for "TF 01" in the question bank
     And I should not see "Pin question" action for "TF 02" in the question bank
     And "Pinned" "icon" should exist in the "TF 01" "table_row"
+    And "Pinned" "icon" should exist in the "#categoryquestions tr.r0" "css_element"
     And "Pinned" "icon" should not exist in the "TF 02" "table_row"
 
   @javascript @_switch_window
