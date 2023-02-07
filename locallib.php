@@ -866,24 +866,6 @@ function mod_studentquiz_check_availability($openform, $closefrom, $type) {
 }
 
 /**
- * Saves question rating.
- *
- * @param stdClass $data requires userid, questionid, rate
- */
-function mod_studentquiz_save_rate($data) {
-    global $DB;
-
-    $row = $DB->get_record('studentquiz_rate', ['userid' => $data->userid,
-        'studentquizquestionid' => $data->studentquizquestionid]);
-    if ($row === false) {
-        $DB->insert_record('studentquiz_rate', $data);
-    } else {
-        $data->id = $row->id;
-        $DB->update_record('studentquiz_rate', $data);
-    }
-}
-
-/**
  * Compare and create new record for studentquiz_questions table if needed.
  *
  * @param object $studentquiz StudentQuiz object

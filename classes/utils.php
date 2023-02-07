@@ -779,4 +779,22 @@ style5 = html';
             exit();
         }
     }
+
+    /**
+     * Saves question rating.
+     *
+     * @param \stdClass $data requires userid, studentquizquestionid, rate
+     */
+    public static function save_rate(\stdClass $data): void {
+        global $DB;
+
+        $row = $DB->get_record('studentquiz_rate', ['userid' => $data->userid,
+            'studentquizquestionid' => $data->studentquizquestionid]);
+        if ($row === false) {
+            $DB->insert_record('studentquiz_rate', $data);
+        } else {
+            $data->id = $row->id;
+            $DB->update_record('studentquiz_rate', $data);
+        }
+    }
 }

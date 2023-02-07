@@ -67,7 +67,7 @@ switch($save) {
             throw new moodle_exception("invalidrate");
         }
 
-        mod_studentquiz_save_rate($data);
+        mod_studentquiz\utils::save_rate($data);
         break;
 }
 
