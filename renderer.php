@@ -88,7 +88,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $courseurl = new moodle_url('/course/view.php', ['id' => $this->page->course->id]);
 
         $backtocourse = new single_button($courseurl, get_string('back_to_course_button', 'studentquiz'),
-            'get', true);
+            'get', 'primary');
         echo html_writer::div($this->render($backtocourse), 'studentquizerrormessage');
         echo $this->output->footer();
     }
@@ -1508,11 +1508,11 @@ EOT;
     public function render_change_state_dialog($message, $continue, $cancel) {
         if ($continue instanceof single_button) {
             // Ok.
-            $continue->primary = true;
+            $continue->type = 'primary';
         } else if (is_string($continue)) {
-            $continue = new single_button(new moodle_url($continue), get_string('continue'), 'get', true);
+            $continue = new single_button(new moodle_url($continue), get_string('continue'), 'get', 'primary');
         } else if ($continue instanceof moodle_url) {
-            $continue = new single_button($continue, get_string('continue'), 'get', true);
+            $continue = new single_button($continue, get_string('continue'), 'get', 'primary');
         } else {
             throw new coding_exception('The continue param to $OUTPUT->confirm() must be either a URL (string/moodle_url)' .
                 'or a single_button instance.');

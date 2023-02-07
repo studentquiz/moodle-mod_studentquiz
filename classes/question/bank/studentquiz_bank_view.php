@@ -224,7 +224,10 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
      * Override base default sort
      */
     protected function default_sort(): array {
-        return array();
+        return [
+            'mod_studentquiz\bank\anonym_creator_name_column-timecreated' => -1,
+            'mod_studentquiz\bank\question_name_column' => 1,
+        ];
     }
 
     /**
@@ -288,15 +291,6 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
             $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
         }
 
-        // Default sorting.
-        if (empty($sorts)) {
-            $sorts[] = 'q.timecreated DESC,q.id ASC';
-        }
-
-        if (isset($CFG->questionbankcolumns)) {
-            array_unshift($sorts, 'sqq.pinned DESC');
-        }
-
         // Build the where clause and load params from search conditions.
         foreach ($this->searchconditions as $searchcondition) {
             if (!empty($searchcondition->where())) {
@@ -306,6 +300,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
                 $params = array_merge($params, $searchcondition->params());
             }
         }
+        array_unshift($sorts, 'sqq.pinned DESC');
 
         // Build the complete SQL query.
         $sql = ' FROM {question} q ' . implode(' ', $joins);
@@ -350,7 +345,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
             $qtypecontainer = \html_writer::div(
                 \qbank_editquestion\editquestion_helper::print_choose_qtype_to_add_form(array(), $allowedtypes, true
             ), '', array('id' => 'qtypechoicecontainer'));
-            $questionsubmissionbutton = new \single_button($url, $caption, 'get', true);
+            $questionsubmissionbutton = new \single_button($url, $caption, 'get', 'primary');
 
             list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
                     $this->studentquiz->closesubmissionfrom, 'submission');
