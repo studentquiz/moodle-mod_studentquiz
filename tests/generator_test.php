@@ -84,7 +84,8 @@ class generator_test extends \advanced_testcase {
 
     /**
      * Test create rate
-     * @coversNothing
+     *
+     * @covers \mod_studentquiz\utils::save_rate
      */
     public function test_create_rate() {
         global $DB;
@@ -98,9 +99,7 @@ class generator_test extends \advanced_testcase {
         $raterecord->rate = 5;
         $raterecord->studentquizquestionid = $this->studentquizquestion->id;
         $raterecord->userid = $user->id;
-
-        $rec = $this->studentquizgenerator->create_comment($raterecord);
-        $this->assertEquals($count + 1, $DB->count_records('studentquiz_comment'));
-        $this->assertEquals(5, $rec->rate);
+        \mod_studentquiz\utils::save_rate($raterecord);
+        $this->assertEquals($count + 1, $DB->count_records('studentquiz_rate'));
     }
 }

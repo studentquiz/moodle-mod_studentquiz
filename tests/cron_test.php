@@ -17,6 +17,7 @@
 namespace mod_studentquiz;
 
 use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\local\studentquiz_helper;
 
 /**
  * Cron test.
@@ -104,6 +105,18 @@ class cron_test extends \advanced_testcase {
         $this->questions[1] = \question_bank::load_question($this->questions[1]->id);
         $this->studentquizquestions[0] = studentquiz_question::get_studentquiz_question_from_question($this->questions[0]);
         $this->studentquizquestions[1] = studentquiz_question::get_studentquiz_question_from_question($this->questions[1]);
+        // Prepare comment.
+        $commentrecord = new \stdClass();
+        $commentrecord->studentquizquestionid = $this->studentquizquestions[0]->id;
+        $commentrecord->userid = $this->student1->id;
+        $this->getDataGenerator()->get_plugin_generator('mod_studentquiz')->create_comment($commentrecord);
+
+        // Prepare rate.
+        $raterecord = new \stdClass();
+        $raterecord->rate = 5;
+        $raterecord->studentquizquestionid = $this->studentquizquestions[0]->id;
+        $raterecord->userid = $this->student1->id;
+        \mod_studentquiz\utils::save_rate($raterecord);
     }
 
     /**
@@ -250,5 +263,39 @@ class cron_test extends \advanced_testcase {
         $this->assertEquals($anonmanager, $notifydata->recepientname);
         $this->assertEquals($anonstudent, $notifydata->actorname);
 
+    }
+
+    /**
+     * Test delete_orphaned_questions
+     *
+     * @covers \mod_studentquiz\task\delete_orphaned_questions
+     */
+    public function test_delete_orphaned_questions(): void {
+        global $DB;
+        set_config('deleteorphanedquestions', true, 'studentquiz');
+        set_config('deleteorphanedtimelimit', 30, 'studentquiz');
+
+        // Change the question to disapprove.
+        $this->studentquizquestions[0]->change_state_visibility('state', studentquiz_helper::STATE_DISAPPROVED);
+
+        // Make sure modified time lower than time limit.
+        $updatedquestion = new \stdClass();
+        $updatedquestion->id = $this->questions[0]->id;
+        $updatedquestion->timemodified = $this->questions[0]->timemodified - 31;
+        $DB->update_record('question', $updatedquestion);
+
+        // Execute the cron.
+        cron_setup_user();
+        $cron = new task\delete_orphaned_questions();
+        $cron->set_component('mod_studentquiz');
+        $cron->execute();
+
+        $this->assertEquals(0, $DB->count_records('question', ['id' => $this->questions[0]->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_rate',
+            ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_comment',
+            ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_question',
+            ['id' => $this->studentquizquestions[0]->id]));
     }
 }
