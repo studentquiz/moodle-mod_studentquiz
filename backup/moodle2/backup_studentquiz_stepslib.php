@@ -40,7 +40,9 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                 'questionquantifier', 'approvedquantifier', 'ratequantifier',
                 'correctanswerquantifier', 'incorrectanswerquantifier',
                 'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting',
-                'commentdeletionperiod', 'reportingemail', 'digesttype', 'digestfirstday', 'privatecommenting'
+                'commentdeletionperiod', 'reportingemail', 'digesttype', 'digestfirstday', 'privatecommenting',
+                'opensubmissionfrom', 'closesubmissionfrom', 'openansweringfrom', 'closeansweringfrom',
+                'publishnewquestion'
         ]);
 
         // StudentQuiz Attempt -> User, Question usage Id.
