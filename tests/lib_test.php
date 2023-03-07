@@ -202,7 +202,7 @@ class lib_test extends \advanced_testcase {
     private function create_action_event($courseid, $instanceid, $eventtype): \calendar_event {
         $event = new \stdClass();
         $event->name = 'Calendar event';
-        $event->modulename  = 'studentquiz';
+        $event->modulename = 'studentquiz';
         $event->courseid = $courseid;
         $event->instance = $instanceid;
         $event->type = CALENDAR_EVENT_TYPE_ACTION;

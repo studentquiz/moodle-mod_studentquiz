@@ -1843,7 +1843,7 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
     public function state_history_table($studentquizquestionid): string {
 
         $table = new html_table();
-        $table->head  = [
+        $table->head = [
             get_string('time'),
             get_string('action', 'question'),
         ];

@@ -236,7 +236,7 @@ $statechangehtml = $output->render_state_choice($studentquizquestion);
 $navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $isanswered);
 
 // Change state will always first thing below navigation.
-$orders  = [
+$orders = [
     $navigationhtml,
     $statechangehtml
 ];

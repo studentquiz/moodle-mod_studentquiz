@@ -329,7 +329,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
      */
     public function __construct($name, $label, $advanced, $field, $disableelements, $operator, $value, $helptext = '') {
         parent::__construct($name, $label, $advanced, $field, $disableelements);
-        $this->field   = $field;
+        $this->field = $field;
         $this->operator = $operator;
         $this->value = $value;
         $this->helptext = $helptext;
@@ -413,8 +413,8 @@ class user_filter_number extends studentquiz_user_filter_text {
         $name1 = 'ex_text_vo'.$counter++;
         $name2 = 'ex_text_vo'.$counter++;
         $operator = $data['operator'];
-        $value    = $data['value'];
-        $field    = $this->_name;
+        $value = $data['value'];
+        $field = $this->_name;
 
         $params = array();
 
