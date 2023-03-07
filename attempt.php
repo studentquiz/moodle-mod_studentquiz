@@ -227,6 +227,7 @@ $html .= html_writer::start_tag('form', array('method' => 'post', 'action' => $a
     'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 
 $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field'));
+$html .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 
 // Output the question.
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
