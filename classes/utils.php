@@ -64,7 +64,7 @@ style5 = html';
     const USER_PREFERENCE_QUESTION_ACTIVE_TAB = 'mod_studentquiz_question_active_tab';
 
     /** @var int Hidden question. */
-    const HIDDEN  = 1;
+    const HIDDEN = 1;
 
     /** @var int default StudentQuiz page size. */
     const DEFAULT_QUESTIONS_PER_PAGE = 20;
