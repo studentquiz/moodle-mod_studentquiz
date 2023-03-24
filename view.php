@@ -103,9 +103,6 @@ if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('del
             get_string('studentquiz:changestate', 'studentquiz')), null, \core\output\notification::NOTIFY_WARNING);
     }
 }
-if (optional_param('approveselected', false, PARAM_BOOL)) {
-    redirect($baseurl);
-}
 
 // Since this page has 2 forms interacting with each other, all params must be passed in GET, thus
 // $PAGE->url will be as it has recieved the request.

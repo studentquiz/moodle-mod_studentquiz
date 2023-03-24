@@ -62,8 +62,7 @@ $PAGE->set_url($actionurl);
 utils::require_access_to_a_relevant_group($module, $context, get_string('studentquiz:preview', 'studentquiz'));
 try {
     $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
-    $studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid,
-            null, $studentquiz, $module, $context);
+    $studentquizquestion = new studentquiz_question($studentquizquestionid, null, $studentquiz, $module, $context);
 } catch (moodle_exception $e) {
     throw new moodle_exception("invalidconfirmdata', 'error");
 }
