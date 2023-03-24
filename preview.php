@@ -101,6 +101,7 @@ if ($question) {
 
         // Process submitted data.
         if (data_submitted()) {
+            require_sesskey();
             $qa = $quba->get_question_attempt($slot);
             $sequencecheck = $qa->get_submitted_var($qa->get_control_field_name('sequencecheck'), PARAM_INT);
             if ($sequencecheck == $qa->get_sequence_check_count()) {

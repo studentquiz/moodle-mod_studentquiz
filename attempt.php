@@ -94,7 +94,7 @@ $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
 if (data_submitted()) {
-
+    require_sesskey();
     // Once data has been submitted, process actions to save the current question answer state. If the question can be
     // finished during the attempt (immediatefeedback), then do so. If it can't (adaptive), finish the question once
     // navigated further in the quiz. After the actions have been processed, proceed the requested navigation.
