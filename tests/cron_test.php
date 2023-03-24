@@ -142,7 +142,7 @@ class cron_test extends \advanced_testcase {
 
         // Execute the cron.
         ob_start();
-        cron_setup_user();
+        $this->cron_setup_user();
         $cron = new task\send_no_digest_notification_task();
         $cron->set_custom_data($customdata);
         $cron->set_component('mod_studentquiz');
@@ -170,7 +170,7 @@ class cron_test extends \advanced_testcase {
 
         // Execute the cron.
         ob_start();
-        cron_setup_user();
+        $this->cron_setup_user();
         $cron = new task\send_no_digest_notification_task();
         $cron->set_custom_data($customdata);
         $cron->set_component('mod_studentquiz');
@@ -215,7 +215,7 @@ class cron_test extends \advanced_testcase {
 
         // Execute the cron.
         ob_start();
-        cron_setup_user();
+        $this->cron_setup_user();
         $cron = new task\send_digest_notification_task();
         $cron->set_component('mod_studentquiz');
         $cron->execute();
@@ -285,7 +285,7 @@ class cron_test extends \advanced_testcase {
         $DB->update_record('question', $updatedquestion);
 
         // Execute the cron.
-        cron_setup_user();
+        $this->cron_setup_user();
         $cron = new task\delete_orphaned_questions();
         $cron->set_component('mod_studentquiz');
         $cron->execute();
@@ -297,5 +297,17 @@ class cron_test extends \advanced_testcase {
             ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
         $this->assertEquals(0, $DB->count_records('studentquiz_question',
             ['id' => $this->studentquizquestions[0]->id]));
+    }
+
+    /**
+     * Run the correct cron setup .
+     *
+     */
+    private function cron_setup_user(): void {
+        if (class_exists('\core\cron')) {
+            \core\cron::setup_user();
+        } else {
+            cron_setup_user();
+        }
     }
 }
