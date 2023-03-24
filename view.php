@@ -62,6 +62,7 @@ $baseurl = $view->get_questionbank()->base_url();
 // using GET params, we can't use that.
 if (!empty($_GET)) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
+        require_sesskey();
         if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($_GET))) {
             if ($attempt = mod_studentquiz_generate_attempt($ids, $studentquiz, $USER->id)) {
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
