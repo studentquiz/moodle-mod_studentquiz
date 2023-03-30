@@ -884,7 +884,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2021102501, 'studentquiz');
     }
 
-    if ($oldversion < 2021102502) {
+    if ($oldversion < 2021102502.01) {
         // Define table studentquiz_state_history to be created.
         $table = new xmldb_table('studentquiz_state_history');
 
@@ -902,39 +902,42 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Conditionally launch create table for studentquiz_state_history.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
-
-            $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
-                      FROM {studentquiz_question} sqq
-                      JOIN {question} q ON q.id = sqq.questionid";
-            $sqlcount = "SELECT COUNT(DISTINCT sqq.questionid)
-                           FROM {studentquiz_question} sqq
-                           JOIN {question} q ON q.id = sqq.questionid";
-
-            $total = $DB->count_records_sql($sqlcount);
-
-            if ($total > 0) {
-                $progressbar = new progress_bar('updatestatequestions', 500, true);
-                $sqquestions = $DB->get_recordset_sql($sql);
-                $transaction = $DB->start_delegated_transaction();
-                $i = 1;
-                foreach ($sqquestions as $sqquestion) {
-                    // Create action new question by onwer.
-                    utils::question_save_action($sqquestion->questionid, $sqquestion->createdby,
-                        studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
-
-                    if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                        utils::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
-                    }
-                    $progressbar->update($i, $total, "Update the state for question - {$i}/{$total}.");
-                    $i++;
-                }
-                $transaction->allow_commit();
-                $sqquestions->close();
-            }
         }
+        upgrade_mod_savepoint(true, 2021102502.01, 'studentquiz');
+    }
 
+    if ($oldversion < 2021102502.02) {
+
+        $sql = "SELECT sqq.questionid, sqq.state, q.createdby, q.timecreated
+                  FROM {studentquiz_question} sqq
+                  JOIN {question} q ON q.id = sqq.questionid";
+        $sqlcount = "SELECT COUNT(DISTINCT sqq.questionid)
+                       FROM {studentquiz_question} sqq
+                       JOIN {question} q ON q.id = sqq.questionid";
+
+        $total = $DB->count_records_sql($sqlcount);
+
+        if ($total > 0) {
+            $progressbar = new progress_bar('updatestatequestions', 500, true);
+            $sqquestions = $DB->get_recordset_sql($sql);
+            $transaction = $DB->start_delegated_transaction();
+            $i = 1;
+            foreach ($sqquestions as $sqquestion) {
+                // Create action new question by onwer.
+                utils::question_save_action($sqquestion->questionid, $sqquestion->createdby,
+                    studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+
+                if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
+                    utils::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
+                }
+                $progressbar->update($i, $total, "Update the state for question - {$i}/{$total}.");
+                $i++;
+            }
+            $transaction->allow_commit();
+            $sqquestions->close();
+        }
         // Studentquiz savepoint reached.
-        upgrade_mod_savepoint(true, 2021102502, 'studentquiz');
+        upgrade_mod_savepoint(true, 2021102502.02, 'studentquiz');
     }
 
     if ($oldversion < 2021120200) {
