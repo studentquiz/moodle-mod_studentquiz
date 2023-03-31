@@ -923,12 +923,19 @@ function xmldb_studentquiz_upgrade($oldversion) {
             $transaction = $DB->start_delegated_transaction();
             $i = 1;
             foreach ($sqquestions as $sqquestion) {
-                // Create action new question by onwer.
-                utils::question_save_action($sqquestion->questionid, $sqquestion->createdby,
-                    studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+                // Create action new question by owner.
+                $data = new \stdClass();
+                $data->questionid = $sqquestion->questionid;
+                $data->userid = $sqquestion->createdby;
+                $data->state = studentquiz_helper::STATE_NEW;
+                $data->timecreated = $sqquestion->timecreated;
+
+                $DB->insert_record('studentquiz_state_history', $data);
 
                 if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
-                    utils::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
+                    $data->userid = get_admin()->id;
+                    $data->timecreated = time();
+                    $DB->insert_record('studentquiz_state_history', $data);
                 }
                 $progressbar->update($i, $total, "Update the state for question - {$i}/{$total}.");
                 $i++;
