@@ -357,7 +357,8 @@ function mod_studentquiz_notify_reviewable_question($studentquizquestion, stdCla
     global $USER;
     $context = \context_course::instance($course->id);
     $actor = \core_user::get_user($USER->id);
-    $recipients = get_enrolled_users($context, 'mod/studentquiz:emailnotifyreviewablequestion', 0, 'u.*', null, 0, 0, true);
+    $recipients = get_enrolled_users($context, 'mod/studentquiz:emailnotifyreviewablequestion',
+        $studentquizquestion->get_groupid(), 'u.*', null, 0, 0, true);
     foreach ($recipients as $recipient) {
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
         mod_studentquiz_send_notification(studentquiz_helper::$statename[studentquiz_helper::STATE_REVIEWABLE],

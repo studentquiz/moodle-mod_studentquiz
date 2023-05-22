@@ -126,6 +126,15 @@ class studentquiz_question {
     }
 
     /**
+     * Get groupid of studentuquiz question
+     *
+     * @return int groupid
+     */
+    public function get_groupid(): int {
+        return $this->data->groupid;
+    }
+
+    /**
      * Get studentquiz question state.
      *
      * @return int Studentquiz question Id
