@@ -22,7 +22,7 @@ use mod_studentquiz\utils;
 use core_question\local\bank\question_version_status;
 
 /**
- * Container class for studentquiz question.
+ * Container class for StudentQuiz question.
  *
  * @package mod_studentquiz
  * @copyright 2022 The Open University
@@ -30,7 +30,7 @@ use core_question\local\bank\question_version_status;
  */
 class studentquiz_question {
 
-    /** @var stdClass $data - Data of studentquiz question. */
+    /** @var stdClass $data - Data of StudentQuiz question. */
     private $data;
 
     /** @var question_definition $question - Question class. */
@@ -42,7 +42,7 @@ class studentquiz_question {
     /** @var \context_module  $context - Context. */
     private $context;
 
-    /** @var stdClass - Studentquiz data. */
+    /** @var stdClass - StudentQuiz data. */
     private $studentquiz;
 
     /**
@@ -78,7 +78,7 @@ class studentquiz_question {
     }
 
     /**
-     * Get studentquiz.
+     * Get StudentQuiz.
      *
      * @return stdClass
      */
@@ -117,27 +117,27 @@ class studentquiz_question {
     }
 
     /**
-     * Get studentquiz question Id.
+     * Get StudentQuiz question Id.
      *
-     * @return int Studentquiz question Id
+     * @return int StudentQuiz question Id
      */
     public function get_id(): int {
         return $this->data->id;
     }
 
     /**
-     * Get groupid of studentuquiz question
+     * Get the id of the group that was selected when this question was attempted, if any.
      *
-     * @return int groupid
+     * @return int groupid, or 0.
      */
     public function get_groupid(): int {
         return $this->data->groupid;
     }
 
     /**
-     * Get studentquiz question state.
+     * Get StudentQuiz question state.
      *
-     * @return int Studentquiz question Id
+     * @return int StudentQuiz question Id
      */
     public function get_state(): int {
         return $this->data->state;
@@ -153,14 +153,14 @@ class studentquiz_question {
     }
 
     /**
-     * Get studentquiz question object from questionid.
+     * Get StudentQuiz question object from questionid.
      * We should get the studentquiz_question.id first then get the object because the question may not the latest version.
      *
      * @param question_definition $question Question definition object.
      * @param stdClass|null $studentquiz
      * @param mixed $cm
      * @param mixed $context
-     * @return studentquiz_question Studentquiz question object.
+     * @return studentquiz_question StudentQuiz question object.
      */
     public static function get_studentquiz_question_from_question(question_definition $question, stdClass $studentquiz = null,
         $cm = null, $context = null): studentquiz_question {
@@ -203,8 +203,7 @@ class studentquiz_question {
     }
 
     /**
-     * Get studentquiz question data.
-     *
+     * Load the StudentQuiz question data into this class instance.
      */
     private function load_studentquiz_question(): void {
         global $DB;
