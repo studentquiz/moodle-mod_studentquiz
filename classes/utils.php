@@ -721,12 +721,12 @@ style5 = html';
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready
+                                       WHERE questionbankentryid = qbe.id AND status <> :status
                                   )
               JOIN {question} q ON q.id = qv.questionid
              WHERE q.id $conditionquestionids";
 
-        $params['ready'] = question_version_status::QUESTION_STATUS_READY;
+        $params['status'] = question_version_status::QUESTION_STATUS_HIDDEN;
 
         return $DB->get_records_sql($sql, $params);
     }
@@ -744,18 +744,25 @@ style5 = html';
     }
 
     /**
-     * Make sure questions created/edited in StudentQuiz is always ready.
+     * Update the question version status accordingly base on student quiz question state.
      *
      * @param int $questionid Question id.
      * @return bool
      */
-    public static function ensure_studentquiz_question_status_is_always_ready(int $questionid): bool {
+    public static function ensure_question_version_status_is_correct(int $questionid): bool {
         global $DB;
+        $question = \question_bank::load_question($questionid);
+        $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
         $versionrecord = $DB->get_record('question_versions', ['questionid' => $questionid]);
+        // Ensure question new version is always set to draft if this student quiz question is disapprove.
+        if ($sqq->get_state() === studentquiz_helper::STATE_DISAPPROVED) {
+            return $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_DRAFT,
+                ['id' => $versionrecord->id]);
+        }
         // Only update question status when we have status different than 'ready'.
         if ($versionrecord->status !== question_version_status::QUESTION_STATUS_READY) {
-            $versionrecord->status = question_version_status::QUESTION_STATUS_READY;
-            return $DB->update_record('question_versions', $versionrecord);
+            return $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_READY,
+                ['id' => $versionrecord->id]);
         }
         return false;
     }

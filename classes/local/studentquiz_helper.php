@@ -67,10 +67,16 @@ class studentquiz_helper {
     const STATE_REVIEWABLE = 7;
 
     /**
-     * Statename offers string representation for state codes. Probably only use for translation hints.
+     * State name offers string representation for state codes. Probably only use for translation hints.
+     * State code is mapped for question status in question_version_status.
+     * [
+     *  question_version_status::QUESTION_STATUS_DRAFT => STATE_DISAPPROVED
+     *  question_version_status::QUESTION_STATUS_HIDDEN => STATE_DELETE
+     *  question_version_status::QUESTION_STATUS_READY => STATE_APPROVED, STATE_NEW, STATE_CHANGED, STATE_REVIEWABLE, STATE_HIDE
+     * ]
      * @var array constant to text
      */
-    public static $statename = array(
+    public static $statename = [
         self::STATE_DISAPPROVED => 'disapproved',
         self::STATE_APPROVED => 'approved',
         self::STATE_NEW => 'new',
@@ -78,7 +84,7 @@ class studentquiz_helper {
         self::STATE_REVIEWABLE => 'reviewable',
         self::STATE_HIDE => 'hidden',
         self::STATE_DELETE => 'deleted',
-    );
+    ];
 
     /** Get list description of state name.
      * That is the past participle in singular.

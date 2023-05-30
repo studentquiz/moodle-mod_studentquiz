@@ -136,7 +136,7 @@ class statistics_calculator {
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready1
+                                       WHERE questionbankentryid = qbe.id AND status <> :status1
                                   )
                       JOIN {question} q ON qv.questionid = q.id
                      WHERE sqq.hidden = 0
@@ -167,7 +167,7 @@ class statistics_calculator {
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready2
+                                       WHERE questionbankentryid = qbe.id AND status <> :status2
                                   )
                       JOIN {question} q ON qv.questionid = q.id
                      WHERE q.parent = 0
@@ -201,7 +201,7 @@ class statistics_calculator {
                                JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready3
+                                       WHERE questionbankentryid = qbe.id AND status <> :status3
                                   )
                                JOIN {question} q ON qv.questionid = q.id
                           LEFT JOIN {studentquiz_rate} sqv ON sqq.id = sqv.studentquizquestionid
@@ -235,7 +235,7 @@ class statistics_calculator {
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready4
+                                       WHERE questionbankentryid = qbe.id AND status <> :status4
                                   )
                       JOIN {question} q ON qv.questionid = q.id
                      WHERE sq.coursemodule = :cmid2
@@ -263,7 +263,7 @@ class statistics_calculator {
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready5
+                                       WHERE questionbankentryid = qbe.id AND status <> :status5
                                   )
                       JOIN {question} q ON qv.questionid = q.id
                      WHERE sq.coursemodule = :cmid1
@@ -311,11 +311,11 @@ class statistics_calculator {
             'cmid5' => $cmid,
             'cmid6' => $cmid,
             'cmid7' => $cmid,
-            'ready1' => question_version_status::QUESTION_STATUS_READY,
-            'ready2' => question_version_status::QUESTION_STATUS_READY,
-            'ready3' => question_version_status::QUESTION_STATUS_READY,
-            'ready4' => question_version_status::QUESTION_STATUS_READY,
-            'ready5' => question_version_status::QUESTION_STATUS_READY,
+            'status1' => question_version_status::QUESTION_STATUS_HIDDEN,
+            'status2' => question_version_status::QUESTION_STATUS_HIDDEN,
+            'status3' => question_version_status::QUESTION_STATUS_HIDDEN,
+            'status4' => question_version_status::QUESTION_STATUS_HIDDEN,
+            'status5' => question_version_status::QUESTION_STATUS_HIDDEN,
         ];
         if ($quantifiers) {
             $params['questionquantifier'] = $quantifiers->question;
@@ -437,7 +437,7 @@ class statistics_calculator {
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready1
+                                       WHERE questionbankentryid = qbe.id AND status <> :status1
                                   )
               -- Only enrolled users.
               JOIN {question} q ON q.id = qv.questionid
@@ -452,7 +452,7 @@ class statistics_calculator {
                        JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id AND status = :ready2
+                                       WHERE questionbankentryid = qbe.id AND status <> :status2
                                   )
                        JOIN {question} q ON q.id = qv.questionid
                   LEFT JOIN {studentquiz_rate} sqr ON sqr.studentquizquestionid = sqq.id
@@ -467,8 +467,8 @@ class statistics_calculator {
         $params = [
             'cmid1' => $cmid,
             'cmid2' => $cmid,
-            'ready1' => question_version_status::QUESTION_STATUS_READY,
-            'ready2' => question_version_status::QUESTION_STATUS_READY,
+            'status1' => question_version_status::QUESTION_STATUS_HIDDEN,
+            'status2' => question_version_status::QUESTION_STATUS_HIDDEN,
         ];
 
         if ($groupid) {

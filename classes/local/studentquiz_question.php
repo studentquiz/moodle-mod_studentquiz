@@ -261,6 +261,14 @@ class studentquiz_question {
             $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_HIDDEN,
                 ['questionid' => $this->get_question()->id]);
         } else {
+            // Always set version status to draft/ready when we disapprove/approve a question.
+            if ($type === 'state' && $value === studentquiz_helper::STATE_DISAPPROVED) {
+                $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_DRAFT,
+                    ['questionid' => $this->get_question()->id]);
+            } else if ($type === 'state' && $value === studentquiz_helper::STATE_APPROVED) {
+                $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_READY,
+                    ['questionid' => $this->get_question()->id]);
+            }
             $DB->set_field('studentquiz_question', $type, $value, ['id' => $this->get_id()]);
         }
     }
