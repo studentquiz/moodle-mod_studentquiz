@@ -263,11 +263,12 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
                 'q.timecreated',
                 'q.createdby',
         ];
-        $stateready = question_version_status::QUESTION_STATUS_READY;
+        // Only show ready and draft question.
         $tests = [
                 'q.parent = 0',
-                "qv.status = '$stateready'",
+                "qv.status <> :status",
         ];
+        $params['status'] = question_version_status::QUESTION_STATUS_HIDDEN;
         foreach ($this->requiredcolumns as $column) {
             $extrajoins = $column->get_extra_joins();
             foreach ($extrajoins as $prefix => $join) {

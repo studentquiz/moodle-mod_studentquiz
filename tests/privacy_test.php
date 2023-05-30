@@ -170,10 +170,10 @@ class privacy_test extends provider_testcase {
 
         // Create approvals.
         $this->approvals = [
-                self::create_question_approval($this->studentquizquestions[0]->get_id()),
-                self::create_question_approval($this->studentquizquestions[1]->get_id()),
-                self::create_question_approval($this->studentquizquestions[2]->get_id()),
-                self::create_question_approval($this->studentquizquestions[3]->get_id()),
+                self::create_question_approval($this->studentquizquestions[0]),
+                self::create_question_approval($this->studentquizquestions[1]),
+                self::create_question_approval($this->studentquizquestions[2]),
+                self::create_question_approval($this->studentquizquestions[3]),
         ];
         // Create state histories.
         $this->statehistories = [
@@ -977,17 +977,14 @@ class privacy_test extends provider_testcase {
     /**
      * Create approval data for question.
      *
-     * @param int $studentquizquestionid
+     * @param studentquiz_question $studentquizquestion
      * @return object
      */
-    protected function create_question_approval($studentquizquestionid) {
+    protected function create_question_approval(studentquiz_question $studentquizquestion): object {
         global $DB;
-        $updatedrecord = new \stdClass();
-        $updatedrecord->id = $studentquizquestionid;
-        $updatedrecord->state = rand(0, 1);
-        $DB->update_record('studentquiz_question', $updatedrecord);
-
-        $record = $DB->get_record('studentquiz_question', ['id' => $studentquizquestionid]);
+        // Change to disapprove to make sure questions can be deleted.
+        $studentquizquestion->change_state_visibility('state', 0);
+        $record = $DB->get_record('studentquiz_question', ['id' => $studentquizquestion->get_id()]);
         $data = (object) [
             'id' => $record->id,
             'studentquizid' => $record->studentquizid,

@@ -107,11 +107,11 @@ class utils_test extends \advanced_testcase {
     }
 
     /**
-     * Test cases for the ensure_studentquiz_question_status_is_always_ready tests.
+     * Test cases for the ensure_question_version_status_is_correct tests.
      *
      * @return array
      */
-    public function ensure_studentquiz_question_status_is_always_ready_testcases(): array {
+    public function ensure_question_version_status_is_correct_testcases(): array {
         return [
             'ready' => [
                 'ready', false
@@ -126,15 +126,15 @@ class utils_test extends \advanced_testcase {
     }
 
     /**
-     * Test ensure_studentquiz_question_status_is_always_ready function
+     * Test ensure_question_version_status_is_correct function
      *
-     * @dataProvider ensure_studentquiz_question_status_is_always_ready_testcases
-     * @covers \mod_studentquiz\utils::ensure_studentquiz_question_status_is_always_ready
+     * @dataProvider ensure_question_version_status_is_correct_testcases
+     * @covers \mod_studentquiz\utils::ensure_question_version_status_is_correct
      *
      * @param string $status question status. E.g: ready, hidden, draft.
      * @param bool $expected Expected result when we run the query.
      */
-    public function test_ensure_studentquiz_question_status_is_always_ready(string $status, bool $expected): void {
+    public function test_ensure_question_version_status_is_correct(string $status, bool $expected): void {
         global $DB;
         $this->resetAfterTest();
         // Setup.
@@ -161,7 +161,7 @@ class utils_test extends \advanced_testcase {
         $oldquestionversion = reset($oldquestionversion);
 
         // Execute.
-        $result = utils::ensure_studentquiz_question_status_is_always_ready($question->id);
+        $result = utils::ensure_question_version_status_is_correct($question->id);
         // Load question version again to get the latest status.
         $newquestionversion = get_question_version($question->id);
         $newquestionversion = reset($newquestionversion);

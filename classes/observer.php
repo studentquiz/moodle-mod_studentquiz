@@ -43,7 +43,7 @@ class mod_studentquiz_observer {
             $cm = $modinfo->get_cm($event->contextinstanceid);
             if ($cm->modname == 'studentquiz') {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $event->contextinstanceid);
-                utils::ensure_studentquiz_question_status_is_always_ready($event->objectid);
+                utils::ensure_question_version_status_is_correct($event->objectid);
             }
         }
     }
@@ -59,7 +59,7 @@ class mod_studentquiz_observer {
 
             $cm = $modinfo->get_cm($event->contextinstanceid);
             if ($cm->modname == 'studentquiz') {
-                utils::ensure_studentquiz_question_status_is_always_ready($event->objectid);
+                utils::ensure_question_version_status_is_correct($event->objectid);
             }
         }
     }
