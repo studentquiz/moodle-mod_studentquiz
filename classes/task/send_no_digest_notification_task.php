@@ -46,7 +46,7 @@ class send_no_digest_notification_task extends \core\task\adhoc_task {
                 'actorname' => $data->messagedata->actorname,
                 'timestamp' => $data->messagedata->timestamp,
                 'questionurl' => $data->messagedata->questionurl,
-                'eventname' => get_string($data->eventname . 'lowercase', 'studentquiz'),
+                'eventname' => get_string('state_' . $data->eventname . 'lowercase', 'studentquiz'),
                 'isstudent' => $data->messagedata->isstudent,
                 'courseshortname' => $data->messagedata->courseshortname,
 

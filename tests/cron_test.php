@@ -129,7 +129,7 @@ class cron_test extends \advanced_testcase {
                 $this->student1, get_admin(), $this->course,
                 get_coursemodule_from_id('studentquiz', $this->cmid));
         $customdata = [
-                'eventname' => 'questionchanged',
+                'eventname' => 'changed',
                 'courseid' => $this->course->id,
                 'submitter' => get_admin(),
                 'recipient' => $this->student1,
@@ -159,7 +159,7 @@ class cron_test extends \advanced_testcase {
                 $this->student2, get_admin(), $this->course,
                 get_coursemodule_from_id('studentquiz', $this->cmid));
         $customdata = [
-                'eventname' => 'questionchanged',
+                'eventname' => 'changed',
                 'courseid' => $this->course->id,
                 'submitter' => get_admin(),
                 'recipient' => $this->student2,
@@ -196,7 +196,7 @@ class cron_test extends \advanced_testcase {
                 get_coursemodule_from_id('studentquiz', $this->cmid));
 
         $customdata = [
-                'eventname' => 'questionchanged',
+                'eventname' => 'changed',
                 'courseid' => $this->course->id,
                 'submitter' => get_admin(),
                 'recipient' => $this->student2,
