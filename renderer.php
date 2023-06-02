@@ -2009,13 +2009,13 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
                 html_writer::span(
                 get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))),
-                html_writer::span( round($userstats->rates_average, 2),
+                html_writer::span( round($userstats->rates_average ?? 0, 2),
                     '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))),
                 html_writer::span(
-                    round($commstats->questions_average_rating, 2),
+                    round($commstats->questions_average_rating ?? 0, 2),
                     '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))), ''
             ),
             array(
