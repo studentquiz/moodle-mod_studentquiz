@@ -1658,5 +1658,22 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // End of the Moodle 4.0 upgrade.
 
+    if ($oldversion < 2023053000) {
+        upgrade_set_timeout(3600);
+        // Update all the questions with disapprove state to status draft.
+        $DB->execute("UPDATE {question_versions}
+                         SET status = 'draft'
+                       WHERE questionbankentryid IN (SELECT qbe.id
+                                                       FROM {question_bank_entries} qbe
+                                                       JOIN {question_references} qr ON qbe.id = qr.questionbankentryid
+                                                            AND qr.component = 'mod_studentquiz'
+                                                            AND qr.questionarea = 'studentquiz_question'
+                                                       JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
+                                                      WHERE sqq.state = 0)
+                    ");
+
+        upgrade_mod_savepoint(true, 2023053000, 'studentquiz');
+    }
+
     return true;
 }
