@@ -230,7 +230,7 @@ style5 = html';
                     'id' => -1
             ];
             // Send email.
-            if (!email_to_user($fakeuser, $from, $subject, null, $mailcontent)) {
+            if (!email_to_user($fakeuser, $from, $subject, '', $mailcontent)) {
                 throw new \moodle_exception('error_sendalert', 'studentquiz', $previewurl, $fakeuser->email);
             }
         }
