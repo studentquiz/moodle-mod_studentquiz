@@ -57,6 +57,6 @@ require_sesskey();
 
 $studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
 $pinnotification = $pin ? 'pin' : 'unpin';
-$DB->set_field('studentquiz_question', 'pinned', $pin, ['id' => $studentquizquestionid]);
+$studentquizquestion->change_sq_question_visibility('pinned', $pin);
 mod_studentquiz_state_notify($studentquizquestion, $course, $module, $pinnotification);
 redirect($returnurl);

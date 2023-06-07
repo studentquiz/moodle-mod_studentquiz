@@ -59,7 +59,7 @@ $studentquizquestion = mod_studentquiz_init_single_action_page($module, $student
 
 $hidestatus = $hide ? \mod_studentquiz\local\studentquiz_helper::STATE_HIDE : \mod_studentquiz\local\studentquiz_helper::STATE_SHOW;
 $hidenotification = $hide ? 'hidden' : 'unhidden';
-$DB->set_field('studentquiz_question', 'hidden', $hide, ['id' => $studentquizquestionid]);
+$studentquizquestion->change_sq_question_visibility('hidden', $hide);
 $studentquizquestion->save_action($hidestatus, $USER->id);
 mod_studentquiz_state_notify($studentquizquestion, $course, $module, $hidenotification);
 redirect($returnurl);

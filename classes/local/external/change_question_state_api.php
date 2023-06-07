@@ -15,33 +15,35 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Defines external functions for the studentquiz module.
+ * Create change question state services implementation.
  *
  * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
+ * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_studentquiz\local\studentquiz_helper;
-use mod_studentquiz\local\studentquiz_question;
-use mod_studentquiz\utils;
+namespace mod_studentquiz\local\external;
 
 defined('MOODLE_INTERNAL') || die();
 
+use external_api;
+use external_function_parameters;
+use external_single_structure;
+use external_value;
+use mod_studentquiz\local\studentquiz_helper;
+use mod_studentquiz\local\studentquiz_question;
+
 require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 require_once($CFG->libdir . '/externallib.php');
-require_once($CFG->libdir . '/questionlib.php');
 
 /**
- * Defines external functions for the studentquiz module.
+ * Create change question state services implementation.
  *
  * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
+ * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_external extends external_api {
+class change_question_state_api extends external_api {
 
     /**
      * Get the required question state parameters.
@@ -49,10 +51,10 @@ class mod_studentquiz_external extends external_api {
      */
     public static function change_question_state_parameters() {
         return new external_function_parameters([
-                'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_REQUIRED),
-                'cmid' => new external_value(PARAM_INT, 'coursemodule id', VALUE_REQUIRED),
-                'studentquizquestionid' => new external_value(PARAM_INT, 'id of studentquiz_question table', VALUE_REQUIRED),
-                'state' => new external_value(PARAM_INT, 'Question state', VALUE_REQUIRED)
+            'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_REQUIRED),
+            'cmid' => new external_value(PARAM_INT, 'coursemodule id', VALUE_REQUIRED),
+            'studentquizquestionid' => new external_value(PARAM_INT, 'id of studentquiz_question table', VALUE_REQUIRED),
+            'state' => new external_value(PARAM_INT, 'Question state', VALUE_REQUIRED)
         ]);
     }
 
@@ -82,7 +84,7 @@ class mod_studentquiz_external extends external_api {
         // Student can not delete the question when the question is in approved state.
         $context = \context_course::instance($courseid);
         $canmanage = has_capability('mod/studentquiz:manage', $context);
-        $contextmodule = context_module::instance($cmid);
+        $contextmodule = \context_module::instance($cmid);
         $cm = get_coursemodule_from_id('studentquiz', $cmid);
         $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
         $studentquizquestion = new studentquiz_question($studentquizquestionid, null, $studentquiz);
@@ -96,14 +98,8 @@ class mod_studentquiz_external extends external_api {
             }
         }
 
-        $studentquizquestion->change_state_visibility($type, $value);
+        $studentquizquestion->change_sq_question_visibility($type, $value);
         $studentquizquestion->save_action($state, $USER->id);
-
-        // Additionally always unhide the question when it got approved.
-        if ($state == studentquiz_helper::STATE_APPROVED && $studentquizquestion->is_hidden()) {
-            $studentquizquestion->change_state_visibility( 'hidden', 0);
-            $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, null);
-        }
 
         $course = get_course($courseid);
         $PAGE->set_context($contextmodule);
@@ -126,8 +122,8 @@ class mod_studentquiz_external extends external_api {
      */
     public static function change_question_state_returns() {
         return new external_single_structure([
-                'status' => new external_value(PARAM_TEXT, 'status'),
-                'message' => new external_value(PARAM_TEXT, 'message')
+            'status' => new external_value(PARAM_TEXT, 'status'),
+            'message' => new external_value(PARAM_TEXT, 'message')
         ]);
     }
 }

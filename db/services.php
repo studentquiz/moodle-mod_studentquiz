@@ -27,10 +27,9 @@ defined('MOODLE_INTERNAL') || die();
 
 $functions = [
     'mod_studentquiz_set_state' => [
-        'classname' => 'mod_studentquiz_external',
-        'classpath' => 'mod/studentquiz/externallib.php',
+        'classname' => 'mod_studentquiz\local\external\change_question_state_api',
         'methodname' => 'change_question_state',
-        'description' => 'Copy a students previous attempt to a new attempt.',
+        'description' => 'Change question state in the StudentQuiz',
         'type' => 'write',
         'ajax' => true
     ],
