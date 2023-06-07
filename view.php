@@ -35,18 +35,18 @@ if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cmid = required_param('id', PARAM_INT);
     // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'],
     // but moodle allows to view a mod page with parameter id in place of cmid.
-    $_GET['cmid'] = $cmid;
+    $url = new moodle_url('/mod/studentquiz/view.php', ['cmid' => $cmid, 'id' => $cmid]);
+    redirect($url);
 }
 
 // TODO: make course-, context- and login-check in a better starting class (not magically hidden in "report").
 // And when doing that, offer course, context and studentquiz object over it, which all following actions can use.
-$report = new mod_studentquiz_report($cmid);
+$report = new mod_studentquiz_report($cmid, 'view');
 require_login($report->get_course(), false, $report->get_coursemodule());
 
 $course = $report->get_course();
 $context = $report->get_context();
 $cm = $report->get_coursemodule();
-
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
 // If for some weired reason a studentquiz is not aggregated yet, now would be a moment to do so.
@@ -56,14 +56,14 @@ if (!$studentquiz->aggregated) {
 // Load view.
 $view = new mod_studentquiz_view($course, $context, $cm, $studentquiz, $USER->id, $report);
 $baseurl = $view->get_questionbank()->base_url();
-
 // Redirect if we have received valid data.
 // Usually we should use submitted_data(), but since we have two forms merged and exchanging their values
 // using GET params, we can't use that.
-if (!empty($_GET)) {
+
+if (!empty($_REQUEST)) {
     if (optional_param('startquiz', null, PARAM_BOOL)) {
         require_sesskey();
-        if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($_GET))) {
+        if ($ids = mod_studentquiz_helper_get_ids_by_raw_submit(fix_utf8($_REQUEST))) {
             if ($attempt = mod_studentquiz_generate_attempt($ids, $studentquiz, $USER->id)) {
                 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
                 $baseurl->remove_params('startquiz');

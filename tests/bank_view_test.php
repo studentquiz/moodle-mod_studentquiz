@@ -246,6 +246,7 @@ class bank_view_test extends \advanced_testcase {
 
         $this->set_filter(QUESTION_NAME_FILTER, 'Question 1');
         $this->set_filter(QUESTION_NAME_OP_FILTER, '0');
+        $this->set_filter('useFilter', true);
 
         // Hard coded.
         $questionbank = $this->run_questionbank();

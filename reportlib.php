@@ -169,8 +169,9 @@ class mod_studentquiz_report {
     /**
      * Constructor assuming we already have the necessary data loaded.
      * @param int $cmid course_module id
+     * @param string $type Report type view, rank or stat. Default: view.
      */
-    public function __construct($cmid) {
+    public function __construct(int $cmid, string $type = 'view') {
         global $DB, $USER;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
             throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
@@ -189,7 +190,19 @@ class mod_studentquiz_report {
         $this->userid = $USER->id;
         $this->availablequestions = mod_studentquiz_count_questions($cmid);
 
-        \mod_studentquiz\utils::set_default_group($this->cm);
+        switch ($type) {
+            case 'view':
+                $url = $this->get_view_url();
+                break;
+            case 'stat':
+                $url = $this->get_stat_url();
+                break;
+            default:
+                $url = $this->get_rank_url();
+                break;
+        }
+
+        \mod_studentquiz\utils::set_default_group($this->cm, $url);
         $this->groupid = groups_get_activity_group($this->cm, true);
 
         // Check to see if any roles setup has been changed since we last synced the capabilities.
@@ -225,7 +238,15 @@ class mod_studentquiz_report {
      * @return array
      */
     public function get_urlview_data() {
-        return array('cmid' => $this->cm->id);
+        return ['cmid' => $this->cm->id, 'group' => optional_param('group', -1, PARAM_INT)];
+    }
+
+    /**
+     * Get quiz report url
+     * @return moodle_url
+     */
+    public function get_view_url() {
+        return new moodle_url('/mod/studentquiz/view.php', $this->get_urlview_data());
     }
 
     /**
