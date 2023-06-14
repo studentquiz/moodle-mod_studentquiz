@@ -62,8 +62,8 @@ function studentquiz_supports($feature) {
             return true;
         case FEATURE_GROUPINGS:
             return true;
-		case FEATURE_MOD_PURPOSE:
-			return MOD_PURPOSE_COLLABORATION;
+        case FEATURE_MOD_PURPOSE:
+	    return MOD_PURPOSE_COLLABORATION;
         default:
             return null;
     }
