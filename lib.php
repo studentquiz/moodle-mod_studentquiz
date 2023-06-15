@@ -63,7 +63,7 @@ function studentquiz_supports($feature) {
         case FEATURE_GROUPINGS:
             return true;
         case FEATURE_MOD_PURPOSE:
-	    return MOD_PURPOSE_COLLABORATION;
+            return MOD_PURPOSE_COLLABORATION;
         default:
             return null;
     }
