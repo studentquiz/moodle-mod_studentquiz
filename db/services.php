@@ -26,10 +26,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $functions = [
-    'mod_studentquiz_set_state' => [
-        'classname' => 'mod_studentquiz\local\external\change_question_state_api',
-        'methodname' => 'change_question_state',
-        'description' => 'Change question state in the StudentQuiz',
+    'mod_studentquiz_update_question_state' => [
+        'classname' => 'mod_studentquiz\external\update_question_state',
+        'description' => 'Update question state in the StudentQuiz',
         'type' => 'write',
         'ajax' => true
     ],
@@ -78,7 +77,7 @@ $services = [
     'StudentQuiz services' => [
         'shortname' => 'studentquizservices',
         'functions' => [
-            'mod_studentquiz_set_state',
+            'mod_studentquiz_update_question_state',
             'mod_studentquiz_get_comments',
             'mod_studentquiz_expand_comment',
             'mod_studentquiz_delete_comment',

@@ -27,7 +27,7 @@
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
-use mod_studentquiz\local\external\change_question_state_api;
+use mod_studentquiz\external\update_question_state;
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
@@ -81,7 +81,7 @@ if ($approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM
                 $questionid = (int) $questionid;
                 $question = question_bank::load_question($questionid);
                 $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
-                change_question_state_api::change_question_state($course->id, $cmid, $studentquizquestion->get_id(), $state);
+                update_question_state::execute($course->id, $cmid, $studentquizquestion->get_id(), $state);
             }
         }
         redirect($returnurl);

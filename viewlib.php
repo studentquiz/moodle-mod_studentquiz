@@ -149,7 +149,7 @@ class mod_studentquiz_view {
             $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question,
                     $this->studentquiz, $cm);
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
-            mod_studentquiz_state_notify($studentquizquestion, $this->course, $this->cm, 'changed');
+            mod_studentquiz_event_notification_question('changed', $studentquizquestion, $this->course, $this->cm);
             $thispageurl->remove_params('lastchanged');
             redirect($thispageurl);
         }

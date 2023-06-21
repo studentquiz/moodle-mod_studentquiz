@@ -26,7 +26,6 @@ Feature: Test pagination for StudentQuiz
     And I should see "" in the "Test question 1" "table_row"
     And I set the field "qperpage" to "4"
     And I press enter
-    And I wait until the page is ready
     And I click on "Question is new. Click here to change the state of this question" "link" in the "Test question 11" "table_row"
     And I should see "Test question 11"
     And I should not see "Test question 21"

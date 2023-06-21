@@ -249,43 +249,60 @@ class studentquiz_question {
     }
 
     /**
-     * Change a question visibility (hidden, state, pinned).
+     * Change a question state of visibility.
      *
-     * @param string $type Student Quiz type in \mod_studentquiz\local\studentquiz_helper::$statename
-     * @param int $value int Student Quiz value in \mod_studentquiz\local\studentquiz_helper constant.
+     * @param int $state Student Quiz state in \mod_studentquiz\local\studentquiz_helper::$statename
      */
-    public function change_sq_question_visibility(string $type, int $value): void {
+    public function change_state_visibility(int $state): void {
         global $DB;
-        switch ($type) {
-            case 'deleted':
-                $updatevalue = false;
-                $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_HIDDEN,
-                    ['questionid' => $this->get_question()->id]);
-                break;
-            case 'state':
-                $updatevalue = true;
-                $questionstatus = [
-                    studentquiz_helper::STATE_DISAPPROVED => question_version_status::QUESTION_STATUS_DRAFT,
-                    studentquiz_helper::STATE_APPROVED => question_version_status::QUESTION_STATUS_READY
-                ];
-                if (isset($questionstatus[$value])) {
-                    $DB->set_field('question_versions', 'status', $questionstatus[$value],
-                        ['questionid' => $this->get_question()->id]);
-                }
-                // Additionally, always un-hide the question when it got approved.
-                if ($value === studentquiz_helper::STATE_APPROVED && $this->is_hidden()) {
-                    $DB->set_field('studentquiz_question', 'hidden', 0, ['id' => $this->get_id()]);
-                    $this->save_action(studentquiz_helper::STATE_SHOW, null);
-                    $this->data->hidden = 0;
-                }
-                break;
-            default:
-                $updatevalue = true;
+        // Update question_versions status depend on state.
+        $questionstatus = [
+            studentquiz_helper::STATE_DISAPPROVED => question_version_status::QUESTION_STATUS_DRAFT,
+            studentquiz_helper::STATE_APPROVED => question_version_status::QUESTION_STATUS_READY,
+        ];
+        if (isset($questionstatus[$state])) {
+            $DB->set_field('question_versions', 'status', $questionstatus[$state], ['questionid' => $this->get_question()->id]);
         }
-        if ($updatevalue) {
-            $DB->set_field('studentquiz_question', $type, $value, ['id' => $this->get_id()]);
-            $this->data->$type = $value;
+        // Additionally, always un-hide the question when it got approved.
+        if ($state === studentquiz_helper::STATE_APPROVED && $this->is_hidden()) {
+            $this->change_hidden_status(0);
+            $this->save_action(studentquiz_helper::STATE_SHOW, null);
+            $this->data->hidden = 0;
         }
+
+        $DB->set_field('studentquiz_question', 'state', $state, ['id' => $this->get_id()]);
+        $this->data->state = $state;
+    }
+
+    /**
+     * Delete is not a real state, so we will hide the question.
+     */
+    public function change_delete_state(): void {
+        global $DB;
+        $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_HIDDEN,
+            ['questionid' => $this->get_question()->id]);
+    }
+
+    /**
+     * Hide / unhide a question
+     *
+     * @param int $hide 1:hide 0:unhide
+     */
+    public function change_hidden_status(int $hide): void {
+        global $DB;
+        $DB->set_field('studentquiz_question', 'hidden', $hide, ['id' => $this->get_id()]);
+        $this->data->hidden = $hide;
+    }
+
+    /**
+     * Pin / unpin a question
+     *
+     * @param int $pin 1:pin 0:unpin.
+     */
+    public function change_pin_status(int $pin): void {
+        global $DB;
+        $DB->set_field('studentquiz_question', 'pinned', $pin, ['id' => $this->get_id()]);
+        $this->data->pinned = $pin;
     }
 
     /**

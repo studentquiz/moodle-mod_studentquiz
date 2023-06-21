@@ -30,112 +30,110 @@ use core_question\local\bank\question_version_status;
 class studentquiz_question_test extends \advanced_testcase {
 
     /**
-     * Data provider for test_change_sq_question_visibility.
-     *
-     * @coversNothing
-     * @return array
+     * @var \question_definition $question
      */
-    public function change_sq_question_visibility_provider(): array {
-
-        return [
-            'deleted' => [
-                null,
-                question_version_status::QUESTION_STATUS_HIDDEN,
-                'deleted',
-                studentquiz_helper::STATE_DELETE,
-                null,
-                null
-            ],
-            'State approved' => [
-                studentquiz_helper::STATE_APPROVED,
-                question_version_status::QUESTION_STATUS_READY,
-                'state',
-                studentquiz_helper::STATE_APPROVED,
-                null,
-                0,
-            ],
-            'State disapproved' => [
-                studentquiz_helper::STATE_DISAPPROVED,
-                question_version_status::QUESTION_STATUS_DRAFT,
-                'state',
-                studentquiz_helper::STATE_DISAPPROVED,
-                null,
-                null
-            ],
-            'Pin' => [
-                0,
-                null,
-                'pinned',
-                0,
-                null,
-                null
-            ],
-        ];
-    }
+    private $question;
 
     /**
-     * Test change_sq_question_visibility function
-     *
-     * @dataProvider change_sq_question_visibility_provider
-     * @covers \mod_studentquiz\local\studentquiz_question::change_sq_question_visibility
-     * @param int|null $expectedvalue
-     * @param string|null $expectstatus
-     * @param string $type
-     * @param int $value
-     * @param int|null $expectstatehistory
-     * @param int|null $hidden
+     * @var studentquiz_question $studentquizquestion
      */
-    public function test_change_sq_question_visibility(?int $expectedvalue, ?string $expectstatus,
-            string $type, int $value, ?int $expectstatehistory, ?int $hidden): void {
-        global $DB;
+    private $studentquizquestion;
+
+    /**
+     * Setup testing data
+     */
+    protected function setUp(): void {
         $this->resetAfterTest();
         $this->setAdminUser();
         // Setup data.
-        $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-
         $course = $this->getDataGenerator()->create_course();
-
         $activity = $this->getDataGenerator()->create_module('studentquiz', [
-            'course' => $course->id,
+            'course' => $course,
             'anonymrank' => true,
             'forcecommenting' => 1,
         ]);
+
         $context = \context_module::instance($activity->cmid);
-
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
+        $questioncreated = $questiongenerator->create_question('description', null,
+            ['category' => $studentquiz->categoryid]);
 
-        $question = $questiongenerator->create_question('description', null, ['category' => $studentquiz->categoryid]);
-        $question = \question_bank::load_question($question->id);
-        $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
+        $this->question = \question_bank::load_question($questioncreated->id);
+        $this->studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($this->question);
+
+    }
+
+    /**
+     * Test change state when approve a hidden question.
+     *
+     * @covers \mod_studentquiz\local\studentquiz_question::change_state_visibility
+     */
+    public function test_change_state_approve_on_hidden_question(): void {
+        global $DB;
         // Execute.
-        $studentquizquestion->change_sq_question_visibility($type, $value);
-        $reflector = new \ReflectionProperty($studentquizquestion, 'data');
-        $reflector->setAccessible(true);
-        $sqqdata = $reflector->getValue($studentquizquestion);
+        $this->studentquizquestion->change_hidden_status(1);
+        $this->studentquizquestion->change_state_visibility(studentquiz_helper::STATE_APPROVED);
 
-        // Verify.
-        if ($expectedvalue) {
-            // Verify on database.
-            $this->assertEquals($expectedvalue, $DB->get_field('studentquiz_question', $type,
-                ['id' => $studentquizquestion->get_id()]));
-            // Verify on SQQ object.
-            $this->assertEquals($sqqdata->$type, $value);
-        }
-        if (isset($expectstatus)) {
-            $this->assertEquals($expectstatus, $DB->get_field('question_versions', 'status',
-                ['questionid' => $studentquizquestion->get_question()->id]));
-        }
-        if (isset($expectstatehistory)) {
-            $this->assertEquals(true, $DB->record_exists('studentquiz_state_history',
-                ['studentquizquestionid' => $studentquizquestion->get_id(), 'state' => studentquiz_helper::STATE_SHOW]));
-        }
-        if (isset($hidden)) {
-            // Verify on database.
-            $this->assertEquals($hidden, $DB->get_field('studentquiz_question', 'hidden',
-                ['id' => $studentquizquestion->get_id()]));
-            // Verify on SQQ object.
-            $this->assertEquals($hidden, $sqqdata->hidden);
-        }
+        // Verify question status.
+        $this->assertEquals(question_version_status::QUESTION_STATUS_READY,
+            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id]));
+
+        // Verify state on studentquiz_question db.
+        $this->assertEquals(studentquiz_helper::STATE_APPROVED,
+            $DB->get_field('studentquiz_question', 'state', ['id' => $this->studentquizquestion->get_id()]));
+
+        // Verify on state history.
+        $this->assertEquals(true, $DB->record_exists('studentquiz_state_history',
+            ['studentquizquestionid' => $this->studentquizquestion->get_id(), 'state' => studentquiz_helper::STATE_SHOW]));
+
+        // Verify on SQQ object.
+        $sqqdata = self::get_data_properties_on_studentquiz_question();
+        $this->assertEquals($sqqdata->state, studentquiz_helper::STATE_APPROVED);
+        $this->assertEquals($sqqdata->hidden, 0);
+    }
+
+    /**
+     * Test change state to delete for a question.
+     *
+     * @covers \mod_studentquiz\local\studentquiz_question::change_state_visibility
+     */
+    public function test_change_state_delete_question(): void {
+        global $DB;
+        // Execute.
+        $this->studentquizquestion->change_delete_state();
+
+        // Verify question status.
+        $this->assertEquals(question_version_status::QUESTION_STATUS_HIDDEN,
+            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id]));
+    }
+
+    /**
+     * Test pin a question.
+     *
+     * @covers \mod_studentquiz\local\studentquiz_question::change_pin_status
+     */
+    public function test_change_pin_status(): void {
+        global $DB;
+        // Execute.
+        $this->studentquizquestion->change_pin_status(1);
+
+        // Verify state on studentquiz_question db.
+        $this->assertEquals(1, $DB->get_field('studentquiz_question', 'pinned', ['id' => $this->studentquizquestion->get_id()]));
+
+        // Verify on SQQ object.
+        $sqqdata = self::get_data_properties_on_studentquiz_question();
+        $this->assertEquals($sqqdata->pinned, 1);
+    }
+
+    /**
+     * Get the private properties on data object in studentquiz_question.
+     *
+     * @return object
+     */
+    private function get_data_properties_on_studentquiz_question(): object {
+        $reflector = new \ReflectionProperty($this->studentquizquestion, 'data');
+        $reflector->setAccessible(true);
+        return $reflector->getValue($this->studentquizquestion);
     }
 }

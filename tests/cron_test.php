@@ -286,7 +286,7 @@ class cron_test extends \advanced_testcase {
         set_config('deleteorphanedtimelimit', 30, 'studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         // Change the question to disapprove.
-        $this->studentquizquestions[0]->change_sq_question_visibility('state', studentquiz_helper::STATE_DISAPPROVED);
+        $this->studentquizquestions[0]->change_state_visibility(studentquiz_helper::STATE_DISAPPROVED);
 
         // Make sure modified time lower than time limit for Q1 version 1.
         $updatedquestion = new \stdClass();
@@ -313,7 +313,7 @@ class cron_test extends \advanced_testcase {
         // Create Q2 version 3 so we can use it as latest.
         $q2v3 = $questiongenerator->update_question($q2v2, null, ['idnumber' => 'id3']);
         $sqq = studentquiz_question::get_studentquiz_question_from_question(\question_bank::load_question($q2v1->id));
-        $sqq->change_sq_question_visibility('state', studentquiz_helper::STATE_DISAPPROVED);
+        $sqq->change_state_visibility(studentquiz_helper::STATE_DISAPPROVED);
         // Execute the cron.
         $this->cron_setup_user();
         $cron = new task\delete_orphaned_questions();

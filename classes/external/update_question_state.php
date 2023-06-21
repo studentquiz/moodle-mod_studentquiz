@@ -15,14 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Create change question state services implementation.
+ * Create update question state services implementation.
  *
  * @package mod_studentquiz
- * @copyright 2023 The Open University
+ * @author Huong Nguyen <huongnv13@gmail.com>
+ * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace mod_studentquiz\local\external;
+namespace mod_studentquiz\external;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -37,19 +38,20 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 require_once($CFG->libdir . '/externallib.php');
 
 /**
- * Create change question state services implementation.
+ * Create update question state services implementation.
  *
  * @package mod_studentquiz
- * @copyright 2023 The Open University
+ * @author Huong Nguyen <huongnv13@gmail.com>
+ * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class change_question_state_api extends external_api {
+class update_question_state extends external_api {
 
     /**
      * Get the required question state parameters.
      * @return external_function_parameters
      */
-    public static function change_question_state_parameters() {
+    public static function execute_parameters() {
         return new external_function_parameters([
             'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_REQUIRED),
             'cmid' => new external_value(PARAM_INT, 'coursemodule id', VALUE_REQUIRED),
@@ -59,7 +61,7 @@ class change_question_state_api extends external_api {
     }
 
     /**
-     * Set the question state as provided.
+     * Update the question state as provided.
      *
      * @param int $courseid Course id
      * @param int $cmid Course module id
@@ -67,19 +69,8 @@ class change_question_state_api extends external_api {
      * @param int $state State value
      * @return array Response
      */
-    public static function change_question_state($courseid, $cmid, $studentquizquestionid, $state) {
+    public static function execute($courseid, $cmid, $studentquizquestionid, $state) {
         global $PAGE, $USER;
-
-        if ($state == studentquiz_helper::STATE_HIDE) {
-            $type = 'hidden';
-            $value = 1;
-        } else if ($state == studentquiz_helper::STATE_DELETE) {
-            $type = 'deleted';
-            $value = 1;
-        } else {
-            $type = 'state';
-            $value = $state;
-        }
 
         // Student can not delete the question when the question is in approved state.
         $context = \context_course::instance($courseid);
@@ -97,8 +88,13 @@ class change_question_state_api extends external_api {
                 return $result;
             }
         }
-
-        $studentquizquestion->change_sq_question_visibility($type, $value);
+        if ($state === studentquiz_helper::STATE_HIDE) {
+            $studentquizquestion->change_hidden_status(1);
+        } else if ($state === studentquiz_helper::STATE_DELETE) {
+            $studentquizquestion->change_delete_state();
+        } else {
+            $studentquizquestion->change_state_visibility($state);
+        }
         $studentquizquestion->save_action($state, $USER->id);
 
         $course = get_course($courseid);
@@ -108,7 +104,8 @@ class change_question_state_api extends external_api {
                 mod_studentquiz_notify_reviewable_question($studentquizquestion, $course, $cm);
             }
         } else {
-            mod_studentquiz_state_notify($studentquizquestion, $course, $cm, $type);
+            $statename = studentquiz_helper::$statename[$state];
+            mod_studentquiz_event_notification_question($statename, $studentquizquestion, $course, $cm);
         }
         $result = [];
         $result['status'] = get_string('api_state_change_success_title', 'studentquiz');
@@ -118,9 +115,10 @@ class change_question_state_api extends external_api {
 
     /**
      * Get available state return fields.
+     *
      * @return external_single_structure
      */
-    public static function change_question_state_returns() {
+    public static function execute_returns() {
         return new external_single_structure([
             'status' => new external_value(PARAM_TEXT, 'status'),
             'message' => new external_value(PARAM_TEXT, 'message')

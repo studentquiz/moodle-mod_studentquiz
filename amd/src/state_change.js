@@ -79,7 +79,7 @@ define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Aja
                     state: stateChangeSelect.val()
                 };
                 var failure;
-                var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
+                var promise = Ajax.call([{methodname: 'mod_studentquiz_update_question_state', args: args}], true, true);
                 promise[0].then(function(results) {
                     Notification.alert(results.status, results.message);
                     pendingPromise.resolve();
