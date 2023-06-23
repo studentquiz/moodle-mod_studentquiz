@@ -121,73 +121,55 @@ class cron_test extends \advanced_testcase {
 
     /**
      * Test send_no_digest_notification_task
+     *
+     * @dataProvider state_data_provider
      * @covers \mod_studentquiz\task\send_digest_notification_task
+     * @param string $state State of the question.
      */
-    public function test_send_no_digest_notification_task() {
+    public function test_send_no_digest_notification_task(string $state) {
         $question = $this->questions[0];
         $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
-                $this->student1, get_admin(), $this->course,
-                get_coursemodule_from_id('studentquiz', $this->cmid));
+            $this->student1, get_admin(), $this->course,
+            get_coursemodule_from_id('studentquiz', $this->cmid),
+        );
         $customdata = [
-                'eventname' => 'changed',
-                'courseid' => $this->course->id,
-                'submitter' => get_admin(),
-                'recipient' => $this->student1,
-                'messagedata' => $notifydata,
-                'questionurl' => $notifydata->questionurl,
-                'questionname' => $notifydata->questionname,
-                'isstudent' => $notifydata->isstudent,
-                'courseshortname' => $notifydata->courseshortname
+            'eventname' => $state,
+            'courseid' => $this->course->id,
+            'submitter' => get_admin(),
+            'recipient' => $this->student1,
+            'messagedata' => $notifydata,
+            'questionurl' => $notifydata->questionurl,
+            'questionname' => $notifydata->questionname,
+            'isstudent' => $notifydata->isstudent,
+            'courseshortname' => $notifydata->courseshortname,
         ];
 
+        $this->preventResetByRollback();
+        $sink = $this->redirectMessages();
         // Execute the cron.
-        ob_start();
         $this->cron_setup_user();
         $cron = new task\send_no_digest_notification_task();
         $cron->set_custom_data($customdata);
         $cron->set_component('mod_studentquiz');
         $cron->execute();
-        $output = ob_get_contents();
-        ob_end_clean();
-
-        $this->assertStringContainsString('Sending notification for StudentQuiz for question ' .
-                $question->name . ' to ' .
-                $notifydata->recepientname, $output);
-
-        $question = $this->questions[1];
-        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[1],
-                $this->student2, get_admin(), $this->course,
-                get_coursemodule_from_id('studentquiz', $this->cmid));
-        $customdata = [
-                'eventname' => 'changed',
-                'courseid' => $this->course->id,
-                'submitter' => get_admin(),
-                'recipient' => $this->student2,
-                'messagedata' => $notifydata,
-                'questionurl' => $notifydata->questionurl,
-                'questionname' => $notifydata->questionname,
-        ];
-
-        // Execute the cron.
-        ob_start();
-        $this->cron_setup_user();
-        $cron = new task\send_no_digest_notification_task();
-        $cron->set_custom_data($customdata);
-        $cron->set_component('mod_studentquiz');
-        $cron->execute();
-        $output = ob_get_contents();
-        ob_end_clean();
-
-        $this->assertStringContainsString('Sending notification for StudentQuiz for question ' .
-                $question->name . ' to ' .
-                $notifydata->recepientname, $output);
+        // Get email content.
+        $messages = $sink->get_messages();
+        $this->assertEquals(1, count($messages));
+        $this->expectOutputString('Sending notification for StudentQuiz for question ' . $question->name .
+            ' to ' . $notifydata->recepientname . "\n");
+        $this->assertStringContainsString('Your question <b>' . $question->name .
+            '</b> in StudentQuiz activity <b>' . $this->studentquizquestions[0]->get_studentquiz()->name .
+            '</b> in course <b>' . $this->course->fullname . '</b> has been ' . $state, $messages[0]->fullmessage);
     }
 
     /**
      * Test send_no_digest_notification_task
+     *
+     * @dataProvider state_data_provider
      * @covers \mod_studentquiz\task\send_digest_notification_task
+     * @param string $state State of the question.
      */
-    public function test_send_digest_notification_task() {
+    public function test_send_digest_notification_task(string $state) {
         global $DB;
         date_default_timezone_set('UTC');
 
@@ -196,14 +178,14 @@ class cron_test extends \advanced_testcase {
                 get_coursemodule_from_id('studentquiz', $this->cmid));
 
         $customdata = [
-                'eventname' => 'changed',
-                'courseid' => $this->course->id,
-                'submitter' => get_admin(),
-                'recipient' => $this->student2,
-                'messagedata' => $notifydata,
-                'questionurl' => $notifydata->questionurl,
-                'questionname' => $notifydata->questionname,
-                'isstudent' => $notifydata->isstudent
+            'eventname' => $state,
+            'courseid' => $this->course->id,
+            'submitter' => get_admin(),
+            'recipient' => $this->student2,
+            'messagedata' => $notifydata,
+            'questionurl' => $notifydata->questionurl,
+            'questionname' => $notifydata->questionname,
+            'isstudent' => $notifydata->isstudent
         ];
 
         $notificationqueue = new \stdClass();
@@ -213,17 +195,45 @@ class cron_test extends \advanced_testcase {
         $notificationqueue->timetosend = strtotime('-1 day', strtotime(date('Y-m-d')));
         $DB->insert_record('studentquiz_notification', $notificationqueue);
 
+        $this->preventResetByRollback();
+        $sink = $this->redirectMessages();
         // Execute the cron.
-        ob_start();
         $this->cron_setup_user();
         $cron = new task\send_digest_notification_task();
         $cron->set_component('mod_studentquiz');
         $cron->execute();
-        $output = ob_get_contents();
-        ob_end_clean();
+        // Get email content.
+        $messages = $sink->get_messages();
+        $this->assertEquals(1, count($messages));
+        $this->assertStringContainsString('Your question <b>'. $notifydata->questionname .
+            '</b> has been <b>' . $state . '</b>', $messages[0]->fullmessage);
+        $this->expectOutputRegex("/^Sending digest notification for StudentQuiz/");
+    }
 
-        $this->assertStringContainsString('Sending digest notification for StudentQuiz', $output);
-        $this->assertStringContainsString('Sent 1 messages!', $output);
+    /**
+     * Data provider for state.
+     *
+     * @coversNothing
+     * @return array List data of state.
+     */
+    public function state_data_provider(): array {
+        return [
+            'Notifying updated question state to changed' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_CHANGED],
+            ],
+            'Notifying updated question state to disapproved' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_DISAPPROVED],
+            ],
+            'Notifying updated question state to reviewable' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_REVIEWABLE],
+            ],
+            'Notifying updated question state to deleted' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_DELETE],
+            ],
+            'Notifying updated question state to hidden' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_HIDE],
+            ],
+        ];
     }
 
     /**
