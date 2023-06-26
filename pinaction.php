@@ -56,7 +56,7 @@ require_login($module->course, false, $module);
 require_sesskey();
 
 $studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
-$pinnotification = $pin ? 'pin' : 'unpin';
-$DB->set_field('studentquiz_question', 'pinned', $pin, ['id' => $studentquizquestionid]);
-mod_studentquiz_state_notify($studentquizquestion, $course, $module, $pinnotification);
+$eventname = $pin ? 'pin' : 'unpin';
+$studentquizquestion->change_pin_status($pin);
+mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $module);
 redirect($returnurl);

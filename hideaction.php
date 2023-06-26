@@ -58,8 +58,8 @@ require_sesskey();
 $studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
 
 $hidestatus = $hide ? \mod_studentquiz\local\studentquiz_helper::STATE_HIDE : \mod_studentquiz\local\studentquiz_helper::STATE_SHOW;
-$hidenotification = $hide ? 'hidden' : 'unhidden';
-$DB->set_field('studentquiz_question', 'hidden', $hide, ['id' => $studentquizquestionid]);
+$eventname = $hide ? 'hidden' : 'unhidden';
+$studentquizquestion->change_hidden_status($hide);
 $studentquizquestion->save_action($hidestatus, $USER->id);
-mod_studentquiz_state_notify($studentquizquestion, $course, $module, $hidenotification);
+mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $module);
 redirect($returnurl);

@@ -27,6 +27,7 @@
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
+use mod_studentquiz\external\update_question_state;
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
@@ -76,28 +77,11 @@ if ($approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM
     $state = required_param('state', PARAM_INT);
     if ($confirm == md5($approveselected)) {
         if ($questionlist = explode(',', $approveselected)) {
-            // For each question either hide it if it is in use or delete it.
             foreach ($questionlist as $questionid) {
-                $questionid = (int)$questionid;
-                if (in_array($state, [studentquiz_helper::STATE_HIDE, studentquiz_helper::STATE_DELETE])) {
-                    $value = 1;
-                    $type = studentquiz_helper::$statename[$state];
-                } else {
-                    $type = 'state';
-                    $value = $state;
-                }
-
+                $questionid = (int) $questionid;
                 $question = question_bank::load_question($questionid);
                 $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
-                $studentquizquestion->change_state_visibility($type, $value);
-                $studentquizquestion->save_action($state, $USER->id);
-                mod_studentquiz_state_notify($studentquizquestion, $course, $cm, $type);
-
-                // Additionally always unhide the question when it got approved.
-                if ($state == studentquiz_helper::STATE_APPROVED && $studentquizquestion->is_hidden()) {
-                    $studentquizquestion->change_state_visibility('hidden', 0);
-                    $studentquizquestion->save_action(studentquiz_helper::STATE_SHOW, null);
-                }
+                update_question_state::execute($course->id, $cmid, $studentquizquestion->get_id(), $state);
             }
         }
         redirect($returnurl);

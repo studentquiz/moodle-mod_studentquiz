@@ -251,25 +251,58 @@ class studentquiz_question {
     /**
      * Change a question state of visibility.
      *
-     * @param string $type Student Quiz type in \mod_studentquiz\local\studentquiz_helper::$statename
-     * @param int $value int Student Quiz value in \mod_studentquiz\local\studentquiz_helper constant.
+     * @param int $state Student Quiz state in \mod_studentquiz\local\studentquiz_helper::$statename
      */
-    public function change_state_visibility($type, $value): void {
+    public function change_state_visibility(int $state): void {
         global $DB;
-        if ($type == 'deleted') {
-            $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_HIDDEN,
-                ['questionid' => $this->get_question()->id]);
-        } else {
-            // Always set version status to draft/ready when we disapprove/approve a question.
-            if ($type === 'state' && $value === studentquiz_helper::STATE_DISAPPROVED) {
-                $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_DRAFT,
-                    ['questionid' => $this->get_question()->id]);
-            } else if ($type === 'state' && $value === studentquiz_helper::STATE_APPROVED) {
-                $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_READY,
-                    ['questionid' => $this->get_question()->id]);
-            }
-            $DB->set_field('studentquiz_question', $type, $value, ['id' => $this->get_id()]);
+        // Update question_versions status depend on state.
+        $questionstatus = [
+            studentquiz_helper::STATE_DISAPPROVED => question_version_status::QUESTION_STATUS_DRAFT,
+            studentquiz_helper::STATE_APPROVED => question_version_status::QUESTION_STATUS_READY,
+        ];
+        if (isset($questionstatus[$state])) {
+            $DB->set_field('question_versions', 'status', $questionstatus[$state], ['questionid' => $this->get_question()->id]);
         }
+        // Additionally, always un-hide the question when it got approved.
+        if ($state === studentquiz_helper::STATE_APPROVED && $this->is_hidden()) {
+            $this->change_hidden_status(0);
+            $this->save_action(studentquiz_helper::STATE_SHOW, null);
+            $this->data->hidden = 0;
+        }
+
+        $DB->set_field('studentquiz_question', 'state', $state, ['id' => $this->get_id()]);
+        $this->data->state = $state;
+    }
+
+    /**
+     * Delete is not a real state, so we will hide the question.
+     */
+    public function change_delete_state(): void {
+        global $DB;
+        $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_HIDDEN,
+            ['questionid' => $this->get_question()->id]);
+    }
+
+    /**
+     * Hide / unhide a question
+     *
+     * @param int $hide 1:hide 0:unhide
+     */
+    public function change_hidden_status(int $hide): void {
+        global $DB;
+        $DB->set_field('studentquiz_question', 'hidden', $hide, ['id' => $this->get_id()]);
+        $this->data->hidden = $hide;
+    }
+
+    /**
+     * Pin / unpin a question
+     *
+     * @param int $pin 1:pin 0:unpin.
+     */
+    public function change_pin_status(int $pin): void {
+        global $DB;
+        $DB->set_field('studentquiz_question', 'pinned', $pin, ['id' => $this->get_id()]);
+        $this->data->pinned = $pin;
     }
 
     /**

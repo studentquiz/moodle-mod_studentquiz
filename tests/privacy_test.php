@@ -983,7 +983,7 @@ class privacy_test extends provider_testcase {
     protected function create_question_approval(studentquiz_question $studentquizquestion): object {
         global $DB;
         // Change to disapprove to make sure questions can be deleted.
-        $studentquizquestion->change_state_visibility('state', 0);
+        $studentquizquestion->change_state_visibility(studentquiz_helper::STATE_DISAPPROVED);
         $record = $DB->get_record('studentquiz_question', ['id' => $studentquizquestion->get_id()]);
         $data = (object) [
             'id' => $record->id,
