@@ -56,7 +56,7 @@ require_login($module->course, false, $module);
 require_sesskey();
 
 $studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
-$eventname = $pin ? 'pin' : 'unpin';
+$eventname = $pin ? 'pinned' : 'unpinned';
 $studentquizquestion->change_pin_status($pin);
 mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $module);
 redirect($returnurl);

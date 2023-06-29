@@ -233,6 +233,15 @@ class cron_test extends \advanced_testcase {
             'Notifying updated question state to hidden' => [
                 'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_HIDE],
             ],
+            'Notifying unhide a question' => [
+                'state' => 'unhidden',
+            ],
+            'Notifying pin a question' => [
+                'state' => 'pinned',
+            ],
+            'Notifying unpin a question' => [
+                'state' => 'unpinned',
+            ],
         ];
     }
 
