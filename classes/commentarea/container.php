@@ -927,7 +927,7 @@ class container {
                     $instance->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $instance->rownumber);
                 }
                 $userinfocacheset[$commenthistory->userid] = $instance->authorname;
-                $profileurl[$commenthistory->userid] = $instance->authorprofileurl;
+                $profileurl[$commenthistory->userid] = $instance->authorprofileurl ?? '';
             } else {
                 $instance->authorname = $userinfocacheset[$commenthistory->userid];
                 $instance->authorprofileurl = $profileurl[$commenthistory->userid];
