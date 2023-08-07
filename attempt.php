@@ -205,7 +205,7 @@ $navinfo->current = $slot;
 $navinfo->total = $questionscount;
 $PAGE->navbar->add(get_string('nav_question_no', 'studentquiz', $navinfo));
 
-utils::require_access_to_a_relevant_group($cm, $context);
+utils::require_access_to_a_relevant_group($cm, $context, '', $studentquizquestion);
 
 echo $OUTPUT->header();
 
