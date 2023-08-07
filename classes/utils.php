@@ -773,14 +773,21 @@ style5 = html';
      * @param object $cm - The course module object.
      * @param \context $context The context module.
      * @param string $title Page's title.
+     * @param studentquiz_question|null $studentquizquestion Student quiz question object.
      * @return void
      */
-    public static function require_access_to_a_relevant_group(object $cm, \context $context, string $title = ''): void {
-        global $COURSE, $PAGE;
-        $groupmode = (int)groups_get_activity_groupmode($cm, $COURSE);
+    public static function require_access_to_a_relevant_group(object $cm, \context $context, string $title = '',
+            studentquiz_question $studentquizquestion = null): void {
+        global $COURSE, $PAGE, $USER;
+        $groupmode = (int) groups_get_activity_groupmode($cm, $COURSE);
         $currentgroup = groups_get_activity_group($cm, true);
+        $isallowaccessgroup = ($studentquizquestion === null) ||
+            groups_group_visible($studentquizquestion->get_groupid(), $COURSE, $cm, $USER->id);
 
-        if ($groupmode === SEPARATEGROUPS && !$currentgroup && !has_capability('moodle/site:accessallgroups', $context)) {
+        if ($groupmode === SEPARATEGROUPS && !has_capability('moodle/site:accessallgroups', $context) &&
+                (!$currentgroup || !$isallowaccessgroup)) {
+            // If the student quiz in separate groups mode and
+            // the user does not belong to the question group, an error message will be displayed.
             $renderer = $PAGE->get_renderer('mod_studentquiz');
             $renderer->render_error_message(get_string('error_permission', 'studentquiz'), $title);
             exit();
