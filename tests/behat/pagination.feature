@@ -24,11 +24,12 @@ Feature: Test pagination for StudentQuiz
   Scenario: Users can change the state right multi-question has been chosen after paging.
     Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
     And I should see "" in the "Test question 1" "table_row"
+    And I click on "Sort by Question ascending" "link"
     And I set the field "qperpage" to "4"
     And I press enter
     And I click on "Question is new. Click here to change the state of this question" "link" in the "Test question 11" "table_row"
     And I should see "Test question 11"
-    And I should not see "Test question 21"
+    And I should not see "Test question 12"
 
   @javascript
   Scenario: Users edit question should keep the same pagination.
