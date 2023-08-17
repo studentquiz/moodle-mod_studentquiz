@@ -107,6 +107,10 @@ class update_question_state extends external_api {
             $statename = studentquiz_helper::$statename[$state];
             mod_studentquiz_event_notification_question($statename, $studentquizquestion, $course, $cm);
         }
+        $userid = $studentquizquestion->get_question()->createdby;
+        // Update completion state.
+        \mod_studentquiz\completion\custom_completion::update_state($course, $cm, $userid);
+
         $result = [];
         $result['status'] = get_string('api_state_change_success_title', 'studentquiz');
         $result['message'] = get_string('api_state_change_success_content', 'studentquiz');

@@ -274,6 +274,89 @@ class mod_studentquiz_mod_form extends moodleform_mod {
                 $defaultvalues["excluderoles[$role]"] = (int)in_array($role, $enabled);
             }
         }
+        $defaultvalues['completionpointenabled'] = !empty($defaultvalues['completionpoint']) ? 1 : 0;
+        if (empty($defaultvalues['completionpoint'])) {
+            $defaultvalues['completionpoint'] = 1;
+        }
+        $defaultvalues['completionquestionpublishedenabled'] = !empty($defaultvalues['completionquestionpublished']) ? 1
+            : 0;
+        if (empty($defaultvalues['completionquestionpublished'])) {
+            $defaultvalues['completionquestionpublished'] = 1;
+        }
+        $defaultvalues['completionquestionapprovedenabled'] = !empty($defaultvalues['completionquestionapproved']) ? 1
+            : 0;
+        if (empty($defaultvalues['completionquestionapproved'])) {
+            $defaultvalues['completionquestionapproved'] = 1;
+        }
+    }
+
+    /**
+     * List of added element names, or names of wrapping group elements.
+     *
+     * @return array List of added element names, or names of wrapping group elements.
+     */
+    public function add_completion_rules(): array {
+        $mform =& $this->_form;
+
+        // Require point.
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completionpointenabled', '',
+            get_string('completionpoint', 'mod_studentquiz'));
+        $group[] =& $mform->createElement('text', 'completionpoint', '', ['size' => 3]);
+        $mform->setType('completionpoint', PARAM_INT);
+        $mform->addGroup($group, 'completionpointgroup', get_string('completionpointgroup',
+            'mod_studentquiz'), [' '], false);
+        $mform->addHelpButton('completionpointgroup', 'completionpointgroup',
+            'mod_studentquiz');
+        $mform->disabledIf('completionpoint', 'completionpointenabled', 'notchecked');
+
+        // Require published questions.
+        $group = [];
+        $group[] =& $mform->createElement('checkbox', 'completionquestionpublishedenabled', '',
+            get_string('completionquestionpublished', 'mod_studentquiz'));
+        $group[] =& $mform->createElement('text', 'completionquestionpublished', '',
+            ['size' => 3]);
+        $mform->setType('completionquestionpublished', PARAM_INT);
+        $mform->addGroup($group, 'completionquestionpublishedgroup',
+            get_string('completionquestionpublishedgroup', 'mod_studentquiz'),
+                [' '], false);
+        $mform->addHelpButton('completionquestionpublishedgroup',
+            'completionquestionpublishedgroup', 'mod_studentquiz');
+        $mform->disabledIf('completionquestionpublished', 'completionquestionpublishedenabled',
+            'notchecked');
+
+        // Require created approved questions.
+        $group = [];
+        $group[] =& $mform->createElement('checkbox',
+            'completionquestionapprovedenabled', '', get_string('completionquestionapproved',
+                'mod_studentquiz'));
+        $group[] =& $mform->createElement('text',
+            'completionquestionapproved', '', ['size' => 3]);
+        $mform->setType('completionquestionapproved', PARAM_INT);
+        $mform->addGroup($group, 'completionquestionapprovedgroup',
+            get_string('completionquestionapprovedgroup', 'mod_studentquiz'), [' '],
+            false);
+        $mform->addHelpButton('completionquestionapprovedgroup',
+            'completionquestionapprovedgroup', 'mod_studentquiz');
+        $mform->disabledIf('completionquestionapproved',
+            'completionquestionapprovedenabled', 'notchecked');
+
+        return ['completionpointgroup', 'completionquestionpublishedgroup', 'completionquestionapprovedgroup'];
+    }
+
+    /**
+     * Called during validation to see whether some activity-specific completion rules are selected.
+     *
+     * @param array $data Input data not yet validated.
+     * @return bool True if one or more rules is enabled, false if none are.
+     */
+    public function completion_rule_enabled($data): bool {
+        return (!empty($data['completionpointenabled'])
+            && $data['completionpoint'] != 0)
+            || (!empty($data['completionquestionpublishedenabled'])
+            && $data['completionquestionpublished'] != 0)
+            || (!empty($data['completionquestionapprovedenabled'])
+            && $data['completionquestionapproved'] != 0);
     }
 
     /**
@@ -336,6 +419,21 @@ class mod_studentquiz_mod_form extends moodleform_mod {
                 $data->reportingemail = null;
             }
         }
+
+        // Turn off completion settings if the checkboxes aren't ticked.
+        if (!empty($data->completionunlocked)) {
+            $autocompletion = !empty($data->completion) && $data->completion == COMPLETION_TRACKING_AUTOMATIC;
+            if (empty($data->completionpointenabled) || !$autocompletion) {
+                $data->completionpoint = 0;
+            }
+            if (empty($data->completionquestionpublishedenabled) || !$autocompletion) {
+                $data->completionquestionpublished = 0;
+            }
+            if (empty($data->completionquestionapprovedenabled) || !$autocompletion) {
+                $data->completionquestionapproved = 0;
+            }
+        }
+
         return $data;
     }
 

@@ -168,9 +168,10 @@ class mod_studentquiz_report {
 
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param int $cmid course_module id
+     * @param int|string $cmid course_module id
+     * @param int|null $userid user id.
      */
-    public function __construct($cmid) {
+    public function __construct($cmid, ?int $userid = null) {
         global $DB, $USER;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
             throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
@@ -187,6 +188,9 @@ class mod_studentquiz_report {
         $this->context = context_module::instance($this->cm->id);
 
         $this->userid = $USER->id;
+        if ($userid) {
+            $this->userid = $userid;
+        }
         $this->availablequestions = mod_studentquiz_count_questions($cmid);
 
         \mod_studentquiz\utils::set_default_group($this->cm);

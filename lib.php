@@ -64,6 +64,10 @@ function studentquiz_supports($feature) {
             return true;
         case FEATURE_MOD_PURPOSE:
             return MOD_PURPOSE_COLLABORATION;
+        case FEATURE_COMPLETION_TRACKS_VIEWS:
+            return true;
+        case FEATURE_COMPLETION_HAS_RULES:
+            return true;
         default:
             return null;
     }
@@ -379,6 +383,40 @@ function studentquiz_get_extra_capabilities() {
     global $CFG;
     require_once($CFG->libdir . '/questionlib.php');
     return question_get_all_capabilities();
+}
+
+/**
+ * Add a get_coursemodule_info function in case any studentquiz type wants to add 'extra' information
+ * for the course (see resource).
+ *
+ * Given a course_module object, this function returns any "extra" information that may be needed
+ * when printing this activity in a course listing. See get_array_of_activities() in course/lib.php.
+ *
+ * @param stdClass $coursemodule The coursemodule object (record).
+ * @return cached_cm_info An object on information.
+ */
+function studentquiz_get_coursemodule_info(stdClass $coursemodule): cached_cm_info {
+    global $DB;
+
+    $studentquiz = $DB->get_record('studentquiz',
+        ['id' => $coursemodule->instance], 'id, name, completionpoint, completionquestionpublished,
+            completionquestionapproved');
+    if (!$studentquiz) {
+        return false;
+    }
+
+    $info = new cached_cm_info();
+    $info->customdata = (object) [];
+
+    // Populate the custom completion rules as key => value pairs, but only if the completion mode is 'automatic'.
+    if ($coursemodule->completion == COMPLETION_TRACKING_AUTOMATIC) {
+        $info->customdata->customcompletionrules['completionpoint'] = $studentquiz->completionpoint;
+        $info->customdata->customcompletionrules['completionquestionpublished'] = $studentquiz->completionquestionpublished;
+        $info->customdata->customcompletionrules['completionquestionapproved'] =
+            $studentquiz->completionquestionapproved;
+    }
+
+    return $info;
 }
 
 /* File API */

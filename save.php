@@ -33,6 +33,8 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
+global $COURSE;
+
 // Get parameters.
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
@@ -70,5 +72,13 @@ switch($save) {
         mod_studentquiz\utils::save_rate($data);
         break;
 }
+$contextmodule = \context_module::instance($cmid);
+$cm = get_coursemodule_from_id('studentquiz', $cmid);
+$studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
+$studentquizquestion = new mod_studentquiz\local\studentquiz_question($studentquizquestionid, null,
+    $studentquiz);
+$userid = $studentquizquestion->get_question()->createdby;
+// Update completion state.
+\mod_studentquiz\completion\custom_completion::update_state($COURSE, $cm, $userid);
 
 header('Content-Type: text/html; charset=utf-8');
