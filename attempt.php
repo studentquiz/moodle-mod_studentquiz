@@ -63,7 +63,7 @@ $context = context_module::instance($cm->id);
 
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
-global $USER;
+global $USER, $COURSE;
 $userid = $USER->id;
 
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
@@ -147,6 +147,8 @@ if (data_submitted()) {
     }
 
     $transaction->allow_commit();
+    // Update completion state.
+    \mod_studentquiz\completion\custom_completion::update_state($COURSE, $cm);
 
     // Navigate accordingly. If no navigation button has been submitted, then there has been a question answer attempt.
     if (optional_param('next', null, PARAM_BOOL)) {

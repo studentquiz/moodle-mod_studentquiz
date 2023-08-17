@@ -33,8 +33,7 @@ class mod_studentquiz_observer {
      * @param \core\event\question_created $event
      */
     public static function question_created(\core\event\question_created $event) {
-        global $CFG;
-
+        global $CFG, $COURSE;
         require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 
         if ($event->contextlevel == CONTEXT_MODULE) {
@@ -44,6 +43,8 @@ class mod_studentquiz_observer {
             if ($cm->modname == 'studentquiz') {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $event->contextinstanceid);
                 utils::ensure_question_version_status_is_correct($event->objectid);
+                // Update completion state.
+                \mod_studentquiz\completion\custom_completion::update_state($COURSE, $cm);
             }
         }
     }

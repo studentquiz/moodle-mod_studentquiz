@@ -42,7 +42,7 @@ class backup_studentquiz_activity_structure_step extends backup_questions_activi
                 'allowedqtypes', 'aggregated', 'excluderoles', 'forcerating', 'forcecommenting',
                 'commentdeletionperiod', 'reportingemail', 'digesttype', 'digestfirstday', 'privatecommenting',
                 'opensubmissionfrom', 'closesubmissionfrom', 'openansweringfrom', 'closeansweringfrom',
-                'publishnewquestion'
+                'publishnewquestion', 'completionpoint', 'completionquestionpublished', 'completionquestionapproved'
         ]);
 
         // StudentQuiz Attempt -> User, Question usage Id.

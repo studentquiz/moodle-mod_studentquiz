@@ -72,6 +72,21 @@ $string['commentcolumnexplainpublic'] = "Number of public comments. A blue backg
 $string['commentcolumnexplainprivate'] = "Number of private comments. A blue background means that you have at least one unread comment.";
 $string['commenthistory'] = 'Comment history';
 $string['comment_veryshort'] = 'C';
+$string['completiondetail:approved'] = 'Minimum number of unique approved questions: {$a}';
+$string['completiondetail:published'] = 'Minimum number of unique authored questions: {$a}';
+$string['completiondetail:point'] = 'Minimum amount of points: {$a}';
+
+$string['completionpoint'] = 'Minimum amount of points required:';
+$string['completionpointgroup'] = 'Require points';
+$string['completionpointgroup_help'] = 'Students earn points as specified under the Ranking settings, e.g. 10 points for creating a question, 5 points for a teacher approving the students\' question, 3 points for the student rating another\'s question. By entering a numeric value in the field, students will only complete the StudentQuiz once they have accumulated enough points.';
+
+$string['completionquestionapproved'] = 'Minimum number of unique approved questions required:';
+$string['completionquestionapprovedgroup'] = 'Require created approved questions';
+$string['completionquestionapprovedgroup_help'] = 'the minimum number of unique questions that a student must author and be approved before the activity is completed. This option can be used with either the Question publishing "Requires approval before publishing" or "Auto-approval" setting, but won\'t be as effective with the latter setting, in case auto-approved questions are later hidden, deleted, or otherwise removed.';
+
+$string['completionquestionpublished'] = 'Minimum number of unique authored questions required:';
+$string['completionquestionpublishedgroup'] = 'Require published questions';
+$string['completionquestionpublishedgroup_help'] = 'The minimum number of unique questions that a student must author before the activity is completed. Note that this is a simple numerical check - two questions that are hidden/deleted have still been authored.';
 $string['confirmdeletecomment'] = 'Are you sure you want to delete this comment?';
 $string['createnewquestion'] = 'Create new question';
 $string['createnewquestionfirst'] = 'Create first question';

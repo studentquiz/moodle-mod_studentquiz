@@ -1675,5 +1675,53 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023053000, 'studentquiz');
     }
 
+    if ($oldversion < 2023081700) {
+
+        // Define field completionpoint to be added to studentquiz.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('completionpoint', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
+            '0', 'privatecommenting');
+
+        // Conditionally launch add field completionpoint.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2023081700, 'studentquiz');
+    }
+
+    if ($oldversion < 2023081701) {
+
+        // Define field completionquestionpublished to be added to studentquiz.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('completionquestionpublished', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
+            '0', 'completionpoint');
+
+        // Conditionally launch add field completionquestionpublished.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2023081701, 'studentquiz');
+    }
+
+    if ($oldversion < 2023081702) {
+
+        // Define field completionquestionapproved to be added to studentquiz.
+        $table = new xmldb_table('studentquiz');
+        $field = new xmldb_field('completionquestionapproved', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
+            '0', 'completionquestionpublished');
+
+        // Conditionally launch add field completionquestionapproved.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2023081702, 'studentquiz');
+    }
+
     return true;
 }
