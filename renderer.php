@@ -524,7 +524,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $mydifficultytitle = get_string('mydifficulty_column_name', 'studentquiz');
         $title = "";
         if (!empty($question->difficultylevel) || !empty($question->mydifficulty)) {
-            $title = $difficultytitle . ': ' . (100 * round($question->difficultylevel, 2)) . '% ';
+            if (!empty($question->difficultylevel)) {
+                $title = $difficultytitle . ': ' . (100 * round($question->difficultylevel, 2)) . '% ';
+            }
             if (!empty($question->mydifficulty)) {
                 $title .= ', ' . $mydifficultytitle . ': ' . (100 * round($question->mydifficulty, 2)) . '%';
             } else {
@@ -925,12 +927,36 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             new \mod_studentquiz\bank\state_column($view),
             new \mod_studentquiz\bank\state_pin_column($view),
             new \mod_studentquiz\bank\question_name_column($view),
+            new \mod_studentquiz\bank\sq_edit_menu_column($view),
+            new qbank_history\version_number_column($view),
+            new \mod_studentquiz\bank\anonym_creator_name_column($view),
+            new \mod_studentquiz\bank\tag_column($view),
+            new \mod_studentquiz\bank\attempts_column($view),
+            new \mod_studentquiz\bank\difficulty_level_column($view),
+            new \mod_studentquiz\bank\rate_column($view),
+            new \mod_studentquiz\bank\comment_column($view),
+        ];
+    }
+
+    /**
+     * Get all the required columns for StudentQuiz view.
+     *
+     * @param mod_studentquiz\question\bank\studentquiz_bank_view_pre_43 $view
+     * @return array
+     */
+    public function get_columns_for_question_bank_view_pre_43(mod_studentquiz\question\bank\studentquiz_bank_view_pre_43 $view) {
+        return [
+            new core_question\local\bank\checkbox_column($view),
+            new qbank_viewquestiontype\question_type_column($view),
+            new \mod_studentquiz\bank\state_column($view),
+            new \mod_studentquiz\bank\state_pin_column($view),
+            new \mod_studentquiz\bank\question_name_column($view),
             new \mod_studentquiz\bank\sq_edit_action_column($view),
             new \mod_studentquiz\bank\preview_column($view),
             new \mod_studentquiz\bank\sq_delete_action_column($view),
             new \mod_studentquiz\bank\sq_hidden_action_column($view),
             new \mod_studentquiz\bank\sq_pin_action_column($view),
-            new \mod_studentquiz\bank\sq_edit_menu_column($view),
+            new \mod_studentquiz\bank\sq_edit_menu_column_pre_43($view),
             new qbank_history\version_number_column($view),
             new \mod_studentquiz\bank\anonym_creator_name_column($view),
             new \mod_studentquiz\bank\tag_column($view),
@@ -1198,9 +1224,10 @@ EOT;
      * @param bool $hasquestionincategory
      * @param mixed $addcontexts
      * @param stdClass $category
+     * @param array $filter
      * @return string
      */
-    public function render_control_buttons($catcontext, $hasquestionincategory, $addcontexts, $category) {
+    public function render_control_buttons($catcontext, $hasquestionincategory, $addcontexts, $category, array $filter = []) {
         global $COURSE;
 
         $output = '';
@@ -1216,8 +1243,16 @@ EOT;
                 $studentquiz->openansweringfrom, $studentquiz->closeansweringfrom, 'answering');
         $deleteurl = new \moodle_url('/question/bank/deletequestion/delete.php', ['courseid' => $COURSE->id,
             'returnurl' => $this->page->url]);
+
+        // Due to Moodle 4.3 changes.
+        // We need a filter param in moveurl.
+        $returnmoveurl = $this->page->url;
+        if ($filter) {
+            $returnmoveurl->param('filter', json_encode($filter));
+        }
         $movetourl = new \moodle_url('/question/bank/bulkmove/move.php', ['courseid' => $COURSE->id,
-            'returnurl' => $this->page->url]);
+            'returnurl' => $returnmoveurl]);
+
         $changestateurl = new \moodle_url('/mod/studentquiz/changestate.php', ['courseid' => $COURSE->id,
             'returnurl' => $this->page->url]);
         if ($hasquestionincategory) {

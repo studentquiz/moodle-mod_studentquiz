@@ -34,7 +34,7 @@ use mod_studentquiz\local\db;
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_condition extends \core_question\local\bank\condition {
+class studentquiz_condition_pre_43 extends \core_question\bank\search\condition {
 
     /**
      * Due to fix_sql_params not accepting repeated use of named params,
@@ -67,24 +67,6 @@ class studentquiz_condition extends \core_question\local\bank\condition {
         $this->init();
     }
 
-    /**
-     * Return title of the condition
-     *
-     * @return string title of the condition
-     */
-    public function get_title() {
-        return get_string('showhidden', 'core_question');
-    }
-
-    /**
-     * Return filter class associated with this condition
-     *
-     * @return string filter class
-     */
-    public function get_filter_class() {
-        return 'qbank_deletequestion/datafilter/filtertypes/hidden';
-    }
-
     /** @var stdClass */
     protected $cm;
 
@@ -101,7 +83,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
     protected $tests;
 
     /** @var array */
-    protected array $params = [];
+    protected $params;
 
     /** @var bool */
     protected $isfilteractive = false;
@@ -139,13 +121,13 @@ class studentquiz_condition extends \core_question\local\bank\condition {
 
                 // Disable filtering by firstname if anonymized.
                 if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
-                    !$this->report->is_anonymized())) {
+                        !$this->report->is_anonymized())) {
                     continue;
                 }
 
                 // Disable filtering by firstname if anonymized.
                 if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
-                    !$this->report->is_anonymized())) {
+                        !$this->report->is_anonymized())) {
                     continue;
                 }
 

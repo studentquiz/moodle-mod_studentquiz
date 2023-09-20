@@ -213,9 +213,9 @@ class comment_test extends \advanced_testcase {
         // Create root comment.
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
-        $comment = $this->create_comment($this->rootid, $sqq1->id, $text);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), $text);
         $this->assertEquals($text, $comment->content);
-        $this->assertEquals($sqq1->id, $comment->studentquizquestionid);
+        $this->assertEquals($sqq1->get_id(), $comment->studentquizquestionid);
         $this->assertEquals($this->rootid, $comment->parentid);
     }
 
@@ -227,12 +227,12 @@ class comment_test extends \advanced_testcase {
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
         $textreply = 'Reply root comment';
-        $comment = $this->create_comment($this->rootid, $sqq1->id, $text);
-        $reply = $this->create_comment($comment->id, $sqq1->id, $textreply);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), $text);
+        $reply = $this->create_comment($comment->id, $sqq1->get_id(), $textreply);
         // Check text reply.
         $this->assertEquals($textreply, $reply->content);
         // Check question id.
-        $this->assertEquals($sqq1->id, $reply->studentquizquestionid);
+        $this->assertEquals($sqq1->get_id(), $reply->studentquizquestionid);
         // Check if reply belongs to comment.
         $this->assertEquals($comment->id, $reply->parentid);
     }
@@ -248,7 +248,7 @@ class comment_test extends \advanced_testcase {
      */
     public function test_shorten_comment(string $content, string $expected, int $expectedlength): void {
         $sq1 = $this->studentquizquestions[0];
-        $comment = $this->create_comment($this->rootid, $sq1->id, $content);
+        $comment = $this->create_comment($this->rootid, $sq1->get_id(), $content);
         $this->assertEquals($expectedlength, strlen($comment->shortcontent));
         $this->assertEquals($expected, $comment->shortcontent);
     }
@@ -291,7 +291,7 @@ class comment_test extends \advanced_testcase {
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
         // Dont need to convert to use delete.
-        $comment = $this->create_comment($this->rootid, $sqq1->id, $text, false);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), $text, false);
         // Try to delete.
         $comment->delete();
         // Get new data.
@@ -312,9 +312,9 @@ class comment_test extends \advanced_testcase {
         $text = 'Root comment';
         $textreply = 'Reply root comment';
         $numreplies = 3;
-        $comment = $this->create_comment($this->rootid, $sqq1->id, $text);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), $text);
         for ($i = 0; $i < $numreplies; $i++) {
-            $this->create_comment($comment->id, $sqq1->id, $textreply);
+            $this->create_comment($comment->id, $sqq1->get_id(), $textreply);
         }
         $comments = $this->commentarea->fetch_all(0);
         $data = [];
@@ -342,7 +342,7 @@ class comment_test extends \advanced_testcase {
         global $DB;
         $sqq1 = $this->studentquizquestions[0];
         // Need to use comment class functions. Don't use convert to response data.
-        $comment = $this->create_comment($this->rootid, $sqq1->id, 'Test comment', false);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), 'Test comment', false);
         // Assume that we didn't input any emails for report. It will return false.
         $this->assertFalse($comment->can_report());
         // Turn on report.
@@ -377,7 +377,7 @@ class comment_test extends \advanced_testcase {
                     'parentid' => $this->rootid,
                     'userid' => $user->id,
                     'created' => $k + 1,
-                    'studentquizquestionid' => $sqq2->id
+                    'studentquizquestionid' => $sqq2->get_id()
             ];
         }
         $DB->insert_records('studentquiz_comment', $records);
@@ -548,7 +548,7 @@ class comment_test extends \advanced_testcase {
                 'parentid' => $this->rootid,
                 'userid' => $commentarea->get_user()->id,
                 'created' => time(),
-                'studentquizquestionid' => $sqq1->id
+                'studentquizquestionid' => $sqq1->get_id()
         ]);
         return $commentarea;
     }
@@ -562,7 +562,7 @@ class comment_test extends \advanced_testcase {
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
         // Dont need to convert to use delete.
-        $comment = $this->create_comment($this->rootid, $sqq1->id, $text, false);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), $text, false);
         $formdata = new \stdClass();
         $formdata->message['text'] = 'Edited comment';
         $formdata->type = utils::COMMENT_TYPE_PUBLIC;
@@ -619,7 +619,7 @@ class comment_test extends \advanced_testcase {
         // Create root comment.
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment for history';
-        $comment = $this->create_comment($this->rootid, $sqq1->id, $text, false);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), $text, false);
         $comparestr = 'comment' . $comment->get_id();
         $historyid = $comment->create_history($comment->get_id(), $comment->get_user_id(), 0, $comparestr);
         $history = $DB->get_record('studentquiz_comment_history', ['id' => $historyid]);
@@ -634,7 +634,7 @@ class comment_test extends \advanced_testcase {
      */
     public function test_get_histories() {
         $sqq1 = $this->studentquizquestions[0];
-        $comment = $this->create_comment($this->rootid, $sqq1->id, 'demo content', false);
+        $comment = $this->create_comment($this->rootid, $sqq1->get_id(), 'demo content', false);
         $comment->create_history($comment->get_id(), $comment->get_user_id(), 1, 'comment1' . $comment->get_id());
         $comment->create_history($comment->get_id(), $comment->get_user_id(), 1, 'comment2' . $comment->get_id());
         $histories = $this->commentarea->get_history($comment->get_id());

@@ -55,7 +55,6 @@ Feature: Navigation to the pages
     And I should see "Categories"
     And I should see "Import"
     And I should see "Export"
-    And I should see "Select a category:"
 
   Scenario: Check that the More link exist in My Progress and Ranking block
     When I navigate to "StudentQuiz" in current page administration

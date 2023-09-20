@@ -31,6 +31,12 @@ class rate_column extends studentquiz_column_base {
      */
     protected $renderer;
 
+    /** @var int current user id*/
+    protected $currentuserid;
+
+    /** @var int student quiz id*/
+    protected $studentquizid;
+
     /**
      * Initialise Parameters for join
      */

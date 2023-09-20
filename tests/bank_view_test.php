@@ -18,11 +18,16 @@ namespace mod_studentquiz;
 
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\question\bank\studentquiz_bank_view;
+use mod_studentquiz\question\bank\studentquiz_bank_view_pre_43;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/studentquiz_bank_view.php');
+if (utils::moodle_version_is("<=", "42")) {
+    require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/legacy/studentquiz_bank_view_pre_43.php');
+} else {
+    require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/studentquiz_bank_view.php');
+}
 require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
@@ -107,16 +112,29 @@ class bank_view_test extends \advanced_testcase {
                 'cat' => $this->cat->id . ',' . $this->ctx->id,
                 'showall' => 0,
                 'showallprinted' => 0,
+                'tabname' => 'questions',
+                'qperpage' => 100,
+                'qpage' => 0,
         );
 
         $report = new \mod_studentquiz_report($this->cm->id);
-        $questionbank = new studentquiz_bank_view(
+        if (utils::moodle_version_is("<=", "42")) {
+            $questionbank = new studentquiz_bank_view_pre_43(
                 new \core_question\local\bank\question_edit_contexts(\context_module::instance($this->cm->id))
                 , new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
                 , $this->course
                 , $this->cm
                 , $this->studentquiz
                 , $pagevars, $report);
+        } else {
+            $questionbank = new studentquiz_bank_view(
+                new \core_question\local\bank\question_edit_contexts(\context_module::instance($this->cm->id))
+                , new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
+                , $this->course
+                , $this->cm
+                , $this->studentquiz
+                , $pagevars, $report);
+        }
         return $questionbank;
     }
 
@@ -154,29 +172,49 @@ class bank_view_test extends \advanced_testcase {
         $this->resetAfterTest(true);
 
         $questionbank = $this->run_questionbank();
-        $reflector = new \ReflectionClass('mod_studentquiz\question\bank\studentquiz_bank_view');
+        $below42 = utils::moodle_version_is("<=", "42");
+        if ($below42) {
+            $reflector = new \ReflectionClass('mod_studentquiz\question\bank\studentquiz_bank_view_pre_43');
+        } else {
+            $reflector = new \ReflectionClass('mod_studentquiz\question\bank\studentquiz_bank_view');
+        }
         $method = $reflector->getMethod('wanted_columns');
         $method->setAccessible(true);
         $requiredcolumns = $method->invokeArgs($questionbank, [$questionbank]);
-
-        $this->assertInstanceOf('core_question\local\bank\checkbox_column', $requiredcolumns[0]);
-        $this->assertInstanceOf('qbank_viewquestiontype\question_type_column', $requiredcolumns[1]);
-        $this->assertInstanceOf('mod_studentquiz\bank\state_column', $requiredcolumns[2]);
-        $this->assertInstanceOf('mod_studentquiz\bank\state_pin_column', $requiredcolumns[3]);
-        $this->assertInstanceOf('mod_studentquiz\bank\question_name_column', $requiredcolumns[4]);
-        $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_action_column', $requiredcolumns[5]);
-        $this->assertInstanceOf('mod_studentquiz\bank\preview_column', $requiredcolumns[6]);
-        $this->assertInstanceOf('mod_studentquiz\bank\sq_delete_action_column', $requiredcolumns[7]);
-        $this->assertInstanceOf('mod_studentquiz\bank\sq_hidden_action_column', $requiredcolumns[8]);
-        $this->assertInstanceOf('mod_studentquiz\bank\sq_pin_action_column', $requiredcolumns[9]);
-        $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_menu_column', $requiredcolumns[10]);
-        $this->assertInstanceOf('qbank_history\version_number_column', $requiredcolumns[11]);
-        $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[12]);
-        $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[13]);
-        $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[14]);
-        $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[15]);
-        $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[16]);
-        $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[17]);
+        if ($below42) {
+            $this->assertInstanceOf('core_question\local\bank\checkbox_column', $requiredcolumns[0]);
+            $this->assertInstanceOf('qbank_viewquestiontype\question_type_column', $requiredcolumns[1]);
+            $this->assertInstanceOf('mod_studentquiz\bank\state_column', $requiredcolumns[2]);
+            $this->assertInstanceOf('mod_studentquiz\bank\state_pin_column', $requiredcolumns[3]);
+            $this->assertInstanceOf('mod_studentquiz\bank\question_name_column', $requiredcolumns[4]);
+            $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_action_column', $requiredcolumns[5]);
+            $this->assertInstanceOf('mod_studentquiz\bank\preview_column', $requiredcolumns[6]);
+            $this->assertInstanceOf('mod_studentquiz\bank\sq_delete_action_column', $requiredcolumns[7]);
+            $this->assertInstanceOf('mod_studentquiz\bank\sq_hidden_action_column', $requiredcolumns[8]);
+            $this->assertInstanceOf('mod_studentquiz\bank\sq_pin_action_column', $requiredcolumns[9]);
+            $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_menu_column_pre_43', $requiredcolumns[10]);
+            $this->assertInstanceOf('qbank_history\version_number_column', $requiredcolumns[11]);
+            $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[12]);
+            $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[13]);
+            $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[14]);
+            $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[15]);
+            $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[16]);
+            $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[17]);
+        } else {
+            $this->assertInstanceOf('core_question\local\bank\checkbox_column', $requiredcolumns[0]);
+            $this->assertInstanceOf('qbank_viewquestiontype\question_type_column', $requiredcolumns[1]);
+            $this->assertInstanceOf('mod_studentquiz\bank\state_column', $requiredcolumns[2]);
+            $this->assertInstanceOf('mod_studentquiz\bank\state_pin_column', $requiredcolumns[3]);
+            $this->assertInstanceOf('mod_studentquiz\bank\question_name_column', $requiredcolumns[4]);
+            $this->assertInstanceOf('\mod_studentquiz\bank\sq_edit_menu_column', $requiredcolumns[5]);
+            $this->assertInstanceOf('qbank_history\version_number_column', $requiredcolumns[6]);
+            $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[7]);
+            $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[8]);
+            $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[9]);
+            $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[10]);
+            $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[11]);
+            $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[12]);
+        }
     }
 
     /**
@@ -206,7 +244,7 @@ class bank_view_test extends \advanced_testcase {
     protected function create_rate($sqq, $userid) {
         $raterecord = new \stdClass();
         $raterecord->rate = 5;
-        $raterecord->studentquizquestionid = $sqq->id;
+        $raterecord->studentquizquestionid = $sqq->get_id();
         $raterecord->userid = $userid;
     }
 
@@ -217,7 +255,7 @@ class bank_view_test extends \advanced_testcase {
      */
     protected function create_comment($sqq, $userid) {
         $commentrecord = new \stdClass();
-        $commentrecord->studentquizquestionid = $sqq->id;
+        $commentrecord->studentquizquestionid = $sqq->get_id();
         $commentrecord->userid = $userid;
 
         $this->studentquizgenerator->create_comment($commentrecord);

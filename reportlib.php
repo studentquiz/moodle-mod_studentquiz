@@ -98,6 +98,8 @@ class mod_studentquiz_report {
     /** @var stdClass */
     protected $studentquizstats;
 
+    protected $questionstats;
+
     /**
      * Overall Stats of the studentquiz
      * @return stdClass

@@ -14,7 +14,8 @@ Feature: Backup and restore activity studentquiz
   @javascript @_file_upload
   Scenario: Restore moodle backups containing old StudentQuiz activity has availability and question publishing setting.
     When I am on the "Course 1" "restore" page logged in as "admin"
-    And I press "Manage backup files"
+    # Main branch has change the text to "Manage course backups" so we should use xpath.
+    And I click on "(//*[@class='singlebutton']//button)[1]" "xpath_element"
     And I upload "mod/studentquiz/tests/fixtures/backup-moodle2-availability-setting.mbz" file to "Files" filemanager
     And I press "Save changes"
     And I restore "backup-moodle2-availability-setting.mbz" backup into a new course using this options:

@@ -51,4 +51,14 @@ abstract class studentquiz_column_base extends \core_question\local\bank\column_
     public function get_extra_classes():array {
         return $this->extraclasses;
     }
+
+    /**
+     * Required columns
+     *
+     * @return array fields required. use table alias 'q' for the question table, or one of the
+     * ones from get_extra_joins. Every field requested must specify a table prefix.
+     */
+    public function get_required_fields(): array {
+        return ['sqq.hidden AS sq_hidden'];
+    }
 }

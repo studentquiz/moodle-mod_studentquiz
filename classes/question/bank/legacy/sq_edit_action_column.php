@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace mod_studentquiz\bank;
-
 use qbank_editquestion\edit_action_column;
 use mod_studentquiz\local\studentquiz_helper;
 

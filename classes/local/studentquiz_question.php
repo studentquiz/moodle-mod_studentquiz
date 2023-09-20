@@ -40,10 +40,14 @@ class studentquiz_question {
     private $cm;
 
     /** @var \context_module  $context - Context. */
-    private $context;
+    protected $context;
 
     /** @var stdClass - StudentQuiz data. */
-    private $studentquiz;
+    protected $studentquiz;
+
+    /** @var int - StudentQuiz question id. */
+    protected $id;
+
 
     /**
      * studentquiz_question constructor.

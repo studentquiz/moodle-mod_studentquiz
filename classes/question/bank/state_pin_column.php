@@ -26,9 +26,12 @@ use core_question\local\bank\action_column_base;
  * @copyright 2021 The Open University.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class state_pin_column extends action_column_base {
+class state_pin_column extends \core_question\local\bank\column_base {
     /** @var mod_studentquiz Renderer of student quiz. */
     protected $renderer;
+
+    /** @var int current user id*/
+    protected $currentuserid;
 
     /**
      * Init method.
@@ -55,6 +58,15 @@ class state_pin_column extends action_column_base {
      */
     public function get_title(): string {
         return '';
+    }
+
+    /**
+     * Get required fields.
+     *
+     * @return array Fields required.
+     */
+    public function get_required_fields(): array {
+        return array('sqq.pinned AS pinned');
     }
 
     /**

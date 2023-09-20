@@ -658,3 +658,18 @@ function studentquiz_questions_in_use(array $questionids): bool {
     return question_engine::questions_in_use($questionids,
         new qubaid_join('{studentquiz_attempt} sa', 'sa.questionusageid'));
 }
+
+/**
+ * Implements callback user_preferences, lists preferences that users are allowed to update directly
+ *
+ * Used in {@see core_user::fill_preferences_cache()}, see also {@see useredit_update_user_preference()}
+ *
+ * @return array
+ */
+function mod_studentquiz_user_preferences() {
+    return [utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB => [
+        'type' => PARAM_TEXT,
+        'null' => NULL_NOT_ALLOWED,
+        'default' => utils::COMMENT_TYPE_PRIVATE]
+    ];
+}

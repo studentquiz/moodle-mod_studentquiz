@@ -34,6 +34,12 @@ class difficulty_level_column extends studentquiz_column_base {
     /** @var \stdClass */
     protected $studentquiz;
 
+    /** @var int current user id*/
+    protected $currentuserid;
+
+    /** @var int student quiz id*/
+    protected $studentquizid;
+
     /**
      * Initialise Parameters for join
      */

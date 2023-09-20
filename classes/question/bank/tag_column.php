@@ -47,6 +47,9 @@ class tag_column extends studentquiz_column_base {
      */
     protected $renderer;
 
+    /** @var int category id */
+    protected $categoryid;
+
     /**
      * Initialise Parameters for join
      */

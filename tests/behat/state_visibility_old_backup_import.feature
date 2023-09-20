@@ -13,7 +13,8 @@ Feature: Restore of studentquizzes in moodle exports contain old approved column
   @javascript @_file_upload
   Scenario: Restore moodle backups containing old StudentQuiz activity with old approved column
     When I am on the "Course 1" "restore" page logged in as "admin"
-    And I press "Manage backup files"
+    # Main branch has change the text to "Manage course backups" so we should use xpath.
+    And I click on "(//*[@class='singlebutton']//button)[1]" "xpath_element"
     And I upload "mod/studentquiz/tests/fixtures/backup-moodle2-aggregated-before.mbz" file to "Files" filemanager
     And I press "Save changes"
     And I restore "backup-moodle2-aggregated-before.mbz" backup into a new course using this options:
