@@ -1354,7 +1354,7 @@ EOT;
                         'name' => 'changepagesize',
                         'value' => 1,
                     ]);
-                    $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
+                    $pagingbaroutput .= \html_writer::div($selectionperpage, 'float-right form-inline pagination m-t-1');
                 }
                 $pagingbaroutput .= $this->output->render($pagingbar);
                 $pagingbaroutput .= html_writer::end_div();
@@ -1796,7 +1796,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             ]);
         }
 
-        $content1 = html_writer::div(html_writer::div($col1content, 'pull-left'), 'col-md-4');
+        $content1 = html_writer::div(html_writer::div($col1content, 'float-left'), 'col-md-4');
 
         // The abort button can always be shown, except when the question has been answered and it is the last question
         // in the list.
@@ -1821,7 +1821,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     'class' => 'btn btn-primary'
             ]);
         }
-        $content3 = html_writer::div(html_writer::div($col3content, 'pull-right'), 'col-md-4');
+        $content3 = html_writer::div(html_writer::div($col3content, 'float-right'), 'col-md-4');
 
         return html_writer::div($content1 . $content2 . $content3, 'mod-studentquiz-attempt-nav row');
     }
