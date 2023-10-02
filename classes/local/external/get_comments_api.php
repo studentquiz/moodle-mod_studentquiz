@@ -57,7 +57,7 @@ class get_comments_api extends external_api {
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'numbertoshow' => new external_value(PARAM_INT, 'Number of comments to show, 0 will return all comments/replies',
                         VALUE_DEFAULT, container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT),
-                'sort' => new external_value(PARAM_TEXT, 'Sort type', false),
+                'sort' => new external_value(PARAM_TEXT, 'Sort type'),
                 'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
         ]);
     }
