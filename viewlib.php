@@ -123,21 +123,21 @@ class mod_studentquiz_view {
      * Loads the question custom bank view.
      */
     private function load_questionbank() {
-        $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-        $params = $_GET;
+        $params = $_REQUEST;
+        if (!optional_param('cat', null, PARAM_SEQUENCE)) {
+            $params['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
+            $params = \mod_studentquiz\utils::flat_url_data($params);
+            $url = new \moodle_url('/mod/studentquiz/view.php', $params);
+            redirect($url);
+        }
         // Get edit question link setup.
-        list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
+        [$thispageurl, $contexts, $cmid, $cm, $module, $pagevars]
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
         $pagevars['qperpage'] = optional_param('qperpage', \mod_studentquiz\utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
         $pagevars['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-        $this->pageurl = new moodle_url($thispageurl);
-        foreach ($params as $key => $value) {
-            if ($key == 'timecreated_sdt' || $key == 'timecreated_edt') {
-                $value = http_build_query($value);
-            }
-            $thispageurl->param($key, $value);
-        }
+        $urlparams = \mod_studentquiz\utils::flat_url_data($params);
+        $this->pageurl = new moodle_url($thispageurl, $urlparams);
         // Trigger notification if user got returned from the question edit form.
         // TODO: Shouldn't this be somewhere outside of load_questionbank(), as this is clearly not relevant for showing the
         // question bank?

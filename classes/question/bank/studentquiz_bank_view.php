@@ -545,7 +545,71 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
       * but the moodle filter form can only process POST, so we need to copy them there.
       */
     private function set_filter_post_data() {
-        $_POST = $_GET;
+        $params = [];
+        $paramdata = ['mform_isexpanded_id_filtertab' => optional_param('mform_isexpanded_id_filtertab', null, PARAM_TEXT),
+            'cmid' => optional_param('cmid', null, PARAM_TEXT),
+            'id' => optional_param('id', null, PARAM_TEXT),
+            'qperpage' => optional_param('qperpage', null, PARAM_TEXT),
+            'sesskey' => optional_param('sesskey', null,  PARAM_TEXT),
+            '_qf__mod_studentquiz_question_bank_filter_form' =>
+                optional_param('_qf__mod_studentquiz_question_bank_filter_form', null, PARAM_TEXT),
+            'mform_showmore_id_filtertab' => optional_param('mform_showmore_id_filtertab', null, PARAM_TEXT),
+            'onlynew' => optional_param('onlynew', null, PARAM_TEXT),
+            'only_new_state' => optional_param('only_new_state', null, PARAM_TEXT),
+            'only_approved_state' => optional_param('only_approved_state', null, PARAM_TEXT),
+            'only_disapproved_state' => optional_param('only_disapproved_state', null, PARAM_TEXT),
+            'only_changed_state' => optional_param('only_changed_state', null, PARAM_TEXT),
+            'only_reviewable_state' => optional_param('only_reviewable_state', null, PARAM_TEXT),
+            'onlygood' => optional_param('onlygood', null, PARAM_TEXT),
+            'onlymine' => optional_param('onlymine', null, PARAM_TEXT),
+            'onlydifficultforme' => optional_param('onlydifficultforme', null, PARAM_TEXT),
+            'onlydifficult' => optional_param('onlydifficult', null, PARAM_TEXT),
+            'tagarray_op' => optional_param('tagarray_op', null, PARAM_TEXT),
+            'tagarray' => optional_param('tagarray', null, PARAM_TEXT),
+            'state' => optional_param('state', null, PARAM_TEXT),
+            'publiccomment_op' => optional_param('publiccomment_op', null, PARAM_TEXT),
+            'publiccomment' => optional_param('publiccomment', null, PARAM_TEXT),
+            'name_op' => optional_param('name_op', null, PARAM_TEXT),
+            'name' => optional_param('name', null, PARAM_TEXT),
+            'questiontext_op' => optional_param('questiontext_op', null, PARAM_TEXT),
+            'questiontext' => optional_param('questiontext', null, PARAM_TEXT),
+            'firstname_op' => optional_param('firstname_op', null, PARAM_TEXT),
+            'firstname' => optional_param('firstname', null, PARAM_TEXT),
+            'lastname_op' => optional_param('lastname_op', null, PARAM_TEXT),
+            'lastname' => optional_param('lastname', null, PARAM_TEXT),
+            'timecreated_sdt' => optional_param_array('timecreated_sdt', null, PARAM_TEXT),
+            'timecreated_edt' => optional_param_array('timecreated_edt', null, PARAM_TEXT),
+            'lastanswercorrect' => optional_param('lastanswercorrect', null, PARAM_TEXT),
+            'myrate_op' => optional_param('myrate_op', null, PARAM_TEXT),
+            'myrate' => optional_param('myrate', null, PARAM_TEXT),
+            'rate' => optional_param('rate', null, PARAM_TEXT),
+            'myattempts_op' => optional_param('myattempts_op', null, PARAM_TEXT),
+            'myattempts' => optional_param('myattempts', null, PARAM_TEXT),
+            'mydifficulty_op' => optional_param('mydifficulty_op', null, PARAM_TEXT),
+            'mydifficulty' => optional_param('mydifficulty', null, PARAM_TEXT),
+            'difficultylevel_op' => optional_param('difficultylevel_op', null, PARAM_TEXT),
+            'difficultylevel' => optional_param('difficultylevel', null, PARAM_TEXT),
+            'rate_op' => optional_param('rate_op', null, PARAM_TEXT),
+            'submitbutton' => optional_param('submitbutton', null, PARAM_TEXT),
+            'cat' => optional_param('cat', null, PARAM_TEXT),
+            'startquiz' => optional_param('startquiz', null, PARAM_TEXT),
+            'useFilter' => optional_param('useFilter', false, PARAM_BOOL),
+        ];
+
+        // Remove redundant data.
+        foreach ($paramdata as $key => $param) {
+            if (!is_null($param)) {
+                $params[$key] = $param;
+            }
+        }
+
+        if (optional_param('submitbutton', null, PARAM_TEXT) === 'Filter'
+                && !optional_param('useFilter', false, PARAM_BOOL)) {
+            $params['useFilter'] = true;
+            $params = \mod_studentquiz\utils::flat_url_data($params);
+            $url = new \moodle_url('/mod/studentquiz/view.php', $params);
+            redirect($url);
+        }
     }
 
     /**
@@ -566,7 +630,8 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
             $pageurl->out(false),
-            array_merge(['cmid' => $this->cm->id], $this->pagevars)
+            array_merge(['cmid' => $this->cm->id], $this->pagevars),
+            'get'
         );
     }
 

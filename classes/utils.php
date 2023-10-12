@@ -406,19 +406,24 @@ style5 = html';
     /**
      * We hide 'All participants' option in group mode. It doesn't make sense to display question of all groups together,
      * and it makes confusing in reports. If the group = 0, NULL or an invalid group,
-     * we force to chose first available group by default.
+     * we force to choose first available group by default.
      *
-     * @param stdClass $cm Course module class.
+     * @param \stdClass $cm Course module class.
+     * @param moodle_url $url The report url.
      */
-    public static function set_default_group($cm) {
+    public static function set_default_group(\stdClass $cm, moodle_url $url): void {
         global $USER;
 
         $allowedgroups = groups_get_activity_allowed_groups($cm, $USER->id);
         if ($allowedgroups && !groups_get_activity_group($cm, true, $allowedgroups)) {
             // Although the UI show that the first group is selected, the param 'group' is not set,
             // so the groups_get_activity_group() will return wrong value. We have to set it in $_GET to prevent the
-            // problem when user go to the student quiz in the first time.
-            $_GET['group'] = reset($allowedgroups)->id;
+            // problem when usergroups_get_activity_group go to the student quiz in the first time.
+            if (!optional_param('group', -1, PARAM_INT)) {
+                $group = reset($allowedgroups)->id;
+                $url->param('group', $group);
+                redirect($url->out());
+            }
         }
     }
 
@@ -810,5 +815,36 @@ style5 = html';
             $data->id = $row->id;
             $DB->update_record('studentquiz_rate', $data);
         }
+    }
+
+    /**
+     * Flat URL data before set to url.
+     * Sometimes, users may need to filter questions based on their creation date.
+     * The URL parameters, stored in an array as timecreated_sdt and timecreated_edt,
+     * contain values for year, month, day, and enabled.
+     * Before setting these values as URL parameters, we need to flatten it.
+     * e.g:
+     * - With these data input:
+     *  ['timecreated_sdt' => ['day' = '11', 'month' => '11', 'year' => '2023', 'enabled' => '1]]
+     * - The output will be:
+     *  ['timecreated_sdt[day]' => '11', 'timecreated_sdt[month]' => '11', timecreated_sdt[year]' => '11', 'enabled' => '1'];
+     *
+     * @param array $data URL data need to convert.
+     * @return array Flat parameters.
+     */
+    public static function flat_url_data(array $data): array {
+        $params = [];
+        foreach ($data as $key => $value) {
+            if ($key === 'timecreated_sdt' || $key === 'timecreated_edt') {
+                foreach ($value as $index => $time) {
+                    $paramname = $key . '[' . $index . ']';
+                    $params[$paramname] = $time;
+                }
+            } else {
+                $params[$key] = $value;
+            }
+        }
+
+        return $params;
     }
 }

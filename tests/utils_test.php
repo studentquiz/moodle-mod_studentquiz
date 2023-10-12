@@ -172,4 +172,45 @@ class utils_test extends \advanced_testcase {
         $this->assertEquals(question_version_status::QUESTION_STATUS_READY, $newquestionversion->status);
     }
 
+    /**
+     * Test flat_url_data function.
+     *
+     * @covers \mod_studentquiz\utils::flat_url_data
+     */
+    public function test_flat_url_data(): void {
+        $this->resetAfterTest();
+        $params = [
+            'cmid' => '81',
+            'cat' => '533,140',
+            'qperpage' => '20',
+            'timecreated_sdt' => [
+                'day' => '11',
+                'month' => '11',
+                'year' => '2022',
+                'enabled' => '1',
+            ],
+            'timecreated_edt' => [
+                'day' => '11',
+                'month' => '11',
+                'year' => '2023',
+                'enabled' => '1',
+            ]
+        ];
+
+        $expectedparams = [
+            'cmid' => '81',
+            'cat' => '533,140',
+            'qperpage' => '20',
+            'timecreated_sdt[day]' => '11',
+            'timecreated_sdt[month]' => '11',
+            'timecreated_sdt[year]' => '2022',
+            'timecreated_sdt[enabled]' => '1',
+            'timecreated_edt[day]' => '11',
+            'timecreated_edt[month]' => '11',
+            'timecreated_edt[year]' => '2023',
+            'timecreated_edt[enabled]' => '1',
+        ];
+
+        $this->assertEquals($expectedparams, utils::flat_url_data($params));
+    }
 }

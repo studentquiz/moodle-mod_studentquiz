@@ -55,9 +55,11 @@ class viewlib_test extends \advanced_testcase {
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
         $context = \context_module::instance($this->cm->id);
+        $category = question_get_default_category($context->id);
 
         // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'].
         $_GET['cmid'] = $this->cm->id;
+        $_GET['cat'] = $category->id . ',' . $context->id;
 
         // Satisfy codechecker: $course $cm $studentquiz $userid.
         $report = new \mod_studentquiz_report($this->cm->id);
