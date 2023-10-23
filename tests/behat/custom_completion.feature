@@ -45,9 +45,9 @@ Feature: Set a studentquiz to be marked complete when the student meets the cond
   Scenario: Check studentquiz mark done when the student meets the conditions of the completion created
     Given I add a "StudentQuiz" to section "1"
     When I set the following fields to these values:
-      | StudentQuiz Name                 | StudentQuiz 1                |
-      | Description                      | Test studentquiz description |
-      | completion                       | 2                            |
+      | StudentQuiz Name                   | StudentQuiz 1                |
+      | Description                        | Test studentquiz description |
+      | completion                         | 2                            |
       | completionquestionpublishedenabled | 1                            |
       | completionquestionpublished        | 2                            |
     And I press "Save and display"

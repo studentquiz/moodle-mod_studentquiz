@@ -26,30 +26,25 @@ use cm_info;
 use stdClass;
 
 /**
- * Activity custom completion subclass for the data activity.
+ * Activity custom completion subclass for the StudentQuiz activity.
  *
  * Class for defining mod_studentquiz's custom completion rules and fetching the completion statuses
  * of the custom completion rules for a given data instance and a user.
  *
- * @package mod_studentquiz
+ * @package   mod_studentquiz
  * @copyright 2023 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_completion extends activity_custom_completion {
-    /**
-     * Fetches the completion state for a given completion rule.
-     *
-     * @param string $rule The completion rule.
-     * @return int The completion state.
-     */
+
     public function get_state(string $rule): int {
         global $DB;
+
         $studentquizid = $this->cm->instance;
-        if (!$studentquiz = $DB->get_record('studentquiz', ['id' => $studentquizid])) {
-            throw new \moodle_exception('Unable to find studentquiz with id ' . $studentquizid);
-        }
+        $studentquiz = $DB->get_record('studentquiz', ['id' => $studentquizid], '*', MUST_EXIST);
         $report = new mod_studentquiz_report($this->cm->id, $this->userid);
         $userstats = $report->get_user_stats();
+
         switch ($rule) {
             case 'completionpoint':
                 $status = $studentquiz->completionpoint <= (int) $userstats->points;
@@ -61,18 +56,13 @@ class custom_completion extends activity_custom_completion {
                 $status = $studentquiz->completionquestionapproved <= (int) $userstats->questions_approved;
                 break;
             default:
-                $status = COMPLETION_INCOMPLETE;
+                $status = false;
                 break;
         }
 
         return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
-    /**
-     * Fetch the list of custom completion rules that this module defines.
-     *
-     * @return array An array of custom completion rules.
-     */
     public static function get_defined_custom_rules(): array {
         return [
             'completionpoint',
@@ -81,11 +71,6 @@ class custom_completion extends activity_custom_completion {
         ];
     }
 
-    /**
-     * Returns an associative array of the descriptions of custom completion rules.
-     *
-     * @return array An array of custom completion rules description.
-     */
     public function get_custom_rule_descriptions(): array {
         $completionpoint = $this->cm->customdata->customcompletionrules['completionpoint'] ?? 0;
         $completionquestionpublished = $this->cm->customdata->customcompletionrules['completionquestionpublished'] ?? 0;
@@ -100,11 +85,6 @@ class custom_completion extends activity_custom_completion {
         ];
     }
 
-    /**
-     * Returns an array of all completion rules, in the order they should be displayed to users.
-     *
-     * @return array An array of all completion rules.
-     */
     public function get_sort_order(): array {
         $defaults = [
            'completionview',
@@ -113,13 +93,12 @@ class custom_completion extends activity_custom_completion {
         return array_merge($defaults, self::get_defined_custom_rules());
     }
 
-
     /**
-     * Update state for the completion.
+     * Update completion state for a given user on a given StudentQuiz.
      *
-     * @param stdClass $course The course object.
-     * @param stdClass|cm_info $cm Course module.
-     * @param int|null $userid Id of user creating the question.
+     * @param stdClass $course The course containing the StudentQuiz to update.
+     * @param stdClass|cm_info $cm The cm for the StudentQuiz to update.
+     * @param int|null $userid The user to update state for.
      */
     public static function update_state(stdClass $course, $cm, ?int $userid = null): void {
         $completion = new \completion_info($course);
@@ -127,5 +106,4 @@ class custom_completion extends activity_custom_completion {
             $completion->update_state($cm, COMPLETION_UNKNOWN, $userid);
         }
     }
-
 }

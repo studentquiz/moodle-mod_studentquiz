@@ -63,7 +63,6 @@ $context = context_module::instance($cm->id);
 
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
-global $USER, $COURSE;
 $userid = $USER->id;
 
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);

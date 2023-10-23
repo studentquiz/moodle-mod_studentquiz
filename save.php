@@ -36,24 +36,14 @@ require_once(__DIR__ . '/locallib.php');
 global $COURSE;
 
 // Get parameters.
-$cmid = optional_param('cmid', 0, PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $save = required_param('save', PARAM_NOTAGS);
 
-// Load course and course module requested.
-if ($cmid) {
-    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
 
 // Authentication check.
-require_login($module->course, false, $module);
+require_login($course, false, $cm);
 require_sesskey();
 
 $data = new \stdClass();
@@ -72,13 +62,14 @@ switch($save) {
         mod_studentquiz\utils::save_rate($data);
         break;
 }
+
 $contextmodule = \context_module::instance($cmid);
-$cm = get_coursemodule_from_id('studentquiz', $cmid);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
-$studentquizquestion = new mod_studentquiz\local\studentquiz_question($studentquizquestionid, null,
-    $studentquiz);
-$userid = $studentquizquestion->get_question()->createdby;
+$studentquizquestion = new mod_studentquiz\local\studentquiz_question(
+    $studentquizquestionid, null, $studentquiz);
+
 // Update completion state.
-\mod_studentquiz\completion\custom_completion::update_state($COURSE, $cm, $userid);
+\mod_studentquiz\completion\custom_completion::update_state(
+    $course, $cm, $studentquizquestion->get_question()->createdby);
 
 header('Content-Type: text/html; charset=utf-8');

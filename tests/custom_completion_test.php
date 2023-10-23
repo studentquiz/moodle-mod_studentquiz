@@ -36,7 +36,6 @@ class custom_completion_test extends advanced_testcase {
      */
     public function test_get_defined_custom_rules(): void {
         $rules = custom_completion::get_defined_custom_rules();
-        $this->assertCount(3, $rules);
         $this->assertEquals(
             ['completionpoint', 'completionquestionpublished', 'completionquestionapproved'],
             $rules
