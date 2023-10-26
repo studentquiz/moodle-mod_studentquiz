@@ -69,4 +69,58 @@ class custom_completion_test extends advanced_testcase {
         }
     }
 
+    /**
+     * Test update state function in custom_completion.
+     *
+     * @dataProvider test_update_provider
+     * @covers ::update_state
+     * @param int $completion The completion type: 0 - Do not indicate activity completion,
+     * 1 - Students can manually mark the activity as completed, 2 - Show activity as complete when conditions are met.
+     * @param bool $expected Expected result when run update.
+     */
+    public function test_update_state(int $completion, bool $expected): void {
+        $this->resetAfterTest();
+        global $DB;
+
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
+
+        $user = $this->getDataGenerator()->create_user();
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
+
+        $studentquiz = $this->getDataGenerator()->create_module('studentquiz', [
+            'course' => $course->id,
+            'completion' => $completion,
+        ]);
+
+        $cm = cm_info::create(get_coursemodule_from_id('studentquiz', $studentquiz->cmid));
+        $completioninfo = new \completion_info($course);
+        $customcompletion = new custom_completion($cm, $user->id, $completioninfo->get_core_completion_state($cm, $user->id));
+        $status = $customcompletion::update_state($course, $cm, $user->id);
+
+        $this->assertEquals($expected, $status);
+    }
+
+    /**
+     * Data provider for test_update_state() test cases.
+     *
+     * @coversNothing
+     * @return array List of data sets (test cases)
+     */
+    public static function test_update_provider(): array {
+        return [
+            'Do not indicate activity completion' => [
+                0,
+                false,
+            ],
+            'Students can manually mark the activity as completed' => [
+                1,
+                false,
+            ],
+            'Show activity as complete when conditions are met' => [
+                2,
+                true,
+            ],
+        ];
+    }
 }
