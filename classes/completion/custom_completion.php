@@ -98,20 +98,16 @@ class custom_completion extends activity_custom_completion {
     }
 
     /**
-     * Update completion state for a given user on a given StudentQuiz.
+     * Trigger completion state update for a given user on a given StudentQuiz.
      *
      * @param stdClass $course The course containing the StudentQuiz to update.
      * @param stdClass|cm_info $cm The cm for the StudentQuiz to update.
      * @param int|null $userid The user to update state for.
-     * @return bool Status check, true if update_state is triggered.
      */
-    public static function update_state(stdClass $course, $cm, ?int $userid = null): bool {
+    public static function trigger_completion_state_update(stdClass $course, $cm, ?int $userid = null): void {
         $completion = new \completion_info($course);
         if ($completion->is_enabled($cm) && $cm->completion != COMPLETION_TRACKING_MANUAL) {
             $completion->update_state($cm, COMPLETION_UNKNOWN, $userid);
-            return true;
         }
-
-        return false;
     }
 }
