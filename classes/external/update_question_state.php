@@ -109,7 +109,7 @@ class update_question_state extends external_api {
         }
 
         // Update completion state.
-        \mod_studentquiz\completion\custom_completion::update_state($course, $cm,
+        \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($course, $cm,
             $studentquizquestion->get_question()->createdby);
 
         $result = [];

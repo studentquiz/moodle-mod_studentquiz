@@ -45,6 +45,10 @@ class custom_completion extends activity_custom_completion {
         $report = new mod_studentquiz_report($this->cm->id, $this->userid);
         $userstats = $report->get_user_stats();
 
+        if (!$userstats) {
+            return COMPLETION_INCOMPLETE;
+        }
+
         switch ($rule) {
             case 'completionpoint':
                 $status = $studentquiz->completionpoint <= (int) $userstats->points;
@@ -94,15 +98,15 @@ class custom_completion extends activity_custom_completion {
     }
 
     /**
-     * Update completion state for a given user on a given StudentQuiz.
+     * Trigger completion state update for a given user on a given StudentQuiz.
      *
      * @param stdClass $course The course containing the StudentQuiz to update.
      * @param stdClass|cm_info $cm The cm for the StudentQuiz to update.
      * @param int|null $userid The user to update state for.
      */
-    public static function update_state(stdClass $course, $cm, ?int $userid = null): void {
+    public static function trigger_completion_state_update(stdClass $course, $cm, ?int $userid = null): void {
         $completion = new \completion_info($course);
-        if ($completion->is_enabled($cm)) {
+        if ($completion->is_enabled($cm) && $cm->completion != COMPLETION_TRACKING_MANUAL) {
             $completion->update_state($cm, COMPLETION_UNKNOWN, $userid);
         }
     }

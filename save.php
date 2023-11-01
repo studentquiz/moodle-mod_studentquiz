@@ -69,7 +69,7 @@ $studentquizquestion = new mod_studentquiz\local\studentquiz_question(
     $studentquizquestionid, null, $studentquiz);
 
 // Update completion state.
-\mod_studentquiz\completion\custom_completion::update_state(
+\mod_studentquiz\completion\custom_completion::trigger_completion_state_update(
     $course, $cm, $studentquizquestion->get_question()->createdby);
 
 header('Content-Type: text/html; charset=utf-8');

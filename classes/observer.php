@@ -44,7 +44,7 @@ class mod_studentquiz_observer {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $event->contextinstanceid);
                 utils::ensure_question_version_status_is_correct($event->objectid);
                 // Update completion state.
-                \mod_studentquiz\completion\custom_completion::update_state($COURSE, $cm);
+                \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($COURSE, $cm);
             }
         }
     }

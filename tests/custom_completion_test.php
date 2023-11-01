@@ -18,7 +18,9 @@ namespace mod_studentquiz;
 
 use advanced_testcase;
 use mod_studentquiz\completion\custom_completion;
+use mod_studentquiz\local\studentquiz_question;
 use cm_info;
+use mod_studentquiz\local\studentquiz_helper;
 
 /**
  * Class for unit testing mod_studentquiz/custom_completion.
@@ -69,4 +71,62 @@ class custom_completion_test extends advanced_testcase {
         }
     }
 
+    /**
+     * Test trigger completion state update function in custom_completion.
+     *
+     * @covers ::trigger_completion_state_update
+     */
+    public function test_trigger_completion_state_update(): void {
+        $this->resetAfterTest();
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+        $questiongenerator = $generator->get_plugin_generator('core_question');
+
+        // Prepare course.
+        $course = $generator->create_course([
+            'enablecompletion' => COMPLETION_ENABLED
+        ]);
+
+        // Prepare users.
+        $student = $generator->create_user(['firstname' => 'Student', 'lastname' => '1',
+            'email' => 'student1@localhost.com']);
+
+        // Users enrolments.
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $this->getDataGenerator()->enrol_user($student->id, $course->id, $studentrole->id, 'manual');
+
+        // Prepare studentquiz.
+        $studentquizdata = [
+            'course' => $course->id,
+            'completionquestionapproved' => 1,
+            'completion' => COMPLETION_TRACKING_AUTOMATIC,
+        ];
+
+        $cmid = $generator->create_module('studentquiz', $studentquizdata)->cmid;
+        $studentquiz = mod_studentquiz_load_studentquiz($cmid, \context_module::instance($cmid)->id);
+
+        // Prepare question.
+        $this->setUser($student);
+        $cm = cm_info::create(get_coursemodule_from_id('studentquiz', $cmid));
+        $questions = $questiongenerator->create_question('truefalse', null,
+            ['name' => 'Student 1 Question', 'category' => $studentquiz->categoryid]);
+        $questions = \question_bank::load_question($questions->id);
+        $studentquizquestions = studentquiz_question::get_studentquiz_question_from_question($questions);
+
+        // The completion data should be empty.
+        $count = $DB->count_records('course_modules_completion');
+        $this->assertEquals(0, $count);
+
+        // Approve question.
+        $this->setAdminUser();
+        $studentquizquestions->change_state_visibility(studentquiz_helper::STATE_APPROVED);
+        \mod_studentquiz\completion\custom_completion::trigger_completion_state_update(
+            $course, $cm, $student->id
+        );
+
+        // The completion data should exist.
+        $count = $DB->count_records('course_modules_completion');
+        $this->assertEquals(1, $count);
+    }
 }

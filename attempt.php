@@ -147,7 +147,7 @@ if (data_submitted()) {
 
     $transaction->allow_commit();
     // Update completion state.
-    \mod_studentquiz\completion\custom_completion::update_state($COURSE, $cm);
+    \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($COURSE, $cm);
 
     // Navigate accordingly. If no navigation button has been submitted, then there has been a question answer attempt.
     if (optional_param('next', null, PARAM_BOOL)) {

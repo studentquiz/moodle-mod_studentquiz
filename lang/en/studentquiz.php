@@ -82,7 +82,7 @@ $string['completionpointgroup_help'] = 'Students earn points as specified under 
 
 $string['completionquestionapproved'] = 'Minimum number of unique approved questions required:';
 $string['completionquestionapprovedgroup'] = 'Require created approved questions';
-$string['completionquestionapprovedgroup_help'] = 'the minimum number of unique questions that a student must author and be approved before the activity is completed. This option can be used with either the Question publishing "Requires approval before publishing" or "Auto-approval" setting, but won\'t be as effective with the latter setting, in case auto-approved questions are later hidden, deleted, or otherwise removed.';
+$string['completionquestionapprovedgroup_help'] = 'The minimum number of unique questions that a student must author and be approved before the activity is completed. This option can be used with either the Question publishing "Requires approval before publishing" or "Auto-approval" setting, but won\'t be as effective with the latter setting, in case auto-approved questions are later hidden, deleted, or otherwise removed.';
 
 $string['completionquestionpublished'] = 'Minimum number of unique authored questions required:';
 $string['completionquestionpublishedgroup'] = 'Require published questions';
