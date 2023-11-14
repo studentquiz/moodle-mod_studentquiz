@@ -76,12 +76,15 @@ if ($approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM
     $approveselected = required_param('approveselected', PARAM_RAW);
     $state = required_param('state', PARAM_INT);
     if ($confirm == md5($approveselected)) {
-        if ($questionlist = explode(',', $approveselected)) {
-            foreach ($questionlist as $questionid) {
-                $questionid = (int) $questionid;
-                $question = question_bank::load_question($questionid);
-                $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
-                update_question_state::execute($course->id, $cmid, $studentquizquestion->get_id(), $state);
+        // We should not change the state if state is not being changed.
+        if ($state !== -1) {
+            if ($questionlist = explode(',', $approveselected)) {
+                foreach ($questionlist as $questionid) {
+                    $questionid = (int) $questionid;
+                    $question = question_bank::load_question($questionid);
+                    $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
+                    update_question_state::execute($course->id, $cmid, $studentquizquestion->get_id(), $state);
+                }
             }
         }
         redirect($returnurl);
@@ -127,7 +130,7 @@ if ($approveselected) {
     $questionlist = rtrim($questionlist, ',');
 
     // Add an explanation about questions in use.
-    $approveurl = new \moodle_url($url, ['approveselected' => $questionlist, 'state' => 0,
+    $approveurl = new \moodle_url($url, ['approveselected' => $questionlist, 'state' => -1,
         'confirm' => md5($questionlist), 'sesskey' => sesskey(), 'returnurl' => $returnurl,
         'cmid' => $cmid, 'courseid' => $courseid]);
 
