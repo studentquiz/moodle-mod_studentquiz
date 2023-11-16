@@ -28,4 +28,4 @@ $plugin->version = 2023081702;
 $plugin->requires = 2022041900; // Version MOODLE_4.0.
 $plugin->component = 'mod_studentquiz';
 $plugin->maturity = MATURITY_STABLE;
-$plugin->release = 'v5.1.0';
+$plugin->release = 'v5.2.0';
