@@ -21,6 +21,10 @@
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+use mod_studentquiz\utils;
+
+use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\local\studentquiz_progress;
 
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
@@ -48,6 +52,8 @@ require_login($cm->course, false, $cm);
 
 $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
+$returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
+
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
 
 $context = context_module::instance($cm->id);
@@ -57,7 +63,6 @@ $context = context_module::instance($cm->id);
 
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 
-global $USER;
 $userid = $USER->id;
 
 $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
@@ -74,13 +79,13 @@ if (!in_array($slot, $slots)) {
         $DB->update_record('studentquiz_attempt', $attempt);
     }
 }
-
-$actionurl = new moodle_url('/mod/studentquiz/attempt.php', array('cmid' => $cmid, 'id' => $attemptid, 'slot' => $slot));
+$actionurl = new moodle_url('/mod/studentquiz/attempt.php', ['cmid' => $cmid, 'id' =>
+    $attemptid, 'slot' => $slot, 'returnurl' => $returnurl]);
+$returnurl = $returnurl ? new moodle_url($returnurl) : new moodle_url('/mod/studentquiz/view.php', ['id' => $cmid]);
 // Reroute this to attempt summary page if desired.
-$stopurl = new moodle_url('/mod/studentquiz/view.php', array('id' => $cmid));
-
 // Get Current Question.
 $question = $questionusage->get_question($slot);
+$studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question, $studentquiz, $cm, $context);
 // Navigatable?
 $questionscount = count($questionids);
 $hasnext = $slot < $questionscount;
@@ -88,7 +93,7 @@ $hasprevious = $slot > $questionusage->get_first_question_number();
 $canfinish = $questionusage->can_question_finish_during_attempt($slot);
 
 if (data_submitted()) {
-
+    require_sesskey();
     // Once data has been submitted, process actions to save the current question answer state. If the question can be
     // finished during the attempt (immediatefeedback), then do so. If it can't (adaptive), finish the question once
     // navigated further in the quiz. After the actions have been processed, proceed the requested navigation.
@@ -116,12 +121,12 @@ if (data_submitted()) {
 
     // If the question is finished after process but was not before, save the attempt to the progress.
     if ($isfinishedafter && !$isfinishedbefore) {
-        $q = $questionusage->get_question($slot);
-
-        $studentquizprogress = $DB->get_record('studentquiz_progress', array('questionid' => $q->id,
-            'userid' => $userid, 'studentquizid' => $studentquiz->id));
+        $studentquizprogress = $DB->get_record('studentquiz_progress',
+            ['studentquizquestionid' => $studentquizquestion->get_id(),
+            'userid' => $userid, 'studentquizid' => $studentquiz->id]);
         if ($studentquizprogress == false) {
-            $studentquizprogress = mod_studentquiz_get_studenquiz_progress_class($q->id, $userid, $studentquiz->id);
+            $studentquizprogress = studentquiz_progress::get_studentquiz_progress_from_studentquiz_question($studentquizquestion,
+                $userid);
         }
 
         // Any newly finished attempt is wrong when it wasn't right.
@@ -141,6 +146,8 @@ if (data_submitted()) {
     }
 
     $transaction->allow_commit();
+    // Update completion state.
+    \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($COURSE, $cm);
 
     // Navigate accordingly. If no navigation button has been submitted, then there has been a question answer attempt.
     if (optional_param('next', null, PARAM_BOOL)) {
@@ -148,7 +155,7 @@ if (data_submitted()) {
             $actionurl = new moodle_url($actionurl, array('slot' => $slot + 1));
             redirect($actionurl);
         } else {
-            redirect($stopurl);
+            redirect($returnurl);
         }
     } else if (optional_param('previous', null, PARAM_BOOL)) {
         if ($hasprevious) {
@@ -159,7 +166,7 @@ if (data_submitted()) {
             redirect($actionurl);
         }
     } else if (optional_param('finish', null, PARAM_BOOL)) {
-        redirect($stopurl);
+        redirect($returnurl);
     } else {
         redirect($actionurl);
     }
@@ -199,6 +206,8 @@ $navinfo->current = $slot;
 $navinfo->total = $questionscount;
 $PAGE->navbar->add(get_string('nav_question_no', 'studentquiz', $navinfo));
 
+utils::require_access_to_a_relevant_group($cm, $context, '', $studentquizquestion);
+
 echo $OUTPUT->header();
 
 $info = new stdClass();
@@ -219,25 +228,26 @@ $html .= html_writer::start_tag('form', array('method' => 'post', 'action' => $a
     'enctype' => 'multipart/form-data', 'id' => 'responseform'));
 
 $html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field'));
+$html .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 
 // Output the question.
 $html .= $questionusage->render_question($slot, $options, (string)$slot);
 
 // Output the state change select box.
-$statechangehtml = $output->render_state_choice($question->id, $course->id, $cmid);
+$statechangehtml = $output->render_state_choice($studentquizquestion);
 $navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $isanswered);
 
 // Change state will always first thing below navigation.
-$orders  = [
+$orders = [
     $navigationhtml,
     $statechangehtml
 ];
 
 if ($isanswered) {
     // Get output the rating.
-    $ratinghtml = $output->render_rate($question->id, $studentquiz->forcerating);
+    $ratinghtml = $output->render_rate($studentquizquestion, $studentquiz->forcerating);
     // Get output the comments.
-    $commenthtml = $output->render_comment($cmid, $question->id, $userid, $highlight);
+    $commenthtml = $output->render_comment($studentquizquestion, $userid, $highlight);
     // If force rating and commenting, then it will above navigation.
     if ($studentquiz->forcerating && $studentquiz->forcecommenting) {
          $orders = array_merge([

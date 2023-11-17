@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Representing anonym creator column
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * A column type for the name of the question creator.
@@ -33,7 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class anonym_creator_name_column extends \core_question\bank\creator_name_column {
+class anonym_creator_name_column extends \qbank_viewcreator\creator_name_column {
 
     /**
      * The current user
@@ -65,7 +55,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
     /**
      * Loads config of current userid and can see
      */
-    public function init() {
+    public function init(): void {
         global $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $this->anonymousname = get_string('creator_anonym_fullname', 'studentquiz');
@@ -77,7 +67,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
      * @param  stdClass $question Questionbank from database
      * @param  string $rowclasses
      */
-    protected function display_content($question, $rowclasses) {
+    protected function display_content($question, $rowclasses): void {
         $this->anonymize = $this->qbank->is_anonymized();
         $output = $this->renderer->render_anonym_creator_name_column(
                 $this->anonymize, $question, $this->currentuserid, $this->anonymousname, $rowclasses);
@@ -89,7 +79,7 @@ class anonym_creator_name_column extends \core_question\bank\creator_name_column
      * @param object $question The row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
-    public function display($question, $rowclasses) {
+    public function display($question, $rowclasses): void {
         $this->extraclasses = [];
         if (!empty($question->sq_hidden)) {
             $this->extraclasses[] = 'dimmed_text';

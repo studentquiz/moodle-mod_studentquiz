@@ -14,21 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Representing performances column
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represent performances column in studentquiz_bank_view
  *
+ * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -46,7 +37,7 @@ class attempts_column extends studentquiz_column_base {
     /**
      * Initialise Parameters for join
      */
-    protected function init() {
+    protected function init(): void {
 
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
@@ -75,7 +66,7 @@ class attempts_column extends studentquiz_column_base {
      * Get title
      * @return string column title
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('myattempts_column_name', 'studentquiz');
     }
 
@@ -93,8 +84,8 @@ class attempts_column extends studentquiz_column_base {
      * Get the left join for progress
      * @return array modified select left join
      */
-    public function get_extra_joins() {
-        return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.questionid = q.id
+    public function get_extra_joins(): array {
+        return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.studentquizquestionid = sqq.id
                                     AND sp.userid = " . $this->currentuserid . "
                                     AND sp.studentquizid = " . $this->studentquizid);
     }
@@ -103,8 +94,12 @@ class attempts_column extends studentquiz_column_base {
      * Get fields for this column
      * @return array additional fields
      */
-    public function get_required_fields() {
-        return array('sp.attempts AS myattempts', 'sp.lastanswercorrect AS mylastanswercorrect');
+    public function get_required_fields(): array {
+        return [
+            'sp.attempts AS myattempts',
+            'sp.lastanswercorrect AS mylastanswercorrect',
+            '(CASE WHEN sp.attempts = 0 THEN NULL ELSE sp.lastanswercorrect END) as mylastanswercorrectforsort'
+        ];
     }
 
     /**
@@ -115,7 +110,7 @@ class attempts_column extends studentquiz_column_base {
         return array(
             'myattempts' => array('field' => 'myattempts',
                 'title' => get_string('number_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylastanswercorrect',
+            'mylastattempt' => array('field' => 'mylastanswercorrectforsort',
                 'title' => get_string('latest_column_name', 'studentquiz')),
         );
     }

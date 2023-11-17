@@ -21,6 +21,8 @@ Feature: Navigation to the pages
       | questioncategory          | qtype | name          | questiontext                  |
       | Default for StudentQuiz 1 | essay | Test question | Write about whatever you want |
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "teacher1"
+    # Set window size to large so we can see the navigation.
+    And I change window size to "large"
 
   Scenario: See the main page
     When I navigate to "StudentQuiz" in current page administration
@@ -60,6 +62,7 @@ Feature: Navigation to the pages
     Then "More" "link" should exist in the "#mod_studentquiz_statblock" "css_element"
     And I click on "More" "link" in the "#mod_studentquiz_statblock" "css_element"
     And I should see "Statistics"
+    And I am on "Course 1" course homepage
     And I follow "StudentQuiz 1"
     And "More" "link" should exist in the "#mod_studentquiz_rankingblock" "css_element"
     And I click on "More" "link" in the "#mod_studentquiz_rankingblock" "css_element"

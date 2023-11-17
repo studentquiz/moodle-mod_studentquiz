@@ -14,20 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * A scheduled task for sending digest notification.
- *
- * @package    mod_studentquiz
- * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\task;
 
 use core\message\message;
 use moodle_url;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * A scheduled task for sending digest notification.
@@ -63,6 +53,8 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                        AND status = :status';
         $studentquizids = $DB->get_records_sql_menu($sql, ['timetosend' => strtotime(date('Y-m-d')), 'status' => 0]);
 
+        $dailystring = get_string('daily', 'mod_studentquiz');
+        $weeklystring = get_string('weekly', 'mod_studentquiz');
         $recordids = [];
         $messagetotal = 0;
         foreach ($studentquizids as $studentquizid => $notused) {
@@ -84,7 +76,7 @@ class send_digest_notification_task extends \core\task\scheduled_task {
             foreach ($recipients as $userid => $datas) {
                 $contentdata = [
                         'recipientname' => $datas[0]['messagedata']->recepientname,
-                        'digesttype' => $studentquiz->digesttype == 1 ? 'Daily' : 'Weekly',
+                        'digesttype' => $studentquiz->digesttype == 1 ? $dailystring : $weeklystring,
                         'modulename' => $studentquiz->name,
                         'activityurl' => (new moodle_url('/mod/studentquiz/view.php',
                                 ['cmid' => $studentquiz->coursemodule]))->out(),
@@ -98,7 +90,8 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                             'timestamp' => $data['messagedata']->timestamp,
                             'questionname' => $data['messagedata']->questionname,
                             'actiontype' => $data['eventname'],
-                            'actorname' => $data['messagedata']->actorname
+                            'actorname' => $data['messagedata']->actorname,
+                            'isstudent' => $data['messagedata']->isstudent,
                     ];
                 }
                 $fullmessagehtml = $renderer->render_from_template('mod_studentquiz/digest_email_notification', $contentdata);

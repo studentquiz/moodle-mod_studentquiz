@@ -25,6 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 require_once(__DIR__ . '/locallib.php');
 
+use mod_studentquiz\statistics_calculator;
+
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
@@ -102,8 +104,8 @@ class mod_studentquiz_report {
      */
     public function get_studentquiz_stats() {
         if (empty($this->studentquizstats)) {
-            $this->studentquizstats = mod_studentquiz_community_stats($this->get_cm_id(), $this->groupid);
-            $this->questionstats = mod_studentquiz_question_stats($this->get_cm_id(), $this->groupid);
+            $this->studentquizstats = statistics_calculator::get_community_stats($this->get_cm_id(), $this->groupid);
+            $this->questionstats = statistics_calculator::get_question_stats($this->get_cm_id(), $this->groupid);
             $this->studentquizstats->questions_available = $this->questionstats->questions_available;
             $this->studentquizstats->questions_average_rating = $this->questionstats->average_rating;
             $this->studentquizstats->questions_questions_approved = $this->questionstats->questions_approved;
@@ -124,7 +126,7 @@ class mod_studentquiz_report {
      */
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
-            $this->userrankingstats = mod_studentquiz_user_stats($this->get_cm_id(), $this->groupid,
+            $this->userrankingstats = statistics_calculator::get_user_stats($this->get_cm_id(), $this->groupid,
                 $this->get_quantifiers(), $this->get_user_id());
             return $this->userrankingstats;
         } else {
@@ -166,10 +168,10 @@ class mod_studentquiz_report {
 
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param int $cmid course_module id
-     * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
+     * @param int|string $cmid course_module id
+     * @param int|null $userid user id.
      */
-    public function __construct($cmid) {
+    public function __construct($cmid, ?int $userid = null) {
         global $DB, $USER;
         if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
             throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
@@ -186,6 +188,9 @@ class mod_studentquiz_report {
         $this->context = context_module::instance($this->cm->id);
 
         $this->userid = $USER->id;
+        if ($userid) {
+            $this->userid = $userid;
+        }
         $this->availablequestions = mod_studentquiz_count_questions($cmid);
 
         \mod_studentquiz\utils::set_default_group($this->cm);
@@ -390,9 +395,53 @@ class mod_studentquiz_report {
      * @return moodle_recordset of paginated ranking table
      */
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
-        $excluderoles = (!empty($this->studentquiz->excluderoles)) ? explode(',', $this->studentquiz->excluderoles) : array();
-        return mod_studentquiz_get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
-            $excluderoles, 0, $limitfrom, $limitnum);
+        $excluderoles = $this->get_roles_to_exclude();
+
+        return statistics_calculator::get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
+            $excluderoles, $limitfrom, $limitnum);
+    }
+
+    /**
+     * Get an array of roles to exclude from the report. The array is based on the global config and the parameters of the activity.
+     *
+     * @return array The array of roles to exclude.
+     */
+    public function get_roles_to_exclude() {
+        $studentquizexcluderoles = (!empty($this->studentquiz->excluderoles)) ?
+            explode(',', $this->studentquiz->excluderoles) : [];
+        $configexcluderoles = get_config('studentquiz', 'excluderoles');
+        $excluderoles = (!empty($configexcluderoles)) ? explode(',', $configexcluderoles) : [];
+        $configrolestoshow = get_config('studentquiz', 'allowedrolestoshow');
+        $rolestoshow = (!empty($configrolestoshow)) ? explode(',', $configrolestoshow) : [];
+        $rolestoexcludebyconfig = array_diff($excluderoles, $rolestoshow);
+
+        $studentquizexcluderoles = array_unique(array_merge($studentquizexcluderoles, $rolestoexcludebyconfig));
+        if (empty(array_filter($studentquizexcluderoles))) {
+            $studentquizexcluderoles = [];
+        }
+        return $studentquizexcluderoles;
+    }
+
+    /**
+     * Get an array of roles which can be excluded and if those roles are selected by default.
+     *
+     * @return array The array of roles which can be excluded.
+     */
+    public static function get_roles_which_can_be_exculded() {
+        $defaultexcluderoles = explode(',', get_config('studentquiz', 'excluderoles'));
+        $rolestoshow = explode(',', get_config('studentquiz', 'allowedrolestoshow'));
+        $rolescanbeexculded = [];
+        if (!empty(array_filter($rolestoshow))) {
+            foreach (mod_studentquiz_get_roles() as $role => $name) {
+                if (in_array($role, $rolestoshow)) {
+                    $rolescanbeexculded[$role] = ['name' => $name, 'default' => 0];
+                    if (in_array($role, $defaultexcluderoles)) {
+                        $rolescanbeexculded[$role]['default'] = 1;
+                    }
+                }
+            }
+        }
+        return $rolescanbeexculded;
     }
 
     /**

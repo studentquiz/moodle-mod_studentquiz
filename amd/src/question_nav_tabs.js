@@ -13,15 +13,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-import Ajax from "core/ajax";
-import Notification from "core/notification";
-
 /**
  * Javascript for question-nav-tabs.
  *
- * @package mod_studentquiz
+ * @module    mod_studentquiz/question_nav_tabs
  * @copyright 2021 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
@@ -32,14 +29,7 @@ import Notification from "core/notification";
  * @return {Promise} The promise object.
  */
 const updateActiveTab = (e) => {
-    const request = {
-        methodname: 'mod_studentquiz_update_active_tab',
-        args: {
-            activetab: e.target.dataset.tabId
-        }
-    };
-
-    return Ajax.call([request])[0].catch(Notification.exception);
+    return M.util.set_user_preference('mod_studentquiz_question_active_tab', e.target.dataset.tabId);
 };
 
 /**

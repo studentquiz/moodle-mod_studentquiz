@@ -14,15 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for studentquiz add new instance.
- *
- * @package    mod_studentquiz
- * @copyright  2020 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
+namespace mod_studentquiz;
 
 use mod_studentquiz\commentarea\container;
 
@@ -33,9 +25,9 @@ use mod_studentquiz\commentarea\container;
  * @copyright  2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_add_testcase extends advanced_testcase {
+class add_test extends \advanced_testcase {
 
-    /** @var stdClass - Course. */
+    /** @var \stdClass - Course. */
     protected $course;
 
     /**
@@ -44,11 +36,12 @@ class mod_studentquiz_add_testcase extends advanced_testcase {
     protected function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
-        $this->course = $this->getDataGenerator()->create_course();
+        $this->course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
     }
 
     /**
      * Test add studentquiz with deletion period = 0.
+     * @coversNothing
      */
     public function test_add_studentquiz_with_zero_period() {
         $studentquiz = $this->create_studentquiz(0);
@@ -57,6 +50,7 @@ class mod_studentquiz_add_testcase extends advanced_testcase {
 
     /**
      * Test add studentquiz with normal deletion period.
+     * @coversNothing
      *
      * @dataProvider period_provider
      * @param int $period - Deletion period number.
@@ -64,6 +58,22 @@ class mod_studentquiz_add_testcase extends advanced_testcase {
     public function test_add_studentquiz_with_normal_period($period) {
         $studentquiz = $this->create_studentquiz($period);
         $this->assertEquals($period, $studentquiz->commentdeletionperiod);
+    }
+
+    /**
+     * Test add studentquiz with expected completion time.
+     *
+     * @covers ::studentquiz_process_event
+     */
+    public function test_add_studentquiz_with_expected_completion() {
+        global $DB;
+        $futuretime = strtotime('+1 day');
+        $studentquiz = $this->create_studentquiz(0, $futuretime);
+        $studentquizvevent = $DB->get_record('event', ['courseid' => $this->course->id,
+            'modulename' => 'studentquiz', 'instance' => $studentquiz->id]);
+
+        $this->assertEquals($studentquizvevent->timestart, $futuretime);
+        $this->assertEquals($studentquizvevent->timesort, $futuretime);
     }
 
     /**
@@ -87,13 +97,17 @@ class mod_studentquiz_add_testcase extends advanced_testcase {
      * Create new studentquiz.
      *
      * @param int $period
-     * @return stdClass
+     * @param int|null $completionexpected Unix time for completion expected. E.g: 1667805330.
+     * @return \stdClass
      */
-    private function create_studentquiz($period) {
+    private function create_studentquiz(int $period, ?int $completionexpected = null): \stdClass {
         $course = $this->course;
         return $this->getDataGenerator()->create_module('studentquiz', [
-                'course' => $course->id,
-                'commentdeletionperiod' => $period
+            'course' => $course->id,
+            'commentdeletionperiod' => $period,
+            'completion' => 2,
+            'completionview' => 1,
+            'completionexpected' => $completionexpected,
         ]);
     }
 }

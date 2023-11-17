@@ -14,25 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Representing approved column
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Represent state column in studentquiz_bank_view
  *
+ * @package mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class state_column extends \core_question\bank\column_base {
+class state_column extends \core_question\local\bank\column_base {
 
     /**
      * Renderer
@@ -43,7 +34,7 @@ class state_column extends \core_question\bank\column_base {
     /**
      * Initialise
      */
-    public function init() {
+    public function init(): void {
         global $PAGE;
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -60,7 +51,7 @@ class state_column extends \core_question\bank\column_base {
      * Get title to return the very short column name
      * @return string column title
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('state_column_name_veryshort', 'studentquiz');
     }
 
@@ -68,7 +59,7 @@ class state_column extends \core_question\bank\column_base {
      * Get title tip to return the full column name
      * @return string column title
      */
-    protected function get_title_tip() {
+    public function get_title_tip() {
         return get_string('state_column_name', 'studentquiz');
     }
 
@@ -78,24 +69,16 @@ class state_column extends \core_question\bank\column_base {
      * @param  string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
-        $output = $this->renderer->render_state_column($question, $this->qbank->base_url(), $rowclasses);
+        $output = $this->renderer->render_state_column($question, $rowclasses);
         echo $output;
-    }
-
-    /**
-     * Get the left join for approved
-     * @return array modified select left join
-     */
-    public function get_extra_joins() {
-        return array('sqs' => " LEFT JOIN {studentquiz_question} sqs ON sqs.questionid = q.id");
     }
 
     /**
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_required_fields() {
-        return array('sqs.state AS state');
+    public function get_required_fields(): array {
+        return array('sqq.state AS state');
     }
 
     /**
@@ -103,6 +86,6 @@ class state_column extends \core_question\bank\column_base {
      * @return string field name
      */
     public function is_sortable() {
-        return 'sqs.state';
+        return 'sqq.state';
     }
 }

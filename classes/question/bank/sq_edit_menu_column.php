@@ -16,9 +16,7 @@
 
 namespace mod_studentquiz\bank;
 
-use core_question\bank\edit_menu_column;
-
-defined('MOODLE_INTERNAL') || die();
+use core_question\local\bank\edit_menu_column;
 
 /**
  * Represent edit column in studentquiz_bank_view which gathers together all the actions into a menu.
@@ -34,7 +32,7 @@ class sq_edit_menu_column extends edit_menu_column {
      *
      * @return string Title of column
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('actions');
     }
 }

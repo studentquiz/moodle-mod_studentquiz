@@ -16,9 +16,9 @@
 /*
  * Control the element in comment area.
  *
- * @package mod_studentquiz
+ * @module    mod_studentquiz/comment_area
  * @copyright 2020 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 /**
@@ -112,7 +112,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     btnCollapseAll: null,
                     addComment: null,
                     containerSelector: null,
-                    questionId: null,
+                    studentQuizQuestionId: null,
                     dialogue: null,
                     loadingIcon: null,
                     lastFocusElement: null,
@@ -157,8 +157,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.containerSelector = el.find(t.SELECTOR.CONTAINER_REPLIES);
                         self.loadingIcon = el.find(t.SELECTOR.LOADING_ICON);
                         self.formSelector = el.find(t.SELECTOR.FORM_SELECTOR);
-
-                        self.questionId = parseInt(el.data('questionid'));
+                        self.studentQuizQuestionId = parseInt(el.data('studentquizquestionid'));
                         self.contextId = parseInt(el.data('contextid'));
                         self.userId = parseInt(el.data('userid'));
                         self.numberToShow = parseInt(el.data('numbertoshow'));
@@ -349,7 +348,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Hide no comment.
                             $(t.SELECTOR.NO_COMMENT).hide();
                             var rootId = t.ROOT_COMMENT_VALUE;
-                            var unique = self.questionId + '_' + self.type + '_' + rootId;
+                            var unique = self.studentQuizQuestionId + '_' + self.type + '_' + rootId;
                             var formSelector = self.formSelector;
                             var formData = self.convertFormToJson(formSelector);
                             // Check message field.
@@ -502,14 +501,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     },
 
                     /**
-                     * Always map questionId and cmId to request before send.
+                     * Always map studentquizquestionid and cmId to request before send.
                      *
                      * @param {Object} params
                      * @returns {Object}
                      */
                     getParamsBeforeCallApi: function(params) {
                         var self = this;
-                        params.questionid = self.questionId;
+                        params.studentquizquestionid = self.studentQuizQuestionId;
                         params.cmid = self.cmId;
                         params.type = self.type;
                         return params;
@@ -1060,7 +1059,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form reply.
-                            var textFragmentFormId = '#id_editor_question_' + self.questionId + '_' +
+                            var textFragmentFormId = '#id_editor_question_' + self.studentQuizQuestionId + '_' +
                                 self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentFormEvent(fragmentForm, item);
@@ -1546,7 +1545,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         ).done(function(html, js) {
                             Templates.replaceNodeContents(fragmentForm, html, js);
                             // Focus form.
-                            var textFragmentFormId = '#id_editor_question_' + self.questionId +
+                            var textFragmentFormId = '#id_editor_question_' + self.studentQuizQuestionId +
                                 '_' + self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
                             self.bindFragmentEditFormEvent(fragmentForm, item);

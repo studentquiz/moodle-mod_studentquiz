@@ -14,20 +14,12 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Container class for comment area.
- *
- * @package mod_studentquiz
- * @copyright 2020 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\commentarea;
 
-defined('MOODLE_INTERNAL') || die();
-
+use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
 use stdClass;
+use mod_studentquiz\local\studentquiz_progress;
 
 /**
  * Container class for comment area.
@@ -67,6 +59,9 @@ class container {
 
     /** @var object|stdClass - Studentquiz data. */
     private $studentquiz;
+
+    /** @var object|stdClass - Studentquiz question data. */
+    private $studentquizquestion;
 
     /** @var string - Basic order to get comments. */
     private $basicorder = 'c.created DESC';
@@ -188,33 +183,30 @@ class container {
     /**
      * mod_studentquiz_commentarea_list constructor.
      *
-     * @param mixed $studentquiz - Student Quiz instance.
-     * @param \question_definition $question - Question instance.
-     * @param mixed $cm - Course Module instance.
-     * @param mixed $context - Context instance.
+     * @param studentquiz_question $studentquizquestion - Student quiz question instance
      * @param stdClass $user - User instance.
      * @param string $sort - Sort type.
      * @param int $type Comment type.
 
      */
-    public function __construct($studentquiz, \question_definition $question, $cm, $context, $user = null,
-            $sort = '', $type = utils::COMMENT_TYPE_PUBLIC) {
+    public function __construct($studentquizquestion, $user = null, $sort = '', $type = utils::COMMENT_TYPE_PUBLIC) {
         global $USER, $COURSE;
-        $this->studentquiz = $studentquiz;
-        $this->question = $question;
-        $this->cm = $cm;
-        $this->context = $context;
-        $this->groupid = groups_get_activity_group($cm, true);
+        $this->studentquiz = $studentquizquestion->get_studentquiz();
+        $this->question = $studentquizquestion->get_question();
+        $this->studentquizquestion = $studentquizquestion;
+        $this->cm = $studentquizquestion->get_cm();
+        $this->context = $studentquizquestion->get_context();
+        $this->groupid = groups_get_activity_group($studentquizquestion->get_cm(), true);
         $this->storedcomments = null;
         $this->user = $user === null ? clone $USER : $user;
         $this->course = clone $COURSE;
-        $this->ismoderator = has_capability('mod/studentquiz:previewothers', $context);
+        $this->ismoderator = has_capability('mod/studentquiz:previewothers', $studentquizquestion->get_context());
         $this->canviewdeleted = $this->ismoderator;
         $this->type = $type;
 
         // If not force commenting, always true.
         $this->refresh_has_comment();
-        $this->reportemails = utils::extract_reporting_emails_from_string($studentquiz->reportingemail);
+        $this->reportemails = utils::extract_reporting_emails_from_string($studentquizquestion->get_studentquiz()->reportingemail);
         $this->set_sort_user_preference($sort);
         $this->setup_sort();
     }
@@ -283,6 +275,14 @@ class container {
     }
 
     /**
+     * Get studentquiz_question instance.
+     * @return studentquiz_question
+     */
+    public function get_studentquiz_question() {
+        return $this->studentquizquestion;
+    }
+
+    /**
      * Fetch all comments.
      *
      * @param int $numbertoshow - Number of top-level comments to show.
@@ -320,6 +320,9 @@ class container {
                 $list[] = $comment;
             }
         }
+
+        $this->update_comment_last_read();
+
         return $list;
     }
 
@@ -364,7 +367,7 @@ class container {
                   {$groupjoingsql->joins}";
 
         $sql .= "
-                 WHERE questionid = :questionid AND status <> :status AND sc.type = :type";
+                 WHERE studentquizquestionid = :studentquizquestionid AND status <> :status AND sc.type = :type";
 
         if ($groupjoingsql->wheres) {
             $sql .= "
@@ -372,7 +375,7 @@ class container {
         }
 
         $params = [
-            'questionid' => $this->get_question()->id,
+            'studentquizquestionid' => $this->get_studentquiz_question()->get_id(),
             'status' => utils::COMMENT_HISTORY_DELETE,
             'type' => $this->type
         ];
@@ -392,7 +395,7 @@ class container {
     public function query_comments($numbertoshow, $params) {
         global $DB;
 
-        $params['questionid'] = $this->get_question()->id;
+        $params['studentquizquestionid'] = $this->get_studentquiz_question()->get_id();
         $params['type'] = $this->type;
 
         // Set limit.
@@ -508,7 +511,7 @@ class container {
         $transaction = $DB->start_delegated_transaction();
         $comment = new stdClass();
         $comment->comment = $data->message['text'];
-        $comment->questionid = $this->question->id;
+        $comment->studentquizquestionid = $data->studentquizquestionid;
         $comment->userid = $this->get_user()->id;
         $comment->parentid = $data->replyto != self::PARENTID ? $data->replyto : self::PARENTID;
         $comment->timemodified = time();
@@ -607,7 +610,6 @@ class container {
      * Should use in construct only.
      *
      * @return bool
-     * @throws \coding_exception
      */
     public function can_view_username() {
         if ($this->ismoderator) {
@@ -640,16 +642,16 @@ class container {
     /**
      * Check if user already commented.
      *
-     * @param int $questionid
+     * @param int $studentquizquestionid
      * @param int $userid
      * @param int $type Comment type.
      * @return bool
      */
-    public static function has_comment(int $questionid, $userid, $type = utils::COMMENT_TYPE_PUBLIC) {
+    public static function has_comment(int $studentquizquestionid, $userid, $type = utils::COMMENT_TYPE_PUBLIC) {
         global $DB;
         return $DB->record_exists_select('studentquiz_comment',
-                'questionid = :questionid AND userid = :userid AND status <> :status and type = :type', [
-                        'questionid' => $questionid,
+                'studentquizquestionid = :studentquizquestionid AND userid = :userid AND status <> :status and type = :type', [
+                        'studentquizquestionid' => $studentquizquestionid,
                         'userid' => $userid,
                         'status' => utils::COMMENT_HISTORY_DELETE,
                         'type' => $type
@@ -666,7 +668,8 @@ class container {
         if (!$this->get_studentquiz()->forcecommenting) {
             $this->checkhascomment = true;
         } else {
-            $this->checkhascomment = self::has_comment($this->get_question()->id, $this->get_user()->id, $this->type);
+            $this->checkhascomment = self::has_comment($this->get_studentquiz_question()->get_id(),
+                    $this->get_user()->id, $this->type);
         }
         return $this;
     }
@@ -924,7 +927,7 @@ class container {
                     $instance->authorname = get_string('anonymous_user_name', 'mod_studentquiz', $instance->rownumber);
                 }
                 $userinfocacheset[$commenthistory->userid] = $instance->authorname;
-                $profileurl[$commenthistory->userid] = $instance->authorprofileurl;
+                $profileurl[$commenthistory->userid] = $instance->authorprofileurl ?? '';
             } else {
                 $instance->authorname = $userinfocacheset[$commenthistory->userid];
                 $instance->authorprofileurl = $profileurl[$commenthistory->userid];
@@ -934,5 +937,31 @@ class container {
         }
 
         return $outputresults;
+    }
+
+    /**
+     * Update the last time read comment for question.
+     *
+     * @param int|null $time Time to update.
+     * @return void
+     */
+    public function update_comment_last_read($time = null): void {
+        $questionprogress = studentquiz_progress::get_studentquiz_progress($this->get_studentquiz_question(), $this->user->id);
+        if ($this->type == utils::COMMENT_TYPE_PRIVATE) {
+            $questionprogress->lastreadprivatecomment = $time ?? time();
+        } else if ($this->type == utils::COMMENT_TYPE_PUBLIC) {
+            $questionprogress->lastreadpubliccomment = $time ?? time();
+        }
+
+        studentquiz_progress::update_studentquiz_progress($questionprogress);
+    }
+
+    /**
+     * Get type for comment area.
+     *
+     * @return int
+     */
+    public function get_type(): int {
+        return $this->type;
     }
 }

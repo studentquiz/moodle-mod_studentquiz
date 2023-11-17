@@ -16,10 +16,9 @@
 /**
  * Javascript to toggle filter checkbox.
  *
- * @module     mod_studentquiz/toggle_filter_checkbox
- * @package    mod_studentquiz
- * @copyright  2019 The Open University
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @module    mod_studentquiz/toggle_filter_checkbox
+ * @copyright 2019 The Open University
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 define(['jquery', 'core/key_codes'], function($, keyCodes) {
     var t = {

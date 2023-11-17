@@ -14,24 +14,14 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_studentquiz\bank;
+
+use core_question\local\bank\menu_action_column_base;
+
 /**
  * Represent sq_hiden action in studentquiz_bank_view
  *
  * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
- * @copyright 2019 HSR (http://www.hsr.ch)
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-namespace mod_studentquiz\bank;
-
-use core_question\bank\menu_action_column_base;
-
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * Represent sq_hiden action in studentquiz_bank_view
- *
  * @author Huong Nguyen <huongnv13@gmail.com>
  * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -43,7 +33,7 @@ class sq_hidden_action_column extends menu_action_column_base {
     /**
      * Initialise Parameters for join
      */
-    protected function init() {
+    protected function init(): void {
         global $USER;
         $this->currentuserid = $USER->id;
         parent::init();
@@ -73,8 +63,8 @@ class sq_hidden_action_column extends menu_action_column_base {
      *
      * @return array 'table_alias' => 'JOIN clause'
      */
-    public function get_extra_joins() {
-        $hidden = "sqh.hidden = 0";
+    public function get_extra_joins(): array {
+        $hidden = "sqq.hidden = 0";
         $mine = "q.createdby = $this->currentuserid";
 
         // Without permission, a user can only see non-hidden question or its their own.
@@ -83,7 +73,7 @@ class sq_hidden_action_column extends menu_action_column_base {
             $sqlextra = "";
         }
 
-        return array('sqh' => "JOIN {studentquiz_question} sqh ON sqh.questionid = q.id $sqlextra");
+        return ['sqh' => "JOIN {studentquiz_question} sqh ON sqh.id = qr.itemid $sqlextra"];
     }
 
     /**
@@ -92,8 +82,8 @@ class sq_hidden_action_column extends menu_action_column_base {
      * @return array fields required. use table alias 'q' for the question table, or one of the
      * ones from get_extra_joins. Every field requested must specify a table prefix.
      */
-    public function get_required_fields() {
-        return ['sqh.hidden AS sq_hidden'];
+    public function get_required_fields(): array {
+        return ['sqq.hidden AS sq_hidden'];
     }
 
     /**
@@ -106,13 +96,18 @@ class sq_hidden_action_column extends menu_action_column_base {
      *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon)
      */
     protected function get_url_icon_and_label(\stdClass $question): array {
-
+        $courseid = $this->qbank->get_courseid();
+        $cmid = $this->qbank->cm->id;
         if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
             if ($question->sq_hidden) {
-                $url = new \moodle_url($this->qbank->base_url(), ['unhide' => $question->id, 'sesskey' => sesskey()]);
+                $url = new \moodle_url('/mod/studentquiz/hideaction.php',
+                        ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
+                                'courseid' => $courseid, 'hide' => 0, 'cmid' => $cmid, 'returnurl' => $this->qbank->base_url()]);
                 return [$url, 't/show', get_string('show')];
             } else {
-                $url = new \moodle_url($this->qbank->base_url(), ['hide' => $question->id, 'sesskey' => sesskey()]);
+                $url = new \moodle_url('/mod/studentquiz/hideaction.php',
+                        ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
+                                'courseid' => $courseid, 'hide' => 1, 'cmid' => $cmid, 'returnurl' => $this->qbank->base_url()]);
                 return [$url, 't/hide', get_string('hide')];
             }
         }

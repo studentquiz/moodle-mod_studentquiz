@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Comment for comment area.
- *
- * @package mod_studentquiz
- * @copyright 2020 The Open University
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\commentarea;
-
-defined('MOODLE_INTERNAL') || die();
 
 use mod_studentquiz\utils;
 use moodle_url;
@@ -40,7 +30,7 @@ use popup_action;
 class comment {
 
     /** @var int - Shorten text with maximum length. */
-    const SHORTEN_LENGTH = 160;
+    const SHORTEN_LENGTH = 75;
 
     /** @var string - Allowable tags when shorten text. */
     const ALLOWABLE_TAGS = '<img>';
@@ -389,22 +379,25 @@ class comment {
     }
 
     /**
-     * Convert data to object (use for api response).
+     * Convert comment->data property to object and add extra properties (use for api response).
      *
      * @return \stdClass
      */
     public function convert_to_object() {
-        global $OUTPUT;
 
         $comment = $this->data;
         $container = $this->get_container();
         $canviewdeleted = $container->can_view_deleted();
         $object = new \stdClass();
         $object->id = $comment->id;
-        $object->questionid = $comment->questionid;
+        $object->studentquizquestionid = $comment->studentquizquestionid;
         $object->parentid = $comment->parentid;
-        $object->content = $comment->comment;
-        $object->shortcontent = utils::nice_shorten_text(strip_tags($comment->comment, self::ALLOWABLE_TAGS), self::SHORTEN_LENGTH);
+        $object->content = format_text($comment->comment, FORMAT_HTML);
+        // Because html_to_text will convert escaped html entity to html.
+        // We want to escape the "<" and ">" characters so html entity will display in browser as text for short content.
+        // So we use s() to convert it back.
+        $object->shortcontent = s(content_to_text($comment->comment, FORMAT_HTML));
+        $object->shortcontent = shorten_text($object->shortcontent, self::SHORTEN_LENGTH);
         $object->numberofreply = $this->get_total_replies();
         $object->plural = $this->get_reply_plural_text($object);
         $object->candelete = $this->can_delete();
@@ -484,14 +477,15 @@ class comment {
 
             $object->commenthistorylink = (new moodle_url('/mod/studentquiz/commenthistory.php', [
                     'cmid' => $this->get_container()->get_cmid(),
-                    'questionid' => $this->get_container()->get_question()->id,
+                    'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id(),
                     'commentid' => $comment->id
             ]))->out();
         }
         $object->allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode(
-            $this->get_container()->get_question(),
+            $this->get_container()->get_studentquiz_question(),
             $this->get_container()->get_cmid(),
-            $comment->type
+            $comment->type,
+            $this->get_container()->get_studentquiz()->privatecommenting
         );
         return $object;
     }
@@ -510,6 +504,7 @@ class comment {
         $data->timemodified = time();
         $data->usermodified = $this->get_user_id();
         $data->status = utils::COMMENT_HISTORY_DELETE;
+        $data->studentquizquestionid = $this->get_container()->get_studentquiz_question()->get_id();
         $res = $DB->update_record('studentquiz_comment', $data);
         // Writing log.
         $record = $this->data;
@@ -542,7 +537,9 @@ class comment {
         $params = [
                 'cmid' => $this->get_container()->get_cmid(),
                 'questionid' => $questiondata->id,
-                'commentid' => $commentid
+                'commentid' => $commentid,
+                'type' => $this->get_container()->get_type(),
+                'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id()
         ];
         $url = new \moodle_url(self::ABUSE_PAGE, $params);
         return $url->out();

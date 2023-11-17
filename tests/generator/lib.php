@@ -21,15 +21,6 @@
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
-
-/**
- * mod_studentquiz data generator
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class mod_studentquiz_generator extends testing_module_generator {
     /**
      * @var int keep track of how many StudentQuiz have been created.
@@ -87,8 +78,8 @@ class mod_studentquiz_generator extends testing_module_generator {
         $this->commentcount++;
 
         $defaults = array(
-            'comment' => 'Test comment ' . $this->commentcount,
-            'created' => time()
+                'comment' => 'Test comment ' . $this->commentcount,
+                'created' => time()
         );
 
         $record = $this->datagenerator->combine_defaults_and_record($defaults, $record);

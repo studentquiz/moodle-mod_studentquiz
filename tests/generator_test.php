@@ -14,16 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Data generator test
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
 
-defined('MOODLE_INTERNAL') || die();
-
+use mod_studentquiz\local\studentquiz_question;
 
 /**
  * Data generator test
@@ -32,58 +25,81 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_generator_testcase extends advanced_testcase {
+class generator_test extends \advanced_testcase {
+
+    /**
+     * @var \stdClass
+     */
+    protected $studentquizgenerator;
+
+    /**
+     * @var studentquiz_question
+     */
+    protected $studentquizquestion;
+
+    /**
+     * Setup test
+     */
+    protected function setUp(): void {
+        $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+
+        $course = $this->getDataGenerator()->create_course();
+
+        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+                'course' => $course->id,
+                'anonymrank' => true,
+                'forcecommenting' => 1,
+                'publishnewquestion' => 1
+        ));
+        $context = \context_module::instance($activity->cmid);
+
+        $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
+
+        $question = $questiongenerator->create_question('description', null, array('category' => $studentquiz->categoryid));
+        $question = \question_bank::load_question($question->id);
+        $this->studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
+
+    }
 
     /**
      * Test create comment
-     * @throws coding_exception
+     * @covers \mod_studentquiz\commentarea\container::create_comment
      */
     public function test_create_comment() {
         global $DB;
 
         $this->resetAfterTest();
-        $studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
-        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-
-        $cat = $questiongenerator->create_question_category();
-        $question = $questiongenerator->create_question('description', null, array('category' => $cat->id));
 
         $count = $DB->count_records('studentquiz_comment');
         $user = $this->getDataGenerator()->create_user();
 
-        $commentrecord = new stdClass();
-        $commentrecord->questionid = $question->id;
+        $commentrecord = new \stdClass();
+        $commentrecord->studentquizquestionid = $this->studentquizquestion->id;
         $commentrecord->userid = $user->id;
 
-        $studentquizgenerator->create_comment($commentrecord);
+        $this->studentquizgenerator->create_comment($commentrecord);
         $this->assertEquals($count + 1, $DB->count_records('studentquiz_comment'));
     }
 
     /**
      * Test create rate
-     * @throws coding_exception
+     *
+     * @covers \mod_studentquiz\utils::save_rate
      */
     public function test_create_rate() {
         global $DB;
 
         $this->resetAfterTest();
-        $studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
-        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-
-        $cat = $questiongenerator->create_question_category();
-        $question = $questiongenerator->create_question('description', null, array('category' => $cat->id));
-
         $count = $DB->count_records('studentquiz_rate');
 
         $user = $this->getDataGenerator()->create_user();
 
-        $raterecord = new stdClass();
+        $raterecord = new \stdClass();
         $raterecord->rate = 5;
-        $raterecord->questionid = $question->id;
+        $raterecord->studentquizquestionid = $this->studentquizquestion->id;
         $raterecord->userid = $user->id;
-
-        $rec = $studentquizgenerator->create_comment($raterecord);
-        $this->assertEquals($count + 1, $DB->count_records('studentquiz_comment'));
-        $this->assertEquals(5, $rec->rate);
+        \mod_studentquiz\utils::save_rate($raterecord);
+        $this->assertEquals($count + 1, $DB->count_records('studentquiz_rate'));
     }
 }

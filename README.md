@@ -1,11 +1,11 @@
-# ![StudentQuiz](https://raw.githubusercontent.com/frankkoch/moodle-mod_studentquiz/master/pix/icon.svg?sanitize=true) StudentQuiz
+# <img alt="" src="https://raw.githubusercontent.com/timhunt/moodle-mod_studentquiz/main/pix/monologo.svg" width="64" style="max-width: 64px; vertical-align: middle;"> StudentQuiz
 
-[![Latest Release](https://img.shields.io/github/v/release/frankkoch/moodle-mod_studentquiz?sort=semver&color=orange)](https://github.com/frankkoch/moodle-mod_studentquiz/releases)
-[![Build Status](https://travis-ci.org/frankkoch/moodle-mod_studentquiz.svg?branch=master)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
-[![PHP Support](https://img.shields.io/travis/php-v/frankkoch/moodle-mod_studentquiz/master)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
-[![Moodle Support](https://img.shields.io/badge/Moodle-%3E%3D%203.5-blue)](https://travis-ci.org/frankkoch/moodle-mod_studentquiz)
-[![License GPL-3.0](https://img.shields.io/github/license/frankkoch/moodle-mod_studentquiz?color=lightgrey)](https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/LICENSE)
-[![GitHub contributors](https://img.shields.io/github/contributors/frankkoch/moodle-mod_studentquiz)](https://github.com/frankkoch/moodle-mod_studentquiz/graphs/contributors)
+[![Latest Release](https://img.shields.io/github/v/release/studentquiz/moodle-mod_studentquiz?sort=semver&color=orange)](https://github.com/studentquiz/moodle-mod_studentquiz/releases)
+[![Build Status](https://github.com/studentquiz/moodle-mod_studentquiz/workflows/Moodle%20Plugin%20CI/badge.svg?branch=master)](https://github.com/studentquiz/moodle-mod_studentquiz/actions?query=workflow%3A%22Moodle+Plugin+CI%22+branch%3Amaster)
+[![PHP Support](https://img.shields.io/badge/php-7.3--8.2-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
+[![Moodle Support](https://img.shields.io/badge/Moodle-4.0--4.2-orange)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
+[![License GPL-3.0](https://img.shields.io/github/license/studentquiz/moodle-mod_studentquiz?color=lightgrey)](https://github.com/studentquiz/moodle-mod_studentquiz/blob/master/LICENSE)
+[![GitHub contributors](https://img.shields.io/github/contributors/studentquiz/moodle-mod_studentquiz)](https://github.com/studentquiz/moodle-mod_studentquiz/graphs/contributors)
 
 Students like self-assessments in order to prepare for exams. However, it’s hard to provide all the many questions
 needed. That’s one reason why the [University of Applied Sciences Rapperswil](https://www.hsr.ch/de/) developed the
@@ -36,20 +36,21 @@ to the *Site administration -> Plugins -> Install plugins* page. You can try Stu
 
 ## Upgrade
 
-For changes and instructions please read the [Release Notes](https://github.com/frankkoch/moodle-mod_studentquiz/releases).
+For changes and instructions please read the [Release Notes](https://github.com/studentquiz/moodle-mod_studentquiz/releases).
 
 ## Documentation
 
-You can find manuals for each role in the [manuals website](https://docs.moodle.org/38/en/StudentQuiz_module).
+You can find manuals for each role in the [manuals website](https://docs.moodle.org/40/en/StudentQuiz_module).
 
 ## Compatibility
 
 Supported and tested with:
 
-- Moodle 3.8, 3.9, 3.10, 3.11
-- PHP 7.1, 7.2, 7.3, 7.4
+- Moodle 4.0, 4.1 and 4.2 - if you need a version compatible with earlier versions of Moodle, look on the
+  (MOODLE_3X_STABLE branch)[https://github.com/studentquiz/moodle-mod_studentquiz/tree/MOODLE_3X_STABLE]
+- PHP 7.3, 7.4, 8.0, 8.1 and 8.2
 - Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017 (experimental)
-- Browsers: Firefox, Chrome
+- Browsers: Firefox, Chrome, Safari, Edge
 
 Refer to the Moodle release notes for the minimum requirements for PHP and the databases. Other modern browsers should
 be compatible too, it's just not tested or developed against them explicitly.
@@ -59,11 +60,12 @@ SQL Server support is only experimental, as we have [no environment to run autom
 
 Please help translate StudentQuiz into your language on [AMOS](https://lang.moodle.org/local/amos/).
 
-Feel free to submit code changes as [Pull Request](https://github.com/frankkoch/moodle-mod_studentquiz/pulls) or help
-people and universities around the world in our [Issue Tracker](https://github.com/frankkoch/moodle-mod_studentquiz/issues).
+Feel free to submit code changes as [Pull Request](https://github.com/studentquiz/moodle-mod_studentquiz/pulls) or help
+people and universities around the world in our [Issue Tracker](https://github.com/studentquiz/moodle-mod_studentquiz/issues).
 
 ## License
 
-[GNU General Public License v3.0](https://github.com/frankkoch/moodle-mod_studentquiz/blob/master/LICENSE)
+[GNU General Public License v3.0](https://github.com/studentquiz/moodle-mod_studentquiz/blob/master/LICENSE)
 
 (c) [Hochschule für Technik Rapperswil](https://www.hsr.ch/)
+(c) [The Open University](https://www.open.ac.uk/)

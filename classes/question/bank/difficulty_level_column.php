@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Representing difficulty level column
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Representing difficulty level column in studentquiz_bank_view
@@ -47,7 +37,7 @@ class difficulty_level_column extends studentquiz_column_base {
     /**
      * Initialise Parameters for join
      */
-    protected function init() {
+    protected function init(): void {
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
@@ -80,25 +70,29 @@ class difficulty_level_column extends studentquiz_column_base {
      * Get sql query join for this column
      * @return array sql query join additional
      */
-    public function get_extra_joins() {
+    public function get_extra_joins(): array {
             return array('dl' => "LEFT JOIN (
                                               SELECT ROUND(1 - AVG(CAST(correctattempts AS DECIMAL) /
                                                        CAST(attempts AS DECIMAL)), 2) AS difficultylevel,
-                                                     questionid
+                                                     studentquizquestionid
                                                 FROM {studentquiz_progress}
-                                               WHERE studentquizid = " . $this->studentquizid . "
-                                            GROUP BY questionid
-                                            ) dl ON dl.questionid = q.id");
+                                               WHERE studentquizid = {$this->studentquizid} AND attempts > 0
+                                            GROUP BY studentquizquestionid
+                                            ) dl ON dl.studentquizquestionid = sqq.id");
     }
 
     /**
      * Get sql field name
      * @return array fieldname in array
      */
-    public function get_required_fields() {
-        return array('dl.difficultylevel',
-            'ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)),2) AS mydifficulty',
-            'sp.correctattempts AS mycorrectattempts');
+    public function get_required_fields(): array {
+        return ['dl.difficultylevel',
+                     '(CASE WHEN sp.attempts > 0 THEN
+                            ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)), 2)
+                            ELSE 0
+                       END) AS mydifficulty
+                ',
+            'sp.correctattempts AS mycorrectattempts'];
     }
 
     /**
@@ -113,7 +107,7 @@ class difficulty_level_column extends studentquiz_column_base {
      * Get column real title
      * @return string translated title
      */
-    protected function get_title() {
+    public function get_title() {
         return get_string('difficulty_level_column_name', 'studentquiz');
     }
 

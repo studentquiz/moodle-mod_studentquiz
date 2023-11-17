@@ -29,9 +29,10 @@ Feature: Create comment as an user
       | student5 | C1     | student        |
       | student6 | C1     | student        |
     And the following "activities" exist:
-      | activity    | name          | intro              | course | idnumber     | forcecommenting | publishnewquestion | anonymrank |
-      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1               | 1                  | 0          |
-      | studentquiz | StudentQuiz 2 | Quiz 2 description | C1     | studentquiz2 | 1               | 1                  | 1          |
+      | activity    | name          | intro              | course | idnumber     | forcecommenting | publishnewquestion | anonymrank | privatecommenting | reportingemail |
+      | studentquiz | StudentQuiz 1 | Quiz 1 description | C1     | studentquiz1 | 1               | 1                  | 0          | 0                 |                |
+      | studentquiz | StudentQuiz 2 | Quiz 2 description | C1     | studentquiz2 | 1               | 1                  | 1          | 0                 |                |
+      | studentquiz | StudentQuiz 3 | Quiz 3 description | C1     | studentquiz3 | 1               | 1                  | 1          | 1                 | sample@aaa.com |
     And the following "questions" exist:
       | questioncategory          | qtype     | name                          | questiontext          |
       | Default for StudentQuiz 1 | truefalse | Test question to be previewed | Answer the question 1 |
@@ -159,6 +160,17 @@ Feature: Create comment as an user
     And I should see "Reply" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
 
   @javascript
+  Scenario: Test reply comment with long content
+    When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    And I click on "Start Quiz" "button"
+    And I set the field "True" to "1"
+    And I press "Check"
+    And I enter the text "Comment 1 with long content: simply dummy text of the printing and typesetting industry." into the "Add public comment" editor
+    And I press "Add comment"
+    And I press "Collapse all comments"
+    Then I should see "Comment 1 with long content: simply dummy text of the printing ..."
+
+  @javascript
   Scenario: Test delete comment feature.
     # Save document into course 1.
     When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
@@ -274,6 +286,30 @@ Feature: Create comment as an user
     And I wait until the page is ready
     # After report, check we navigate back.
     And I should see "Add public comment"
+
+  @javascript
+  Scenario: Test report comment feature on private comment.
+    When I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "student1"
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "Question of Student 1"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+    And I choose "Preview" action for "Question of Student 1" in the question bank
+    And I switch to "questionpreview" window
+    And I enter the text "Approved the question" into the "Add private comment (these are between the student and tutor only)" editor
+    And I press "Add comment"
+    And I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "teacher"
+    And I choose "Preview" action for "Question of Student 1" in the question bank
+    And I switch to "questionpreview" window
+    And I click on "Report" "button"
+    And I should see "Report a comment as unacceptable"
+    And I set the field "It is abusive" to "1"
+    Then I press "Send report"
+    And I should see "Your report has been sent successfully"
+    And I press "Continue"
+    And I should see "Approved the question"
 
   @javascript
   Scenario: Admin and user can sortable.
@@ -507,7 +543,7 @@ Feature: Create comment as an user
   @javascript
   Scenario: Test enable/disable edit feature.
     When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
-    And I navigate to "Edit settings" in current page administration
+    And I navigate to "Settings" in current page administration
     And I expand all fieldsets
     And I set the field "Comment editing/deletion period (minutes)" to "0"
     And I press "Save and display"

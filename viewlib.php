@@ -25,6 +25,8 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/question/editlib.php');
 require_once(__DIR__ . '/locallib.php');
+
+use mod_studentquiz\local\studentquiz_question;
 /**
  * This class loads and represents the state for the main view.
  *
@@ -96,7 +98,6 @@ class mod_studentquiz_view {
      * @param stdClass $studentquiz loaded studentquiz
      * @param int $userid loaded user
      * @param mod_studentquiz_report $report
-     * @throws mod_studentquiz_view_exception if course module or course can't be retrieved
      */
     public function __construct($course, $context, $cm, $studentquiz, $userid, $report) {
 
@@ -123,39 +124,47 @@ class mod_studentquiz_view {
      */
     private function load_questionbank() {
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-
+        $params = $_GET;
         // Get edit question link setup.
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
             = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
-        $pagevars['qperpage'] = optional_param('qperpage', DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
+        $pagevars['qperpage'] = optional_param('qperpage', \mod_studentquiz\utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
         $pagevars['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
-
         $this->pageurl = new moodle_url($thispageurl);
-
+        foreach ($params as $key => $value) {
+            if ($key == 'timecreated_sdt' || $key == 'timecreated_edt') {
+                $value = http_build_query($value);
+            }
+            $thispageurl->param($key, $value);
+        }
         // Trigger notification if user got returned from the question edit form.
         // TODO: Shouldn't this be somewhere outside of load_questionbank(), as this is clearly not relevant for showing the
         // question bank?
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
             $this->pageurl->param('lastchanged', $lastchanged);
             // Ensure we have a studentquiz_question record.
+            // Since we don't can modify the core, we need to get the studentquizquestion.
+            $question = \question_bank::load_question($lastchanged);
+            $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question,
+                    $this->studentquiz, $cm);
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
-            mod_studentquiz_state_notify($lastchanged, $this->course, $this->cm, 'changed');
-            redirect(new moodle_url('/mod/studentquiz/view.php', array('id' => $this->get_cm_id())));
+            mod_studentquiz_event_notification_question('changed', $studentquizquestion, $this->course, $this->cm);
+            $thispageurl->remove_params('lastchanged');
+            redirect($thispageurl);
         }
 
-        $this->qbpagevar = $pagevars;
-
+        // Remove qids when the form is submitted page size.
+        if ($changepagesize = optional_param('changepagesize', 0, PARAM_INT) && confirm_sesskey()) {
+            $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
+            foreach ($rawquestionids as $id) {
+                $thispageurl->remove_params('q' . $id);
+            }
+            $thispageurl->remove_params('changepagesize');
+        }
+        $this->qbpagevar = array_merge($pagevars, $params);
         $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
             $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
-    }
-
-    /**
-     * Use this method to process actions on this view.
-     */
-    public function process_actions() {
-        // TODO: Process actions of questionbank could redirect!
-        $this->questionbank->process_actions();
     }
 
     /**

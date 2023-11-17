@@ -16,13 +16,12 @@
 /**
  * Javascript for state change dialog
  *
- * @package mod_studentquiz
- * @author Huong Nguyen <huongnv13@gmail.com>
+ * @module    mod_studentquiz/state_change
  * @copyright 2019 HSR (http://www.hsr.ch)
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notification) {
+define(['jquery', 'core/ajax', 'core/notification', 'core/str'], function($, Ajax, Notification, Str) {
 
     var t = {
 
@@ -31,12 +30,13 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
             CHANGE_STATE_BUTTON: 'div.singlebutton.continue_state_change [type=submit]',
             STATE_VALUE_INPUT: 'input[name=state]',
             SUBMIT_STATE_BUTTON: '#change_state',
-            CHANGE_STATE_NOTIFICATION: 'span.change-question-state'
+            CHANGE_STATE_NOTIFICATION: 'span.change-question-state',
+            CURRENT_STATE_TEXT: 'div.current-state',
         },
 
         init: function() {
-
-            var lastSelectedState = $(t.SELECTOR.STATE_SELECT).val();
+            const submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
+            let lastSelectedState = submitStateButton.attr('data-currentstate');
 
             // TODO: Something rerenders or manipulates the modal elements, so the event has to be attached to the
             // document - see #278. Better would be using the dialog framework similiar to the comment_area instead of
@@ -49,8 +49,6 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 var stateValueInput = $(t.SELECTOR.STATE_VALUE_INPUT);
                 var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
 
-                // TODO: None of the render functions preselect the current active option so lastSelectedState is
-                // basically always the first option, whose value is '' as well.
                 if (stateChangeSelect.val() !== '' && stateChangeSelect.val() !== lastSelectedState) {
                     stateValueInput.val(stateChangeSelect.val());
                     changeStateButton.removeAttr('disabled');
@@ -66,6 +64,7 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 // need to be obtained freshly.
                 var stateChangeSelect = $(t.SELECTOR.STATE_SELECT);
                 var submitStateButton = $(t.SELECTOR.SUBMIT_STATE_BUTTON);
+                const currentStateText = $(t.SELECTOR.CURRENT_STATE_TEXT);
 
                 submitStateButton.attr('disabled', 'disabled');
                 var pendingPromise = t.addPendingJSPromise('studentquizStateChange');
@@ -76,15 +75,19 @@ define(['jquery', 'core/ajax', 'core/notification'], function($, Ajax, Notificat
                 var args = {
                     courseid: submitStateButton.attr('data-courseid'),
                     cmid: submitStateButton.attr('data-cmid'),
-                    questionid: submitStateButton.attr('data-questionid'),
+                    studentquizquestionid: submitStateButton.attr('data-studentquizquestionid'),
                     state: stateChangeSelect.val()
                 };
                 var failure;
-                var promise = Ajax.call([{methodname: 'mod_studentquiz_set_state', args: args}], true, true);
+                var promise = Ajax.call([{methodname: 'mod_studentquiz_update_question_state', args: args}], true, true);
                 promise[0].then(function(results) {
                     Notification.alert(results.status, results.message);
                     pendingPromise.resolve();
                     lastSelectedState = stateChangeSelect.val();
+                    const currentSelectedText = stateChangeSelect.find('option:selected').text();
+                    Str.get_string('changecurrentstate', 'studentquiz', currentSelectedText).done(newString => {
+                        currentStateText.html(newString);
+                    });
                     // Reload the Studentquiz page.
                     window.opener.location.reload();
                     // Each then() should return a value or throw (promise/always-return).

@@ -80,7 +80,7 @@ class comment_form {
         global $OUTPUT;
         $params = $this->params;
 
-        $questionid = $params['questionid'];
+        $studentquizquestionid = $params['studentquizquestionid'];
 
         if (!$this->editmode) {
             $commentid = isset($params['replyto']) && $params['replyto'] ? $params['replyto'] : 0;
@@ -105,7 +105,7 @@ class comment_form {
 
         $submitlabelstring = get_string($submitlabel, 'mod_studentquiz');
 
-        $unique = $questionid . '_' . $params['type'] . '_' . $commentid;
+        $unique = $studentquizquestionid . '_' . $params['type'] . '_' . $commentid;
         $id = 'studentquiz_customeditor_' . $unique;
 
         // Setup editor.

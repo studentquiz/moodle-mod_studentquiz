@@ -194,11 +194,6 @@
     font-weight: normal;
 }
 
-.path-mod-studentquiz #categoryquestions td.difficultylevel,
-.path-mod-studentquiz #categoryquestions td.rates {
-    padding-top: 7px;
-}
-
 .path-mod-studentquiz #categoryquestions td.questionname,
 .path-mod-studentquiz #categoryquestions td.creatorname {
     white-space: normal;
@@ -291,7 +286,6 @@
     display: block;
 }
 
-.path-mod-studentquiz .change-question-state select#menustatetype,
 .path-mod-studentquiz .change-question-state button#change_state {
     margin-left: 10px;
 }
@@ -791,4 +785,57 @@
     height: 20px;
     vertical-align: middle;
     margin: 0 9px 0 0;
+}
+
+.path-mod-studentquiz span.stat {
+    float: right;
+    font-size: 100%;
+    margin-top: 0.1rem;
+    margin-bottom: 0.1rem;
+}
+.path-mod-studentquiz span.stat.approvals,
+.path-mod-studentquiz span.stat.last-attempt-correct {
+    color: #000;
+    background-color: #28a745;
+}
+.path-mod-studentquiz span.stat.disapprovals,
+.path-mod-studentquiz span.stat.last-attempt-incorrect {
+    color: #fff;
+    background-color: #dc3545;
+}
+
+.path-mod-studentquiz span.stat.changed,
+.path-mod-studentquiz span.stat.never-answered {
+    color: #212529;
+    background-color: #ffc107;
+}
+
+.path-mod-studentquiz .studentquiz_behaviour .rate .btn {
+    vertical-align: baseline;
+}
+
+.path-mod-studentquiz #categoryquestions td.state .icon {
+    padding-bottom: 5px;
+}
+
+.path-mod-studentquiz #categoryquestions .header.qtype,
+.path-mod-studentquiz #categoryquestions .header.state,
+.path-mod-studentquiz .studentquizerrormessage {
+    text-align: center;
+}
+
+/* Specific CSS override align-items-center, we need to prevent align-items: center in the form-group. */
+.path-mod-studentquiz #fgroup_id_rate_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_rate_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_difficultylevel_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_publiccomment_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_myrate_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_myattempts_grp div.align-items-center,
+.path-mod-studentquiz #fgroup_id_mydifficulty_grp div.align-items-center {
+    /* stylelint-disable-next-line declaration-no-important */
+    align-items: flex-start !important;
+}
+/* This css styling won't work in 4.0.x until MDL-75917 is done. */
+body.cm-type-studentquiz.path-question-type #fitem_id_status {
+    display: none;
 }

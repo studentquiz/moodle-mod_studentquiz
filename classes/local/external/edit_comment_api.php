@@ -54,7 +54,7 @@ class edit_comment_api extends external_api {
      */
     public static function edit_comment_parameters() {
         return new external_function_parameters([
-                'questionid' => new external_value(PARAM_INT, 'Question ID'),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'Studentquizquestion ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'commentid' => new external_value(PARAM_INT, 'Comment ID to edit.'),
                 'message' => new external_function_parameters([
@@ -78,26 +78,27 @@ class edit_comment_api extends external_api {
     /**
      * Edit comment.
      *
-     * @param int $questionid - ID of question.
+     * @param int $studentquizquestionid - ID of studentquizquestion.
      * @param int $cmid - ID of CM.
      * @param int $commentid - ID of comment to edit.
      * @param string $message - Comment message.
      * @param int $type - Comment type.
      * @return \stdClass
      */
-    public static function edit_comment($questionid, $cmid, $commentid, $message, $type) {
+    public static function edit_comment($studentquizquestionid, $cmid, $commentid, $message, $type) {
         global $PAGE;
         $params = self::validate_parameters(self::edit_comment_parameters(), [
-                'questionid' => $questionid,
+                'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'commentid' => $commentid,
                 'message' => $message,
                 'type' => $type
         ]);
 
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
+        $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
+        $context = $studentquizquestion->get_context();
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
+        $commentarea = new container($studentquizquestion, null, '', $type);
 
         $comment = $commentarea->query_comment_by_id($params['commentid']);
         if (!$comment) {
@@ -119,7 +120,7 @@ class edit_comment_api extends external_api {
 
         $mform = new validate_comment_form('', [
                 'params' => [
-                        'questionid' => $params['questionid'],
+                        'studentquizquestionid' => $params['studentquizquestionid'],
                         'cmid' => $params['cmid'],
                         'commentid' => $params['commentid'],
                         'editmode' => true,

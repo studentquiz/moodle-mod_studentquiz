@@ -52,7 +52,7 @@ class delete_comment_api extends external_api {
      */
     public static function delete_comment_parameters() {
         return new external_function_parameters([
-                'questionid' => new external_value(PARAM_INT, 'Question ID'),
+                'studentquizquestionid' => new external_value(PARAM_INT, 'Studentquizquestion ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'commentid' => new external_value(PARAM_INT, 'Comment ID'),
                 'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
@@ -76,28 +76,28 @@ class delete_comment_api extends external_api {
     /**
      * Check permission and delete comment.
      *
-     * @param int $questionid - Question ID.
+     * @param int $studentquizquestionid - student quiz question Id.
      * @param int $cmid - CM ID.
      * @param int $commentid - Comment ID which will be edited.
      * @param int $type - Comment type.
      * @return \stdClass
      */
-    public static function delete_comment($questionid, $cmid, $commentid, $type) {
+    public static function delete_comment($studentquizquestionid, $cmid, $commentid, $type) {
 
         // Validate web service's parameters.
         $params = self::validate_parameters(self::delete_comment_parameters(), array(
-                'questionid' => $questionid,
+                'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'commentid' => $commentid,
                 'type' => $type
         ));
 
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($params['questionid'], $params['cmid']);
+        $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
+        $context = $studentquizquestion->get_context();
         self::validate_context($context);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $type);
+        $commentarea = new container($studentquizquestion, null, '', $type);
 
         $comment = $commentarea->query_comment_by_id($params['commentid']);
-
         $response = new \stdClass();
 
         // Note: users are not moderator cannot get data of deleted comment.

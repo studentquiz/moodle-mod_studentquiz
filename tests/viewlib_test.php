@@ -14,13 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for (some of) mod/studentquiz/viewlib.php.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
 
 defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
@@ -35,18 +29,17 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_viewlib_testcase extends advanced_testcase {
+class viewlib_test extends \advanced_testcase {
     /**
      * @var studentquiz_view
      */
     private $viewlib;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     private $cm;
 
     /**
      * Setup test
-     * @throws coding_exception
      */
     protected function setUp(): void {
         global $DB;
@@ -61,17 +54,21 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
             , array('course' => $course->id),  array('anonymrank' => true));
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
-        $context = context_module::instance($this->cm->id);
+        $context = \context_module::instance($this->cm->id);
 
         // Some internal moodle functions (e.g. question_edit_setup()) require the cmid to be found in $_xxx['cmid'].
         $_GET['cmid'] = $this->cm->id;
 
         // Satisfy codechecker: $course $cm $studentquiz $userid.
-        $report = new mod_studentquiz_report($this->cm->id);
-        $this->viewlib = new mod_studentquiz_view($course, $context, $this->cm,
+        $report = new \mod_studentquiz_report($this->cm->id);
+        $this->viewlib = new \mod_studentquiz_view($course, $context, $this->cm,
             $studentquiz, $user->id, $report);
     }
 
+    /**
+     * Test has_question_ids
+     * @coversNothing
+     */
     public function test_has_question_ids() {
         $result = $this->viewlib->has_question_ids();
         self::assertFalse($result);
@@ -79,17 +76,29 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
 
     // Is testable with setUser in setup to mock login.
     // that is not allowed in testings and unmockable.
+    /**
+     * Nothing
+     * @coversNothing
+     */
     public function test_show_questionbank() {
 
     }
 
+    /**
+     * test_get_viewurl
+     * @coversNothing
+     */
     public function test_get_viewurl() {
         $viewurl = $this->viewlib->get_viewurl();
-        $expectedurl = new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id));
+        $expectedurl = new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id));
         $this->assertEquals('/moodle/mod/studentquiz/view.php', $viewurl->get_path());
         $this->assertTrue($expectedurl->compare($viewurl, URL_MATCH_EXACT));
     }
 
+    /**
+     * test_get_title
+     * @coversNothing
+     */
     public function test_get_title() {
         $result = $this->viewlib->get_title();
         self::assertEquals('StudentQuiz: studentquiz 0', $result);
@@ -97,6 +106,7 @@ class mod_studentquiz_viewlib_testcase extends advanced_testcase {
 
     /**
      * TODO Write tests for public functions
+     * @coversNothing
      * generate_quiz_with_filtered_ids($ids)
      * generate_quiz_with_selected_ids($submitdata)
      * show_questionbank()

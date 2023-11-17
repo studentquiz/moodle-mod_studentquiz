@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * The question bank question text row
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\bank;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * A column type for the name of the question name.
@@ -33,7 +23,7 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class question_text_row extends \core_question\bank\row_base {
+class question_text_row extends \core_question\local\bank\row_base {
     /**
      * @var string formatoptions
      */
@@ -50,7 +40,7 @@ class question_text_row extends \core_question\bank\row_base {
     /**
      * Override parent function to don't show the title
      */
-    protected function get_title() {
+    public function get_title() {
     }
 
     /**
@@ -66,7 +56,7 @@ class question_text_row extends \core_question\bank\row_base {
      * @param object $question the row from the $question table, augmented with extra information.
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
-    public function display($question, $rowclasses) {
+    public function display($question, $rowclasses): void {
 
     }
 
@@ -74,15 +64,15 @@ class question_text_row extends \core_question\bank\row_base {
      * Get the extra join text
      * @return array join text
      */
-    public function get_extra_joins() {
-        return array('qc' => 'JOIN {question_categories} qc ON qc.id = q.category');
+    public function get_extra_joins(): array {
+        return array();
     }
 
     /**
      * Get required fields
      * @return array get all required fields
      */
-    public function get_required_fields() {
+    public function get_required_fields(): array {
         return array('q.id', 'q.questiontext', 'q.questiontextformat', 'qc.contextid');
     }
 }

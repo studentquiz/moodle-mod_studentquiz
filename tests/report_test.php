@@ -14,13 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for mod/studentquiz/reportstat.php.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
 
 defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
@@ -29,6 +23,8 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 require_once($CFG->dirroot . '/mod/studentquiz/viewlib.php');
 require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 
+use mod_studentquiz\statistics_calculator;
+
 /**
  * Unit tests for mod/studentquiz/reportstat.php.
  *
@@ -36,25 +32,25 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_report_testcase extends advanced_testcase {
+class report_test extends \advanced_testcase {
 
     /**
-     * @var stdClass the StudentQuiz activity created in setUp.
+     * @var \stdClass the StudentQuiz activity created in setUp.
      */
     protected $studentquiz;
 
     /**
-     * @var context_module the corresponding activity context.
+     * @var \context_module the corresponding activity context.
      */
     protected $context;
 
     /**
-     * @var stdClass the corresponding course_module.
+     * @var \stdClass the corresponding course_module.
      */
     protected $cm;
 
     /**
-     * @var mod_studentquiz_report the report created in setUp.
+     * @var \mod_studentquiz_report the report created in setUp.
      */
     protected $report;
 
@@ -70,7 +66,6 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
 
     /**
      * Setup test
-     * @throws coding_exception
      */
     protected function setUp(): void {
         global $DB;
@@ -87,11 +82,12 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
             'ratequantifier' => 3,
             'correctanswerquantifier' => 2,
             'incorrectanswerquantifier' => -1,
+            'excluderoles' => [3 => 3, 5 => 5],
         ));
-        $this->context = context_module::instance($activity->cmid);
+        $this->context = \context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
-        $this->report = new mod_studentquiz_report($activity->cmid);
+        $this->report = new \mod_studentquiz_report($activity->cmid);
 
         // Create users.
         $usernames = array('Peter', 'Lisa', 'Sandra', 'Tobias', 'Gabi', 'Sepp');
@@ -122,7 +118,7 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
         $attempt = mod_studentquiz_generate_attempt($questionids, $this->studentquiz, $users[0]->id);
         $questionids = explode(',', $attempt->ids);
 
-        $questionusage = question_engine::load_questions_usage_by_activity($attempt->questionusageid);
+        $questionusage = \question_engine::load_questions_usage_by_activity($attempt->questionusageid);
         $post = $questionusage->prepare_simulated_post_data([1 => ['answer' => 1, '-submit' => 1]]);
         $questionusage->process_all_actions(null, $post);
 
@@ -132,23 +128,100 @@ class mod_studentquiz_report_testcase extends advanced_testcase {
 
         mod_studentquiz_add_question_to_attempt($questionusage, $this->studentquiz, $questionids, 2);
 
-        question_engine::save_questions_usage_by_activity($questionusage);
+        \question_engine::save_questions_usage_by_activity($questionusage);
         $this->setAdminUser();
     }
 
-    public function test_mod_studentquiz_get_user_ranking_table() {
-        $this->assertTrue(true);
+    /**
+     * Test the get_roles_to_exclude function.
+     * @covers \mod_studentquiz_report::get_roles_to_exclude
+     */
+    public function test_mod_studentquiz_get_roles_to_exclude() {
+        set_config('excluderoles', '1,2,3,4', 'studentquiz');
+        set_config('allowedrolestoshow', '3,4,5,6', 'studentquiz');
+
+        $exclude = $this->report->get_roles_to_exclude();
+        $this->assertCount(4, $exclude);
+        // 1 excluded by global config.
+        // 2 excluded by global config.
+        // 3 excluded in the instance of the activity.
+        // 5 excluded in the instance of the activity.
+        // Role 4 should not be excluded because the value in the instance is prefered to the config, and role 4 is in rolestoshow.
+        $this->assertEqualsCanonicalizing(['1', '2', '3', '5'], $exclude);
+
+        // Test if exluderoles is empty.
+        set_config('excluderoles', '', 'studentquiz');
+        set_config('allowedrolestoshow', '', 'studentquiz');
+        $exclude = $this->report->get_roles_to_exclude();
+        // Only 3 and 5 from instance in the activity.
+        $this->assertEqualsCanonicalizing(['3', '5'], $exclude);
     }
 
+    /**
+     * Test the get_roles_which_can_be_exculded function.
+     * @covers \mod_studentquiz_report::get_roles_which_can_be_exculded
+     */
+    public function test_mod_studentquiz_get_roles_which_can_be_exculded() {
+        set_config('excluderoles', '1,2,3,4', 'studentquiz');
+        set_config('allowedrolestoshow', '3,4,5,6', 'studentquiz');
+
+        $rolescanbeexcluded = \mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(4, $rolescanbeexcluded);
+        // The role to show are 3, 4, 5 and 6 since it is defined in rolestoshow.
+        $this->assertEqualsCanonicalizing(['3', '4', '5', '6'], array_keys($rolescanbeexcluded));
+        // Only 3 and 4 are selected by default.
+        $this->assertEquals($rolescanbeexcluded[3]['default'], 1);
+        $this->assertEquals($rolescanbeexcluded[4]['default'], 1);
+        $this->assertEquals($rolescanbeexcluded[5]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[6]['default'], 0);
+
+        // Test if only excluderoles is empty.
+        set_config('excluderoles', '', 'studentquiz');
+        $rolescanbeexcluded = \mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(4, $rolescanbeexcluded);
+        $this->assertEqualsCanonicalizing(['3', '4', '5', '6'], array_keys($rolescanbeexcluded));
+        // All roles are not selected by default.
+        $this->assertEquals($rolescanbeexcluded[3]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[4]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[5]['default'], 0);
+        $this->assertEquals($rolescanbeexcluded[6]['default'], 0);
+
+        // Test if rolestoshow is empty.
+        set_config('excluderoles', '1,2,3,4', 'studentquiz');
+        set_config('allowedrolestoshow', '', 'studentquiz');
+        // None of the roles are returned.
+        $rolescanbeexcluded = \mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(0, $rolescanbeexcluded);
+
+        // Test if both config is empty.
+        set_config('excluderoles', '', 'studentquiz');
+        set_config('allowedrolestoshow', '', 'studentquiz');
+        // None of the roles are returned.
+        $rolescanbeexcluded = \mod_studentquiz_report::get_roles_which_can_be_exculded();
+        $this->assertCount(0, $rolescanbeexcluded);
+    }
+
+    /**
+     * Nothing
+     * @coversNothing
+     */
     public function test_mod_studentquiz_community_stats() {
         $this->assertTrue(true);
     }
 
+    /**
+     * Test get_user_stats
+     * @covers \mod_studentquiz\statistics_calculator::get_user_stats
+     */
     public function test_mod_studentquiz_user_stats() {
-        $userstats = mod_studentquiz_user_stats($this->cm->id, 0, $this->report->get_quantifiers(), $this->users[0]->id);
+        $userstats = statistics_calculator::get_user_stats($this->cm->id, 0, $this->report->get_quantifiers(), $this->users[0]->id);
         $this->assertEquals(0, $userstats->questions_created);
     }
 
+    /**
+     * test mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps
+     * @covers \mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps
+     */
     public function test_mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps() {
         $studentquizprogresses = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps(
                 $this->studentquiz->id, $this->context);

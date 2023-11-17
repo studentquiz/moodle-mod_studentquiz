@@ -25,6 +25,8 @@
 use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
+use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,6 +66,31 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $rows[] = $this->render_table_row($cells);
         }
         return $rows;
+    }
+
+    /**
+     * Render custom error message, so we can write the behat test for it.
+     *
+     * @param string $errormessage Error message.
+     * @param string $title Page's title.
+     * @return void
+     */
+    public function render_error_message(string $errormessage, string $title) : void {
+        if ($title) {
+            $this->page->set_title($title);
+        }
+        // We need to remove settings menu for view page because we are using custom error message.
+        if ($settingmenu = $this->page->settingsnav->find('modulesettings', \navigation_node::TYPE_SETTING)) {
+            $settingmenu->remove();
+        }
+        echo $this->output->header();
+        echo $this->output->notification($errormessage, 'error', false);
+        $courseurl = new moodle_url('/course/view.php', ['id' => $this->page->course->id]);
+
+        $backtocourse = new single_button($courseurl, get_string('back_to_course_button', 'studentquiz'),
+            'get', 'primary');
+        echo html_writer::div($this->render($backtocourse), 'studentquizerrormessage');
+        echo $this->output->footer();
     }
 
     /**
@@ -119,28 +146,22 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $bc->content = html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
              . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
-                .html_writer::span('<b class="stat last-attempt-correct">' .$userstats->last_attempt_correct .'</b>', '',
-                    array('style' => 'float: right;color:#5cb85c;')))
+                .html_writer::span($userstats->last_attempt_correct, '', ['class' => "stat badge last-attempt-correct"]))
             . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_incorrect', 'studentquiz')
-                .html_writer::span('<b class="stat last-attempt-incorrect">' .$userstats->last_attempt_incorrect .'</b>', '',
-                    array('style' => 'float: right;color:#d9534f;')))
+                .html_writer::span($userstats->last_attempt_incorrect, '', ['class' => 'stat badge last-attempt-incorrect']))
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span(
-                    '<b class="stat never-answered">' . ($unansweredquestions) .'</b>',
-                    '', array('style' => 'float: right;color:#f0ad4e;')))
+                .html_writer::span($unansweredquestions, '', ['class' => 'stat badge never-answered']))
             . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
-                .html_writer::span('<b>' .$userstats->questions_approved .'</b>', '',
-                    array('style' => 'float: right;color:#28A745;')))
+                . html_writer::span($userstats->questions_approved, '', ['class' => 'stat badge approvals']))
             . html_writer::div(get_string('statistic_block_disapprovals', 'studentquiz')
-                        . html_writer::span('<b>' . $userstats->questions_disapproved . '</b>', '',
-                                ['style' => 'float: right;color:#d9534f;']))
+                . html_writer::span($userstats->questions_disapproved, '', ['class' => 'stat badge disapprovals']))
                 . html_writer::div(get_string('statistic_block_new_changed', 'studentquiz')
-                        . html_writer::span('<b>' . ($userstats->questions_created - $userstats->questions_approved -
-                                        $userstats->questions_disapproved) . '</b>', '',
-                                ['style' => 'float: right;color:#f0ad4e;']));
+                . html_writer::span(
+                    ($userstats->questions_created - $userstats->questions_approved - $userstats->questions_disapproved),
+                    '', ['class' => 'stat badge changed']));
 
         // Add More link to Stat block.
         $reporturl = new moodle_url('/mod/studentquiz/reportstat.php', ['id' => $cmid]);
@@ -331,36 +352,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return html_writer::tag('svg', $defs . implode($bars) . $text, $svgdims);
     }
 
-
-    /**
-     * Render an icon, optionally with the word 'Preview' beside it, to preview
-     * a given question.
-     *
-     * @param stdClass $question object of the question to be previewed.
-     * @param stdClass $context the current context.
-     * @param bool $showlabel if true, show the word 'Preview' after the icon, otherwise just show the icon.
-     * @param string $previewtext label text.
-     * @return string
-     */
-    public function question_preview_link($question, $context, $showlabel, $previewtext) {
-        if ($showlabel) {
-            $alt = '';
-            $label = ' ' . $previewtext;
-            $attributes = array();
-        } else {
-            $alt = $previewtext;
-            $label = '';
-            $attributes = array('title' => $alt);
-        }
-        if ($this->cachedquestionpreviewlinkimage == null) {
-            $this->cachedquestionpreviewlinkimage = $this->pix_icon('t/preview', $alt, '', array('class' => 'iconsmall'));
-        }
-        $params = array('cmid' => $context->instanceid, 'questionid' => $question->id);
-        $link = new moodle_url('/mod/studentquiz/preview.php', $params);
-        $action = new popup_action('click', $link, 'questionpreview', question_preview_popup_params());
-        return $this->action_link($link, $this->cachedquestionpreviewlinkimage . $label, $action, $attributes);
-    }
-
     /**
      * Prints the error message.
      *
@@ -410,11 +401,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * Render the content of approve column.
      *
      * @param stdClass $question
-     * @param moodle_url $baseurl
      * @param array $rowclasses
      * @return string
      */
-    public function render_state_column($question, $baseurl, $rowclasses) {
+    public function render_state_column($question, $rowclasses) {
+        global $COURSE;
         // Moodle doesn't process "empty" objects in restore. So questions from older backups can have no question state
         // assigned. Need to figure out for the calculation, if it's fine to handle them just as new or if the question
         // table has to have an entry. Ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/172.
@@ -427,6 +418,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             studentquiz_helper::STATE_APPROVED,
             studentquiz_helper::STATE_NEW,
             studentquiz_helper::STATE_CHANGED,
+            studentquiz_helper::STATE_REVIEWABLE,
         ))) {
             throw new coding_exception('Invalid question state '.$question->state.' for question id '.$question->id.'');
         }
@@ -434,14 +426,15 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $statename = studentquiz_helper::$statename[intval($question->state)];
         $title = get_string('state_change_tooltip_'.$statename, 'studentquiz');
         $content = $this->output->pix_icon('state_'.$statename, '', 'studentquiz');
+        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
 
-        if (question_has_capability_on($question, 'editall')) {
-            $url = new moodle_url($baseurl, [
+            $changestateurl = new \moodle_url('/mod/studentquiz/changestate.php', ['courseid' => $COURSE->id,
                     'approveselected' => $question->id,
                     'q' . $question->id => 1,
-                    'sesskey' => sesskey()
-            ]);
-            $content = html_writer::link($url, $content, ['title' => $title]);
+                    'sesskey' => sesskey(),
+                    'returnurl' => $this->page->url,
+                    'cmid' => $this->page->cm->id]);
+            $content = html_writer::link($changestateurl, $content, ['title' => $title]);
         }
 
         return $content;
@@ -467,16 +460,53 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      *
      * @param stdClass $question
      * @param array $rowclasses
+     * @param bool $privatecommenting Does this studentquiz enable private commenting?
      * @return string
      */
-    public function render_comment_column($question, $rowclasses) {
-        $output = '';
-        if (!empty($question->comment)) {
-            $output .= $question->comment;
+    public function render_comment_column($question, $rowclasses, $privatecommenting = false) {
+        $publiccontext = [
+            'tooltiptext' => get_string('commentcolumnexplainpublic', 'studentquiz'),
+            'sronlytext' => get_string('public', 'studentquiz') . ' ' .
+                utils::get_comment_plural_text($question->publiccomment),
+            'class' => 'public-comment'
+        ];
+
+        if (!empty($question->publiccomment)) {
+            $publiccontext['numberofcomments'] = $question->publiccomment;
+            if ($question->lasteditpubliccomment > $question->lastreadpubliccomment) {
+                $publiccontext['sronlytext'] .= get_string('includingunread', 'studentquiz');
+                $publiccontext['unread'] = true;
+            }
         } else {
-            $output .= get_string('no_comment', 'studentquiz');
+            $publiccontext['numberofcomments'] = get_string('no_comment', 'studentquiz');
         }
-        return $output;
+
+        $publiccomment = $this->render_from_template('mod_studentquiz/questionbank_comment_badge', $publiccontext);
+
+        $privatecomment = '';
+        if (utils::can_view_private_comment($this->page->cm->id, $question, $privatecommenting)) {
+            $privatecontext = [
+                'tooltiptext' => get_string('commentcolumnexplainprivate', 'studentquiz'),
+                'sronlytext' => get_string('private', 'studentquiz') . ' ' .
+                    utils::get_comment_plural_text($question->privatecomment),
+                'class' => 'private-comment'
+            ];
+
+            if (!empty($question->privatecomment)) {
+                $privatecontext['numberofcomments'] = $question->privatecomment;
+                if ($question->lasteditprivatecomment > $question->lastreadprivatecomment) {
+                    $privatecontext['sronlytext'] .= get_string('includingunread', 'studentquiz');
+                    $privatecontext['unread'] = true;
+                }
+            } else {
+                $privatecontext['numberofcomments'] = get_string('no_comment', 'studentquiz');
+            }
+
+            $privatecomment = '&nbsp;|&nbsp;' . $this->render_from_template('mod_studentquiz/questionbank_comment_badge',
+                $privatecontext);
+        }
+
+        return $publiccomment . $privatecomment;
     }
 
     /**
@@ -588,7 +618,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         $output .= '&nbsp;|&nbsp;';
 
-        if ($question->mylastanswercorrect !== null) {
+        if (!empty($question->myattempts) && $question->mylastanswercorrect !== null) {
             // TODO: Refactor magic constant.
             if ($question->mylastanswercorrect == '1') {
                 $output .= get_string('lastattempt_right', 'studentquiz');
@@ -829,30 +859,6 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     }
 
     /**
-     * Allow to config which columns will be used for Question table.
-     */
-    public function init_question_table_wanted_columns() {
-        global $CFG;
-        $CFG->questionbankcolumns = 'checkbox_column,question_type_column,'
-                . 'mod_studentquiz\\bank\\state_column,'
-                . 'mod_studentquiz\\bank\\state_pin_column,'
-                . 'mod_studentquiz\\bank\\question_name_column,'
-                . 'mod_studentquiz\\bank\\question_text_row,'
-                . 'mod_studentquiz\\bank\\sq_edit_action_column,'
-                . 'mod_studentquiz\\bank\\preview_column,'
-                . 'delete_action_column,'
-                . 'mod_studentquiz\\bank\\sq_hidden_action_column,'
-                . 'mod_studentquiz\\bank\\sq_pin_action_column,'
-                . 'mod_studentquiz\\bank\\sq_edit_menu_column,'
-                . 'mod_studentquiz\\bank\\anonym_creator_name_column,'
-                . 'mod_studentquiz\\bank\\tag_column,'
-                . 'mod_studentquiz\\bank\\attempts_column,'
-                . 'mod_studentquiz\\bank\\difficulty_level_column,'
-                . 'mod_studentquiz\\bank\\rate_column,'
-                . 'mod_studentquiz\\bank\\comment_column';
-    }
-
-    /**
      * Get sortable fields for difficulty level column.
      *
      * @return array
@@ -906,6 +912,50 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         return $output;
     }
 
+    /**
+     * Get all the required columns for StudentQuiz view.
+     *
+     * @param mod_studentquiz\question\bank\studentquiz_bank_view $view
+     * @return array
+     */
+    public function get_columns_for_question_bank_view(mod_studentquiz\question\bank\studentquiz_bank_view $view) {
+        return [
+            new core_question\local\bank\checkbox_column($view),
+            new qbank_viewquestiontype\question_type_column($view),
+            new \mod_studentquiz\bank\state_column($view),
+            new \mod_studentquiz\bank\state_pin_column($view),
+            new \mod_studentquiz\bank\question_name_column($view),
+            new \mod_studentquiz\bank\sq_edit_action_column($view),
+            new \mod_studentquiz\bank\preview_column($view),
+            new \mod_studentquiz\bank\sq_delete_action_column($view),
+            new \mod_studentquiz\bank\sq_hidden_action_column($view),
+            new \mod_studentquiz\bank\sq_pin_action_column($view),
+            new \mod_studentquiz\bank\sq_edit_menu_column($view),
+            new qbank_history\version_number_column($view),
+            new \mod_studentquiz\bank\anonym_creator_name_column($view),
+            new \mod_studentquiz\bank\tag_column($view),
+            new \mod_studentquiz\bank\attempts_column($view),
+            new \mod_studentquiz\bank\difficulty_level_column($view),
+            new \mod_studentquiz\bank\rate_column($view),
+            new \mod_studentquiz\bank\comment_column($view),
+        ];
+    }
+
+    /**
+     * This is renderer function to support other theme to override the question form html.
+     *
+     * @param string $questionslist the questions list html content.
+     * @return string
+     */
+    public function render_question_form(string $questionslist): string {
+        $output = \html_writer::start_tag('form', ['action' => '', 'method' => 'get', 'id' => 'questionsubmit']);
+        $output .= \html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
+        $output .= $questionslist;
+        $output .= \html_writer::end_tag('form');
+
+        return $output;
+    }
+
 }
 
 /**
@@ -954,8 +1004,9 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      */
     public function render_questionbank($view) {
         $pagevars = $view->get_qb_pagevar();
-        return $view->get_questionbank()->display('questions', $pagevars['qpage'], $pagevars['qperpage'],
-            $pagevars['cat'], false, $pagevars['showhidden'], $pagevars['qbshowtext']);
+        ob_start();
+        $view->get_questionbank()->display($pagevars, 'questions');
+        return ob_get_clean();
     }
 
     /**
@@ -1005,25 +1056,6 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
             return $this->output->notification(get_string('no_questions_filter', 'studentquiz'), 'notifysuccess');
         }
         return $this->output->notification(get_string('no_questions_add', 'studentquiz'), 'notifysuccess');
-    }
-
-    /**
-     * Render questions table form.
-     *
-     * @param array $questionslist
-     */
-    public function render_question_form($questionslist) {
-        $output = '';
-
-        $output .= html_writer::start_tag('form', [
-                'method' => 'get',
-                'action' => ''
-        ]);
-        $output .= html_writer::empty_tag('input', ['type' => 'submit', 'style' => 'display:none;']);
-        $output .= $questionslist;
-        $output .= html_writer::end_tag('form');
-
-        return $output;
     }
 
     /**
@@ -1169,57 +1201,91 @@ EOT;
      * @return string
      */
     public function render_control_buttons($catcontext, $hasquestionincategory, $addcontexts, $category) {
+        global $COURSE;
+
         $output = '';
         $caneditall = has_capability('mod/studentquiz:manage', $catcontext);
         $canmoveall = has_capability('mod/studentquiz:organize', $catcontext);
 
-        $output .= html_writer::start_div('modulespecificbuttonscontainer');
+        $output .= html_writer::start_div('modulespecificbuttonscontainer my-3');
         $output .= html_writer::tag('strong', get_string('withselected', 'question') . ':');
         $output .= html_writer::empty_tag('br');
 
         $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
         list($message, $answeringallow) = mod_studentquiz_check_availability(
                 $studentquiz->openansweringfrom, $studentquiz->closeansweringfrom, 'answering');
-
+        $deleteurl = new \moodle_url('/question/bank/deletequestion/delete.php', ['courseid' => $COURSE->id,
+            'returnurl' => $this->page->url]);
+        $movetourl = new \moodle_url('/question/bank/bulkmove/move.php', ['courseid' => $COURSE->id,
+            'returnurl' => $this->page->url]);
+        $changestateurl = new \moodle_url('/mod/studentquiz/changestate.php', ['courseid' => $COURSE->id,
+            'returnurl' => $this->page->url]);
         if ($hasquestionincategory) {
             $params = [
-                    'class' => 'btn btn-primary form-submit',
-                    'type' => 'submit',
-                    'name' => 'startquiz',
-                    'value' => get_string('start_quiz_button', 'studentquiz')
+                'class' => 'btn btn-primary form-submit',
+                'type' => 'submit',
+                'name' => 'startquiz',
+                'formmethod' => 'get',
+                'value' => get_string('start_quiz_button', 'studentquiz'),
+                'disabled' => true
             ];
 
-            if (!$answeringallow) {
-                $params['disabled'] = 'disabled';
+            if ($answeringallow) {
+                $params['data-action'] = 'toggle';
+                $params['data-togglegroup'] = 'qbank';
+                $params['data-toggle'] = 'action';
             }
 
             $output .= html_writer::empty_tag('input', $params);
         }
-
         if ($caneditall) {
-            $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
+            if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
+                $output .= html_writer::empty_tag('input', [
+                    'class' => 'btn btn-secondary',
                     'type' => 'submit',
                     'name' => 'approveselected',
-                    'value' => get_string('state_toggle', 'studentquiz')
-            ]);
+                    'formaction' => $changestateurl,
+                    'value' => get_string('state_toggle', 'studentquiz'),
+                    'form' => 'questionsubmit',
+                    'data-action' => 'toggle',
+                    'data-togglegroup' => 'qbank',
+                    'data-toggle' => 'action',
+                    'disabled' => true,
+                    'formmethod' => 'post',
+                ]);
+            }
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
-                    'type' => 'submit',
-                    'name' => 'deleteselected',
-                    'value' => get_string('delete')
+                'class' => 'btn btn-secondary',
+                'type' => 'submit',
+                'name' => 'deleteselected',
+                'formaction' => $deleteurl,
+                'form' => 'questionsubmit',
+                'value' => get_string('delete'),
+                'data-action' => 'toggle',
+                'data-togglegroup' => 'qbank',
+                'data-toggle' => 'action',
+                'disabled' => true,
+                'formmethod' => 'post',
             ]);
         }
 
         if ($canmoveall) {
             $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn',
-                    'type' => 'submit',
-                    'name' => 'move',
-                    'value' => get_string('moveto', 'question')
+                'class' => 'btn btn-secondary',
+                'type' => 'submit',
+                'name' => 'move',
+                'formaction' => $movetourl,
+                'form' => 'questionsubmit',
+                'value' => get_string('moveto', 'question'),
+                'data-action' => 'toggle',
+                'data-togglegroup' => 'qbank',
+                'data-toggle' => 'action',
+                'disabled' => true,
+                'formmethod' => 'post',
             ]);
             ob_start();
-            question_category_select_menu($addcontexts, false, 0, "{$category->id},{$category->contextid}");
+            \qbank_managecategories\helper::question_category_select_menu($addcontexts, false, 0,
+                    "{$category->id},{$category->contextid}");
             $output .= ob_get_contents();
             ob_end_clean();
         }
@@ -1250,15 +1316,16 @@ EOT;
         $shouldshownavigation = false;
         $shouldshowall = false;
         $shouldshowpaging = false;
+        $defaultperpage = utils::DEFAULT_QUESTIONS_PER_PAGE;
         if (!$pagevars['showall']) {
             if ($totalnumber > $perpage) {
                 $shouldshownavigation = true;
                 $shouldshowall = true;
                 $shouldshowpaging = true;
             } else {
-                if ($perpage > DEFAULT_QUESTIONS_PER_PAGE) {
+                if ($perpage > $defaultperpage) {
                     $shouldshownavigation = true;
-                    $perpage = 20;
+                    $perpage = $defaultperpage;
                 }
             }
         } else {
@@ -1276,12 +1343,18 @@ EOT;
                         'class' => 'btn'
                     ]);
                     $selectionperpage .= \html_writer::empty_tag('input', [
-                        'type' => 'text',
+                        'type' => 'number',
                         'name' => 'qperpage',
                         'value' => $perpage,
-                        'class' => 'form-control'
+                        'class' => 'form-control',
+                        'min' => 1
                     ]);
-                    $pagingbaroutput .= \html_writer::div($selectionperpage, 'pull-right form-inline pagination m-t-1');
+                    $selectionperpage .= \html_writer::empty_tag('input', [
+                        'type' => 'hidden',
+                        'name' => 'changepagesize',
+                        'value' => 1,
+                    ]);
+                    $pagingbaroutput .= \html_writer::div($selectionperpage, 'float-right form-inline pagination m-t-1');
                 }
                 $pagingbaroutput .= $this->output->render($pagingbar);
                 $pagingbaroutput .= html_writer::end_div();
@@ -1308,16 +1381,16 @@ EOT;
      * Generate hidden fields for Questions table form.
      *
      * @param int $cmid
-     * @param array $filterquestionids
      * @param moodle_url $baseurl
+     * @param int $perpage
      * @return string
      */
-    public function render_hidden_field($cmid, $filterquestionids, $baseurl) {
+    public function render_hidden_field(int $cmid, moodle_url $baseurl, int $perpage): string {
         $output = '';
 
         $output .= $this->generate_hidden_input('sesskey', sesskey());
         $output .= $this->generate_hidden_input('id', $cmid);
-        $output .= $this->generate_hidden_input('filtered_question_ids', implode(',', $filterquestionids));
+        $output .= $this->generate_hidden_input('qperpage', $perpage);
 
         $output .= \html_writer::input_hidden_params($baseurl, ['qperpage']);
 
@@ -1362,6 +1435,69 @@ EOT;
     }
 
     /**
+     * Render warning message when we don't have permission to add question.
+     *
+     * @param string $message warning message you want to display.
+     * @return string HTML string
+     */
+    public function render_warning_message(string $message): string {
+        $output = \html_writer::start_div('mod_studenquiz_warning');
+        $output .= $message;
+        $output .= \html_writer::end_div();
+        return $output;
+    }
+
+    /**
+     * Render current state names of questions.
+     *
+     * @param array $questions List of questions.
+     * @param bool $inuse True if at least one question is being used by the quiz.
+     * @return string HTML current states.
+     */
+    public function render_current_state_questions(array $questions, bool $inuse): string {
+        $output = '';
+        $questionnametitle = \html_writer::div(get_string('question'), 'font-weight-bold col-12 col-md-8');
+        $statenametitle = \html_writer::div(get_string('current_state', 'studentquiz'), 'font-weight-bold col-6 col-md-4');
+        $output .= \html_writer::div($questionnametitle . $statenametitle, 'row');
+
+        foreach ($questions as $question) {
+            $questionname = \html_writer::span($question->name, 'col-12 col-md-8');
+            $questionstate = \html_writer::span($question->state, 'col-6 col-md-4');
+            $output .= \html_writer::div($questionname . $questionstate, 'row');
+        }
+
+        if ($inuse) {
+            $output .= $this->render_explaintion_question_in_use();
+        }
+        $output .= \html_writer::div(get_string('changestateto', 'studentquiz'), 'mt-3');
+
+        return $output;
+    }
+
+    /**
+     * Render explaintion about questions in use.
+     *
+     * @return string HTML explaintion about questions in use.
+     */
+    public function render_explaintion_question_in_use(): string {
+        return \html_writer::div(get_string('questionsinuse', 'studentquiz'), 'mt-3');
+    }
+
+    /**
+     * Render Names of questions.
+     * @param array $questions List of questions.
+     * @return string HTML Names of questions.
+     */
+    public function render_question_names(array $questions): string {
+        $output = '';
+        foreach ($questions as $question) {
+            $output .= \html_writer::div($question->name, '');
+        }
+
+        return $output;
+    }
+
+    /**
      * Render state change dialog
      *
      * @param string $message Message to display
@@ -1372,11 +1508,11 @@ EOT;
     public function render_change_state_dialog($message, $continue, $cancel) {
         if ($continue instanceof single_button) {
             // Ok.
-            $continue->primary = true;
+            $continue->type = 'primary';
         } else if (is_string($continue)) {
-            $continue = new single_button(new moodle_url($continue), get_string('continue'), 'get', true);
+            $continue = new single_button(new moodle_url($continue), get_string('continue'), 'get', 'primary');
         } else if ($continue instanceof moodle_url) {
-            $continue = new single_button($continue, get_string('continue'), 'get', true);
+            $continue = new single_button($continue, get_string('continue'), 'get', 'primary');
         } else {
             throw new coding_exception('The continue param to $OUTPUT->confirm() must be either a URL (string/moodle_url)' .
                 'or a single_button instance.');
@@ -1399,8 +1535,9 @@ EOT;
                 studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
                 studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
                 studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-                studentquiz_helper::STATE_HIDE => get_string('hide'),
-                studentquiz_helper::STATE_DELETE => get_string('delete')
+                studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
+                studentquiz_helper::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
+                studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
         ];
         $output = $this->box_start('generalbox modal modal-dialog modal-in-page show', 'notice', $attributes);
         $output .= $this->box_start('modal-content', 'modal-content');
@@ -1412,7 +1549,7 @@ EOT;
                 'data-aria-autofocus' => 'true'
         ];
         $output .= $this->box_start('modal-body', 'modal-body', $attributes);
-        $output .= html_writer::tag('p', $message);
+        $output .= html_writer::div($message, 'mb-2');
         $output .= html_writer::select($states, 'statetype');
         $output .= $this->box_end();
         $output .= $this->box_start('modal-footer', 'modal-footer');
@@ -1432,41 +1569,21 @@ EOT;
  * Attempt renderer.
  */
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
-    /**
-     * Generate some HTML (which may be blank) that appears in the outcome area,
-     * after the question-type generated output.
-     *
-     * For example, the CBM models use this to display an explanation of the score
-     * adjustment that was made based on the certainty selected.
-     *
-     * @param question_definition $question the current question.
-     * @param question_display_options $options controls what should and should not be displayed.
-     * @param int $cmid
-     * @param int $userid viewing user id
-     * @return string HTML fragment
-     */
-    public function feedback(question_definition $question,
-                             question_display_options $options, $cmid,
-                             $userid) {
-        global $COURSE;
-        return $this->render_state_choice($question->id, $COURSE->id, $cmid);
-    }
 
     /**
      * Generate some HTML to display rating options
      *
-     * @param int $questionid Question id
+     * @param studentquiz_question $studentquizquestion studentquiz_question object.
      * @param boolean $selected shows the selected rate
      * @param boolean $readonly describes if rating is readonly
      * @param boolean $forcerating True if enforce rating is turned on
      * @return string HTML fragment
-     * @throws coding_exception
      */
-    protected function rate_choices($questionid, $selected, $readonly, $forcerating = true) {
+    protected function rate_choices(studentquiz_question $studentquizquestion, $selected, $readonly, $forcerating = true) {
         $output = '';
         $attributes = array(
             'type' => 'radio',
-            'name' => 'q' . $questionid
+            'name' => 'q' . $studentquizquestion->get_id(),
         );
 
         if ($readonly) {
@@ -1494,7 +1611,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             }
             $rateableattr = [
                     'data-rate' => $rate,
-                    'data-questionid' => $questionid,
+                    'data-studentquizquestionid' => $studentquizquestion->get_id(),
                     'tabindex' => 0,
                     'aria-label' => $ratedescription
             ];
@@ -1515,27 +1632,27 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate some HTML to display rating
      *
-     * @param int $questionid Question id
-     * @param boolean $forcerating True if enforce rating is turned on
+     * @param studentquiz_question $studentquizquestion studentquiz_question object.
+     * @param boolean $forcerating True if enforce rating is turned on.
      * @return string HTML fragment
-     * @throws dml_exception
      */
-    public function render_rate($questionid, $forcerating = true) {
+    public function render_rate(studentquiz_question $studentquizquestion, $forcerating = true) {
         global $DB, $USER;
 
-        $question = question_bank::load_question($questionid);
-        if (!utils::allow_self_comment_and_rating_in_preview_mode($question, $this->page->cm->id)) {
+        $question = $studentquizquestion->get_question();
+        if (!utils::allow_self_comment_and_rating_in_preview_mode($studentquizquestion, $this->page->cm->id)) {
             return '';
         }
 
         $value = -1;
-        $rate = $DB->get_record('studentquiz_rate', array('questionid' => $questionid, 'userid' => $USER->id));
+        $rate = $DB->get_record('studentquiz_rate', [
+            'studentquizquestionid' => $studentquizquestion->get_id(), 'userid' => $USER->id]);
         if ($rate !== false) {
             $value = $rate->rate;
         }
 
         return html_writer::div(
-            html_writer::div($this->rate_choices($questionid, $value , false, $forcerating), 'rate'),
+            html_writer::div($this->rate_choices($studentquizquestion, $value , false, $forcerating), 'rate'),
             'studentquiz_behaviour'
         );
     }
@@ -1543,18 +1660,17 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate some HTML to display the complete comment fragment.
      *
-     * @param int $cmid - Course module id.
-     * @param int $questionid - Question id.
+     * @param studentquiz_question $studentquizquestion Studentquiz Question object.
      * @param int $userid - User id.
      * @param int $highlight - Highlight comment ID.
      * @return string HTML fragment.
      */
-    public function render_comment($cmid, $questionid, $userid, $highlight = 0) {
+    public function render_comment(studentquiz_question $studentquizquestion, $userid, $highlight = 0) {
         $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
         return html_writer::div(
             html_writer::div(
                 html_writer::div(
-                    $renderer->render_comment_area($questionid, $userid, $cmid, $highlight),
+                    $renderer->render_comment_area($studentquizquestion, $userid, $highlight),
                     'comment_list'),
                 'comments'
             ), 'studentquiz_behaviour'
@@ -1564,18 +1680,19 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Generate html for Private comments, public comments and state history tabs.
      *
-     * @param int $cmid Course module id.
-     * @param question_definition $question Question definition object.
+     * @param studentquiz_question $studentquizquestion instance
      * @param int $userid User id.
      * @param int $highlight Highlight comment ID.
+     * @param bool $privatecommenting Does the studentquiz enable private commenting?
      * @return string HTML fragment.
      */
-    public function render_comment_nav_tabs($cmid, $question, $userid, $highlight = 0) {
+    public function render_comment_nav_tabs($studentquizquestion, $userid, $highlight = 0, $privatecommenting = false) {
         $renderer = $this->page->get_renderer('mod_studentquiz', 'comment');
         $tabs = [];
-
-        if (utils::can_view_private_comment($cmid, $question)) {
-            $privatecommentstab = $renderer->render_comment_area($question->id, $userid, $cmid, $highlight,
+        $question = $studentquizquestion->get_question();
+        $cm = $studentquizquestion->get_cm();
+        if (utils::can_view_private_comment($cm->id, $question, $privatecommenting)) {
+            $privatecommentstab = $renderer->render_comment_area($studentquizquestion, $userid, $highlight,
                 utils::COMMENT_TYPE_PRIVATE);
             $tabs[] = [
                 'id' => 'private-comments-tab',
@@ -1585,14 +1702,25 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 
         }
 
-        $publiccommentstab = $renderer->render_comment_area($question->id, $userid, $cmid, $highlight, utils::COMMENT_TYPE_PUBLIC);
+        $publiccommentstab = $renderer->render_comment_area($studentquizquestion,
+                $userid, $highlight, utils::COMMENT_TYPE_PUBLIC);
         $tabs[] = [
             'id' => 'public-comments-tab',
             'name' => get_string('publiccomments', 'mod_studentquiz'),
             'content' => $publiccommentstab
         ];
 
-        utils::mark_question_comment_current_active_tab($tabs);
+        if (utils::can_view_state_history($cm->id, $question)) {
+            $statehistoryrenderer = $this->page->get_renderer('mod_studentquiz', 'state_history');
+            $statehistorytab = $statehistoryrenderer->state_history_table($studentquizquestion->get_id());
+            $tabs[] = [
+                'id' => 'state_history-tab',
+                'name' => get_string('history', 'mod_studentquiz'),
+                'content' => $statehistorytab
+            ];
+        }
+
+        utils::mark_question_comment_current_active_tab($tabs, $privatecommenting);
         $context = [
             'tabs' => $tabs
         ];
@@ -1603,30 +1731,49 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
     /**
      * Render state choice for specific question
      *
-     * @param int $questionid
-     * @param int $courseid
-     * @param int $cmid
+     * @param studentquiz_question $studentquizquestion The studentquiz question object.
      * @return string HTML state choice select box
      */
-    public function render_state_choice($questionid, $courseid, $cmid) {
+    public function render_state_choice(studentquiz_question $studentquizquestion) {
+        global $USER, $COURSE;
+
+        $question = $studentquizquestion->get_question();
         $output = '';
+        if ($USER->id != $question->createdby && !has_capability('mod/studentquiz:changestate', $this->page->context)) {
+            return;
+        }
+        $states = [
+            studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
+            studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
+            studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
+        ];
+
         if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
             $states = [
-                    studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
-                    studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
-                    studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-                    studentquiz_helper::STATE_HIDE => get_string('hide'),
-                    studentquiz_helper::STATE_DELETE => get_string('delete')
+                studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
+                studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
+                studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
+                studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
+                studentquiz_helper::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
+                studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
             ];
-            $output .= html_writer::start_span('change-question-state');
-            $output .= html_writer::tag('label', get_string('state_column_name', 'studentquiz'), ['for' => 'statetype']);
-            $output .= html_writer::select($states, 'statetype');
-            $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
-                    ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $questionid,
-                            'data-courseid' => $courseid, 'data-cmid' => $cmid, 'disabled' => 'disabled']);
-            $output .= html_writer::end_span();
-            $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
         }
+
+        $currentstate = $studentquizquestion->get_state();
+        $statenames = studentquiz_helper::get_state_descriptions();
+        $output .= html_writer::start_span('change-question-state');
+        $output .= html_writer::div(get_string('changecurrentstate', 'studentquiz',
+            $statenames[$currentstate]), 'current-state mb-2');
+        $output .= html_writer::tag('label', get_string('state_column_name', 'studentquiz'), ['for' => 'statetype']);
+        $output .= html_writer::select($states, 'statetype');
+        $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
+                ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $question->id,
+                        'data-studentquizquestionid' => $studentquizquestion->get_id(),
+                        'data-courseid' => $COURSE->id, 'data-cmid' => $studentquizquestion->get_cm()->id, 'disabled' => 'disabled',
+                        'data-currentstate' => $currentstate]);
+        $output .= html_writer::end_span();
+        $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
+
         return \html_writer::div($output, 'studentquiz_behaviour');
     }
 
@@ -1649,7 +1796,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             ]);
         }
 
-        $content1 = html_writer::div(html_writer::div($col1content, 'pull-left'), 'col-md-4');
+        $content1 = html_writer::div(html_writer::div($col1content, 'float-left'), 'col-md-4');
 
         // The abort button can always be shown, except when the question has been answered and it is the last question
         // in the list.
@@ -1658,7 +1805,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $col2content .= html_writer::empty_tag('input', [
                     'type' => 'submit', 'name' => 'finish',
                     'value' => get_string('abort_button', 'studentquiz'),
-                    'class' => 'btn'
+                    'class' => 'btn btn-secondary'
             ]);
         }
 
@@ -1674,9 +1821,85 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     'class' => 'btn btn-primary'
             ]);
         }
-        $content3 = html_writer::div(html_writer::div($col3content, 'pull-right'), 'col-md-4');
+        $content3 = html_writer::div(html_writer::div($col3content, 'float-right'), 'col-md-4');
 
         return html_writer::div($content1 . $content2 . $content3, 'mod-studentquiz-attempt-nav row');
+    }
+}
+/**
+ * State history renderer.
+ */
+class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
+
+    /** @var string - Define name of Student Quiz mod. */
+    const MODNAME = 'mod_studentquiz';
+
+    /**
+     * Render state history table.
+     *
+     * @param int $studentquizquestionid studentquizquestion id.
+     * @return string The content render.
+     */
+    public function state_history_table($studentquizquestionid): string {
+
+        $table = new html_table();
+        $table->head = [
+            get_string('time'),
+            get_string('action', 'question'),
+        ];
+
+        list($statehistories, $users) = utils::get_state_history_data($studentquizquestionid);
+
+        if (get_string_manager()->string_exists('strftimedatetimeshortaccurate', 'core_langconfig')) {
+            $formatdate = get_string('strftimedatetimeshortaccurate', 'core_langconfig');
+        } else {
+            $formatdate = get_string('strftimedatetimeshort', 'core_langconfig');
+        }
+
+        foreach ($statehistories as $statehistory) {
+            $author = !empty($users[$statehistory->userid]) ? $this->action_author($users[$statehistory->userid]) : '-';
+            $table->data[] = [
+                userdate($statehistory->timecreated, $formatdate),
+                $this->get_desc_action($statehistory->state) . ' ' . $author
+            ];
+        }
+
+        return html_writer::tag('h5', get_string('statehistory', 'studentquiz'), ['class' => 'statehistoryheader mt-2']) .
+            html_writer::tag('div', html_writer::table($table, true), ['class' => 'statehistorybody']);
+    }
+
+    /**
+     * Action author's profile link.
+     *
+     * @param stdClass $user The user object.
+     * @return string The link to user's profile.
+     */
+    public function action_author(\stdClass $user): string {
+        if ($user->deleted) {
+            return html_writer::div(get_string('deleteduser', 'mod_forum'));
+        }
+
+        return html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $this->page->course->id]),
+            fullname($user), ['class' => 'd-table-cell']);
+    }
+
+    /**
+     * Description of state.
+     *
+     * @param int $state State of question.
+     * @return string Description of state.
+     */
+    public function get_desc_action(int $state): string {
+        $states = studentquiz_helper::get_state_descriptions();
+        if ($state == studentquiz_helper::STATE_NEW) {
+            return get_string('descriptionofstatenew', 'studentquiz');
+        }
+
+        if ($state == studentquiz_helper::STATE_SHOW || $state == studentquiz_helper::STATE_HIDE) {
+            return get_string('descriptionofvisibility', 'studentquiz', ['visibility' => $states[$state]]);
+        }
+
+        return get_string('descriptioncofstate', 'studentquiz', ['state' => $states[$state]]);
     }
 }
 
@@ -1786,13 +2009,13 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
                 html_writer::span(
                 get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))),
-                html_writer::span( round($userstats->rates_average, 2),
+                html_writer::span( round($userstats->rates_average ?? 0, 2),
                     '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
                     '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))),
                 html_writer::span(
-                    round($commstats->questions_average_rating, 2),
+                    round($commstats->questions_average_rating ?? 0, 2),
                     '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))), ''
             ),
             array(
@@ -1895,7 +2118,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      *
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @return string $rank report table
-     * @throws coding_exception
      * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
      */
     public function view_rank_table($report) {
@@ -2011,21 +2233,21 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
     /**
      * Generate HTML to render comments.
      *
-     * @param int $questionid - Question id.
+     * @param studentquiz_question $studentquizquestion - Studentquiz question instance
      * @param int $userid - User id.
-     * @param int $cmid - Course module id.
      * @param int $highlight - Highlight comment ID.
      * @param int $commenttype Comment Type.
      * @return string HTML fragment
      */
-    public function render_comment_area($questionid, $userid, $cmid, $highlight = 0, $commenttype = utils::COMMENT_TYPE_PUBLIC) {
-        $id = 'question_comment_area_' . $questionid . '_' . $commenttype;
-
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
-        $commentarea = new container($studentquiz, $question, $cm, $context, null, '', $commenttype);
+    public function render_comment_area($studentquizquestion, $userid, $highlight = 0, $commenttype = utils::COMMENT_TYPE_PUBLIC) {
+        $id = 'question_comment_area_' . $studentquizquestion->get_question()->id . '_' . $commenttype;
+        $cmid = $studentquizquestion->get_cm()->id;
+        $commentarea = new container($studentquizquestion, null, '', $commenttype);
         $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
-        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($question, $cmid, $commenttype);
+        $context = $studentquizquestion->get_context();
+        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($studentquizquestion,
+                $cmid, $commenttype, $studentquizquestion->get_studentquiz()->privatecommenting);
         if ($highlight != 0) {
             $numbertoshow = 0;
         }
@@ -2140,7 +2362,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
             $mform = new \mod_studentquiz\commentarea\form\comment_form([
                     'index' => $id,
                     'replyto' => VALUE_DEFAULT,
-                    'questionid' => $questionid,
+                    'studentquizquestionid' => $studentquizquestion->get_id(),
                     'cmid' => $cmid,
                     'cancelbutton' => false,
                     'forcecommenting' => $forcecommenting,
@@ -2173,11 +2395,11 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'strings' => json_encode($strings),
                 'sortablestrings' => json_encode($sortable),
                 'referer' => $referer,
-                'questionid' => $questionid,
+                'studentquizquestionid' => $studentquizquestion->get_id(),
                 'contextid' => $context->id,
                 'userid' => $userid,
                 'numbertoshow' => container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT,
-                'cmid' => $cmid
+                'cmid' => $cmid,
         ]);
     }
 }
@@ -2194,14 +2416,12 @@ class mod_studentquiz_comment_history_renderer extends mod_studentquiz_renderer 
     /**
      * Generate HTML to render comments.
      *
-     * @param int $questionid - Question id.
+     * @param container $container instance.
      * @param int $commentid - Comment id.
-     * @param int $cmid - Course module id.
      * @return string HTML fragment
      */
-    public function render_comment_history($questionid, $commentid, $cmid) {
-        list($question, $cm, $context, $studentquiz) = utils::get_data_for_comment_area($questionid, $cmid);
-        $commentarea = new container($studentquiz, $question, $cm, $context);
+    public function render_comment_history($container, $commentid) {
+        $commentarea = $container;
 
         $dbresults = $commentarea->get_history($commentid);
         $renderdata = $commentarea->extract_comment_history_to_render($dbresults);

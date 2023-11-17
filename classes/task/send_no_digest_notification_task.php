@@ -14,19 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * An adhoc task for sending no digest notification.
- *
- * @package    mod_studentquiz
- * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace mod_studentquiz\task;
 
 use core\message\message;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * An adhoc task for sending no digest notification.
@@ -56,7 +46,10 @@ class send_no_digest_notification_task extends \core\task\adhoc_task {
                 'actorname' => $data->messagedata->actorname,
                 'timestamp' => $data->messagedata->timestamp,
                 'questionurl' => $data->messagedata->questionurl,
-                'eventname' => $data->eventname
+                'eventname' => get_string('state_' . $data->eventname . 'lowercase', 'studentquiz'),
+                'isstudent' => $data->messagedata->isstudent,
+                'courseshortname' => $data->messagedata->courseshortname,
+
         ];
         $fullmessagehtml = $renderer->render_from_template('mod_studentquiz/single_email_notification', $contentdata);
 

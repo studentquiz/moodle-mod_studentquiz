@@ -168,7 +168,10 @@ class studentquiz_condition extends \core_question\bank\search\condition {
      */
     private function get_special_sql($sqldata, $name) {
         if (substr($sqldata, 0, 12) === 'mydifficulty') {
-            return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $sqldata);
+            return str_replace('mydifficulty', '(CASE WHEN sp.attempts > 0 THEN
+                    ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)), 2)
+                    ELSE 0
+                END)', $sqldata);
         }
         if ($name == "onlynew") {
             return str_replace('myattempts', 'sp.attempts', $sqldata);
@@ -184,7 +187,10 @@ class studentquiz_condition extends \core_question\bank\search\condition {
      */
     private function get_sql_field($name) {
         if (substr($name, 0, 12) === 'mydifficulty') {
-            return str_replace('mydifficulty', 'ROUND(1 - (sp.correctattempts / sp.attempts),2)', $name);
+            return str_replace('mydifficulty', '(CASE WHEN sp.attempts > 0 THEN
+                    ROUND(1 - (CAST(sp.correctattempts AS DECIMAL) / CAST(sp.attempts  AS DECIMAL)), 2)
+                    ELSE 0
+                END)', $name);
         }
         if (substr($name, 0, 10) === 'myattempts') {
             return 'sp.attempts';
@@ -205,10 +211,10 @@ class studentquiz_condition extends \core_question\bank\search\condition {
                 return 'dl.';
             case 'rate':
                 return 'vo.';
-            case 'comment':
-                return 'co.';
+            case 'publiccomment':
+                return 'copub.';
             case 'state':
-                return 'sqs.';
+                return 'sqq.';
             case 'firstname':
             case 'lastname':
                 return 'uc.';

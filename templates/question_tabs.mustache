@@ -37,13 +37,15 @@
 }}
 
 <div class="studentquiz_behaviour question-nav-tabs">
-    <div class="nav nav-tabs">
+    <div class="nav nav-tabs" role="tablist">
         {{#tabs}}
             <a
                 class="nav-item nav-link {{#active}}active{{/active}}"
                 href="#{{id}}"
                 data-toggle="tab"
                 data-tab-id="{{id}}"
+                role="tab"
+                {{#active}}aria-selected="true"{{/active}}{{^active}}aria-selected="false"{{/active}}
             >{{name}}</a>
         {{/tabs}}
     </div>

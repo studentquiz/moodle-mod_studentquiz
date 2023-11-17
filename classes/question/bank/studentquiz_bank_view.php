@@ -27,6 +27,8 @@ namespace mod_studentquiz\question\bank;
 
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
+use stdClass;
+use core_question\local\bank\question_version_status;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -48,6 +50,7 @@ require_once(__DIR__ . '/sq_edit_action_column.php');
 require_once(__DIR__ . '/sq_pin_action_column.php');
 require_once(__DIR__ . '/state_pin_column.php');
 require_once(__DIR__ . '/sq_edit_menu_column.php');
+require_once(__DIR__ . '/sq_delete_action_column.php');
 
 /**
  * Module instance settings form
@@ -56,7 +59,7 @@ require_once(__DIR__ . '/sq_edit_menu_column.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_bank_view extends \core_question\bank\view {
+class studentquiz_bank_view extends \core_question\local\bank\view {
     /**
      * @var stdClass filtered questions from database
      */
@@ -125,8 +128,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
     /**
      * Constructor assuming we already have the necessary data loaded.
      *
-     * @param \core_question\bank\question_edit_contexts $contexts
-     * @param \core_question\bank\moodle_url $pageurl
+     * @param \core_question\local\bank\question_edit_contexts $contexts
+     * @param \moodle_url $pageurl
      * @param object $course
      * @param object|null $cm
      * @param object $studentquiz
@@ -135,16 +138,16 @@ class studentquiz_bank_view extends \core_question\bank\view {
      */
     public function __construct($contexts, $pageurl, $course, $cm, $studentquiz, $pagevars, $report) {
         $this->set_filter_post_data();
-        parent::__construct($contexts, $pageurl, $course, $cm);
         global $USER, $PAGE;
         $this->pagevars = $pagevars;
         $this->studentquiz = $studentquiz;
         $this->userid = $USER->id;
         $this->report = $report;
+        parent::__construct($contexts, $pageurl, $course, $cm);
         $this->set_filter_form_fields($this->is_anonymized());
         $this->initialize_filter_form($pageurl);
         $currentgroup = groups_get_activity_group($cm, true);
-        $this->currentgroupjoinsql = utils::groups_get_questions_joins($currentgroup, 'sqs.groupid');
+        $this->currentgroupjoinsql = utils::groups_get_questions_joins($currentgroup, 'sqq.groupid');
         // Init search conditions with filterform state.
         $categorycondition = new \core_question\bank\search\category_condition(
                 $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
@@ -156,7 +159,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Shows the question bank editing interface.
+     * Shows the question bank interface.
      *
      * The function also processes a number of actions:
      *
@@ -165,21 +168,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * deleteselected Deletes the selected questions from the category
      * Other actions:
      * category      Chooses the category
-     * displayoptions Sets display options
+     * params: $tabname question bank edit tab name, for permission checking
+     * $pagevars current list of page variables
      *
+     * @param array $pagevars
      * @param string $tabname
-     * @param int $page
-     * @param int $perpage
-     * @param bool $cat
-     * @param bool $recurse
-     * @param bool $showhidden
-     * @param bool $showquestiontext
-     * @param array $tagids
-     * @return html output
      */
-    public function display($tabname, $page, $perpage, $cat,
-                            $recurse, $showhidden, $showquestiontext, $tagids = []) {
-        global $USER;
+    public function display($pagevars, $tabname): void {
+        $page = $pagevars['qpage'];
+        $perpage = $pagevars['qperpage'];
+        $cat = $pagevars['cat'];
+        $recurse = $pagevars['recurse'];
+        $showhidden = $pagevars['showhidden'];
+        $showquestiontext = $pagevars['qbshowtext'];
+        $tagids = [];
+        if (!empty($pagevars['qtagids'])) {
+            $tagids = $pagevars['qtagids'];
+        }
         $output = '';
 
         $this->build_query();
@@ -188,293 +193,23 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $questions = $this->load_questions($page, $perpage);
         $this->questions = $questions;
         $this->countsql = count($this->questions);
-
-        if ($this->process_actions_needing_ui()) {
-            return;
-        }
-
         if ($this->countsql || $this->isfilteractive) {
             // We're unable to force the filter form to submit with get method. We have 2 forms on the page
             // which need to interact with each other, so forcing method as get here.
             $output .= str_replace('method="post"', 'method="get"', $this->renderer->render_filter_form($this->filterform));
         }
-
+        echo $output;
         if ($this->countsql > 0) {
-            $questionslist = $this->display_question_list(
-                    $this->contexts->having_one_edit_tab_cap($tabname),
-                    $this->baseurl, $cat, $this->cm,
-                    null, $page, $perpage, $showhidden, $showquestiontext,
+            $this->display_question_list($this->baseurl, $cat, null, $page, $perpage,
                     $this->contexts->having_cap('moodle/question:add')
             );
-            $output .= $this->renderer->render_question_form($questionslist);
         } else {
             list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
                     $this->studentquiz->closesubmissionfrom, 'submission');
             if ($questionsubmissionallow) {
-                $output .= $this->renderer->render_no_questions_notification($this->isfilteractive);
+                echo $this->renderer->render_no_questions_notification($this->isfilteractive);
             }
         }
-        return $output;
-    }
-
-    /**
-     * process action buttons
-     *
-     * Check for commands on this page and modify variables as necessary.
-     */
-    public function process_actions() {
-        global $DB;
-        // This code is called by both POST forms and GET links, so cannot use data_submitted.
-        $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
-
-        // Approve selected questions.
-        if (optional_param('approveselected', false, PARAM_BOOL)) {
-            // If teacher has already confirmed the action.
-            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
-                // TODO: What? Security by obscurity? Needs a look closer, probably best by using the capability :manage!
-                $approveselected = required_param('approveselected', PARAM_RAW);
-                $state = required_param('state', PARAM_INT);
-                if ($confirm == md5($approveselected)) {
-                    if ($questionlist = explode(',', $approveselected)) {
-                        // For each question either hide it if it is in use or delete it.
-                        foreach ($questionlist as $questionid) {
-                            $questionid = (int)$questionid;
-                            if ($state == studentquiz_helper::STATE_HIDE) {
-                                $type = 'hidden';
-                                $value = 1;
-                            } else if ($state == studentquiz_helper::STATE_DELETE) {
-                                $type = 'deleted';
-                                $value = 1;
-                            } else {
-                                $type = 'state';
-                                $value = $state;
-                            }
-
-                            mod_studentquiz_change_state_visibility($questionid, $type, $value);
-                            mod_studentquiz_state_notify($questionid, $this->course, $this->cm, $type);
-
-                            // Additionally always unhide the question when it got approved.
-                            if ($state == studentquiz_helper::STATE_APPROVED) {
-                                mod_studentquiz_change_state_visibility($questionid, 'hidden', 0);
-                            }
-                        }
-                    }
-                    $this->baseurl->remove_params('approveselected');
-                    $this->baseurl->remove_params('confirm');
-                    foreach ($rawquestionids as $id) {
-                        $this->baseurl->remove_params('q' . $id);
-                    }
-                    redirect($this->baseurl);
-                } else {
-                    throw new moodle_exception("invalidconfirm', 'question");
-                }
-            }
-        }
-
-        // Move selected questions to new category. Unfortunately there is no easy question lib method for moving
-        // questions into other categories.
-        if (optional_param('move', false, PARAM_BOOL) and confirm_sesskey()) {
-            $category = required_param('category', PARAM_SEQUENCE);
-            list($tocategoryid, $contextid) = explode(',', $category);
-            if (! $tocategory = $DB->get_record('question_categories', array('id' => $tocategoryid, 'contextid' => $contextid))) {
-                throw new moodle_exception("cannotfindcate', 'question");
-            }
-            $tocontext = \context::instance_by_id($contextid);
-            require_capability('moodle/question:add', $tocontext);
-
-            if ($rawquestionids) {
-                list($usql, $params) = $DB->get_in_or_equal($rawquestionids);
-                $sql = "SELECT q.*, c.contextid
-                          FROM {question} q
-                          JOIN {question_categories} c ON c.id = q.category
-                         WHERE q.id {$usql}";
-                $questions = $DB->get_records_sql($sql, $params);
-                foreach ($questions as $question) {
-                    question_require_capability_on($question, 'move');
-                }
-                // Careful! This function is considered question lib internal!
-                question_move_questions_to_category($rawquestionids, $tocategory->id);
-                $this->baseurl->remove_params('move');
-                foreach ($rawquestionids as $id) {
-                    $this->baseurl->remove_params('q' . $id);
-                }
-                redirect($this->baseurl);
-            }
-        }
-
-        // Delete selected questions from the category.
-        if (optional_param('deleteselected', false, PARAM_BOOL)) {
-            // If teacher has already confirmed the action.
-            if (($confirm = optional_param('confirm', '', PARAM_ALPHANUM)) and confirm_sesskey()) {
-                $deleteselected = required_param('deleteselected', PARAM_RAW);
-                if ($confirm == md5($deleteselected)) {
-                    if ($questionlist = explode(',', $deleteselected)) {
-                        // For each question either hide it if it is in use or delete it.
-                        foreach ($questionlist as $questionid) {
-                            $questionid = (int)$questionid;
-                            question_require_capability_on($questionid, 'edit');
-                            mod_studentquiz_state_notify($questionid, $this->course, $this->cm, 'deleted');
-                            $DB->set_field('question', 'hidden', 1, ['id' => $questionid]);
-                        }
-                    }
-                    $this->baseurl->remove_params('deleteselected');
-                    $this->baseurl->remove_params('confirm');
-                    foreach ($rawquestionids as $id) {
-                        $this->baseurl->remove_params('q' . $id);
-                    }
-                    redirect($this->baseurl);
-                } else {
-                    throw new moodle_exception("invalidconfirm', 'question");
-                }
-            }
-        }
-
-        // Unhide a question.
-        if (($unhide = optional_param('unhide', '', PARAM_INT)) and confirm_sesskey()) {
-            question_require_capability_on($unhide, 'edit');
-            $DB->set_field('studentquiz_question', 'hidden', 0, ['questionid' => $unhide]);
-            mod_studentquiz_state_notify($unhide, $this->course, $this->cm, 'unhidden');
-
-            // Purge these questions from the cache.
-            \question_bank::notify_question_edited($unhide);
-            // Fix infinite redirect.
-            $this->baseurl->remove_params('unhide');
-            foreach ($rawquestionids as $id) {
-                $this->baseurl->remove_params('q' . $id);
-            }
-            redirect($this->baseurl);
-        }
-
-        // Hide a question.
-        if (($hide = optional_param('hide', '', PARAM_INT)) and confirm_sesskey()) {
-            question_require_capability_on($hide, 'edit');
-            $DB->set_field('studentquiz_question', 'hidden', 1, ['questionid' => $hide]);
-            mod_studentquiz_state_notify($hide, $this->course, $this->cm, 'hidden');
-            // Purge these questions from the cache.
-            \question_bank::notify_question_edited($hide);
-            // Fix infinite redirect.
-            $this->baseurl->remove_params('hide');
-            foreach ($rawquestionids as $id) {
-                $this->baseurl->remove_params('q' . $id);
-            }
-            redirect($this->baseurl);
-        }
-
-        // Pin a question.
-        if (($pin = optional_param('pin', '', PARAM_INT)) and confirm_sesskey()) {
-             question_require_capability_on($pin, 'edit');
-            $DB->set_field('studentquiz_question', 'pinned', 1, ['questionid' => $pin]);
-            mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'pin');
-            // Purge these questions from the cache.
-            \question_bank::notify_question_edited($pin);
-            // Fix infinite redirect.
-            $this->baseurl->remove_params('pin');
-            foreach ($rawquestionids as $id) {
-                $this->baseurl->remove_params('q' . $id);
-            }
-            redirect($this->baseurl);
-        }
-
-        // Unpin a question.
-        if (($pin = optional_param('unpin', '', PARAM_INT)) and confirm_sesskey()) {
-            question_require_capability_on($pin, 'edit');
-            $DB->set_field('studentquiz_question', 'pinned', 0, ['questionid' => $pin]);
-            mod_studentquiz_state_notify($pin, $this->course, $this->cm, 'unpin');
-            // Purge these questions from the cache.
-            \question_bank::notify_question_edited($pin);
-            // Fix infinite redirect.
-            $this->baseurl->remove_params('unpin');
-            foreach ($rawquestionids as $id) {
-                $this->baseurl->remove_params('q' . $id);
-            }
-            redirect($this->baseurl);
-        }
-    }
-
-    /**
-     * Confirmation on process action if needed
-     * @return boolean
-     */
-    public function process_actions_needing_ui() {
-        global $DB, $OUTPUT;
-
-        $context = \context_module::instance($this->studentquiz->coursemodule);
-
-        // Make a list of all the questions that are selected.
-        // This code is called by both POST forms and GET links, so cannot use data_submitted.
-        $rawquestions = $_REQUEST;
-
-        if (optional_param('deleteselected', false, PARAM_BOOL)) { // Required permissions when deleting...
-            // An user can delete a question if either he can manage studentquiz...
-            if (!has_capability('mod/studentquiz:manage', $context)) {
-                // Or he is able to actually edit all of those question (and thus deleting), because highly probable
-                // it is his own question.
-                foreach (mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions) as $id) {
-                    question_require_capability_on($id, 'edit');
-                }
-            }
-
-        } else if (optional_param('approveselected', false, PARAM_BOOL)) { // Required permissions when approving...
-            require_capability('mod/studentquiz:changestate', $context);
-
-        } else { // Otherwise no further actions.
-            return false;
-        }
-
-        // Comma separated list of ids of questions to be deleted.
-        $questionlist = '';
-        // String with names of questions separated by <br /> with.
-        $questionnames = '';
-        // An asterix in front of those that are in use Set to true if at least one of the questions is in use.
-        $inuse = false;
-        // Exact requested url except the delete/approveselected.
-        $baseurl = new \moodle_url('view.php', $this->baseurl->params());
-        $baseurl->remove_params('deleteselected', 'approveselected');
-
-        // Parse input for question ids.
-        foreach (mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions) as $id) {
-            $baseurl->remove_params('q'.$id);
-            $questionlist .= $id.',';
-            if (questions_in_use(array($id))) {
-                $questionnames .= '* ';
-                $inuse = true;
-            }
-            $questionnames .= $DB->get_field('question', 'name', array('id' => $id)) . '<br />';
-        }
-
-        // No questions were selected.
-        if (!$questionlist) {
-            redirect($baseurl);
-        }
-        $questionlist = rtrim($questionlist, ',');
-
-        // Add an explanation about questions in use.
-        if ($inuse) {
-            $questionnames .= \html_writer::empty_tag('br').get_string('questionsinuse', 'studentquiz');
-        }
-
-        if (optional_param('deleteselected', false, PARAM_BOOL)) {
-            $deleteurl = new \moodle_url($baseurl, array('deleteselected' => $questionlist, 'confirm' => md5($questionlist),
-                'sesskey' => sesskey()));
-
-            $continue = new \single_button($deleteurl, get_string('delete'), 'get');
-
-            $output = $OUTPUT->confirm(get_string('deletequestionscheck', 'question', $questionnames), $continue, $baseurl);
-        } else if (optional_param('approveselected', false, PARAM_BOOL)) {
-            $approveurl = new \moodle_url($baseurl, array('approveselected' => $questionlist, 'state' => 0,
-                'confirm' => md5($questionlist),
-                'sesskey' => sesskey()));
-
-            $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
-            $continue->disabled = true;
-            $continue->class .= ' continue_state_change';
-
-            $output = $this->renderer->render_change_state_dialog(get_string('changeselectedsstate', 'studentquiz',
-                $questionnames), $continue, $baseurl);
-        }
-
-        echo $output;
-        return true;
     }
 
     /**
@@ -488,22 +223,52 @@ class studentquiz_bank_view extends \core_question\bank\view {
     /**
      * Override base default sort
      */
-    protected function default_sort() {
-        return array();
+    protected function default_sort(): array {
+        return [
+            'mod_studentquiz\bank\anonym_creator_name_column-timecreated' => -1,
+            'mod_studentquiz\bank\question_name_column' => 1,
+        ];
     }
 
     /**
      * Create the SQL query to retrieve the indicated questions, based on
-     * \core_question\bank\search\condition filters.
+     * \core_question\local\bank\search\condition filters.
      */
-    protected function build_query() {
+    protected function build_query(): void {
         global $CFG;
 
         // Hard coded setup.
         $params = array();
-        $joins = array();
-        $fields = array('q.hidden', 'q.category', 'q.timecreated', 'q.createdby');
-        $tests = array('q.parent = 0', 'q.hidden = 0');
+        $joins = [
+                'qv' => 'JOIN {question_versions} qv ON qv.questionid = q.id',
+                'qbe' => 'JOIN {question_bank_entries} qbe on qbe.id = qv.questionbankentryid',
+                'qc' => 'JOIN {question_categories} qc ON qc.id = qbe.questioncategoryid',
+                'qr' => "JOIN {question_references} qr ON qr.questionbankentryid = qbe.id AND qv.version = (SELECT MAX(v.version)
+                                          FROM {question_versions} v
+                                          JOIN {question_bank_entries} be
+                                            ON be.id = v.questionbankentryid
+                                         WHERE be.id = qbe.id)
+                              AND qr.component = 'mod_studentquiz'
+                              AND qr.questionarea = 'studentquiz_question'
+                              AND qc.contextid = qr.usingcontextid",
+                'sqq' => 'JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid'
+        ];
+        $fields = [
+                'sqq.id studentquizquestionid',
+                'qc.id categoryid',
+                'qv.version',
+                'qv.id versionid',
+                'qbe.id questionbankentryid',
+                'qv.status',
+                'q.timecreated',
+                'q.createdby',
+        ];
+        // Only show ready and draft question.
+        $tests = [
+                'q.parent = 0',
+                "qv.status <> :status",
+        ];
+        $params['status'] = question_version_status::QUESTION_STATUS_HIDDEN;
         foreach ($this->requiredcolumns as $column) {
             $extrajoins = $column->get_extra_joins();
             foreach ($extrajoins as $prefix => $join) {
@@ -527,15 +292,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
         }
 
-        // Default sorting.
-        if (empty($sorts)) {
-            $sorts[] = 'q.timecreated DESC,q.id ASC';
-        }
-
-        if (isset($CFG->questionbankcolumns)) {
-            array_unshift($sorts, 'sqh.pinned DESC');
-        }
-
         // Build the where clause and load params from search conditions.
         foreach ($this->searchconditions as $searchcondition) {
             if (!empty($searchcondition->where())) {
@@ -545,6 +301,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $params = array_merge($params, $searchcondition->params());
             }
         }
+        array_unshift($sorts, 'sqq.pinned DESC');
 
         // Build the complete SQL query.
         $sql = ' FROM {question} q ' . implode(' ', $joins);
@@ -566,7 +323,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param int $categoryid question category
      * @param bool $canadd capability state
      */
-    public function create_new_question_form($categoryid, $canadd) {
+    public function create_new_question_form($categoryid, $canadd): void {
         global $OUTPUT;
 
         $output = '';
@@ -574,9 +331,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $caption = get_string('createnewquestion', 'studentquiz');
 
         if ($canadd) {
-            $returnurl = new \moodle_url('/mod/studentquiz/view.php', array(
-                'id' => $this->studentquiz->coursemodule
-            ));
+            $returnurl = $this->baseurl;
             $params = array(
                 // TODO: MAGIC CONSTANT!
                 'returnurl' => $returnurl->out_as_local_url(false),
@@ -584,14 +339,14 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 'cmid' => $this->studentquiz->coursemodule,
             );
 
-            $url = new \moodle_url('/question/addquestion.php', $params);
+            $url = new \moodle_url('/question/bank/editquestion/addquestion.php', $params);
 
             $allowedtypes = (empty($this->studentquiz->allowedqtypes)) ? 'ALL' : $this->studentquiz->allowedqtypes;
             $allowedtypes = ($allowedtypes == 'ALL') ? mod_studentquiz_get_question_types_keys() : explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(
-                print_choose_qtype_to_add_form(array(), $allowedtypes, true
+                \qbank_editquestion\editquestion_helper::print_choose_qtype_to_add_form(array(), $allowedtypes, true
             ), '', array('id' => 'qtypechoicecontainer'));
-            $questionsubmissionbutton = new \single_button($url, $caption, 'get', true);
+            $questionsubmissionbutton = new \single_button($url, $caption, 'get', 'primary');
 
             list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
                     $this->studentquiz->closesubmissionfrom, 'submission');
@@ -603,38 +358,31 @@ class studentquiz_bank_view extends \core_question\bank\view {
                 $output .= $this->renderer->render_availability_message($message, 'mod_studentquiz_submission_info');
             }
         } else {
-            $output .= get_string('nopermissionadd', 'question');
+            $output .= $this->renderer->render_warning_message(get_string('nopermissionadd', 'question'));
         }
-        return $output;
+        echo $output;
     }
 
     /**
      * Prints the table of questions in a category with interactions
      *
-     * @param array $contexts Not used!
-     * @param moodle_url $pageurl The URL to reload this page.
-     * @param string $categoryandcontext 'categoryID,contextID'.
-     * @param stdClass $cm Not used!
-     * @param bool|int $recurse Whether to include subcategories.
-     * @param int $page The number of the page to be displayed
-     * @param int $perpage Number of questions to show per page
-     * @param bool $showhidden whether deleted questions should be displayed.
-     * @param bool $showquestiontext whether the text of each question should be shown in the list. Deprecated.
-     * @param array $addcontexts contexts where the user is allowed to add new questions.
-     * @return html output
+     * @param \moodle_url $pageurl     The URL to reload this page.
+     * @param string     $categoryandcontext 'categoryID,contextID'.
+     * @param int        $recurse     Whether to include subcategories.
+     * @param int        $page        The number of the page to be displayed
+     * @param int        $perpage     Number of questions to show per page
+     * @param array      $addcontexts contexts where the user is allowed to add new questions.
      */
-    protected function display_question_list($contexts, $pageurl, $categoryandcontext,
-                                             $cm = null, $recurse=1, $page=0, $perpage=100, $showhidden=false,
-                                             $showquestiontext = false, $addcontexts = array()) {
+    protected function display_question_list($pageurl, $categoryandcontext, $recurse = 1, $page = 0,
+                                                $perpage = 100, $addcontexts = []): void {
         $output = '';
         $category = $this->get_current_category($categoryandcontext);
-
         list($categoryid, $contextid) = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
 
         $output .= \html_writer::start_tag('fieldset', array('class' => 'invisiblefieldset', 'style' => 'display:block;'));
 
-        $output .= $this->renderer->render_hidden_field($this->cm->id, $this->get_filtered_question_ids(), $this->baseurl);
+        $output .= $this->renderer->render_hidden_field($this->cm->id, $this->baseurl, $perpage);
 
         $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(),
             $addcontexts, $category);
@@ -642,7 +390,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
             $perpage, true);
 
-        $output .= $this->display_question_list_rows($page);
+        $output .= $this->display_question_list_rows();
 
         $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
             $perpage, false);
@@ -651,10 +399,10 @@ class studentquiz_bank_view extends \core_question\bank\view {
             $addcontexts, $category);
 
         $output .= \html_writer::end_tag('fieldset');
-
+        $output = $this->renderer->render_question_form($output);
         $output .= $this->renderer->display_javascript_snippet();
 
-        return $output;
+        echo $output;
     }
 
     /**
@@ -666,14 +414,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $output = '';
         $output .= \html_writer::start_div('categoryquestionscontainer');
         ob_start();
-        $this->start_table();
-        $rowcount = 0;
-        foreach ($this->questions as $question) {
-            $this->print_table_row($question, $rowcount);
-            $rowcount++;
-        }
-        $this->numberofdisplayedquestions = $rowcount;
-        $this->end_table();
+        $this->print_table($this->questions);
         $output .= ob_get_contents();
         ob_end_clean();
         $output .= \html_writer::end_div();
@@ -687,7 +428,7 @@ class studentquiz_bank_view extends \core_question\bank\view {
      * @param int $rowcount Row index
      * @return array Classes of row
      */
-    protected function get_row_classes($question, $rowcount) {
+    protected function get_row_classes($question, $rowcount): array {
         $classes = parent::get_row_classes($question, $rowcount);
         if (($key = array_search('dimmed_text', $classes)) !== false) {
             unset($classes[$key]);
@@ -709,17 +450,20 @@ class studentquiz_bank_view extends \core_question\bank\view {
             get_string('filter_label_onlynew_help', 'studentquiz'));
 
         $this->fields[] = new \toggle_filter_checkbox('only_new_state',
-                get_string('state_new', 'studentquiz'), false, 'sqs.state',
+                get_string('state_newplural', 'studentquiz'), false, 'sqq.state',
                 ['approved'], 2, studentquiz_helper::STATE_NEW);
         $this->fields[] = new \toggle_filter_checkbox('only_approved_state',
-                get_string('state_approved', 'studentquiz'), false, 'sqs.state',
+                get_string('state_approvedplural', 'studentquiz'), false, 'sqq.state',
                 ['approved'], 2, studentquiz_helper::STATE_APPROVED);
         $this->fields[] = new \toggle_filter_checkbox('only_disapproved_state',
-                get_string('state_disapproved', 'studentquiz'), false, 'sqs.state',
+                get_string('state_disapprovedplural', 'studentquiz'), false, 'sqq.state',
                 ['approved'], 2, studentquiz_helper::STATE_DISAPPROVED);
         $this->fields[] = new \toggle_filter_checkbox('only_changed_state',
-                get_string('state_changed', 'studentquiz'), false, 'sqs.state',
+                get_string('state_changedplural', 'studentquiz'), false, 'sqq.state',
                 ['approved'], 2, studentquiz_helper::STATE_CHANGED);
+        $this->fields[] = new \toggle_filter_checkbox('only_reviewable_state',
+                get_string('state_reviewableplural', 'studentquiz'), false, 'sqq.state',
+                ['approved'], 2, studentquiz_helper::STATE_REVIEWABLE);
 
         $this->fields[] = new \toggle_filter_checkbox('onlygood',
             get_string('filter_label_onlygood', 'studentquiz'),
@@ -760,8 +504,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
         $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             true, 'difficultylevel');
 
-        $this->fields[] = new \user_filter_number('comment', get_string('filter_label_comment', 'studentquiz'),
-            true, 'comment');
+        $this->fields[] = new \user_filter_number('publiccomment', get_string('filter_label_comment', 'studentquiz'),
+            true, 'publiccomment');
         $this->fields[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
             true, 'name');
         $this->fields[] = new \studentquiz_user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
@@ -805,18 +549,8 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Modify base url for ordering.
-     * We have two forms in the view.php page which need to interact with each other. All params are sent through GET,
-     * but the moodle filter form can only process POST, so we need to copy them there.
-     */
-    private function modify_base_url() {
-        $this->baseurl->params($_GET);
-    }
-
-    /**
      * Initialize filter form
      * @param moodle_url $pageurl
-     * @throws \coding_exception missing url param exception
      */
     private function initialize_filter_form($pageurl) {
         $this->isfilteractive = false;
@@ -824,14 +558,15 @@ class studentquiz_bank_view extends \core_question\bank\view {
         // If reset button was pressed, redirect the user again to the page.
         // This means all submitted data is intentionally lost and thus the form clean again.
         if (optional_param('resetbutton', false, PARAM_ALPHA)) {
-            redirect($pageurl);
+            // Reset to clean state.
+            $pageurl->remove_all_params();
+            $pageurl->params(['id' => $this->cm->id]);
+            redirect($pageurl->out());
         }
-
-        $this->modify_base_url();
         $this->filterform = new \mod_studentquiz_question_bank_filter_form(
             $this->fields,
-            $pageurl->out(),
-            array('cmid' => $this->cm->id)
+            $pageurl->out(false),
+            array_merge(['cmid' => $this->cm->id], $this->pagevars)
         );
     }
 
@@ -885,15 +620,6 @@ class studentquiz_bank_view extends \core_question\bank\view {
     }
 
     /**
-     * Get all filtered question ids qith q prefix
-     * @return array question ids with q prefix
-     * @deprecated TODO: This should nowhere be necessary!
-     */
-    private function get_filtered_question_ids() {
-        return $this->displayedquestionsids;
-    }
-
-    /**
      * TODO: rename function and apply (there is duplicate method)
      * @return bool studentquiz is set to anoymize ranking.
      */
@@ -907,5 +633,49 @@ class studentquiz_bank_view extends \core_question\bank\view {
         }
         // Instance is anonymized and isn't allowed to unhide that.
         return true;
+    }
+
+    /**
+     * Get Studentquiz object of question bank.
+     * @return \stdClass studentquiz object.
+     */
+    public function get_studentquiz() {
+        return $this->studentquiz;
+    }
+
+    /**
+     * Deal with a sort name of the form columnname, or colname_subsort by
+     * breaking it up, validating the bits that are present, and returning them.
+     * If there is no subsort, then $subsort is returned as ''.
+     *
+     * @param string $sort the sort parameter to process.
+     * @return array array($colname, $subsort).
+     */
+    protected function parse_subsort($sort): array {
+        // When we sort by public/private comments and turn off the setting studentquiz | privatecomment,
+        // the parse_subsort function will throw exception. We should redirect to the base_url after cleaning all sort params.
+        $showprivatecomment = $this->studentquiz->privatecommenting;
+        if ($showprivatecomment && $sort == 'mod_studentquiz\bank\comment_column' ||
+                !$showprivatecomment && ($sort == 'mod_studentquiz\bank\comment_column-privatecomment' ||
+                $sort == 'mod_studentquiz\bank\comment_column-publiccomment')) {
+            for ($i = 1; $i <= self::MAX_SORTS; $i++) {
+                $this->baseurl->remove_params('qbs' . $i);
+            }
+            redirect($this->base_url());
+        }
+
+        return parent::parse_subsort($sort);
+    }
+
+    /**
+     *  Return the all the required column for the view.
+     *
+     * @return \question_bank_column_base[]
+     */
+    protected function wanted_columns(): array {
+        global $PAGE;
+        $renderer = $PAGE->get_renderer('mod_studentquiz');
+        $this->requiredcolumns = $renderer->get_columns_for_question_bank_view($this);
+        return $this->requiredcolumns;
     }
 }

@@ -13,20 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
-/**
- * Define all the restore steps that will be used by the restore_studentquiz_activity_structure_step
- *
- * @package   mod_studentquiz
- * @category  backup
- * @copyright 2017 HSR (http://www.hsr.ch)
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
-
-defined('MOODLE_INTERNAL') || die;
 
 /**
  * Structure step to restore one StudentQuiz activity
@@ -82,7 +70,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         // Restore Comment Histories.
         $commenthistories = new restore_path_element('comment_history',
-                '/activity/studentquiz/commenthistories/comment');
+                '/activity/studentquiz/comments/comment/commenthistories/comment_history');
         $paths[] = $commenthistories;
 
         // Restore Question meta.
@@ -94,6 +82,11 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $notification = new restore_path_element('notification',
                 '/activity/studentquiz/notifications/notification');
         $paths[] = $notification;
+
+        // Restore State histories.
+        $statehistories = new restore_path_element('state_history',
+            '/activity/studentquiz/statehistories/state_history');
+        $paths[] = $statehistories;
 
         // Return the paths wrapped into standard activity structure.
         return $this->prepare_activity_structure($paths);
@@ -154,6 +147,9 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         if (empty($data->forcecommenting)) {
             $data->forcecommenting = get_config('studentquiz', 'forcecommenting');
         }
+        if (empty($data->privatecommenting)) {
+            $data->privatecommenting = get_config('studentquiz', 'showprivatecomment');
+        }
         if (!isset($data->commentdeletionperiod)) {
             $data->commentdeletionperiod = get_config('studentquiz', 'commentediting_deletionperiod');
         }
@@ -185,7 +181,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function process_progress($data) {
         global $DB;
         $data = (object)$data;
-        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $data->studentquizid = $this->get_new_parentid('studentquiz');
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('studentquiz_progress', $data);
@@ -199,7 +195,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
     protected function process_rate($data) {
         global $DB;
         $data = (object) $data;
-        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $data->userid = $this->get_mappingid('user', $data->userid);
         $DB->insert_record('studentquiz_rate', $data);
     }
@@ -213,22 +209,23 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         global $DB;
         $data = (object) $data;
         $oldid = $data->id;
-        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
         $data->userid = $this->get_mappingid('user', $data->userid);
-        $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
-        $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
+        $data->usermodified = $this->get_mappingid('user', $data->usermodified);
         $data->type = $data->type ?? utils::COMMENT_TYPE_PUBLIC;
 
         // If is a reply (parentid != 0).
         if (!empty($data->parentid)) {
-            if ($newparentid = $this->get_mappingid('studentquiz_comment', $data->parentid)) {
+            if ($newparentid = $this->get_mappingid('comment', $data->parentid)) {
                 $data->parentid = $newparentid;
             } else {
                 $data->parentid = \mod_studentquiz\commentarea\container::PARENTID;
             }
         }
 
-        if ($data->edited > 0) {
+        if (isset($data->edited) && $data->edited > 0) {
+            $data->edituserid = $this->get_mappingid_or_null('user', $data->edituserid);
+
             $commenthistory = new stdClass();
             $commenthistory->commentid = $data->id;
             $commenthistory->content = $data->comment;
@@ -242,7 +239,9 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             $data->timemodified = $data->edited;
         }
 
-        if ($data->deleted > 0) {
+        if (isset($data->deleted) && $data->deleted > 0) {
+            $data->deleteuserid = $this->get_mappingid_or_null('user', $data->deleteuserid);
+
             $commenthistory = new stdClass();
             $commenthistory->commentid = $data->id;
             $commenthistory->content = '';
@@ -257,7 +256,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         }
 
         $newid = $DB->insert_record('studentquiz_comment', $data);
-        $this->set_mapping('studentquiz_comment', $oldid, $newid, true);
+        $this->set_mapping('comment', $oldid, $newid, true);
     }
 
     /**
@@ -269,7 +268,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         global $DB;
 
         $data = (object) $data;
-        $data->questionid = $this->get_mappingid('question', $data->questionid);
+        $data->studentquizid = $this->get_new_parentid('studentquiz');
         $data->groupid = $this->get_mappingid('group', $data->groupid ?? 0);
 
         if (!isset($data->state)) {
@@ -289,7 +288,22 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             $data->pinned = 0;
         }
 
-        $DB->insert_record('studentquiz_question', $data);
+        $studentquizquestionid = $DB->insert_record('studentquiz_question', $data);
+        // We need to create a question_references record.
+        // Load question to create a question references.
+        $newquestionid = $this->get_mappingid('question', $data->questionid);
+        $question = question_bank::load_question($newquestionid);
+        $studentquiz = $DB->get_record('studentquiz', ['id' => $data->studentquizid]);
+        $contextid = context_module::instance($studentquiz->coursemodule)->id;
+        $referenceparams = [
+                'usingcontextid' => $contextid,
+                'itemid' => $studentquizquestionid,
+                'component' => 'mod_studentquiz',
+                'questionarea' => 'studentquiz_question',
+                'questionbankentryid' => $question->questionbankentryid,
+                'version' => null
+        ];
+        $DB->insert_record('question_references', (object) $referenceparams);
     }
 
     /**
@@ -301,12 +315,8 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         global $DB;
 
         $data = (object) $data;
-        $data->id = $this->get_mappingid('id', $data->id);
-        $data->commentid = $this->get_mappingid('commentid', $data->commentid);
-        $data->content = $this->get_mappingid('content', $data->content);
-        $data->userid = $this->get_mappingid('userid', $data->userid);
-        $data->action = $this->get_mappingid('action', $data->action);
-        $data->timemodified = $this->get_mappingid('timemodified', $data->timemodified);
+        $data->commentid = $this->get_new_parentid('comment');
+        $data->userid = $this->get_mappingid('user', $data->userid);
 
         $DB->insert_record('studentquiz_comment_history', $data);
     }
@@ -323,6 +333,24 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
         $data->studentquizid = $this->get_mappingid('notification', $data->studentquizid);
 
         $DB->insert_record('studentquiz_notification', $data);
+    }
+
+    /**
+     * Process state history data.
+     *
+     * @param array $data parsed element data
+     */
+    protected function process_state_history($data) {
+        global $DB;
+
+        // If the path content is null, we will fix it after excuting.
+        if (!isset($data)) {
+            return;
+        }
+
+        $data = (object) $data;
+        $data->studentquizquestionid = $this->get_studentquizquestionid_from_data($data);
+        $DB->insert_record('studentquiz_state_history', $data);
     }
 
     /**
@@ -361,12 +389,13 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
      */
     protected function after_restore() {
         parent::after_execute();
-
         // Migrate progress from quiz usage to internal table.
         mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($this->get_courseid());
         // Workaround setting default question state if no state data is available.
         // ref: https://tracker.moodle.org/browse/MDL-67406.
         mod_studentquiz_fix_all_missing_question_state_after_restore($this->get_courseid());
+        // Fix restore legacy data without path content.
+        utils::fix_all_missing_question_state_history_after_restore($this->get_courseid());
     }
 
     /**
@@ -381,5 +410,24 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
             return null;
         }
         return $this->get_mappingid($type, $oldid);
+    }
+
+    /**
+     * Get correct studentquizquestionid base on data from backup or legacy backup files.
+     *
+     * @param stdClass $data column and row data from backup xml.
+     * @return bool|int|mixed
+     */
+    private function get_studentquizquestionid_from_data($data) {
+        // Pre 4.0 version legacy backup.
+        if (!empty($data->questionid)) {
+            $newquestionid = $this->get_mappingid('question', $data->questionid);
+            $question = question_bank::load_question($newquestionid);
+            $sq = \mod_studentquiz\local\studentquiz_question::get_studentquiz_question_from_question($question);
+            $studentquizquestionid = $sq->get_id();
+        } else {
+            $studentquizquestionid = $this->get_mappingid('question', $data->studentquizquestionid);
+        }
+        return $studentquizquestionid;
     }
 }

@@ -14,13 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Unit tests for (some of) mod/studentquiz/viewlib.php.
- *
- * @package    mod_studentquiz
- * @copyright  2017 HSR (http://www.hsr.ch)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
+
+use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -64,7 +61,7 @@ const QUESTION_DEFAULT_NAME = 'Question';
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_bank_view_test extends advanced_testcase {
+class bank_view_test extends \advanced_testcase {
     /**
      * @var course module
      */
@@ -97,37 +94,35 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
     /**
      * Run questionbank.
      *
-     * @return \mod_studentquiz\question\bank\studentquiz_bank_view
-     * @throws mod_studentquiz_view_exception
-     * @throws moodle_exception
+     * @return studentquiz_bank_view
      */
     public function run_questionbank() {
         global $PAGE;
-        $PAGE->set_url(new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
+        $PAGE->set_url(new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
         $PAGE->set_context($this->ctx);
+        $PAGE->set_cm($this->cm);
         // Hard coded.
         $pagevars = array(
-            'recurse' => true,
-            'cat' => $this->cat->id . ',' . $this->ctx->id,
-            'showall' => 0,
-            'showallprinted' => 0,
+                'recurse' => true,
+                'cat' => $this->cat->id . ',' . $this->ctx->id,
+                'showall' => 0,
+                'showallprinted' => 0,
         );
 
-        $report = new mod_studentquiz_report($this->cm->id);
-        $questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            new question_edit_contexts(context_module::instance($this->cm->id))
-            , new moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
-            , $this->course
-            , $this->cm
-            , $this->studentquiz
-            , $pagevars, $report);
+        $report = new \mod_studentquiz_report($this->cm->id);
+        $questionbank = new studentquiz_bank_view(
+                new \core_question\local\bank\question_edit_contexts(\context_module::instance($this->cm->id))
+                , new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id))
+                , $this->course
+                , $this->cm
+                , $this->studentquiz
+                , $pagevars, $report);
         return $questionbank;
     }
 
     /**
      * Setup testing scenario
      * One user, one studentquiz in one course.
-     * @throws coding_exception
      */
     protected function setUp(): void {
         global $DB;
@@ -137,11 +132,11 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id, $studentrole->id);
 
         $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz',
-            array('course' => $this->course->id),  array('anonymrank' => true));
+                array('course' => $this->course->id),  array('anonymrank' => true));
         $this->cm = get_coursemodule_from_instance('studentquiz', $this->studentquiz->id);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $this->ctx = context_module::instance($this->cm->id);
+        $this->ctx = \context_module::instance($this->cm->id);
 
         // Retrieve created category by context.
         $this->cat = question_get_default_category($this->ctx->id);
@@ -149,6 +144,39 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
 
         $this->create_random_questions(20, $user->id);
+    }
+
+    /**
+     * Test wanted_columns function.
+     * @covers \mod_studentquiz\question\bank\studentquiz_bank_view::wanted_columns.
+     */
+    public function test_wanted_columns() {
+        $this->resetAfterTest(true);
+
+        $questionbank = $this->run_questionbank();
+        $reflector = new \ReflectionClass('mod_studentquiz\question\bank\studentquiz_bank_view');
+        $method = $reflector->getMethod('wanted_columns');
+        $method->setAccessible(true);
+        $requiredcolumns = $method->invokeArgs($questionbank, [$questionbank]);
+
+        $this->assertInstanceOf('core_question\local\bank\checkbox_column', $requiredcolumns[0]);
+        $this->assertInstanceOf('qbank_viewquestiontype\question_type_column', $requiredcolumns[1]);
+        $this->assertInstanceOf('mod_studentquiz\bank\state_column', $requiredcolumns[2]);
+        $this->assertInstanceOf('mod_studentquiz\bank\state_pin_column', $requiredcolumns[3]);
+        $this->assertInstanceOf('mod_studentquiz\bank\question_name_column', $requiredcolumns[4]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_action_column', $requiredcolumns[5]);
+        $this->assertInstanceOf('mod_studentquiz\bank\preview_column', $requiredcolumns[6]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_delete_action_column', $requiredcolumns[7]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_hidden_action_column', $requiredcolumns[8]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_pin_action_column', $requiredcolumns[9]);
+        $this->assertInstanceOf('mod_studentquiz\bank\sq_edit_menu_column', $requiredcolumns[10]);
+        $this->assertInstanceOf('qbank_history\version_number_column', $requiredcolumns[11]);
+        $this->assertInstanceOf('mod_studentquiz\bank\anonym_creator_name_column', $requiredcolumns[12]);
+        $this->assertInstanceOf('mod_studentquiz\bank\tag_column', $requiredcolumns[13]);
+        $this->assertInstanceOf('mod_studentquiz\bank\attempts_column', $requiredcolumns[14]);
+        $this->assertInstanceOf('mod_studentquiz\bank\difficulty_level_column', $requiredcolumns[15]);
+        $this->assertInstanceOf('mod_studentquiz\bank\rate_column', $requiredcolumns[16]);
+        $this->assertInstanceOf('mod_studentquiz\bank\comment_column', $requiredcolumns[17]);
     }
 
     /**
@@ -162,32 +190,34 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
             $question = $this->questiongenerator->create_question('description', null, array('category' => $this->cat->id));
             $question->name = QUESTION_DEFAULT_NAME . ' ' . $i;
             $DB->update_record('question', $question);
+            $q1 = \question_bank::load_question($question->id);
+            $sqq = studentquiz_question::get_studentquiz_question_from_question($q1, $this->studentquiz);
 
-            $this->create_comment($question, $userid);
-            $this->create_rate($question, $userid);
+            $this->create_comment($sqq, $userid);
+            $this->create_rate($sqq, $userid);
         }
     }
 
     /**
      * Create question rate
-     * @param stdClass $question
+     * @param \studentquiz_question $sqq
      * @param int $userid
      */
-    protected function create_rate($question, $userid) {
-        $raterecord = new stdClass();
+    protected function create_rate($sqq, $userid) {
+        $raterecord = new \stdClass();
         $raterecord->rate = 5;
-        $raterecord->questionid = $question->id;
+        $raterecord->studentquizquestionid = $sqq->id;
         $raterecord->userid = $userid;
     }
 
     /**
      * Create question comment
-     * @param stdClass $question
+     * @param studentquiz_question $sqq
      * @param int $userid
      */
-    protected function create_comment($question, $userid) {
-        $commentrecord = new stdClass();
-        $commentrecord->questionid = $question->id;
+    protected function create_comment($sqq, $userid) {
+        $commentrecord = new \stdClass();
+        $commentrecord->studentquizquestionid = $sqq->id;
         $commentrecord->userid = $userid;
 
         $this->studentquizgenerator->create_comment($commentrecord);
@@ -195,17 +225,21 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
     /**
      * Test questionbank empty filter
+     * @covers \mod_studentquiz\question\bank\studentquiz_bank_view
      */
     public function test_questionbank_empty_filter() {
         $this->resetAfterTest(true);
         $questionbank = $this->run_questionbank();
-
+        ob_start();
         $this->displayqb($questionbank);
+        $html = ob_get_clean();
+
         $this->assertEquals(20, count($questionbank->get_questions()));
     }
 
     /**
      * Test questionbank filter question name
+     * @covers \mod_studentquiz\question\bank\studentquiz_bank_view
      */
     public function test_questionbank_filter_question_name() {
         $this->resetAfterTest(true);
@@ -215,26 +249,34 @@ class mod_studentquiz_bank_view_test extends advanced_testcase {
 
         // Hard coded.
         $questionbank = $this->run_questionbank();
-
+        ob_start();
         $this->displayqb($questionbank);
+        $html = ob_get_clean();
+
         $this->assertEquals(11, count($questionbank->get_questions()));
     }
 
     /**
      * Display question bank
-     * @param mod_studentquiz\question\bank\studentquiz_bank_view $questionbank
+     * @param studentquiz_bank_view $questionbank
      * @param int $qpage
      * @param int $qperpage
      * @param int $recurse
      * @param int $showhidden
      * @param int $qbshowtext
-     * @return string
+     * @return html Output.
      */
     protected function displayqb($questionbank, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0, $qbshowtext = 0) {
         $cat = $this->cat->id . "," . $this->ctx->id;
-        $questionbank->display('questions', $qpage, $qperpage,
-            $cat, $recurse, $showhidden,
-            $qbshowtext);
+        $pagevars = [
+                'qpage' => $qpage,
+                'qperpage' => $qperpage,
+                'recurse' => $recurse,
+                'showhidden' => $showhidden,
+                'qbshowtext' => $qbshowtext,
+                'cat' => $cat,
+        ];
+        $questionbank->display($pagevars, 'questions');
     }
 
     /**

@@ -14,15 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Cron test.
- *
- * @package    mod_studentquiz
- * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace mod_studentquiz;
 
-defined('MOODLE_INTERNAL') || die();
+use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\local\studentquiz_helper;
 
 /**
  * Cron test.
@@ -31,31 +26,34 @@ defined('MOODLE_INTERNAL') || die();
  * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_studentquiz_cron_testcase extends advanced_testcase {
+class cron_test extends \advanced_testcase {
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $course;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $student1;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $student2;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $teacher;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $studentquizdata;
 
     /** @var int */
     protected $cmid;
 
-    /** @var stdClass */
+    /** @var \stdClass */
     protected $studentquiz;
 
     /** @var array */
     protected $questions;
+
+    /** @var array */
+    protected $studentquizquestions;
 
     protected function setUp(): void {
         global $DB;
@@ -84,17 +82,17 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
 
         // Prepare studentquiz.
         $this->studentquizdata = [
-                'course' => $this->course->id,
-                'anonymrank' => false,
-                'questionquantifier' => 10,
-                'approvedquantifier' => 5,
-                'ratequantifier' => 3,
-                'correctanswerquantifier' => 2,
-                'incorrectanswerquantifier' => -1,
+            'course' => $this->course->id,
+            'anonymrank' => true,
+            'questionquantifier' => 10,
+            'approvedquantifier' => 5,
+            'ratequantifier' => 3,
+            'correctanswerquantifier' => 2,
+            'incorrectanswerquantifier' => -1,
         ];
 
         $this->cmid = $generator->create_module('studentquiz', $this->studentquizdata)->cmid;
-        $this->studentquiz = mod_studentquiz_load_studentquiz($this->cmid, context_module::instance($this->cmid)->id);
+        $this->studentquiz = mod_studentquiz_load_studentquiz($this->cmid, \context_module::instance($this->cmid)->id);
 
         // Prepare question.
         $this->setUser($this->student1);
@@ -103,113 +101,269 @@ class mod_studentquiz_cron_testcase extends advanced_testcase {
                 ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]);
         $this->questions[1] = $questiongenerator->create_question('truefalse', null,
                 ['name' => 'Student 2 Question', 'category' => $this->studentquiz->categoryid]);
-        question_bank::load_question($this->questions[0]->id);
-        question_bank::load_question($this->questions[1]->id);
-        $DB->insert_record('studentquiz_question', (object) ['questionid' => $this->questions[0]->id, 'state' => 0]);
-        $DB->insert_record('studentquiz_question', (object) ['questionid' => $this->questions[1]->id, 'state' => 1]);
+        $this->questions[0] = \question_bank::load_question($this->questions[0]->id);
+        $this->questions[1] = \question_bank::load_question($this->questions[1]->id);
+        $this->studentquizquestions[0] = studentquiz_question::get_studentquiz_question_from_question($this->questions[0]);
+        $this->studentquizquestions[1] = studentquiz_question::get_studentquiz_question_from_question($this->questions[1]);
+        // Prepare comment.
+        $commentrecord = new \stdClass();
+        $commentrecord->studentquizquestionid = $this->studentquizquestions[0]->id;
+        $commentrecord->userid = $this->student1->id;
+        $this->getDataGenerator()->get_plugin_generator('mod_studentquiz')->create_comment($commentrecord);
+
+        // Prepare rate.
+        $raterecord = new \stdClass();
+        $raterecord->rate = 5;
+        $raterecord->studentquizquestionid = $this->studentquizquestions[0]->id;
+        $raterecord->userid = $this->student1->id;
+        \mod_studentquiz\utils::save_rate($raterecord);
     }
 
     /**
      * Test send_no_digest_notification_task
+     *
+     * @dataProvider state_data_provider
+     * @covers \mod_studentquiz\task\send_digest_notification_task
+     * @param string $state State of the question.
      */
-    public function test_send_no_digest_notification_task() {
-        global $DB;
-        $question = $DB->get_record('question', ['id' => $this->questions[0]->id],
-                'id, name, timemodified, createdby, modifiedby');
-        $notifydata = mod_studentquiz_prepare_notify_data($question, $this->student1, get_admin(), $this->course,
-                get_coursemodule_from_id('studentquiz', $this->cmid));
+    public function test_send_no_digest_notification_task(string $state) {
+        $question = $this->questions[0];
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            $this->student1, get_admin(), $this->course,
+            get_coursemodule_from_id('studentquiz', $this->cmid),
+        );
         $customdata = [
-                'eventname' => 'questionchanged',
-                'courseid' => $this->course->id,
-                'submitter' => get_admin(),
-                'recipient' => $this->student1,
-                'messagedata' => $notifydata,
-                'questionurl' => $notifydata->questionurl,
-                'questionname' => $notifydata->questionname,
+            'eventname' => $state,
+            'courseid' => $this->course->id,
+            'submitter' => get_admin(),
+            'recipient' => $this->student1,
+            'messagedata' => $notifydata,
+            'questionurl' => $notifydata->questionurl,
+            'questionname' => $notifydata->questionname,
+            'isstudent' => $notifydata->isstudent,
+            'courseshortname' => $notifydata->courseshortname,
         ];
 
+        $this->preventResetByRollback();
+        $sink = $this->redirectMessages();
         // Execute the cron.
-        ob_start();
-        cron_setup_user();
-        $cron = new \mod_studentquiz\task\send_no_digest_notification_task();
+        $this->cron_setup_user();
+        $cron = new task\send_no_digest_notification_task();
         $cron->set_custom_data($customdata);
         $cron->set_component('mod_studentquiz');
         $cron->execute();
-        $output = ob_get_contents();
-        ob_end_clean();
-
-        $this->assertStringContainsString('Sending notification for StudentQuiz for question ' .
-                $question->name . ' to ' .
-                $notifydata->recepientname, $output);
-
-        $question = $DB->get_record('question', ['id' => $this->questions[1]->id],
-                'id, name, timemodified, createdby, modifiedby');
-        $notifydata = mod_studentquiz_prepare_notify_data($question, $this->student2, get_admin(), $this->course,
-                get_coursemodule_from_id('studentquiz', $this->cmid));
-        $customdata = [
-                'eventname' => 'questionchanged',
-                'courseid' => $this->course->id,
-                'submitter' => get_admin(),
-                'recipient' => $this->student2,
-                'messagedata' => $notifydata,
-                'questionurl' => $notifydata->questionurl,
-                'questionname' => $notifydata->questionname,
-        ];
-
-        // Execute the cron.
-        ob_start();
-        cron_setup_user();
-        $cron = new \mod_studentquiz\task\send_no_digest_notification_task();
-        $cron->set_custom_data($customdata);
-        $cron->set_component('mod_studentquiz');
-        $cron->execute();
-        $output = ob_get_contents();
-        ob_end_clean();
-
-        $this->assertStringContainsString('Sending notification for StudentQuiz for question ' .
-                $question->name . ' to ' .
-                $notifydata->recepientname, $output);
+        // Get email content.
+        $messages = $sink->get_messages();
+        $this->assertEquals(1, count($messages));
+        $this->expectOutputString('Sending notification for StudentQuiz for question ' . $question->name .
+            ' to ' . $notifydata->recepientname . "\n");
+        $this->assertStringContainsString('Your question <b>' . $question->name .
+            '</b> in StudentQuiz activity <b>' . $this->studentquizquestions[0]->get_studentquiz()->name .
+            '</b> in course <b>' . $this->course->fullname . '</b> has been ' . $state, $messages[0]->fullmessage);
     }
 
     /**
      * Test send_no_digest_notification_task
+     *
+     * @dataProvider state_data_provider
+     * @covers \mod_studentquiz\task\send_digest_notification_task
+     * @param string $state State of the question.
      */
-    public function test_send_digest_notification_task() {
+    public function test_send_digest_notification_task(string $state) {
         global $DB;
         date_default_timezone_set('UTC');
 
-        $question = $DB->get_record('question', ['id' => $this->questions[0]->id],
-                'id, name, timemodified, createdby, modifiedby');
-        $notifydata = mod_studentquiz_prepare_notify_data($question, $this->student1, get_admin(), $this->course,
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+                $this->student1, get_admin(), $this->course,
                 get_coursemodule_from_id('studentquiz', $this->cmid));
 
         $customdata = [
-                'eventname' => 'questionchanged',
-                'courseid' => $this->course->id,
-                'submitter' => get_admin(),
-                'recipient' => $this->student2,
-                'messagedata' => $notifydata,
-                'questionurl' => $notifydata->questionurl,
-                'questionname' => $notifydata->questionname,
+            'eventname' => $state,
+            'courseid' => $this->course->id,
+            'submitter' => get_admin(),
+            'recipient' => $this->student2,
+            'messagedata' => $notifydata,
+            'questionurl' => $notifydata->questionurl,
+            'questionname' => $notifydata->questionname,
+            'isstudent' => $notifydata->isstudent
         ];
 
-        $notificationqueue = new stdClass();
+        $notificationqueue = new \stdClass();
         $notificationqueue->studentquizid = $notifydata->moduleid;
         $notificationqueue->content = serialize($customdata);
         $notificationqueue->recipientid = $this->student2->id;
         $notificationqueue->timetosend = strtotime('-1 day', strtotime(date('Y-m-d')));
         $DB->insert_record('studentquiz_notification', $notificationqueue);
 
+        $this->preventResetByRollback();
+        $sink = $this->redirectMessages();
         // Execute the cron.
-        ob_start();
-        cron_setup_user();
-        $cron = new \mod_studentquiz\task\send_digest_notification_task();
+        $this->cron_setup_user();
+        $cron = new task\send_digest_notification_task();
         $cron->set_component('mod_studentquiz');
         $cron->execute();
-        $output = ob_get_contents();
-        ob_end_clean();
+        // Get email content.
+        $messages = $sink->get_messages();
+        $this->assertEquals(1, count($messages));
+        $this->assertStringContainsString('Your question <b>'. $notifydata->questionname .
+            '</b> has been <b>' . $state . '</b>', $messages[0]->fullmessage);
+        $this->expectOutputRegex("/^Sending digest notification for StudentQuiz/");
+    }
 
-        $this->assertStringContainsString('Sending digest notification for StudentQuiz', $output);
-        $this->assertStringContainsString('Sent 1 messages!', $output);
+    /**
+     * Data provider for state.
+     *
+     * @coversNothing
+     * @return array List data of state.
+     */
+    public function state_data_provider(): array {
+        return [
+            'Notifying updated question state to changed' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_CHANGED],
+            ],
+            'Notifying updated question state to disapproved' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_DISAPPROVED],
+            ],
+            'Notifying updated question state to reviewable' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_REVIEWABLE],
+            ],
+            'Notifying updated question state to deleted' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_DELETE],
+            ],
+            'Notifying updated question state to hidden' => [
+                'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_HIDE],
+            ],
+            'Notifying unhide a question' => [
+                'state' => 'unhidden',
+            ],
+            'Notifying pin a question' => [
+                'state' => 'pinned',
+            ],
+            'Notifying unpin a question' => [
+                'state' => 'unpinned',
+            ],
+        ];
+    }
+
+    /**
+     * Test mod_studentquiz_prepare_notify_data
+     *
+     * @covers ::mod_studentquiz_prepare_notify_data
+     */
+    public function test_mod_studentquiz_prepare_notify_data(): void {
+
+        // All data providers are executed the setUp method.
+        // Because of that you can't access any variables you create there from within a data provider.
+        // So we can't use provider here despite we have similar steps.
+
+        // Recipient is student.
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            $this->student1, get_admin(), $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+        $anonstudent = get_string('creator_anonym_fullname', 'studentquiz');
+        $anonmanager = get_string('manager_anonym_fullname', 'studentquiz');
+
+        $this->assertEquals(true, $notifydata->isstudent);
+        $this->assertEquals($anonstudent, $notifydata->recepientname);
+        $this->assertEquals($anonmanager, $notifydata->actorname);
+
+        // Recipient is admin.
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            get_admin(), $this->student1, $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+
+        $this->assertEquals(false, $notifydata->isstudent);
+        $this->assertEquals($anonmanager, $notifydata->recepientname);
+        $this->assertEquals($anonstudent, $notifydata->actorname);
+
+        // Recipient is teacher enrol in the course.
+        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
+            $this->teacher, get_admin(), $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+
+        $this->assertEquals(false, $notifydata->isstudent);
+        $this->assertEquals($anonmanager, $notifydata->recepientname);
+        $this->assertEquals($anonstudent, $notifydata->actorname);
+
+    }
+
+    /**
+     * Test delete_orphaned_questions
+     *
+     * @covers \mod_studentquiz\task\delete_orphaned_questions
+     */
+    public function test_delete_orphaned_questions(): void {
+        global $DB;
+        set_config('deleteorphanedquestions', true, 'studentquiz');
+        set_config('deleteorphanedtimelimit', 30, 'studentquiz');
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+        // Change the question to disapprove.
+        $this->studentquizquestions[0]->change_state_visibility(studentquiz_helper::STATE_DISAPPROVED);
+
+        // Make sure modified time lower than time limit for Q1 version 1.
+        $updatedquestion = new \stdClass();
+        $updatedquestion->id = $this->questions[0]->id;
+        $updatedquestion->timemodified = $this->questions[0]->timemodified - 31;
+        $DB->update_record('question', $updatedquestion);
+
+        $q2v1 = $questiongenerator->create_question('truefalse', null,
+            ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]);
+        // Make sure modified time lower than time limit for Q2 version 1.
+        $updatedquestion = new \stdClass();
+        $updatedquestion->id = $q2v1->id;
+        $updatedquestion->timemodified = $q2v1->timemodified - 31;
+        $DB->update_record('question', $updatedquestion);
+        // Create version 2 of Q1.
+        $q2v2 = $questiongenerator->update_question($q2v1, null, ['idnumber' => 'id2']);
+        // Make sure modified time lower than time limit for Q1 version 2.
+        $updatedquestion = new \stdClass();
+        $updatedquestion->id = $q2v2->id;
+        $updatedquestion->timemodified = $q2v2->timemodified - 31;
+        $DB->update_record('question', $updatedquestion);
+        // Create an attempt for Q2 version 2.
+        mod_studentquiz_generate_attempt([$q2v2->id], $this->studentquiz, $this->student1->id);
+        // Create Q2 version 3 so we can use it as latest.
+        $q2v3 = $questiongenerator->update_question($q2v2, null, ['idnumber' => 'id3']);
+        $sqq = studentquiz_question::get_studentquiz_question_from_question(\question_bank::load_question($q2v1->id));
+        $sqq->change_state_visibility(studentquiz_helper::STATE_DISAPPROVED);
+        // Execute the cron.
+        $this->cron_setup_user();
+        $cron = new task\delete_orphaned_questions();
+        $cron->set_component('mod_studentquiz');
+        $cron->execute();
+
+        // Verify : We should only delete Q1 v1 and Q2 v1.
+        // Q1 v1 is disapprove and pass the time limit.
+        // Q2 v1 is the only latest version but pass the time limit.
+        // Q2 v2 is disapprove but used in an attempt.
+        // Q2 v3 is the disapprove, but not pass the time limit.
+
+        $this->assertEquals(0, $DB->count_records('question', ['id' => $q2v1->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_rate',
+            ['studentquizquestionid' => $sqq->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_comment',
+            ['studentquizquestionid' => $sqq->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_question',
+            ['id' => $sqq->id]));
+
+        $this->assertEquals(0, $DB->count_records('question', ['id' => $this->questions[0]->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_rate',
+            ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_comment',
+            ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
+        $this->assertEquals(0, $DB->count_records('studentquiz_question',
+            ['id' => $this->studentquizquestions[0]->id]));
+
+        $this->assertEquals(1, $DB->count_records('question', ['id' => $q2v2->id]));
+        $this->assertEquals(1, $DB->count_records('question', ['id' => $q2v3->id]));
+    }
+
+    /**
+     * Run the correct cron setup .
+     *
+     */
+    private function cron_setup_user(): void {
+        if (class_exists('\core\cron')) {
+            \core\cron::setup_user();
+        } else {
+            cron_setup_user();
+        }
     }
 }

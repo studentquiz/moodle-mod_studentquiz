@@ -14,19 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Event observers supported by this module
- *
- * @package mod_studentquiz
- * @copyright 2019 Huong Nguyen <huongnv13@gmail.com>
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use mod_studentquiz\event\studentquiz_digest_changed;
 use mod_studentquiz\utils;
 use mod_studentquiz\access\context_override;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Event observers supported by this module
@@ -41,11 +31,9 @@ class mod_studentquiz_observer {
      * Observer for the event question_created - Create new record for studentquiz_questions table.
      *
      * @param \core\event\question_created $event
-     * @throws moodle_exception
      */
     public static function question_created(\core\event\question_created $event) {
-        global $CFG;
-
+        global $CFG, $COURSE;
         require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
 
         if ($event->contextlevel == CONTEXT_MODULE) {
@@ -54,6 +42,25 @@ class mod_studentquiz_observer {
             $cm = $modinfo->get_cm($event->contextinstanceid);
             if ($cm->modname == 'studentquiz') {
                 mod_studentquiz_ensure_studentquiz_question_record($event->objectid, $event->contextinstanceid);
+                utils::ensure_question_version_status_is_correct($event->objectid);
+                // Update completion state.
+                \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($COURSE, $cm);
+            }
+        }
+    }
+
+    /**
+     * Observer for the event question_updated - Update question for studentquiz_questions table.
+     *
+     * @param \core\event\question_updated $event
+     */
+    public static function question_updated(\core\event\question_updated $event): void {
+        if ($event->contextlevel == CONTEXT_MODULE) {
+            $modinfo = get_fast_modinfo($event->courseid);
+
+            $cm = $modinfo->get_cm($event->contextinstanceid);
+            if ($cm->modname == 'studentquiz') {
+                utils::ensure_question_version_status_is_correct($event->objectid);
             }
         }
     }
@@ -62,9 +69,6 @@ class mod_studentquiz_observer {
      * Observer for the event question_moved - Create new record for studentquiz_questions table.
      *
      * @param \core\event\question_moved $event
-     * @throws coding_exception
-     * @throws dml_exception
-     * @throws moodle_exception
      */
     public static function question_moved(\core\event\question_moved $event) {
         global $DB, $CFG;
@@ -136,30 +140,6 @@ class mod_studentquiz_observer {
         if (self::is_studentquiz_capability($event->other['capability'])) {
             context_override::roles_setup_has_changed();
         }
-    }
-
-    /**
-     * Observer for the event \core\event\role_assigned. Update context specific capability overrides
-     * if needed.
-     *
-     * @param \core\event\role_assigned $event
-     */
-    public static function role_assigned(\core\event\role_assigned $event) {
-        // TODO  If, in context_override::ensure_relation, we always synched persmissions for all roles,
-        // then we would not need to listen for role_assigned events. Worth considering.
-        context_override::roles_setup_has_changed();
-    }
-
-    /**
-     * Observer for the event \core\event\role_unassigned. Update context specific capability overrides
-     * if needed.
-     *
-     * @param \core\event\role_unassigned $event
-     */
-    public static function role_unassigned(\core\event\role_unassigned $event) {
-        // TODO  If, in context_override::ensure_relation, we always synched persmissions for all roles,
-        // then we would not need to listen for role_unassigned events. Worth considering.
-        context_override::roles_setup_has_changed();
     }
 
     /**

@@ -33,30 +33,22 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
+global $COURSE;
+
 // Get parameters.
-$cmid = optional_param('cmid', 0, PARAM_INT);
-$questionid = required_param('questionid', PARAM_INT);
+$cmid = required_param('cmid', PARAM_INT);
+$studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $save = required_param('save', PARAM_NOTAGS);
 
-// Load course and course module requested.
-if ($cmid) {
-    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
 
 // Authentication check.
-require_login($module->course, false, $module);
+require_login($course, false, $cm);
 require_sesskey();
 
 $data = new \stdClass();
 $data->userid = $USER->id;
-$data->questionid = $questionid;
+$data->studentquizquestionid = $studentquizquestionid;
 
 switch($save) {
     case 'rate':
@@ -67,8 +59,17 @@ switch($save) {
             throw new moodle_exception("invalidrate");
         }
 
-        mod_studentquiz_save_rate($data);
+        mod_studentquiz\utils::save_rate($data);
         break;
 }
+
+$contextmodule = \context_module::instance($cmid);
+$studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
+$studentquizquestion = new mod_studentquiz\local\studentquiz_question(
+    $studentquizquestionid, null, $studentquiz);
+
+// Update completion state.
+\mod_studentquiz\completion\custom_completion::trigger_completion_state_update(
+    $course, $cm, $studentquizquestion->get_question()->createdby);
 
 header('Content-Type: text/html; charset=utf-8');
