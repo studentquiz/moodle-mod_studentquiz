@@ -270,11 +270,10 @@ Feature: Question states and visibility
     And I should see "This question cannot be deleted because it has been approved."
 
   @javascript
-  Scenario: The teacher have the 'changestate' capability.
+  Scenario: A non-editing teacher only needs the changestate capability to approve questions.
     Given the following "permission overrides" exist:
       | capability                  | permission | role    | contextlevel | reference |
       | mod/studentquiz:changestate | Allow      | teacher | Course       | C1        |
-      | mod/studentquiz:manage      | Allow      | teacher | Course       | C1        |
     When I am on the "StudentQuiz Test 1" "mod_studentquiz > View" page logged in as "teacher1"
     And I click on "Create new question" "button"
     And I set the field "item_qtype_truefalse" to "1"
