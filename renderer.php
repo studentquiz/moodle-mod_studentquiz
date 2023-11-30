@@ -1238,22 +1238,24 @@ EOT;
 
             $output .= html_writer::empty_tag('input', $params);
         }
+
+        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
+            $output .= html_writer::empty_tag('input', [
+                'class' => 'btn btn-secondary',
+                'type' => 'submit',
+                'name' => 'approveselected',
+                'formaction' => $changestateurl,
+                'value' => get_string('state_toggle', 'studentquiz'),
+                'form' => 'questionsubmit',
+                'data-action' => 'toggle',
+                'data-togglegroup' => 'qbank',
+                'data-toggle' => 'action',
+                'disabled' => true,
+                'formmethod' => 'post',
+            ]);
+        }
+
         if ($caneditall) {
-            if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
-                $output .= html_writer::empty_tag('input', [
-                    'class' => 'btn btn-secondary',
-                    'type' => 'submit',
-                    'name' => 'approveselected',
-                    'formaction' => $changestateurl,
-                    'value' => get_string('state_toggle', 'studentquiz'),
-                    'form' => 'questionsubmit',
-                    'data-action' => 'toggle',
-                    'data-togglegroup' => 'qbank',
-                    'data-toggle' => 'action',
-                    'disabled' => true,
-                    'formmethod' => 'post',
-                ]);
-            }
             $output .= html_writer::empty_tag('input', [
                 'class' => 'btn btn-secondary',
                 'type' => 'submit',

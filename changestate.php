@@ -111,7 +111,6 @@ if ($approveselected) {
         if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
             $key = $matches[1];
             $questionlist .= $key.',';
-            question_require_capability_on((int)$key, 'edit');
             $question = new stdClass();
             $question->name = '';
             if (questions_in_use([$key])) {
