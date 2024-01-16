@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
-use core_question\local\bank\question_action_base;
-
+if (!class_exists('\core_question\local\bank\question_action_base')) {
+    class_alias('\core_question\local\bank\menu_action_column_base', '\core_question\local\bank\question_action_base');
+}
 /**
  * Represent sq_hiden action in studentquiz_bank_view
  *
@@ -26,7 +27,7 @@ use core_question\local\bank\question_action_base;
  * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_hidden_action extends question_action_base {
+class sq_hidden_action extends \core_question\local\bank\question_action_base {
 
     /** @var int */
     protected $currentuserid;

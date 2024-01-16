@@ -31,26 +31,7 @@ use stdClass;
 use core_question\local\bank\question_version_status;
 
 defined('MOODLE_INTERNAL') || die();
-
-require_once(__DIR__ .'/../../../../locallib.php');
-require_once(__DIR__ . '/../studentquiz_column_base.php');
-require_once(__DIR__ . '/../question_bank_filter.php');
-require_once(__DIR__ . '/../question_text_row.php');
-require_once(__DIR__ . '/../rate_column.php');
-require_once(__DIR__ . '/../difficulty_level_column.php');
-require_once(__DIR__ . '/../tag_column.php');
-require_once(__DIR__ . '/../attempts_column.php');
-require_once(__DIR__ . '/../comments_column.php');
-require_once(__DIR__ . '/../state_column.php');
-require_once(__DIR__ . '/../anonym_creator_name_column.php');
-require_once(__DIR__ . '/../state_pin_column.php');
-require_once(__DIR__ . '/../question_name_column.php');
-require_once(__DIR__ . '/preview_column.php');
-require_once(__DIR__ . '/sq_hidden_action_column.php');
-require_once(__DIR__ . '/sq_edit_action_column.php');
-require_once(__DIR__ . '/sq_pin_action_column.php');
-require_once(__DIR__ . '/sq_delete_action_column.php');
-require_once(__DIR__ . '/sq_edit_menu_column_pre_43.php');
+require_once(__DIR__ . '/question_bank_filter.php');
 
 /**
  * Module instance settings form
@@ -151,7 +132,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         // Init search conditions with filterform state.
         $categorycondition = new \core_question\bank\search\category_condition(
             $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
-        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition_pre_43($cm, $this->filterform,
+        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform,
             $this->report, $studentquiz);
         $this->isfilteractive = $studentquizcondition->is_filter_active();
         $this->searchconditions = array ($categorycondition, $studentquizcondition);
@@ -225,8 +206,8 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
      */
     protected function default_sort(): array {
         return [
-            'mod_studentquiz\bank\anonym_creator_name_column-timecreated' => -1,
-            'mod_studentquiz\bank\question_name_column' => 1,
+            'mod_studentquiz\question\bank\anonym_creator_name_column-timecreated' => -1,
+            'mod_studentquiz\question\bank\question_name_column' => 1,
         ];
     }
 
@@ -655,7 +636,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         // When we sort by public/private comments and turn off the setting studentquiz | privatecomment,
         // the parse_subsort function will throw exception. We should redirect to the base_url after cleaning all sort params.
         $showprivatecomment = $this->studentquiz->privatecommenting;
-        if ($showprivatecomment && $sort == 'mod_studentquiz\bank\comment_column' ||
+        if ($showprivatecomment && $sort == 'mod_studentquiz\question\bank\comment_column' ||
             !$showprivatecomment && ($sort == 'mod_studentquiz\bank\comment_column-privatecomment' ||
                 $sort == 'mod_studentquiz\bank\comment_column-publiccomment')) {
             for ($i = 1; $i <= self::MAX_SORTS; $i++) {

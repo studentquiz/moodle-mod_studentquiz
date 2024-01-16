@@ -14,7 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
+
+if (!class_exists('\qbank_previewquestion\preview_action')) {
+    class_alias('\qbank_previewquestion\preview_action_column', '\qbank_previewquestion\preview_action');
+}
 
 /**
  * A action type for preview link to mod_studentquiz_preview

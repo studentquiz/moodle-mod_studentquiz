@@ -169,7 +169,6 @@ class mod_studentquiz_view {
         }
         $this->qbpagevar = array_merge($pagevars, $params);
         if (utils::moodle_version_is("<=", "42")) {
-            require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/legacy/studentquiz_bank_view_pre_43.php');
             $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view_pre_43(
                 $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
         } else {

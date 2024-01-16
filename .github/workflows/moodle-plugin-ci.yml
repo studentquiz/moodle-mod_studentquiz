@@ -73,7 +73,6 @@ jobs:
 
       - name: PHP Lint
         if: ${{ always() }}
-        continue-on-error: true # This step will show errors but will not fail
         run: moodle-plugin-ci phplint
 
       - name: PHP Copy/Paste Detector

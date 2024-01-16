@@ -14,11 +14,13 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
-use qbank_deletequestion\delete_action;
 use mod_studentquiz\local\studentquiz_helper;
 
+if (!class_exists('\qbank_deletequestion\delete_action')) {
+    class_alias('\qbank_deletequestion\delete_action_column', '\qbank_deletequestion\delete_action');
+}
 /**
  * Represent delete action in studentquiz_bank_view.
  *
@@ -26,7 +28,7 @@ use mod_studentquiz\local\studentquiz_helper;
  * @copyright 2021 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_delete_action extends delete_action {
+class sq_delete_action extends \qbank_deletequestion\delete_action {
 
     /**
      * Override method to get url and label for delete action of the studentquiz.

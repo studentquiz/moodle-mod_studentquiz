@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
 use core_question\local\bank\edit_menu_column;
 
@@ -39,18 +39,22 @@ class sq_edit_menu_column extends edit_menu_column {
      */
     protected function display_content($question, $rowclasses): void {
         global $OUTPUT;
-        $actions = $this->qbank->get_question_actions();
+        if (method_exists($this->qbank, 'get_question_actions')) {
+            $actions = $this->qbank->get_question_actions();
 
-        $menu = new \action_menu();
-        $menu->set_menu_trigger(get_string('edit'));
-        foreach ($actions as $action) {
-            $action = $action->get_action_menu_link($question);
-            if ($action) {
-                $menu->add($action);
+            $menu = new \action_menu();
+            $menu->set_menu_trigger(get_string('edit'));
+            foreach ($actions as $action) {
+                $action = $action->get_action_menu_link($question);
+                if ($action) {
+                    $menu->add($action);
+                }
             }
-        }
 
-        echo $OUTPUT->render($menu);
+            echo $OUTPUT->render($menu);
+        } else {
+            parent::display_content($question, $rowclasses);
+        }
     }
 
     /**

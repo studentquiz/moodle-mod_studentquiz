@@ -33,26 +33,7 @@ use qbank_managecategories\category_condition;
 use core_question\local\bank\column_manager_base;
 
 defined('MOODLE_INTERNAL') || die();
-
-require_once(__DIR__ .'/../../../locallib.php');
-require_once(__DIR__ . '/studentquiz_column_base.php');
 require_once(__DIR__ . '/question_bank_filter.php');
-require_once(__DIR__ . '/question_text_row.php');
-require_once(__DIR__ . '/rate_column.php');
-require_once(__DIR__ . '/difficulty_level_column.php');
-require_once(__DIR__ . '/tag_column.php');
-require_once(__DIR__ . '/attempts_column.php');
-require_once(__DIR__ . '/comments_column.php');
-require_once(__DIR__ . '/state_column.php');
-require_once(__DIR__ . '/state_pin_column.php');
-require_once(__DIR__ . '/anonym_creator_name_column.php');
-require_once(__DIR__ . '/question_name_column.php');
-require_once(__DIR__ . '/sq_edit_action.php');
-require_once(__DIR__ . '/sq_preview_action.php');
-require_once(__DIR__ . '/sq_delete_action.php');
-require_once(__DIR__ . '/sq_hidden_action.php');
-require_once(__DIR__ . '/sq_pin_action.php');
-require_once(__DIR__ . '/sq_edit_menu_column.php');
 
 /**
  * Module instance settings form
@@ -200,8 +181,8 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
      */
     protected function default_sort(): array {
         return [
-            'mod_studentquiz__bank__anonym_creator_name_column-timecreated' => SORT_DESC,
-            'mod_studentquiz__bank__question_name_column' => SORT_ASC,
+            'mod_studentquiz__question__bank__anonym_creator_name_column-timecreated' => SORT_DESC,
+            'mod_studentquiz__question__bank__question_name_column' => SORT_ASC,
         ];
     }
 
@@ -649,7 +630,7 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
         // When we sort by public/private comments and turn off the setting studentquiz | privatecomment,
         // the parse_subsort function will throw exception. We should redirect to the base_url after cleaning all sort params.
         $showprivatecomment = $this->studentquiz->privatecommenting;
-        if ($showprivatecomment && $sort == 'mod_studentquiz\bank\comment_column' ||
+        if ($showprivatecomment && $sort == 'mod_studentquiz\question\bank\comment_column' ||
                 !$showprivatecomment && ($sort == 'mod_studentquiz\bank\comment_column-privatecomment' ||
                 $sort == 'mod_studentquiz\bank\comment_column-publiccomment')) {
             for ($i = 1; $i <= self::MAX_SORTS; $i++) {
@@ -691,11 +672,11 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
      */
     protected function init_question_actions(): void {
         $this->questionactions = [
-            new \mod_studentquiz\bank\sq_edit_action($this),
-            new \mod_studentquiz\bank\sq_preview_action($this),
-            new \mod_studentquiz\bank\sq_delete_action($this),
-            new \mod_studentquiz\bank\sq_hidden_action($this),
-            new \mod_studentquiz\bank\sq_pin_action($this),
+            new sq_edit_action($this),
+            new sq_preview_action($this),
+            new sq_delete_action($this),
+            new sq_hidden_action($this),
+            new sq_pin_action($this),
         ];
 
     }

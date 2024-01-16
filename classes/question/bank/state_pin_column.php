@@ -15,9 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 
-namespace mod_studentquiz\bank;
-
-use core_question\local\bank\action_column_base;
+namespace mod_studentquiz\question\bank;
 
 /**
  * Represent question is pinned or not in studentquiz_bank_view

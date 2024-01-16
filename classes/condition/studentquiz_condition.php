@@ -23,10 +23,10 @@
  */
 
 namespace mod_studentquiz\condition;
-defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot . '/mod/studentquiz/classes/local/db.php');
-use mod_studentquiz\local\db;
+if (!class_exists('\core_question\local\bank\condition')) {
+    class_alias('\core_question\bank\search\condition', '\core_question\local\bank\condition');
+}
 
 /**
  * Conditionally modify question bank queries.
@@ -35,6 +35,24 @@ use mod_studentquiz\local\db;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_condition extends \core_question\local\bank\condition {
+
+    /**
+     * Return title of the condition
+     *
+     * @return string title of the condition
+     */
+    public function get_title() {
+        return get_string('showhidden', 'core_question');
+    }
+
+    /**
+     * Return filter class associated with this condition
+     *
+     * @return string filter class
+     */
+    public function get_filter_class() {
+        return 'qbank_deletequestion/datafilter/filtertypes/hidden';
+    }
 
     /**
      * Due to fix_sql_params not accepting repeated use of named params,
@@ -61,28 +79,10 @@ class studentquiz_condition extends \core_question\local\bank\condition {
         $this->cm = $cm;
         $this->filterform = $filterform;
         $this->tests = array();
-        $this->params = array();
+        $this->customparams = array();
         $this->report = $report;
         $this->studentquiz = $studentquiz;
         $this->init();
-    }
-
-    /**
-     * Return title of the condition
-     *
-     * @return string title of the condition
-     */
-    public function get_title() {
-        return get_string('showhidden', 'core_question');
-    }
-
-    /**
-     * Return filter class associated with this condition
-     *
-     * @return string filter class
-     */
-    public function get_filter_class() {
-        return 'qbank_deletequestion/datafilter/filtertypes/hidden';
     }
 
     /** @var stdClass */
@@ -100,8 +100,8 @@ class studentquiz_condition extends \core_question\local\bank\condition {
     /** @var array */
     protected $tests;
 
-    /** @var array */
-    protected array $params = [];
+    /** @var array we need to change the name so that it is avoid conflict existing params variable*/
+    protected $customparams = [];
 
     /** @var bool */
     protected $isfilteractive = false;
@@ -121,7 +121,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
         if ($adddata = $this->filterform->get_data()) {
 
             $this->tests = array();
-            $this->params = array();
+            $this->customparams = array();
 
             foreach ($this->filterform->get_fields() as $field) {
 
@@ -171,7 +171,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                         , $sqldata[0]);
                     $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
                     $this->tests[] = '((' . $sqldata[0] . '))';
-                    $this->params = array_merge($this->params, $sqldata[1]);
+                    $this->customparams = array_merge($this->customparams, $sqldata[1]);
                 }
             }
         }
@@ -264,6 +264,9 @@ class studentquiz_condition extends \core_question\local\bank\condition {
      * @return array parameter name => value.
      */
     public function params() {
-        return $this->params;
+        if (isset($this->params)) {
+            return array_merge($this->params, $this->customparams);
+        }
+        return $this->customparams;
     }
 }

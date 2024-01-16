@@ -26,6 +26,7 @@ use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\question\bank\studentquiz_bank_view_pre_43;
 use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
@@ -917,53 +918,53 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
     /**
      * Get all the required columns for StudentQuiz view.
      *
-     * @param mod_studentquiz\question\bank\studentquiz_bank_view $view
+     * @param studentquiz_bank_view $view
      * @return array
      */
-    public function get_columns_for_question_bank_view(mod_studentquiz\question\bank\studentquiz_bank_view $view) {
+    public function get_columns_for_question_bank_view(studentquiz_bank_view $view) {
         return [
             new core_question\local\bank\checkbox_column($view),
             new qbank_viewquestiontype\question_type_column($view),
-            new \mod_studentquiz\bank\state_column($view),
-            new \mod_studentquiz\bank\state_pin_column($view),
-            new \mod_studentquiz\bank\question_name_column($view),
-            new \mod_studentquiz\bank\sq_edit_menu_column($view),
+            new \mod_studentquiz\question\bank\state_column($view),
+            new \mod_studentquiz\question\bank\state_pin_column($view),
+            new \mod_studentquiz\question\bank\question_name_column($view),
+            new \mod_studentquiz\question\bank\sq_edit_menu_column($view),
             new qbank_history\version_number_column($view),
-            new \mod_studentquiz\bank\anonym_creator_name_column($view),
-            new \mod_studentquiz\bank\tag_column($view),
-            new \mod_studentquiz\bank\attempts_column($view),
-            new \mod_studentquiz\bank\difficulty_level_column($view),
-            new \mod_studentquiz\bank\rate_column($view),
-            new \mod_studentquiz\bank\comment_column($view),
+            new \mod_studentquiz\question\bank\anonym_creator_name_column($view),
+            new \mod_studentquiz\question\bank\tag_column($view),
+            new \mod_studentquiz\question\bank\attempts_column($view),
+            new \mod_studentquiz\question\bank\difficulty_level_column($view),
+            new \mod_studentquiz\question\bank\rate_column($view),
+            new \mod_studentquiz\question\bank\comment_column($view),
         ];
     }
 
     /**
      * Get all the required columns for StudentQuiz view.
      *
-     * @param mod_studentquiz\question\bank\studentquiz_bank_view_pre_43 $view
+     * @param studentquiz_bank_view_pre_43 $view
      * @return array
      */
-    public function get_columns_for_question_bank_view_pre_43(mod_studentquiz\question\bank\studentquiz_bank_view_pre_43 $view) {
+    public function get_columns_for_question_bank_view_pre_43(studentquiz_bank_view_pre_43 $view) {
         return [
             new core_question\local\bank\checkbox_column($view),
             new qbank_viewquestiontype\question_type_column($view),
-            new \mod_studentquiz\bank\state_column($view),
-            new \mod_studentquiz\bank\state_pin_column($view),
-            new \mod_studentquiz\bank\question_name_column($view),
-            new \mod_studentquiz\bank\sq_edit_action_column($view),
-            new \mod_studentquiz\bank\preview_column($view),
-            new \mod_studentquiz\bank\sq_delete_action_column($view),
-            new \mod_studentquiz\bank\sq_hidden_action_column($view),
-            new \mod_studentquiz\bank\sq_pin_action_column($view),
-            new \mod_studentquiz\bank\sq_edit_menu_column_pre_43($view),
+            new \mod_studentquiz\question\bank\state_column($view),
+            new \mod_studentquiz\question\bank\state_pin_column($view),
+            new \mod_studentquiz\question\bank\question_name_column($view),
+            new \mod_studentquiz\question\bank\sq_edit_action($view),
+            new \mod_studentquiz\question\bank\sq_preview_action($view),
+            new \mod_studentquiz\question\bank\sq_delete_action($view),
+            new \mod_studentquiz\question\bank\sq_hidden_action($view),
+            new \mod_studentquiz\question\bank\sq_pin_action($view),
+            new \mod_studentquiz\question\bank\sq_edit_menu_column($view),
             new qbank_history\version_number_column($view),
-            new \mod_studentquiz\bank\anonym_creator_name_column($view),
-            new \mod_studentquiz\bank\tag_column($view),
-            new \mod_studentquiz\bank\attempts_column($view),
-            new \mod_studentquiz\bank\difficulty_level_column($view),
-            new \mod_studentquiz\bank\rate_column($view),
-            new \mod_studentquiz\bank\comment_column($view),
+            new \mod_studentquiz\question\bank\anonym_creator_name_column($view),
+            new \mod_studentquiz\question\bank\tag_column($view),
+            new \mod_studentquiz\question\bank\attempts_column($view),
+            new \mod_studentquiz\question\bank\difficulty_level_column($view),
+            new \mod_studentquiz\question\bank\rate_column($view),
+            new \mod_studentquiz\question\bank\comment_column($view),
         ];
     }
 
