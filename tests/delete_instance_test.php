@@ -60,7 +60,7 @@ class delete_instance_test extends \advanced_testcase {
                         'text' => 'Root message',
                         'format' => 1
                 ],
-                'studentquizquestionid' => $sqq->id,
+                'studentquizquestionid' => $sqq->get_id(),
                 'cmid' => $activity->cmid,
                 'replyto' => 0,
                 'type' => utils::COMMENT_TYPE_PUBLIC
@@ -89,13 +89,13 @@ class delete_instance_test extends \advanced_testcase {
         $rate = (object) [
                 'id' => 0,
                 'rate' => rand(1, 5),
-                'studentquizquestionid' => $sqq->id,
+                'studentquizquestionid' => $sqq->get_id(),
                 'userid' => $user->id
         ];
         $DB->insert_record('studentquiz_rate', $rate);
 
         $progress = (object) [
-                'studentquizquestionid' => $sqq->id,
+                'studentquizquestionid' => $sqq->get_id(),
                 'userid' => $user->id,
                 'studentquizid' => $studentquiz->id,
                 'lastanswercorrect' => rand(0, 1),
@@ -114,10 +114,10 @@ class delete_instance_test extends \advanced_testcase {
         ];
         $DB->insert_record('studentquiz_notification', $notification);
         // Before deletion.
-        self::check_sq_instance_data($sqq->id, $studentquiz->id, $commentid, 1);
+        self::check_sq_instance_data($sqq->get_id(), $studentquiz->id, $commentid, 1);
         studentquiz_delete_instance($studentquiz->id);
         // After deletion.
-        self::check_sq_instance_data($sqq->id, $studentquiz->id, $commentid, 0);
+        self::check_sq_instance_data($sqq->get_id(), $studentquiz->id, $commentid, 0);
 
     }
 

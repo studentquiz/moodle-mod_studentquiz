@@ -194,6 +194,25 @@
     font-weight: normal;
 }
 
+.path-mod-studentquiz #categoryquestions th {
+    font-weight: 400;
+}
+
+.path-mod-studentquiz #categoryquestions td {
+    vertical-align: inherit;
+}
+
+.path-mod-studentquiz #categoryquestions td,
+.path-mod-studentquiz #categoryquestions th {
+    padding: 0.2em;
+}
+
+.path-mod-studentquiz .question-bank-table td.modifiername span.date,
+.path-mod-studentquiz .question-bank-table td.creatorname span.date {
+    font-weight: normal;
+    font-size: 0.8em;
+}
+
 .path-mod-studentquiz #categoryquestions td.questionname,
 .path-mod-studentquiz #categoryquestions td.creatorname {
     white-space: normal;

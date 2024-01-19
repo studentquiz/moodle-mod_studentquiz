@@ -497,9 +497,10 @@ style5 = html';
         if (!$found) {
             $tabs[0]['active'] = true;
         }
-
-        // Allow user to update user preference via ajax.
-        user_preference_allow_ajax_update(self::USER_PREFERENCE_QUESTION_ACTIVE_TAB, PARAM_TEXT);
+        if (self::moodle_version_is("<=", "42")) {
+            // Allow user to update user preference via ajax.
+            user_preference_allow_ajax_update(self::USER_PREFERENCE_QUESTION_ACTIVE_TAB, PARAM_TEXT);
+        }
     }
 
     /**
@@ -556,7 +557,7 @@ style5 = html';
     public static function get_question_state($studentquizquestion) {
         global $DB;
 
-        return $DB->get_field('studentquiz_question', 'state', ['id' => $studentquizquestion->id]);
+        return $DB->get_field('studentquiz_question', 'state', ['id' => $studentquizquestion->get_id()]);
     }
 
     /**

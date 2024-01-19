@@ -21,15 +21,9 @@ Feature: Set a studentquiz to be marked complete when the student meets the cond
 
   @javascript
   Scenario: Check studentquiz mark done when the student meets the conditions of the completion point
-    Given I add a "StudentQuiz" to section "1"
-    When I set the following fields to these values:
-      | StudentQuiz Name       | StudentQuiz 1                |
-      | Description            | Test studentquiz description |
-      | completion             | 2                            |
-      | completionpointenabled | 1                            |
-      | completionpoint        | 10                           |
-    And I press "Save and display"
-    And I log out
+    Given the following "activities" exist:
+      | course | activity    | name          | intro                        | completion | completionpointenabled | completionpoint | publishnewquestion | questionquantifier |
+      | C1     | studentquiz | StudentQuiz 1 | Test studentquiz description | 2          | 1                      | 10              | 1                  | 10                 |
     # Create owned question by student role.
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "student1"
     And I click on "Create new question" "button"
@@ -43,15 +37,9 @@ Feature: Set a studentquiz to be marked complete when the student meets the cond
 
   @javascript
   Scenario: Check studentquiz mark done when the student meets the conditions of the completion created
-    Given I add a "StudentQuiz" to section "1"
-    When I set the following fields to these values:
-      | StudentQuiz Name                   | StudentQuiz 1                |
-      | Description                        | Test studentquiz description |
-      | completion                         | 2                            |
-      | completionquestionpublishedenabled | 1                            |
-      | completionquestionpublished        | 2                            |
-    And I press "Save and display"
-    And I log out
+    Given the following "activities" exist:
+      | course | activity    | name          | intro                        | completion | completionquestionpublishedenabled | completionquestionpublished | publishnewquestion |
+      | C1     | studentquiz | StudentQuiz 1 | Test studentquiz description | 2          | 1                                  | 2                           | 1                  |
     # Create owned question by student role.
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "student1"
     And I click on "Create new question" "button"
@@ -73,16 +61,9 @@ Feature: Set a studentquiz to be marked complete when the student meets the cond
 
   @javascript
   Scenario: Check studentquiz mark done when the student meets the conditions of the completion created approved
-    Given I add a "StudentQuiz" to section "1"
-    When I set the following fields to these values:
-      | StudentQuiz Name                  | StudentQuiz 1                |
-      | Description                       | Test studentquiz description |
-      | completion                        | 2                            |
-      | publishnewquestion                | 1                            |
-      | completionquestionapprovedenabled | 1                            |
-      | completionquestionapproved        | 1                            |
-    And I press "Save and display"
-    And I log out
+    Given the following "activities" exist:
+      | course | activity    | name          | intro                        | completion | completionquestionapprovedenabled | completionquestionapproved | publishnewquestion | approvedquantifier |
+      | C1     | studentquiz | StudentQuiz 1 | Test studentquiz description | 2          | 1                                 | 1                          | 1                  | 5                  |
     # Create owned question by student role.
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "student1"
     And I click on "Create new question" "button"

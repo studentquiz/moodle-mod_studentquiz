@@ -107,14 +107,14 @@ class cron_test extends \advanced_testcase {
         $this->studentquizquestions[1] = studentquiz_question::get_studentquiz_question_from_question($this->questions[1]);
         // Prepare comment.
         $commentrecord = new \stdClass();
-        $commentrecord->studentquizquestionid = $this->studentquizquestions[0]->id;
+        $commentrecord->studentquizquestionid = $this->studentquizquestions[0]->get_id();
         $commentrecord->userid = $this->student1->id;
         $this->getDataGenerator()->get_plugin_generator('mod_studentquiz')->create_comment($commentrecord);
 
         // Prepare rate.
         $raterecord = new \stdClass();
         $raterecord->rate = 5;
-        $raterecord->studentquizquestionid = $this->studentquizquestions[0]->id;
+        $raterecord->studentquizquestionid = $this->studentquizquestions[0]->get_id();
         $raterecord->userid = $this->student1->id;
         \mod_studentquiz\utils::save_rate($raterecord);
     }
@@ -337,19 +337,19 @@ class cron_test extends \advanced_testcase {
 
         $this->assertEquals(0, $DB->count_records('question', ['id' => $q2v1->id]));
         $this->assertEquals(0, $DB->count_records('studentquiz_rate',
-            ['studentquizquestionid' => $sqq->id]));
+            ['studentquizquestionid' => $sqq->get_id()]));
         $this->assertEquals(0, $DB->count_records('studentquiz_comment',
-            ['studentquizquestionid' => $sqq->id]));
+            ['studentquizquestionid' => $sqq->get_id()]));
         $this->assertEquals(0, $DB->count_records('studentquiz_question',
-            ['id' => $sqq->id]));
+            ['id' => $sqq->get_id()]));
 
         $this->assertEquals(0, $DB->count_records('question', ['id' => $this->questions[0]->id]));
         $this->assertEquals(0, $DB->count_records('studentquiz_rate',
-            ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
+            ['studentquizquestionid' => $this->studentquizquestions[0]->get_id()]));
         $this->assertEquals(0, $DB->count_records('studentquiz_comment',
-            ['studentquizquestionid' => $this->studentquizquestions[0]->id]));
+            ['studentquizquestionid' => $this->studentquizquestions[0]->get_id()]));
         $this->assertEquals(0, $DB->count_records('studentquiz_question',
-            ['id' => $this->studentquizquestions[0]->id]));
+            ['id' => $this->studentquizquestions[0]->get_id()]));
 
         $this->assertEquals(1, $DB->count_records('question', ['id' => $q2v2->id]));
         $this->assertEquals(1, $DB->count_records('question', ['id' => $q2v3->id]));

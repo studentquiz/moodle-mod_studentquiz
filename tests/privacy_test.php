@@ -595,7 +595,8 @@ class privacy_test extends provider_testcase {
         list($questionsql, $questionparams) =
                 $DB->get_in_or_equal([$this->questions[0]->id, $this->questions[1]->id], SQL_PARAMS_NAMED);
         list($sqqsql, $sqqparams) =
-                $DB->get_in_or_equal([$this->studentquizquestions[0]->id, $this->studentquizquestions[1]->id], SQL_PARAMS_NAMED);
+                $DB->get_in_or_equal([$this->studentquizquestions[0]->get_id(), $this->studentquizquestions[1]->get_id()],
+                    SQL_PARAMS_NAMED);
 
         // Check all personal data belong to first context is deleted.
         $this->assertFalse($DB->record_exists_sql("SELECT 1 FROM {studentquiz_question} WHERE id {$sqqsql}"
@@ -620,7 +621,8 @@ class privacy_test extends provider_testcase {
         list($questionsql, $questionparams) =
                 $DB->get_in_or_equal([$this->questions[2]->id, $this->questions[3]->id], SQL_PARAMS_NAMED);
         list($sqqsql, $sqqparams) =
-                $DB->get_in_or_equal([$this->studentquizquestions[2]->id, $this->studentquizquestions[3]->id], SQL_PARAMS_NAMED);
+                $DB->get_in_or_equal([$this->studentquizquestions[2]->get_id(), $this->studentquizquestions[3]->get_id()],
+                    SQL_PARAMS_NAMED);
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_question} WHERE id {$sqqsql}"
                 , $sqqparams));
         $this->assertTrue($DB->record_exists_sql("SELECT 1 FROM {studentquiz_rate} WHERE studentquizquestionid {$sqqsql}"
@@ -752,7 +754,7 @@ class privacy_test extends provider_testcase {
 
         $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
-        $this->create_rate($sqq->id, $this->users[0]->id);
+        $this->create_rate($sqq->get_id(), $this->users[0]->id);
 
         $userlist = new userlist($this->contexts[2], $this->component);
         provider::get_users_in_context($userlist);
@@ -761,7 +763,7 @@ class privacy_test extends provider_testcase {
         $this->assertEquals([$anotheruser->id, $this->users[0]->id], $userlist->get_userids());
 
         // Second student rate on another user question.
-        $this->create_rate($sqq->id, $this->users[1]->id);
+        $this->create_rate($sqq->get_id(), $this->users[1]->id);
         provider::get_users_in_context($userlist);
         $this->assertCount(3, $userlist);
         $this->assertEquals([$anotheruser->id, $this->users[0]->id, $this->users[1]->id ], $userlist->get_userids());
@@ -778,7 +780,7 @@ class privacy_test extends provider_testcase {
 
         $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
-        $this->create_comment($sqq->id, $this->users[0]->id);
+        $this->create_comment($sqq->get_id(), $this->users[0]->id);
 
         $userlist = new userlist($this->contexts[2], $this->component);
         provider::get_users_in_context($userlist);
@@ -787,7 +789,7 @@ class privacy_test extends provider_testcase {
         $this->assertEquals([$anotheruser->id, $this->users[0]->id], $userlist->get_userids());
 
         // Second student comment on another user question.
-        $this->create_comment($sqq->id, $this->users[1]->id);
+        $this->create_comment($sqq->get_id(), $this->users[1]->id);
         provider::get_users_in_context($userlist);
         $this->assertCount(3, $userlist);
         $this->assertEquals([$anotheruser->id, $this->users[0]->id, $this->users[1]->id ], $userlist->get_userids());
@@ -805,7 +807,7 @@ class privacy_test extends provider_testcase {
         $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
 
-        $comment = $this->create_comment($sqq->id, $this->users[0]->id);
+        $comment = $this->create_comment($sqq->get_id(), $this->users[0]->id);
         $this->create_comment_history($comment->id, $this->users[0]->id);
 
         $userlist = new userlist($this->contexts[2], $this->component);
@@ -870,7 +872,7 @@ class privacy_test extends provider_testcase {
         $question = self::create_question('Question', 'truefalse', $this->studentquiz[2]->categoryid, $anotheruser);
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
 
-        $this->create_state_history($sqq->id, $this->users[0]->id);
+        $this->create_state_history($sqq->get_id(), $this->users[0]->id);
 
         $userlist = new userlist($this->contexts[2], $this->component);
         provider::get_users_in_context($userlist);

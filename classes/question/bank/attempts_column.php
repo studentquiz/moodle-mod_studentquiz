@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
 /**
  * Represent performances column in studentquiz_bank_view
@@ -33,6 +33,15 @@ class attempts_column extends studentquiz_column_base {
 
     /** @var \stdClass */
     protected $studentquiz;
+
+    /** @var int category id*/
+    protected $categoryid;
+
+    /** @var int current user id*/
+    protected $currentuserid;
+
+    /** @var int student quiz id*/
+    protected $studentquizid;
 
     /**
      * Initialise Parameters for join

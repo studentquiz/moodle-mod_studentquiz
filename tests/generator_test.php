@@ -75,7 +75,7 @@ class generator_test extends \advanced_testcase {
         $user = $this->getDataGenerator()->create_user();
 
         $commentrecord = new \stdClass();
-        $commentrecord->studentquizquestionid = $this->studentquizquestion->id;
+        $commentrecord->studentquizquestionid = $this->studentquizquestion->get_id();
         $commentrecord->userid = $user->id;
 
         $this->studentquizgenerator->create_comment($commentrecord);
@@ -97,7 +97,7 @@ class generator_test extends \advanced_testcase {
 
         $raterecord = new \stdClass();
         $raterecord->rate = 5;
-        $raterecord->studentquizquestionid = $this->studentquizquestion->id;
+        $raterecord->studentquizquestionid = $this->studentquizquestion->get_id();
         $raterecord->userid = $user->id;
         \mod_studentquiz\utils::save_rate($raterecord);
         $this->assertEquals($count + 1, $DB->count_records('studentquiz_rate'));

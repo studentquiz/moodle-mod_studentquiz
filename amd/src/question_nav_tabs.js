@@ -20,16 +20,20 @@
  * @copyright 2021 The Open University
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+import * as UserRepository from 'core_user/repository';
 
 /**
  * Update the current active tab to user preferences.
  *
  * @private
  * @param {Object} e Event
- * @return {Promise} The promise object.
  */
 const updateActiveTab = (e) => {
-    return M.util.set_user_preference('mod_studentquiz_question_active_tab', e.target.dataset.tabId);
+    if (typeof UserRepository.setUserPreference !== 'undefined') {
+        UserRepository.setUserPreference('mod_studentquiz_question_active_tab', e.target.dataset.tabId);
+    } else {
+        M.util.set_user_preference('mod_studentquiz_question_active_tab', e.target.dataset.tabId);
+    }
 };
 
 /**

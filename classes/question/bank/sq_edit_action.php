@@ -14,34 +14,37 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
-use qbank_deletequestion\delete_action_column;
 use mod_studentquiz\local\studentquiz_helper;
 
+if (!class_exists('\qbank_editquestion\edit_action')) {
+    class_alias('\qbank_editquestion\edit_action_column', '\qbank_editquestion\edit_action');
+}
 /**
- * Represent delete action in studentquiz_bank_view.
+ * Represent edit action in studentquiz_bank_view
  *
  * @package mod_studentquiz
- * @copyright 2021 The Open University
+ * @author Huong Nguyen <huongnv13@gmail.com>
+ * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_delete_action_column extends delete_action_column {
+class sq_edit_action extends \qbank_editquestion\edit_action {
 
     /**
-     * Override method to get url and label for delete action of the studentquiz.
+     * Override method to get url and label for edit action of the studentquiz.
      *
      * @param \stdClass $question The row from the $question table, augmented with extra information.
      * @return array With three elements.
      *      $url - The URL to perform the action.
      *      $icon - The icon for this action.
-     *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon).
+     *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon)
      */
     protected function get_url_icon_and_label(\stdClass $question): array {
 
-        if ($question->state == studentquiz_helper::STATE_APPROVED &&
-                !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            // Do not render delete icon if the question is in approved state for the student.
+        if (($question->state == studentquiz_helper::STATE_APPROVED || $question->state == studentquiz_helper::STATE_DISAPPROVED) &&
+            !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+            // Do not render Edit icon if Question is in approved/disapproved state for Student.
             return [null, null, null];
         }
 

@@ -10,7 +10,8 @@ Feature: Restore specific studentquiz old backup to test UI feature
   @javascript @_file_upload
   Scenario: Restore moodle backups containing history comments.
     Given I am on the "Course 1" "restore" page logged in as "admin"
-    And I press "Manage backup files"
+    # Main branch has change the text to "Manage course backups" so we should use xpath.
+    And I click on "(//*[@class='singlebutton']//button)[1]" "xpath_element"
     And I upload "mod/studentquiz/tests/fixtures/backup-moodle311-c1-historycomment.mbz" file to "Files" filemanager
     And I press "Save changes"
     And I restore "backup-moodle311-c1-historycomment.mbz" backup into a new course using this options:
@@ -31,7 +32,8 @@ Feature: Restore specific studentquiz old backup to test UI feature
   @javascript @_file_upload @_switch_window
   Scenario: Restore moodle backups containing old StudentQuiz activity without state history table.
     Given I am on the "Course 1" "restore" page logged in as "admin"
-    And I press "Manage backup files"
+    # Main branch has change the text to "Manage course backups" so we should use xpath.
+    And I click on "(//*[@class='singlebutton']//button)[1]" "xpath_element"
     And I upload "mod/studentquiz/tests/fixtures/backup-moodle2-course-3-sqo-20211011-missing_state_history.mbz" file to "Files" filemanager
     And I press "Save changes"
     And I restore "backup-moodle2-course-3-sqo-20211011-missing_state_history.mbz" backup into a new course using this options:

@@ -86,6 +86,11 @@ if (!empty($_GET)) {
             get_string('pagesize_invalid_input', 'studentquiz'),
             null, \core\output\notification::NOTIFY_ERROR);
     }
+    // In Moodle 4.3, we have a filter param after we move the questions, but in SQ, we don't use that, so remove the filter param.
+    if ($filter = optional_param('filter', 0, PARAM_RAW)) {
+        $baseurl->remove_params('filter');
+        redirect($baseurl);
+    }
 }
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');

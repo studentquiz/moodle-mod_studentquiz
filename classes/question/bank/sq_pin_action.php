@@ -15,9 +15,12 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
-use core_question\local\bank\menu_action_column_base;
+if (!class_exists('\core_question\local\bank\question_action_base')) {
+    class_alias('\core_question\local\bank\menu_action_column_base', '\core_question\local\bank\question_action_base');
+}
+
 use moodle_url;
 
 /**
@@ -27,9 +30,11 @@ use moodle_url;
  * @copyright 2021 The Open University.
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_pin_action_column extends menu_action_column_base {
+class sq_pin_action extends \core_question\local\bank\question_action_base {
     /** @var mod_studentquiz Renderer of student quiz. */
     protected $renderer;
+
+    protected $currentuserid;
 
     /**
      * Init method.

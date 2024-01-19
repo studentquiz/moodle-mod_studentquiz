@@ -27,6 +27,7 @@ require_once($CFG->dirroot . '/question/editlib.php');
 require_once(__DIR__ . '/locallib.php');
 
 use mod_studentquiz\local\studentquiz_question;
+use mod_studentquiz\utils;
 /**
  * This class loads and represents the state for the main view.
  *
@@ -123,6 +124,7 @@ class mod_studentquiz_view {
      * Loads the question custom bank view.
      */
     private function load_questionbank() {
+        global $CFG;
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
         $params = $_GET;
         // Get edit question link setup.
@@ -133,6 +135,9 @@ class mod_studentquiz_view {
         $pagevars['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
         $this->pageurl = new moodle_url($thispageurl);
         foreach ($params as $key => $value) {
+            if ($key === 'sortdata') {
+                continue;
+            }
             if ($key == 'timecreated_sdt' || $key == 'timecreated_edt') {
                 $value = http_build_query($value);
             }
@@ -163,8 +168,14 @@ class mod_studentquiz_view {
             $thispageurl->remove_params('changepagesize');
         }
         $this->qbpagevar = array_merge($pagevars, $params);
-        $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-            $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
+        if (utils::moodle_version_is("<=", "42")) {
+            $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view_pre_43(
+                $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
+        } else {
+            $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
+                $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
+        }
+
     }
 
     /**

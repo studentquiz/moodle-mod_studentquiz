@@ -17,11 +17,11 @@
 namespace mod_studentquiz;
 
 use mod_studentquiz\question\bank\studentquiz_bank_view;
+use mod_studentquiz\question\bank\studentquiz_bank_view_pre_43;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
-require_once($CFG->dirroot . '/mod/studentquiz/classes/question/bank/studentquiz_bank_view.php');
 require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
 require_once($CFG->dirroot . '/lib/questionlib.php');
 require_once($CFG->dirroot . '/question/editlib.php');
@@ -85,10 +85,17 @@ class bank_performance_test extends \advanced_testcase {
         );
 
         $report = new mod_studentquiz_report($result['cm']->id);
-        $questionbank = new studentquiz_bank_view(
-            new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),
-            new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
-            $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
+        if (utils::moodle_version_is("<=", "42")) {
+            $questionbank = new studentquiz_bank_view_pre_43(
+                new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),
+                new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
+                $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
+        } else {
+            $questionbank = new studentquiz_bank_view(
+                new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),
+                new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
+                $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
+        }
         return $questionbank;
     }
 

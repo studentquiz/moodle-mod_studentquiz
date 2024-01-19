@@ -14,10 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_studentquiz\bank;
+namespace mod_studentquiz\question\bank;
 
-use core_question\local\bank\menu_action_column_base;
-
+if (!class_exists('\core_question\local\bank\question_action_base')) {
+    class_alias('\core_question\local\bank\menu_action_column_base', '\core_question\local\bank\question_action_base');
+}
 /**
  * Represent sq_hiden action in studentquiz_bank_view
  *
@@ -26,7 +27,8 @@ use core_question\local\bank\menu_action_column_base;
  * @copyright 2019 HSR (http://www.hsr.ch)
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class sq_hidden_action_column extends menu_action_column_base {
+class sq_hidden_action extends \core_question\local\bank\question_action_base {
+
     /** @var int */
     protected $currentuserid;
 
@@ -50,43 +52,6 @@ class sq_hidden_action_column extends menu_action_column_base {
     }
 
     /**
-     * Return an array 'table_alias' => 'JOIN clause' to bring in any data that
-     * this column required.
-     *
-     * The return values for all the columns will be checked. It is OK if two
-     * columns join in the same table with the same alias and identical JOIN clauses.
-     * If to columns try to use the same alias with different joins, you get an error.
-     * The only table included by default is the question table, which is aliased to 'q'.
-     *
-     * It is important that your join simply adds additional data (or NULLs) to the
-     * existing rows of the query. It must not cause additional rows.
-     *
-     * @return array 'table_alias' => 'JOIN clause'
-     */
-    public function get_extra_joins(): array {
-        $hidden = "sqq.hidden = 0";
-        $mine = "q.createdby = $this->currentuserid";
-
-        // Without permission, a user can only see non-hidden question or its their own.
-        $sqlextra = "AND ($hidden OR $mine)";
-        if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            $sqlextra = "";
-        }
-
-        return ['sqh' => "JOIN {studentquiz_question} sqh ON sqh.id = qr.itemid $sqlextra"];
-    }
-
-    /**
-     * Required columns
-     *
-     * @return array fields required. use table alias 'q' for the question table, or one of the
-     * ones from get_extra_joins. Every field requested must specify a table prefix.
-     */
-    public function get_required_fields(): array {
-        return ['sqq.hidden AS sq_hidden'];
-    }
-
-    /**
      * Override method to get url and label for show/hidden action of the studentquiz.
      *
      * @param \stdClass $question The row from the $question table, augmented with extra information.
@@ -99,7 +64,7 @@ class sq_hidden_action_column extends menu_action_column_base {
         $courseid = $this->qbank->get_courseid();
         $cmid = $this->qbank->cm->id;
         if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
-            if ($question->sq_hidden) {
+            if (!empty($question->sq_hidden)) {
                 $url = new \moodle_url('/mod/studentquiz/hideaction.php',
                         ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
                                 'courseid' => $courseid, 'hide' => 0, 'cmid' => $cmid, 'returnurl' => $this->qbank->base_url()]);
@@ -113,5 +78,15 @@ class sq_hidden_action_column extends menu_action_column_base {
         }
 
         return [null, null, null];
+    }
+
+    /**
+     * Required columns
+     *
+     * @return array fields required. use table alias 'q' for the question table, or one of the
+     * ones from get_extra_joins. Every field requested must specify a table prefix.
+     */
+    public function get_required_fields(): array {
+        return ['sqq.hidden AS sq_hidden'];
     }
 }
