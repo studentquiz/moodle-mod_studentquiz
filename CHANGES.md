@@ -1,5 +1,10 @@
 # Change log for the StudentQuiz activity
 
+## Version 5.2.1
+
+* Added Compatability with Moodle 4.3
+* Fixed a bug with permission checking of state changes.
+
 ## Version 5.2.0
 
 Mainly a bugfix release, but with one new feature adding activity completion.

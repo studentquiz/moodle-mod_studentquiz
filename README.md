@@ -1,9 +1,9 @@
 # <img alt="" src="https://raw.githubusercontent.com/timhunt/moodle-mod_studentquiz/main/pix/monologo.svg" width="64" style="max-width: 64px; vertical-align: middle;"> StudentQuiz
 
 [![Latest Release](https://img.shields.io/github/v/release/studentquiz/moodle-mod_studentquiz?sort=semver&color=orange)](https://github.com/studentquiz/moodle-mod_studentquiz/releases)
-[![Build Status](https://github.com/studentquiz/moodle-mod_studentquiz/workflows/Moodle%20Plugin%20CI/badge.svg?branch=master)](https://github.com/studentquiz/moodle-mod_studentquiz/actions?query=workflow%3A%22Moodle+Plugin+CI%22+branch%3Amaster)
+[![Moodle Plugin CI](https://github.com/studentquiz/moodle-mod_studentquiz/actions/workflows/moodle-plugin-ci.yml/badge.svg)](https://github.com/studentquiz/moodle-mod_studentquiz/actions/workflows/moodle-plugin-ci.yml)
 [![PHP Support](https://img.shields.io/badge/php-7.3--8.2-blue)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
-[![Moodle Support](https://img.shields.io/badge/Moodle-4.0--4.2-orange)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
+[![Moodle Support](https://img.shields.io/badge/Moodle-4.0--4.3-orange)](https://github.com/studentquiz/moodle-mod_studentquiz/actions)
 [![License GPL-3.0](https://img.shields.io/github/license/studentquiz/moodle-mod_studentquiz?color=lightgrey)](https://github.com/studentquiz/moodle-mod_studentquiz/blob/master/LICENSE)
 [![GitHub contributors](https://img.shields.io/github/contributors/studentquiz/moodle-mod_studentquiz)](https://github.com/studentquiz/moodle-mod_studentquiz/graphs/contributors)
 
@@ -46,7 +46,7 @@ You can find manuals for each role in the [manuals website](https://docs.moodle.
 
 Supported and tested with:
 
-- Moodle 4.0, 4.1 and 4.2 - if you need a version compatible with earlier versions of Moodle, look on the
+- Moodle 4.0, 4.1, 4.2 and 4.3 - if you need a version compatible with earlier versions of Moodle, look on the
   (MOODLE_3X_STABLE branch)[https://github.com/studentquiz/moodle-mod_studentquiz/tree/MOODLE_3X_STABLE]
 - PHP 7.3, 7.4, 8.0, 8.1 and 8.2
 - Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017 (experimental)
