@@ -72,7 +72,7 @@ Feature: View comprehensive information about this studentquiz activity
     And I should not see "Question 2"
     And I click on "Reset" "button"
 
-    And I click on "New" "link"
+    And I click on "New" "link" in the "#id_filtertabcontainer" "css_element"
     And I press "id_submitbutton"
     And I should see "Question 2"
     And I should not see "Question 1"
