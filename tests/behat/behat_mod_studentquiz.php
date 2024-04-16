@@ -29,6 +29,7 @@ require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 use mod_studentquiz\utils;
 use Behat\Mink\Exception\ExpectationException as ExpectationException;
 use Behat\Mink\Exception\ElementNotFoundException as ElementNotFoundException;
+use Behat\Gherkin\Node\TableNode as TableNode;
 
 /**
  * Steps definitions related to mod_studentquiz.
@@ -253,5 +254,52 @@ class behat_mod_studentquiz extends behat_base {
 
                 return true;
             }, $node, behat_base::get_reduced_timeout(), $exception, true);
+    }
+
+    /**
+     * Add specific the studentquiz to course section and fill with values.
+     *
+     * @Given I add a StudentQuiz to course :coursefullname section :sectionnum and I fill the form with:
+     * @param string $coursefullname The course full name of the course.
+     * @param int $section The section number.
+     * @param TableNode $data The activity field/value data.
+     */
+    public function add_to_course_section_and_fill_values($coursefullname, $section , TableNode $data) {
+        if (method_exists('behat_course', 'i_add_to_course_section_and_i_fill_the_form_with')) {
+            $this->execute('behat_course::i_add_to_course_section_and_i_fill_the_form_with', [
+                'studentquiz',
+                $coursefullname,
+                $section,
+                $data,
+            ]);
+        } else {
+            // This step works only for Moodle 4.3 and earlier versions.
+            $this->execute(
+                'behat_course::i_add_to_section_and_i_fill_the_form_with', ['StudentQuiz', $section, $data]
+            );
+        }
+    }
+
+    /**
+     * Add specific studentquiz to a course section.
+     *
+     * @Given I add a StudentQuiz to course :coursefullname section :sectionnum
+     * @param string $coursefullname The course full name of the course.
+     * @param int $section The section number.
+     */
+    public function add_studentquiz_to_course_section($coursefullname, $section) {
+        if (method_exists('behat_course', 'i_add_to_course_section')) {
+            $this->execute('behat_course::i_add_to_course_section', [
+                'studentquiz',
+                $coursefullname,
+                $section,
+            ]);
+        } else {
+            // This step works only for Moodle 4.3 and earlier versions.
+            $this->execute('behat_course::i_add_to_section', [
+                'StudentQuiz',
+                $section,
+            ]);
+        }
     }
 }

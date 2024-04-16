@@ -9,6 +9,8 @@ Feature: Restore of studentquizzes in moodle exports contain old approved column
     And the following "courses" exist:
       | fullname | shortname | category |
       | Course 1 | C1        | 0        |
+    And the following config values are set as admin:
+      | enableasyncbackup | 0 |
 
   @javascript @_file_upload
   Scenario: Restore moodle backups containing old StudentQuiz activity with old approved column

@@ -31,6 +31,8 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
 require_once(__DIR__ . '/locallib.php');
 require_once(__DIR__ . '/reportlib.php');
 
+use mod_studentquiz\utils;
+
 /**
  * Module instance settings form
  *
@@ -297,6 +299,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
      */
     public function add_completion_rules(): array {
         $mform =& $this->_form;
+        $completionpointel = $this->get_suffixed_name('completionpointgroup');
+        $completionquestionpublishedel = $this->get_suffixed_name('completionquestionpublishedgroup');
+        $completionquestionapprovedgel = $this->get_suffixed_name('completionquestionapprovedgroup');
 
         // Require point.
         $group = [];
@@ -304,9 +309,9 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             get_string('completionpoint', 'mod_studentquiz'));
         $group[] =& $mform->createElement('text', 'completionpoint', '', ['size' => 3]);
         $mform->setType('completionpoint', PARAM_INT);
-        $mform->addGroup($group, 'completionpointgroup', get_string('completionpointgroup',
+        $mform->addGroup($group, $completionpointel, get_string('completionpointgroup',
             'mod_studentquiz'), [' '], false);
-        $mform->addHelpButton('completionpointgroup', 'completionpointgroup',
+        $mform->addHelpButton($completionpointel, 'completionpointgroup',
             'mod_studentquiz');
         $mform->disabledIf('completionpoint', 'completionpointenabled', 'notchecked');
 
@@ -317,10 +322,10 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $group[] =& $mform->createElement('text', 'completionquestionpublished', '',
             ['size' => 3]);
         $mform->setType('completionquestionpublished', PARAM_INT);
-        $mform->addGroup($group, 'completionquestionpublishedgroup',
+        $mform->addGroup($group, $completionquestionpublishedel,
             get_string('completionquestionpublishedgroup', 'mod_studentquiz'),
                 [' '], false);
-        $mform->addHelpButton('completionquestionpublishedgroup',
+        $mform->addHelpButton($completionquestionpublishedel,
             'completionquestionpublishedgroup', 'mod_studentquiz');
         $mform->disabledIf('completionquestionpublished', 'completionquestionpublishedenabled',
             'notchecked');
@@ -333,15 +338,15 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $group[] =& $mform->createElement('text',
             'completionquestionapproved', '', ['size' => 3]);
         $mform->setType('completionquestionapproved', PARAM_INT);
-        $mform->addGroup($group, 'completionquestionapprovedgroup',
+        $mform->addGroup($group, $completionquestionapprovedgel,
             get_string('completionquestionapprovedgroup', 'mod_studentquiz'), [' '],
             false);
-        $mform->addHelpButton('completionquestionapprovedgroup',
+        $mform->addHelpButton($completionquestionapprovedgel,
             'completionquestionapprovedgroup', 'mod_studentquiz');
         $mform->disabledIf('completionquestionapproved',
             'completionquestionapprovedenabled', 'notchecked');
 
-        return ['completionpointgroup', 'completionquestionpublishedgroup', 'completionquestionapprovedgroup'];
+        return [$completionpointel, $completionquestionpublishedel, $completionquestionapprovedgel];
     }
 
     /**
@@ -437,4 +442,17 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         return $data;
     }
 
+    /**
+     * Get the suffix of name.
+     *
+     * @param string $fieldname The field name of the question.
+     * @return string The suffixed name.
+     */
+    protected function get_suffixed_name(string $fieldname): string {
+        if (utils::moodle_version_is("<=", "42")) {
+            return $fieldname;
+        }
+
+        return $fieldname . $this->get_suffix();
+    }
 }
