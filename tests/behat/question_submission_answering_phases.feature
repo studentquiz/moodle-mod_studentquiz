@@ -21,7 +21,7 @@ Feature: Question submission and answering will follow the availability setting
   Scenario: New availability settings should exist
     When I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a StudentQuiz to course "Course 1" section "1"
+    And I add a studentquiz activity to course "Course 1" section "1"
     And I expand all fieldsets
     Then I should see "Open for question submission from"
     And I should see "Closed for question submission from"
@@ -32,7 +32,7 @@ Feature: Question submission and answering will follow the availability setting
   Scenario: Availability settings validation
     When I log in as "admin"
     And I am on "Course 1" course homepage with editing mode on
-    And I add a StudentQuiz to course "Course 1" section "1"
+    And I add a studentquiz activity to course "Course 1" section "1"
     And I expand all fieldsets
     And I set the field "id_name" to "StudentQuiz Test Availability"
 
