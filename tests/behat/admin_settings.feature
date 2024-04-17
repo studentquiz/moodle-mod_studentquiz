@@ -24,7 +24,7 @@ Feature: New activities instances setting will be inherited from Admin setting
     And the following config values are set as admin:
       | defaultqtypes | truefalse | studentquiz |
     And I am on "Course 1" course homepage with editing mode on
-    And I add a StudentQuiz to course "Course 1" section "1"
+    And I add a studentquiz activity to course "Course 1" section "1"
     And I expand all fieldsets
     Then the following fields match these values:
       | allowedqtypes[truefalse]   | 1 |
@@ -34,7 +34,7 @@ Feature: New activities instances setting will be inherited from Admin setting
     And I press "Cancel"
     And the following config values are set as admin:
       | defaultqtypes | truefalse,multichoice | studentquiz |
-    And I add a StudentQuiz to course "Course 1" section "1"
+    And I add a studentquiz activity to course "Course 1" section "1"
     And I expand all fieldsets
     And the following fields match these values:
       | allowedqtypes[truefalse]   | 1 |

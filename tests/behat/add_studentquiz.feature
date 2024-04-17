@@ -19,7 +19,7 @@ Feature: Activities can be created
 
   @javascript
   Scenario: Check an Activity can be created
-    When I add a StudentQuiz to course "Course 1" section "1" and I fill the form with:
+    When I add a studentquiz activity to course "Course 1" section "1" and I fill the form with:
       | StudentQuiz Name | Test quiz name        |
       | Description      | Test quiz description |
     And I am on the "Test quiz name" "mod_studentquiz > View" page
@@ -27,7 +27,7 @@ Feature: Activities can be created
 
   @javascript
   Scenario: Check an Activity can be created with comment deletion period = 0.
-    When I add a StudentQuiz to course "Course 1" section "1" and I fill the form with:
+    When I add a studentquiz activity to course "Course 1" section "1" and I fill the form with:
       | StudentQuiz Name                          | Test quiz name        |
       | Description                               | Test quiz description |
       | Comment editing/deletion period (minutes) | 0                     |
@@ -38,7 +38,7 @@ Feature: Activities can be created
 
   @javascript
   Scenario: Check an Activity can not be created with invalid date restriction.
-    Given I add a StudentQuiz to course "Course 1" section "1"
+    Given I add a studentquiz activity to course "Course 1" section "1"
     And I set the following fields to these values:
       | StudentQuiz Name | Test SQ name        |
       | Description      | Test SQ description |
