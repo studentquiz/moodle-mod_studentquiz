@@ -565,3 +565,24 @@ Feature: Create comment as an user
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
     Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
     And I should not see "Edit" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
+
+  @javascript
+  Scenario: Test show anonymous user on state history table.
+    Given I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "student1"
+    And I click on "Create new question" "button"
+    And I set the field "item_qtype_truefalse" to "1"
+    And I click on "Add" "button" in the "Choose a question type to add" "dialogue"
+    And I set the field "Question name" to "Question of Student 1"
+    And I set the field "Question text" to "The correct answer is true"
+    And I press "id_submitbutton"
+    And I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "teacher"
+    And I choose "Preview" action for "Question of Student 1" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Approved"
+    And I click on "Change state" "button"
+    And I press "Close"
+    And I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "student1"
+    And I choose "Preview" action for "Question of Student 1" in the question bank
+    And I switch to "questionpreview" window
+    When I click on "History" "link"
+    Then I should see "Question set to 'Approved' Anonymous User"

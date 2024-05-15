@@ -37,6 +37,7 @@ $string['after_answering_end_date'] = 'This StudentQuiz closed for answering on 
 $string['after_submission_end_date'] = 'This StudentQuiz closed for question submission on {$a}.';
 $string['answeringndbeforestart'] = 'Answering deadline can not be specified before the open for answering date';
 $string['anonymous_user_name'] = 'Anonymous User #{$a}';
+$string['anonymous_user'] = 'Anonymous User';
 $string['api_state_change_success_content'] = 'Question state/visibility changed successfully';
 $string['api_state_change_success_title'] = 'Success';
 $string['api_state_change_error_title'] = 'Error deleting question';
