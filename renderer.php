@@ -1750,7 +1750,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 
         if (utils::can_view_state_history($cm->id, $question)) {
             $statehistoryrenderer = $this->page->get_renderer('mod_studentquiz', 'state_history');
-            $statehistorytab = $statehistoryrenderer->state_history_table($studentquizquestion->get_id());
+            $statehistorytab = $statehistoryrenderer->state_history_table($studentquizquestion);
             $tabs[] = [
                 'id' => 'state_history-tab',
                 'name' => get_string('history', 'mod_studentquiz'),
@@ -1875,10 +1875,10 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
     /**
      * Render state history table.
      *
-     * @param int $studentquizquestionid studentquizquestion id.
+     * @param studentquiz_question $studentquizquestion studentquiz question object.
      * @return string The content render.
      */
-    public function state_history_table($studentquizquestionid): string {
+    public function state_history_table(studentquiz_question $studentquizquestion): string {
 
         $table = new html_table();
         $table->head = [
@@ -1886,6 +1886,7 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
             get_string('action', 'question'),
         ];
 
+        $studentquizquestionid = $studentquizquestion->get_id();
         list($statehistories, $users) = utils::get_state_history_data($studentquizquestionid);
 
         if (get_string_manager()->string_exists('strftimedatetimeshortaccurate', 'core_langconfig')) {
@@ -1894,8 +1895,11 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
             $formatdate = get_string('strftimedatetimeshort', 'core_langconfig');
         }
 
+        $commentarea = new container($studentquizquestion);
+        $canviewusername = $commentarea->can_view_username();
         foreach ($statehistories as $statehistory) {
-            $author = !empty($users[$statehistory->userid]) ? $this->action_author($users[$statehistory->userid]) : '-';
+            $author = !empty($users[$statehistory->userid]) ?
+                $this->action_author($users[$statehistory->userid], $canviewusername) : '-';
             $table->data[] = [
                 userdate($statehistory->timecreated, $formatdate),
                 $this->get_desc_action($statehistory->state) . ' ' . $author
@@ -1910,15 +1914,21 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
      * Action author's profile link.
      *
      * @param stdClass $user The user object.
+     * @param bool $canviewusername Whether user have permission to view other user name.
      * @return string The link to user's profile.
      */
-    public function action_author(\stdClass $user): string {
+    public function action_author(\stdClass $user, bool $canviewusername): string {
+        global $USER;
         if ($user->deleted) {
             return html_writer::div(get_string('deleteduser', 'mod_forum'));
         }
-
-        return html_writer::link(new moodle_url('/user/view.php', ['id' => $user->id, 'course' => $this->page->course->id]),
+        $username = html_writer::link(new moodle_url('/user/view.php',
+            ['id' => $user->id, 'course' => $this->page->course->id]),
             fullname($user), ['class' => 'd-table-cell']);
+        if (!$canviewusername && $user->id !== $USER->id) {
+            $username = get_string('anonymous_user', 'mod_studentquiz');
+        }
+        return $username;
     }
 
     /**
