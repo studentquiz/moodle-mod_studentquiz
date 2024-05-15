@@ -1922,13 +1922,13 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
         if ($user->deleted) {
             return html_writer::div(get_string('deleteduser', 'mod_forum'));
         }
-        $username = html_writer::link(new moodle_url('/user/view.php',
+        if (!$canviewusername && $user->id !== $USER->id) {
+            return get_string('anonymous_user', 'mod_studentquiz');
+        }
+
+        return html_writer::link(new moodle_url('/user/view.php',
             ['id' => $user->id, 'course' => $this->page->course->id]),
             fullname($user), ['class' => 'd-table-cell']);
-        if (!$canviewusername && $user->id !== $USER->id) {
-            $username = get_string('anonymous_user', 'mod_studentquiz');
-        }
-        return $username;
     }
 
     /**
