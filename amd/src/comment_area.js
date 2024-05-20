@@ -1336,6 +1336,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         M.util.js_pending('init_editor');
 
                         self.triggerAttoNoContent(formSelector);
+                        self.setPlaceholder(formSelector, formSelector.attr('data-textarea-placeholder'));
 
                         formSelector.find(t.SELECTOR.ATTO.TOOLBAR).fadeIn();
                         var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
@@ -1343,8 +1344,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var attoEditable = document.getElementById(attoEditableId);
                         var observation = new MutationObserver(function(mutationsList) {
                             mutationsList.forEach(function(mutation) {
-                                if (mutation.type === 'attributes' &&
-                                    (mutation.attributeName === 'style' || mutation.attributeName === 'hidden')) {
+                                if (mutation.type === 'childList' || (mutation.type === 'attributes' &&
+                                    (mutation.attributeName === 'style' || mutation.attributeName === 'hidden'))) {
                                     self.checkEditorContent(formSelector);
                                 }
                             });
@@ -1466,7 +1467,6 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var submitBtn = formSelector.find(t.SELECTOR.SUBMIT_BUTTON);
                         submitBtn.removeClass('disabled');
                         submitBtn.prop('disabled', false);
-                        editorContentWrap.attr('data-placeholder', '');
                         editorContentWrap.addClass(t.ATTO_CONTENT_TYPE.HAS_CONTENT);
                         editorContentWrap.removeClass(t.ATTO_CONTENT_TYPE.NO_CONTENT);
                     },
@@ -1477,14 +1477,22 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * @param {jQuery} formSelector
                      */
                     triggerAttoNoContent: function(formSelector) {
-                        var placeholder = formSelector.attr('data-textarea-placeholder');
                         var editorContentWrap = formSelector.find(t.SELECTOR.ATTO.CONTENT_WRAP);
                         var submitBtn = formSelector.find(t.SELECTOR.SUBMIT_BUTTON);
                         submitBtn.addClass('disabled');
                         submitBtn.prop('disabled', true);
-                        editorContentWrap.attr('data-placeholder', placeholder);
                         editorContentWrap.addClass(t.ATTO_CONTENT_TYPE.NO_CONTENT);
                         editorContentWrap.removeClass(t.ATTO_CONTENT_TYPE.HAS_CONTENT);
+                    },
+
+                    /**
+                     * Set placeholder in the textarea.
+                     *
+                     * @param {jQuery} formSelector The form selector.
+                     * @param {string} placeholder The placeholder of the textarea.
+                     */
+                    setPlaceholder: function(formSelector, placeholder) {
+                        formSelector.find(t.SELECTOR.ATTO.CONTENT_WRAP).attr('data-placeholder', placeholder);
                     },
 
                     /**
@@ -1653,10 +1661,25 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
                         var attoEditableEle = $('#' + attoEditableId);
+
+                        // This regex will match if the editor have some special cases.
+                        // 1) <p dir="ltr" style="text-align: left;"><br></p>.
+                        // 2) <p dir="ltr" style="text-align: left;"><p><br></p></p>.
+                        // The cases are consider empty in the editor.
+                        const regex = /^(<(?:p)[^>]*>)+(<br>)?(<\/p>)+$/;
+                        const match = regex.exec(attoEditableEle.html());
                         if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
                             attoEditableEle.text().trim().length < 1) {
+                            // On initial load, attoEditableEle.html() contains <p> or <span>.
+                            // If it matches the regex meaning the textarea is empty.
+                            if (match || (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1)) {
+                                this.setPlaceholder(formSelector, formSelector.attr('data-textarea-placeholder'));
+                            } else {
+                                this.setPlaceholder(formSelector, '');
+                            }
                             this.triggerAttoNoContent(formSelector);
                         } else {
+                            this.setPlaceholder(formSelector, '');
                             this.triggerAttoHasContent(formSelector);
                         }
                         M.util.js_complete(key);
