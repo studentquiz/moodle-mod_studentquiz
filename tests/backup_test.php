@@ -118,7 +118,7 @@ class backup_test extends \restore_date_testcase {
      * @coversNothing
      * @return array
      */
-    public function old_sq_backup_data_provider(): array {
+    public static function old_sq_backup_data_provider(): array {
 
         return [
             'aggregated before' => [
