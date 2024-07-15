@@ -132,6 +132,7 @@ class statistics_calculator {
                       JOIN {question_references} qr ON qr.itemid = sqq.id
                            AND qr.component = 'mod_studentquiz'
                            AND qr.questionarea = 'studentquiz_question'
+                           AND qr.usingcontextid = :contextid1
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -163,6 +164,7 @@ class statistics_calculator {
                       JOIN {question_references} qr ON qr.itemid = sqq.id
                            AND qr.component = 'mod_studentquiz'
                            AND qr.questionarea = 'studentquiz_question'
+                           AND qr.usingcontextid = :contextid2
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -197,6 +199,7 @@ class statistics_calculator {
                                JOIN {question_references} qr ON qr.itemid = sqq.id
                                     AND qr.component = 'mod_studentquiz'
                                     AND qr.questionarea = 'studentquiz_question'
+                                    AND qr.usingcontextid = :contextid3
                                JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                                JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -231,6 +234,7 @@ class statistics_calculator {
                       JOIN {question_references} qr ON qr.itemid = sqq.id
                            AND qr.component = 'mod_studentquiz'
                            AND qr.questionarea = 'studentquiz_question'
+                           AND qr.usingcontextid = :contextid4
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -259,6 +263,7 @@ class statistics_calculator {
                       JOIN {question_references} qr ON qr.itemid = sqq.id
                            AND qr.component = 'mod_studentquiz'
                            AND qr.questionarea = 'studentquiz_question'
+                           AND qr.usingcontextid = :contextid5
                       JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                       JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -303,6 +308,7 @@ class statistics_calculator {
      * @return array
      */
     private static function get_attempt_stat_joins_params($cmid, $quantifiers = null, $userid = null): array {
+        $contextid = \context_module::instance($cmid)->id;
         $params = [
             'cmid1' => $cmid,
             'cmid2' => $cmid,
@@ -311,6 +317,11 @@ class statistics_calculator {
             'cmid5' => $cmid,
             'cmid6' => $cmid,
             'cmid7' => $cmid,
+            'contextid1' => $contextid,
+            'contextid2' => $contextid,
+            'contextid3' => $contextid,
+            'contextid4' => $contextid,
+            'contextid5' => $contextid,
             'status1' => question_version_status::QUESTION_STATUS_HIDDEN,
             'status2' => question_version_status::QUESTION_STATUS_HIDDEN,
             'status3' => question_version_status::QUESTION_STATUS_HIDDEN,
@@ -433,6 +444,7 @@ class statistics_calculator {
               JOIN {question_references} qr ON qr.itemid = sqq.id
                    AND qr.component = 'mod_studentquiz'
                    AND qr.questionarea = 'studentquiz_question'
+                   AND qr.usingcontextid = :contextid1
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
               JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
@@ -449,6 +461,7 @@ class statistics_calculator {
                        JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
                             AND qr.component = 'mod_studentquiz'
                             AND qr.questionarea = 'studentquiz_question'
+                            AND qr.usingcontextid = :contextid2
                        JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
                                       SELECT MAX(version)
                                         FROM {question_versions}
@@ -464,9 +477,12 @@ class statistics_calculator {
             'q.parent = 0',
             'sq.coursemodule = :cmid1'
         ];
+        $contextid = \context_module::instance($cmid)->id;
         $params = [
             'cmid1' => $cmid,
             'cmid2' => $cmid,
+            'contextid1' => $contextid,
+            'contextid2' => $contextid,
             'status1' => question_version_status::QUESTION_STATUS_HIDDEN,
             'status2' => question_version_status::QUESTION_STATUS_HIDDEN,
         ];
