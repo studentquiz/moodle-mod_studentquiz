@@ -476,7 +476,7 @@ function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, 
         send_file_not_found();
     }
 
-    require_login($course, false, $cm);
+    require_login($course, false, $cm, false, true);
 
     send_file_not_found();
 }
@@ -532,7 +532,7 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
  * @package  mod_studentquiz
  * @category files
  * @param stdClass $course course settings object
- * @param stdClass $context context object
+ * @param context  $context context object
  * @param string   $component the name of the component we are serving files for.
  * @param string   $filearea the name of the file area.
  * @param int      $qubaid the attempt usage id.
@@ -544,6 +544,30 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
  */
 function mod_studentquiz_question_pluginfile($course, $context, $component,
                                             $filearea, $qubaid, $slot, $args, $forcedownload, array $options = array()) {
+    global $CFG, $DB, $USER;
+
+    if ($context->contextlevel != CONTEXT_MODULE) {
+        send_file_not_found();
+    }
+
+    [$course, $cm] = get_course_and_cm_from_cmid($context->instanceid, 'studentquiz');
+    require_login($course, false, $cm, false, true);
+
+    require_once($CFG->libdir . '/questionlib.php');
+    $quba = question_engine::load_questions_usage_by_activity($qubaid);
+    if ($quba->get_owning_context()->id != $context->id) {
+        send_file_not_found();
+    }
+
+    $attempt = $DB->get_record('studentquiz_attempt', ['questionusageid' => $quba->get_id()], '*', MUST_EXIST);
+    if ($attempt->userid != $USER->id) {
+        send_file_not_found();
+    }
+
+    if (!$quba->check_file_access($slot, new question_display_options(),
+            $component, $filearea, $args, $forcedownload)) {
+        send_file_not_found();
+    }
 
     $fs = get_file_storage();
     $relativepath = implode('/', $args);
