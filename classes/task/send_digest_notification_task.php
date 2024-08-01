@@ -68,7 +68,7 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                 if (!array_key_exists($notificationqueue->recipientid, $recipients)) {
                     $recipients[$notificationqueue->recipientid] = [];
                 }
-                $recipients[$notificationqueue->recipientid][] = unserialize($notificationqueue->content);
+                $recipients[$notificationqueue->recipientid][] = json_decode($notificationqueue->content);
                 $recordids[] = $notificationqueue->id;
             }
             $notificationqueues->close();
