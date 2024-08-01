@@ -190,7 +190,7 @@ class cron_test extends \advanced_testcase {
 
         $notificationqueue = new \stdClass();
         $notificationqueue->studentquizid = $notifydata->moduleid;
-        $notificationqueue->content = serialize($customdata);
+        $notificationqueue->content = json_encode($customdata);
         $notificationqueue->recipientid = $this->student2->id;
         $notificationqueue->timetosend = strtotime('-1 day', strtotime(date('Y-m-d')));
         $DB->insert_record('studentquiz_notification', $notificationqueue);

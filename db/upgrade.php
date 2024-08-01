@@ -1723,5 +1723,33 @@ function xmldb_studentquiz_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023081702, 'studentquiz');
     }
 
+    if ($oldversion < 2024080100) {
+
+        // Change the format of data in studentquiz_notification.content.
+        $total = $DB->count_records('studentquiz_notification');
+
+        if ($total > 0) {
+            $progressbar = new progress_bar('updatenotifications', 500, true);
+            $transaction = $DB->start_delegated_transaction();
+
+            $notifications = $DB->get_recordset('studentquiz_notification', null, 'id', 'id, content');
+            $count = 0;
+            foreach ($notifications as $notification) {
+                $progressbar->update($count, $total, "Update the state for question - {$count}/{$total} - id = $notification->id.");
+                $count++;
+
+                $DB->set_field('studentquiz_notification',
+                    'content', json_encode(unserialize($notification->content)),
+                    ['id' => $notification->id]);
+            }
+            $progressbar->update($count, $total, "Update the state for question - {$count}/{$total} - DONE!");
+            $notifications->close();
+            $transaction->allow_commit();
+        }
+
+        // Studentquiz savepoint reached.
+        upgrade_mod_savepoint(true, 2024080100, 'studentquiz');
+    }
+
     return true;
 }

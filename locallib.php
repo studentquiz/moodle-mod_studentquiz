@@ -453,7 +453,7 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
         date_default_timezone_set('UTC');
         $notificationqueue = new stdClass();
         $notificationqueue->studentquizid = $data->moduleid;
-        $notificationqueue->content = serialize($customdata);
+        $notificationqueue->content = json_encode($customdata);
         $notificationqueue->recipientid = $recipient->id;
         if ($data->digesttype == 1) {
             $notificationqueue->timetosend = strtotime(date('Y-m-d'));
