@@ -170,7 +170,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                     $sqldata[0] = str_replace($field->_name, $this->get_sql_field($field->_name)
                         , $sqldata[0]);
                     $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
-                    $this->tests[] = '((' . $sqldata[0] . '))';
+                    $this->tests[] = $sqldata[0];
                     $this->customparams = array_merge($this->customparams, $sqldata[1]);
                 }
             }
@@ -255,8 +255,11 @@ class studentquiz_condition extends \core_question\local\bank\condition {
      * Provide SQL fragment to be ANDed into the WHERE clause to filter which questions are shown.
      * @return string SQL fragment. Must use named parameters.
      */
-    public function where() {
-        return implode(' AND ', $this->tests);
+    public function where(): string {
+        if (!empty($this->tests)) {
+            return '(' . implode(' OR ', $this->tests) . ')';
+        }
+        return '';
     }
 
     /**
