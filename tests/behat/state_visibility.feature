@@ -53,7 +53,7 @@ Feature: Question states and visibility
     And I should see "TF 01"
 
   @javascript @_switch_window
-  Scenario: Test filter
+  Scenario: Test filter for StudentQuiz
     When I am on the "StudentQuiz Test 2" "mod_studentquiz > View" page logged in as "student1"
 
     And I click on "Create new question" "button"
@@ -105,6 +105,7 @@ Feature: Question states and visibility
     And I click on "Change state" "button"
     And I switch to the main window
 
+    # There is a duplicate link that contain a 'new' word.
     And I click on "//a[text() = 'New']" "xpath_element"
     And I press "id_submitbutton"
     Then I should see "TF 04"
@@ -113,7 +114,7 @@ Feature: Question states and visibility
     And I should not see "TF 03"
     And I click on "Reset" "button"
 
-    And I click on "//a[text() = 'Approved']" "xpath_element"
+    And I click on "Approved" "link"
     And I press "id_submitbutton"
     And I should see "TF 02"
     And I should not see "TF 01"
@@ -121,7 +122,7 @@ Feature: Question states and visibility
     And I should not see "TF 04"
     And I click on "Reset" "button"
 
-    And I click on "//a[text() = 'Disapproved']" "xpath_element"
+    And I click on "Disapproved" "link"
     And I press "id_submitbutton"
     And I should see "TF 01"
     And I should not see "TF 02"
@@ -129,13 +130,19 @@ Feature: Question states and visibility
     And I should not see "TF 04"
     And I click on "Reset" "button"
 
-    And I click on "//a[text() = 'Changed']" "xpath_element"
+    And I click on "Changed" "link"
     And I press "id_submitbutton"
     And I should see "TF 03"
     And I should not see "TF 01"
     And I should not see "TF 02"
     And I should not see "TF 04"
     And I click on "Reset" "button"
+
+    And I click on "Changed" "link"
+    And I click on "Approved" "link"
+    And I press "id_submitbutton"
+    And I should see "TF 03"
+    And I should see "TF 02"
 
   @javascript
   Scenario: Hide question
