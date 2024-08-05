@@ -75,7 +75,7 @@ class send_digest_notification_task extends \core\task\scheduled_task {
 
             foreach ($recipients as $userid => $datas) {
                 $contentdata = [
-                        'recipientname' => $datas[0]['messagedata']->recepientname,
+                        'recipientname' => $datas[0]->messagedata->recepientname,
                         'digesttype' => $studentquiz->digesttype == 1 ? $dailystring : $weeklystring,
                         'modulename' => $studentquiz->name,
                         'activityurl' => (new moodle_url('/mod/studentquiz/view.php',
@@ -87,11 +87,11 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                     $total++;
                     $contentdata['notifications'][] = [
                             'seq' => $total,
-                            'timestamp' => $data['messagedata']->timestamp,
-                            'questionname' => $data['messagedata']->questionname,
-                            'actiontype' => $data['eventname'],
-                            'actorname' => $data['messagedata']->actorname,
-                            'isstudent' => $data['messagedata']->isstudent,
+                            'timestamp' => $data->messagedata->timestamp,
+                            'questionname' => $data->messagedata->questionname,
+                            'actiontype' => $data->eventname,
+                            'actorname' => $data->messagedata->actorname,
+                            'isstudent' => $data->messagedata->isstudent,
                     ];
                 }
                 $fullmessagehtml = $renderer->render_from_template('mod_studentquiz/digest_email_notification', $contentdata);
@@ -111,7 +111,7 @@ class send_digest_notification_task extends \core\task\scheduled_task {
 
                 message_send($eventdata);
                 $messagetotal++;
-                mtrace("Notification to {$datas[0]['messagedata']->recepientname} has been sent", 1);
+                mtrace("Notification to {$datas[0]->messagedata->recepientname} has been sent", 1);
             }
         }
 
