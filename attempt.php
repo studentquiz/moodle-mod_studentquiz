@@ -30,6 +30,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/questionlib.php');
 require_once(__DIR__ . '/locallib.php');
 
+$CFG->forceclean = true;
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
 // Comment highlight.
