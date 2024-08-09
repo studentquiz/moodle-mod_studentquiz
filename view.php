@@ -30,6 +30,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/viewlib.php');
 require_once(__DIR__ . '/reportlib.php');
 
+$CFG->forceclean = true;
 // Get parameters.
 if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     $cmid = required_param('id', PARAM_INT);

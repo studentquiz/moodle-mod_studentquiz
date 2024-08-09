@@ -28,6 +28,7 @@ use mod_studentquiz\local\studentquiz_question;
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/viewlib.php');
 
+$CFG->forceclean = true;
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
