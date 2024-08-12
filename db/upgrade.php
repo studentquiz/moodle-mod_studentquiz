@@ -1739,7 +1739,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
                 $count++;
 
                 $DB->set_field('studentquiz_notification',
-                    'content', json_encode(unserialize($notification->content)),
+                    'content', json_encode(unserialize_object($notification->content)),
                     ['id' => $notification->id]);
             }
             $progressbar->update($count, $total, "Update the state for question - {$count}/{$total} - DONE!");

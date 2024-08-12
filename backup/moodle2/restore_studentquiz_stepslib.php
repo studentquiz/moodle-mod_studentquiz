@@ -334,9 +334,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
 
         if (json_decode($data->content) === null) {
             // Older versions of StudentQuiz stored this data serialised. We no longer support that.
-            // Such data is not restored. At worse, this leads to some lost notifications for users
-            // who have chosen to receive a digest, but to people want notifications relating to restored data?
-            return;
+            $data = json_encode(unserialize_object($data->content));
         }
 
         $DB->insert_record('studentquiz_notification', $data);
