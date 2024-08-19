@@ -74,6 +74,17 @@ function studentquiz_supports($feature) {
 }
 
 /**
+ * Callback immediately after require_login succeeds.
+ */
+function studentquiz_after_require_login() {
+    global $PAGE, $CFG;
+
+    if ($PAGE->activityname === 'studentquiz') {
+        $CFG->forceclean = true;
+    }
+}
+
+/**
  * Saves a new instance of the StudentQuiz into the database
  *
  * Given an object containing all the necessary data,
