@@ -473,7 +473,7 @@ class user_filter_number extends studentquiz_user_filter_text {
     public function setupForm(&$mform) { // @codingStandardsIgnoreLine
         parent::setupForm($mform);
         $rules["$this->_name"] = [
-            [null, 'numeric', null, 'client'],
+            [null, 'numeric', null, 'server'],
         ];
 
         $mform->addGroupRule($this->_name . '_grp', $rules);
