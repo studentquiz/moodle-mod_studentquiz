@@ -21,9 +21,11 @@ Feature: Filtering in Studentquiz view.
       | questioncategory               | qtype     | name            | questiontext          |
       | Default for StudentQuiz Test 1 | truefalse | Test question 1 | Answer the question 1 |
       | Default for StudentQuiz Test 1 | truefalse | Test question 2 | Answer the question 2 |
+      | Default for StudentQuiz Test 1 | truefalse | Test question 3 | Answer the question 3 |
+      | Default for StudentQuiz Test 1 | truefalse | Test question 4 | Answer the question 4 |
 
   @javascript @_switch_window
-  Scenario: Check validation client in the advance filter.
+  Scenario: Check validation numeric in the advance filter.
     When I am on the "StudentQuiz Test 1" "mod_studentquiz > View" page logged in as "admin"
     And I click on "Show more..." "link"
     Then I set the field "Rating value" to "TF 01"
@@ -82,3 +84,42 @@ Feature: Filtering in Studentquiz view.
     And I click on "Sort by Question ascending" "link"
     Then I should see "Test question 1"
     And I should see "Test question 2"
+
+  @javascript @_switch_window
+  Scenario: Test filter for StudentQuiz
+    When I am on the "StudentQuiz Test 1" "mod_studentquiz > View" page logged in as "admin"
+    And I choose "Preview" action for "Test question 1" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Disapproved"
+    And I click on "Change state" "button"
+    And I switch to the main window
+    And I choose "Preview" action for "Test question 2" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Approved"
+    And I click on "Change state" "button"
+    And I switch to the main window
+    And I choose "Preview" action for "Test question 3" in the question bank
+    And I switch to "questionpreview" window
+    And I set the field "statetype" to "Changed"
+    And I click on "Change state" "button"
+    And I switch to the main window
+
+    And I click on "Disapproved" "link"
+    And I press "id_submitbutton"
+    Then I should see "Test question 1"
+    And I should not see "Test question 2"
+    And I should not see "Test question 3"
+    And I should not see "Test question 4"
+
+    And I click on "Approved" "link"
+    And I press "id_submitbutton"
+    And I should see "Test question 1"
+    And I should see "Test question 2"
+    And I should not see "Test question 3"
+    And I should not see "Test question 4"
+
+    And I expand all fieldsets
+    And I set the field "id_name" to "Test question 1"
+    And I press "id_submitbutton"
+    And I should see "Test question 1"
+    And I should not see "Test question 2"

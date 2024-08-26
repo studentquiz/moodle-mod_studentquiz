@@ -81,17 +81,27 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
 
         $mform->addElement('header', 'filtertab', get_string('filter', 'studentquiz'));
         $mform->setExpanded('filtertab', true);
-        $fastfilters = array();
-        foreach ($this->fields as $field) {
-            if ($field instanceof toggle_filter_checkbox) {
-                $field->setup_form_in_group($mform, $fastfilters);
+        $grouplabel = [
+            get_string('state_column_name', 'studentquiz'),
+            get_string('filter_label_owner', 'studentquiz'),
+            get_string('filter_label_difficulty_level', 'studentquiz'),
+            get_string('filter_label_rates', 'studentquiz')
+        ];
+        $i = 0;
+        foreach ($this->fields as $fieldgroup) {
+            $fasterfiltergroup = [];
+            foreach ($fieldgroup as $f) {
+                if ($f instanceof toggle_filter_checkbox) {
+                    $f->setup_form_in_group($mform, $fasterfiltergroup);
+                } else {
+                    $f->setupForm($mform);
+                }
             }
-        }
-        $mform->addGroup($fastfilters, 'fastfilters', get_string('filter_label_fast_filters', 'studentquiz'), ' ', false);
-        foreach ($this->fields as $field) {
-            if (!$field instanceof toggle_filter_checkbox) {
-                $field->setupForm($mform);
+            if ($fasterfiltergroup) {
+                $mform->addGroup($fasterfiltergroup, 'fastfiltersgroup' . $i,
+                    $grouplabel[$i], '', false);
             }
+            $i++;
         }
         $group = array();
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
@@ -376,6 +386,9 @@ class toggle_filter_checkbox extends user_filter_checkbox {
                 break;
             case 2:
                 $res = "$this->field = $this->value";
+                break;
+            case 3:
+                $res = "$this->field <> $this->value";
                 break;
             default:
                 $res = '';

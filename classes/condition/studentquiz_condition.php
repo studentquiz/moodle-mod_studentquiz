@@ -123,56 +123,59 @@ class studentquiz_condition extends \core_question\local\bank\condition {
             $this->tests = array();
             $this->customparams = array();
 
-            foreach ($this->filterform->get_fields() as $field) {
+            foreach ($this->filterform->get_fields() as $fieldgroup) {
+                $conditionsgroup = [];
+                foreach ($fieldgroup as $field) {
+                    // Validate input.
+                    $data = $field->check_data($adddata);
 
-                // Validate input.
-                $data = $field->check_data($adddata);
+                    // If input is valid, at least one filter was activated.
+                    if ($data === false) {
+                        continue;
+                    } else {
+                        $this->isfilteractive = true;
+                    }
 
-                // If input is valid, at least one filter was activated.
-                if ($data === false) {
-                    continue;
-                } else {
-                    $this->isfilteractive = true;
-                }
+                    $sqldata = $field->get_sql_filter($data);
 
-                $sqldata = $field->get_sql_filter($data);
+                    // Disable filtering by firstname if anonymized.
+                    if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                            !$this->report->is_anonymized())) {
+                        continue;
+                    }
 
-                // Disable filtering by firstname if anonymized.
-                if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
-                    !$this->report->is_anonymized())) {
-                    continue;
-                }
+                    // Disable filtering by firstname if anonymized.
+                    if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                            !$this->report->is_anonymized())) {
+                        continue;
+                    }
 
-                // Disable filtering by firstname if anonymized.
-                if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
-                    !$this->report->is_anonymized())) {
-                    continue;
-                }
-
-                // Respect leading and ending ',' for the tagarray as provided by tag_column.php.
-                if ($field->_name == 'tagarray') {
-                    foreach ($sqldata[1] as $key => $value) {
-                        if (!empty($value)) {
-                            $sqldata[1][$key] = "%,$value,%";
-                        } else {
-                            $sqldata[0] = "$field->_name IS NULL";
+                    // Respect leading and ending ',' for the tagarray as provided by tag_column.php.
+                    if ($field->_name == 'tagarray') {
+                        foreach ($sqldata[1] as $key => $value) {
+                            if (!empty($value)) {
+                                $sqldata[1][$key] = "%,$value,%";
+                            } else {
+                                $sqldata[0] = "$field->_name IS NULL";
+                            }
                         }
                     }
-                }
 
-                // TODO: cleanup that buggy filter function to remove this!
-                // The user_filter_checkbox class has a buggy get_sql_filter function.
-                if ($field->_name == 'createdby') {
-                    $sqldata = array($field->_name . ' = ' . intval($data['value']), array());
-                }
+                    // TODO: cleanup that buggy filter function to remove this!
+                    // The user_filter_checkbox class has a buggy get_sql_filter function.
+                    if ($field->_name == 'createdby') {
+                        $sqldata = [$field->_name . ' = ' . intval($data['value']), []];
+                    }
 
-                if (is_array($sqldata)) {
-                    $sqldata[0] = str_replace($field->_name, $this->get_sql_field($field->_name)
-                        , $sqldata[0]);
-                    $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
-                    $this->tests[] = '((' . $sqldata[0] . '))';
-                    $this->customparams = array_merge($this->customparams, $sqldata[1]);
+                    if (is_array($sqldata)) {
+                        $sqldata[0] = str_replace($field->_name, $this->get_sql_field($field->_name)
+                            , $sqldata[0]);
+                        $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
+                        $conditionsgroup[] = $sqldata[0];
+                        $this->customparams = array_merge($this->customparams, $sqldata[1]);
+                    }
                 }
+                $this->tests[] = $conditionsgroup;
             }
         }
     }
@@ -191,7 +194,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                     ELSE 0
                 END)', $sqldata);
         }
-        if ($name == "onlynew") {
+        if ($name == 'onlynew' || $name == 'onlyanswered') {
             return str_replace('myattempts', 'sp.attempts', $sqldata);
         }
         return $sqldata;
@@ -256,7 +259,13 @@ class studentquiz_condition extends \core_question\local\bank\condition {
      * @return string SQL fragment. Must use named parameters.
      */
     public function where() {
-        return implode(' AND ', $this->tests);
+        $conditions = [];
+        foreach ($this->tests as $groupconditions) {
+            if (!empty($groupconditions)) {
+                $conditions[] = '(' . implode(' OR ', $groupconditions) . ')';
+            }
+        }
+        return implode(' AND ', $conditions);
     }
 
     /**
