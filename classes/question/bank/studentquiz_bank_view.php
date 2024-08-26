@@ -418,99 +418,118 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
         $this->fields = array();
 
         // Fast filters.
-        $this->fields[] = new \toggle_filter_checkbox('onlynew',
+        $stategroup = [];
+        $stategroup[] = new \toggle_filter_checkbox('only_new_state',
+            get_string('state_newplural', 'studentquiz'), false, 'sqq.state',
+            ['approved'], 2, studentquiz_helper::STATE_NEW);
+        $stategroup[] = new \toggle_filter_checkbox('only_changed_state',
+            get_string('state_changedplural', 'studentquiz'), false, 'sqq.state',        // Fast filters.
+
+            ['approved'], 2, studentquiz_helper::STATE_CHANGED);
+        $stategroup[] = new \toggle_filter_checkbox('only_reviewable_state',
+            get_string('state_reviewableplural', 'studentquiz'), false, 'sqq.state',
+            ['approved'], 2, studentquiz_helper::STATE_REVIEWABLE);
+        $stategroup[] = new \toggle_filter_checkbox('only_approved_state',
+            get_string('state_approvedplural', 'studentquiz'), false, 'sqq.state',
+            ['approved'], 2, studentquiz_helper::STATE_APPROVED);
+        $stategroup[] = new \toggle_filter_checkbox('only_disapproved_state',
+            get_string('state_disapprovedplural', 'studentquiz'), false, 'sqq.state',
+            ['approved'], 2, studentquiz_helper::STATE_DISAPPROVED);
+        $stategroup[] = new \toggle_filter_checkbox('onlynew',
             get_string('filter_label_onlynew', 'studentquiz'),
-            false, 'myattempts', array('myattempts', 'myattempts_op'), 0, 0,
+            false, 'myattempts', ['myattempts', 'myattempts_op'], 0, 0,
             get_string('filter_label_onlynew_help', 'studentquiz'));
+        $stategroup[] = new \toggle_filter_checkbox('onlyanswered',
+            get_string('filter_label_answered', 'studentquiz'),
+            false, 'myattempts', ['myattempts', 'myattempts_op'], 1, 1,
+            get_string('filter_label_onlynew_help', 'studentquiz'));
+        $this->fields[] = $stategroup;
 
-        $this->fields[] = new \toggle_filter_checkbox('only_new_state',
-                get_string('state_newplural', 'studentquiz'), false, 'sqq.state',
-                ['approved'], 2, studentquiz_helper::STATE_NEW);
-        $this->fields[] = new \toggle_filter_checkbox('only_approved_state',
-                get_string('state_approvedplural', 'studentquiz'), false, 'sqq.state',
-                ['approved'], 2, studentquiz_helper::STATE_APPROVED);
-        $this->fields[] = new \toggle_filter_checkbox('only_disapproved_state',
-                get_string('state_disapprovedplural', 'studentquiz'), false, 'sqq.state',
-                ['approved'], 2, studentquiz_helper::STATE_DISAPPROVED);
-        $this->fields[] = new \toggle_filter_checkbox('only_changed_state',
-                get_string('state_changedplural', 'studentquiz'), false, 'sqq.state',
-                ['approved'], 2, studentquiz_helper::STATE_CHANGED);
-        $this->fields[] = new \toggle_filter_checkbox('only_reviewable_state',
-                get_string('state_reviewableplural', 'studentquiz'), false, 'sqq.state',
-                ['approved'], 2, studentquiz_helper::STATE_REVIEWABLE);
-
-        $this->fields[] = new \toggle_filter_checkbox('onlygood',
-            get_string('filter_label_onlygood', 'studentquiz'),
-                false, 'vo.rate', array('rate', 'rate_op'), 1, 4,
-            get_string('filter_label_onlygood_help', 'studentquiz', '4'));
-
-        $this->fields[] = new \toggle_filter_checkbox('onlymine',
+        $ownergroup = [];
+        $ownergroup[] = new \toggle_filter_checkbox('onlymine',
             get_string('filter_label_onlymine', 'studentquiz'),
-            false, 'q.createdby', array('createdby'), 2, $this->userid,
+            false, 'q.createdby', ['createdby'], 2, $this->userid,
             get_string('filter_label_onlymine_help', 'studentquiz'));
 
-        $this->fields[] = new \toggle_filter_checkbox('onlydifficultforme',
+        $ownergroup[] = new \toggle_filter_checkbox('notmine',
+            get_string('filter_label_notmine', 'studentquiz'),
+            false, 'q.createdby', ['createdby'], 3, $this->userid,
+            get_string('filter_label_notmine_help', 'studentquiz'));
+        $this->fields[]= $ownergroup;
+
+        $difficultygroup = [];
+        $difficultygroup[] = new \toggle_filter_checkbox('onlydifficultforme',
             get_string('filter_label_onlydifficultforme', 'studentquiz'),
-            false, 'mydifficulty', array('mydifficulty', 'mydifficulty_op'), 1, 0.60,
+            false, 'mydifficulty', ['mydifficulty', 'mydifficulty_op'], 1, 0.60,
             get_string('filter_label_onlydifficultforme_help', 'studentquiz', '60'));
 
-        $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
+        $difficultygroup[] = new \toggle_filter_checkbox('onlydifficult',
             get_string('filter_label_onlydifficult', 'studentquiz'),
-            false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.60,
+            false, 'dl.difficultylevel', ['difficultylevel', 'difficultylevel_op'], 1, 0.60,
             get_string('filter_label_onlydifficult_help', 'studentquiz', '60'));
 
+        $this->fields[] = $difficultygroup;
+        $ratinggroup = [];
+        $ratinggroup[] = new \toggle_filter_checkbox('onlygood',
+            get_string('filter_label_onlygood', 'studentquiz'),
+            false, 'vo.rate', ['rate', 'rate_op'], 1, 4,
+            get_string('filter_label_onlygood_help', 'studentquiz', '4'));
+        $this->fields[] = $ratinggroup;
+
         // Advanced filters.
-        $this->fields[] = new \studentquiz_user_filter_text('tagarray', get_string('filter_label_tags', 'studentquiz'),
+        $advancedgroups = [];
+        $advancedgroups[] = new \studentquiz_user_filter_text('tagarray', get_string('filter_label_tags', 'studentquiz'),
             true, 'tagarray');
 
-        $states = array();
+        $states = [];
         foreach (studentquiz_helper::$statename as $num => $name) {
             if ($num == studentquiz_helper::STATE_DELETE || $num == studentquiz_helper::STATE_HIDE) {
                 continue;
             }
             $states[$num] = get_string('state_'.$name, 'studentquiz');
         }
-        $this->fields[] = new \user_filter_simpleselect('state', get_string('state_column_name', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_simpleselect('state', get_string('state_column_name', 'studentquiz'),
             true, 'state', $states);
 
-        $this->fields[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
             true, 'rate');
-        $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
             true, 'difficultylevel');
 
-        $this->fields[] = new \user_filter_number('publiccomment', get_string('filter_label_comment', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_number('publiccomment', get_string('filter_label_comment', 'studentquiz'),
             true, 'publiccomment');
-        $this->fields[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
+        $advancedgroups[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
             true, 'name');
-        $this->fields[] = new \studentquiz_user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
+        $advancedgroups[] = new \studentquiz_user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
             true, 'questiontext');
 
         if ($anonymize) {
-            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
+            $advancedgroups[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
                 true, 'createdby');
         } else {
-            $this->fields[] = new \studentquiz_user_filter_text('firstname', get_string('firstname'), true, 'firstname');
-            $this->fields[] = new \studentquiz_user_filter_text('lastname', get_string('lastname'), true, 'lastname');
+            $advancedgroups[] = new \studentquiz_user_filter_text('firstname', get_string('firstname'), true, 'firstname');
+            $advancedgroups[] = new \studentquiz_user_filter_text('lastname', get_string('lastname'), true, 'lastname');
         }
 
-        $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
+        $advancedgroups[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
             true, 'timecreated');
 
-        $this->fields[] = new \user_filter_simpleselect('lastanswercorrect',
+        $advancedgroups[] = new \user_filter_simpleselect('lastanswercorrect',
             get_string('filter_label_mylastattempt', 'studentquiz'),
-            true, 'lastanswercorrect', array(
+            true, 'lastanswercorrect', [
                 '1' => get_string('lastattempt_right', 'studentquiz'),
                 '0' => get_string('lastattempt_wrong', 'studentquiz')
-            ));
+            ]);
 
-        $this->fields[] = new \user_filter_number('myattempts', get_string('filter_label_myattempts', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_number('myattempts', get_string('filter_label_myattempts', 'studentquiz'),
             true, 'myattempts');
 
-        $this->fields[] = new \user_filter_number('mydifficulty', get_string('filter_label_mydifficulty', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_number('mydifficulty', get_string('filter_label_mydifficulty', 'studentquiz'),
             true, 'mydifficulty');
 
-        $this->fields[] = new \user_filter_number('myrate', get_string('filter_label_myrate', 'studentquiz'),
+        $advancedgroups[] = new \user_filter_number('myrate', get_string('filter_label_myrate', 'studentquiz'),
             true, 'myrate');
+        $this->fields[] = $advancedgroups;
     }
 
      /**

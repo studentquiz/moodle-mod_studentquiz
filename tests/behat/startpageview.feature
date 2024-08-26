@@ -65,7 +65,6 @@ Feature: View comprehensive information about this studentquiz activity
 
     # Check the Fast filter.
     Then "Filter" "fieldset" should be visible
-    And I should see "Fast filter for questions"
     And I click on "Unanswered" "link"
     And I press "id_submitbutton"
     And I should see "Question 1"
