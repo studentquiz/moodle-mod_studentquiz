@@ -1,5 +1,15 @@
 # Change log for the StudentQuiz activity
 
+
+## Version 5.3.0
+
+* This release fixes some security issues. You are strongly recommended to upgrade.
+* This release is compatible with Moodle 4.4.
+* Fixed an issue with activity completion in Moodle 4.3.
+* History table now supports anonymous users properly.
+* Improve performance of statistics calculations.
+* Fix some layout issues.
+
 ## Version 5.2.1
 
 * Added Compatability with Moodle 4.3

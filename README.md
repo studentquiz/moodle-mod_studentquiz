@@ -46,9 +46,9 @@ You can find manuals for each role in the [manuals website](https://docs.moodle.
 
 Supported and tested with:
 
-- Moodle 4.0, 4.1, 4.2 and 4.3 - if you need a version compatible with earlier versions of Moodle, look on the
+- Moodle 4.3 and 4.4 - if you need a version compatible with earlier versions of Moodle, look on the
   (MOODLE_3X_STABLE branch)[https://github.com/studentquiz/moodle-mod_studentquiz/tree/MOODLE_3X_STABLE]
-- PHP 7.3, 7.4, 8.0, 8.1 and 8.2
+- PHP 8.1 and 8.2
 - Databases: MySQL, MariaDB, PostgreSQL, SQL Server 2017 (experimental)
 - Browsers: Firefox, Chrome, Safari, Edge
 
