@@ -47,7 +47,7 @@ Feature: Create comment as an user
     # Wait for comment area init.
     And I wait until the page is ready
     # Enter "Comment 1".
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
@@ -55,35 +55,35 @@ Feature: Create comment as an user
     # Wait for different created time.
     And I wait "1" seconds
     # Enter "Comment 2"
-    And I enter the text "Comment 2" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 2"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(2)" "css_element" exists
     And I should see "Comment 2" in the ".studentquiz-comment-item:nth-child(2) .studentquiz-comment-text" "css_element"
     And I wait "1" seconds
     # Enter "Comment 3"
-    And I enter the text "Comment 3" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 3"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(3)" "css_element" exists
     And I should see "Comment 3" in the ".studentquiz-comment-item:nth-child(3) .studentquiz-comment-text" "css_element"
     And I wait "1" seconds
     # Enter "Comment 4"
-    And I enter the text "Comment 4" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 4"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(4)" "css_element" exists
     And I should see "Comment 4" in the ".studentquiz-comment-item:nth-child(4) .studentquiz-comment-text" "css_element"
     And I wait "1" seconds
     # Enter "Comment 5"
-    And I enter the text "Comment 5" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 5"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(5)" "css_element" exists
     And I should see "Comment 5" in the ".studentquiz-comment-item:nth-child(5) .studentquiz-comment-text" "css_element"
     And I wait "1" seconds
     # Enter "Comment 6"
-    And I enter the text "Comment 6" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 6"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(6)" "css_element" exists
@@ -144,7 +144,7 @@ Feature: Create comment as an user
     And I press "Check"
     # Wait for comment area init.
     And I wait until the page is ready
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
@@ -153,7 +153,7 @@ Feature: Create comment as an user
     And I click on "Reply" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
     # Wait for reply init.
     And I wait until the page is ready
-    And I enter the text "Reply comment 1" into the "Add reply" editor
+    And I set the field "Add reply" to "Reply comment 1"
     And I press "Add reply"
     And I wait until the page is ready
     And I should see "1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
@@ -165,7 +165,7 @@ Feature: Create comment as an user
     And I click on "Start Quiz" "button"
     And I set the field "True" to "1"
     And I press "Check"
-    And I enter the text "Comment 1 with long content: simply dummy text of the printing and typesetting industry." into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1 with long content: simply dummy text of the printing and typesetting industry."
     And I press "Add comment"
     And I press "Collapse all comments"
     Then I should see "Comment 1 with long content: simply dummy text of the printing ..."
@@ -179,7 +179,7 @@ Feature: Create comment as an user
     And I press "Check"
     # Wait for comment area init.
     And I wait until the page is ready
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
@@ -206,7 +206,7 @@ Feature: Create comment as an user
     And I wait until the page is ready
     And I press "Finish"
     And I should see "Please comment"
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I press "Finish"
@@ -221,7 +221,7 @@ Feature: Create comment as an user
     And I press "Check"
     # Wait for comment area init.
     And I wait until the page is ready
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
@@ -252,7 +252,7 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
@@ -298,7 +298,7 @@ Feature: Create comment as an user
     And I press "id_submitbutton"
     And I choose "Preview" action for "Question of Student 1" in the question bank
     And I switch to "questionpreview" window
-    And I enter the text "Approved the question" into the "Add private comment (these are between the student and tutor only)" editor
+    And I set the field "Add private comment (these are between the student and tutor only)" to "Approved the question"
     And I press "Add comment"
     And I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "teacher"
     And I choose "Preview" action for "Question of Student 1" in the question bank
@@ -319,7 +319,7 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment 2" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 2"
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
@@ -329,7 +329,7 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment 3" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 3"
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
@@ -339,7 +339,7 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment 4" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 4"
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
@@ -349,7 +349,7 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment 5" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 5"
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
@@ -361,10 +361,10 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment 6" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 6"
     And I press "Add comment"
     And I wait "1" seconds
-    And I enter the text "Comment 7" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 7"
     And I press "Add comment"
     And I wait until the page is ready
     And I log out
@@ -442,7 +442,7 @@ Feature: Create comment as an user
     And I set the field "True" to "1"
     And I press "Check"
     And I wait until the page is ready
-    And I enter the text "Comment test user 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment test user 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I should see "Date" in the ".studentquiz-comment-filters" "css_element"
@@ -451,7 +451,12 @@ Feature: Create comment as an user
 
   @javascript
   Scenario: Test placeholder display after click Add comment.
-    When I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
+    Given I log in as "admin"
+    And I follow "Preferences" in the user menu
+    And I follow "Editor preferences"
+    And I set the field "Text editor" to "Atto HTML editor"
+    And I press "Save changes"
+    When I am on the "StudentQuiz 1" "mod_studentquiz > View" page
     And I click on "Start Quiz" "button"
     And I set the field "True" to "1"
     And I press "Check"
@@ -478,7 +483,7 @@ Feature: Create comment as an user
     And I press "Check"
     # Wait for comment area init.
     And I wait until the page is ready
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
@@ -489,7 +494,7 @@ Feature: Create comment as an user
     # Try to edit.
     And I click on "Edit" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
     And I wait until the page is ready
-    And I enter the text "Comment 1 edited" into the "Edit comment" editor
+    And I set the field "Edit comment" to "Comment 1 edited"
     And I press "Save changes"
     And I wait until the page is ready
     And I should see "Comment 1 edited" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
@@ -503,7 +508,7 @@ Feature: Create comment as an user
     And I click on "Reply" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
     # Wait for reply init.
     And I wait until the page is ready
-    And I enter the text "Reply comment 1" into the "Add reply" editor
+    And I set the field "Add reply" to "Reply comment 1"
     And I press "Add reply"
     And I wait until the page is ready
     And I should see "Reply comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
@@ -513,7 +518,7 @@ Feature: Create comment as an user
     # Try to edit reply.
     And I click on "Edit" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-box" "css_element"
     And I wait until the page is ready
-    And I enter the text "Reply comment 1 edited" into the "Edit comment" editor
+    And I set the field "Edit comment" to "Reply comment 1 edited"
     And I press "Save changes"
     And I wait until the page is ready
     And I should see "Reply comment 1 edited" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-replies .studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
@@ -559,7 +564,7 @@ Feature: Create comment as an user
     # Wait for comment area init.
     And I wait until the page is ready
     # Try to comment.
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists

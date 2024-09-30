@@ -49,13 +49,6 @@ class comment_simple_editor extends MoodleQuickForm_editor {
      * @param array $options - Options of element.
      */
     public function __construct($elementname = null, $elementlabel = null, $attributes = [], $options = []) {
-        global $CFG;
-
-        // HACK: There is no way to correctly force a specific editor. Unfortunately the comment area is highly
-        // specific to the atto editor, both here in php and javascript code. We temporarely fake the atto to be the
-        // only available editor. ref: https://github.com/frankkoch/moodle-mod_studentquiz/issues/283.
-        $CFG->texteditors = 'atto';
-
         $attributes = array_merge($attributes, self::ATTRIBUTES);
         $options = array_merge($options, self::OPTIONS);
         $this->_options['atto:toolbar'] = get_config('studentquiz', 'comment_editor_toolbar');

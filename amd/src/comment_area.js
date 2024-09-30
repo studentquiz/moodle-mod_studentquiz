@@ -87,7 +87,10 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 ATTO: {
                     CONTENT_WRAP: '.editor_atto_content_wrap',
                     CONTENT: '.editor_atto_content',
-                    TOOLBAR: '.editor_atto_toolbar'
+                    TOOLBAR: '.editor_atto_toolbar',
+                },
+                TINYMCE: {
+                    CONTENT: '.tox-edit-area',
                 },
                 COMMENT_ID: '#comment_',
                 // Is used when server render. We need to collect some stored data attributes to load events.
@@ -104,6 +107,17 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                 BTN_EDIT_REPLY: '.studentquiz-comment-btneditreply',
                 ATTO_HTML_BUTTON: 'button.atto_html_button',
                 POST_FOOTER: '.studentquiz-comment-postfooter'
+            },
+            EDITOR: {
+                ATTO: {
+                    TYPE: 'atto',
+                },
+                TINYMCE: {
+                    TYPE: 'tiny',
+                },
+                TEXTAREA: {
+                    TYPE: 'textarea',
+                },
             },
             get: function() {
                 return {
@@ -253,19 +267,24 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         // Interval to init atto editor, there are time when Atto's Javascript slow to init the editor, so we
                         // check interval here to make sure the Atto is init before calling our script.
                         var interval = setInterval(function() {
-                            if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                                 self.bindEditorEvent(self.formSelector);
                                 isEditorLoaded = true;
                                 clearInterval(interval);
                                 M.util.js_complete(t.ACTION_EDITOR_INIT);
-                            }
                         }, 500);
 
                         // If the editor has some content that has been restored
                         // then check the editor content.
                         var editorWaiting = setInterval(function() {
                             if (isEditorLoaded) {
-                                self.checkEditorContent(self.formSelector);
+                                if (self.formSelector.find(t.SELECTOR.TINYMCE.CONTENT).length !== 0) {
+                                    const textareaSelector = self.formSelector.find(t.SELECTOR.TEXTAREA);
+                                    const tinyEditorId = textareaSelector.attr('id');
+                                    const editor = window.tinyMCE.get(tinyEditorId);
+                                    self.checkEditorContent(self.formSelector, editor.getBody(), t.EDITOR.TINYMCE.TYPE);
+                                } else {
+                                    self.checkEditorContent(self.formSelector);
+                                }
                                 clearInterval(editorWaiting);
                             }
                         }, 1000);
@@ -374,14 +393,20 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 // Clear form in setTimeout to prevent require message still shown when reset on Firefox.
                                 setTimeout(function() {
                                     // Clear form data.
-                                    formSelector.trigger('reset');
-                                    // Clear atto editor data.
-                                    if (!formSelector.find('#id_editor_question_' + unique + 'editable').is(':visible')) {
-                                        // HTML mode. Switch back to normal mode.
-                                        self.elementSelector.find(t.SELECTOR.ATTO_HTML_BUTTON).trigger('click');
+                                    if (self.formSelector.find(t.SELECTOR.TINYMCE.CONTENT).length !== 0) {
+                                        self.resetContent(formSelector, t.EDITOR.TINYMCE.TYPE);
+                                    } else if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
+                                        self.formSelector.trigger('reset');
+                                        // Clear atto editor data.
+                                        if (!formSelector.find('#id_editor_question_' + unique + 'editable').is(':visible')) {
+                                            // HTML mode. Switch back to normal mode.
+                                            self.elementSelector.find(t.SELECTOR.ATTO_HTML_BUTTON).trigger('click');
+                                        }
+                                        formSelector.find('#id_editor_question_' + unique + 'editable').empty();
+                                        formSelector.find(t.SELECTOR.TEXTAREA).trigger('change');
+                                    } else {
+                                        self.resetContent(formSelector, t.EDITOR.TEXTAREA.TYPE);
                                     }
-                                    formSelector.find('#id_editor_question_' + unique + 'editable').empty();
-                                    formSelector.find(t.SELECTOR.TEXTAREA).trigger('change');
                                     M.util.js_complete(t.ACTION_CLEAR_FORM);
                                 });
                                 var data = self.convertForTemplate(response, true);
@@ -1327,17 +1352,49 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                     },
 
                     /**
-                     * Bind Atto event.
+                     * Binds event handlers to the TinyMCE editor within the specified form.
                      *
-                     * @param {jQuery} formSelector
+                     * This function sets up a periodic check to ensure that the TinyMCE editor
+                     * is initialized. Once initialized, it binds a keydown event to the editor
+                     * that triggers the `checkEditorContent` function, allowing content validation
+                     * to occur each time the user types within the editor.
+                     *
+                     * @param {jQuery} formSelector - The jQuery object representing the form containing the TinyMCE editor.
                      */
-                    bindEditorEvent: function(formSelector) {
+                    bindHandleTinyEditor: function(formSelector) {
+                        var self = this;
+                        const textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
+                        const tinyEditorId = textareaSelector.attr('id');
+                        const intervalID = setInterval(function() {
+                            if (window.tinyMCE) {
+                                const editor = window.tinyMCE.get(tinyEditorId);
+                                editor.on("input", function() {
+                                    self.checkEditorContent(formSelector, editor.getBody(), t.EDITOR.TINYMCE.TYPE);
+                                });
+                                // This event will be triggered when user paste content.
+                                editor.on("change", function() {
+                                    self.checkEditorContent(formSelector, editor.getBody(), t.EDITOR.TINYMCE.TYPE);
+                                });
+                                clearInterval(intervalID);
+                            }
+                        }, 100);
+                    },
+
+                    /**
+                     * Binds event handlers and initializes the Atto editor within the specified form.
+                     *
+                     * This function sets up the Atto editor by triggering initial placeholder settings,
+                     * displaying the toolbar, and setting up event listeners for content changes. It uses
+                     * a MutationObserver to monitor changes within the Atto editor, allowing dynamic
+                     * validation of the editor content. It also sets up a periodic check to handle draft content.
+                     *
+                     * @param {jQuery} formSelector - The jQuery object representing the form containing the Atto editor.
+                     */
+                    bindHandleAttoEditor: function(formSelector) {
                         var self = this;
                         M.util.js_pending('init_editor');
-
                         self.triggerAttoNoContent(formSelector);
                         self.setPlaceholder(formSelector, formSelector.attr('data-textarea-placeholder'));
-
                         formSelector.find(t.SELECTOR.ATTO.TOOLBAR).fadeIn();
                         var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
                         var attoEditableId = textareaSelector.attr('id') + 'editable';
@@ -1364,6 +1421,66 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         setTimeout(function() {
                             clearInterval(interval);
                         }, 5000);
+                    },
+
+                    /**
+                     * Binds event handlers to a standard textarea editor within the specified form.
+                     *
+                     * This function sets up an input event listener on the textarea to monitor changes
+                     * in its content. Whenever the user types or modifies the content, the `checkEditorContent`
+                     * function is triggered to validate the editor's content based on the textarea type.
+                     *
+                     * @param {jQuery} formSelector - The jQuery object representing the form containing the textarea editor.
+                     */
+                    bindHandleTextareaEditor: function(formSelector) {
+                        var self = this;
+                        const textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
+                        if (textareaSelector) {
+                            textareaSelector.on('input', function() {
+                                self.checkEditorContent(formSelector, textareaSelector[0],
+                                    t.EDITOR.TEXTAREA.TYPE);
+                            });
+                        }
+                    },
+
+                    /**
+                     * Bind event handlers for the text editor in the form.
+                     * This function checks the form for the presence of different types of text editors.
+                     * It supports TinyMCE, Atto, or a basic textarea.
+                     * Based on the editor found, it calls the appropriate handler function to bind the necessary events.
+                     *
+                     * @param {jQuery} formSelector - A jQuery selector representing the form containing the editor.
+                     */
+                    bindEditorEvent: function(formSelector) {
+                        var self = this;
+                        if (self.formSelector.find(t.SELECTOR.TINYMCE.CONTENT).length !== 0) {
+                            self.bindHandleTinyEditor(formSelector);
+                        } else if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
+                            self.bindHandleAttoEditor(formSelector);
+                        } else {
+                           self.bindHandleTextareaEditor(formSelector);
+                        }
+                    },
+
+                    /**
+                     * Resets the content of the editor within the specified form to an empty state.
+                     *
+                     * This function checks the type of the editor (TinyMCE or standard textarea) and clears
+                     * its content accordingly. For TinyMCE editors, it uses the `setContent` method to clear
+                     * the content. For standard textareas, it directly sets the value to an empty string.
+                     *
+                     * @param {jQuery} formSelector - The jQuery object representing the form containing the editor.
+                     * @param {string} type - The type of the editor, which can be TinyMCE or textarea.
+                     */
+                    resetContent: function(formSelector, type) {
+                        const textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
+                        if (type === t.EDITOR.TINYMCE.TYPE) {
+                            const tinyEditorId = textareaSelector.attr('id');
+                            const editor = window.tinyMCE.get(tinyEditorId);
+                            editor.setContent('');
+                        } else {
+                            textareaSelector[0].value = '';
+                        }
                     },
 
                     /**
@@ -1654,29 +1771,55 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      * Check editor content.
                      *
                      * @param {jQuery} formSelector
+                     * @param {jQuery} bodyContent The body content of the editor.
+                     * @param {string} type The type of editor. ex: 'tiny', 'atto', 'textarea'.
                      */
-                    checkEditorContent: function(formSelector) {
-                        var key = 'text_change_' + Date.now();
+                    checkEditorContent: function(formSelector, bodyContent = null, type = '') {
+                        const key = 'text_change_' + Date.now();
                         M.util.js_pending(key);
-                        var textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
-                        var attoEditableId = textareaSelector.attr('id') + 'editable';
-                        var attoEditableEle = $('#' + attoEditableId);
 
-                        // This regex will match if the editor have some special cases.
+                        const textareaSelector = formSelector.find(t.SELECTOR.TEXTAREA);
+                        let editorBodyContent;
+                        let contenthtml;
+                        let condition;
+
+                        // Handle different editor types.
+                        switch (type) {
+                            case t.EDITOR.TINYMCE.TYPE:
+                                editorBodyContent = $(bodyContent);
+                                contenthtml = editorBodyContent.html();
+                                condition = t.EMPTY_CONTENT.indexOf(contenthtml) > -1 ||
+                                    editorBodyContent.text().trim().length < 1;
+                                break;
+                            case t.EDITOR.ATTO.TYPE:
+                            case '':
+                                editorBodyContent = $('#' + textareaSelector.attr('id') + 'editable');
+                                contenthtml = editorBodyContent.html();
+                                condition = t.EMPTY_CONTENT.indexOf(contenthtml) > -1 ||
+                                    editorBodyContent.text().trim().length < 1;
+                                break;
+                            case t.EDITOR.TEXTAREA.TYPE:
+                                editorBodyContent = $(bodyContent);
+                                contenthtml = editorBodyContent[0].value;
+                                condition = contenthtml.trim().length < 1;
+                                break;
+                        }
+
+                        // This regex will match if the editor has some special cases.
                         // 1) <p dir="ltr" style="text-align: left;"><br></p>.
                         // 2) <p dir="ltr" style="text-align: left;"><p><br></p></p>.
-                        // The cases are consider empty in the editor.
+                        // The cases are considered empty in the editor.
                         const regex = /^(<(?:p)[^>]*>)+(<br>)?(<\/p>)+$/;
-                        const match = regex.exec(attoEditableEle.html());
-                        if (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1 ||
-                            attoEditableEle.text().trim().length < 1) {
-                            // On initial load, attoEditableEle.html() contains <p> or <span>.
+                        const match = regex.exec(contenthtml);
+
+                        // Check the condition and set the placeholder or trigger appropriate events
+                        if (condition) {
+                            // On initial load, contenthtml contains <p> or <span>.
                             // If it matches the regex meaning the textarea is empty.
-                            if (match || (t.EMPTY_CONTENT.indexOf(attoEditableEle.html()) > -1)) {
-                                this.setPlaceholder(formSelector, formSelector.attr('data-textarea-placeholder'));
-                            } else {
-                                this.setPlaceholder(formSelector, '');
-                            }
+                            const isEmptyContent = match ||
+                                t.EMPTY_CONTENT.indexOf(contenthtml) > -1;
+                            this.setPlaceholder(formSelector, isEmptyContent ?
+                                formSelector.attr('data-textarea-placeholder') : '');
                             this.triggerAttoNoContent(formSelector);
                         } else {
                             this.setPlaceholder(formSelector, '');

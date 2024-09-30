@@ -60,8 +60,24 @@ define(['jquery'], function($) {
                         // Set focus to the first star.
                         $('.studentquiz_behaviour .rate .rating .rateable:first-child').focus();
                     } else if (forcecommenting && !hascommented) {
-                        // Set focus to atto editor.
-                        $('.studentquiz_behaviour .comments .studentquiz-comment-container .editor_atto_content').focus();
+                        const attoEditorSelector = $(
+                            '.studentquiz_behaviour .comments .studentquiz-comment-container .editor_atto_content'
+                        );
+                        const tinyMceEditorSelector = $(
+                            '.studentquiz_behaviour .comments .studentquiz-comment-container .tox-edit-area'
+                        );
+                        const textareaSelector = $('textarea[id^="id_editor_question_"]');
+                        if (attoEditorSelector.length > 0) {
+                            // Set focus to atto editor.
+                            attoEditorSelector.focus();
+                        } else if (tinyMceEditorSelector.length > 0) {
+                            const tinyEditorId = textareaSelector.attr('id');
+                            // Set focus to TinyMCE editor.
+                            window.tinymce.get(tinyEditorId).focus();
+                        } else {
+                            // Set focus to textarea.
+                            textareaSelector.focus();
+                        }
                     }
 
                     if ((!forcerating || hasrated) && (!forcecommenting || hascommented)) {
