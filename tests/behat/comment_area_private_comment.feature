@@ -33,7 +33,7 @@ Feature: As a user I can add private comment and view private comment in my own 
     And I press "id_submitbutton"
     And I choose "Preview" action for "Question 1" in the question bank
     And I switch to "questionpreview" window
-    And I enter the text "Submitted for approval" into the "Add private comment (these are between the student and tutor only)" editor
+    And I set the field "Add private comment (these are between the student and tutor only)" to "Submitted for approval"
     And I press "Add comment"
     Then I should see "Submitted for approval" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
     And I click on "Public comments" "link"
@@ -47,7 +47,7 @@ Feature: As a user I can add private comment and view private comment in my own 
     And I choose "Preview" action for "Question 1" in the question bank
     And I switch to "questionpreview" window
     And I should see "Submitted for approval"
-    And I enter the text "A private comment from teacher" into the "Add private comment (these are between the student and tutor only)" editor
+    And I set the field "Add private comment (these are between the student and tutor only)" to "A private comment from teacher"
     And I press "Add comment"
     And I switch to the main window
     And I log out
@@ -60,7 +60,7 @@ Feature: As a user I can add private comment and view private comment in my own 
     And I should see "Rating and public commenting are not available for your own question in Preview mode."
     And I click on "Private comments" "link"
     And I should see "A private comment from teacher"
-    And I enter the text "Updated for approval again" into the "Add private comment (these are between the student and tutor only)" editor
+    And I set the field "Add private comment (these are between the student and tutor only)" to "Updated for approval again"
     And I press "Add comment"
     And I switch to the main window
     And I reload the page
@@ -72,7 +72,7 @@ Feature: As a user I can add private comment and view private comment in my own 
     And I choose "Preview" action for "Question 1" in the question bank
     And I switch to "questionpreview" window
     And I should see "Updated for approval again"
-    And I enter the text "Approved the question" into the "Add private comment (these are between the student and tutor only)" editor
+    And I set the field "Add private comment (these are between the student and tutor only)" to "Approved the question"
     And I press "Add comment"
     And I set the field "statetype" to "Approved"
     And I click on "Change state" "button"
@@ -94,7 +94,7 @@ Feature: As a user I can add private comment and view private comment in my own 
     And I click on "Start Quiz" "button"
     And I set the field "True" to "1"
     And I press "Check"
-    And I enter the text "Public comment of student 2" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Public comment of student 2"
     And I press "Add comment"
     And I log out
     And I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "student1"

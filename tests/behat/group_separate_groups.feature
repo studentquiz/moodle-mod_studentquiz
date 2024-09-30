@@ -153,7 +153,7 @@ Feature: Students can create questions and practice in separate groups.
     And I click on "Start Quiz" "button"
     And I set the field "True" to "1"
     And I press "Check"
-    And I enter the text "Comment 1" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
     Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"

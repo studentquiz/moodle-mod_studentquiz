@@ -34,7 +34,7 @@ Feature: Preview a question as a student
     And I press "Check"
     And I wait until the page is ready
     And the state of "What is pi to two d.p.?" question is shown as "Correct"
-    And I enter the text "Very good question" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Very good question"
     And I press "Add comment"
     And I wait until the page is ready
     And I should see "Very good question"
@@ -83,7 +83,7 @@ Feature: Preview a question as a student
     When I choose "Preview" action for "Example question 2" in the question bank
     And I switch to "questionpreview" window
     And "Add public comment" "field" should exist
-    And I enter the text "Comment test" into the "Add public comment" editor
+    And I set the field "Add public comment" to "Comment test"
     And I press "Add comment"
     And I wait until the page is ready
     And I should see "Comment test"
