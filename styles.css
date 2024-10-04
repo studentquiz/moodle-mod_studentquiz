@@ -858,3 +858,34 @@
 body.cm-type-studentquiz.path-question-type #fitem_id_status {
     display: none;
 }
+
+/* Hide all the toolbars and buttons by default.
+    The child represents the following:
+    1: Edit in menubar
+    2: View in menubar
+    3: Insert in menubar
+    6: Table in menubar
+    7: Help in menubar
+*/
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role="menubar"] button:nth-child(1),
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role="menubar"] button:nth-child(2),
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role="menubar"] button:nth-child(3),
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role="menubar"] button:nth-child(6),
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role="menubar"] button:nth-child(7),
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button {
+    display: none;
+}
+
+/* Show only the custom toolbar and button. */
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button[aria-label="Bold"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button[aria-label="Italic"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button[aria-label="Link"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button[aria-label="Unlink"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button[aria-label="Bullet list"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[role='toolbar'] button[aria-label="Numbered list"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[title="formatting"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[title="content"],
+.path-mod-studentquiz .studentquiz-comment-container .tox-tinymce div[title="lists"] {
+    display: flex;
+}
