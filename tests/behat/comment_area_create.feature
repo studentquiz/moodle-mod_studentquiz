@@ -46,6 +46,10 @@ Feature: Create comment as an user
     And I press "Check"
     # Wait for comment area init.
     And I wait until the page is ready
+    # Check the custom toolbar and menubar.
+    And I should see "Format"
+    And I should see "Tools"
+    And "button[aria-label='Undo']" "css_element" should not be visible
     # Enter "Comment 1".
     And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
