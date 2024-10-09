@@ -194,6 +194,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         self.canViewDeleted = params.canviewdeleted;
                         self.isNoComment = params.isnocomment;
                         self.allowSelfCommentRating = params.allowselfcommentrating;
+                        self.isusingtinymce = params.isusingtinymce;
 
                         self.initServerRender();
                         if (params.allowselfcommentrating) {
@@ -267,17 +268,24 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         // Interval to init atto editor, there are time when Atto's Javascript slow to init the editor, so we
                         // check interval here to make sure the Atto is init before calling our script.
                         var interval = setInterval(function() {
+                            // Check whether TinyMCE is being used and wait for the editor to fully load.
+                            var editor = self.isusingtinymce ?
+                                    window?.tinyMCE?.get(
+                                        self.formSelector?.find(t.SELECTOR.TEXTAREA)?.attr('id') ?? '') : null;
+                            if (!self.isusingtinymce || (editor && editor?.getBody())) {
+                                // Binding events to the editor.
                                 self.bindEditorEvent(self.formSelector);
                                 isEditorLoaded = true;
                                 clearInterval(interval);
                                 M.util.js_complete(t.ACTION_EDITOR_INIT);
+                            }
                         }, 500);
 
                         // If the editor has some content that has been restored
                         // then check the editor content.
                         var editorWaiting = setInterval(function() {
                             if (isEditorLoaded) {
-                                if (self.formSelector.find(t.SELECTOR.TINYMCE.CONTENT).length !== 0) {
+                                if (self.isusingtinymce) {
                                     const textareaSelector = self.formSelector.find(t.SELECTOR.TEXTAREA);
                                     const tinyEditorId = textareaSelector.attr('id');
                                     const editor = window.tinyMCE.get(tinyEditorId);
@@ -393,7 +401,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 // Clear form in setTimeout to prevent require message still shown when reset on Firefox.
                                 setTimeout(function() {
                                     // Clear form data.
-                                    if (self.formSelector.find(t.SELECTOR.TINYMCE.CONTENT).length !== 0) {
+                                    if (self.isusingtinymce) {
                                         self.resetContent(formSelector, t.EDITOR.TINYMCE.TYPE);
                                     } else if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                                         self.formSelector.trigger('reset');
@@ -1087,6 +1095,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             var textFragmentFormId = '#id_editor_question_' + self.studentQuizQuestionId + '_' +
                                 self.type + '_' + item.id + 'editable';
                             fragmentForm.find(textFragmentFormId).focus();
+                            // Disable the reply button by default because the reply content is always empty at the beginning.
+                            self.triggerAttoNoContent(fragmentForm);
                             self.bindFragmentFormEvent(fragmentForm, item);
                             M.util.js_complete(t.ACTION_LOAD_FRAGMENT_FORM);
                         });
@@ -1371,6 +1381,14 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 editor.on("input", function() {
                                     self.checkEditorContent(formSelector, editor.getBody(), t.EDITOR.TINYMCE.TYPE);
                                 });
+                                // It is necessary to check the SetContent event from the start because:
+                                // When the editor content is empty, the tiny_autosave_update_session service is called.
+                                // If there is existing restore data, it will be set in the editor, but this action won't trigger
+                                // the "input" event. Therefore, we need to use the SetContent event in this case.
+                                // The SetContent event is also triggered during undo and redo actions.
+                                editor.on("SetContent", function() {
+                                    self.checkEditorContent(formSelector, editor.getBody(), t.EDITOR.TINYMCE.TYPE);
+                                });
                                 // This event will be triggered when user paste content.
                                 editor.on("change", function() {
                                     self.checkEditorContent(formSelector, editor.getBody(), t.EDITOR.TINYMCE.TYPE);
@@ -1453,7 +1471,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                      */
                     bindEditorEvent: function(formSelector) {
                         var self = this;
-                        if (self.formSelector.find(t.SELECTOR.TINYMCE.CONTENT).length !== 0) {
+                        if (self.isusingtinymce) {
                             self.bindHandleTinyEditor(formSelector);
                         } else if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                             self.bindHandleAttoEditor(formSelector);
