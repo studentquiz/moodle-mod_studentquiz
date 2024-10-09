@@ -2383,7 +2383,8 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         $jsdata = array_merge($jsdata, [
                 'count' => $count,
                 'total' => $total,
-                'allowselfcommentrating' => $allowselfcommentrating
+                'allowselfcommentrating' => $allowselfcommentrating,
+                'isusingtinymce' => editors_get_preferred_editor() instanceof \editor_tiny\editor,
         ]);
 
         $this->page->requires->js_call_amd(self::MODNAME . '/comment_area', 'generate', [$jsdata]);
