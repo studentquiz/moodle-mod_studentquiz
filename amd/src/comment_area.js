@@ -24,8 +24,9 @@
 /**
  * @module mod_studentquiz/comment_element
  */
-define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates', 'core/fragment', 'core/modal_events'],
-    function($, str, ajax, ModalFactory, Templates, fragment, ModalEvents) {
+define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates', 'core/fragment', 'core/modal_events',
+        'tiny_autosave/repository'],
+    function($, str, ajax, ModalFactory, Templates, fragment, ModalEvents, TinyRepository) {
         var t = {
             EMPTY_CONTENT: ['<br><p><br></p>', '<p><br></p>', '<br>', ''],
             ROOT_COMMENT_VALUE: 0,
@@ -397,6 +398,9 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                 },
                             };
                             self.createComment(params).then(function(response) {
+                                // Remove the draft data from the editor after successfully creating a comment.
+                                self.removeTinyAutoSaveSession(
+                                    self.formSelector?.find(t.SELECTOR.TEXTAREA)?.attr('id') ?? '');
                                 M.util.js_pending(t.ACTION_CLEAR_FORM);
                                 // Clear form in setTimeout to prevent require message still shown when reset on Firefox.
                                 setTimeout(function() {
@@ -1140,6 +1144,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         };
                         M.util.js_pending(t.ACTION_CREATE_REPLY);
                         self.createComment(params).then(function(response) {
+                            // Remove draft data from the editor after successfully creating a reply comment.
+                            self.removeTinyAutoSaveSession(formSelector?.find(t.SELECTOR.TEXTAREA)?.attr('id'));
                             // Hide error if exists.
                             $(t.SELECTOR.COMMENT_ERROR).addClass('hide');
                             var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + item.id);
@@ -1844,6 +1850,21 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             this.triggerAttoHasContent(formSelector);
                         }
                         M.util.js_complete(key);
+                    },
+
+                    /**
+                     * Remove draft data from the Tiny editor, which is auto-saved according to editorID.
+                     *
+                     * @param {String} editorID The editor ID for which draft data needs to be removed.
+                     */
+                    removeTinyAutoSaveSession: function(editorID) {
+                        // Execute this only if it's a Tiny editor.
+                        if (this.isusingtinymce) {
+                            const editor = window?.tinyMCE?.get(editorID);
+                            if (editor) {
+                                TinyRepository.removeAutosaveSession(editor);
+                            }
+                        }
                     }
                 };
             },

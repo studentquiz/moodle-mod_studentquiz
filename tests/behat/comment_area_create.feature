@@ -150,7 +150,11 @@ Feature: Create comment as an user
     And I wait until the page is ready
     And I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
+    And I reload the page
     And I wait until the page is ready
+    # The content no longer exists after successfully creating a comment.
+    And the following fields match these values:
+      | Add public comment |  |
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
     Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
     # Check can reply
@@ -162,6 +166,13 @@ Feature: Create comment as an user
     And I wait until the page is ready
     And I should see "1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
     And I should see "Reply" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-totalreply" "css_element"
+    And I reload the page
+    And I wait until the page is ready
+    And I click on "Reply" "button" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-commands-buttons" "css_element"
+    And I wait until the page is ready
+    # The content no longer exists after successfully creating a reply comment.
+    And the following fields match these values:
+      | Add reply |  |
 
   @javascript
   Scenario: Test reply comment with long content
