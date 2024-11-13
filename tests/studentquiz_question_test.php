@@ -136,4 +136,62 @@ class studentquiz_question_test extends \advanced_testcase {
         $reflector->setAccessible(true);
         return $reflector->getValue($this->studentquizquestion);
     }
+
+    /**
+     * Test move question in studentquiz to another studentquiz.
+     */
+    public function test_move_studentquiz_question(): void {
+        global $DB;
+
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
+
+        // Create two StudentQuiz activity.
+        $studentquizdata = [
+            'course' => $course->id,
+            'anonymrank' => true,
+            'questionquantifier' => 10,
+            'approvedquantifier' => 5,
+            'ratequantifier' => 3,
+            'correctanswerquantifier' => 2,
+            'incorrectanswerquantifier' => -1,
+        ];
+
+        $cmid1 = $generator->create_module('studentquiz', $studentquizdata)->cmid;
+        $cmid2 = $generator->create_module('studentquiz', $studentquizdata)->cmid;
+
+        $context1 = \context_module::instance($cmid1);
+        $context2 = \context_module::instance($cmid2);
+        $studentquiz = [
+            mod_studentquiz_load_studentquiz($cmid1, $context1->id),
+            mod_studentquiz_load_studentquiz($cmid2, $context2->id),
+        ];
+
+        $question1 = $questiongenerator->create_question('truefalse', null,
+            ['name' => 'Student quiz 1 Question', 'category' => $studentquiz[0]->categoryid]);
+
+        // Move question to Studentquiz 2 category.
+        question_move_questions_to_category([$question1->id], $studentquiz[1]->categoryid);
+        $question1 = \question_bank::load_question($question1->id);
+        // Ensure it question 1 is in the Studentquiz 2 category.
+        $this->assertEquals($question1->category, $studentquiz[1]->categoryid);
+        $this->assertNotEquals($question1->category, $studentquiz[0]->categoryid);
+
+        // Ensure the contextid is correct.
+        $this->assertEquals($question1->contextid, $context2->id);
+
+        $questionrefrecord = $DB->get_records('question_references', [
+            'usingcontextid' => $context2->id,
+            'questionbankentryid' => $question1->questionbankentryid,
+            'component' => 'mod_studentquiz',
+            'questionarea' => 'studentquiz_question',
+        ]);
+
+        // Ensure the question_references record is updated.
+        $this->assertCount(1, $questionrefrecord);
+        $questionrefrecord = reset($questionrefrecord);
+        $this->assertEquals($questionrefrecord->usingcontextid, $context2->id);
+        $this->assertEquals($questionrefrecord->questionbankentryid, $question1->questionbankentryid);
+    }
 }

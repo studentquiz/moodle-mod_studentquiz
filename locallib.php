@@ -29,6 +29,7 @@ use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 use core_question\local\bank\question_version_status;
 use mod_studentquiz\local\studentquiz_progress;
+use mod_studentquiz\local\studentquiz_question;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -721,11 +722,13 @@ function mod_studentquiz_get_roles() {
  */
 function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpublish = true, $hidden = true) {
     global $DB, $USER;
-    $params = [
-        'questionid' => $id,
-    ];
-    // Check if record exist.
-    $sql = "SELECT COUNT(*)
+    $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
+    $cm = get_coursemodule_from_id('studentquiz', $cmid);
+    $contextid = context_module::instance($cmid)->id;
+    $question = question_bank::load_question($id);
+
+    $params = ['questionid' => $id];
+    $sql = "SELECT qr.itemid, qr.usingcontextid, qr.questionbankentryid
               FROM {studentquiz} sq
               -- Get this StudentQuiz question.
               JOIN {studentquiz_question} sqq ON sqq.studentquizid = sq.id
@@ -742,9 +745,9 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
               JOIN {question} q ON q.id = qv.questionid
              WHERE q.id = :questionid
     ";
-    if (!$DB->count_records_sql($sql, $params)) {
-        $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
-        $cm = get_coursemodule_from_id('studentquiz', $cmid);
+
+    // Check if record exist.
+    if (!$DB->record_exists_sql($sql, $params)) {
         $groupid = groups_get_activity_group($cm, true);
         $params = [
                 'studentquizid' => $studentquiz->id,
@@ -766,8 +769,6 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
             utils::question_save_action($record, null, studentquiz_helper::STATE_SHOW);
         }
         // Load question to create a question references.
-        $question = question_bank::load_question($id);
-        $contextid = context_module::instance($cmid)->id;
         $referenceparams = [
                 'usingcontextid' => $contextid,
                 'itemid' => $record,
@@ -777,6 +778,31 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
                 'version' => null
         ];
         $DB->insert_record('question_references', (object) $referenceparams);
+
+    } else {
+        $existedqr = $DB->get_record_sql($sql, $params);
+        $existedqrrecord = $DB->get_record('question_references', [
+            'itemid' => $existedqr->itemid,
+            'component' => 'mod_studentquiz',
+            'questionarea' => 'studentquiz_question',
+            'usingcontextid' => $existedqr->usingcontextid,
+            'questionbankentryid' => $existedqr->questionbankentryid,
+            'version' => null,
+        ]);
+
+        $newsqq = studentquiz_question::get_studentquiz_question_from_question($question, null,
+            $cm, context_module::instance($cmid));
+        $newsqqrecord = $DB->get_record('studentquiz_question', ['id' => $newsqq->get_id()]);
+
+        if ($newsqqrecord) {
+            $newsqqrecord->studentquizid = $studentquiz->id;
+            $DB->update_record('studentquiz_question', $newsqqrecord);
+        }
+
+        if ($existedqrrecord) {
+            $existedqrrecord->usingcontextid = $contextid;
+            $DB->update_record('question_references', $existedqrrecord);
+        }
     }
 }
 
