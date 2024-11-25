@@ -162,12 +162,15 @@ class provider implements
              LEFT JOIN {studentquiz_rate} rate ON rate.studentquizquestionid = question.id
              LEFT JOIN {studentquiz_comment} comment ON comment.studentquizquestionid = question.id
              LEFT JOIN {studentquiz_progress} progress ON progress.studentquizquestionid = question.id
-                       AND progress.studentquizid = sq.id
+                       AND progress.studentquizid = sq.id AND progress.userid = :progressuser2
              LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
-                       AND attempt.studentquizid = sq.id
+                       AND attempt.studentquizid = sq.id AND attempt.userid = :attemptuser2
              LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
+                       AND commenthistory.userid = :commenthistoryuser2
              LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
+                       AND notificationjoin.recipientid = :notificationuser2
              LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.studentquizquestionid = question.id
+                       AND statehistory.userid = :statehistoryuser2
                  WHERE (
                          question.id IS NOT NULL
                          OR rate.id IS NOT NULL
@@ -196,10 +199,15 @@ class provider implements
                 'rateuser' => $userid,
                 'commentuser' => $userid,
                 'progressuser' => $userid,
+                'progressuser2' => $userid,
                 'attemptuser' => $userid,
+                'attemptuser2' => $userid,
                 'commenthistoryuser' => $userid,
+                'commenthistoryuser2' => $userid,
                 'notificationuser' => $userid,
+                'notificationuser2' => $userid,
                 'statehistoryuser' => $userid,
+                'statehistoryuser2' => $userid,
         ];
 
         $contextlist->add_from_sql($sql, $params);
@@ -266,12 +274,15 @@ class provider implements
              LEFT JOIN {studentquiz_rate} rate ON rate.studentquizquestionid = question.id
              LEFT JOIN {studentquiz_comment} comment ON comment.studentquizquestionid = question.id
              LEFT JOIN {studentquiz_comment_history} commenthistory ON commenthistory.commentid = comment.id
+                       AND commenthistory.userid = :commenthistoryuser2
              LEFT JOIN {studentquiz_progress} progress ON progress.studentquizquestionid = question.id
-                       AND progress.studentquizid = sq.id
+                       AND progress.studentquizid = sq.id AND progress.userid = :progressuser2
              LEFT JOIN {studentquiz_attempt} attempt ON attempt.categoryid = ca.id
-                       AND attempt.studentquizid = sq.id
+                       AND attempt.studentquizid = sq.id AND attempt.userid = :attemptuser2
              LEFT JOIN {studentquiz_notification} notificationjoin ON notificationjoin.studentquizid = sq.id
+                       AND notificationjoin.recipientid = :notificationuser2
              LEFT JOIN {studentquiz_state_history} statehistory ON statehistory.studentquizquestionid = question.id
+                       AND statehistory.userid = :statehistoryuser2
                  WHERE (
                          question.id IS NOT NULL
                          OR rate.id IS NOT NULL
@@ -303,10 +314,15 @@ class provider implements
                 'rateuser' => $userid,
                 'commentuser' => $userid,
                 'progressuser' => $userid,
+                'progressuser2' => $userid,
                 'attemptuser' => $userid,
+                'attemptuser2' => $userid,
                 'commenthistoryuser' => $userid,
+                'commenthistoryuser2' => $userid,
                 'notificationuser' => $userid,
+                'notificationuser2' => $userid,
                 'statehistoryuser' => $userid,
+                'statehistoryuser2' => $userid,
         ];
         $params += $contextparam;
 
