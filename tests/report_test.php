@@ -87,7 +87,7 @@ class report_test extends \advanced_testcase {
         $this->context = \context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
-        $this->report = new \mod_studentquiz_report($activity->cmid);
+        $this->report = new \mod_studentquiz_report($course, $this->cm);
 
         // Create users.
         $usernames = array('Peter', 'Lisa', 'Sandra', 'Tobias', 'Gabi', 'Sepp');

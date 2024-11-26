@@ -29,6 +29,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_studentquiz\utils;
+
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
@@ -40,26 +42,14 @@ $returnurl = required_param('returnurl', PARAM_LOCALURL);
 $hide = required_param('hide', PARAM_INT);
 
 // Load course and course module requested.
-if ($cmid) {
-    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
-
-// Authentication check.
-require_login($module->course, false, $module);
+[$course, $cm] = utils::require_view($cmid);
 require_sesskey();
 
-$studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
+$studentquizquestion = mod_studentquiz_init_single_action_page($cm, $studentquizquestionid);
 
 $hidestatus = $hide ? \mod_studentquiz\local\studentquiz_helper::STATE_HIDE : \mod_studentquiz\local\studentquiz_helper::STATE_SHOW;
 $eventname = $hide ? 'hidden' : 'unhidden';
 $studentquizquestion->change_hidden_status($hide);
 $studentquizquestion->save_action($hidestatus, $USER->id);
-mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $module);
+mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $cm);
 redirect($returnurl);

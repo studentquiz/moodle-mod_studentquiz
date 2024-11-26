@@ -38,14 +38,9 @@ if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     $_GET['cmid'] = $cmid;
 }
 
-// TODO: make course-, context- and login-check in a better starting class (not magically hidden in "report").
-// And when doing that, offer course, context and studentquiz object over it, which all following actions can use.
-$report = new mod_studentquiz_report($cmid);
-require_login($report->get_course(), false, $report->get_coursemodule());
-
-$course = $report->get_course();
+[$course, $cm] = utils::require_view($cmid);
+$report = new mod_studentquiz_report($course, $cm);
 $context = $report->get_context();
-$cm = $report->get_coursemodule();
 
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $context->id);
 

@@ -35,27 +35,12 @@ $cmid = required_param('cmid', PARAM_INT);
 // Comment highlight.
 $highlight = optional_param('highlight', 0, PARAM_INT);
 
-// Load course and course module requested.
-if ($cmid) {
-    if (!$cm = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $cm->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
-
-// Authentication check.
-require_login($cm->course, false, $cm);
-
 $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 
+[$course, $cm] = utils::require_view($cmid);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
-
 $context = context_module::instance($cm->id);
 
 // Check to see if any roles setup has been changed since we last synced the capabilities.

@@ -32,20 +32,7 @@ require_once(__DIR__ . '/viewlib.php');
 $cmid = required_param('cmid', PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 
-// Load course and course module requested.
-if ($cmid) {
-    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
-
-// Authentication check.
-require_login($module->course, false, $module);
+[$course, $module] = utils::require_view($cmid);
 
 // Load context.
 $context = context_module::instance($module->id);

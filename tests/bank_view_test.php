@@ -112,7 +112,7 @@ class bank_view_test extends \advanced_testcase {
                 'qpage' => 0,
         );
 
-        $report = new \mod_studentquiz_report($this->cm->id);
+        $report = new \mod_studentquiz_report($this->course, $this->cm);
         if (utils::moodle_version_is("<=", "42")) {
             $questionbank = new studentquiz_bank_view_pre_43(
                 new \core_question\local\bank\question_edit_contexts(\context_module::instance($this->cm->id)),

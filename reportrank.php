@@ -31,9 +31,8 @@ if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
-$report = new mod_studentquiz_report($cmid);
-$cm = $report->get_coursemodule();
-require_login($report->get_course(), false, $cm);
+[$course, $cm] = utils::require_view($cmid);
+$report = new mod_studentquiz_report($course, $cm);
 $context = $report->get_context();
 $output = $PAGE->get_renderer('mod_studentquiz', 'ranking');
 
@@ -51,4 +50,4 @@ echo $output->view_rank($report);
 echo $OUTPUT->footer();
 
 // Trigger report rank viewed event.
-mod_studentquiz_reportrank_viewed($report->get_cm_id(), $context);
+mod_studentquiz_reportrank_viewed($cmid, $context);

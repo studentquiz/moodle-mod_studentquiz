@@ -31,11 +31,9 @@ if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
-$report = new mod_studentquiz_report($cmid);
-$cm = $report->get_coursemodule();
-
-require_login($report->get_course(), false, $cm);
-$context = context_module::instance($cmid);
+[$course, $cm] = utils::require_view($cmid);
+$report = new mod_studentquiz_report($course, $cm);
+$context = $report->get_context();
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'report');
 
 $PAGE->set_title($report->get_statistic_title());

@@ -208,10 +208,11 @@ class backup_test extends \restore_date_testcase {
         // Check question with question name is not exist before restore.
         $this->assertFalse($DB->record_exists('question', ['name' => $questionname]));
         $sq = $this->restore_sq_backup_file_to_course_shortname($filename, $coursefullname, $courseshortname);
+        [$course, $cm] = get_course_and_cm_from_cmid($sq->coursemodule, 'studentquiz');
         // Check question with question name exist after restore.
         $this->assertTrue($DB->record_exists('question', ['name' => $questionname]));
 
-        $report = new \mod_studentquiz_report($sq->coursemodule);
+        $report = new \mod_studentquiz_report($course, $cm);
         $count = 0;
         // Check ranking page.
         foreach ($report->get_user_ranking_table() as $ur) {
