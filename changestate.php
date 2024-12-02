@@ -36,7 +36,9 @@ $approveselected = optional_param('approveselected', false, PARAM_BOOL);
 $returnurl = optional_param('returnurl', 0, PARAM_LOCALURL);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
-[$course, $cm] = utils::require_view($cmid);
+
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 $context = context_module::instance($cmid);
 require_capability('mod/studentquiz:changestate', $context);
 

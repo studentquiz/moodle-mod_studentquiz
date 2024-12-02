@@ -40,7 +40,8 @@ $cmid = required_param('cmid', PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $save = required_param('save', PARAM_NOTAGS);
 
-[$course, $cm] = utils::require_view($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 require_sesskey();
 
 $data = new \stdClass();

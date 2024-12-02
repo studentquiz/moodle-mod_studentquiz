@@ -129,7 +129,7 @@ class mod_studentquiz_view {
         $params = $_GET;
         // Get edit question link setup.
         list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
-            = question_edit_setup('questions', '/mod/studentquiz/view.php', true);
+            = question_edit_setup('questions', '/mod/studentquiz/view.php');
         $pagevars['qperpage'] = optional_param('qperpage', \mod_studentquiz\utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
         $pagevars['cat'] = $this->get_category_id() . ',' . $this->get_context_id();

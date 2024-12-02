@@ -32,8 +32,8 @@ require_once(__DIR__ . '/viewlib.php');
 $cmid = required_param('cmid', PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 
-[$course, $module] = utils::require_view($cmid);
-
+[$course, $module] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $module);
 // Load context.
 $context = context_module::instance($module->id);
 

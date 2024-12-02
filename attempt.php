@@ -39,7 +39,8 @@ $attemptid = required_param('id', PARAM_INT);
 $slot = required_param('slot', PARAM_INT);
 $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 
-[$course, $cm] = utils::require_view($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 $attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
 $context = context_module::instance($cm->id);
 

@@ -37,8 +37,9 @@ if (!$cmid = optional_param('cmid', 0, PARAM_INT)) {
     // but moodle allows to view a mod page with parameter id in place of cmid.
     $_GET['cmid'] = $cmid;
 }
-
-[$course, $cm] = utils::require_view($cmid);
+[$module, $cm] = get_module_from_cmid($cmid);
+$course = get_course($cm->course);
+require_login($course, false, $cm);
 $report = new mod_studentquiz_report($course, $cm);
 $context = $report->get_context();
 

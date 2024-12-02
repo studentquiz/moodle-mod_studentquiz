@@ -29,8 +29,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use mod_studentquiz\utils;
-
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
@@ -42,7 +40,8 @@ $returnurl = required_param('returnurl', PARAM_LOCALURL);
 $hide = required_param('hide', PARAM_INT);
 
 // Load course and course module requested.
-[$course, $cm] = utils::require_view($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 require_sesskey();
 
 $studentquizquestion = mod_studentquiz_init_single_action_page($cm, $studentquizquestionid);

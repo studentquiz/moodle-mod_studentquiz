@@ -31,7 +31,8 @@ if (!$cmid) {
     $cmid = required_param('cmid', PARAM_INT);
 }
 
-[$course, $cm] = utils::require_view($cmid);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 $report = new mod_studentquiz_report($course, $cm);
 $context = $report->get_context();
 $output = $PAGE->get_renderer('mod_studentquiz', 'ranking');

@@ -796,18 +796,6 @@ style5 = html';
     }
 
     /**
-     * Check user login permission to view the page.
-     *
-     * @param int $cmid
-     * @return array [course, cm] object if user has permission to view the page.
-     */
-    public static function require_view(int $cmid): array {
-        [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
-        require_login($course, false, $cm);
-        return [$course, $cm];
-    }
-
-    /**
      * Saves question rating.
      *
      * @param \stdClass $data requires userid, studentquizquestionid, rate
