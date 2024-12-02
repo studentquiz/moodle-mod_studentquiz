@@ -50,6 +50,9 @@ class backup_studentquiz_activity_task extends backup_activity_task {
         // Backup studentquiz tables.
         $this->add_step(new backup_studentquiz_activity_structure_step('studentquiz_structure', 'studentquiz.xml'));
 
+        // Clean backup_temp_ids table of questions.
+        $this->add_step(new backup_delete_temp_questions('clean_temp_questions'));
+
         // Backup question categories.
         $this->add_step(new backup_calculate_question_categories('activity_question_categories'));
     }
