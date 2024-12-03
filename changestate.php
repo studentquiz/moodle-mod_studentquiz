@@ -36,8 +36,9 @@ $approveselected = optional_param('approveselected', false, PARAM_BOOL);
 $returnurl = optional_param('returnurl', 0, PARAM_LOCALURL);
 $cmid = optional_param('cmid', 0, PARAM_INT);
 $courseid = optional_param('courseid', 0, PARAM_INT);
-$course = get_course($courseid);
-$cm = get_coursemodule_from_id('studentquiz', $cmid, $courseid, false, MUST_EXIST);
+
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 $context = context_module::instance($cmid);
 require_capability('mod/studentquiz:changestate', $context);
 
@@ -54,19 +55,6 @@ $PAGE->set_title(get_string('state_toggle', 'mod_studentquiz'));
 $PAGE->set_heading($course->fullname);
 $PAGE->activityheader->disable();
 $PAGE->set_secondary_active_tab("studentquiz");
-// Load course and course module requested.
-if ($cmid) {
-    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
-
-require_login($module->course, false, $module);
 
 $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
 // If user has already confirmed the action.

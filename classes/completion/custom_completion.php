@@ -42,7 +42,8 @@ class custom_completion extends activity_custom_completion {
 
         $studentquizid = $this->cm->instance;
         $studentquiz = $DB->get_record('studentquiz', ['id' => $studentquizid], '*', MUST_EXIST);
-        $report = new mod_studentquiz_report($this->cm->id, $this->userid);
+        $course = get_course($studentquiz->course);
+        $report = new mod_studentquiz_report($course, $this->cm, $this->userid);
         $userstats = $report->get_user_stats();
 
         if (!$userstats) {

@@ -60,7 +60,7 @@ class viewlib_test extends \advanced_testcase {
         $_GET['cmid'] = $this->cm->id;
 
         // Satisfy codechecker: $course $cm $studentquiz $userid.
-        $report = new \mod_studentquiz_report($this->cm->id);
+        $report = new \mod_studentquiz_report($course, $this->cm);
         $this->viewlib = new \mod_studentquiz_view($course, $context, $this->cm,
             $studentquiz, $user->id, $report);
     }

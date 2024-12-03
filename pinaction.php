@@ -39,24 +39,12 @@ $cmid = required_param('cmid', PARAM_INT);
 $returnurl = required_param('returnurl', PARAM_LOCALURL);
 $pin = required_param('pin', PARAM_INT);
 
-// Load course and course module requested.
-if ($cmid) {
-    if (!$module = get_coursemodule_from_id('studentquiz', $cmid)) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$course = $DB->get_record('course', array('id' => $module->course))) {
-        throw new moodle_exception("coursemisconf");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
-}
-
-// Authentication check.
-require_login($module->course, false, $module);
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
 require_sesskey();
 
-$studentquizquestion = mod_studentquiz_init_single_action_page($module, $studentquizquestionid);
+$studentquizquestion = mod_studentquiz_init_single_action_page($cm, $studentquizquestionid);
 $eventname = $pin ? 'pinned' : 'unpinned';
 $studentquizquestion->change_pin_status($pin);
-mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $module);
+mod_studentquiz_event_notification_question($eventname, $studentquizquestion, $course, $cm);
 redirect($returnurl);

@@ -33,21 +33,11 @@ $cmid = required_param('cmid', PARAM_INT);
 $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $commentid = required_param('commentid', PARAM_INT);
 
-// Load course and course module requested.
-if ($cmid) {
-    $cm = get_coursemodule_from_id('studentquiz', $cmid);
-    if (!$cm) {
-        throw new moodle_exception("invalidcoursemodule");
-    }
-    if (!$comment = $DB->get_record('studentquiz_comment', ['id' => $commentid])) {
-        throw new moodle_exception("invalidcommentmodule");
-    }
-} else {
-    throw new moodle_exception("invalidcoursemodule");
+[$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
+require_login($course, false, $cm);
+if (!$comment = $DB->get_record('studentquiz_comment', ['id' => $commentid])) {
+    throw new moodle_exception("invalidcommentmodule");
 }
-
-// Authentication check.
-require_login($cm->course, false, $cm);
 
 // Load context.
 $context = context_module::instance($cm->id);

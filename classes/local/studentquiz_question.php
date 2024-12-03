@@ -36,7 +36,7 @@ class studentquiz_question {
     /** @var question_definition $question - Question class. */
     private $question;
 
-    /** @var stdClass $cm - Module. */
+    /** @var stdClass|\cm_info $cm - Module. */
     private $cm;
 
     /** @var \context_module  $context - Context. */
@@ -96,10 +96,11 @@ class studentquiz_question {
 
     /**
      * Get course module.
+     * If we already have an existing cm, we will get from the class. Otherwise, get from database will return stdClass.
      *
-     * @return stdClass
+     * @return stdClass|\cm_info
      */
-    public function get_cm(): stdClass {
+    public function get_cm(): mixed {
         if (!isset($this->cm)) {
             $this->cm = get_coursemodule_from_id('studentquiz', $this->data->cmid);
         }

@@ -170,30 +170,34 @@ class mod_studentquiz_report {
 
     /**
      * Constructor assuming we already have the necessary data loaded.
-     * @param int|string $cmid course_module id
+     *
+     * @param object $course
+     * @param cm_info|object $cm course_module object
      * @param int|null $userid user id.
      */
-    public function __construct($cmid, ?int $userid = null) {
+    public function __construct(stdClass $course, object $cm, ?int $userid = null) {
         global $DB, $USER;
-        if (!$this->cm = get_coursemodule_from_id('studentquiz', $cmid)) {
+        if (!$cm) {
             throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
         }
-        if (!$this->course = $DB->get_record('course', array('id' => $this->cm->course))) {
+        if (!$course) {
             throw new mod_studentquiz_view_exception($this, 'coursemisconf');
         }
 
         if (!$this->studentquiz = $DB->get_record('studentquiz',
-            array('coursemodule' => $this->cm->id, 'course' => $this->course->id))) {
+            ['coursemodule' => $cm->id, 'course' => $course->id])) {
             throw new mod_studentquiz_view_exception($this, 'studentquiznotfound');
         }
 
+        $this->course = $course;
+        $this->cm = $cm;
         $this->context = context_module::instance($this->cm->id);
 
         $this->userid = $USER->id;
         if ($userid) {
             $this->userid = $userid;
         }
-        $this->availablequestions = mod_studentquiz_count_questions($cmid);
+        $this->availablequestions = mod_studentquiz_count_questions($this->cm->id);
 
         \mod_studentquiz\utils::set_default_group($this->cm);
         $this->groupid = groups_get_activity_group($this->cm, true);

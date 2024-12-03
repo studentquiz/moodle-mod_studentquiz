@@ -84,7 +84,7 @@ class bank_performance_test extends \advanced_testcase {
             'showallprinted' => 0,
         );
 
-        $report = new mod_studentquiz_report($result['cm']->id);
+        $report = new mod_studentquiz_report($result['course'], $result['cm']);
         if (utils::moodle_version_is("<=", "42")) {
             $questionbank = new studentquiz_bank_view_pre_43(
                 new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),

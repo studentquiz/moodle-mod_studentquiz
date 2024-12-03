@@ -33,7 +33,7 @@ define('AJAX_SCRIPT', true);
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
 
-global $COURSE;
+use mod_studentquiz\utils;
 
 // Get parameters.
 $cmid = required_param('cmid', PARAM_INT);
@@ -41,8 +41,6 @@ $studentquizquestionid = required_param('studentquizquestionid', PARAM_INT);
 $save = required_param('save', PARAM_NOTAGS);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
-
-// Authentication check.
 require_login($course, false, $cm);
 require_sesskey();
 
