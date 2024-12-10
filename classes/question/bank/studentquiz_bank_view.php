@@ -569,47 +569,13 @@ class studentquiz_bank_view extends \core_question\local\bank\view {
      * @return array array of questions
      */
     public function load_questions() {
-        global $DB;
-        $page = $this->get_pagevars('qpage');
-        $perpage = $this->get_pagevars('qperpage');
-        $rs = $DB->get_recordset_sql($this->loadsql, $this->sqlparams);
-
-        $counterquestions = 0;
-        $numberofdisplayedquestions = 0;
-        $showall = $this->pagevars['showall'];
-        $rs->rewind();
-
-        // Skip Questions on previous pages.
-        while ($rs->valid() && !$showall && $counterquestions < $page * $perpage) {
-            $rs->next();
-            $counterquestions++;
-        }
-
-        // Reset and start from 0 if page was empty.
-        if (!$showall && $counterquestions < $page * $perpage) {
-            $rs->rewind();
-        }
-
-        // Unfortunately we cant just render the questions directly.
-        // We need to annotate tags first.
-        $questions = array();
-        // Load questions.
-        while ($rs->valid() && ($showall || $numberofdisplayedquestions < $perpage)) {
-            $question = $rs->current();
-            $numberofdisplayedquestions++;
-            $counterquestions++;
-            $this->displayedquestionsids[] = $question->id;
-            $rs->next();
+        $questionsrs = $this->load_page_questions();
+        $questions = [];
+        foreach ($questionsrs as $question) {
             $questions[] = $question;
         }
-
-        // Iterate to end.
-        while ($rs->valid()) {
-            $rs->next();
-            $counterquestions++;
-        }
-        $this->totalnumber = $counterquestions;
-        $rs->close();
+        $questionsrs->close();
+        $this->totalnumber = $this->get_question_count();
         return $questions;
     }
 
