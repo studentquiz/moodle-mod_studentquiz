@@ -59,6 +59,14 @@ Feature: Test pagination for StudentQuiz
     Then "input[name='changepagesize']" "css_element" should not exist
     And I should see "TF 01"
     And I should see "Test question 24"
+    And I click on "Show 20 per page" "link"
+    And I click on "Page 2" "link"
+    And I should see "Test question 9"
+    And I set the field "qperpage" to "26"
+    And I press enter
+    # Verify that the first question and the last question are displayed, ensuring all essential questions are visible.
+    And I should see "TF 01"
+    And I should see "Test question 9"
 
   @javascript
   Scenario: Users using filter should keep the same pagination.
