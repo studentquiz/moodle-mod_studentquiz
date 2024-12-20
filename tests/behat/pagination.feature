@@ -67,6 +67,11 @@ Feature: Test pagination for StudentQuiz
     # Verify that the first question and the last question are displayed, ensuring all essential questions are visible.
     And I should see "TF 01"
     And I should see "Test question 9"
+    And I click on "Show 20 per page" "link"
+    # Verify that the first question and the last question are displayed, ensuring all essential questions are visible when click show all.
+    And I click on "Show all 25" "link"
+    And I should see "TF 01"
+    And I should see "Test question 24"
 
   @javascript
   Scenario: Users using filter should keep the same pagination.
