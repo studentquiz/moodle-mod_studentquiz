@@ -278,4 +278,14 @@ class studentquiz_condition extends \core_question\local\bank\condition {
         }
         return $this->customparams;
     }
+
+    #[\Override]
+    public static function get_condition_key() {
+        return '';
+    }
+
+    #[\Override]
+    public static function build_query_from_filter(array $filter): array {
+        return '';
+    }
 }
