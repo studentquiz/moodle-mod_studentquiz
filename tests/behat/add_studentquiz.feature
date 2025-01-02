@@ -20,8 +20,10 @@ Feature: Activities can be created
   @javascript
   Scenario: Check an Activity can be created
     When I add a studentquiz activity to course "Course 1" section "1" and I fill the form with:
-      | StudentQuiz Name | Test quiz name        |
-      | Description      | Test quiz description |
+      | StudentQuiz Name                   | Test quiz name        |
+      | Description                        | Test quiz description |
+      | Display description on course page | 1                     |
+    And I should see "Test quiz description"
     And I am on the "Test quiz name" "mod_studentquiz > View" page
     Then I should see "Create new question"
 
