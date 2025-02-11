@@ -259,7 +259,7 @@ class comment_test extends \advanced_testcase {
      * @coversNothing
      * @return array
      */
-    public function test_shorten_comment_provider(): array {
+    public static function test_shorten_comment_provider(): array {
 
         return [
             'Root comment with newline html content' => [

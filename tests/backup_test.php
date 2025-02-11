@@ -118,71 +118,71 @@ class backup_test extends \restore_date_testcase {
      * @coversNothing
      * @return array
      */
-    public function old_sq_backup_data_provider(): array {
+    public static function old_sq_backup_data_provider(): array {
 
         return [
             'aggregated before' => [
                 'filename' => 'backup-moodle2-aggregated-before.mbz',
                 'coursefullname' => 'aggregated before',
                 'courseshortname' => 'ab',
-                'correct_answered_points' => [1, 2],
-                'total_points' => [32, 23],
+                'correctanswerpoints' => [1, 2],
+                'totalpoints' => [32, 23],
                 'questionname' => 'first',
             ],
             'during 0' => [
                'filename' => 'backup-moodle2-aggregated-during-0.mbz',
                 'coursefullname' => 'during 0',
                 'courseshortname' => 'd0',
-                'correct_answered_points' => [2, 1],
-                'total_points' => [28, 20],
+                'correctanswerpoints' => [2, 1],
+                'totalpoints' => [28, 20],
                 'questionname' => 'q1',
             ],
             'during 1' => [
                 'filename' => 'backup-moodle2-aggregated-during-1.mbz',
                 'coursefullname' => 'during 1',
                 'courseshortname' => 'd1',
-                'correct_answered_points' => [2, 1],
-                'total_points' => [28, 20],
+                'correctanswerpoints' => [2, 1],
+                'totalpoints' => [28, 20],
                 'questionname' => 'q2',
             ],
             'Missing state' => [
                 'filename' => 'backup-moodle2-course-two-moodle_35_sq404_missingstate.mbz',
                 'coursefullname' => 'Course Two',
                 'courseshortname' => 'C2',
-                'correct_answered_points' => [0],
-                'total_points' => [10],
+                'correctanswerpoints' => [0],
+                'totalpoints' => [10],
                 'questionname' => 'False is correct',
             ],
             'Correct state' => [
                 'filename' => 'backup-moodle2-course-two-moodle_35_sq404_correctstate.mbz',
                 'coursefullname' => 'Course Two',
                 'courseshortname' => 'C2',
-                'correct_answered_points' => [0],
-                'total_points' => [15],
+                'correctanswerpoints' => [0],
+                'totalpoints' => [15],
                 'questionname' => 'False is correct',
             ],
             'SQ in M311' => [
                 'filename' => 'backup-moodle2-course-with-studentquiz-m311.mbz',
                 'coursefullname' => 'Course Three',
                 'courseshortname' => 'C3',
-                'correct_answered_points' => [0, 0],
-                'total_points' => [0, 0],
+                'correctanswerpoints' => [0, 0],
+                'totalpoints' => [0, 0],
                 'questionname' => 'Test T/F Question',
             ],
             'SQ in M311 with question data' => [
                 'filename' => 'backup-moodle2-course-2-311-with-questiondata.mbz',
                 'coursefullname' => 'Course Two',
                 'courseshortname' => 'C2',
-                'correct_answered_points' => [2, 0, 0],
-                'total_points' => [31, 21, 0],
+                'correctanswerpoints' => [2, 0, 0],
+                'totalpoints' => [31, 21, 0],
                 'questionname' => 'T/F Student',
             ],
             'SQ 4.0' => [
                 'filename' => 'backup-moodle2-course-with-studentquiz-m400.mbz',
                 'coursefullname' => 'Course Four',
                 'courseshortname' => 'C4',
-                'correct_answered_points' => [0, 0],
-                'total_points' => [0, 0],
+                'correctanswerpoints' => [0, 0],
+                'totalpoints' => [0, 0],
                 'questionname' => 'Question T/F for 4.0',
             ]
         ];
