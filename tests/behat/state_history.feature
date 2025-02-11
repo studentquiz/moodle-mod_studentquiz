@@ -73,7 +73,7 @@ Feature: Question states history
     And I click on "History" "link"
     And I should see "Sam1 Student1" in the "Question saved ('Draft')" "table_row"
     And I should see "Question set to 'Approved'"
-    And I should see "-" in the "Question visibility set to 'Shown'" "table_row"
+    And I should see "Question visibility set to 'Shown'"
 
   @javascript @_switch_window
   Scenario: Student can see the state history table of his own question
@@ -90,4 +90,4 @@ Feature: Question states history
     And I switch to "questionpreview" window
     And I click on "History" "link"
     And I should see "Sam1 Student1" in the "Question saved ('Draft')" "table_row"
-    And I should see "-" in the "Question visibility set to 'Shown'" "table_row"
+    And I should see "Question visibility set to 'Shown'"

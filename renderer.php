@@ -1899,7 +1899,7 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
         $canviewusername = $commentarea->can_view_username();
         foreach ($statehistories as $statehistory) {
             $author = !empty($users[$statehistory->userid]) ?
-                $this->action_author($users[$statehistory->userid], $canviewusername) : '-';
+                $this->action_author($users[$statehistory->userid], $canviewusername) : '';
             $table->data[] = [
                 userdate($statehistory->timecreated, $formatdate),
                 $this->get_desc_action($statehistory->state) . ' ' . $author
