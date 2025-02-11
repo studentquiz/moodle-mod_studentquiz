@@ -82,7 +82,7 @@ class add_test extends \advanced_testcase {
      * @see test_add_studentquiz_with_normal_period()
      * @return array
      */
-    public function period_provider() {
+    public static function period_provider() {
         $periods = range(container::DELETION_PERIOD_MIN, container::DELETION_PERIOD_MAX);
         shuffle($periods);
         $periods = array_slice($periods, 0, 5);

@@ -216,7 +216,7 @@ class cron_test extends \advanced_testcase {
      * @coversNothing
      * @return array List data of state.
      */
-    public function state_data_provider(): array {
+    public static function state_data_provider(): array {
         return [
             'Notifying updated question state to changed' => [
                 'state' => studentquiz_helper::$statename[studentquiz_helper::STATE_CHANGED],

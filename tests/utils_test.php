@@ -111,7 +111,7 @@ class utils_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function ensure_question_version_status_is_correct_testcases(): array {
+    public static function ensure_question_version_status_is_correct_testcases(): array {
         return [
             'ready' => [
                 'ready', false

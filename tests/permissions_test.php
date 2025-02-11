@@ -38,7 +38,7 @@ class permissions_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function ensure_permissions_are_right_testcases(): array {
+    public static function ensure_permissions_are_right_testcases(): array {
         return [
             'default student role' => [
                 'student',
