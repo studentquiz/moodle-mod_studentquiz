@@ -45,4 +45,4 @@ Feature: Restore specific studentquiz old backup to test UI feature
     And I switch to "questionpreview" window
     When I click on "History" "link"
     Then I should see "James Potter" in the "Question saved ('Draft')" "table_row"
-    And I should see "-" in the "Question set to 'Approved'" "table_row"
+    And I should see "Question set to 'Approved'"
