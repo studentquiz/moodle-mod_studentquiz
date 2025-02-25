@@ -363,12 +363,6 @@
     height: 32px;
 }
 
-/* Atto in ie need the scroll and max height. */
-.ie .path-mod-studentquiz .studentquiz-comment-container .editor_atto_content {
-    max-height: 148px;
-    overflow-y: scroll;
-}
-
 .path-mod-studentquiz .studentquiz-comment-container .studentquiz-comment-subject {
     font-size: 1.14285em;
     color: #000;
