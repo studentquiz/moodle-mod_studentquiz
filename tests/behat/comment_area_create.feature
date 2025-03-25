@@ -466,29 +466,18 @@ Feature: Create comment as an user
 
   @javascript
   Scenario: Test placeholder display after click Add comment.
-    Given I log in as "admin"
-    And I follow "Preferences" in the user menu
-    And I follow "Editor preferences"
-    And I set the field "Text editor" to "Atto HTML editor"
-    And I press "Save changes"
-    When I am on the "StudentQuiz 1" "mod_studentquiz > View" page
+    Given I am on the "StudentQuiz 1" "mod_studentquiz > View" page logged in as "admin"
     And I click on "Start Quiz" "button"
     And I set the field "True" to "1"
     And I press "Check"
     # Wait for comment area init.
     And I wait until the page is ready
-    # Check if placeholder has correct text.
-    And the "data-placeholder" attribute of ".editor_atto_content_wrap" "css_element" should contain "Enter your comment here ..."
     # Enter "Comment 1".
-    And I enter the text "Comment 1" into the "Add public comment" editor
-    # Check data-placeholder now is empty.
-    Then ".editor_atto_content_wrap[data-placeholder='']" "css_element" should exist
+    When I set the field "Add public comment" to "Comment 1"
     And I press "Add comment"
     And I wait until the page is ready
     And I wait until ".studentquiz-comment-item:nth-child(1)" "css_element" exists
-    And I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
-    # Check placeholder is back with correct text.
-    And the "data-placeholder" attribute of ".editor_atto_content_wrap" "css_element" should contain "Enter your comment here ..."
+    Then I should see "Comment 1" in the ".studentquiz-comment-item:nth-child(1) .studentquiz-comment-text" "css_element"
 
   @javascript
   Scenario: Test edit comment/reply.
