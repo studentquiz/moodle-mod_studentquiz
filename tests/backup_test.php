@@ -71,8 +71,13 @@ class backup_test extends \restore_date_testcase {
         delete_course($course, false);
 
         $newstudentquiz = $DB->get_record('studentquiz', ['course' => $newcourseid]);
-
-        $this->assertEquals(1, $DB->count_records('question', ['name' => $questionname]));
+        if (utils::moodle_version_is(">=", "50")) {
+            // See MDL-84591 for more detail. The question the in the course is not really deleted in M5.0.
+            // But move to site course.
+            $this->assertEquals(2, $DB->count_records('question', ['name' => $questionname]));
+        } else {
+            $this->assertEquals(1, $DB->count_records('question', ['name' => $questionname]));
+        }
         $this->assertEquals(1, $newstudentquiz->anonymrank);
         $this->assertEquals(1676912400, $newstudentquiz->opensubmissionfrom);
         $this->assertEquals(1677085200, $newstudentquiz->closesubmissionfrom);
