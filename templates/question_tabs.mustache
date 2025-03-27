@@ -41,10 +41,12 @@
         {{#tabs}}
             <a
                 class="nav-item nav-link {{#active}}active{{/active}}"
-                href="#{{id}}"
+                data-bs-toggle="tab"
                 data-toggle="tab"
                 data-tab-id="{{id}}"
+                href="#{{id}}"
                 role="tab"
+                aria-controls="{{id}}"
                 {{#active}}aria-selected="true"{{/active}}{{^active}}aria-selected="false"{{/active}}
             >{{name}}</a>
         {{/tabs}}
