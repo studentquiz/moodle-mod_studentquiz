@@ -126,6 +126,22 @@ class backup_test extends \restore_date_testcase {
     public static function old_sq_backup_data_provider(): array {
 
         return [
+            'SQ in M311' => [
+                'filename' => 'backup-moodle2-course-with-studentquiz-m311.mbz',
+                'coursefullname' => 'Course Three',
+                'courseshortname' => 'C3',
+                'correctanswerpoints' => [0, 0],
+                'totalpoints' => [0, 0],
+                'questionname' => 'Test T/F Question',
+            ],
+            'SQ in M311 with question data' => [
+                'filename' => 'backup-moodle2-course-2-311-with-questiondata.mbz',
+                'coursefullname' => 'Course Two',
+                'courseshortname' => 'C2',
+                'correctanswerpoints' => [2, 0, 0],
+                'totalpoints' => [31, 21, 0],
+                'questionname' => 'T/F Student',
+            ],
             'SQ 4.0' => [
                 'filename' => 'backup-moodle2-course-with-studentquiz-m400.mbz',
                 'coursefullname' => 'Course Four',
