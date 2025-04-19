@@ -126,7 +126,7 @@ class cron_test extends \advanced_testcase {
      * @covers \mod_studentquiz\task\send_digest_notification_task
      * @param string $state State of the question.
      */
-    public function test_send_no_digest_notification_task(string $state) {
+    public static function test_send_no_digest_notification_task(string $state) {
         $question = $this->questions[0];
         $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
             $this->student1, get_admin(), $this->course,
