@@ -145,6 +145,12 @@ if ($question) {
 
     echo $quba->render_question($slot, $options, 'i');
 
+    $returnurl = new moodle_url('/mod/studentquiz/view.php', ['id' => $cmid]);
+    echo html_writer::start_div('controls input-group', ['id' => 'previewcontrols']);
+    echo html_writer::link($returnurl, get_string('closepreview', 'question'),
+        ['class' => 'btn btn-secondary mr-1 mb-1', 'role' => 'button']);
+    echo html_writer::end_div();
+
     $PAGE->requires->js_module('core_question_engine');
     $PAGE->requires->strings_for_js(array(
         'closepreview',
