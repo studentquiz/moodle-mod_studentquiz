@@ -39,6 +39,8 @@ class permissions_test extends \advanced_testcase {
      * @return array
      */
     public static function ensure_permissions_are_right_testcases(): array {
+        // MDL-84576 add moodle/question:useall by default to non-editing teacher role in M5.0+.
+        $added = utils::moodle_version_is("<", "500") ? true : false;
         return [
             'default student role' => [
                 'student',
@@ -53,8 +55,10 @@ class permissions_test extends \advanced_testcase {
                 [],
                 [],
                 [],
-                ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
-                        '+moodle/question:useall', '+moodle/question:viewall'],
+                $added ? ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
+                    '+moodle/question:useall', '+moodle/question:viewall'] :
+                    ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
+                        '+moodle/question:viewall'],
             ],
             'default editing teacher role' => [
                 'editingteacher',
@@ -76,17 +80,23 @@ class permissions_test extends \advanced_testcase {
                 [],
                 [],
                 ['+mod/studentquiz:canselfratecomment', '+moodle/site:accessallgroups'],
-                ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
-                        '+moodle/question:useall', '+moodle/question:viewall',
-                        '+mod/studentquiz:canselfratecomment', '+moodle/site:accessallgroups'],
+                $added ? ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
+                    '+moodle/question:useall', '+moodle/question:viewall',
+                    '+mod/studentquiz:canselfratecomment', '+moodle/site:accessallgroups'] :
+                    ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
+                        '+moodle/question:viewall', '+mod/studentquiz:canselfratecomment',
+                        '+moodle/site:accessallgroups'],
             ],
             'non-editing teacher with added manage' => [
                 'teacher',
                 [],
                 ['+mod/studentquiz:manage'],
                 [],
-                ['+moodle/question:add', '+moodle/question:editall',
-                        '+moodle/question:tagmine', '+moodle/question:useall', '+moodle/question:viewall'],
+                $added ? ['+moodle/question:add', '+moodle/question:editall',
+                    '+moodle/question:tagmine', '+moodle/question:useall', '+moodle/question:viewall'] :
+                    ['+moodle/question:add', '+moodle/question:editall',
+                        '+moodle/question:tagmine', '+moodle/question:viewall']
+                ,
             ],
             'non-editing teacher role set back to default after capabilities were assigned in the past' => [
                 'teacher',
