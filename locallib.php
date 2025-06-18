@@ -736,11 +736,7 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
                    AND qr.component = 'mod_studentquiz'
                    AND qr.questionarea = 'studentquiz_question'
               JOIN {question_bank_entries} qbe ON qr.questionbankentryid = qbe.id
-              JOIN {question_versions} qv ON qv.questionbankentryid = qr.questionbankentryid AND qv.version = (
-                                      SELECT MAX(version)
-                                        FROM {question_versions}
-                                       WHERE questionbankentryid = qbe.id
-                                  )
+              JOIN {question_versions} qv ON qv.questionbankentryid = qbe.id
               -- Only enrolled users.
               JOIN {question} q ON q.id = qv.questionid
              WHERE q.id = :questionid
