@@ -46,3 +46,14 @@ Feature: Restore specific studentquiz old backup to test UI feature
     When I click on "History" "link"
     Then I should see "James Potter" in the "Question saved ('Draft')" "table_row"
     And I should see "Question set to 'Approved'"
+
+  @javascript @_file_upload
+  Scenario: Restore moodle backups contain question with multiple versions.
+    Given I am on the "Course 1" "restore" page logged in as "admin"
+    # Main branch has change the text to "Manage course backups" so we should use xpath.
+    And I click on "(//*[@class='singlebutton']//button)[1]" "xpath_element"
+    And I upload "mod/studentquiz/tests/fixtures/backup-moodle45-has-multiple-versions-disapproved.mbz" file to "Files" filemanager
+    And I press "Save changes"
+    When I restore "backup-moodle45-has-multiple-versions-disapproved.mbz" backup into a new course using this options:
+    And I am on the "Test SQ" "mod_studentquiz > View" page
+    Then I should see "T/F v3"
