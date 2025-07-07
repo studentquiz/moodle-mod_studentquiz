@@ -1,6 +1,22 @@
 # Change log for the StudentQuiz activity
 
 
+## Version 5.4.0
+
+* This release is compatible with Moodle 5.0.
+* Changes to use the editor based on the system setting.
+* Adds a new feature to use a customized button set with the TinyMCE editor.
+* Fixes a bug to clear the comment/reply input field after submission when using the Tiny editor.
+* Fixes an issue to allow questions from a StudentQuiz to be reused in other StudentQuizzes.
+* Calls the require_login function for StudentQuiz pages to resolve the missing userid parameter error.
+* Fixes pagination issues.
+* Fix coding style issues and automated tests.
+* Resolved performance issue caused when deleting users from the Moodle system.
+* Remove legacy support for unsupported M3.5 version.
+* Fixes an issue that caused errors when restoring a StudentQuiz with questions that have
+  multiple versions and are disapproved.
+* Add visually-hidden class to support Bootstrap 5.
+
 ## Version 5.3.0
 
 * This release fixes some security issues. You are strongly recommended to upgrade.
