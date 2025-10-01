@@ -26,12 +26,11 @@ use core_question\local\bank\question_version_status;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class statistics_calculator {
-
     /**
      * Query helper for attempt stats
      *
      * @return string
-     * TODO: Refactor: There must be a better way to do this!
+     * TODO: Refactor: There must be a better way to do this! // phpcs:ignore moodle.Commenting.TodoComment
      */
     private static function get_attempt_stat_select() {
         return "SELECT statspercategory.userid AS userid,
@@ -105,19 +104,19 @@ class statistics_calculator {
         $join = " FROM {studentquiz} sq
              -- Get this Studentquiz Question category.
              JOIN {context} con ON con.instanceid = sq.coursemodule
-                  AND con.contextlevel = ".CONTEXT_MODULE."
+                  AND con.contextlevel = " . CONTEXT_MODULE . "
              JOIN {question_categories} qc ON qc.contextid = con.id
              -- Only enrolled users.
              JOIN {course} c ON c.id = sq.course
              JOIN {context} cctx ON cctx.instanceid = c.id
-                  AND cctx.contextlevel = ".CONTEXT_COURSE."
+                  AND cctx.contextlevel = " . CONTEXT_COURSE . "
              JOIN {role_assignments} ra ON cctx.id = ra.contextid
              JOIN {user} u ON u.id = ra.userid";
         if (!empty($excluderoles)) {
             $join .= "
             -- Only not excluded roles
             JOIN {role} r ON r.id = ra.roleid
-                AND r.id NOT IN (".implode(',', $excluderoles).")";
+                AND r.id NOT IN (" . implode(',', $excluderoles) . ")";
         }
 
         // We just count the questions create by user in current group.
@@ -350,25 +349,26 @@ class statistics_calculator {
     public static function get_community_stats($cmid, $groupid) {
         global $DB;
         $select = 'SELECT '
-            .' count(*) participants,'
+            . ' count(*) participants,'
             // Calculate points.
+            // phpcs:ignore moodle.Commenting.TodoComment
             // TODO: Calc Points if needed - it's messy.
             // questions created.
-            .' COALESCE(sum(creators.countq), 0) questions_created,'
+            . ' COALESCE(sum(creators.countq), 0) questions_created,'
             // Questions approved.
-            .' COALESCE(sum(approvals.countq), 0) questions_approved,'
+            . ' COALESCE(sum(approvals.countq), 0) questions_approved,'
             // Questions rating received.
-            .' COALESCE(sum(rates.countv), 0) rates_received,'
-            .' COALESCE(avg(rates.avgv), 0) rates_average,'
+            . ' COALESCE(sum(rates.countv), 0) rates_received,'
+            . ' COALESCE(avg(rates.avgv), 0) rates_average,'
             // Question attempts.
-            .' COALESCE(count(1), 0) participated,'
-            .' COALESCE(sum(attempts.counta), 0) question_attempts,'
-            .' COALESCE(sum(attempts.countright), 0) question_attempts_correct,'
-            .' COALESCE(sum(attempts.countwrong), 0) question_attempts_incorrect,'
+            . ' COALESCE(count(1), 0) participated,'
+            . ' COALESCE(sum(attempts.counta), 0) question_attempts,'
+            . ' COALESCE(sum(attempts.countright), 0) question_attempts_correct,'
+            . ' COALESCE(sum(attempts.countwrong), 0) question_attempts_incorrect,'
             // Last attempt.
-            .' COALESCE(sum(lastattempt.last_attempt_exists), 0) last_attempt_exists,'
-            .' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct,'
-            .' COALESCE(sum(lastattempt.last_attempt_incorrect), 0) last_attempt_incorrect';
+            . ' COALESCE(sum(lastattempt.last_attempt_exists), 0) last_attempt_exists,'
+            . ' COALESCE(sum(lastattempt.last_attempt_correct), 0) last_attempt_correct,'
+            . ' COALESCE(sum(lastattempt.last_attempt_incorrect), 0) last_attempt_incorrect';
         $attemptstastjoins = self::get_attempt_stat_joins($cmid, $groupid);
         $params = self::get_attempt_stat_joins_params($cmid);
         $params += $attemptstastjoins->params;
@@ -384,7 +384,7 @@ class statistics_calculator {
      * @param \stdClass $quantifiers ad-hoc class containing quantifiers for weighted points score.
      * @param int $userid User id.
      * @return array array of user ranking stats
-     * TODO: use mod_studentquiz_report_record type
+     * TODO: use mod_studentquiz_report_record type // phpcs:ignore moodle.Commenting.TodoComment
      */
     public static function get_user_stats($cmid, $groupid, $quantifiers, $userid) {
         global $DB;
@@ -394,8 +394,10 @@ class statistics_calculator {
         $statsbycat = ' ) statspercategory GROUP BY userid';
         $params = self::get_attempt_stat_joins_params($cmid, $quantifiers, $userid);
         $params += $attemptstastjoins->params;
-        $rs = $DB->get_record_sql("$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres} $addwhere $statsbycat ",
-            $params);
+        $rs = $DB->get_record_sql(
+            "$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres} $addwhere $statsbycat ",
+            $params
+        );
         return $rs;
     }
 
@@ -409,19 +411,29 @@ class statistics_calculator {
      * @param int $limitnum return a subset comprising this many records (optional, required if $limitfrom is set).
      * @return \moodle_recordset of paginated ranking table
      */
-    public static function get_user_ranking_table($cmid, $groupid, $quantifiers, $excluderoles = [],
-        $limitfrom = 0, $limitnum = 0) {
+    public static function get_user_ranking_table(
+        $cmid,
+        $groupid,
+        $quantifiers,
+        $excluderoles = [],
+        $limitfrom = 0,
+        $limitnum = 0
+    ) {
         global $DB;
 
         $select = self::get_attempt_stat_select();
         $attemptstastjoins = self::get_attempt_stat_joins($cmid, $groupid, $excluderoles);
         $statsbycat = ' ) statspercategory GROUP BY userid';
         $order = ' ORDER BY points DESC, questions_created DESC, questions_approved DESC, rates_average DESC, '
-            .' question_attempts_correct DESC, question_attempts_incorrect ASC ';
+            . ' question_attempts_correct DESC, question_attempts_incorrect ASC ';
         $params = self::get_attempt_stat_joins_params($cmid, $quantifiers);
         $params += $attemptstastjoins->params;
-        $res = $DB->get_recordset_sql("$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres} $statsbycat $order",
-            $params, $limitfrom, $limitnum);
+        $res = $DB->get_recordset_sql(
+            "$select {$attemptstastjoins->joins} {$attemptstastjoins->wheres} $statsbycat $order",
+            $params,
+            $limitfrom,
+            $limitnum
+        );
         return $res;
     }
 
@@ -475,7 +487,7 @@ class statistics_calculator {
         $sqlwheres = [
             'sqq.hidden = 0',
             'q.parent = 0',
-            'sq.coursemodule = :cmid1'
+            'sq.coursemodule = :cmid1',
         ];
         $contextid = \context_module::instance($cmid)->id;
         $params = [

@@ -49,7 +49,7 @@ require_once(__DIR__ . '/locallib.php');
  */
 function studentquiz_supports($feature) {
 
-    switch($feature) {
+    switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
@@ -93,14 +93,15 @@ function studentquiz_after_require_login() {
  * of the new instance.
  *
  * @param stdClass $studentquiz Submitted data from the form in mod_form.php
- * @param mod_studentquiz_mod_form $mform The form instance itself (if needed)
+ * @param mod_studentquiz_mod_form|null $mform The form instance itself (if needed)
  * @return int The id of the newly inserted studentquiz record
  */
-function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
+function studentquiz_add_instance(stdClass $studentquiz, ?mod_studentquiz_mod_form $mform = null) {
     global $DB;
 
     $studentquiz->timecreated = time();
 
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO unify parsing of submitted variables! mform and studentquiz are quite the same? or where do they exactly differ?
 
     if (!empty($mform->anonymrank)) {
@@ -147,10 +148,10 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
     $context = context_module::instance($studentquiz->coursemodule);
 
     // Early update context in database so default categories know where the instance can be found.
-    $DB->set_field('course_modules', 'instance', $studentquiz->id, array('id' => $context->instanceid));
+    $DB->set_field('course_modules', 'instance', $studentquiz->id, ['id' => $context->instanceid]);
 
     // Add default module context question category.
-    question_make_default_categories(array($context));
+    question_make_default_categories([$context]);
     studentquiz_process_event($studentquiz);
 
     return $studentquiz->id;
@@ -164,10 +165,10 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
  * will update an existing instance with new data.
  *
  * @param stdClass $studentquiz An object from the form in mod_form.php
- * @param mod_studentquiz_mod_form $mform The form instance itself (if needed)
+ * @param mod_studentquiz_mod_form|null $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
+function studentquiz_update_instance(stdClass $studentquiz, ?mod_studentquiz_mod_form $mform = null) {
     global $DB;
 
     // For checkboxes, when deselected, $1 still contains the data from the database, because browser doesn't
@@ -212,8 +213,8 @@ function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_
                 'context' => context_module::instance($currentdata->coursemodule),
                 'other' => [
                         'olddigesttype' => $currentdata->digesttype,
-                        'newdigesttype' => $studentquiz->digesttype
-                ]
+                        'newdigesttype' => $studentquiz->digesttype,
+                ],
         ];
         if ($currentdata->digesttype == 2) {
             $params['other']['olddigestfirstday'] = $currentdata->digestfirstday;
@@ -252,27 +253,35 @@ function studentquiz_delete_instance($id) {
 
     $DB->delete_records_select('studentquiz_rate', $sql, $params);
     $DB->delete_records_select('studentquiz_progress', $sql, $params);
-    $comments = $DB->get_records_select('studentquiz_comment',
-        $sql, $params, '', 'id');
+    $comments = $DB->get_records_select(
+        'studentquiz_comment',
+        $sql,
+        $params,
+        '',
+        'id'
+    );
     if ($comments) {
         $commentids = array_column($comments, 'id');
-        list($commentsql, $commentparams) = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
+        [$commentsql, $commentparams] = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
         $DB->delete_records_select('studentquiz_comment_history', "commentid $commentsql", $commentparams);
     }
     $DB->delete_records_select('studentquiz_comment', $sql, $params);
     $DB->delete_records_select('studentquiz_state_history', $sql, $params);
-    $DB->delete_records_select('question_references', 'itemid IN (SELECT id FROM {studentquiz_question}
+    $DB->delete_records_select(
+        'question_references',
+        'itemid IN (SELECT id FROM {studentquiz_question}
          WHERE studentquizid = :studentquizid) AND component = :component AND questionarea = :questionarea',
-        ['studentquizid' => $id, 'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']);
+        ['studentquizid' => $id, 'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']
+    );
     $DB->delete_records('studentquiz_attempt', $params);
     $DB->delete_records('studentquiz_notification', $params);
     $DB->delete_records('studentquiz_question', $params);
 
-    $role = $DB->get_record('role', array('shortname' => 'student'));
+    $role = $DB->get_record('role', ['shortname' => 'student']);
     $context = context_module::instance($studentquiz->coursemodule);
-    $DB->delete_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
+    $DB->delete_records('role_capabilities', ['roleid' => $role->id, 'contextid' => $context->id]);
 
-    $DB->delete_records('studentquiz', array('id' => $studentquiz->id));
+    $DB->delete_records('studentquiz', ['id' => $studentquiz->id]);
 
     return true;
 }
@@ -284,8 +293,12 @@ function studentquiz_delete_instance($id) {
  */
 function studentquiz_process_event(object $studentquiz): void {
     $completiontimeexpected = !empty($studentquiz->completionexpected) ? $studentquiz->completionexpected : null;
-    \core_completion\api::update_completion_date_event($studentquiz->coursemodule,
-        'studentquiz', $studentquiz->id, $completiontimeexpected);
+    \core_completion\api::update_completion_date_event(
+        $studentquiz->coursemodule,
+        'studentquiz',
+        $studentquiz->id,
+        $completiontimeexpected
+    );
 }
 
 /**
@@ -353,7 +366,7 @@ function studentquiz_print_recent_activity($course, $viewfullnames, $timestart) 
  * @param int $userid check for a particular user's activity only, defaults to 0 (all users)
  * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups)
  */
-function studentquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+function studentquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
 }
 
 /**
@@ -378,7 +391,7 @@ function studentquiz_print_recent_mod_activity($activity, $courseid, $detail, $m
  *
  * @return boolean
  */
-function studentquiz_cron () {
+function studentquiz_cron(): bool {
     return true;
 }
 
@@ -409,9 +422,12 @@ function studentquiz_get_extra_capabilities() {
 function studentquiz_get_coursemodule_info(stdClass $coursemodule): cached_cm_info {
     global $DB;
 
-    $studentquiz = $DB->get_record('studentquiz',
-        ['id' => $coursemodule->instance], 'id, name, completionpoint, completionquestionpublished,
-            intro, introformat, completionquestionapproved');
+    $studentquiz = $DB->get_record(
+        'studentquiz',
+        ['id' => $coursemodule->instance],
+        'id, name, completionpoint, completionquestionpublished,
+            intro, introformat, completionquestionapproved'
+    );
     if (!$studentquiz) {
         return false;
     }
@@ -448,7 +464,7 @@ function studentquiz_get_coursemodule_info(stdClass $coursemodule): cached_cm_in
  * @return array of [(string)filearea] => (string)description
  */
 function studentquiz_get_file_areas($course, $cm, $context) {
-    return array();
+    return [];
 }
 
 /**
@@ -486,7 +502,15 @@ function studentquiz_get_file_info($browser, $areas, $course, $cm, $context, $fi
  * @param bool $forcedownload whether or not force download
  * @param array $options additional options affecting the file serving
  */
-function studentquiz_pluginfile($course, $cm, $context, $filearea, array $args, $forcedownload, array $options=array()) {
+function studentquiz_pluginfile(
+    $course,
+    $cm,
+    $context,
+    $filearea,
+    array $args,
+    $forcedownload,
+    array $options = []
+) {
     if ($context->contextlevel != CONTEXT_MODULE) {
         send_file_not_found();
     }
@@ -526,14 +550,22 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
     }
 
     // Add the navigation items.
-    $studentquiznode->add_node(navigation_node::create(get_string('reportquiz_stats_title', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/reportstat.php', array('id' => $PAGE->cm->id)),
-        navigation_node::TYPE_SETTING, null, 'mod_studentquiz_statistics',
-        new pix_icon('i/report', '')), $beforekey);
-    $studentquiznode->add_node(navigation_node::create(get_string('reportrank_title', 'studentquiz'),
-        new moodle_url('/mod/studentquiz/reportrank.php', array('id' => $PAGE->cm->id)),
-        navigation_node::TYPE_SETTING, null, 'mod_studentquiz_rank',
-        new pix_icon('i/scales', '')), $beforekey);
+    $studentquiznode->add_node(navigation_node::create(
+        get_string('reportquiz_stats_title', 'studentquiz'),
+        new moodle_url('/mod/studentquiz/reportstat.php', ['id' => $PAGE->cm->id]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'mod_studentquiz_statistics',
+        new pix_icon('i/report', '')
+    ), $beforekey);
+    $studentquiznode->add_node(navigation_node::create(
+        get_string('reportrank_title', 'studentquiz'),
+        new moodle_url('/mod/studentquiz/reportrank.php', ['id' => $PAGE->cm->id]),
+        navigation_node::TYPE_SETTING,
+        null,
+        'mod_studentquiz_rank',
+        new pix_icon('i/scales', '')
+    ), $beforekey);
 
     if (mod_studentquiz_check_created_permission($PAGE->cm->id)) {
         question_extend_settings_navigation($studentquiznode, $PAGE->cm->context)->trim_if_empty();
@@ -557,8 +589,17 @@ function studentquiz_extend_settings_navigation(settings_navigation $settingsnav
  * @param array    $options additional options affecting the file serving
  * @return bool false if file not found, does not return if found - justsend the file
  */
-function mod_studentquiz_question_pluginfile($course, $context, $component,
-                                            $filearea, $qubaid, $slot, $args, $forcedownload, array $options = array()) {
+function mod_studentquiz_question_pluginfile(
+    $course,
+    $context,
+    $component,
+    $filearea,
+    $qubaid,
+    $slot,
+    $args,
+    $forcedownload,
+    array $options = []
+) {
     global $CFG, $DB, $USER;
 
     if ($context->contextlevel != CONTEXT_MODULE) {
@@ -579,8 +620,16 @@ function mod_studentquiz_question_pluginfile($course, $context, $component,
         send_file_not_found();
     }
 
-    if (!$quba->check_file_access($slot, new question_display_options(),
-            $component, $filearea, $args, $forcedownload)) {
+    if (
+        !$quba->check_file_access(
+            $slot,
+            new question_display_options(),
+            $component,
+            $filearea,
+            $args,
+            $forcedownload
+        )
+    ) {
         send_file_not_found();
     }
 
@@ -613,7 +662,7 @@ function mod_studentquiz_output_fragment_commentform($params) {
             'replyto' => $params['replyto'],
             'forcecommenting' => $params['forcecommenting'],
             'cancelbutton' => $cancelbutton,
-            'type' => $params['type']
+            'type' => $params['type'],
     ]);
     return $mform->get_html();
 }
@@ -646,7 +695,7 @@ function mod_studentquiz_output_fragment_commenteditform($params) {
             'cancelbutton' => $cancelbutton,
             'editmode' => true,
             'type' => $params['type'],
-            'formdata' => $formdata
+            'formdata' => $formdata,
     ]);
 
     return $mform->get_html();
@@ -663,8 +712,11 @@ function mod_studentquiz_output_fragment_commenteditform($params) {
  * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
  * @return \core_calendar\local\event\entities\action_interface|null
  */
-function mod_studentquiz_core_calendar_provide_event_action(calendar_event $event,
-    \core_calendar\action_factory $factory, int $userid = 0): ?\core_calendar\local\event\entities\action_interface {
+function mod_studentquiz_core_calendar_provide_event_action(
+    calendar_event $event,
+    \core_calendar\action_factory $factory,
+    int $userid = 0
+): ?\core_calendar\local\event\entities\action_interface {
     global $USER;
     if (!$userid) {
         $userid = $USER->id;
@@ -694,8 +746,10 @@ function mod_studentquiz_core_calendar_provide_event_action(calendar_event $even
  * @return bool whether any of these questions are attempted in this studentquiz instance.
  */
 function studentquiz_questions_in_use(array $questionids): bool {
-    return question_engine::questions_in_use($questionids,
-        new qubaid_join('{studentquiz_attempt} sa', 'sa.questionusageid'));
+    return question_engine::questions_in_use(
+        $questionids,
+        new qubaid_join('{studentquiz_attempt} sa', 'sa.questionusageid')
+    );
 }
 
 /**
@@ -709,6 +763,6 @@ function mod_studentquiz_user_preferences() {
     return [utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB => [
         'type' => PARAM_TEXT,
         'null' => NULL_NOT_ALLOWED,
-        'default' => utils::COMMENT_TYPE_PRIVATE]
+        'default' => utils::COMMENT_TYPE_PRIVATE, ],
     ];
 }

@@ -28,6 +28,8 @@ require_once($CFG->dirroot . '/lib/formslib.php');
 require_once($CFG->dirroot . '/user/filters/text.php');
 require_once($CFG->dirroot . '/user/filters/date.php');
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 /**
  * Question bank filter form intance
  *
@@ -36,7 +38,6 @@ require_once($CFG->dirroot . '/user/filters/date.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_question_bank_filter_form extends moodleform {
-
     /**
      * Filter fields of question bank
      * @var array
@@ -58,8 +59,15 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
      * @param mixed $attributes you can pass a string of html attributes here or an array.
      * @param bool $editable
      */
-    public function __construct($fields, $action=null, $customdata=null, $method='post', $target='', $attributes=null,
-                                $editable=true) {
+    public function __construct(
+        $fields,
+        $action = null,
+        $customdata = null,
+        $method = 'post',
+        $target = '',
+        $attributes = null,
+        $editable = true
+    ) {
         $this->_customdata = $customdata;
         $this->fields = $fields;
         parent::__construct($action, $customdata, $method, $target, $attributes, $editable);
@@ -85,7 +93,7 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
             get_string('state_column_name', 'studentquiz'),
             get_string('filter_label_owner', 'studentquiz'),
             get_string('filter_label_difficulty_level', 'studentquiz'),
-            get_string('filter_label_rates', 'studentquiz')
+            get_string('filter_label_rates', 'studentquiz'),
         ];
         $i = 0;
         foreach ($this->fields as $fieldgroup) {
@@ -98,12 +106,17 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
                 }
             }
             if ($fasterfiltergroup) {
-                $mform->addGroup($fasterfiltergroup, 'fastfiltersgroup' . $i,
-                    $grouplabel[$i], '', false);
+                $mform->addGroup(
+                    $fasterfiltergroup,
+                    'fastfiltersgroup' . $i,
+                    $grouplabel[$i],
+                    '',
+                    false
+                );
             }
             $i++;
         }
-        $group = array();
+        $group = [];
         $group[] = $mform->createElement('submit', 'submitbutton', get_string('filter'));
         $group[] = $mform->createElement('submit', 'resetbutton', get_string('reset'));
         $mform->addGroup($group, 'buttons', '', ' ', false);
@@ -114,7 +127,6 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
             $mform->setType('qperpage', PARAM_INT);
         }
     }
-
 }
 
 /**
@@ -126,15 +138,14 @@ class mod_studentquiz_question_bank_filter_form extends moodleform {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_user_filter_text extends user_filter_text {
-
     /**
      * Adds controls specific to this filter in the form.
      *
      * @param object $mform a MoodleForm object to setup
      */
-    public function setupForm(&$mform) { // @codingStandardsIgnoreLine
+    public function setupForm(&$mform) { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         parent::setupForm($mform);
-        $group = $mform->getElement($this->_name.'_grp');
+        $group = $mform->getElement($this->_name . '_grp');
         if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
             $groupelements = $group->getElements();
             if (count($groupelements) > 0) {
@@ -143,7 +154,6 @@ class studentquiz_user_filter_text extends user_filter_text {
             }
         }
     }
-
 }
 
 /**
@@ -155,19 +165,18 @@ class studentquiz_user_filter_text extends user_filter_text {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_user_filter_date extends user_filter_date {
-
     /**
      * Adds controls specific to this filter in the form.
      *
      * @param object $mform a MoodleForm object to setup
      */
-    public function setupForm(&$mform) { // @codingStandardsIgnoreLine
+    public function setupForm(&$mform) { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         parent::setupForm($mform);
         $group = $mform->getElement($this->_name . '_grp');
         if (!empty($group) && !($group instanceof HTML_QuickForm_Error)) {
             $groupelements = $group->getElements();
             if (!empty($groupelements)) {
-                $dateselector = array();
+                $dateselector = [];
                 foreach ($groupelements as $el) {
                     if ($el->getType() == 'date_selector') {
                         $dateselector = $el->getElements();
@@ -305,7 +314,6 @@ class studentquiz_user_filter_date extends user_filter_date {
  * They have no own value but refer a the target field which is set to a defined value once toggled.
  */
 class toggle_filter_checkbox extends user_filter_checkbox {
-
     /**
      * Operator is a short form to express if the value
      * 0: is empty or 0
@@ -355,7 +363,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
         $disableelements = implode(',', $this->disableelements);
         $linktoggle = \html_writer::tag('a', $this->_label, ['href' => '#', 'class' => 'link-toggle mb-1',
                 'title' => $this->helptext, 'for' => 'id_' . $this->_name, 'data-disableelements' => $disableelements,
-                'role' => 'button']);
+                'role' => 'button', ]);
         $element = $mform->createElement('checkbox', $this->_name, null, $linktoggle, ['class' => 'toggle']);
 
         if ($this->_advanced) {
@@ -377,7 +385,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
      * @return array
      */
     public function get_sql_filter($data) {
-        switch($this->operator) {
+        switch ($this->operator) {
             case 0:
                 $res = "($this->field IS NULL OR $this->field = 0)";
                 break;
@@ -393,7 +401,7 @@ class toggle_filter_checkbox extends user_filter_checkbox {
             default:
                 $res = '';
         }
-        return array($res, array());
+        return [$res, []];
     }
 }
 
@@ -409,10 +417,10 @@ class user_filter_number extends studentquiz_user_filter_text {
      * Returns an array of comparison operators
      * @return array of comparison operators
      */
-    public function getOperators() { // @codingStandardsIgnoreLine
-        return array(0 => get_string('filter_ishigher', 'studentquiz'),
+    public function getOperators() { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
+        return [0 => get_string('filter_ishigher', 'studentquiz'),
                      1 => get_string('filter_islower', 'studentquiz'),
-                     2 => get_string('isequalto', 'filters'));
+                     2 => get_string('isequalto', 'filters'), ];
     }
 
     /**
@@ -423,20 +431,20 @@ class user_filter_number extends studentquiz_user_filter_text {
     public function get_sql_filter($data) {
         global $DB;
         static $counter = 0;
-        $name1 = 'ex_text_vo'.$counter++;
-        $name2 = 'ex_text_vo'.$counter++;
+        $name1 = 'ex_text_vo' . $counter++;
+        $name2 = 'ex_text_vo' . $counter++;
         $operator = $data['operator'];
         $value = $data['value'];
         $field = $this->_name;
 
-        $params = array();
+        $params = [];
 
         if ($operator != 5 && $value === '') {
             return '';
         }
 
         // When a count doesn't find anything, it will return NULL, so we have to account for that.
-        switch($operator) {
+        switch ($operator) {
             case 0: // Higher.
                 $res = "$field > :$name1 OR ($field IS NULL AND 0.0 > :$name2)";
                 $params[$name1] = $value;
@@ -457,7 +465,7 @@ class user_filter_number extends studentquiz_user_filter_text {
             default:
                 return '';
         }
-        return array($res, $params);
+        return [$res, $params];
     }
 
     /**
@@ -470,8 +478,10 @@ class user_filter_number extends studentquiz_user_filter_text {
     public function check_data($formdata) {
         $data = parent::check_data($formdata);
 
-        if (!isset($data['value']) || !is_numeric($data['value']) ||
-                $data['value'] < 0 || $data['value'] > PHP_INT_MAX) {
+        if (
+            !isset($data['value']) || !is_numeric($data['value']) ||
+            $data['value'] < 0 || $data['value'] > PHP_INT_MAX
+        ) {
             return false;
         }
 
@@ -483,7 +493,7 @@ class user_filter_number extends studentquiz_user_filter_text {
      *
      * @param object $mform A MoodleForm object to setup.
      */
-    public function setupForm(&$mform) { // @codingStandardsIgnoreLine
+    public function setupForm(&$mform) { // phpcs:ignore moodle.NamingConventions.ValidFunctionName.LowercaseMethod
         parent::setupForm($mform);
         $rules["$this->_name"] = [
             [null, 'numeric', null, 'server'],
@@ -497,7 +507,6 @@ class user_filter_number extends studentquiz_user_filter_text {
  * Class user_filter_percent Users can enter a number of percent, database is queried for unit value.
  */
 class user_filter_percent extends user_filter_number {
-
     /**
      * Return sql snippet comparing data is between 0 and 100%
      *

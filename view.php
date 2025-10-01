@@ -66,21 +66,29 @@ if (!empty($_GET)) {
                 foreach ($ids as $id) {
                     $baseurl->remove_params('q' . $id);
                 }
-                redirect(new moodle_url('/mod/studentquiz/attempt.php',
+                redirect(new moodle_url(
+                    '/mod/studentquiz/attempt.php',
                     ['cmid' => $cmid, 'id' => $attempt->id, 'slot' => $questionusage->get_first_question_number(),
-                        'returnurl' => $baseurl->out_as_local_url(false)]));
+                    'returnurl' => $baseurl->out_as_local_url(false), ]
+                ));
             }
         }
         // Redirect to overview to clear submit.
-        redirect(new moodle_url('view.php', array('id' => $cmid)),
-                get_string('no_questions_selected_message', 'studentquiz'),
-                null, \core\output\notification::NOTIFY_WARNING);
+        redirect(
+            new moodle_url('view.php', ['id' => $cmid]),
+            get_string('no_questions_selected_message', 'studentquiz'),
+            null,
+            \core\output\notification::NOTIFY_WARNING
+        );
     }
     if (!optional_param('qperpage', utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT)) {
         // Invalid page size param in the URL.
-        redirect(new \moodle_url('view.php', ['id' => $cmid]),
+        redirect(
+            new \moodle_url('view.php', ['id' => $cmid]),
             get_string('pagesize_invalid_input', 'studentquiz'),
-            null, \core\output\notification::NOTIFY_ERROR);
+            null,
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
     // In Moodle 4.3, we have a filter param after we move the questions, but in SQ, we don't use that, so remove the filter param.
     if ($filter = optional_param('filter', 0, PARAM_RAW)) {
@@ -92,17 +100,26 @@ if (!empty($_GET)) {
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
 
 // Redirect to overview if there are no selected questions.
-if ((optional_param('approveselected', false, PARAM_BOOL) || optional_param('deleteselected', false, PARAM_BOOL)) &&
+if (
+    (optional_param('approveselected', false, PARAM_BOOL) || optional_param('deleteselected', false, PARAM_BOOL)) &&
         !optional_param('confirm', '', PARAM_ALPHANUM) ||
-        optional_param('move', false, PARAM_BOOL)) {
+        optional_param('move', false, PARAM_BOOL)
+) {
     if (!mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST)) {
         $baseurl->remove_params('deleteselected', 'approveselected', 'move');
-        redirect($baseurl, get_string('noquestionsselectedtodoaction', 'studentquiz'),
-            null, \core\output\notification::NOTIFY_WARNING);
+        redirect(
+            $baseurl,
+            get_string('noquestionsselectedtodoaction', 'studentquiz'),
+            null,
+            \core\output\notification::NOTIFY_WARNING
+        );
     }
     if (!has_capability('mod/studentquiz:changestate', $PAGE->context) && optional_param('approveselected', false, PARAM_BOOL)) {
-        redirect(new moodle_url('view.php', array('id' => $cmid)), get_string('nopermissions', 'error',
-            get_string('studentquiz:changestate', 'studentquiz')), null, \core\output\notification::NOTIFY_WARNING);
+        redirect(new moodle_url('view.php', ['id' => $cmid]), get_string(
+            'nopermissions',
+            'error',
+            get_string('studentquiz:changestate', 'studentquiz')
+        ), null, \core\output\notification::NOTIFY_WARNING);
     }
 }
 

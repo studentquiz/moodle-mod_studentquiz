@@ -61,7 +61,7 @@ const QUESTION_DEFAULT_NAME = 'Question';
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bank_view_test extends \advanced_testcase {
+final class bank_view_test extends \advanced_testcase {
     /**
      * @var course module
      */
@@ -98,11 +98,11 @@ class bank_view_test extends \advanced_testcase {
      */
     public function run_questionbank() {
         global $PAGE;
-        $PAGE->set_url(new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id)));
+        $PAGE->set_url(new \moodle_url('/mod/studentquiz/view.php', ['cmid' => $this->cm->id]));
         $PAGE->set_context($this->ctx);
         $PAGE->set_cm($this->cm);
         // Hard coded.
-        $pagevars = array(
+        $pagevars = [
                 'recurse' => true,
                 'cat' => $this->cat->id . ',' . $this->ctx->id,
                 'showall' => 0,
@@ -110,7 +110,7 @@ class bank_view_test extends \advanced_testcase {
                 'tabname' => 'questions',
                 'qperpage' => 100,
                 'qpage' => 0,
-        );
+        ];
 
         $report = new \mod_studentquiz_report($this->course, $this->cm);
         if (utils::moodle_version_is("<=", "42")) {
@@ -120,7 +120,9 @@ class bank_view_test extends \advanced_testcase {
                 $this->course,
                 $this->cm,
                 $this->studentquiz,
-                $pagevars, $report);
+                $pagevars,
+                $report
+            );
         } else {
             $questionbank = new studentquiz_bank_view(
                 new \core_question\local\bank\question_edit_contexts(\context_module::instance($this->cm->id)),
@@ -128,7 +130,9 @@ class bank_view_test extends \advanced_testcase {
                 $this->course,
                 $this->cm,
                 $this->studentquiz,
-                $pagevars, $report);
+                $pagevars,
+                $report
+            );
         }
         return $questionbank;
     }
@@ -139,13 +143,17 @@ class bank_view_test extends \advanced_testcase {
      */
     protected function setUp(): void {
         global $DB;
+        parent::setUp();
         $user = $this->getDataGenerator()->create_user();
         $this->course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $this->course->id, $studentrole->id);
 
-        $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz',
-                array('course' => $this->course->id),  array('anonymrank' => true));
+        $this->studentquiz = $this->getDataGenerator()->create_module(
+            'studentquiz',
+            ['course' => $this->course->id],
+            ['anonymrank' => true]
+        );
         $this->cm = get_coursemodule_from_instance('studentquiz', $this->studentquiz->id);
 
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
@@ -163,7 +171,7 @@ class bank_view_test extends \advanced_testcase {
      * Test wanted_columns function.
      * @covers \mod_studentquiz\question\bank\studentquiz_bank_view::wanted_columns.
      */
-    public function test_wanted_columns() {
+    public function test_wanted_columns(): void {
         $this->resetAfterTest(true);
 
         $questionbank = $this->run_questionbank();
@@ -220,7 +228,7 @@ class bank_view_test extends \advanced_testcase {
     protected function create_random_questions($count, $userid) {
         global $DB;
         for ($i = 0; $i < $count; ++$i) {
-            $question = $this->questiongenerator->create_question('description', null, array('category' => $this->cat->id));
+            $question = $this->questiongenerator->create_question('description', null, ['category' => $this->cat->id]);
             $question->name = QUESTION_DEFAULT_NAME . ' ' . $i;
             $DB->update_record('question', $question);
             $q1 = \question_bank::load_question($question->id);
@@ -260,7 +268,7 @@ class bank_view_test extends \advanced_testcase {
      * Test questionbank empty filter
      * @covers \mod_studentquiz\question\bank\studentquiz_bank_view
      */
-    public function test_questionbank_empty_filter() {
+    public function test_questionbank_empty_filter(): void {
         $this->resetAfterTest(true);
         $questionbank = $this->run_questionbank();
         ob_start();
@@ -274,7 +282,7 @@ class bank_view_test extends \advanced_testcase {
      * Test questionbank filter question name
      * @covers \mod_studentquiz\question\bank\studentquiz_bank_view
      */
-    public function test_questionbank_filter_question_name() {
+    public function test_questionbank_filter_question_name(): void {
         $this->resetAfterTest(true);
 
         $this->set_filter(QUESTION_NAME_FILTER, 'Question 1');

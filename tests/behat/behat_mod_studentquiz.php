@@ -26,10 +26,8 @@
 
 require_once(__DIR__ . '/../../../../lib/behat/behat_base.php');
 
+use Behat\Mink\Exception\ExpectationException;
 use mod_studentquiz\utils;
-use Behat\Mink\Exception\ExpectationException as ExpectationException;
-use Behat\Mink\Exception\ElementNotFoundException as ElementNotFoundException;
-use Behat\Gherkin\Node\TableNode as TableNode;
 
 /**
  * Steps definitions related to mod_studentquiz.
@@ -41,7 +39,6 @@ use Behat\Gherkin\Node\TableNode as TableNode;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_mod_studentquiz extends behat_base {
-
     /**
      * Behat function to set availability field
      *
@@ -150,20 +147,28 @@ class behat_mod_studentquiz extends behat_base {
     protected function resolve_page_instance_url(string $type, string $identifier): moodle_url {
         switch ($type) {
             case 'View':
-                return new moodle_url('/mod/studentquiz/view.php',
-                                      ['id' => $this->get_cm_by_studentquiz_name($identifier)->id]);
+                return new moodle_url(
+                    '/mod/studentquiz/view.php',
+                    ['id' => $this->get_cm_by_studentquiz_name($identifier)->id]
+                );
 
             case 'Edit':
-                return new moodle_url('/course/modedit.php',
-                                      ['update' => $this->get_cm_by_studentquiz_name($identifier)->id]);
+                return new moodle_url(
+                    '/course/modedit.php',
+                    ['update' => $this->get_cm_by_studentquiz_name($identifier)->id]
+                );
 
             case 'Statistics':
-                return new moodle_url('/mod/studentquiz/reportstat.php',
-                                      ['id' => $this->get_cm_by_studentquiz_name($identifier)->id]);
+                return new moodle_url(
+                    '/mod/studentquiz/reportstat.php',
+                    ['id' => $this->get_cm_by_studentquiz_name($identifier)->id]
+                );
 
             case 'Ranking':
-                return new moodle_url('/mod/studentquiz/reportrank.php',
-                                      ['id' => $this->get_cm_by_studentquiz_name($identifier)->id]);
+                return new moodle_url(
+                    '/mod/studentquiz/reportrank.php',
+                    ['id' => $this->get_cm_by_studentquiz_name($identifier)->id]
+                );
 
             default:
                 throw new Exception('Unrecognised studentquiz page type "' . $type . '."');
@@ -178,7 +183,7 @@ class behat_mod_studentquiz extends behat_base {
      */
     protected function get_studentquiz_by_name(string $name): stdClass {
         global $DB;
-        return $DB->get_record('studentquiz', array('name' => $name), '*', MUST_EXIST);
+        return $DB->get_record('studentquiz', ['name' => $name], '*', MUST_EXIST);
     }
 
     /**
@@ -215,13 +220,18 @@ class behat_mod_studentquiz extends behat_base {
         }
 
         $this->spin(
-            function($context, $args) {
+            function ($context, $args) {
                 if ($args->isVisible()) {
                     return true;
                 }
 
                 return false;
-            }, $node, behat_base::get_reduced_timeout(), $exception, true);
+            },
+            $node,
+            behat_base::get_reduced_timeout(),
+            $exception,
+            true
+        );
     }
 
     /**
@@ -247,12 +257,17 @@ class behat_mod_studentquiz extends behat_base {
         }
 
         $this->spin(
-            function($context, $args) {
+            function ($context, $args) {
                 if ($args->isVisible()) {
                     return false;
                 }
 
                 return true;
-            }, $node, behat_base::get_reduced_timeout(), $exception, true);
+            },
+            $node,
+            behat_base::get_reduced_timeout(),
+            $exception,
+            true
+        );
     }
 }

@@ -30,7 +30,6 @@ if (!class_exists('\qbank_editquestion\edit_action')) {
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_edit_action extends \qbank_editquestion\edit_action {
-
     /**
      * Override method to get url and label for edit action of the studentquiz.
      *
@@ -41,14 +40,14 @@ class sq_edit_action extends \qbank_editquestion\edit_action {
      *      $label - Text label to display in the UI (either in the menu, or as a tool-tip on the icon)
      */
     protected function get_url_icon_and_label(\stdClass $question): array {
-
-        if (($question->state == studentquiz_helper::STATE_APPROVED || $question->state == studentquiz_helper::STATE_DISAPPROVED) &&
-            !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+        if (
+            ($question->state == studentquiz_helper::STATE_APPROVED || $question->state == studentquiz_helper::STATE_DISAPPROVED) &&
+            !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())
+        ) {
             // Do not render Edit icon if Question is in approved/disapproved state for Student.
             return [null, null, null];
         }
 
         return parent::get_url_icon_and_label($question);
     }
-
 }

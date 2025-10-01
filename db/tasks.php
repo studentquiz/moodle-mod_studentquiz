@@ -32,7 +32,7 @@ $tasks = [
                 'hour' => '0',
                 'day' => '*',
                 'month' => '*',
-                'dayofweek' => '*'
+                'dayofweek' => '*',
         ],
         [
                 'classname' => 'mod_studentquiz\task\delete_orphaned_questions',
@@ -42,6 +42,6 @@ $tasks = [
                 'day' => '1',
                 'dayofweek' => '*',
                 'month' => '*',
-                'disabled' => 0
-        ]
+                'disabled' => 0,
+        ],
 ];

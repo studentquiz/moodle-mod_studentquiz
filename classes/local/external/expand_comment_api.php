@@ -45,7 +45,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class expand_comment_api extends external_api {
-
     /**
      * Gets function parameter metadata.
      *
@@ -56,7 +55,7 @@ class expand_comment_api extends external_api {
                 'studentquizquestionid' => new external_value(PARAM_INT, 'SQQ ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'commentid' => new external_value(PARAM_INT, 'Comment ID'),
-                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC),
         ]);
     }
 
@@ -69,7 +68,8 @@ class expand_comment_api extends external_api {
         $replystructure = utils::get_comment_area_webservice_comment_reply_structure();
         $repliesstructure = $replystructure;
         $repliesstructure['replies'] = new external_multiple_structure(
-                new external_single_structure($replystructure), 'List of replies belong to first level comment'
+            new external_single_structure($replystructure),
+            'List of replies belong to first level comment'
         );
         return new external_single_structure($repliesstructure);
     }
@@ -89,7 +89,7 @@ class expand_comment_api extends external_api {
                 'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'commentid' => $commentid,
-                'type' => $type
+                'type' => $type,
         ]);
 
         $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);

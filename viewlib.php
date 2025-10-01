@@ -28,6 +28,9 @@ require_once(__DIR__ . '/locallib.php');
 
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
+
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 /**
  * This class loads and represents the state for the main view.
  *
@@ -116,6 +119,7 @@ class mod_studentquiz_view {
 
         $this->userid = $userid;
 
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Refactor!
         $this->load_questionbank();
     }
@@ -128,7 +132,7 @@ class mod_studentquiz_view {
         $_POST['cat'] = $this->get_category_id() . ',' . $this->get_context_id();
         $params = $_GET;
         // Get edit question link setup.
-        list($thispageurl, $contexts, $cmid, $cm, $module, $pagevars)
+        [$thispageurl, $contexts, $cmid, $cm, $module, $pagevars]
             = question_edit_setup('questions', '/mod/studentquiz/view.php');
         $pagevars['qperpage'] = optional_param('qperpage', \mod_studentquiz\utils::DEFAULT_QUESTIONS_PER_PAGE, PARAM_INT);
         $pagevars['showall'] = optional_param('showall', false, PARAM_BOOL);
@@ -144,6 +148,7 @@ class mod_studentquiz_view {
             $thispageurl->param($key, $value);
         }
         // Trigger notification if user got returned from the question edit form.
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Shouldn't this be somewhere outside of load_questionbank(), as this is clearly not relevant for showing the
         // question bank?
         if (($lastchanged = optional_param('lastchanged', 0, PARAM_INT)) !== 0) {
@@ -151,8 +156,11 @@ class mod_studentquiz_view {
             // Ensure we have a studentquiz_question record.
             // Since we don't can modify the core, we need to get the studentquizquestion.
             $question = \question_bank::load_question($lastchanged);
-            $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question,
-                    $this->studentquiz, $cm);
+            $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question(
+                $question,
+                $this->studentquiz,
+                $cm
+            );
             mod_studentquiz_ensure_studentquiz_question_record($lastchanged, $this->get_cm_id());
             mod_studentquiz_event_notification_question('changed', $studentquizquestion, $this->course, $this->cm);
             $thispageurl->remove_params('lastchanged');
@@ -170,17 +178,30 @@ class mod_studentquiz_view {
         $this->qbpagevar = array_merge($pagevars, $params);
         if (utils::moodle_version_is("<=", "42")) {
             $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view_pre_43(
-                $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
+                $contexts,
+                $thispageurl,
+                $this->course,
+                $this->cm,
+                $this->studentquiz,
+                $pagevars,
+                $this->report
+            );
         } else {
             $this->questionbank = new \mod_studentquiz\question\bank\studentquiz_bank_view(
-                $contexts, $thispageurl, $this->course, $this->cm, $this->studentquiz, $pagevars, $this->report);
+                $contexts,
+                $thispageurl,
+                $this->course,
+                $this->cm,
+                $this->studentquiz,
+                $pagevars,
+                $this->report
+            );
         }
-
     }
 
     /**
      * Return the users' progress information in this StudentQuiz.
-     * TODO: Refactor this method to actually return personal progress values!
+     * TODO: Refactor this method to actually return personal progress values! // phpcs:ignore moodle.Commenting.TodoComment
      */
     public function get_progress_info() {
         $info = new stdClass();
@@ -227,7 +248,7 @@ class mod_studentquiz_view {
      * @return array
      */
     public function get_urlview_data() {
-        return array('cmid' => $this->cm->id);
+        return ['cmid' => $this->cm->id];
     }
 
     /**
@@ -316,7 +337,7 @@ class mod_studentquiz_view {
      */
     public function get_title() {
         return get_string('modulename', 'studentquiz') .
-                ': '.  $this->get_coursemodule()->name;
+                ': ' .  $this->get_coursemodule()->name;
     }
 
     /**

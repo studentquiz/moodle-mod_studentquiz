@@ -28,7 +28,6 @@ if (!class_exists('\core_question\local\bank\question_action_base')) {
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_hidden_action extends \core_question\local\bank\question_action_base {
-
     /** @var int */
     protected $currentuserid;
 
@@ -65,14 +64,24 @@ class sq_hidden_action extends \core_question\local\bank\question_action_base {
         $cmid = $this->qbank->cm->id;
         if (has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
             if (!empty($question->sq_hidden)) {
-                $url = new \moodle_url('/mod/studentquiz/hideaction.php',
-                        ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
-                                'courseid' => $courseid, 'hide' => 0, 'cmid' => $cmid, 'returnurl' => $this->qbank->base_url()]);
+                $url = new \moodle_url(
+                    '/mod/studentquiz/hideaction.php',
+                    ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
+                    'courseid' => $courseid,
+                    'hide' => 0,
+                    'cmid' => $cmid,
+                    'returnurl' => $this->qbank->base_url(), ]
+                );
                 return [$url, 't/show', get_string('show')];
             } else {
-                $url = new \moodle_url('/mod/studentquiz/hideaction.php',
-                        ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
-                                'courseid' => $courseid, 'hide' => 1, 'cmid' => $cmid, 'returnurl' => $this->qbank->base_url()]);
+                $url = new \moodle_url(
+                    '/mod/studentquiz/hideaction.php',
+                    ['studentquizquestionid' => $question->studentquizquestionid, 'sesskey' => sesskey(),
+                    'courseid' => $courseid,
+                    'hide' => 1,
+                    'cmid' => $cmid,
+                    'returnurl' => $this->qbank->base_url(), ]
+                );
                 return [$url, 't/hide', get_string('hide')];
             }
         }

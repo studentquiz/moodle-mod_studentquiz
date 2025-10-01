@@ -25,7 +25,6 @@ namespace mod_studentquiz\local;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_helper {
-
     /**
      * @var int STATE_DISAPPROVED state constant for disapproved
      */

@@ -21,8 +21,8 @@
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use mod_studentquiz\utils;
 
+use mod_studentquiz\utils;
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\local\studentquiz_progress;
 
@@ -41,7 +41,7 @@ $returnurl = optional_param('returnurl', '', PARAM_LOCALURL);
 
 [$course, $cm] = get_course_and_cm_from_cmid($cmid, 'studentquiz');
 require_login($course, false, $cm);
-$attempt = $DB->get_record('studentquiz_attempt', array('id' => $attemptid));
+$attempt = $DB->get_record('studentquiz_attempt', ['id' => $attemptid]);
 $context = context_module::instance($cm->id);
 
 // Check to see if any roles setup has been changed since we last synced the capabilities.
@@ -66,7 +66,7 @@ if (!in_array($slot, $slots)) {
     }
 }
 $actionurl = new moodle_url('/mod/studentquiz/attempt.php', ['cmid' => $cmid, 'id' =>
-    $attemptid, 'slot' => $slot, 'returnurl' => $returnurl]);
+    $attemptid, 'slot' => $slot, 'returnurl' => $returnurl, ]);
 $returnurl = $returnurl ? new moodle_url($returnurl) : new moodle_url('/mod/studentquiz/view.php', ['id' => $cmid]);
 // Reroute this to attempt summary page if desired.
 // Get Current Question.
@@ -107,12 +107,17 @@ if (data_submitted()) {
 
     // If the question is finished after process but was not before, save the attempt to the progress.
     if ($isfinishedafter && !$isfinishedbefore) {
-        $studentquizprogress = $DB->get_record('studentquiz_progress',
+        $studentquizprogress = $DB->get_record(
+            'studentquiz_progress',
             ['studentquizquestionid' => $studentquizquestion->get_id(),
-            'userid' => $userid, 'studentquizid' => $studentquiz->id]);
+            'userid' => $userid,
+            'studentquizid' => $studentquiz->id, ]
+        );
         if ($studentquizprogress == false) {
-            $studentquizprogress = studentquiz_progress::get_studentquiz_progress_from_studentquiz_question($studentquizquestion,
-                $userid);
+            $studentquizprogress = studentquiz_progress::get_studentquiz_progress_from_studentquiz_question(
+                $studentquizquestion,
+                $userid
+            );
         }
 
         // Any newly finished attempt is wrong when it wasn't right.
@@ -138,17 +143,17 @@ if (data_submitted()) {
     // Navigate accordingly. If no navigation button has been submitted, then there has been a question answer attempt.
     if (optional_param('next', null, PARAM_BOOL)) {
         if ($hasnext) {
-            $actionurl = new moodle_url($actionurl, array('slot' => $slot + 1));
+            $actionurl = new moodle_url($actionurl, ['slot' => $slot + 1]);
             redirect($actionurl);
         } else {
             redirect($returnurl);
         }
     } else if (optional_param('previous', null, PARAM_BOOL)) {
         if ($hasprevious) {
-            $actionurl = new moodle_url($actionurl, array('slot' => $slot - 1));
+            $actionurl = new moodle_url($actionurl, ['slot' => $slot - 1]);
             redirect($actionurl);
         } else {
-            $actionurl = new moodle_url($actionurl, array('slot' => $questionusage->get_first_question_number()));
+            $actionurl = new moodle_url($actionurl, ['slot' => $questionusage->get_first_question_number()]);
             redirect($actionurl);
         }
     } else if (optional_param('finish', null, PARAM_BOOL)) {
@@ -175,11 +180,11 @@ $options->flags = question_display_options::EDITABLE;
 $output = $PAGE->get_renderer('mod_studentquiz', 'attempt');
 // Start output.
 $PAGE->set_url($actionurl);
-$jsparams = array(
+$jsparams = [
     boolval($studentquiz->forcerating),
     boolval($studentquiz->forcecommenting),
-    boolval($isanswered)
-);
+    boolval($isanswered),
+];
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise', $jsparams);
 $title = format_string($question->name);
 $PAGE->set_title($cm->name);
@@ -203,17 +208,17 @@ $info->one = max($slot - (!$isanswered ? 1 : 0), 0);
 $texttotal = get_string('num_questions', 'studentquiz', $questionscount);
 $html = '';
 
-$html .= html_writer::div($output->render_progress_bar($info, $texttotal, true), '', array('title' => $texttotal));
+$html .= html_writer::div($output->render_progress_bar($info, $texttotal, true), '', ['title' => $texttotal]);
 
 // Render the question title.
 $html .= html_writer::tag('h2', $title);
 
 // Start the question form.
 
-$html .= html_writer::start_tag('form', array('method' => 'post', 'action' => $actionurl,
-    'enctype' => 'multipart/form-data', 'id' => 'responseform'));
+$html .= html_writer::start_tag('form', ['method' => 'post', 'action' => $actionurl,
+    'enctype' => 'multipart/form-data', 'id' => 'responseform', ]);
 
-$html .= html_writer::empty_tag('input', array('type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field'));
+$html .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field']);
 $html .= html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 
 // Output the question.
@@ -226,7 +231,7 @@ $navigationhtml = $output->render_navigation_bar($hasprevious, $hasnext, $isansw
 // Change state will always first thing below navigation.
 $orders = [
     $navigationhtml,
-    $statechangehtml
+    $statechangehtml,
 ];
 
 if ($isanswered) {
@@ -238,7 +243,7 @@ if ($isanswered) {
     if ($studentquiz->forcerating && $studentquiz->forcecommenting) {
          $orders = array_merge([
              $ratinghtml,
-             $commenthtml
+             $commenthtml,
          ], $orders);
     } else {
         // If force rating, then it will be render first.

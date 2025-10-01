@@ -33,7 +33,6 @@ use core_question\local\bank\question_version_status;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class utils {
-
     /** @var int - Integer value of create history. */
     const COMMENT_HISTORY_CREATE = 0;
     /** @var int - Integer value of edit history. */
@@ -154,7 +153,7 @@ style5 = html';
 
         return array_merge(compact('commentcount', 'deletecommentcount', 'replycount', 'deletereplycount'), [
                 'total' => $commentcount + $replycount,
-                'totaldelete' => $deletecommentcount + $deletereplycount
+                'totaldelete' => $deletecommentcount + $deletereplycount,
         ]);
     }
 
@@ -227,7 +226,7 @@ style5 = html';
             $fakeuser = (object) [
                     'email' => $email,
                     'mailformat' => 1,
-                    'id' => -1
+                    'id' => -1,
             ];
             // Send email.
             if (!email_to_user($fakeuser, $from, $subject, '', $mailcontent)) {
@@ -248,7 +247,7 @@ style5 = html';
                 'comment' => '',
                 'status' => self::COMMENT_HISTORY_CREATE,
                 'timemodified' => time(),
-                'usermodified' => $guestuserid
+                'usermodified' => $guestuserid,
         ];
     }
 
@@ -261,10 +260,10 @@ style5 = html';
     public static function create_comment_history(comment $comment, int $historytype) {
         // Create history.
         $historyid = $comment->create_history(
-                $comment->get_id(),
-                $comment->get_user_id(),
-                $historytype,
-                $comment->get_comment_content()
+            $comment->get_id(),
+            $comment->get_user_id(),
+            $historytype,
+            $comment->get_comment_content()
         );
 
         if (!$historyid) {
@@ -318,15 +317,21 @@ style5 = html';
      * @param bool $privatecommenting Does this studentquiz enable private commenting?
      * @return boolean
      */
-    public static function allow_self_comment_and_rating_in_preview_mode(studentquiz_question $studentquizquestion, $cmid,
-             $type = self::COMMENT_TYPE_PUBLIC, $privatecommenting = false) {
+    public static function allow_self_comment_and_rating_in_preview_mode(
+        studentquiz_question $studentquizquestion,
+        $cmid,
+        $type = self::COMMENT_TYPE_PUBLIC,
+        $privatecommenting = false
+    ) {
         global $USER, $PAGE;
         $question = $studentquizquestion->get_question();
         $context = \context_module::instance($cmid);
         if ($PAGE->pagetype == 'mod-studentquiz-preview' && !has_capability('mod/studentquiz:canselfratecomment', $context)) {
-            if ($type == self::COMMENT_TYPE_PUBLIC || !$privatecommenting ||
-                    $USER->id != $question->createdby ||
-                    self::get_question_state($studentquizquestion) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED) {
+            if (
+                $type == self::COMMENT_TYPE_PUBLIC || !$privatecommenting ||
+                $USER->id != $question->createdby ||
+                self::get_question_state($studentquizquestion) == \mod_studentquiz\local\studentquiz_helper::STATE_APPROVED
+            ) {
                 return false;
             }
         }
@@ -366,12 +371,12 @@ style5 = html';
         global $CFG;
 
         if (strlen($version) == 2) {
-            $version = $version[0]."0".$version[1];
+            $version = $version[0] . "0" . $version[1];
         }
 
         $current = $CFG->branch;
         if (strlen($current) == 2) {
-            $current = $current[0]."0".$current[1];
+            $current = $current[0] . "0" . $current[1];
         }
 
         $from = intval($current);
@@ -396,7 +401,7 @@ style5 = html';
                     }
                     break;
                 default:
-                    throw new \coding_exception('invalid operator '.$op);
+                    throw new \coding_exception('invalid operator ' . $op);
             }
         }
 
@@ -521,8 +526,10 @@ style5 = html';
 
         $context = \context_module::instance($cmid);
         if (!has_capability('mod/studentquiz:cancommentprivately', $context)) {
-            if (!has_capability('mod/studentquiz:canselfcommentprivately', $context) ||
-                    $USER->id != $question->createdby) {
+            if (
+                !has_capability('mod/studentquiz:canselfcommentprivately', $context) ||
+                $USER->id != $question->createdby
+            ) {
                 return false;
             }
         }
@@ -570,7 +577,7 @@ style5 = html';
     public static function get_user_profile_url(int $userid, int $courseid): moodle_url {
         return new moodle_url('/user/view.php', [
             'id' => $userid,
-            'course' => $courseid
+            'course' => $courseid,
         ]);
     }
 
@@ -580,11 +587,15 @@ style5 = html';
      * @param int $studentquizquestionid Id of studentquizquestion.
      * @param int|null $userid
      * @param int $state The state of the question in the StudentQuiz.
-     * @param int $timecreated The time do action.
+     * @param int|null $timecreated The time do action.
      * @return bool|int True or new id
      */
-    public static function question_save_action(int $studentquizquestionid, ?int $userid, int $state,
-            int $timecreated = null) {
+    public static function question_save_action(
+        int $studentquizquestionid,
+        ?int $userid,
+        int $state,
+        ?int $timecreated = null
+    ) {
         global $DB;
 
         $data = new \stdClass();
@@ -603,7 +614,7 @@ style5 = html';
      * @param int|null $courseorigid
      * @return void
      */
-    public static function fix_all_missing_question_state_history_after_restore($courseorigid=null): void {
+    public static function fix_all_missing_question_state_history_after_restore($courseorigid = null): void {
         global $DB;
 
         $params = [];
@@ -641,8 +652,12 @@ style5 = html';
             if ($sqquestions) {
                 foreach ($sqquestions as $sqquestion) {
                     // Create action new question by onwer.
-                    self::question_save_action($sqquestion->studentquizquestionid, $sqquestion->createdby,
-                        studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+                    self::question_save_action(
+                        $sqquestion->studentquizquestionid,
+                        $sqquestion->createdby,
+                        studentquiz_helper::STATE_NEW,
+                        $sqquestion->timecreated
+                    );
 
                     if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
                         self::question_save_action($sqquestion->studentquizquestionid, null, $sqquestion->state, null);
@@ -665,8 +680,11 @@ style5 = html';
     public static function get_state_history_data($studentquizquestionid): array {
         global $DB;
 
-        $statehistories = $DB->get_records('studentquiz_state_history', ['studentquizquestionid' => $studentquizquestionid],
-                'timecreated, id');
+        $statehistories = $DB->get_records(
+            'studentquiz_state_history',
+            ['studentquizquestionid' => $studentquizquestionid],
+            'timecreated, id'
+        );
         $users = self::get_users_change_state($statehistories);
 
         return [$statehistories, $users];
@@ -712,7 +730,7 @@ style5 = html';
      */
     public static function get_states(array $questionids): array {
         global $DB;
-        list ($conditionquestionids, $params) = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+         [$conditionquestionids, $params] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
         $sql = "SELECT q.id, sqq.state
               FROM {studentquiz_question} sqq
               JOIN {question_references} qr ON qr.itemid = sqq.id
@@ -757,13 +775,21 @@ style5 = html';
         $versionrecord = $DB->get_record('question_versions', ['questionid' => $questionid]);
         // Ensure question new version is always set to draft if this student quiz question is disapprove.
         if ($sqq->get_state() === studentquiz_helper::STATE_DISAPPROVED) {
-            return $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_DRAFT,
-                ['id' => $versionrecord->id]);
+            return $DB->set_field(
+                'question_versions',
+                'status',
+                question_version_status::QUESTION_STATUS_DRAFT,
+                ['id' => $versionrecord->id]
+            );
         }
         // Only update question status when we have status different than 'ready'.
         if ($versionrecord->status !== question_version_status::QUESTION_STATUS_READY) {
-            return $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_READY,
-                ['id' => $versionrecord->id]);
+            return $DB->set_field(
+                'question_versions',
+                'status',
+                question_version_status::QUESTION_STATUS_READY,
+                ['id' => $versionrecord->id]
+            );
         }
         return false;
     }
@@ -777,16 +803,22 @@ style5 = html';
      * @param studentquiz_question|null $studentquizquestion Student quiz question object.
      * @return void
      */
-    public static function require_access_to_a_relevant_group(object $cm, \context $context, string $title = '',
-            studentquiz_question $studentquizquestion = null): void {
+    public static function require_access_to_a_relevant_group(
+        object $cm,
+        \context $context,
+        string $title = '',
+        ?studentquiz_question $studentquizquestion = null
+    ): void {
         global $COURSE, $PAGE, $USER;
         $groupmode = (int) groups_get_activity_groupmode($cm, $COURSE);
         $currentgroup = groups_get_activity_group($cm, true);
         $isallowaccessgroup = ($studentquizquestion === null) ||
             groups_group_visible($studentquizquestion->get_groupid(), $COURSE, $cm, $USER->id);
 
-        if ($groupmode === SEPARATEGROUPS && !has_capability('moodle/site:accessallgroups', $context) &&
-                (!$currentgroup || !$isallowaccessgroup)) {
+        if (
+            $groupmode === SEPARATEGROUPS && !has_capability('moodle/site:accessallgroups', $context) &&
+            (!$currentgroup || !$isallowaccessgroup)
+        ) {
             // If the student quiz in separate groups mode and
             // the user does not belong to the question group, an error message will be displayed.
             $renderer = $PAGE->get_renderer('mod_studentquiz');
@@ -804,7 +836,7 @@ style5 = html';
         global $DB;
 
         $row = $DB->get_record('studentquiz_rate', ['userid' => $data->userid,
-            'studentquizquestionid' => $data->studentquizquestionid]);
+            'studentquizquestionid' => $data->studentquizquestionid, ]);
         if ($row === false) {
             $DB->insert_record('studentquiz_rate', $data);
         } else {

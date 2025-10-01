@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class attempts_column extends studentquiz_column_base {
-
     /**
      * Renderer
      * @var stdClass
@@ -54,11 +53,14 @@ class attempts_column extends studentquiz_column_base {
         $context = $this->qbank->get_most_specific_context();
         $this->categoryid = question_get_default_category($context->id)->id;
         $cmid = $context->instanceid;
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+        $sq = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
         $this->studentquizid = $sq->id;
         $this->studentquiz = $sq;
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Sanitize!
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -94,9 +96,9 @@ class attempts_column extends studentquiz_column_base {
      * @return array modified select left join
      */
     public function get_extra_joins(): array {
-        return array('sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.studentquizquestionid = sqq.id
+        return ['sp' => "LEFT JOIN {studentquiz_progress} sp ON sp.studentquizquestionid = sqq.id
                                     AND sp.userid = " . $this->currentuserid . "
-                                    AND sp.studentquizid = " . $this->studentquizid);
+                                    AND sp.studentquizid = " . $this->studentquizid, ];
     }
 
     /**
@@ -107,7 +109,7 @@ class attempts_column extends studentquiz_column_base {
         return [
             'sp.attempts AS myattempts',
             'sp.lastanswercorrect AS mylastanswercorrect',
-            '(CASE WHEN sp.attempts = 0 THEN NULL ELSE sp.lastanswercorrect END) as mylastanswercorrectforsort'
+            '(CASE WHEN sp.attempts = 0 THEN NULL ELSE sp.lastanswercorrect END) as mylastanswercorrectforsort',
         ];
     }
 
@@ -116,11 +118,11 @@ class attempts_column extends studentquiz_column_base {
      * @return array field name
      */
     public function is_sortable() {
-        return array(
-            'myattempts' => array('field' => 'myattempts',
-                'title' => get_string('number_column_name', 'studentquiz')),
-            'mylastattempt' => array('field' => 'mylastanswercorrectforsort',
-                'title' => get_string('latest_column_name', 'studentquiz')),
-        );
+        return [
+            'myattempts' => ['field' => 'myattempts',
+                'title' => get_string('number_column_name', 'studentquiz'), ],
+            'mylastattempt' => ['field' => 'mylastanswercorrectforsort',
+                'title' => get_string('latest_column_name', 'studentquiz'), ],
+        ];
     }
 }

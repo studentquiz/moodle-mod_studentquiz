@@ -36,7 +36,6 @@ use mod_studentquiz\local\db;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class tag_column extends studentquiz_column_base {
-
     /**
      * @var bool
      */
@@ -98,15 +97,15 @@ class tag_column extends studentquiz_column_base {
 
         // Concatenated string always containing a leading and ending ',' so a potential search for an item is always in
         // between elements.
-        $concatenated = $DB->sql_concat_join("','", array("''", db::group_concat('t.rawname'), "''"));
+        $concatenated = $DB->sql_concat_join("','", ["''", db::group_concat('t.rawname'), "''"]);
 
-        return array('tags' => "LEFT JOIN (
+        return ['tags' => "LEFT JOIN (
                                             SELECT " . $concatenated . " AS tagarray, ti.itemid as questionid
                                               FROM {tag_instance} ti
                                               JOIN {tag} t ON ti.tagid = t.id
                                              WHERE ti.itemtype = 'question'
                                           GROUP BY ti.itemid
-                                          ) tags ON tags.questionid = q.id");
+                                          ) tags ON tags.questionid = q.id", ];
     }
 
     /**
@@ -114,7 +113,7 @@ class tag_column extends studentquiz_column_base {
      * @return array sql query join additional
      */
     public function get_required_fields(): array {
-        return array('tags.tagarray');
+        return ['tags.tagarray'];
     }
 
     /**

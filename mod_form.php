@@ -27,7 +27,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->dirroot.'/course/moodleform_mod.php');
+require_once($CFG->dirroot . '/course/moodleform_mod.php');
 require_once(__DIR__ . '/locallib.php');
 require_once(__DIR__ . '/reportlib.php');
 
@@ -41,7 +41,6 @@ use mod_studentquiz\utils;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_mod_form extends moodleform_mod {
-
     /**
      * Defines forms elements
      */
@@ -61,8 +60,12 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addElement('header', 'general', get_string('general', 'form'));
 
         // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('studentquizname', 'studentquiz'),
-            array('size' => '64'));
+        $mform->addElement(
+            'text',
+            'name',
+            get_string('studentquizname', 'studentquiz'),
+            ['size' => '64']
+        );
         $mform->addHelpButton('name', 'studentquizname', 'studentquiz');
         if (!empty($CFG->formatstringstriptags)) {
             $mform->setType('name', PARAM_TEXT);
@@ -70,8 +73,13 @@ class mod_studentquiz_mod_form extends moodleform_mod {
             $mform->setType('name', PARAM_CLEANHTML);
         }
         $mform->addRule('name', null, 'required', null, 'client');
-        $mform->addRule('name', get_string('maximumchars', '', 255),
-            'maxlength', 255, 'client');
+        $mform->addRule(
+            'name',
+            get_string('maximumchars', '', 255),
+            'maxlength',
+            255,
+            'client'
+        );
 
         // Adding the standard "intro" and "introformat" fields.
         $this->standard_intro_elements();
@@ -79,10 +87,14 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // Field question publishing.
         $publishingoptions = [
                 1 => get_string('setting_question_publishing_automatic', 'studentquiz'),
-                0 => get_string('setting_question_publishing_require_approval', 'studentquiz')
+                0 => get_string('setting_question_publishing_require_approval', 'studentquiz'),
         ];
-        $mform->addElement('select', 'publishnewquestion', get_string('setting_question_publishing', 'studentquiz'),
-                $publishingoptions);
+        $mform->addElement(
+            'select',
+            'publishnewquestion',
+            get_string('setting_question_publishing', 'studentquiz'),
+            $publishingoptions
+        );
         $mform->addHelpButton('publishnewquestion', 'setting_question_publishing', 'studentquiz');
         $mform->setType('publishnewquestion', PARAM_INT);
         $mform->setDefault('publishnewquestion', 1);
@@ -90,8 +102,11 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addElement('header', 'sectionranking', get_string('settings_section_header_ranking', 'studentquiz'));
 
         // Field anonymous Ranking.
-        $mform->addElement('checkbox', 'anonymrank',
-            get_string('settings_anonymous_label', 'studentquiz'));
+        $mform->addElement(
+            'checkbox',
+            'anonymrank',
+            get_string('settings_anonymous_label', 'studentquiz')
+        );
         $mform->setType('anonymrank', PARAM_INT);
         $mform->addHelpButton('anonymrank', 'settings_anonymous', 'studentquiz');
         $mform->setDefault('anonymrank', 1);
@@ -101,44 +116,69 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         // But they have to be of type feedback (or support non-feedback behavior).
 
         // Field questionquantifier.
-        $mform->addElement('text', 'questionquantifier',
-            get_string('settings_questionquantifier', 'studentquiz'));
+        $mform->addElement(
+            'text',
+            'questionquantifier',
+            get_string('settings_questionquantifier', 'studentquiz')
+        );
         $mform->setType('questionquantifier', PARAM_INT);
         $mform->addHelpButton('questionquantifier', 'settings_questionquantifier', 'studentquiz');
-        $mform->setDefault('questionquantifier',
-            get_config('studentquiz', 'addquestion'));
+        $mform->setDefault(
+            'questionquantifier',
+            get_config('studentquiz', 'addquestion')
+        );
 
         // Field approvedquantifier.
-        $mform->addElement('text', 'approvedquantifier',
-            get_string('settings_approvedquantifier', 'studentquiz'));
+        $mform->addElement(
+            'text',
+            'approvedquantifier',
+            get_string('settings_approvedquantifier', 'studentquiz')
+        );
         $mform->setType('approvedquantifier', PARAM_INT);
         $mform->addHelpButton('approvedquantifier', 'settings_approvedquantifier', 'studentquiz');
-        $mform->setDefault('approvedquantifier',
-            get_config('studentquiz', 'approved'));
+        $mform->setDefault(
+            'approvedquantifier',
+            get_config('studentquiz', 'approved')
+        );
 
         // Field ratequantifier.
-        $mform->addElement('text', 'ratequantifier',
-            get_string('settings_ratequantifier', 'studentquiz'));
+        $mform->addElement(
+            'text',
+            'ratequantifier',
+            get_string('settings_ratequantifier', 'studentquiz')
+        );
         $mform->setType('ratequantifier', PARAM_INT);
         $mform->addHelpButton('ratequantifier', 'settings_ratequantifier', 'studentquiz');
-        $mform->setDefault('ratequantifier',
-            get_config('studentquiz', 'rate'));
+        $mform->setDefault(
+            'ratequantifier',
+            get_config('studentquiz', 'rate')
+        );
 
         // Field correctanswerquantifier.
-        $mform->addElement('text', 'correctanswerquantifier',
-            get_string('settings_lastcorrectanswerquantifier', 'studentquiz'));
+        $mform->addElement(
+            'text',
+            'correctanswerquantifier',
+            get_string('settings_lastcorrectanswerquantifier', 'studentquiz')
+        );
         $mform->setType('correctanswerquantifier', PARAM_INT);
         $mform->addHelpButton('correctanswerquantifier', 'settings_lastcorrectanswerquantifier', 'studentquiz');
-        $mform->setDefault('correctanswerquantifier',
-            get_config('studentquiz', 'correctanswered'));
+        $mform->setDefault(
+            'correctanswerquantifier',
+            get_config('studentquiz', 'correctanswered')
+        );
 
         // Field incorrectanswerquantifier.
-        $mform->addElement('text', 'incorrectanswerquantifier',
-            get_string('settings_lastincorrectanswerquantifier', 'studentquiz'));
+        $mform->addElement(
+            'text',
+            'incorrectanswerquantifier',
+            get_string('settings_lastincorrectanswerquantifier', 'studentquiz')
+        );
         $mform->setType('incorrectanswerquantifier', PARAM_INT);
         $mform->addHelpButton('incorrectanswerquantifier', 'settings_lastincorrectanswerquantifier', 'studentquiz');
-        $mform->setDefault('incorrectanswerquantifier',
-            get_config('studentquiz', 'incorrectanswered'));
+        $mform->setDefault(
+            'incorrectanswerquantifier',
+            get_config('studentquiz', 'incorrectanswered')
+        );
 
         // Selection for excluded roles.
         $rolescanbeexculded = mod_studentquiz_report::get_roles_which_can_be_exculded();
@@ -157,7 +197,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->addElement('header', 'sectionquestion', get_string('settings_section_header_question', 'studentquiz'));
 
         // Selection for allowed question types.
-        $allowedgroup = array();
+        $allowedgroup = [];
         $allowedgroup[] = $mform->createElement('checkbox', "ALL", '', get_string('settings_allowallqtypes', 'studentquiz'));
         foreach (mod_studentquiz_get_question_types() as $qtype => $name) {
             $allowedgroup[] = $mform->createElement('checkbox', $qtype, '', $name);
@@ -198,9 +238,11 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $mform->setDefault('privatecommenting', get_config('studentquiz', 'showprivatecomment'));
 
         // Comment deletion period.
-        $mform->addElement('select', 'commentdeletionperiod',
-                get_string('settings_commentdeletionperiod', 'studentquiz'),
-                \mod_studentquiz\commentarea\container::get_deletion_period_options()
+        $mform->addElement(
+            'select',
+            'commentdeletionperiod',
+            get_string('settings_commentdeletionperiod', 'studentquiz'),
+            \mod_studentquiz\commentarea\container::get_deletion_period_options()
         );
         $mform->setType('commentdeletionperiod', PARAM_INT);
         $mform->addHelpButton('commentdeletionperiod', 'settings_commentdeletionperiod', 'studentquiz');
@@ -214,14 +256,30 @@ class mod_studentquiz_mod_form extends moodleform_mod {
 
         // Availability.
         $mform->addElement('header', 'availability', get_string('availability', 'moodle'));
-        $mform->addElement('date_time_selector', 'opensubmissionfrom',
-                get_string('settings_availability_open_submission_from', 'studentquiz'), ['optional' => true]);
-        $mform->addElement('date_time_selector', 'closesubmissionfrom',
-                get_string('settings_availability_close_submission_from', 'studentquiz'), ['optional' => true]);
-        $mform->addElement('date_time_selector', 'openansweringfrom',
-                get_string('settings_availability_open_answering_from', 'studentquiz'), ['optional' => true]);
-        $mform->addElement('date_time_selector', 'closeansweringfrom',
-                get_string('settings_availability_close_answering_from', 'studentquiz'), ['optional' => true]);
+        $mform->addElement(
+            'date_time_selector',
+            'opensubmissionfrom',
+            get_string('settings_availability_open_submission_from', 'studentquiz'),
+            ['optional' => true]
+        );
+        $mform->addElement(
+            'date_time_selector',
+            'closesubmissionfrom',
+            get_string('settings_availability_close_submission_from', 'studentquiz'),
+            ['optional' => true]
+        );
+        $mform->addElement(
+            'date_time_selector',
+            'openansweringfrom',
+            get_string('settings_availability_open_answering_from', 'studentquiz'),
+            ['optional' => true]
+        );
+        $mform->addElement(
+            'date_time_selector',
+            'closeansweringfrom',
+            get_string('settings_availability_close_answering_from', 'studentquiz'),
+            ['optional' => true]
+        );
 
         // Notification.
         $mform->addElement('header', 'notification', get_string('settings_notification', 'studentquiz'));
@@ -229,10 +287,14 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         $digesttypes = [
                 0 => get_string('settings_email_digest_type_no_digest', 'studentquiz'),
                 1 => get_string('settings_email_digest_type_daily_digest', 'studentquiz'),
-                2 => get_string('settings_email_digest_type_weekly_digest', 'studentquiz')
+                2 => get_string('settings_email_digest_type_weekly_digest', 'studentquiz'),
         ];
-        $mform->addElement('select', 'digesttype', get_string('settings_email_digest_type', 'studentquiz'),
-                $digesttypes);
+        $mform->addElement(
+            'select',
+            'digesttype',
+            get_string('settings_email_digest_type', 'studentquiz'),
+            $digesttypes
+        );
         $mform->addHelpButton('digesttype', 'settings_email_digest_type', 'studentquiz');
 
         // Field first day of week.
@@ -243,7 +305,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
                 3 => get_string('wednesday', 'calendar'),
                 4 => get_string('thursday', 'calendar'),
                 5 => get_string('friday', 'calendar'),
-                6 => get_string('saturday', 'calendar')
+                6 => get_string('saturday', 'calendar'),
         ];
         $mform->addElement('select', 'digestfirstday', get_string('settings_email_digest_first_day', 'studentquiz'), $daysofweek);
         $mform->addHelpButton('digestfirstday', 'settings_email_digest_first_day', 'studentquiz');
@@ -305,46 +367,93 @@ class mod_studentquiz_mod_form extends moodleform_mod {
 
         // Require point.
         $group = [];
-        $group[] =& $mform->createElement('checkbox', 'completionpointenabled', '',
-            get_string('completionpoint', 'mod_studentquiz'));
+        $group[] =& $mform->createElement(
+            'checkbox',
+            'completionpointenabled',
+            '',
+            get_string('completionpoint', 'mod_studentquiz')
+        );
         $group[] =& $mform->createElement('text', 'completionpoint', '', ['size' => 3]);
         $mform->setType('completionpoint', PARAM_INT);
-        $mform->addGroup($group, $completionpointel, get_string('completionpointgroup',
-            'mod_studentquiz'), [' '], false);
-        $mform->addHelpButton($completionpointel, 'completionpointgroup',
-            'mod_studentquiz');
+        $mform->addGroup($group, $completionpointel, get_string(
+            'completionpointgroup',
+            'mod_studentquiz'
+        ), [' '], false);
+        $mform->addHelpButton(
+            $completionpointel,
+            'completionpointgroup',
+            'mod_studentquiz'
+        );
         $mform->disabledIf('completionpoint', 'completionpointenabled', 'notchecked');
 
         // Require published questions.
         $group = [];
-        $group[] =& $mform->createElement('checkbox', 'completionquestionpublishedenabled', '',
-            get_string('completionquestionpublished', 'mod_studentquiz'));
-        $group[] =& $mform->createElement('text', 'completionquestionpublished', '',
-            ['size' => 3]);
+        $group[] =& $mform->createElement(
+            'checkbox',
+            'completionquestionpublishedenabled',
+            '',
+            get_string('completionquestionpublished', 'mod_studentquiz')
+        );
+        $group[] =& $mform->createElement(
+            'text',
+            'completionquestionpublished',
+            '',
+            ['size' => 3]
+        );
         $mform->setType('completionquestionpublished', PARAM_INT);
-        $mform->addGroup($group, $completionquestionpublishedel,
+        $mform->addGroup(
+            $group,
+            $completionquestionpublishedel,
             get_string('completionquestionpublishedgroup', 'mod_studentquiz'),
-                [' '], false);
-        $mform->addHelpButton($completionquestionpublishedel,
-            'completionquestionpublishedgroup', 'mod_studentquiz');
-        $mform->disabledIf('completionquestionpublished', 'completionquestionpublishedenabled',
-            'notchecked');
+            [' '],
+            false
+        );
+        $mform->addHelpButton(
+            $completionquestionpublishedel,
+            'completionquestionpublishedgroup',
+            'mod_studentquiz'
+        );
+        $mform->disabledIf(
+            'completionquestionpublished',
+            'completionquestionpublishedenabled',
+            'notchecked'
+        );
 
         // Require created approved questions.
         $group = [];
-        $group[] =& $mform->createElement('checkbox',
-            'completionquestionapprovedenabled', '', get_string('completionquestionapproved',
-                'mod_studentquiz'));
-        $group[] =& $mform->createElement('text',
-            'completionquestionapproved', '', ['size' => 3]);
+        $group[] =& $mform->createElement(
+            'checkbox',
+            'completionquestionapprovedenabled',
+            '',
+            get_string(
+                'completionquestionapproved',
+                'mod_studentquiz'
+            )
+        );
+        $group[] =& $mform->createElement(
+            'text',
+            'completionquestionapproved',
+            '',
+            ['size' => 3]
+        );
         $mform->setType('completionquestionapproved', PARAM_INT);
-        $mform->addGroup($group, $completionquestionapprovedgel,
-            get_string('completionquestionapprovedgroup', 'mod_studentquiz'), [' '],
-            false);
-        $mform->addHelpButton($completionquestionapprovedgel,
-            'completionquestionapprovedgroup', 'mod_studentquiz');
-        $mform->disabledIf('completionquestionapproved',
-            'completionquestionapprovedenabled', 'notchecked');
+        $mform->addGroup(
+            $group,
+            $completionquestionapprovedgel,
+            get_string('completionquestionapprovedgroup', 'mod_studentquiz'),
+            [' '],
+            false
+        );
+        $mform->addHelpButton(
+            $completionquestionapprovedgel,
+            'completionquestionapprovedgroup',
+            'mod_studentquiz'
+        );
+        $mform->disabledIf(
+            'completionquestionapproved',
+            'completionquestionapprovedenabled',
+            'notchecked'
+        );
 
         return [$completionpointel, $completionquestionpublishedel, $completionquestionapprovedgel];
     }
@@ -377,12 +486,16 @@ class mod_studentquiz_mod_form extends moodleform_mod {
         if (!isset($data['allowedqtypes'])) {
             $errors['allowedqtypes'] = get_string('needtoallowatleastoneqtype', 'studentquiz');
         }
-        if ($data['opensubmissionfrom'] > 0 && $data['closesubmissionfrom'] > 0 &&
-                $data['opensubmissionfrom'] >= $data['closesubmissionfrom']) {
+        if (
+            $data['opensubmissionfrom'] > 0 && $data['closesubmissionfrom'] > 0 &&
+            $data['opensubmissionfrom'] >= $data['closesubmissionfrom']
+        ) {
             $errors['closesubmissionfrom'] = get_string('submissionendbeforestart', 'studentquiz');
         }
-        if ($data['openansweringfrom'] > 0 && $data['closeansweringfrom'] > 0 &&
-                $data['openansweringfrom'] >= $data['closeansweringfrom']) {
+        if (
+            $data['openansweringfrom'] > 0 && $data['closeansweringfrom'] > 0 &&
+            $data['openansweringfrom'] >= $data['closeansweringfrom']
+        ) {
             $errors['closeansweringfrom'] = get_string('answeringndbeforestart', 'studentquiz');
         }
         if (!empty($data['reportingemail']) && !$this->validate_emails($data['reportingemail'])) {
@@ -401,7 +514,7 @@ class mod_studentquiz_mod_form extends moodleform_mod {
      * @return bool
      */
     private function validate_emails($emails) {
-        $list = explode(';' , $emails);
+        $list = explode(';', $emails);
         foreach ($list as $email) {
             if (!validate_email($email)) {
                 return false;

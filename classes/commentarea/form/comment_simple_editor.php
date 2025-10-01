@@ -26,18 +26,17 @@ use MoodleQuickForm_editor;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class comment_simple_editor extends MoodleQuickForm_editor {
-
     /** @var array - Attributes used for this editor. */
     const ATTRIBUTES = [
             'cols' => 60,
             'rows' => 5,
-            'class' => 'comment_editor_container'
+            'class' => 'comment_editor_container',
     ];
 
     /** @var array - Options used for this editor. */
     const OPTIONS = [
             'noclean' => VALUE_DEFAULT,
-            'trusttext' => VALUE_DEFAULT
+            'trusttext' => VALUE_DEFAULT,
     ];
 
     /**

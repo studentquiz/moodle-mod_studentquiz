@@ -27,13 +27,13 @@ require_once($CFG->libdir . "/phpunit/classes/restore_date_testcase.php");
  * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_test extends \restore_date_testcase {
-
+final class backup_test extends \restore_date_testcase {
     /**
      * Load required libraries
      */
     public static function setUpBeforeClass(): void {
         global $CFG;
+        parent::setUpBeforeClass();
         require_once("{$CFG->dirroot}/backup/util/includes/restore_includes.php");
     }
 
@@ -42,7 +42,7 @@ class backup_test extends \restore_date_testcase {
      *
      * @covers \restore_studentquiz_activity_task
      */
-    public function test_backup_restore_course_with_sq() {
+    public function test_backup_restore_course_with_sq(): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();
@@ -58,7 +58,7 @@ class backup_test extends \restore_date_testcase {
             'closesubmissionfrom' => 1677085200,
             'openansweringfrom' => 1677171600,
             'closeansweringfrom' => 1677344400,
-            'publishnewquestion' => 1
+            'publishnewquestion' => 1,
         ]);
         $context = \context_module::instance($activity->cmid);
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
@@ -89,8 +89,11 @@ class backup_test extends \restore_date_testcase {
      * @param string $courseshortname course short name.
      * @return mixed bool|stdClass return the studentquiz object restored.
      */
-    protected function restore_sq_backup_file_to_course_shortname(string $filename, string $coursefullname,
-        string $courseshortname) {
+    protected function restore_sq_backup_file_to_course_shortname(
+        string $filename,
+        string $coursefullname,
+        string $courseshortname
+    ) {
         global $DB, $USER;
         $testfixture = __DIR__ . '/fixtures/' . $filename;
 
@@ -102,8 +105,14 @@ class backup_test extends \restore_date_testcase {
         $categoryid = $DB->get_field('course_categories', 'MIN(id)', []);
         $courseid = \restore_dbops::create_new_course($coursefullname, $courseshortname, $categoryid);
 
-        $controller = new \restore_controller($backuptempdir, $courseid, \backup::INTERACTIVE_NO, \backup::MODE_GENERAL, $USER->id,
-            \backup::TARGET_NEW_COURSE);
+        $controller = new \restore_controller(
+            $backuptempdir,
+            $courseid,
+            \backup::INTERACTIVE_NO,
+            \backup::MODE_GENERAL,
+            $USER->id,
+            \backup::TARGET_NEW_COURSE
+        );
 
         $controller->execute_precheck();
         $controller->execute_plan();
@@ -144,7 +153,7 @@ class backup_test extends \restore_date_testcase {
                 'correctanswerpoints' => [0, 0],
                 'totalpoints' => [0, 0],
                 'questionname' => 'Question T/F for 4.0',
-            ]
+            ],
         ];
     }
 
@@ -160,8 +169,14 @@ class backup_test extends \restore_date_testcase {
      * @param array $totalpoints total point for each users in the ranking table.
      * @param string $questionname question name after we restore.
      */
-    public function test_old_sq_backup_data(string $filename, string $coursefullname, string $courseshortname,
-        array $correctanswerpoints, array $totalpoints, string $questionname): void {
+    public function test_old_sq_backup_data(
+        string $filename,
+        string $coursefullname,
+        string $courseshortname,
+        array $correctanswerpoints,
+        array $totalpoints,
+        string $questionname
+    ): void {
         global $DB;
         $this->resetAfterTest();
         $this->setAdminUser();

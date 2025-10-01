@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question_name_column extends \qbank_viewquestionname\viewquestionname_column_helper {
-
     /** @var \stdClass */
     protected $renderer;
 
@@ -72,7 +71,7 @@ class question_name_column extends \qbank_viewquestionname\viewquestionname_colu
      *
      * @return array
      */
-    public function get_extra_classes():array {
+    public function get_extra_classes(): array {
         return $this->extraclasses;
     }
 }

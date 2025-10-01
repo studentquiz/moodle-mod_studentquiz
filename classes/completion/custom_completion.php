@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 declare(strict_types=1);
 
 namespace mod_studentquiz\completion;
@@ -36,7 +37,7 @@ use stdClass;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class custom_completion extends activity_custom_completion {
-
+    #[\Override]
     public function get_state(string $rule): int {
         global $DB;
 
@@ -68,6 +69,7 @@ class custom_completion extends activity_custom_completion {
         return $status ? COMPLETION_COMPLETE : COMPLETION_INCOMPLETE;
     }
 
+    #[\Override]
     public static function get_defined_custom_rules(): array {
         return [
             'completionpoint',
@@ -76,6 +78,7 @@ class custom_completion extends activity_custom_completion {
         ];
     }
 
+    #[\Override]
     public function get_custom_rule_descriptions(): array {
         $completionpoint = $this->cm->customdata->customcompletionrules['completionpoint'] ?? 0;
         $completionquestionpublished = $this->cm->customdata->customcompletionrules['completionquestionpublished'] ?? 0;
@@ -83,13 +86,20 @@ class custom_completion extends activity_custom_completion {
 
         return [
             'completionpoint' => get_string('completiondetail:point', 'studentquiz', $completionpoint),
-            'completionquestionpublished' => get_string('completiondetail:published', 'studentquiz',
-                $completionquestionpublished),
-            'completionquestionapproved' => get_string('completiondetail:approved',
-                'studentquiz', $completionquestionapproved),
+            'completionquestionpublished' => get_string(
+                'completiondetail:published',
+                'studentquiz',
+                $completionquestionpublished
+            ),
+            'completionquestionapproved' => get_string(
+                'completiondetail:approved',
+                'studentquiz',
+                $completionquestionapproved
+            ),
         ];
     }
 
+    #[\Override]
     public function get_sort_order(): array {
         $defaults = [
            'completionview',

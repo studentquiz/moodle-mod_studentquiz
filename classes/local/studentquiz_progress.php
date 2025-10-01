@@ -24,7 +24,6 @@ namespace mod_studentquiz\local;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_progress {
-
     /** @var int ID from studentquiz_progress table */
     public $id;
     /** @var int Question id */
@@ -53,16 +52,25 @@ class studentquiz_progress {
      * @param int $userid
      * @param int $studentquizid
      * @param int $sqqid
-     * @param int $lastanswercorrect
-     * @param int $attempts
-     * @param int $correctattempts
-     * @param int $lastreadprivatecomment
-     * @param int $lastreadpubliccomment
+     * @param int|null $lastanswercorrect
+     * @param int|null $attempts
+     * @param int|null $correctattempts
+     * @param int|null $lastreadprivatecomment
+     * @param int|null $lastreadpubliccomment
      * @param int|null $id
      */
-    public function __construct(int $questionid, int $userid, int $studentquizid, int $sqqid, int $lastanswercorrect = 0,
-        int $attempts = 0, int $correctattempts = 0, int $lastreadprivatecomment = 0, int $lastreadpubliccomment = 0,
-        int $id = null) {
+    public function __construct(
+        int $questionid,
+        int $userid,
+        int $studentquizid,
+        int $sqqid,
+        ?int $lastanswercorrect = 0,
+        ?int $attempts = 0,
+        ?int $correctattempts = 0,
+        ?int $lastreadprivatecomment = 0,
+        ?int $lastreadpubliccomment = 0,
+        ?int $id = null
+    ) {
         $this->questionid = $questionid;
         $this->userid = $userid;
         $this->studentquizid = $studentquizid;
@@ -84,10 +92,16 @@ class studentquiz_progress {
      * @param int $userid
      * @return studentquiz_progress
      */
-    public static function get_studentquiz_progress_from_studentquiz_question(studentquiz_question $studentquizquestion,
-        int $userid): studentquiz_progress {
-        return new studentquiz_progress($studentquizquestion->get_question()->id,
-            $userid, $studentquizquestion->get_studentquiz()->id, $studentquizquestion->get_id());
+    public static function get_studentquiz_progress_from_studentquiz_question(
+        studentquiz_question $studentquizquestion,
+        int $userid
+    ): studentquiz_progress {
+        return new studentquiz_progress(
+            $studentquizquestion->get_question()->id,
+            $userid,
+            $studentquizquestion->get_studentquiz()->id,
+            $studentquizquestion->get_id()
+        );
     }
 
     /**
@@ -104,15 +118,23 @@ class studentquiz_progress {
         $studentquizprogress = $DB->get_record('studentquiz_progress', [
             'studentquizquestionid' => $sqqid,
             'userid' => $userid,
-            'studentquizid' => $studentquizid
+            'studentquizid' => $studentquizid,
         ]);
         if ($studentquizprogress == false) {
             $studentquizprogress = self::get_studentquiz_progress_from_studentquiz_question($studentquizquestion, $userid);
         } else {
-            $studentquizprogress = new studentquiz_progress($studentquizquestion->get_question()->id, $userid, $studentquizid,
-                $sqqid, $studentquizprogress->lastanswercorrect, $studentquizprogress->attempts,
-                $studentquizprogress->correctattempts, $studentquizprogress->lastreadprivatecomment,
-                $studentquizprogress->lastreadpubliccomment, $studentquizprogress->id);
+            $studentquizprogress = new studentquiz_progress(
+                $studentquizquestion->get_question()->id,
+                $userid,
+                $studentquizid,
+                $sqqid,
+                $studentquizprogress->lastanswercorrect,
+                $studentquizprogress->attempts,
+                $studentquizprogress->correctattempts,
+                $studentquizprogress->lastreadprivatecomment,
+                $studentquizprogress->lastreadpubliccomment,
+                $studentquizprogress->id
+            );
         }
 
         return $studentquizprogress;
@@ -135,5 +157,4 @@ class studentquiz_progress {
 
         return $result;
     }
-
 }

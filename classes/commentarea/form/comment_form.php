@@ -39,7 +39,6 @@ require_once($CFG->libdir . '/form/editor.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class comment_form {
-
     /** @var array - Array of data needs for form, generate as hidden inputs. */
     private $params;
 
@@ -110,9 +109,12 @@ class comment_form {
 
         // Setup editor.
         $editorid = 'id_editor_question_' . $unique;
-        $editor = new comment_simple_editor('message', 'message',
-                ['id' => $editorid],
-                ['context' => $context]);
+        $editor = new comment_simple_editor(
+            'message',
+            'message',
+            ['id' => $editorid],
+            ['context' => $context]
+        );
 
         // If edit form, add data to it.
         if ($this->editmode) {
@@ -123,7 +125,7 @@ class comment_form {
         $required = get_string('required');
         $placeholder = get_string('editorplaceholder', 'mod_studentquiz');
         $html = \html_writer::start_div('comment-area-form', [
-                'data-textarea-placeholder' => $placeholder
+                'data-textarea-placeholder' => $placeholder,
         ]);
 
         $html .= \html_writer::start_div();
@@ -133,7 +135,7 @@ class comment_form {
         $html .= \html_writer::end_div();
 
         $html .= \html_writer::start_div('studentquiz_customeditor', [
-                'id' => $id
+                'id' => $id,
         ]);
 
         $html .= \html_writer::start_div('form-group row  fitem comment_editor_container');
@@ -153,10 +155,10 @@ class comment_form {
         // Write label.
         $labelcontent = \html_writer::tag('label', $textarealabelstring, [
                 'class' => 'add-comment-label',
-                'for' => $editorid
+                'for' => $editorid,
         ]);
         $labelcontent .= \html_writer::span($requiredicon . $helpicon, 'text-nowrap');
-        $labelcontent .= \html_writer::span(":");;
+        $labelcontent .= \html_writer::span(":");
 
         // Start first col.
         $html .= \html_writer::div($labelcontent, 'col-md-12 comment-label-content');
@@ -183,7 +185,7 @@ class comment_form {
         $submitbtn = \html_writer::tag('button', $submitlabelstring, [
                 'name' => 'submitbutton',
                 'id' => 'id_submitbutton',
-                'class' => 'btn btn-primary'
+                'class' => 'btn btn-primary',
         ]);
 
         $html .= \html_writer::div($submitbtn, 'form-group fitem');
@@ -216,8 +218,9 @@ class comment_form {
         $html = \html_writer::start_div('row comment-errors');
         $html .= \html_writer::start_div('col-md-12 form-inline felement');
         $html .= \html_writer::div(
-                get_string('comment_error', 'studentquiz')
-                , 'hide error comment-error');
+            get_string('comment_error', 'studentquiz'),
+            'hide error comment-error'
+        );
         $html .= \html_writer::end_div();
         $html .= \html_writer::end_div();
         return $html;

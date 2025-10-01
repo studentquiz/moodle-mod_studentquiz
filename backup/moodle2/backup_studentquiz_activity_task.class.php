@@ -36,7 +36,6 @@ require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/backup_studentquiz
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_studentquiz_activity_task extends backup_activity_task {
-
     /**
      * No specific settings for this activity
      */
@@ -66,11 +65,11 @@ class backup_studentquiz_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, '/');
 
         // Link to the list of studentquizs.
-        $search = '/('.$base.'\/mod\/studentquiz\/index.php\?id\=)([0-9]+)/';
+        $search = '/(' . $base . '\/mod\/studentquiz\/index.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@STUDENTQUIZINDEX*$2@$', $content);
 
         // Link to StudentQuiz view by moduleid.
-        $search = '/('.$base.'\/mod\/studentquiz\/view.php\?id\=)([0-9]+)/';
+        $search = '/(' . $base . '\/mod\/studentquiz\/view.php\?id\=)([0-9]+)/';
         $content = preg_replace($search, '$@STUDENTQUIZVIEWBYID*$2@$', $content);
 
         return $content;

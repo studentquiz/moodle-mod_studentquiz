@@ -44,7 +44,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class delete_comment_api extends external_api {
-
     /**
      * Gets function parameter metadata.
      *
@@ -55,7 +54,7 @@ class delete_comment_api extends external_api {
                 'studentquizquestionid' => new external_value(PARAM_INT, 'Studentquizquestion ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
                 'commentid' => new external_value(PARAM_INT, 'Comment ID'),
-                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC),
         ]);
     }
 
@@ -69,7 +68,7 @@ class delete_comment_api extends external_api {
         return new external_single_structure([
                 'success' => new external_value(PARAM_BOOL, 'Delete comment successfully or not.'),
                 'message' => new external_value(PARAM_TEXT, 'Message in case delete comment failed.'),
-                'data' => new external_single_structure($replystructure, '', VALUE_DEFAULT, null)
+                'data' => new external_single_structure($replystructure, '', VALUE_DEFAULT, null),
         ]);
     }
 
@@ -85,12 +84,12 @@ class delete_comment_api extends external_api {
     public static function delete_comment($studentquizquestionid, $cmid, $commentid, $type) {
 
         // Validate web service's parameters.
-        $params = self::validate_parameters(self::delete_comment_parameters(), array(
+        $params = self::validate_parameters(self::delete_comment_parameters(), [
                 'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $cmid,
                 'commentid' => $commentid,
-                'type' => $type
-        ));
+                'type' => $type,
+        ]);
 
         $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
         $context = $studentquizquestion->get_context();

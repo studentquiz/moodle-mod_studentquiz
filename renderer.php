@@ -31,6 +31,8 @@ use mod_studentquiz\question\bank\studentquiz_bank_view;
 
 defined('MOODLE_INTERNAL') || die();
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
 /**
  * Base renderer for Studentquiz with helpers
  *
@@ -39,7 +41,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_renderer extends plugin_renderer_base {
-
     /**
      * Cached question preview link image.
      * @var mixed
@@ -53,10 +54,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param array $rowattributes
      * @return html_table_row[]
      */
-    public function render_table_data(array $celldata, array $rowattributes=array()) {
-        $rows = array();
+    public function render_table_data(array $celldata, array $rowattributes = []) {
+        $rows = [];
         foreach ($celldata as $num => $row) {
-            $cells = array();
+            $cells = [];
             foreach ($row as $cell) {
                 if (!empty($rowattributes[$num])) {
                     $cells[] = $this->render_table_cell($cell, $rowattributes[$num]);
@@ -76,7 +77,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param string $title Page's title.
      * @return void
      */
-    public function render_error_message(string $errormessage, string $title) : void {
+    public function render_error_message(string $errormessage, string $title): void {
         if ($title) {
             $this->page->set_title($title);
         }
@@ -88,8 +89,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         echo $this->output->notification($errormessage, 'error', false);
         $courseurl = new moodle_url('/course/view.php', ['id' => $this->page->course->id]);
 
-        $backtocourse = new single_button($courseurl, get_string('back_to_course_button', 'studentquiz'),
-            'get', 'primary');
+        $backtocourse = new single_button(
+            $courseurl,
+            get_string('back_to_course_button', 'studentquiz'),
+            'get',
+            'primary'
+        );
         echo html_writer::div($this->render($backtocourse), 'studentquizerrormessage');
         echo $this->output->footer();
     }
@@ -101,7 +106,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param array $attributes
      * @return html_table_cell
      */
-    public function render_table_cell($text, array $attributes=array()) {
+    public function render_table_cell($text, array $attributes = []) {
         $cell = new html_table_cell();
         $cell->text = $text;
         if (!empty($attributes)) {
@@ -117,6 +122,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @return block_content
      */
     public function render_stat_block($report) {
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Refactor: use mod_studentquiz_report_record_type!
         $userstats = $report->get_user_stats();
         $sqstats = $report->get_studentquiz_stats();
@@ -144,17 +150,20 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $info2->group = $userstats->questions_approved + $userstats->questions_disapproved;
         $info2->one = $userstats->questions_approved;
         $unansweredquestions = $sqstats->questions_available - $userstats->last_attempt_exists;
-        $bc->content = html_writer::div($this->render_progress_bar($info1), '', array('style' => 'width:inherit'))
+        $bc->content = html_writer::div($this->render_progress_bar($info1), '', ['style' => 'width:inherit'])
              . html_writer::div(
-                get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
-                .html_writer::span($userstats->last_attempt_correct, '', ['class' => "stat badge last-attempt-correct"]))
+                 get_string('statistic_block_progress_last_attempt_correct', 'studentquiz')
+                 . html_writer::span($userstats->last_attempt_correct, '', ['class' => "stat badge last-attempt-correct"])
+             )
             . html_writer::div(
                 get_string('statistic_block_progress_last_attempt_incorrect', 'studentquiz')
-                .html_writer::span($userstats->last_attempt_incorrect, '', ['class' => 'stat badge last-attempt-incorrect']))
+                . html_writer::span($userstats->last_attempt_incorrect, '', ['class' => 'stat badge last-attempt-incorrect'])
+            )
             . html_writer::div(
                 get_string('statistic_block_progress_never', 'studentquiz')
-                .html_writer::span($unansweredquestions, '', ['class' => 'stat badge never-answered']))
-            . html_writer::div($this->render_progress_bar($info2), '', array('style' => 'width:inherit'))
+                . html_writer::span($unansweredquestions, '', ['class' => 'stat badge never-answered'])
+            )
+            . html_writer::div($this->render_progress_bar($info2), '', ['style' => 'width:inherit'])
             . html_writer::div(get_string('statistic_block_approvals', 'studentquiz')
                 . html_writer::span($userstats->questions_approved, '', ['class' => 'stat badge approvals']))
             . html_writer::div(get_string('statistic_block_disapprovals', 'studentquiz')
@@ -162,7 +171,9 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 . html_writer::div(get_string('statistic_block_new_changed', 'studentquiz')
                 . html_writer::span(
                     ($userstats->questions_created - $userstats->questions_approved - $userstats->questions_disapproved),
-                    '', ['class' => 'stat badge changed']));
+                    '',
+                    ['class' => 'stat badge changed']
+                ));
 
         // Add More link to Stat block.
         $reporturl = new moodle_url('/mod/studentquiz/reportstat.php', ['id' => $cmid]);
@@ -189,19 +200,27 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $blocktitle = $studentquiz->anonymrank ? get_string('ranking_block_title_anonymised', 'studentquiz') :
                 get_string('ranking_block_title', 'studentquiz');
         $cmid = $report->get_cm_id();
-        $rows = array();
+        $rows = [];
         $rank = 1;
         foreach ($ranking as $row) {
             if ($currentuserid == $row->userid || !$anonymise) {
-                $author = user_get_users_by_id(array($row->userid))[$row->userid];
+                $author = user_get_users_by_id([$row->userid])[$row->userid];
                 $name = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             } else {
                 $name = $anonymname;
             }
             $rankname = \html_writer::div($rank . '. ' . $name);
-            $rows[] = \html_writer::div($rankname .
-                html_writer::span(html_writer::tag('b' , round($row->points)),
-                    '', array('style' => 'float: right;')));
+            $rows[] = \html_writer::div(
+                $rankname .
+                html_writer::span(
+                    html_writer::tag(
+                        'b',
+                        round($row->points)
+                    ),
+                    '',
+                    ['style' => 'float: right;']
+                )
+            );
             $rank++;
             if ($rank > 10) {
                 break;
@@ -246,7 +265,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param string $class
      * @return string
      */
-    public function render_table($data, $size, $align, $head, $caption, $class='') {
+    public function render_table($data, $size, $align, $head, $caption, $class = '') {
         $table = new html_table();
         if (!empty($caption)) {
             $table->caption = $caption;
@@ -267,7 +286,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param bool $bicolor only bicolor color scheme
      * @return string
      */
-    public function render_progress_bar($info, $texttotal=null, $bicolor=false) {
+    public function render_progress_bar($info, $texttotal = null, $bicolor = false) {
 
         // Check input.
         $validinput = true;
@@ -290,35 +309,57 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $rgbblue = 'rgb(2, 117, 216)';
         $rgbred = 'rgb(220, 53, 69)';
         $rgbgrey = 'rgb(200, 200, 200)';
-        $barstroke = 'stroke-width:0.1;stroke:' . $rgbstroke .';';
-        $svgdims = array('width' => '100%', 'height' => 20);
-        $bardims = array('height' => '100%', 'rx' => 5, 'ry' => 5);
+        $barstroke = 'stroke-width:0.1;stroke:' . $rgbstroke . ';';
+        $svgdims = ['width' => '100%', 'height' => 20];
+        $bardims = ['height' => '100%', 'rx' => 5, 'ry' => 5];
         $idblue = 'blue';
         $idgreen = 'green';
         $idred = 'red';
-        $gradientdims = array('cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%');
-        $stopcolorgreen = html_writer::tag('stop', null,
-            array('offset' => '100%', 'style' => 'stop-color:' . $rgbgreen . ';stop-opacity:1'));
-        $stopcolorred = html_writer::tag('stop', null,
-            array('offset' => '100%', 'style' => 'stop-color:' . $rgbred . ';stop-opacity:1'));
-        $stopcolorblue = html_writer::tag('stop', null,
-            array('offset' => '100%', 'style' => 'stop-color:' . $rgbblue . ';stop-opacity:1'));
-        $gradientblue = html_writer::tag('radialGradient', $stopcolorblue . $stopcolorblue,
-            array_merge($gradientdims, array('id' => $idblue)));
-        $gradientred = html_writer::tag('radialGradient', $stopcolorred . $stopcolorred,
-            array_merge($gradientdims, array('id' => $idred)));
-        $gradientgreen = html_writer::tag('radialGradient', $stopcolorgreen . $stopcolorgreen,
-            array_merge($gradientdims, array('id' => $idgreen)));
-        $gradients = array($gradientred, $gradientgreen, $gradientblue);
+        $gradientdims = ['cx' => '50%', 'cy' => '50%', 'r' => '50%', 'fx' => '50%', 'fy' => '50%'];
+        $stopcolorgreen = html_writer::tag(
+            'stop',
+            null,
+            ['offset' => '100%', 'style' => 'stop-color:' . $rgbgreen . ';stop-opacity:1']
+        );
+        $stopcolorred = html_writer::tag(
+            'stop',
+            null,
+            ['offset' => '100%', 'style' => 'stop-color:' . $rgbred . ';stop-opacity:1']
+        );
+        $stopcolorblue = html_writer::tag(
+            'stop',
+            null,
+            ['offset' => '100%', 'style' => 'stop-color:' . $rgbblue . ';stop-opacity:1']
+        );
+        $gradientblue = html_writer::tag(
+            'radialGradient',
+            $stopcolorblue . $stopcolorblue,
+            array_merge($gradientdims, ['id' => $idblue])
+        );
+        $gradientred = html_writer::tag(
+            'radialGradient',
+            $stopcolorred . $stopcolorred,
+            array_merge($gradientdims, ['id' => $idred])
+        );
+        $gradientgreen = html_writer::tag(
+            'radialGradient',
+            $stopcolorgreen . $stopcolorgreen,
+            array_merge($gradientdims, ['id' => $idgreen])
+        );
+        $gradients = [$gradientred, $gradientgreen, $gradientblue];
         $defs = html_writer::tag('defs', implode($gradients));
 
         // Background bar.
         if ($bicolor) {
-            $barbackground = html_writer::tag('rect', null, array_merge($bardims,
-                array('width' => '100%', 'style' => $barstroke . 'fill:' . $rgbgrey )));
+            $barbackground = html_writer::tag('rect', null, array_merge(
+                $bardims,
+                ['width' => '100%', 'style' => $barstroke . 'fill:' . $rgbgrey ]
+            ));
         } else {
-            $barbackground = html_writer::tag('rect', null, array_merge($bardims,
-                array('width' => '100%', 'style' => $barstroke . 'fill:' . $rgbyellow)));
+            $barbackground = html_writer::tag('rect', null, array_merge(
+                $bardims,
+                ['width' => '100%', 'style' => $barstroke . 'fill:' . $rgbyellow]
+            ));
         }
 
         // Return empty bar if no questions are in StudentQuiz.
@@ -331,24 +372,43 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $percentone = round(100 * ($info->one / $info->total));
 
         if (!empty($texttotal)) {
-            $text = html_writer::tag('text', $texttotal, array('xml:space' => 'preserve', 'text-anchor' => 'start',
-                'font-family' => 'Helvetica, Arial, sans-serif', 'font-size' => '12', 'font-weight' => 'bold',
-                'id' => 'svg_text', 'x' => '50%', 'y' => '50%', 'alignment-baseline' => 'middle',
-                'text-anchor' => 'middle', 'stroke-width' => '0', 'stroke' => '#000', 'fill' => '#000'));
+            $text = html_writer::tag(
+                'text',
+                $texttotal,
+                [
+                    'xml:space' => 'preserve',
+                    'font-family' => 'Helvetica, Arial, sans-serif',
+                    'font-size' => '12', 'font-weight' => 'bold',
+                    'id' => 'svg_text',
+                    'x' => '50%',
+                    'y' => '50%',
+                    'alignment-baseline' => 'middle',
+                    'text-anchor' => 'middle',
+                    'stroke-width' => '0',
+                    'stroke' => '#000',
+                    'fill' => '#000',
+                ]
+            );
         } else {
             $text = '';
         }
 
         // Return stacked bars.
-        $bars = array($barbackground);
+        $bars = [$barbackground];
         if ($bicolor) {
-            $bars[] = html_writer::tag('rect', null, array_merge($bardims,
-                array('width' => $percentone . '%', 'style' => $barstroke . 'fill:url(#' . $idblue .')')));
+            $bars[] = html_writer::tag('rect', null, array_merge(
+                $bardims,
+                ['width' => $percentone . '%', 'style' => $barstroke . 'fill:url(#' . $idblue . ')']
+            ));
         } else {
-            $bars[] = html_writer::tag('rect', null, array_merge($bardims,
-                array('width' => $percentgroup . '%', 'style' => $barstroke . 'fill:url(#' . $idred .')')));
-            $bars[] = html_writer::tag('rect', null, array_merge($bardims,
-                array('width' => $percentone . '%', 'style' => $barstroke . 'fill:url(#' . $idgreen .')')));
+            $bars[] = html_writer::tag('rect', null, array_merge(
+                $bardims,
+                ['width' => $percentgroup . '%', 'style' => $barstroke . 'fill:url(#' . $idred . ')']
+            ));
+            $bars[] = html_writer::tag('rect', null, array_merge(
+                $bardims,
+                ['width' => $percentone . '%', 'style' => $barstroke . 'fill:url(#' . $idgreen . ')']
+            ));
         }
         return html_writer::tag('svg', $defs . implode($bars) . $text, $svgdims);
     }
@@ -384,8 +444,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         } else {
             $author = core_user::get_user($question->createdby);
             if ($author) {
-                $userprofilelink = html_writer::link(utils::get_user_profile_url($author->id,
-                    $this->page->course->id), fullname($author));
+                $userprofilelink = html_writer::link(utils::get_user_profile_url(
+                    $author->id,
+                    $this->page->course->id
+                ), fullname($author));
                 $output .= html_writer::tag('span', $userprofilelink);
             } else {
                 // Cannot find the user. Leave it blank.
@@ -414,27 +476,30 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             $question->state = studentquiz_helper::STATE_NEW;
         }
 
-        if (!in_array(intval($question->state), array(
-            studentquiz_helper::STATE_DISAPPROVED,
-            studentquiz_helper::STATE_APPROVED,
-            studentquiz_helper::STATE_NEW,
-            studentquiz_helper::STATE_CHANGED,
-            studentquiz_helper::STATE_REVIEWABLE,
-        ))) {
-            throw new coding_exception('Invalid question state '.$question->state.' for question id '.$question->id.'');
+        if (
+            !in_array(intval($question->state), [
+                studentquiz_helper::STATE_DISAPPROVED,
+                studentquiz_helper::STATE_APPROVED,
+                studentquiz_helper::STATE_NEW,
+                studentquiz_helper::STATE_CHANGED,
+                studentquiz_helper::STATE_REVIEWABLE,
+            ])
+        ) {
+            throw new coding_exception('Invalid question state ' . $question->state . ' for question id ' . $question->id . '');
         }
 
         $statename = studentquiz_helper::$statename[intval($question->state)];
-        $title = get_string('state_change_tooltip_'.$statename, 'studentquiz');
-        $content = $this->output->pix_icon('state_'.$statename, '', 'studentquiz');
-        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
-
+        $title = get_string('state_change_tooltip_' . $statename, 'studentquiz');
+        $content = $this->output->pix_icon('state_' . $statename, '', 'studentquiz');
+        if (
+            has_capability('mod/studentquiz:changestate', $this->page->context)
+        ) {
             $changestateurl = new \moodle_url('/mod/studentquiz/changestate.php', ['courseid' => $COURSE->id,
                     'approveselected' => $question->id,
                     'q' . $question->id => 1,
                     'sesskey' => sesskey(),
                     'returnurl' => $this->page->url,
-                    'cmid' => $this->page->cm->id]);
+                    'cmid' => $this->page->cm->id, ]);
             $content = html_writer::link($changestateurl, $content, ['title' => $title]);
         }
 
@@ -469,7 +534,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             'tooltiptext' => get_string('commentcolumnexplainpublic', 'studentquiz'),
             'sronlytext' => get_string('public', 'studentquiz') . ' ' .
                 utils::get_comment_plural_text($question->publiccomment),
-            'class' => 'public-comment'
+            'class' => 'public-comment',
         ];
 
         if (!empty($question->publiccomment)) {
@@ -490,7 +555,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'tooltiptext' => get_string('commentcolumnexplainprivate', 'studentquiz'),
                 'sronlytext' => get_string('private', 'studentquiz') . ' ' .
                     utils::get_comment_plural_text($question->privatecomment),
-                'class' => 'private-comment'
+                'class' => 'private-comment',
             ];
 
             if (!empty($question->privatecomment)) {
@@ -503,8 +568,10 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 $privatecontext['numberofcomments'] = get_string('no_comment', 'studentquiz');
             }
 
-            $privatecomment = '&nbsp;|&nbsp;' . $this->render_from_template('mod_studentquiz/questionbank_comment_badge',
-                $privatecontext);
+            $privatecomment = '&nbsp;|&nbsp;' . $this->render_from_template(
+                'mod_studentquiz/questionbank_comment_badge',
+                $privatecontext
+            );
         }
 
         return $publiccomment . $privatecomment;
@@ -535,13 +602,16 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             }
         }
 
-        $output = html_writer::tag("span", "",
-            array(
+        $output = html_writer::tag(
+            "span",
+            "",
+            [
                 "class" => "mod_studentquiz_difficulty",
                 "data-difficultylevel" => $question->difficultylevel,
                 "data-mydifficulty" => $question->mydifficulty,
-                "title" => $title
-            ));
+                "title" => $title,
+            ]
+        );
 
         return $output;
     }
@@ -557,8 +627,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param string $fillbaroff
      * @return string
      */
-    public function render_difficultybar($average, $mine, $fillboltson = '#ffc107', $fillboltsoff = '#fff', $fillbaron = '#fff',
-            $fillbaroff = '#007bff') {
+    public function render_difficultybar(
+        $average,
+        $mine,
+        $fillboltson = '#ffc107',
+        $fillboltsoff = '#fff',
+        $fillbaron = '#fff',
+        $fillbaroff = '#007bff'
+    ) {
         $output = '';
 
         $mine = floatval($mine);
@@ -579,7 +655,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output .= html_writer::start_tag('svg', [
                 'width' => 101,
                 'height' => 21,
-                'xmlns' => 'http://www.w3.org/2000/svg'
+                'xmlns' => 'http://www.w3.org/2000/svg',
         ]);
         $output .= html_writer::tag('svg', html_writer::tag('title', get_string('difficulty_title', 'studentquiz')));
         $output .= html_writer::start_tag('g');
@@ -622,6 +698,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output .= '&nbsp;|&nbsp;';
 
         if (!empty($question->myattempts) && $question->mylastanswercorrect !== null) {
+            // phpcs:ignore moodle.Commenting.TodoComment
             // TODO: Refactor magic constant.
             if ($question->mylastanswercorrect == '1') {
                 $output .= get_string('lastattempt_right', 'studentquiz');
@@ -661,13 +738,16 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
             }
         }
 
-        $output = html_writer::tag("span", "",
-            array(
+        $output = html_writer::tag(
+            "span",
+            "",
+            [
                 "class" => "mod_studentquiz_ratingbar",
                 "data-rate" => $question->rate,
                 "data-myrate" => $question->myrate,
-                "title" => $title
-            ));
+                "title" => $title,
+            ]
+        );
 
         return $output;
     }
@@ -682,8 +762,14 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
      * @param string $fillbaron
      * @param string $fillbaroff
      */
-    public function render_ratingbar($average, $mine, $fillstarson = '#ffc107', $fillstarsoff = '#fff', $fillbaron = '#fff',
-            $fillbaroff = '#007bff') {
+    public function render_ratingbar(
+        $average,
+        $mine,
+        $fillstarson = '#ffc107',
+        $fillstarsoff = '#fff',
+        $fillbaron = '#fff',
+        $fillbaroff = '#007bff'
+    ) {
         $output = '';
 
         $mine = intval($mine);
@@ -704,7 +790,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output .= html_writer::start_tag('svg', [
                 'width' => 101,
                 'height' => 21,
-                'xmlns' => 'http://www.w3.org/2000/svg'
+                'xmlns' => 'http://www.w3.org/2000/svg',
         ]);
         $output .= html_writer::tag('svg', html_writer::tag('title', get_string('ratingbar_title', 'studentquiz')));
         $output .= html_writer::start_tag('g');
@@ -712,7 +798,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $output .= $this->render_fill_bar('svg_7', $fillbaroff, $width);
 
         $starpath = ',8.514401l5.348972,0l1.652874,-5.081501l1.652875,5.081501l5.348971,0l-4.327402,3.140505l1.652959,'
-                .'5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z';
+                . '5.081501l-4.327403,-3.14059l-4.327402,3.14059l1.65296,-5.081501l-4.327403,-3.140505z';
         for ($i = 1; $i <= $stars; $i++) {
             $output .= $this->render_fill_star('#000', $i, $starpath, $fillstarson);
         }
@@ -758,7 +844,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'role' => 'listitem',
                 'data-value' => 'HELLO',
                 'aria-selected' => 'true',
-                'class' => 'tag tag-success text-truncate'
+                'class' => 'tag tag-success text-truncate',
         ]);
         $output .= ' ';
         return $output;
@@ -787,7 +873,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'stroke-opacity' => null,
                 'stroke-width' => 0.5,
                 'stroke' => '#868e96',
-                'fill' => $fill
+                'fill' => $fill,
         ]);
 
         return $output;
@@ -810,7 +896,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'id' => 'svg_' . $id,
                 'd' => 'm' . (($id * 20) - 12) . $boltpath,
                 'stroke-width' => 0.5,
-                'fill' => $fill
+                'fill' => $fill,
         ]);
 
         return $output;
@@ -833,7 +919,7 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'id' => 'svg_' . $id,
                 'd' => 'm' . (($id * 20) - 15) . $starpath,
                 'stroke-width' => 0.5,
-                'fill' => $fill
+                'fill' => $fill,
         ]);
 
         return $output;
@@ -871,13 +957,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'difficulty' => [
                         'field' => 'dl.difficultylevel',
                         'title' => get_string('average_column_name', 'studentquiz'),
-                        'tip' => get_string('average_column_name', 'studentquiz')
+                        'tip' => get_string('average_column_name', 'studentquiz'),
                 ],
                 'mydifficulty' => [
                         'field' => 'mydifficulty',
                         'title' => get_string('mine_column_name', 'studentquiz'),
-                        'tip' => get_string('mine_column_name', 'studentquiz')
-                ]
+                        'tip' => get_string('mine_column_name', 'studentquiz'),
+                ],
         ];
     }
 
@@ -891,13 +977,13 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
                 'rate' => [
                         'field' => 'vo.rate',
                         'title' => get_string('average_column_name', 'studentquiz'),
-                        'tip' => get_string('average_column_name', 'studentquiz')
+                        'tip' => get_string('average_column_name', 'studentquiz'),
                 ],
                 'myrate' => [
                         'field' => 'myrate.myrate',
                         'title' => get_string('mine_column_name', 'studentquiz'),
-                        'tip' => get_string('mine_column_name', 'studentquiz')
-                ]
+                        'tip' => get_string('mine_column_name', 'studentquiz'),
+                ],
         ];
     }
 
@@ -982,14 +1068,12 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
 
         return $output;
     }
-
 }
 
 /**
  * Question bank overview renderer.
  */
 class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
-
     /**
      * Builds the studentquiz_bank_view.
      *
@@ -1003,8 +1087,11 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
             $contents .= $this->heading(format_string($view->get_studentquiz_name()));
 
             if (!empty($view->get_studentquiz()->intro)) {
-                $contents .= $this->box(format_module_intro('studentquiz', $view->get_studentquiz(),
-                    $view->get_cm_id()), 'generalbox', 'intro');
+                $contents .= $this->box(format_module_intro(
+                    'studentquiz',
+                    $view->get_studentquiz(),
+                    $view->get_cm_id()
+                ), 'generalbox', 'intro');
             }
 
             $contents .= groups_print_activity_menu($view->get_coursemodule(), $view->get_pageurl(), true, true);
@@ -1018,8 +1105,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
             $contents .= $this->show_error($view->get_errormessage());
         }
 
-        return html_writer::tag('div', $contents, array('class' => implode(' ',
-                array('questionbankwindow', 'boxwidthwide', 'boxaligncenter'))));
+        return html_writer::tag('div', $contents, ['class' => implode(
+            ' ',
+            ['questionbankwindow', 'boxwidthwide', 'boxaligncenter']
+        ), ]);
     }
 
     /**
@@ -1027,7 +1116,7 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      *
      * @param mod_studentquiz_view $view
      * @return string
-     * TODO: REFACTOR!
+     * TODO: REFACTOR! // phpcs:ignore moodle.Commenting.TodoComment
      */
     public function render_questionbank($view) {
         $pagevars = $view->get_qb_pagevar();
@@ -1043,8 +1132,10 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      * @return string
      */
     public function render_select_qtype_form($view) {
-        return $view->get_questionbank()->create_new_question_form($view->get_category_id(),
-                has_capability('mod/studentquiz:submit', $view->get_context()));
+        return $view->get_questionbank()->create_new_question_form(
+            $view->get_category_id(),
+            has_capability('mod/studentquiz:submit', $view->get_context())
+        );
     }
 
     /**
@@ -1240,10 +1331,13 @@ EOT;
         $output .= html_writer::empty_tag('br');
 
         $studentquiz = mod_studentquiz_load_studentquiz($this->page->url->get_param('cmid'), $this->page->context->id);
-        list($message, $answeringallow) = mod_studentquiz_check_availability(
-                $studentquiz->openansweringfrom, $studentquiz->closeansweringfrom, 'answering');
+        [$message, $answeringallow] = mod_studentquiz_check_availability(
+            $studentquiz->openansweringfrom,
+            $studentquiz->closeansweringfrom,
+            'answering'
+        );
         $deleteurl = new \moodle_url('/question/bank/deletequestion/delete.php', ['courseid' => $COURSE->id,
-            'returnurl' => $this->page->url]);
+            'returnurl' => $this->page->url, ]);
 
         // Due to Moodle 4.3 changes.
         // We need a filter param in moveurl.
@@ -1252,10 +1346,10 @@ EOT;
             $returnmoveurl->param('filter', json_encode($filter));
         }
         $movetourl = new \moodle_url('/question/bank/bulkmove/move.php', ['courseid' => $COURSE->id,
-            'returnurl' => $returnmoveurl]);
+            'returnurl' => $returnmoveurl, ]);
 
         $changestateurl = new \moodle_url('/mod/studentquiz/changestate.php', ['courseid' => $COURSE->id,
-            'returnurl' => $this->page->url]);
+            'returnurl' => $this->page->url, ]);
         if ($hasquestionincategory) {
             $params = [
                 'class' => 'btn btn-primary form-submit',
@@ -1263,7 +1357,7 @@ EOT;
                 'name' => 'startquiz',
                 'formmethod' => 'get',
                 'value' => get_string('start_quiz_button', 'studentquiz'),
-                'disabled' => true
+                'disabled' => true,
             ];
 
             if ($answeringallow) {
@@ -1322,8 +1416,12 @@ EOT;
                 'formmethod' => 'post',
             ]);
             ob_start();
-            \qbank_managecategories\helper::question_category_select_menu($addcontexts, false, 0,
-                    "{$category->id},{$category->contextid}");
+            \qbank_managecategories\helper::question_category_select_menu(
+                $addcontexts,
+                false,
+                0,
+                "{$category->id},{$category->contextid}"
+            );
             $output .= ob_get_contents();
             ob_end_clean();
         }
@@ -1378,14 +1476,14 @@ EOT;
                     $selectionperpage = \html_writer::empty_tag('input', [
                         'type' => 'submit',
                         'value' => get_string('pagesize', 'studentquiz'),
-                        'class' => 'btn'
+                        'class' => 'btn',
                     ]);
                     $selectionperpage .= \html_writer::empty_tag('input', [
                         'type' => 'number',
                         'name' => 'qperpage',
                         'value' => $perpage,
                         'class' => 'form-control',
-                        'min' => 1
+                        'min' => 1,
                     ]);
                     $selectionperpage .= \html_writer::empty_tag('input', [
                         'type' => 'hidden',
@@ -1448,7 +1546,7 @@ EOT;
         $output .= html_writer::empty_tag('input', [
                 'type' => 'hidden',
                 'name' => $name,
-                'value' => $value
+                'value' => $value,
         ]);
 
         return $output;
@@ -1567,7 +1665,7 @@ EOT;
                 'role' => 'alertdialog',
                 'aria-labelledby' => 'modal-header',
                 'aria-describedby' => 'modal-body',
-                'aria-modal' => 'true'
+                'aria-modal' => 'true',
         ];
         $states = [
                 studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
@@ -1584,7 +1682,7 @@ EOT;
         $output .= $this->box_end();
         $attributes = [
                 'role' => 'alert',
-                'data-aria-autofocus' => 'true'
+                'data-aria-autofocus' => 'true',
         ];
         $output .= $this->box_start('modal-body', 'modal-body', $attributes);
         $output .= html_writer::div($message, 'mb-2');
@@ -1600,14 +1698,12 @@ EOT;
 
         return $output;
     }
-
 }
 
 /**
  * Attempt renderer.
  */
 class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
-
     /**
      * Generate some HTML to display rating options
      *
@@ -1619,10 +1715,10 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
      */
     protected function rate_choices(studentquiz_question $studentquizquestion, $selected, $readonly, $forcerating = true) {
         $output = '';
-        $attributes = array(
+        $attributes = [
             'type' => 'radio',
             'name' => 'q' . $studentquizquestion->get_id(),
-        );
+        ];
 
         if ($readonly) {
             $attributes['disabled'] = 'disabled';
@@ -1651,7 +1747,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     'data-rate' => $rate,
                     'data-studentquizquestionid' => $studentquizquestion->get_id(),
                     'tabindex' => 0,
-                    'aria-label' => $ratedescription
+                    'aria-label' => $ratedescription,
             ];
             $choices .= html_writer::span('', $rateable . $class, $rateableattr);
         }
@@ -1684,13 +1780,16 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 
         $value = -1;
         $rate = $DB->get_record('studentquiz_rate', [
-            'studentquizquestionid' => $studentquizquestion->get_id(), 'userid' => $USER->id]);
+            'studentquizquestionid' => $studentquizquestion->get_id(), 'userid' => $USER->id, ]);
         if ($rate !== false) {
             $value = $rate->rate;
         }
 
         return html_writer::div(
-            html_writer::div($this->rate_choices($studentquizquestion, $value , false, $forcerating), 'rate'),
+            html_writer::div(
+                $this->rate_choices($studentquizquestion, $value, false, $forcerating),
+                'rate'
+            ),
             'studentquiz_behaviour'
         );
     }
@@ -1709,9 +1808,11 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             html_writer::div(
                 html_writer::div(
                     $renderer->render_comment_area($studentquizquestion, $userid, $highlight),
-                    'comment_list'),
+                    'comment_list'
+                ),
                 'comments'
-            ), 'studentquiz_behaviour'
+            ),
+            'studentquiz_behaviour'
         );
     }
 
@@ -1730,22 +1831,29 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         $question = $studentquizquestion->get_question();
         $cm = $studentquizquestion->get_cm();
         if (utils::can_view_private_comment($cm->id, $question, $privatecommenting)) {
-            $privatecommentstab = $renderer->render_comment_area($studentquizquestion, $userid, $highlight,
-                utils::COMMENT_TYPE_PRIVATE);
+            $privatecommentstab = $renderer->render_comment_area(
+                $studentquizquestion,
+                $userid,
+                $highlight,
+                utils::COMMENT_TYPE_PRIVATE
+            );
             $tabs[] = [
                 'id' => 'private-comments-tab',
                 'name' => get_string('privatecomments', 'mod_studentquiz'),
                 'content' => $privatecommentstab,
             ];
-
         }
 
-        $publiccommentstab = $renderer->render_comment_area($studentquizquestion,
-                $userid, $highlight, utils::COMMENT_TYPE_PUBLIC);
+        $publiccommentstab = $renderer->render_comment_area(
+            $studentquizquestion,
+            $userid,
+            $highlight,
+            utils::COMMENT_TYPE_PUBLIC
+        );
         $tabs[] = [
             'id' => 'public-comments-tab',
             'name' => get_string('publiccomments', 'mod_studentquiz'),
-            'content' => $publiccommentstab
+            'content' => $publiccommentstab,
         ];
 
         if (utils::can_view_state_history($cm->id, $question)) {
@@ -1754,13 +1862,13 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $tabs[] = [
                 'id' => 'state_history-tab',
                 'name' => get_string('history', 'mod_studentquiz'),
-                'content' => $statehistorytab
+                'content' => $statehistorytab,
             ];
         }
 
         utils::mark_question_comment_current_active_tab($tabs, $privatecommenting);
         $context = [
-            'tabs' => $tabs
+            'tabs' => $tabs,
         ];
 
         return $this->render_from_template('mod_studentquiz/question_tabs', $context);
@@ -1800,15 +1908,21 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
         $currentstate = $studentquizquestion->get_state();
         $statenames = studentquiz_helper::get_state_descriptions();
         $output .= html_writer::start_span('change-question-state');
-        $output .= html_writer::div(get_string('changecurrentstate', 'studentquiz',
-            $statenames[$currentstate]), 'current-state mb-2');
+        $output .= html_writer::div(get_string(
+            'changecurrentstate',
+            'studentquiz',
+            $statenames[$currentstate]
+        ), 'current-state mb-2');
         $output .= html_writer::tag('label', get_string('state_column_name', 'studentquiz'), ['for' => 'statetype']);
         $output .= html_writer::select($states, 'statetype');
-        $output .= html_writer::tag('button', get_string('state_toggle', 'studentquiz'),
-                ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $question->id,
+        $output .= html_writer::tag(
+            'button',
+            get_string('state_toggle', 'studentquiz'),
+            ['type' => 'button', 'class' => 'btn btn-secondary', 'id' => 'change_state', 'data-questionid' => $question->id,
                         'data-studentquizquestionid' => $studentquizquestion->get_id(),
                         'data-courseid' => $COURSE->id, 'data-cmid' => $studentquizquestion->get_cm()->id, 'disabled' => 'disabled',
-                        'data-currentstate' => $currentstate]);
+            'data-currentstate' => $currentstate, ]
+        );
         $output .= html_writer::end_span();
         $this->page->requires->js_call_amd('mod_studentquiz/state_change', 'init');
 
@@ -1830,7 +1944,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     'type' => 'submit',
                     'name' => 'previous',
                     'value' => get_string('previous_button', 'studentquiz'),
-                    'class' => 'btn btn-primary'
+                    'class' => 'btn btn-primary',
             ]);
         }
 
@@ -1843,7 +1957,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
             $col2content .= html_writer::empty_tag('input', [
                     'type' => 'submit', 'name' => 'finish',
                     'value' => get_string('abort_button', 'studentquiz'),
-                    'class' => 'btn btn-secondary'
+                    'class' => 'btn btn-secondary',
             ]);
         }
 
@@ -1856,7 +1970,7 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
                     'type' => 'submit',
                     'name' => $hasnext ? 'next' : 'finish',
                     'value' => $strbutton,
-                    'class' => 'btn btn-primary'
+                    'class' => 'btn btn-primary',
             ]);
         }
         $content3 = html_writer::div(html_writer::div($col3content, 'float-right'), 'col-md-4');
@@ -1868,7 +1982,6 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
  * State history renderer.
  */
 class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
-
     /** @var string - Define name of Student Quiz mod. */
     const MODNAME = 'mod_studentquiz';
 
@@ -1887,7 +2000,7 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
         ];
 
         $studentquizquestionid = $studentquizquestion->get_id();
-        list($statehistories, $users) = utils::get_state_history_data($studentquizquestionid);
+        [$statehistories, $users] = utils::get_state_history_data($studentquizquestionid);
 
         if (get_string_manager()->string_exists('strftimedatetimeshortaccurate', 'core_langconfig')) {
             $formatdate = get_string('strftimedatetimeshortaccurate', 'core_langconfig');
@@ -1902,7 +2015,7 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
                 $this->action_author($users[$statehistory->userid], $canviewusername) : '';
             $table->data[] = [
                 userdate($statehistory->timecreated, $formatdate),
-                $this->get_desc_action($statehistory->state) . ' ' . $author
+                $this->get_desc_action($statehistory->state) . ' ' . $author,
             ];
         }
 
@@ -1926,9 +2039,14 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
             return get_string('anonymous_user', 'mod_studentquiz');
         }
 
-        return html_writer::link(new moodle_url('/user/view.php',
-            ['id' => $user->id, 'course' => $this->page->course->id]),
-            fullname($user), ['class' => 'd-table-cell']);
+        return html_writer::link(
+            new moodle_url(
+                '/user/view.php',
+                ['id' => $user->id, 'course' => $this->page->course->id]
+            ),
+            fullname($user),
+            ['class' => 'd-table-cell']
+        );
     }
 
     /**
@@ -1955,7 +2073,6 @@ class mod_studentquiz_state_history_renderer extends mod_studentquiz_renderer {
  * Report renderer.
  */
 class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
-
     /**
      * Get quiz admin statistic view
      * $userid of viewing user
@@ -1974,7 +2091,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
         $output .= $this->view_stat_cards(
             $report->get_studentquiz_stats(),
             $userstats
-            );
+        );
         return $output;
     }
 
@@ -1985,16 +2102,16 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
      * @return string quiz report data
      */
     public function view_stat_cards($commstats, $userstats) {
-        $align = array('left', 'right', '', 'left', 'right', '');
-        $size = array('300px', '40px', '77px', '300px', '40px', '*');
-        $head = array(
+        $align = ['left', 'right', '', 'left', 'right', ''];
+        $size = ['300px', '40px', '77px', '300px', '40px', '*'];
+        $head = [
             get_string('reportrank_table_column_yourstatus', 'studentquiz'),
             get_string('reportrank_table_column_value', 'studentquiz'),
-            ''
-            /* spacing */,
+            '',
+            // Spacing.
             get_string('reportrank_table_column_communitystatus', 'studentquiz'),
-            get_string('reportrank_table_column_value', 'studentquiz'), ''
-        );
+            get_string('reportrank_table_column_value', 'studentquiz'), '',
+        ];
 
         // Protect from zero division.
         if (empty($commstats->participated)) {
@@ -2021,89 +2138,168 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
             $commcorrectattempts = 0;
         }
 
-        $celldata = array(
-            array(
+        $celldata = [
+            [
                 html_writer::span(
                     get_string('reportquiz_stats_own_questions_created', 'studentquiz'),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))),
-                html_writer::span( intval($userstats->questions_created),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_own_questions_created_help', 'studentquiz'))), '',
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_own_questions_created_help',
+                        'studentquiz'
+                    ), ]
+                ),
+                html_writer::span(
+                    intval($userstats->questions_created),
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_own_questions_created_help',
+                        'studentquiz'
+                    ), ]
+                ), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_created', 'studentquiz'),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))),
-                html_writer::span( intval($commstats->questions_available),
-                    '', array('title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz'))), ''
-            ),
-            array(
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_all_questions_created_help',
+                        'studentquiz'
+                    ), ]
+                ),
+                html_writer::span(
+                    intval($commstats->questions_available),
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_questions_created_help', 'studentquiz')]
+                ), '',
+            ],
+            [
                 html_writer::span(
                     get_string('reportquiz_stats_own_questions_approved', 'studentquiz'),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))),
-                html_writer::span( intval($userstats->questions_approved),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_own_questions_approved_help', 'studentquiz'))), '',
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_own_questions_approved_help',
+                        'studentquiz'
+                    ), ]
+                ),
+                html_writer::span(
+                    intval($userstats->questions_approved),
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_own_questions_approved_help',
+                        'studentquiz'
+                    ), ]
+                ), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_approved', 'studentquiz'),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))),
-                html_writer::span( intval($commstats->questions_questions_approved),
-                    '', array(
-                        'title' => get_string('reportquiz_stats_all_questions_approved_help', 'studentquiz'))), ''
-            ),
-            array(
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_all_questions_approved_help',
+                        'studentquiz'
+                    ), ]
+                ),
                 html_writer::span(
-                get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))),
-                html_writer::span( round($userstats->rates_average ?? 0, 2),
-                    '', array('title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz'))), '',
+                    intval($commstats->questions_questions_approved),
+                    '',
+                    [
+                    'title' => get_string(
+                        'reportquiz_stats_all_questions_approved_help',
+                        'studentquiz'
+                    ), ]
+                ), '',
+            ],
+            [
+                html_writer::span(
+                    get_string('reportquiz_stats_own_rates_average', 'studentquiz'),
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz')]
+                ),
+                html_writer::span(
+                    round($userstats->rates_average ?? 0, 2),
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_rates_average_help', 'studentquiz')]
+                ), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_rates_average', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))),
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz')]
+                ),
                 html_writer::span(
                     round($commstats->questions_average_rating ?? 0, 2),
-                    '', array('title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz'))), ''
-            ),
-            array(
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_rates_average_help', 'studentquiz')]
+                ), '',
+            ],
+            [
                 html_writer::span(
                     get_string('reportquiz_stats_own_questions_answered', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz'))),
-                html_writer::span( intval($userstats->question_attempts),
-                    '', array('title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz'))), '',
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz')]
+                ),
+                html_writer::span(
+                    intval($userstats->question_attempts),
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_questions_answered_help', 'studentquiz')]
+                ), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_questions_answered', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz'))),
-                html_writer::span( round($commstats->question_attempts / $participated, 2),
-                    '', array('title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz'))), ''
-            ),
-            array(
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz')]
+                ),
+                html_writer::span(
+                    round($commstats->question_attempts / $participated, 2),
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_questions_answered_help', 'studentquiz')]
+                ), '',
+            ],
+            [
                 html_writer::span(
                     get_string('reportquiz_stats_own_percentage_correct_answers', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz'))),
-                html_writer::span($usercorrectattempts . ' %',
-                    '', array('title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz'))), '',
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz')]
+                ),
+                html_writer::span(
+                    $usercorrectattempts . ' %',
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_percentage_correct_answers_help', 'studentquiz')]
+                ), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_percentage_correct_answers', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))),
-                html_writer::span($commcorrectattempts . ' %',
-                    '', array('title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz'))), ''
-            ),
-            array(
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz')]
+                ),
+                html_writer::span(
+                    $commcorrectattempts . ' %',
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_percentage_correct_answers_help', 'studentquiz')]
+                ), '',
+            ],
+            [
                 html_writer::span(
                     get_string('reportquiz_stats_own_progress', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))),
-                html_writer::span(intval(100 * round($userstats->last_attempt_correct / ($questionsavailable), 2)) . ' %',
-                    '', array('title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz'))), '',
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz')]
+                ),
+                html_writer::span(
+                    intval(100 * round($userstats->last_attempt_correct / ($questionsavailable), 2)) . ' %',
+                    '',
+                    ['title' => get_string('reportquiz_stats_own_progress_help', 'studentquiz')]
+                ), '',
                 html_writer::span(
                     get_string('reportquiz_stats_all_progress', 'studentquiz'),
-                    '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))),
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz')]
+                ),
                 html_writer::span(
                     intval(100 * round(($commstats->last_attempt_correct / ($questionsavailable * $participated)), 2)) . ' %',
-                    '', array('title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz'))), ''
-            )
-        );
+                    '',
+                    ['title' => get_string('reportquiz_stats_all_progress_help', 'studentquiz')]
+                ), '',
+            ],
+        ];
         $data = $this->render_table_data($celldata);
         return $this->render_table($data, $size, $align, $head, null);
     }
@@ -2113,7 +2309,6 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
  * Ranking renderer.
  */
 class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
-
     /**
      * Render the ranking page contents.
      *
@@ -2134,29 +2329,31 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      * @return string
      */
     public function view_quantifier_information($report) {
-        $align = array('left', 'right', 'left');
-        $size = array('250px', '50px', '');
-        $head = array(get_string('reportrank_table_column_quantifier_name', 'studentquiz')
-        , get_string('reportrank_table_column_factor', 'studentquiz')
-        , get_string('reportrank_table_column_description', 'studentquiz'));
+        $align = ['left', 'right', 'left'];
+        $size = ['250px', '50px', ''];
+        $head = [
+            get_string('reportrank_table_column_quantifier_name', 'studentquiz'),
+            get_string('reportrank_table_column_factor', 'studentquiz'),
+            get_string('reportrank_table_column_description', 'studentquiz'),
+            ];
         $caption = get_string('reportrank_table_quantifier_caption', 'studentquiz');
-        $celldata = array(
-            array(get_string('settings_questionquantifier', 'studentquiz'),
+        $celldata = [
+            [get_string('settings_questionquantifier', 'studentquiz'),
                 $report->get_quantifier_question(),
-                'description' => get_string('settings_questionquantifier_help', 'studentquiz')),
-            array(get_string('settings_approvedquantifier', 'studentquiz'),
+                'description' => get_string('settings_questionquantifier_help', 'studentquiz'), ],
+            [get_string('settings_approvedquantifier', 'studentquiz'),
                 $report->get_quantifier_approved(),
-                'description' => get_string('settings_approvedquantifier_help', 'studentquiz')),
-            array('text' => get_string('settings_ratequantifier', 'studentquiz'),
+                'description' => get_string('settings_approvedquantifier_help', 'studentquiz'), ],
+            ['text' => get_string('settings_ratequantifier', 'studentquiz'),
                 $report->get_quantifier_rate(),
-                'value' => get_string('settings_ratequantifier_help', 'studentquiz')),
-            array('text' => get_string('settings_lastcorrectanswerquantifier', 'studentquiz'),
+                'value' => get_string('settings_ratequantifier_help', 'studentquiz'), ],
+            ['text' => get_string('settings_lastcorrectanswerquantifier', 'studentquiz'),
                 $report->get_quantifier_correctanswer(),
-                'value' => get_string('settings_lastcorrectanswerquantifier_help', 'studentquiz')),
-            array('text' => get_string('settings_lastincorrectanswerquantifier', 'studentquiz'),
+                'value' => get_string('settings_lastcorrectanswerquantifier_help', 'studentquiz'), ],
+            ['text' => get_string('settings_lastincorrectanswerquantifier', 'studentquiz'),
                 $report->get_quantifier_incorrectanswer(),
-                'value' => get_string('settings_lastincorrectanswerquantifier_help', 'studentquiz'))
-        );
+                'value' => get_string('settings_lastincorrectanswerquantifier_help', 'studentquiz'), ],
+        ];
         $data = $this->render_table_data($celldata);
         return $this->render_table($data, $size, $align, $head, $caption);
     }
@@ -2166,21 +2363,21 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
      *
      * @param mod_studentquiz_report $report studentquiz_report class with necessary information
      * @return string $rank report table
-     * TODO: TODO: REFACTOR! Paginate ranking table or limit its length.
+     * TODO: TODO: REFACTOR! Paginate ranking table or limit its length. // phpcs:ignore moodle.Commenting.TodoComment
      */
     public function view_rank_table($report) {
-        $align = array('left', 'left');
-        $size = array('', '', '');
-        $head = array(get_string('reportrank_table_column_rank', 'studentquiz')
-        , get_string('reportrank_table_column_fullname', 'studentquiz')
-        , get_string('reportrank_table_column_total_points', 'studentquiz')
-        , get_string( 'reportrank_table_column_countquestions', 'studentquiz')
-        , get_string( 'reportrank_table_column_approvedquestions', 'studentquiz')
-        , get_string( 'reportrank_table_column_summeanrates', 'studentquiz')
-        , get_string( 'reportrank_table_column_lastcorrectanswers', 'studentquiz')
-        , get_string( 'reportrank_table_column_lastincorrectanswers', 'studentquiz')
-        , get_string( 'reportrank_table_column_progress', 'studentquiz')
-        );
+        $align = ['left', 'left'];
+        $size = ['', '', ''];
+        $head = [get_string('reportrank_table_column_rank', 'studentquiz'),
+        get_string('reportrank_table_column_fullname', 'studentquiz'),
+        get_string('reportrank_table_column_total_points', 'studentquiz'),
+        get_string('reportrank_table_column_countquestions', 'studentquiz'),
+        get_string('reportrank_table_column_approvedquestions', 'studentquiz'),
+        get_string('reportrank_table_column_summeanrates', 'studentquiz'),
+        get_string('reportrank_table_column_lastcorrectanswers', 'studentquiz'),
+        get_string('reportrank_table_column_lastincorrectanswers', 'studentquiz'),
+        get_string('reportrank_table_column_progress', 'studentquiz'),
+        ];
 
         if (has_capability('mod/studentquiz:manage', $report->get_context())) {
             $caption = get_string('reportrank_table_title_for_manager', 'studentquiz');
@@ -2188,12 +2385,14 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
             $caption = get_string('reportrank_table_title', 'studentquiz');
         }
 
-        $celldata = array();
-        $rowstyle = array();
+        $celldata = [];
+        $rowstyle = [];
 
-        // Todo: Get Pagination from request parameters!
+        // phpcs:ignore moodle.Commenting.TodoComment
+        // TODO: Get Pagination from request parameters!
         $limitfrom = 0;
         $limitnum = 0;
+        // phpcs:ignore moodle.Commenting.TodoComment
         $maxdisplayonpage = 10; // TODO: Make configurable.
 
         // Update rank offset to pagination.
@@ -2217,9 +2416,9 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                         } else {
                             if (!$separatorwasshown) {
                                 // Display an empty row to visually distance from top maxdisplayonpage.
-                                $celldata[] = array('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;',
-                                    '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;');
-                                $rowstyle[] = array('class' => 'mod-studentquiz-summary-separator');
+                                $celldata[] = ['&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;',
+                                    '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', ];
+                                $rowstyle[] = ['class' => 'mod-studentquiz-summary-separator'];
                                 $separatorwasshown = true;
                                 continue;
                             } else {
@@ -2233,12 +2432,12 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                     }
                 }
             }
-            $author = user_get_users_by_id(array($ur->userid))[$ur->userid];
+            $author = user_get_users_by_id([$ur->userid])[$ur->userid];
             $username = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             if ($report->is_anonymized() && $ur->userid != $userid) {
                 $username = get_string('creator_anonym_fullname', 'studentquiz');
             }
-            $celldata[] = array(
+            $celldata[] = [
                 // Row: Rank.
                 $rank,
                 // Row: Fullname.
@@ -2256,9 +2455,9 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 // Points for latest wrong attemps.
                 round($ur->last_attempt_incorrect * $report->get_quantifier_incorrectanswer(), 2),
                 // Personal Progress.
-                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %'
-            );
-            $rowstyle[] = ($userid == $ur->userid) ? array('class' => 'mod-studentquiz-summary-highlight') : array();
+                (100 * round($ur->last_attempt_correct / max($numofquestions, 1), 2)) . ' %',
+            ];
+            $rowstyle[] = ($userid == $ur->userid) ? ['class' => 'mod-studentquiz-summary-highlight'] : [];
         }
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
@@ -2274,7 +2473,6 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
-
     /** @var string - Define name of Student Quiz mod. */
     const MODNAME = 'mod_studentquiz';
 
@@ -2294,8 +2492,12 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
         $numbertoshow = $commentarea::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT;
         $canviewdeleted = $commentarea->can_view_deleted();
         $context = $studentquizquestion->get_context();
-        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode($studentquizquestion,
-                $cmid, $commenttype, $studentquizquestion->get_studentquiz()->privatecommenting);
+        $allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode(
+            $studentquizquestion,
+            $cmid,
+            $commenttype,
+            $studentquizquestion->get_studentquiz()->privatecommenting
+        );
         if ($highlight != 0) {
             $numbertoshow = 0;
         }
@@ -2334,7 +2536,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                         $repliesstring[] = [
                                 'id' => $replyobject->id,
                                 'deleted' => $replyobject->deleted,
-                                'reportlink' => $replyobject->reportlink
+                                'reportlink' => $replyobject->reportlink,
                         ];
                         $replyobject->allowselfcommentrating = $allowselfcommentrating;
                         $item->replies[] = $replyobject;
@@ -2372,7 +2574,7 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'expand' => $isexpand,
                 'sortfeature' => $sortfeature,
                 'isnocomment' => empty($res),
-                'type' => $commenttype
+                'type' => $commenttype,
         ];
 
         $count = utils::count_comments_and_replies($res);
@@ -2401,9 +2603,9 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                 'reply' => get_string('reply', 'mod_studentquiz'),
                 'sort' => [
                         'asc' => get_string('asc'),
-                        'desc' => get_string('desc')
+                        'desc' => get_string('desc'),
                 ],
-                'editedcommenthistorylinktext' => get_string('editedcommenthistorylinktext', 'mod_studentquiz')
+                'editedcommenthistorylinktext' => get_string('editedcommenthistorylinktext', 'mod_studentquiz'),
         ];
 
         if ($allowselfcommentrating) {
@@ -2415,14 +2617,14 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
                     'cmid' => $cmid,
                     'cancelbutton' => false,
                     'forcecommenting' => $forcecommenting,
-                    'type' => $commenttype
+                    'type' => $commenttype,
             ]);
         }
 
         // Get current of total string. Example: 5 of 7.
         $commentcountstring = get_string('current_of_total', 'mod_studentquiz', [
                 'current' => $current,
-                'total' => $total
+                'total' => $total,
         ]);
 
         if ($commenttype == utils::COMMENT_TYPE_PRIVATE) {
@@ -2461,7 +2663,6 @@ class mod_studentquiz_comment_renderer extends mod_studentquiz_renderer {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_comment_history_renderer extends mod_studentquiz_renderer {
-
     /**
      * Generate HTML to render comments.
      *
@@ -2477,7 +2678,7 @@ class mod_studentquiz_comment_history_renderer extends mod_studentquiz_renderer 
 
         if (!empty($renderdata)) {
             return $this->output->render_from_template('mod_studentquiz/comment_history', [
-                    'commenthistory' => $renderdata
+                    'commenthistory' => $renderdata,
             ]);
         } else {
             return get_string('nocommenthistoryexist', 'mod_studentquiz');

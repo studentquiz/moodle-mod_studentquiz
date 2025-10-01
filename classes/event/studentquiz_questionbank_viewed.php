@@ -23,7 +23,6 @@ namespace mod_studentquiz\event;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_questionbank_viewed extends \core\event\base {
-
     /**
      * Initialize the event
      */
@@ -46,7 +45,7 @@ class studentquiz_questionbank_viewed extends \core\event\base {
      * @return \moodle_url view.php url
      */
     public function get_url() {
-        return new \moodle_url('/mod/studentquiz/view.php', array('id' => $this->objectid));
+        return new \moodle_url('/mod/studentquiz/view.php', ['id' => $this->objectid]);
     }
 
     /**
@@ -55,7 +54,7 @@ class studentquiz_questionbank_viewed extends \core\event\base {
      * @return array the name of the restore mapping the objectid links to
      */
     public static function get_objectid_mapping() {
-        return array('db' => 'studentquiz', 'restore' => 'studentquiz');
+        return ['db' => 'studentquiz', 'restore' => 'studentquiz'];
     }
 
     /**

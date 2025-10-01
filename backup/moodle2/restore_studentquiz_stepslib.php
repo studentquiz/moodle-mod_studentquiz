@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 
@@ -25,7 +26,6 @@ use mod_studentquiz\utils;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_studentquiz_activity_structure_step extends restore_questions_activity_structure_step {
-
     /**
      * @var object $currentquizattempt intermediate result for studentquiz attempts
      */
@@ -38,54 +38,71 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
      */
     protected function define_structure() {
 
-        $paths = array();
+        $paths = [];
         $paths[] = new restore_path_element('studentquiz', '/activity/studentquiz');
 
         // Get Setting value if user data should be restored.
         $userinfo = $this->get_setting_value('userinfo');
 
         // Additional Path for attempts.
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: attempts can be ignored if progress exists and works flawless.
-        $attempt = new restore_path_element('attempt',
-            '/activity/studentquiz/attempts/attempt');
+        $attempt = new restore_path_element(
+            'attempt',
+            '/activity/studentquiz/attempts/attempt'
+        );
         $paths[] = $attempt;
 
         // Add attempt data.
         $this->add_question_usages($attempt, $paths);
 
         // Restore Progress.
-        $progress = new restore_path_element('progress',
-            '/activity/studentquiz/progresses/progress');
+        $progress = new restore_path_element(
+            'progress',
+            '/activity/studentquiz/progresses/progress'
+        );
         $paths[] = $progress;
 
         // Restore Rate.
-        $rate = new restore_path_element('rate',
-            '/activity/studentquiz/rates/rate');
+        $rate = new restore_path_element(
+            'rate',
+            '/activity/studentquiz/rates/rate'
+        );
         $paths[] = $rate;
 
         // Restore Comments.
-        $comment = new restore_path_element('comment',
-            '/activity/studentquiz/comments/comment');
+        $comment = new restore_path_element(
+            'comment',
+            '/activity/studentquiz/comments/comment'
+        );
         $paths[] = $comment;
 
         // Restore Comment Histories.
-        $commenthistories = new restore_path_element('comment_history',
-                '/activity/studentquiz/comments/comment/commenthistories/comment_history');
+        $commenthistories = new restore_path_element(
+            'comment_history',
+            '/activity/studentquiz/comments/comment/commenthistories/comment_history'
+        );
         $paths[] = $commenthistories;
 
         // Restore Question meta.
-        $question = new restore_path_element('question_meta',
-            '/activity/studentquiz/questions/question');
+        $question = new restore_path_element(
+            'question_meta',
+            '/activity/studentquiz/questions/question'
+        );
         $paths[] = $question;
 
         // Restore Notification meta.
-        $notification = new restore_path_element('notification',
-                '/activity/studentquiz/notifications/notification');
+        $notification = new restore_path_element(
+            'notification',
+            '/activity/studentquiz/notifications/notification'
+        );
         $paths[] = $notification;
 
         // Restore State histories.
-        $statehistories = new restore_path_element('state_history',
-            '/activity/studentquiz/statehistories/state_history');
+        $statehistories = new restore_path_element(
+            'state_history',
+            '/activity/studentquiz/statehistories/state_history'
+        );
         $paths[] = $statehistories;
 
         // Return the paths wrapped into standard activity structure.
@@ -165,6 +182,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
      * @param array $data parsed element data
      */
     protected function process_attempt($data) {
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: attempts can be ignored if progress exists and works flawless.
         $data = (object)$data;
         $data->studentquizid = $this->get_new_parentid('studentquiz');
@@ -301,7 +319,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
                 'component' => 'mod_studentquiz',
                 'questionarea' => 'studentquiz_question',
                 'questionbankentryid' => $question->questionbankentryid,
-                'version' => null
+                'version' => null,
         ];
         $DB->insert_record('question_references', (object) $referenceparams);
     }
@@ -373,6 +391,7 @@ class restore_studentquiz_activity_structure_step extends restore_questions_acti
      * @param int $newusageid
      */
     protected function inform_new_usage_id($newusageid) {
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: attempts can be ignored if progress exists and works flawless.
         global $DB;
 

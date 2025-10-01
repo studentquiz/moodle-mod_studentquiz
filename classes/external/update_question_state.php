@@ -46,7 +46,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_question_state extends external_api {
-
     /**
      * Get the required question state parameters.
      * @return external_function_parameters
@@ -56,7 +55,7 @@ class update_question_state extends external_api {
             'courseid' => new external_value(PARAM_INT, 'Course id', VALUE_REQUIRED),
             'cmid' => new external_value(PARAM_INT, 'coursemodule id', VALUE_REQUIRED),
             'studentquizquestionid' => new external_value(PARAM_INT, 'id of studentquiz_question table', VALUE_REQUIRED),
-            'state' => new external_value(PARAM_INT, 'Question state', VALUE_REQUIRED)
+            'state' => new external_value(PARAM_INT, 'Question state', VALUE_REQUIRED),
         ]);
     }
 
@@ -109,8 +108,11 @@ class update_question_state extends external_api {
         }
 
         // Update completion state.
-        \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($course, $cm,
-            $studentquizquestion->get_question()->createdby);
+        \mod_studentquiz\completion\custom_completion::trigger_completion_state_update(
+            $course,
+            $cm,
+            $studentquizquestion->get_question()->createdby
+        );
 
         $result = [];
         $result['status'] = get_string('api_state_change_success_title', 'studentquiz');
@@ -126,7 +128,7 @@ class update_question_state extends external_api {
     public static function execute_returns() {
         return new external_single_structure([
             'status' => new external_value(PARAM_TEXT, 'status'),
-            'message' => new external_value(PARAM_TEXT, 'message')
+            'message' => new external_value(PARAM_TEXT, 'message'),
         ]);
     }
 }

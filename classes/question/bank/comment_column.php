@@ -26,7 +26,6 @@ use mod_studentquiz\utils;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class comment_column extends studentquiz_column_base {
-
     /**
      * Renderer
      * @var stdClass
@@ -104,7 +103,6 @@ class comment_column extends studentquiz_column_base {
                                     GROUP BY studentquizquestionid
                                     ) copri ON copri.studentquizquestionid  = sqq.id";
         return $joins;
-
     }
 
     /**
@@ -118,7 +116,7 @@ class comment_column extends studentquiz_column_base {
             'copub.lasteditpubliccomment',
             'copri.lasteditprivatecomment',
             'sp.lastreadpubliccomment',
-            'sp.lastreadprivatecomment'
+            'sp.lastreadprivatecomment',
             ];
     }
 
@@ -131,12 +129,12 @@ class comment_column extends studentquiz_column_base {
             return [
                 'publiccomment' => [
                     'field' => 'copub.publiccomment',
-                    'title' => get_string('public', 'studentquiz')
+                    'title' => get_string('public', 'studentquiz'),
                 ],
                 'privatecomment' => [
                     'field' => 'copri.privatecomment',
-                    'title' => get_string('private', 'studentquiz')
-                ]
+                    'title' => get_string('private', 'studentquiz'),
+                ],
             ];
         } else {
             return 'copub.publiccomment';

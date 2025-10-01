@@ -28,7 +28,6 @@ use popup_action;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class comment {
-
     /** @var int - Shorten text with maximum length. */
     const SHORTEN_LENGTH = 75;
 
@@ -80,7 +79,7 @@ class comment {
         $this->strings = [
                 'timeformat' => get_string('strftimedatetime', 'langconfig'),
                 'reply' => get_string('reply', 'mod_studentquiz'),
-                'replies' => get_string('replies', 'mod_studentquiz')
+                'replies' => get_string('replies', 'mod_studentquiz'),
         ];
     }
 
@@ -281,8 +280,10 @@ class comment {
      */
     private function get_deleted() {
         global $DB;
-        $isdeleted = $DB->record_exists('studentquiz_comment_history',
-                ['commentid' => $this->data->id, 'action' => utils::COMMENT_HISTORY_DELETE]);
+        $isdeleted = $DB->record_exists(
+            'studentquiz_comment_history',
+            ['commentid' => $this->data->id, 'action' => utils::COMMENT_HISTORY_DELETE]
+        );
         return $isdeleted ? $this->data->timemodified : utils::COMMENT_HISTORY_CREATE;
     }
 
@@ -312,8 +313,10 @@ class comment {
     private function is_edited() {
         global $DB;
 
-        return $DB->record_exists('studentquiz_comment_history',
-                ['commentid' => $this->data->id, 'action' => utils::COMMENT_HISTORY_EDIT]);
+        return $DB->record_exists(
+            'studentquiz_comment_history',
+            ['commentid' => $this->data->id, 'action' => utils::COMMENT_HISTORY_EDIT]
+        );
     }
 
     /**
@@ -324,8 +327,14 @@ class comment {
     private function get_latest_edited_time() {
         global $DB;
 
-        $commenthistory = $DB->get_records('studentquiz_comment_history',
-                ['commentid' => $this->data->id, 'action' => utils::COMMENT_HISTORY_EDIT], 'id DESC', 'timemodified', 0, 1);
+        $commenthistory = $DB->get_records(
+            'studentquiz_comment_history',
+            ['commentid' => $this->data->id, 'action' => utils::COMMENT_HISTORY_EDIT],
+            'id DESC',
+            'timemodified',
+            0,
+            1
+        );
 
         if (count($commenthistory) > 0) {
             return reset($commenthistory)->timemodified;
@@ -454,8 +463,10 @@ class comment {
             } else if ($container->can_view_username()) {
                 $user = \core_user::get_user($comment->usermodified);
                 $editedcommenthistoryuser = fullname($user);
-                $editedcommenthistoryuserurl = utils::get_user_profile_url($user->id,
-                    $this->get_container()->get_course()->id)->out();
+                $editedcommenthistoryuserurl = utils::get_user_profile_url(
+                    $user->id,
+                    $this->get_container()->get_course()->id
+                )->out();
             } else {
                 $editedcommenthistoryuser = get_string('anonymous_user_name', 'mod_studentquiz', $object->rownumber);
             }
@@ -466,19 +477,19 @@ class comment {
                 $object->commenthistorymetadata = get_string('editedcommenthistorywithuserlink', 'mod_studentquiz', [
                     'lastesteditedcommentauthorname' => $editedcommenthistoryuser,
                     'lastededitedcommenttime' => userdate($this->get_latest_edited_time(), $this->strings['timeformat']),
-                    'lastesteditedcommentauthorprofileurl' => $editedcommenthistoryuserurl
+                    'lastesteditedcommentauthorprofileurl' => $editedcommenthistoryuserurl,
                 ]);
             } else {
                 $object->commenthistorymetadata = get_string('editedcommenthistory', 'mod_studentquiz', [
                         'lastesteditedcommentauthorname' => $editedcommenthistoryuser,
-                        'lastededitedcommenttime' => userdate($this->get_latest_edited_time(), $this->strings['timeformat'])
+                        'lastededitedcommenttime' => userdate($this->get_latest_edited_time(), $this->strings['timeformat']),
                 ]);
             }
 
             $object->commenthistorylink = (new moodle_url('/mod/studentquiz/commenthistory.php', [
                     'cmid' => $this->get_container()->get_cmid(),
                     'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id(),
-                    'commentid' => $comment->id
+                    'commentid' => $comment->id,
             ]))->out();
         }
         $object->allowselfcommentrating = utils::allow_self_comment_and_rating_in_preview_mode(
@@ -539,7 +550,7 @@ class comment {
                 'questionid' => $questiondata->id,
                 'commentid' => $commentid,
                 'type' => $this->get_container()->get_type(),
-                'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id()
+                'studentquizquestionid' => $this->get_container()->get_studentquiz_question()->get_id(),
         ];
         $url = new \moodle_url(self::ABUSE_PAGE, $params);
         return $url->out();

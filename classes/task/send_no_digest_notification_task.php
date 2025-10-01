@@ -26,7 +26,6 @@ use core\message\message;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_no_digest_notification_task extends \core\task\adhoc_task {
-
     /**
      * Send out messages.
      */

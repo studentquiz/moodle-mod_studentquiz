@@ -28,7 +28,6 @@ if (!class_exists('\qbank_previewquestion\preview_action')) {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_preview_action extends \qbank_previewquestion\preview_action {
-
     /**
      * Renderer
      * @var stdClass
@@ -72,8 +71,12 @@ class sq_preview_action extends \qbank_previewquestion\preview_action {
             $params = ['cmid' => $this->context->instanceid, 'studentquizquestionid' => $question->studentquizquestionid];
             $link = new \moodle_url('/mod/studentquiz/preview.php', $params);
 
-            return new \action_menu_link_secondary($link, new \pix_icon('t/preview', ''),
-                $this->previewtext, ['target' => 'questionpreview']);
+            return new \action_menu_link_secondary(
+                $link,
+                new \pix_icon('t/preview', ''),
+                $this->previewtext,
+                ['target' => 'questionpreview']
+            );
         }
 
         return null;

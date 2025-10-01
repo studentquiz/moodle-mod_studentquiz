@@ -27,8 +27,7 @@ use mod_studentquiz\local\studentquiz_progress;
  * @copyright  2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class comment_test extends \advanced_testcase {
-
+final class comment_test extends \advanced_testcase {
     /**
      * @var \stdClass the StudentQuiz activity created in setUp.
      */
@@ -78,27 +77,27 @@ class comment_test extends \advanced_testcase {
     protected $userlist = [
             [
                     'firstname' => 'Alex',
-                    'lastname' => 'Dan'
+                    'lastname' => 'Dan',
             ],
             [
                     'firstname' => 'Chris',
-                    'lastname' => 'Bron'
+                    'lastname' => 'Bron',
             ],
             [
                     'firstname' => 'Danny',
-                    'lastname' => 'Civi'
+                    'lastname' => 'Civi',
             ],
             [
                     'firstname' => 'Bob',
-                    'lastname' => 'Alex'
+                    'lastname' => 'Alex',
             ],
             [
                     'firstname' => 'Ely',
-                    'lastname' => 'Potter'
+                    'lastname' => 'Potter',
             ],
             [
                     'firstname' => 'Flashy',
-                    'lastname' => 'Granger'
+                    'lastname' => 'Granger',
             ],
     ];
 
@@ -108,6 +107,7 @@ class comment_test extends \advanced_testcase {
     protected function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
+        parent::setUp();
 
         global $DB;
 
@@ -115,12 +115,12 @@ class comment_test extends \advanced_testcase {
         $course = $this->course;
 
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
-        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+        $activity = $this->getDataGenerator()->create_module('studentquiz', [
                 'course' => $course->id,
                 'anonymrank' => true,
                 'forcecommenting' => 1,
-                'publishnewquestion' => 1
-        ));
+                'publishnewquestion' => 1,
+        ]);
         $this->context = \context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
@@ -134,13 +134,19 @@ class comment_test extends \advanced_testcase {
 
         // Create questions in questionbank.
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
-        $q1 = $questiongenerator->create_question('truefalse', null,
-                ['name' => 'TF1', 'category' => $this->studentquiz->categoryid]);
+        $q1 = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'TF1', 'category' => $this->studentquiz->categoryid]
+        );
         $q1 = \question_bank::load_question($q1->id);
         $sqq1 = studentquiz_question::get_studentquiz_question_from_question($q1, $this->studentquiz);
         // Create question 2.
-        $q2 = $questiongenerator->create_question('truefalse', null,
-                ['name' => 'TF2', 'category' => $this->studentquiz->categoryid]);
+        $q2 = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'TF2', 'category' => $this->studentquiz->categoryid]
+        );
         $q2 = \question_bank::load_question($q2->id);
         $sqq2 = studentquiz_question::get_studentquiz_question_from_question($q2, $this->studentquiz);
         $this->questions = [$q1, $q2];
@@ -182,12 +188,12 @@ class comment_test extends \advanced_testcase {
         $data = [
                 'message' => [
                         'text' => $text,
-                        'format' => 1
+                        'format' => 1,
                 ],
                 'studentquizquestionid' => $studentquizquestionid,
                 'cmid' => $this->cm->id,
                 'replyto' => $replyto,
-                'type' => utils::COMMENT_TYPE_PUBLIC
+                'type' => utils::COMMENT_TYPE_PUBLIC,
         ];
         $id = $this->commentarea->create_comment((object) $data);
         return $this->get_comment_by_id($id, $convert);
@@ -197,7 +203,7 @@ class comment_test extends \advanced_testcase {
      * Test init comment area.
      * @covers \mod_studentquiz\commentarea\container
      */
-    public function test_initial() {
+    public function test_initial(): void {
         $question = $this->questions[0];
         $this->assertEquals($question->id, $this->commentarea->get_question()->id);
         $this->assertEquals($this->cm->id, $this->commentarea->get_cmid());
@@ -209,7 +215,7 @@ class comment_test extends \advanced_testcase {
      * Test create root comment.
      * @covers \mod_studentquiz\commentarea\container::create_comment
      */
-    public function test_create_root_comment() {
+    public function test_create_root_comment(): void {
         // Create root comment.
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
@@ -223,7 +229,7 @@ class comment_test extends \advanced_testcase {
      * Test create reply.
      * @covers \mod_studentquiz\commentarea\container::create_comment
      */
-    public function test_create_reply_comment() {
+    public function test_create_reply_comment(): void {
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
         $textreply = 'Reply root comment';
@@ -240,7 +246,8 @@ class comment_test extends \advanced_testcase {
     /**
      *
      * Test shortcontent of comment in convert_to_object.
-     * @dataProvider test_shorten_comment_provider
+     *
+     * @dataProvider shorten_comment_provider
      * @covers \mod_studentquiz\commentarea\comment::convert_to_object
      * @param string $content Content before convert to shorten content.
      * @param string $expected Expected result.
@@ -259,26 +266,26 @@ class comment_test extends \advanced_testcase {
      * @coversNothing
      * @return array
      */
-    public static function test_shorten_comment_provider(): array {
+    public static function shorten_comment_provider(): array {
 
         return [
             'Root comment with newline html content' => [
                 '<p>Root comment with html linebreak content</p><p>Line 2</p><p>Line 3</p><p>Line 4: simply dummy text of the.</p>',
                 "Root comment with html linebreak content\n\nLine 2\n\nLine 3\n\nLine 4: simply...",
-                75
+                75,
             ],
             'Comment with escape html enity' => [
                 '<p dir="ltr" style="text-align: left;">Test shortened text with html enity&lt;br&gt;</p>',
                 "Test shortened text with html enity&lt;br&gt;",
-                45
+                45,
             ],
             'Comment with multiple normal line break' => [
                 'Comment with multiple normal line break
                 Line 2
                 Line 3',
                 "Comment with multiple normal line break Line 2 Line 3",
-                53
-            ]
+                53,
+            ],
         ];
     }
 
@@ -286,7 +293,7 @@ class comment_test extends \advanced_testcase {
      * Test delete comment.
      * @covers \mod_studentquiz\commentarea\comment::delete
      */
-    public function test_delete_comment() {
+    public function test_delete_comment(): void {
         // Create root comment.
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
@@ -306,7 +313,7 @@ class comment_test extends \advanced_testcase {
      * Test fetch all comments.
      * @covers \mod_studentquiz\commentarea\container::fetch_all
      */
-    public function test_fetch_all_comments() {
+    public function test_fetch_all_comments(): void {
 
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
@@ -338,7 +345,7 @@ class comment_test extends \advanced_testcase {
      * Test report feature. Turn off by default. Then turn it on.
      * @covers \mod_studentquiz\commentarea\container::get_reporting_emails
      */
-    public function test_report_feature() {
+    public function test_report_feature(): void {
         global $DB;
         $sqq1 = $this->studentquizquestions[0];
         // Need to use comment class functions. Don't use convert to response data.
@@ -377,7 +384,7 @@ class comment_test extends \advanced_testcase {
                     'parentid' => $this->rootid,
                     'userid' => $user->id,
                     'created' => $k + 1,
-                    'studentquizquestionid' => $sqq2->get_id()
+                    'studentquizquestionid' => $sqq2->get_id(),
             ];
         }
         $DB->insert_records('studentquiz_comment', $records);
@@ -387,12 +394,15 @@ class comment_test extends \advanced_testcase {
      * Test sort feature. (Admin state).
      * @covers \mod_studentquiz\commentarea\container::fetch_all
      */
-    public function test_sort_feature() {
+    public function test_sort_feature(): void {
         $sqq2 = $this->studentquizquestions[1];
         $base = $this->commentarea;
         // Test sort by date asc.
-        $commentarea = new commentarea\container($sqq2, null,
-                $base::SORT_DATE_ASC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $base::SORT_DATE_ASC
+        );
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
@@ -401,8 +411,11 @@ class comment_test extends \advanced_testcase {
         $this->assertEquals($this->users[4]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by desc.
-        $commentarea = new commentarea\container($sqq2, null,
-                $base::SORT_DATE_DESC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $base::SORT_DATE_DESC
+        );
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[5]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[4]->id, $comments[1]->get_comment_data()->userid);
@@ -411,8 +424,11 @@ class comment_test extends \advanced_testcase {
         $this->assertEquals($this->users[1]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by first name asc.
-        $commentarea = new commentarea\container($sqq2, null,
-                $base::SORT_FIRSTNAME_ASC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $base::SORT_FIRSTNAME_ASC
+        );
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[0]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[3]->id, $comments[1]->get_comment_data()->userid);
@@ -421,8 +437,11 @@ class comment_test extends \advanced_testcase {
         $this->assertEquals($this->users[4]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by first name desc.
-        $commentarea = new commentarea\container($sqq2, null,
-                $base::SORT_FIRSTNAME_DESC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $base::SORT_FIRSTNAME_DESC
+        );
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[5]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[4]->id, $comments[1]->get_comment_data()->userid);
@@ -431,8 +450,11 @@ class comment_test extends \advanced_testcase {
         $this->assertEquals($this->users[3]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by last name asc.
-        $commentarea = new commentarea\container($sqq2, null,
-                $base::SORT_LASTNAME_ASC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $base::SORT_LASTNAME_ASC
+        );
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[3]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[1]->id, $comments[1]->get_comment_data()->userid);
@@ -441,8 +463,11 @@ class comment_test extends \advanced_testcase {
         $this->assertEquals($this->users[5]->id, $comments[4]->get_comment_data()->userid);
 
         // Test sort by last name desc.
-        $commentarea = new commentarea\container($sqq2, null,
-                $base::SORT_LASTNAME_DESC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $base::SORT_LASTNAME_DESC
+        );
         $comments = $commentarea->fetch_all(5);
         $this->assertEquals($this->users[4]->id, $comments[0]->get_comment_data()->userid);
         $this->assertEquals($this->users[5]->id, $comments[1]->get_comment_data()->userid);
@@ -455,7 +480,7 @@ class comment_test extends \advanced_testcase {
      * Test normal user sortable feature.
      * @covers \mod_studentquiz\commentarea\container::get_sortable
      */
-    public function test_sortable_feature() {
+    public function test_sortable_feature(): void {
         // Test if a normal user can sort in anonymous.
         $user = $this->users[0];
         $sqq2 = $this->studentquizquestions[1];
@@ -469,33 +494,51 @@ class comment_test extends \advanced_testcase {
         ], $sortable);
 
         // Try to pass sort firstname asc. Expect FAIL.
-        $commentarea = new commentarea\container($sqq2, null,
-                $commentarea::SORT_FIRSTNAME_ASC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $commentarea::SORT_FIRSTNAME_ASC
+        );
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_FIRSTNAME_ASC);
 
         // Try to pass sort firstname desc. Expect FAIL.
-        $commentarea = new commentarea\container($sqq2, null,
-                $commentarea::SORT_FIRSTNAME_DESC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $commentarea::SORT_FIRSTNAME_DESC
+        );
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_FIRSTNAME_DESC);
 
         // Try to pass sort lastname asc. Expect FAIL.
-        $commentarea = new commentarea\container($sqq2, null,
-                $commentarea::SORT_LASTNAME_ASC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $commentarea::SORT_LASTNAME_ASC
+        );
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_LASTNAME_ASC);
 
         // Try to pass sort lastname desc. Expect FAIL.
-        $commentarea = new commentarea\container($sqq2, null,
-                $commentarea::SORT_LASTNAME_DESC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $commentarea::SORT_LASTNAME_DESC
+        );
         $this->assertNotEquals($commentarea->get_sort_feature(), $commentarea::SORT_LASTNAME_DESC);
 
         // Try to pass sort date desc. Of course it works!
-        $commentarea = new commentarea\container($sqq2, null,
-                $commentarea::SORT_DATE_DESC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $commentarea::SORT_DATE_DESC
+        );
         $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_DESC);
 
         // Try to pass sort date asc. Of course it works!
-        $commentarea = new commentarea\container($sqq2, null,
-                $commentarea::SORT_DATE_ASC);
+        $commentarea = new commentarea\container(
+            $sqq2,
+            null,
+            $commentarea::SORT_DATE_ASC
+        );
         $this->assertEquals($commentarea->get_sort_feature(), $commentarea::SORT_DATE_ASC);
     }
 
@@ -520,12 +563,12 @@ class comment_test extends \advanced_testcase {
     private function seed_studentquiz_period_setting($period) {
         global $DB;
         $course = $this->course;
-        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+        $activity = $this->getDataGenerator()->create_module('studentquiz', [
                 'course' => $course->id,
                 'anonymrank' => true,
                 'forcecommenting' => 1,
-                'publishnewquestion' => 1
-        ));
+                'publishnewquestion' => 1,
+        ]);
         // Why did we load incorrect contextid?
         $contextid = \context_module::instance($activity->coursemodule);
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $contextid->id);
@@ -536,7 +579,7 @@ class comment_test extends \advanced_testcase {
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $q1 = $questiongenerator->create_question('truefalse', null, [
                 'name' => 'TF1',
-                'category' => $studentquiz->categoryid
+                'category' => $studentquiz->categoryid,
         ]);
         $q1 = \question_bank::load_question($q1->id);
         $sqq1 = studentquiz_question::get_studentquiz_question_from_question($q1);
@@ -548,7 +591,7 @@ class comment_test extends \advanced_testcase {
                 'parentid' => $this->rootid,
                 'userid' => $commentarea->get_user()->id,
                 'created' => time(),
-                'studentquizquestionid' => $sqq1->get_id()
+                'studentquizquestionid' => $sqq1->get_id(),
         ]);
         return $commentarea;
     }
@@ -557,7 +600,7 @@ class comment_test extends \advanced_testcase {
      * Test edit comment.
      * @covers \mod_studentquiz\commentarea\comment::update_comment
      */
-    public function test_edit_comment() {
+    public function test_edit_comment(): void {
         // Create root comment.
         $sqq1 = $this->studentquizquestions[0];
         $text = 'Root comment';
@@ -582,7 +625,7 @@ class comment_test extends \advanced_testcase {
      * Test if setting = 0, we cannot edit a comment.
      * @covers \mod_studentquiz\commentarea\comment::can_edit
      */
-    public function test_editable_when_turn_off_period_setting_comment() {
+    public function test_editable_when_turn_off_period_setting_comment(): void {
         $this->setUser($this->users[0]);
         $commentarea = $this->commentareanoperiod;
         $comments = $commentarea->fetch_all();
@@ -598,7 +641,7 @@ class comment_test extends \advanced_testcase {
      * Test if setting > 0, we can edit a comment.
      * @covers \mod_studentquiz\commentarea\comment::can_edit
      */
-    public function test_editable_when_turn_on_period_setting_comment() {
+    public function test_editable_when_turn_on_period_setting_comment(): void {
         $this->setUser($this->users[0]);
         $commentarea = $this->commentareahasperiod;
         $comments = $commentarea->fetch_all();
@@ -614,7 +657,7 @@ class comment_test extends \advanced_testcase {
      * Test create comment history.
      * @covers \mod_studentquiz\commentarea\comment::create_history
      */
-    public function test_create_comment_history() {
+    public function test_create_comment_history(): void {
         global $DB;
         // Create root comment.
         $sqq1 = $this->studentquizquestions[0];
@@ -632,7 +675,7 @@ class comment_test extends \advanced_testcase {
      * Test create comment history.
      * @covers \mod_studentquiz\commentarea\comment::get_history
      */
-    public function test_get_histories() {
+    public function test_get_histories(): void {
         $sqq1 = $this->studentquizquestions[0];
         $comment = $this->create_comment($this->rootid, $sqq1->get_id(), 'demo content', false);
         $comment->create_history($comment->get_id(), $comment->get_user_id(), 1, 'comment1' . $comment->get_id());
@@ -646,7 +689,7 @@ class comment_test extends \advanced_testcase {
      * Test extract comment histories to render.
      * @covers \mod_studentquiz\commentarea\container::extract_comment_history_to_render
      */
-    public function test_extract_comment_histories_to_render() {
+    public function test_extract_comment_histories_to_render(): void {
         $mockhistory = new \stdClass();
         $mockhistory->id = 1;
         $mockhistory->timemodified = 1;
@@ -663,7 +706,7 @@ class comment_test extends \advanced_testcase {
      * Test user permission for preview mode.
      * @coversNothing
      */
-    public function test_user_permission_for_preview_mode() {
+    public function test_user_permission_for_preview_mode(): void {
         $this->assertTrue(has_capability('mod/studentquiz:canselfratecomment', $this->context));
         $this->setUser($this->users[0]);
         $this->assertFalse(has_capability('mod/studentquiz:canselfratecomment', $this->context));
@@ -673,7 +716,7 @@ class comment_test extends \advanced_testcase {
      * Test update comment last read.
      * @covers \mod_studentquiz\commentarea\container::update_comment_last_read
      */
-    public function test_update_comment_last_read() {
+    public function test_update_comment_last_read(): void {
         $time1 = time();
         $time2 = $time1 + 1000;
         $sqq1 = $this->studentquizquestions[0];

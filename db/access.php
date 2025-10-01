@@ -46,126 +46,126 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
+$capabilities = [
     // Ability to add a new activity.
-    'mod/studentquiz:addinstance' => array(
+    'mod/studentquiz:addinstance' => [
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
-    ),
+    ],
     // Ability to see and use the activity.
-    'mod/studentquiz:view' => array(
+    'mod/studentquiz:view' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
-    ),
+        ],
+    ],
     // Ability to create questions.
-    'mod/studentquiz:submit' => array(
+    'mod/studentquiz:submit' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'mod/studentquiz:view',
-    ),
+    ],
     // Ability to preview questions other than mine.
-    'mod/studentquiz:previewothers' => array(
+    'mod/studentquiz:previewothers' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
-    ),
+        ],
+    ],
     // Ability to change the state of questions.
-    'mod/studentquiz:changestate' => array(
+    'mod/studentquiz:changestate' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'mod/studentquiz:manage',
-    ),
+    ],
     // Ability to move questions into categories.
-    'mod/studentquiz:organize' => array(
+    'mod/studentquiz:organize' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'mod/studentquiz:manage',
-    ),
+    ],
     // Ability to edit the settings.
-    'mod/studentquiz:manage' => array(
+    'mod/studentquiz:manage' => [
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'moodle/course:manageactivities',
-    ),
+    ],
     // Ability to see the real user names even when anonymize is active.
-    'mod/studentquiz:unhideanonymous' => array(
+    'mod/studentquiz:unhideanonymous' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
+        ],
         'clonepermissionsfrom' => 'mod/studentquiz:manage',
-    ),
+    ],
     // Notifications.
-    'mod/studentquiz:emailnotifyquestion' => array(
+    'mod/studentquiz:emailnotifyquestion' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
-    ),
-    'mod/studentquiz:emailnotifycommentadded' => array(
+        ],
+    ],
+    'mod/studentquiz:emailnotifycommentadded' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
-    ),
-    'mod/studentquiz:emailnotifycommentdeleted' => array(
+        ],
+    ],
+    'mod/studentquiz:emailnotifycommentdeleted' => [
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => array(
+        'archetypes' => [
             'student' => CAP_ALLOW,
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ),
-    ),
+        ],
+    ],
     'mod/studentquiz:canselfratecomment' => [
         'captype' => 'read',
         'contextlevel' => CONTEXT_MODULE,
@@ -178,7 +178,7 @@ $capabilities = array(
     ],
     'mod/studentquiz:systemnotifytaskdeleteorphanedquestions' => [
         'captype' => 'read',
-        'contextlevel' => CONTEXT_SYSTEM
+        'contextlevel' => CONTEXT_SYSTEM,
     ],
     'mod/studentquiz:pinquestion' => [
         'captype' => 'write',
@@ -187,7 +187,7 @@ $capabilities = array(
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ]
+        ],
     ],
     'mod/studentquiz:emailnotifyreviewablequestion' => [
         'riskbitmask' => RISK_PERSONAL,
@@ -195,8 +195,8 @@ $capabilities = array(
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
             'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW
-        ]
+            'editingteacher' => CAP_ALLOW,
+        ],
     ],
     'mod/studentquiz:canselfcommentprivately' => [
         'captype' => 'write',
@@ -217,4 +217,4 @@ $capabilities = array(
             'manager' => CAP_ALLOW,
         ],
     ],
-);
+];

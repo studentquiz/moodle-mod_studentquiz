@@ -30,7 +30,7 @@ use mod_studentquiz\local\studentquiz_helper;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_studentquiz\completion\custom_completion
  */
-class custom_completion_test extends advanced_testcase {
+final class custom_completion_test extends advanced_testcase {
     /**
      * Test for get_defined_custom_rules().
      *
@@ -49,7 +49,7 @@ class custom_completion_test extends advanced_testcase {
      *
      * @covers ::get_custom_rule_descriptions
      */
-    public function test_get_custom_rule_descriptions() {
+    public function test_get_custom_rule_descriptions(): void {
         // Get defined custom rules.
         $rules = custom_completion::get_defined_custom_rules();
 
@@ -85,12 +85,12 @@ class custom_completion_test extends advanced_testcase {
 
         // Prepare course.
         $course = $generator->create_course([
-            'enablecompletion' => COMPLETION_ENABLED
+            'enablecompletion' => COMPLETION_ENABLED,
         ]);
 
         // Prepare users.
         $student = $generator->create_user(['firstname' => 'Student', 'lastname' => '1',
-            'email' => 'student1@localhost.com']);
+            'email' => 'student1@localhost.com', ]);
 
         // Users enrolments.
         $studentrole = $DB->get_record('role', ['shortname' => 'student']);
@@ -109,8 +109,11 @@ class custom_completion_test extends advanced_testcase {
         // Prepare question.
         $this->setUser($student);
         $cm = cm_info::create(get_coursemodule_from_id('studentquiz', $cmid));
-        $questions = $questiongenerator->create_question('truefalse', null,
-            ['name' => 'Student 1 Question', 'category' => $studentquiz->categoryid]);
+        $questions = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'Student 1 Question', 'category' => $studentquiz->categoryid]
+        );
         $questions = \question_bank::load_question($questions->id);
         $studentquizquestions = studentquiz_question::get_studentquiz_question_from_question($questions);
 
@@ -122,7 +125,9 @@ class custom_completion_test extends advanced_testcase {
         $this->setAdminUser();
         $studentquizquestions->change_state_visibility(studentquiz_helper::STATE_APPROVED);
         \mod_studentquiz\completion\custom_completion::trigger_completion_state_update(
-            $course, $cm, $student->id
+            $course,
+            $cm,
+            $student->id
         );
 
         // The completion data should exist.

@@ -35,7 +35,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_digest_changed extends \core\event\base {
-
     /**
      * Initialize the event
      */

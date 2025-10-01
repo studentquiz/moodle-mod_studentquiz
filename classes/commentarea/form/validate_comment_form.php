@@ -38,7 +38,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class validate_comment_form extends \moodleform {
-
     /**
      * Definition of Validate comment form.
      */
@@ -63,9 +62,12 @@ class validate_comment_form extends \moodleform {
         $unique = $studentquizquestionid . '_' . $params['type'] . '_' . $commentid;
 
         $submitlabel = \get_string($formtype, 'mod_studentquiz');
-        $mform->addElement('studentquiz_comment_editor', 'message', $submitlabel,
-                ['id' => 'id_editor_question_' . $unique],
-                ['context' => $context]
+        $mform->addElement(
+            'studentquiz_comment_editor',
+            'message',
+            $submitlabel,
+            ['id' => 'id_editor_question_' . $unique],
+            ['context' => $context]
         );
         $mform->addElement('html', \html_writer::end_tag('div'));
         $mform->setType('message', PARAM_RAW);

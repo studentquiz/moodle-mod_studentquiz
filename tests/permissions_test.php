@@ -25,8 +25,7 @@ use mod_studentquiz\access\context_override;
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class permissions_test extends \advanced_testcase {
-
+final class permissions_test extends \advanced_testcase {
     /**
      * Test cases for the ensure_permissions_are_right tests.
      *
@@ -48,7 +47,7 @@ class permissions_test extends \advanced_testcase {
                 [],
                 [],
                 ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
-                        '+moodle/question:useall', '+moodle/question:viewmine'],
+                        '+moodle/question:useall', '+moodle/question:viewmine', ],
             ],
             'default non-editing teacher role' => [
                 'teacher',
@@ -56,9 +55,9 @@ class permissions_test extends \advanced_testcase {
                 [],
                 [],
                 $added ? ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
-                    '+moodle/question:useall', '+moodle/question:viewall'] :
+                    '+moodle/question:useall', '+moodle/question:viewall', ] :
                     ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
-                        '+moodle/question:viewall'],
+                        '+moodle/question:viewall', ],
             ],
             'default editing teacher role' => [
                 'editingteacher',
@@ -82,10 +81,10 @@ class permissions_test extends \advanced_testcase {
                 ['+mod/studentquiz:canselfratecomment', '+moodle/site:accessallgroups'],
                 $added ? ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
                     '+moodle/question:useall', '+moodle/question:viewall',
-                    '+mod/studentquiz:canselfratecomment', '+moodle/site:accessallgroups'] :
+                    '+mod/studentquiz:canselfratecomment', '+moodle/site:accessallgroups', ] :
                     ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
                         '+moodle/question:viewall', '+mod/studentquiz:canselfratecomment',
-                        '+moodle/site:accessallgroups'],
+                        '+moodle/site:accessallgroups', ],
             ],
             'non-editing teacher with added manage' => [
                 'teacher',
@@ -93,19 +92,18 @@ class permissions_test extends \advanced_testcase {
                 ['+mod/studentquiz:manage'],
                 [],
                 $added ? ['+moodle/question:add', '+moodle/question:editall',
-                    '+moodle/question:tagmine', '+moodle/question:useall', '+moodle/question:viewall'] :
+                    '+moodle/question:tagmine', '+moodle/question:useall', '+moodle/question:viewall', ] :
                     ['+moodle/question:add', '+moodle/question:editall',
-                        '+moodle/question:tagmine', '+moodle/question:viewall']
-                ,
+                        '+moodle/question:tagmine', '+moodle/question:viewall', ],
             ],
             'non-editing teacher role set back to default after capabilities were assigned in the past' => [
                 'teacher',
                 [],
                 [],
                 ['+moodle/question:add', '+moodle/question:editall',
-                        '+moodle/question:tagmine', '+moodle/question:useall', '+moodle/question:viewall'],
+                        '+moodle/question:tagmine', '+moodle/question:useall', '+moodle/question:viewall', ],
                 ['+moodle/question:add', '+moodle/question:editmine', '+moodle/question:tagmine',
-                        '+moodle/question:useall', '+moodle/question:viewall'],
+                        '+moodle/question:useall', '+moodle/question:viewall', ],
             ],
         ];
     }
@@ -126,9 +124,13 @@ class permissions_test extends \advanced_testcase {
      * @param array $epectedsqoverrides the resulting overrides we expect to get at the SQ level
      *      once the synchronisation has run.
      */
-    public function test_ensure_permissions_are_right(string $roleshortname,
-            array $systemoverrides, array $courseoverrides, array $sudentquizoverrides,
-            array $epectedsqoverrides) {
+    public function test_ensure_permissions_are_right(
+        string $roleshortname,
+        array $systemoverrides,
+        array $courseoverrides,
+        array $sudentquizoverrides,
+        array $epectedsqoverrides
+    ): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -143,8 +145,11 @@ class permissions_test extends \advanced_testcase {
 
         // Create a course containing a StudentQuiz.
         $course = $generator->create_course();
-        $studentquiz = $generator->create_module('studentquiz',
-                ['course' => $course->id], ['anonymrank' => true]);
+        $studentquiz = $generator->create_module(
+            'studentquiz',
+            ['course' => $course->id],
+            ['anonymrank' => true]
+        );
         $systemcontext = \context_system::instance();
         $coursecontext = \context_course::instance($course->id);
         $studentquizcontext = \context_module::instance($studentquiz->coursemodule);

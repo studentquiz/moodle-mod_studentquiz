@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class state_column extends \core_question\local\bank\column_base {
-
     /**
      * Renderer
      * @var stdClass
@@ -78,7 +77,7 @@ class state_column extends \core_question\local\bank\column_base {
      * @return array sql query join additional
      */
     public function get_required_fields(): array {
-        return array('sqq.state AS state');
+        return ['sqq.state AS state'];
     }
 
     /**

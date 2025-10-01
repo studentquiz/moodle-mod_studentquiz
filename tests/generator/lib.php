@@ -53,12 +53,13 @@ class mod_studentquiz_generator extends testing_module_generator {
     /**
      * Create StudentQuiz instance
      * @param stdClass $record
-     * @param array $options
+     * @param array|null $options
      * @return stdClass
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         $record = (object)(array)$record;
 
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO for behats I think this is the reason for studentquiz 0!
         if (!isset($record->name)) {
             $record->name = 'studentquiz ' . $this->studentquizcount;
@@ -77,10 +78,10 @@ class mod_studentquiz_generator extends testing_module_generator {
 
         $this->commentcount++;
 
-        $defaults = array(
+        $defaults = [
                 'comment' => 'Test comment ' . $this->commentcount,
-                'created' => time()
-        );
+                'created' => time(),
+        ];
 
         $record = $this->datagenerator->combine_defaults_and_record($defaults, $record);
         $record['id'] = $DB->insert_record('studentquiz_comment', $record);

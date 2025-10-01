@@ -26,8 +26,7 @@ use mod_studentquiz\local\studentquiz_helper;
  * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cron_test extends \advanced_testcase {
-
+final class cron_test extends \advanced_testcase {
     /** @var \stdClass */
     protected $course;
 
@@ -58,6 +57,7 @@ class cron_test extends \advanced_testcase {
     protected function setUp(): void {
         global $DB;
         $this->resetAfterTest();
+        parent::setUp();
         $this->setAdminUser();
 
         $generator = $this->getDataGenerator();
@@ -97,10 +97,16 @@ class cron_test extends \advanced_testcase {
         // Prepare question.
         $this->setUser($this->student1);
         $this->setUser($this->student2);
-        $this->questions[0] = $questiongenerator->create_question('truefalse', null,
-                ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]);
-        $this->questions[1] = $questiongenerator->create_question('truefalse', null,
-                ['name' => 'Student 2 Question', 'category' => $this->studentquiz->categoryid]);
+        $this->questions[0] = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]
+        );
+        $this->questions[1] = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'Student 2 Question', 'category' => $this->studentquiz->categoryid]
+        );
         $this->questions[0] = \question_bank::load_question($this->questions[0]->id);
         $this->questions[1] = \question_bank::load_question($this->questions[1]->id);
         $this->studentquizquestions[0] = studentquiz_question::get_studentquiz_question_from_question($this->questions[0]);
@@ -126,10 +132,13 @@ class cron_test extends \advanced_testcase {
      * @covers \mod_studentquiz\task\send_digest_notification_task
      * @param string $state State of the question.
      */
-    public function test_send_no_digest_notification_task(string $state) {
+    public function test_send_no_digest_notification_task(string $state): void {
         $question = $this->questions[0];
-        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
-            $this->student1, get_admin(), $this->course,
+        $notifydata = mod_studentquiz_prepare_notify_data(
+            $this->studentquizquestions[0],
+            $this->student1,
+            get_admin(),
+            $this->course,
             get_coursemodule_from_id('studentquiz', $this->cmid),
         );
         $customdata = [
@@ -169,13 +178,17 @@ class cron_test extends \advanced_testcase {
      * @covers \mod_studentquiz\task\send_digest_notification_task
      * @param string $state State of the question.
      */
-    public function test_send_digest_notification_task(string $state) {
+    public function test_send_digest_notification_task(string $state): void {
         global $DB;
         date_default_timezone_set('UTC');
 
-        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
-                $this->student1, get_admin(), $this->course,
-                get_coursemodule_from_id('studentquiz', $this->cmid));
+        $notifydata = mod_studentquiz_prepare_notify_data(
+            $this->studentquizquestions[0],
+            $this->student1,
+            get_admin(),
+            $this->course,
+            get_coursemodule_from_id('studentquiz', $this->cmid)
+        );
 
         $customdata = [
             'eventname' => $state,
@@ -185,7 +198,7 @@ class cron_test extends \advanced_testcase {
             'messagedata' => $notifydata,
             'questionurl' => $notifydata->questionurl,
             'questionname' => $notifydata->questionname,
-            'isstudent' => $notifydata->isstudent
+            'isstudent' => $notifydata->isstudent,
         ];
 
         $notificationqueue = new \stdClass();
@@ -205,7 +218,7 @@ class cron_test extends \advanced_testcase {
         // Get email content.
         $messages = $sink->get_messages();
         $this->assertEquals(1, count($messages));
-        $this->assertStringContainsString('Your question <b>'. $notifydata->questionname .
+        $this->assertStringContainsString('Your question <b>' . $notifydata->questionname .
             '</b> has been <b>' . $state . '</b>', $messages[0]->fullmessage);
         $this->expectOutputRegex("/^Sending digest notification for StudentQuiz/");
     }
@@ -257,8 +270,13 @@ class cron_test extends \advanced_testcase {
         // So we can't use provider here despite we have similar steps.
 
         // Recipient is student.
-        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
-            $this->student1, get_admin(), $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+        $notifydata = mod_studentquiz_prepare_notify_data(
+            $this->studentquizquestions[0],
+            $this->student1,
+            get_admin(),
+            $this->course,
+            get_coursemodule_from_id('studentquiz', $this->cmid)
+        );
         $anonstudent = get_string('creator_anonym_fullname', 'studentquiz');
         $anonmanager = get_string('manager_anonym_fullname', 'studentquiz');
 
@@ -267,21 +285,30 @@ class cron_test extends \advanced_testcase {
         $this->assertEquals($anonmanager, $notifydata->actorname);
 
         // Recipient is admin.
-        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
-            get_admin(), $this->student1, $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+        $notifydata = mod_studentquiz_prepare_notify_data(
+            $this->studentquizquestions[0],
+            get_admin(),
+            $this->student1,
+            $this->course,
+            get_coursemodule_from_id('studentquiz', $this->cmid)
+        );
 
         $this->assertEquals(false, $notifydata->isstudent);
         $this->assertEquals($anonmanager, $notifydata->recepientname);
         $this->assertEquals($anonstudent, $notifydata->actorname);
 
         // Recipient is teacher enrol in the course.
-        $notifydata = mod_studentquiz_prepare_notify_data($this->studentquizquestions[0],
-            $this->teacher, get_admin(), $this->course, get_coursemodule_from_id('studentquiz', $this->cmid));
+        $notifydata = mod_studentquiz_prepare_notify_data(
+            $this->studentquizquestions[0],
+            $this->teacher,
+            get_admin(),
+            $this->course,
+            get_coursemodule_from_id('studentquiz', $this->cmid)
+        );
 
         $this->assertEquals(false, $notifydata->isstudent);
         $this->assertEquals($anonmanager, $notifydata->recepientname);
         $this->assertEquals($anonstudent, $notifydata->actorname);
-
     }
 
     /**
@@ -303,8 +330,11 @@ class cron_test extends \advanced_testcase {
         $updatedquestion->timemodified = $this->questions[0]->timemodified - 31;
         $DB->update_record('question', $updatedquestion);
 
-        $q2v1 = $questiongenerator->create_question('truefalse', null,
-            ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]);
+        $q2v1 = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'Student 1 Question', 'category' => $this->studentquiz->categoryid]
+        );
         // Make sure modified time lower than time limit for Q2 version 1.
         $updatedquestion = new \stdClass();
         $updatedquestion->id = $q2v1->id;
@@ -336,20 +366,32 @@ class cron_test extends \advanced_testcase {
         // Q2 v3 is the disapprove, but not pass the time limit.
 
         $this->assertEquals(0, $DB->count_records('question', ['id' => $q2v1->id]));
-        $this->assertEquals(0, $DB->count_records('studentquiz_rate',
-            ['studentquizquestionid' => $sqq->get_id()]));
-        $this->assertEquals(0, $DB->count_records('studentquiz_comment',
-            ['studentquizquestionid' => $sqq->get_id()]));
-        $this->assertEquals(0, $DB->count_records('studentquiz_question',
-            ['id' => $sqq->get_id()]));
+        $this->assertEquals(0, $DB->count_records(
+            'studentquiz_rate',
+            ['studentquizquestionid' => $sqq->get_id()]
+        ));
+        $this->assertEquals(0, $DB->count_records(
+            'studentquiz_comment',
+            ['studentquizquestionid' => $sqq->get_id()]
+        ));
+        $this->assertEquals(0, $DB->count_records(
+            'studentquiz_question',
+            ['id' => $sqq->get_id()]
+        ));
 
         $this->assertEquals(0, $DB->count_records('question', ['id' => $this->questions[0]->id]));
-        $this->assertEquals(0, $DB->count_records('studentquiz_rate',
-            ['studentquizquestionid' => $this->studentquizquestions[0]->get_id()]));
-        $this->assertEquals(0, $DB->count_records('studentquiz_comment',
-            ['studentquizquestionid' => $this->studentquizquestions[0]->get_id()]));
-        $this->assertEquals(0, $DB->count_records('studentquiz_question',
-            ['id' => $this->studentquizquestions[0]->get_id()]));
+        $this->assertEquals(0, $DB->count_records(
+            'studentquiz_rate',
+            ['studentquizquestionid' => $this->studentquizquestions[0]->get_id()]
+        ));
+        $this->assertEquals(0, $DB->count_records(
+            'studentquiz_comment',
+            ['studentquizquestionid' => $this->studentquizquestions[0]->get_id()]
+        ));
+        $this->assertEquals(0, $DB->count_records(
+            'studentquiz_question',
+            ['id' => $this->studentquizquestions[0]->get_id()]
+        ));
 
         $this->assertEquals(1, $DB->count_records('question', ['id' => $q2v2->id]));
         $this->assertEquals(1, $DB->count_records('question', ['id' => $q2v3->id]));

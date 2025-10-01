@@ -48,7 +48,7 @@ $data = new \stdClass();
 $data->userid = $USER->id;
 $data->studentquizquestionid = $studentquizquestionid;
 
-switch($save) {
+switch ($save) {
     case 'rate':
         $data->rate = required_param('rate', PARAM_INT);
 
@@ -64,10 +64,16 @@ switch($save) {
 $contextmodule = \context_module::instance($cmid);
 $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
 $studentquizquestion = new mod_studentquiz\local\studentquiz_question(
-    $studentquizquestionid, null, $studentquiz);
+    $studentquizquestionid,
+    null,
+    $studentquiz
+);
 
 // Update completion state.
 \mod_studentquiz\completion\custom_completion::trigger_completion_state_update(
-    $course, $cm, $studentquizquestion->get_question()->createdby);
+    $course,
+    $cm,
+    $studentquizquestion->get_question()->createdby
+);
 
 header('Content-Type: text/html; charset=utf-8');

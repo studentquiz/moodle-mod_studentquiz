@@ -30,7 +30,7 @@ use mod_studentquiz\statistics_calculator;
 /**
  * Back-end code for handling data - for the reporting site (rank and quiz). It collects all information together.
  *
- * TODO: REFACTOR!
+ * TODO: REFACTOR! // phpcs:ignore moodle.Commenting.TodoComment
  * @package    mod_studentquiz
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -98,6 +98,7 @@ class mod_studentquiz_report {
     /** @var stdClass */
     protected $studentquizstats;
 
+    /** @var stdClass */
     protected $questionstats;
 
     /**
@@ -128,8 +129,12 @@ class mod_studentquiz_report {
      */
     public function get_user_stats() {
         if (empty($this->userrankingstats)) {
-            $this->userrankingstats = statistics_calculator::get_user_stats($this->get_cm_id(), $this->groupid,
-                $this->get_quantifiers(), $this->get_user_id());
+            $this->userrankingstats = statistics_calculator::get_user_stats(
+                $this->get_cm_id(),
+                $this->groupid,
+                $this->get_quantifiers(),
+                $this->get_user_id()
+            );
             return $this->userrankingstats;
         } else {
             return $this->userrankingstats;
@@ -171,11 +176,13 @@ class mod_studentquiz_report {
     /**
      * Constructor assuming we already have the necessary data loaded.
      *
-     * @param object $course
-     * @param cm_info|object $cm course_module object
+     * @param stdClass $course course object.
+     * @param cm_info|stdClass $cm course_module object.
      * @param int|null $userid user id.
+     * @throws dml_exception
+     * @throws mod_studentquiz_view_exception
      */
-    public function __construct(stdClass $course, object $cm, ?int $userid = null) {
+    public function __construct(stdClass $course, cm_info|stdClass $cm, ?int $userid = null) {
         global $DB, $USER;
         if (!$cm) {
             throw new mod_studentquiz_view_exception($this, 'invalidcoursemodule');
@@ -184,8 +191,12 @@ class mod_studentquiz_report {
             throw new mod_studentquiz_view_exception($this, 'coursemisconf');
         }
 
-        if (!$this->studentquiz = $DB->get_record('studentquiz',
-            ['coursemodule' => $cm->id, 'course' => $course->id])) {
+        if (
+            !$this->studentquiz = $DB->get_record(
+                'studentquiz',
+                ['coursemodule' => $cm->id, 'course' => $course->id]
+            )
+        ) {
             throw new mod_studentquiz_view_exception($this, 'studentquiznotfound');
         }
 
@@ -235,7 +246,7 @@ class mod_studentquiz_report {
      * @return array
      */
     public function get_urlview_data() {
-        return array('cmid' => $this->cm->id);
+        return ['cmid' => $this->cm->id];
     }
 
     /**
@@ -371,7 +382,7 @@ class mod_studentquiz_report {
                 } else {
                     $grouplabel = get_string('groupsseparate');
                 }
-                $grouptitle = $grouplabel.': '.$groupname;
+                $grouptitle = $grouplabel . ': ' . $groupname;
             }
         }
 
@@ -403,8 +414,14 @@ class mod_studentquiz_report {
     public function get_user_ranking_table($limitfrom = 0, $limitnum = 0) {
         $excluderoles = $this->get_roles_to_exclude();
 
-        return statistics_calculator::get_user_ranking_table($this->get_cm_id(), $this->groupid, $this->get_quantifiers(),
-            $excluderoles, $limitfrom, $limitnum);
+        return statistics_calculator::get_user_ranking_table(
+            $this->get_cm_id(),
+            $this->groupid,
+            $this->get_quantifiers(),
+            $excluderoles,
+            $limitfrom,
+            $limitnum
+        );
     }
 
     /**

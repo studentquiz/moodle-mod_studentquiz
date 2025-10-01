@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 namespace mod_studentquiz\question\bank;
 
 /**
@@ -64,7 +63,7 @@ class state_pin_column extends \core_question\local\bank\column_base {
      * @return array Fields required.
      */
     public function get_required_fields(): array {
-        return array('sqq.pinned AS pinned');
+        return ['sqq.pinned AS pinned'];
     }
 
     /**
@@ -77,5 +76,4 @@ class state_pin_column extends \core_question\local\bank\column_base {
         $output = $this->renderer->render_state_pin($question);
         echo $output;
     }
-
 }

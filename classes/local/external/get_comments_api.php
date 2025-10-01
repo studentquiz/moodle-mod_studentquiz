@@ -45,7 +45,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class get_comments_api extends external_api {
-
     /**
      * Gets function parameter metadata.
      *
@@ -55,10 +54,14 @@ class get_comments_api extends external_api {
         return new external_function_parameters([
                 'studentquizquestionid' => new external_value(PARAM_INT, 'SQQ ID'),
                 'cmid' => new external_value(PARAM_INT, 'Cm ID'),
-                'numbertoshow' => new external_value(PARAM_INT, 'Number of comments to show, 0 will return all comments/replies',
-                        VALUE_DEFAULT, container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT),
+                'numbertoshow' => new external_value(
+                    PARAM_INT,
+                    'Number of comments to show, 0 will return all comments/replies',
+                    VALUE_DEFAULT,
+                    container::NUMBER_COMMENT_TO_SHOW_BY_DEFAULT
+                ),
                 'sort' => new external_value(PARAM_TEXT, 'Sort type'),
-                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC),
         ]);
     }
 
@@ -73,12 +76,13 @@ class get_comments_api extends external_api {
 
         $repliesstructure = $replystructure;
         $repliesstructure['replies'] = new external_multiple_structure(
-                new external_single_structure($replystructure), 'List of replies belong to first level comment'
+            new external_single_structure($replystructure),
+            'List of replies belong to first level comment'
         );
 
         return new external_single_structure([
                 'total' => new external_value(PARAM_INT, 'Total comments belong to this question'),
-                'data' => new external_multiple_structure(new external_single_structure($repliesstructure), 'comments array')
+                'data' => new external_multiple_structure(new external_single_structure($repliesstructure), 'comments array'),
         ]);
     }
 
@@ -99,7 +103,7 @@ class get_comments_api extends external_api {
                 'cmid' => $cmid,
                 'numbertoshow' => $numbertoshow,
                 'sort' => $sort,
-                'type' => $type
+                'type' => $type,
         ]);
 
         $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
@@ -123,7 +127,7 @@ class get_comments_api extends external_api {
 
         return [
                 'total' => $commentarea->get_num_comments(),
-                'data' => $data
+                'data' => $data,
         ];
     }
 }

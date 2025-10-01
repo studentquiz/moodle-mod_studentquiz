@@ -25,8 +25,7 @@ use mod_studentquiz\local\studentquiz_question;
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class generator_test extends \advanced_testcase {
-
+final class generator_test extends \advanced_testcase {
     /**
      * @var \stdClass
      */
@@ -41,32 +40,32 @@ class generator_test extends \advanced_testcase {
      * Setup test
      */
     protected function setUp(): void {
+        parent::setUp();
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
 
         $course = $this->getDataGenerator()->create_course();
 
-        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+        $activity = $this->getDataGenerator()->create_module('studentquiz', [
                 'course' => $course->id,
                 'anonymrank' => true,
                 'forcecommenting' => 1,
-                'publishnewquestion' => 1
-        ));
+                'publishnewquestion' => 1,
+        ]);
         $context = \context_module::instance($activity->cmid);
 
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
 
-        $question = $questiongenerator->create_question('description', null, array('category' => $studentquiz->categoryid));
+        $question = $questiongenerator->create_question('description', null, ['category' => $studentquiz->categoryid]);
         $question = \question_bank::load_question($question->id);
         $this->studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
-
     }
 
     /**
      * Test create comment
      * @covers \mod_studentquiz\commentarea\container::create_comment
      */
-    public function test_create_comment() {
+    public function test_create_comment(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -87,7 +86,7 @@ class generator_test extends \advanced_testcase {
      *
      * @covers \mod_studentquiz\utils::save_rate
      */
-    public function test_create_rate() {
+    public function test_create_rate(): void {
         global $DB;
 
         $this->resetAfterTest();

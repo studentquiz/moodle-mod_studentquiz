@@ -35,7 +35,6 @@ if (!class_exists('\core_question\local\bank\condition')) {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_condition extends \core_question\local\bank\condition {
-
     /**
      * Return title of the condition
      *
@@ -78,8 +77,8 @@ class studentquiz_condition extends \core_question\local\bank\condition {
     public function __construct($cm, $filterform, $report, $studentquiz) {
         $this->cm = $cm;
         $this->filterform = $filterform;
-        $this->tests = array();
-        $this->customparams = array();
+        $this->tests = [];
+        $this->customparams = [];
         $this->report = $report;
         $this->studentquiz = $studentquiz;
         $this->init();
@@ -119,9 +118,8 @@ class studentquiz_condition extends \core_question\local\bank\condition {
      */
     protected function init() {
         if ($adddata = $this->filterform->get_data()) {
-
-            $this->tests = array();
-            $this->customparams = array();
+            $this->tests = [];
+            $this->customparams = [];
 
             foreach ($this->filterform->get_fields() as $fieldgroup) {
                 $conditionsgroup = [];
@@ -139,14 +137,18 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                     $sqldata = $field->get_sql_filter($data);
 
                     // Disable filtering by firstname if anonymized.
-                    if ($field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
-                            !$this->report->is_anonymized())) {
+                    if (
+                        $field->_name == 'firstname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                        !$this->report->is_anonymized())
+                    ) {
                         continue;
                     }
 
                     // Disable filtering by firstname if anonymized.
-                    if ($field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
-                            !$this->report->is_anonymized())) {
+                    if (
+                        $field->_name == 'lastname' && !(mod_studentquiz_check_created_permission($this->cm->id) ||
+                        !$this->report->is_anonymized())
+                    ) {
                         continue;
                     }
 
@@ -161,6 +163,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                         }
                     }
 
+                    // phpcs:ignore moodle.Commenting.TodoComment
                     // TODO: cleanup that buggy filter function to remove this!
                     // The user_filter_checkbox class has a buggy get_sql_filter function.
                     if ($field->_name == 'createdby') {
@@ -168,8 +171,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                     }
 
                     if (is_array($sqldata)) {
-                        $sqldata[0] = str_replace($field->_name, $this->get_sql_field($field->_name)
-                            , $sqldata[0]);
+                        $sqldata[0] = str_replace($field->_name, $this->get_sql_field($field->_name), $sqldata[0]);
                         $sqldata[0] = $this->get_special_sql($sqldata[0], $field->_name);
                         $conditionsgroup[] = $sqldata[0];
                         $this->customparams = array_merge($this->customparams, $sqldata[1]);
@@ -227,7 +229,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
      * @return string return sql prefix
      */
     private function get_sql_table_prefix($name) {
-        switch($name){
+        switch ($name) {
             case 'difficultylevel':
                 return 'dl.';
             case 'rate':
@@ -249,7 +251,7 @@ class studentquiz_condition extends \core_question\local\bank\condition {
                 return 'myrate.';
             case 'tagarray':
                 return 'tags.';
-            default;
+            default:
                 return 'q.';
         }
     }

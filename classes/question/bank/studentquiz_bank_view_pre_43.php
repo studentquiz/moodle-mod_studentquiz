@@ -50,7 +50,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
      * @var array of ids of the questions that are displayed on current page
      * (IF the filter result is paginated, ids on other pages are not collected!)
      */
-    private $displayedquestionsids = array();
+    private $displayedquestionsids = [];
 
     /**
      * @var int totalnumber from filtered questions
@@ -131,11 +131,20 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         $this->currentgroupjoinsql = utils::groups_get_questions_joins($currentgroup, 'sqq.groupid');
         // Init search conditions with filterform state.
         $categorycondition = new \core_question\bank\search\category_condition(
-            $pagevars['cat'], $pagevars['recurse'], $contexts, $pageurl, $course);
-        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition($cm, $this->filterform,
-            $this->report, $studentquiz);
+            $pagevars['cat'],
+            $pagevars['recurse'],
+            $contexts,
+            $pageurl,
+            $course
+        );
+        $studentquizcondition = new \mod_studentquiz\condition\studentquiz_condition(
+            $cm,
+            $this->filterform,
+            $this->report,
+            $studentquiz
+        );
         $this->isfilteractive = $studentquizcondition->is_filter_active();
-        $this->searchconditions = array ($categorycondition, $studentquizcondition);
+        $this->searchconditions = [$categorycondition, $studentquizcondition];
         $this->renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');
     }
 
@@ -181,12 +190,20 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         }
         echo $output;
         if ($this->countsql > 0) {
-            $this->display_question_list($this->baseurl, $cat, null, $page, $perpage,
+            $this->display_question_list(
+                $this->baseurl,
+                $cat,
+                null,
+                $page,
+                $perpage,
                 $this->contexts->having_cap('moodle/question:add')
             );
         } else {
-            list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
-                $this->studentquiz->closesubmissionfrom, 'submission');
+            [$message, $questionsubmissionallow] = mod_studentquiz_check_availability(
+                $this->studentquiz->opensubmissionfrom,
+                $this->studentquiz->closesubmissionfrom,
+                'submission'
+            );
             if ($questionsubmissionallow) {
                 echo $this->renderer->render_no_questions_notification($this->isfilteractive);
             }
@@ -219,7 +236,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         global $CFG;
 
         // Hard coded setup.
-        $params = array();
+        $params = [];
         $joins = [
             'qv' => 'JOIN {question_versions} qv ON qv.questionid = q.id',
             'qbe' => 'JOIN {question_bank_entries} qbe on qbe.id = qv.questionbankentryid',
@@ -232,7 +249,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
                               AND qr.component = 'mod_studentquiz'
                               AND qr.questionarea = 'studentquiz_question'
                               AND qc.contextid = qr.usingcontextid",
-            'sqq' => 'JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid'
+            'sqq' => 'JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid',
         ];
         $fields = [
             'sqq.id studentquizquestionid',
@@ -267,9 +284,9 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         }
 
         // Build the order by clause.
-        $sorts = array();
+        $sorts = [];
         foreach ($this->sort as $sort => $order) {
-            list($colname, $subsort) = $this->parse_subsort($sort);
+            [$colname, $subsort] = $this->parse_subsort($sort);
             $sorts[] = $this->requiredcolumns[$colname]->sort_expression($order < 0, $subsort);
         }
 
@@ -313,24 +330,30 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
 
         if ($canadd) {
             $returnurl = $this->baseurl;
-            $params = array(
+            $params = [
+                // phpcs:ignore moodle.Commenting.TodoComment
                 // TODO: MAGIC CONSTANT!
                 'returnurl' => $returnurl->out_as_local_url(false),
                 'category' => $categoryid,
                 'cmid' => $this->studentquiz->coursemodule,
-            );
+            ];
 
             $url = new \moodle_url('/question/bank/editquestion/addquestion.php', $params);
 
             $allowedtypes = (empty($this->studentquiz->allowedqtypes)) ? 'ALL' : $this->studentquiz->allowedqtypes;
             $allowedtypes = ($allowedtypes == 'ALL') ? mod_studentquiz_get_question_types_keys() : explode(',', $allowedtypes);
             $qtypecontainer = \html_writer::div(
-                \qbank_editquestion\editquestion_helper::print_choose_qtype_to_add_form(array(), $allowedtypes, true
-                ), '', array('id' => 'qtypechoicecontainer'));
+                \qbank_editquestion\editquestion_helper::print_choose_qtype_to_add_form([], $allowedtypes, true),
+                '',
+                ['id' => 'qtypechoicecontainer']
+            );
             $questionsubmissionbutton = new \single_button($url, $caption, 'get', 'primary');
 
-            list($message, $questionsubmissionallow) = mod_studentquiz_check_availability($this->studentquiz->opensubmissionfrom,
-                $this->studentquiz->closesubmissionfrom, 'submission');
+            [$message, $questionsubmissionallow] = mod_studentquiz_check_availability(
+                $this->studentquiz->opensubmissionfrom,
+                $this->studentquiz->closesubmissionfrom,
+                'submission'
+            );
 
             $questionsubmissionbutton->disabled = !$questionsubmissionallow;
             $output .= \html_writer::div($OUTPUT->render($questionsubmissionbutton) . $qtypecontainer, 'createnewquestion py-3');
@@ -354,30 +377,56 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
      * @param int        $perpage     Number of questions to show per page
      * @param array      $addcontexts contexts where the user is allowed to add new questions.
      */
-    protected function display_question_list($pageurl, $categoryandcontext, $recurse = 1, $page = 0,
-        $perpage = 100, $addcontexts = []): void {
+    protected function display_question_list(
+        $pageurl,
+        $categoryandcontext,
+        $recurse = 1,
+        $page = 0,
+        $perpage = 100,
+        $addcontexts = []
+    ): void {
         $output = '';
         $category = $this->get_current_category($categoryandcontext);
-        list($categoryid, $contextid) = explode(',', $categoryandcontext);
+        [$categoryid, $contextid] = explode(',', $categoryandcontext);
         $catcontext = \context::instance_by_id($contextid);
 
-        $output .= \html_writer::start_tag('fieldset', array('class' => 'invisiblefieldset', 'style' => 'display:block;'));
+        $output .= \html_writer::start_tag('fieldset', ['class' => 'invisiblefieldset', 'style' => 'display:block;']);
 
         $output .= $this->renderer->render_hidden_field($this->cm->id, $this->baseurl, $perpage);
 
-        $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(),
-            $addcontexts, $category);
+        $output .= $this->renderer->render_control_buttons(
+            $catcontext,
+            $this->has_questions_in_category(),
+            $addcontexts,
+            $category
+        );
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
-            $perpage, true);
+        $output .= $this->renderer->render_pagination_bar(
+            $this->pagevars,
+            $this->baseurl,
+            $this->totalnumber,
+            $page,
+            $perpage,
+            true
+        );
 
         $output .= $this->display_question_list_rows();
 
-        $output .= $this->renderer->render_pagination_bar($this->pagevars, $this->baseurl, $this->totalnumber, $page,
-            $perpage, false);
+        $output .= $this->renderer->render_pagination_bar(
+            $this->pagevars,
+            $this->baseurl,
+            $this->totalnumber,
+            $page,
+            $perpage,
+            false
+        );
 
-        $output .= $this->renderer->render_control_buttons($catcontext, $this->has_questions_in_category(),
-            $addcontexts, $category);
+        $output .= $this->renderer->render_control_buttons(
+            $catcontext,
+            $this->has_questions_in_category(),
+            $addcontexts,
+            $category
+        );
 
         $output .= \html_writer::end_tag('fieldset');
         $output = $this->renderer->render_question_form($output);
@@ -422,102 +471,215 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
      * @param bool $anonymize if false, questions can get filtered by author last name and first name instead by own userid only.
      */
     private function set_filter_form_fields($anonymize = true) {
-        $this->fields = array();
+        $this->fields = [];
 
         // Fast filters.
-        $this->fields[] = new \toggle_filter_checkbox('onlynew',
+        $this->fields[] = new \toggle_filter_checkbox(
+            'onlynew',
             get_string('filter_label_onlynew', 'studentquiz'),
-            false, 'myattempts', array('myattempts', 'myattempts_op'), 0, 0,
-            get_string('filter_label_onlynew_help', 'studentquiz'));
+            false,
+            'myattempts',
+            ['myattempts', 'myattempts_op'],
+            0,
+            0,
+            get_string('filter_label_onlynew_help', 'studentquiz')
+        );
 
-        $this->fields[] = new \toggle_filter_checkbox('only_new_state',
-            get_string('state_newplural', 'studentquiz'), false, 'sqq.state',
-            ['approved'], 2, studentquiz_helper::STATE_NEW);
-        $this->fields[] = new \toggle_filter_checkbox('only_approved_state',
-            get_string('state_approvedplural', 'studentquiz'), false, 'sqq.state',
-            ['approved'], 2, studentquiz_helper::STATE_APPROVED);
-        $this->fields[] = new \toggle_filter_checkbox('only_disapproved_state',
-            get_string('state_disapprovedplural', 'studentquiz'), false, 'sqq.state',
-            ['approved'], 2, studentquiz_helper::STATE_DISAPPROVED);
-        $this->fields[] = new \toggle_filter_checkbox('only_changed_state',
-            get_string('state_changedplural', 'studentquiz'), false, 'sqq.state',
-            ['approved'], 2, studentquiz_helper::STATE_CHANGED);
-        $this->fields[] = new \toggle_filter_checkbox('only_reviewable_state',
-            get_string('state_reviewableplural', 'studentquiz'), false, 'sqq.state',
-            ['approved'], 2, studentquiz_helper::STATE_REVIEWABLE);
+        $this->fields[] = new \toggle_filter_checkbox(
+            'only_new_state',
+            get_string('state_newplural', 'studentquiz'),
+            false,
+            'sqq.state',
+            ['approved'],
+            2,
+            studentquiz_helper::STATE_NEW
+        );
+        $this->fields[] = new \toggle_filter_checkbox(
+            'only_approved_state',
+            get_string('state_approvedplural', 'studentquiz'),
+            false,
+            'sqq.state',
+            ['approved'],
+            2,
+            studentquiz_helper::STATE_APPROVED
+        );
+        $this->fields[] = new \toggle_filter_checkbox(
+            'only_disapproved_state',
+            get_string('state_disapprovedplural', 'studentquiz'),
+            false,
+            'sqq.state',
+            ['approved'],
+            2,
+            studentquiz_helper::STATE_DISAPPROVED
+        );
+        $this->fields[] = new \toggle_filter_checkbox(
+            'only_changed_state',
+            get_string('state_changedplural', 'studentquiz'),
+            false,
+            'sqq.state',
+            ['approved'],
+            2,
+            studentquiz_helper::STATE_CHANGED
+        );
+        $this->fields[] = new \toggle_filter_checkbox(
+            'only_reviewable_state',
+            get_string('state_reviewableplural', 'studentquiz'),
+            false,
+            'sqq.state',
+            ['approved'],
+            2,
+            studentquiz_helper::STATE_REVIEWABLE
+        );
 
-        $this->fields[] = new \toggle_filter_checkbox('onlygood',
+        $this->fields[] = new \toggle_filter_checkbox(
+            'onlygood',
             get_string('filter_label_onlygood', 'studentquiz'),
-            false, 'vo.rate', array('rate', 'rate_op'), 1, 4,
-            get_string('filter_label_onlygood_help', 'studentquiz', '4'));
+            false,
+            'vo.rate',
+            ['rate', 'rate_op'],
+            1,
+            4,
+            get_string('filter_label_onlygood_help', 'studentquiz', '4')
+        );
 
-        $this->fields[] = new \toggle_filter_checkbox('onlymine',
+        $this->fields[] = new \toggle_filter_checkbox(
+            'onlymine',
             get_string('filter_label_onlymine', 'studentquiz'),
-            false, 'q.createdby', array('createdby'), 2, $this->userid,
-            get_string('filter_label_onlymine_help', 'studentquiz'));
+            false,
+            'q.createdby',
+            ['createdby'],
+            2,
+            $this->userid,
+            get_string('filter_label_onlymine_help', 'studentquiz')
+        );
 
-        $this->fields[] = new \toggle_filter_checkbox('onlydifficultforme',
+        $this->fields[] = new \toggle_filter_checkbox(
+            'onlydifficultforme',
             get_string('filter_label_onlydifficultforme', 'studentquiz'),
-            false, 'mydifficulty', array('mydifficulty', 'mydifficulty_op'), 1, 0.60,
-            get_string('filter_label_onlydifficultforme_help', 'studentquiz', '60'));
+            false,
+            'mydifficulty',
+            ['mydifficulty', 'mydifficulty_op'],
+            1,
+            0.60,
+            get_string('filter_label_onlydifficultforme_help', 'studentquiz', '60')
+        );
 
-        $this->fields[] = new \toggle_filter_checkbox('onlydifficult',
+        $this->fields[] = new \toggle_filter_checkbox(
+            'onlydifficult',
             get_string('filter_label_onlydifficult', 'studentquiz'),
-            false, 'dl.difficultylevel', array('difficultylevel', 'difficultylevel_op'), 1, 0.60,
-            get_string('filter_label_onlydifficult_help', 'studentquiz', '60'));
+            false,
+            'dl.difficultylevel',
+            ['difficultylevel', 'difficultylevel_op'],
+            1,
+            0.60,
+            get_string('filter_label_onlydifficult_help', 'studentquiz', '60')
+        );
 
         // Advanced filters.
-        $this->fields[] = new \studentquiz_user_filter_text('tagarray', get_string('filter_label_tags', 'studentquiz'),
-            true, 'tagarray');
+        $this->fields[] = new \studentquiz_user_filter_text(
+            'tagarray',
+            get_string('filter_label_tags', 'studentquiz'),
+            true,
+            'tagarray'
+        );
 
-        $states = array();
+        $states = [];
         foreach (studentquiz_helper::$statename as $num => $name) {
             if ($num == studentquiz_helper::STATE_DELETE || $num == studentquiz_helper::STATE_HIDE) {
                 continue;
             }
-            $states[$num] = get_string('state_'.$name, 'studentquiz');
+            $states[$num] = get_string('state_' . $name, 'studentquiz');
         }
-        $this->fields[] = new \user_filter_simpleselect('state', get_string('state_column_name', 'studentquiz'),
-            true, 'state', $states);
+        $this->fields[] = new \user_filter_simpleselect(
+            'state',
+            get_string('state_column_name', 'studentquiz'),
+            true,
+            'state',
+            $states
+        );
 
-        $this->fields[] = new \user_filter_number('rate', get_string('filter_label_rates', 'studentquiz'),
-            true, 'rate');
-        $this->fields[] = new \user_filter_percent('difficultylevel', get_string('filter_label_difficulty_level', 'studentquiz'),
-            true, 'difficultylevel');
+        $this->fields[] = new \user_filter_number(
+            'rate',
+            get_string('filter_label_rates', 'studentquiz'),
+            true,
+            'rate'
+        );
+        $this->fields[] = new \user_filter_percent(
+            'difficultylevel',
+            get_string('filter_label_difficulty_level', 'studentquiz'),
+            true,
+            'difficultylevel'
+        );
 
-        $this->fields[] = new \user_filter_number('publiccomment', get_string('filter_label_comment', 'studentquiz'),
-            true, 'publiccomment');
-        $this->fields[] = new \studentquiz_user_filter_text('name', get_string('filter_label_question', 'studentquiz'),
-            true, 'name');
-        $this->fields[] = new \studentquiz_user_filter_text('questiontext', get_string('filter_label_questiontext', 'studentquiz'),
-            true, 'questiontext');
+        $this->fields[] = new \user_filter_number(
+            'publiccomment',
+            get_string('filter_label_comment', 'studentquiz'),
+            true,
+            'publiccomment'
+        );
+        $this->fields[] = new \studentquiz_user_filter_text(
+            'name',
+            get_string('filter_label_question', 'studentquiz'),
+            true,
+            'name'
+        );
+        $this->fields[] = new \studentquiz_user_filter_text(
+            'questiontext',
+            get_string('filter_label_questiontext', 'studentquiz'),
+            true,
+            'questiontext'
+        );
 
         if ($anonymize) {
-            $this->fields[] = new \user_filter_checkbox('createdby', get_string('filter_label_show_mine', 'studentquiz'),
-                true, 'createdby');
+            $this->fields[] = new \user_filter_checkbox(
+                'createdby',
+                get_string('filter_label_show_mine', 'studentquiz'),
+                true,
+                'createdby'
+            );
         } else {
             $this->fields[] = new \studentquiz_user_filter_text('firstname', get_string('firstname'), true, 'firstname');
             $this->fields[] = new \studentquiz_user_filter_text('lastname', get_string('lastname'), true, 'lastname');
         }
 
-        $this->fields[] = new \studentquiz_user_filter_date('timecreated', get_string('filter_label_createdate', 'studentquiz'),
-            true, 'timecreated');
+        $this->fields[] = new \studentquiz_user_filter_date(
+            'timecreated',
+            get_string('filter_label_createdate', 'studentquiz'),
+            true,
+            'timecreated'
+        );
 
-        $this->fields[] = new \user_filter_simpleselect('lastanswercorrect',
+        $this->fields[] = new \user_filter_simpleselect(
+            'lastanswercorrect',
             get_string('filter_label_mylastattempt', 'studentquiz'),
-            true, 'lastanswercorrect', array(
+            true,
+            'lastanswercorrect',
+            [
                 '1' => get_string('lastattempt_right', 'studentquiz'),
-                '0' => get_string('lastattempt_wrong', 'studentquiz')
-            ));
+                '0' => get_string('lastattempt_wrong', 'studentquiz'),
+            ]
+        );
 
-        $this->fields[] = new \user_filter_number('myattempts', get_string('filter_label_myattempts', 'studentquiz'),
-            true, 'myattempts');
+        $this->fields[] = new \user_filter_number(
+            'myattempts',
+            get_string('filter_label_myattempts', 'studentquiz'),
+            true,
+            'myattempts'
+        );
 
-        $this->fields[] = new \user_filter_number('mydifficulty', get_string('filter_label_mydifficulty', 'studentquiz'),
-            true, 'mydifficulty');
+        $this->fields[] = new \user_filter_number(
+            'mydifficulty',
+            get_string('filter_label_mydifficulty', 'studentquiz'),
+            true,
+            'mydifficulty'
+        );
 
-        $this->fields[] = new \user_filter_number('myrate', get_string('filter_label_myrate', 'studentquiz'),
-            true, 'myrate');
+        $this->fields[] = new \user_filter_number(
+            'myrate',
+            get_string('filter_label_myrate', 'studentquiz'),
+            true,
+            'myrate'
+        );
     }
 
     /**
@@ -579,7 +741,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
 
         // Unfortunately we cant just render the questions directly.
         // We need to annotate tags first.
-        $questions = array();
+        $questions = [];
         // Load questions.
         while ($rs->valid() && ($showall || $numberofdisplayedquestions < $perpage)) {
             $question = $rs->current();
@@ -601,7 +763,7 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
     }
 
     /**
-     * TODO: rename function and apply (there is duplicate method)
+     * TODO: rename function and apply (there is duplicate method) // phpcs:ignore moodle.Commenting.TodoComment
      * @return bool studentquiz is set to anoymize ranking.
      */
     public function is_anonymized() {
@@ -636,9 +798,11 @@ class studentquiz_bank_view_pre_43 extends \core_question\local\bank\view {
         // When we sort by public/private comments and turn off the setting studentquiz | privatecomment,
         // the parse_subsort function will throw exception. We should redirect to the base_url after cleaning all sort params.
         $showprivatecomment = $this->studentquiz->privatecommenting;
-        if ($showprivatecomment && $sort == 'mod_studentquiz\question\bank\comment_column' ||
+        if (
+            $showprivatecomment && $sort == 'mod_studentquiz\question\bank\comment_column' ||
             !$showprivatecomment && ($sort == 'mod_studentquiz\bank\comment_column-privatecomment' ||
-                $sort == 'mod_studentquiz\bank\comment_column-publiccomment')) {
+            $sort == 'mod_studentquiz\bank\comment_column-publiccomment')
+        ) {
             for ($i = 1; $i <= self::MAX_SORTS; $i++) {
                 $this->baseurl->remove_params('qbs' . $i);
             }

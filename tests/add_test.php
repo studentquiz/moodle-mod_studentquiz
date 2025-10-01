@@ -25,8 +25,7 @@ use mod_studentquiz\commentarea\container;
  * @copyright  2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class add_test extends \advanced_testcase {
-
+final class add_test extends \advanced_testcase {
     /** @var \stdClass - Course. */
     protected $course;
 
@@ -36,6 +35,7 @@ class add_test extends \advanced_testcase {
     protected function setUp(): void {
         $this->setAdminUser();
         $this->resetAfterTest();
+        parent::setUp();
         $this->course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
     }
 
@@ -43,7 +43,7 @@ class add_test extends \advanced_testcase {
      * Test add studentquiz with deletion period = 0.
      * @coversNothing
      */
-    public function test_add_studentquiz_with_zero_period() {
+    public function test_add_studentquiz_with_zero_period(): void {
         $studentquiz = $this->create_studentquiz(0);
         $this->assertEquals(0, $studentquiz->commentdeletionperiod);
     }
@@ -55,7 +55,7 @@ class add_test extends \advanced_testcase {
      * @dataProvider period_provider
      * @param int $period - Deletion period number.
      */
-    public function test_add_studentquiz_with_normal_period($period) {
+    public function test_add_studentquiz_with_normal_period($period): void {
         $studentquiz = $this->create_studentquiz($period);
         $this->assertEquals($period, $studentquiz->commentdeletionperiod);
     }
@@ -65,12 +65,12 @@ class add_test extends \advanced_testcase {
      *
      * @covers ::studentquiz_process_event
      */
-    public function test_add_studentquiz_with_expected_completion() {
+    public function test_add_studentquiz_with_expected_completion(): void {
         global $DB;
         $futuretime = strtotime('+1 day');
         $studentquiz = $this->create_studentquiz(0, $futuretime);
         $studentquizvevent = $DB->get_record('event', ['courseid' => $this->course->id,
-            'modulename' => 'studentquiz', 'instance' => $studentquiz->id]);
+            'modulename' => 'studentquiz', 'instance' => $studentquiz->id, ]);
 
         $this->assertEquals($studentquizvevent->timestart, $futuretime);
         $this->assertEquals($studentquizvevent->timesort, $futuretime);
@@ -82,7 +82,7 @@ class add_test extends \advanced_testcase {
      * @see test_add_studentquiz_with_normal_period()
      * @return array
      */
-    public static function period_provider() {
+    public static function period_provider(): array {
         $periods = range(container::DELETION_PERIOD_MIN, container::DELETION_PERIOD_MAX);
         shuffle($periods);
         $periods = array_slice($periods, 0, 5);

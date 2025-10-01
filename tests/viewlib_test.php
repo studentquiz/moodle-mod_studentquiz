@@ -16,6 +16,8 @@
 
 namespace mod_studentquiz;
 
+use tool_policy\output\page_agreedocs;
+
 defined('MOODLE_INTERNAL') || die('Direct Access is forbidden!');
 
 global $CFG;
@@ -29,7 +31,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class viewlib_test extends \advanced_testcase {
+final class viewlib_test extends \advanced_testcase {
     /**
      * @var studentquiz_view
      */
@@ -43,15 +45,19 @@ class viewlib_test extends \advanced_testcase {
      */
     protected function setUp(): void {
         global $DB;
+        parent::setUp();
         $user = $this->getDataGenerator()->create_user();
         // Login as this user.
         $this->setUser($user);
         $course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
-        $studentquiz = $this->getDataGenerator()->create_module('studentquiz'
-            , array('course' => $course->id),  array('anonymrank' => true));
+        $studentquiz = $this->getDataGenerator()->create_module(
+            'studentquiz',
+            ['course' => $course->id],
+            ['anonymrank' => true]
+        );
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
         $context = \context_module::instance($this->cm->id);
@@ -61,15 +67,21 @@ class viewlib_test extends \advanced_testcase {
 
         // Satisfy codechecker: $course $cm $studentquiz $userid.
         $report = new \mod_studentquiz_report($course, $this->cm);
-        $this->viewlib = new \mod_studentquiz_view($course, $context, $this->cm,
-            $studentquiz, $user->id, $report);
+        $this->viewlib = new \mod_studentquiz_view(
+            $course,
+            $context,
+            $this->cm,
+            $studentquiz,
+            $user->id,
+            $report
+        );
     }
 
     /**
      * Test has_question_ids
      * @coversNothing
      */
-    public function test_has_question_ids() {
+    public function test_has_question_ids(): void {
         $result = $this->viewlib->has_question_ids();
         self::assertFalse($result);
     }
@@ -80,17 +92,16 @@ class viewlib_test extends \advanced_testcase {
      * Nothing
      * @coversNothing
      */
-    public function test_show_questionbank() {
-
+    public function test_show_questionbank(): void {
     }
 
     /**
      * test_get_viewurl
      * @coversNothing
      */
-    public function test_get_viewurl() {
+    public function test_get_viewurl(): void {
         $viewurl = $this->viewlib->get_viewurl();
-        $expectedurl = new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id));
+        $expectedurl = new \moodle_url('/mod/studentquiz/view.php', ['cmid' => $this->cm->id]);
         $this->assertEquals('/moodle/mod/studentquiz/view.php', $viewurl->get_path());
         $this->assertTrue($expectedurl->compare($viewurl, URL_MATCH_EXACT));
     }
@@ -99,7 +110,7 @@ class viewlib_test extends \advanced_testcase {
      * test_get_title
      * @coversNothing
      */
-    public function test_get_title() {
+    public function test_get_title(): void {
         $result = $this->viewlib->get_title();
         self::assertEquals('StudentQuiz: studentquiz 0', $result);
     }
@@ -127,8 +138,7 @@ class viewlib_test extends \advanced_testcase {
      * get_questionbank()
      */
 
-    public function test_get_standard_quiz_setup() {
-
+    public function test_get_standard_quiz_setup(): void {
     }
 
     /**
@@ -140,7 +150,7 @@ class viewlib_test extends \advanced_testcase {
      *
      * @return mixed Method return.
      */
-    public function invoke_method(&$object, $methodname, array $parameters = array()) {
+    public function invoke_method(&$object, $methodname, array $parameters = []) {
         $reflection = new \ReflectionClass(get_class($object));
         $method = $reflection->getMethod($methodname);
         $method->setAccessible(true);

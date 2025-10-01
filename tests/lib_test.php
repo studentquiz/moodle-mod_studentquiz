@@ -27,8 +27,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/lib.php');
  * @copyright 2022 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class lib_test extends \advanced_testcase {
-
+final class lib_test extends \advanced_testcase {
     /**
      * @var \stdClass
      */
@@ -49,21 +48,24 @@ class lib_test extends \advanced_testcase {
     protected $event;
 
     public function setUp(): void {
-
         $this->resetAfterTest();
+        parent::setUp();
         $this->setAdminUser();
 
         // Create the activity.
         $this->course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $this->studentquiz = $this->getDataGenerator()->create_module('studentquiz', [
             'course' => $this->course->id, 'completion' => 1,
-            'completionexpected' => time() + DAYSECS
+            'completionexpected' => time() + DAYSECS,
         ]);
         // Enrol a student in the course.
         $this->student = $this->getDataGenerator()->create_and_enrol($this->course, 'student');
         // Create a calendar event.
-        $this->event = $this->create_action_event($this->course->id, $this->studentquiz->id,
-            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED);
+        $this->event = $this->create_action_event(
+            $this->course->id,
+            $this->studentquiz->id,
+            \core_completion\api::COMPLETION_EVENT_TYPE_DATE_COMPLETION_EXPECTED
+        );
     }
 
     /**

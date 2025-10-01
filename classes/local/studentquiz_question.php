@@ -29,7 +29,6 @@ use core_question\local\bank\question_version_status;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class studentquiz_question {
-
     /** @var stdClass $data - Data of StudentQuiz question. */
     private $data;
 
@@ -58,8 +57,13 @@ class studentquiz_question {
      * @param mixed|null $cm
      * @param mixed|null $context
      */
-    public function __construct(int $studentquizquestionid, question_definition $question = null,
-        stdClass $studentquiz = null, $cm = null, $context = null) {
+    public function __construct(
+        int $studentquizquestionid,
+        ?question_definition $question = null,
+        ?stdClass $studentquiz = null,
+        $cm = null,
+        $context = null
+    ) {
         $this->id = $studentquizquestionid;
         $this->load_studentquiz_question();
         $this->question = $question;
@@ -167,8 +171,12 @@ class studentquiz_question {
      * @param mixed $context
      * @return studentquiz_question StudentQuiz question object.
      */
-    public static function get_studentquiz_question_from_question(question_definition $question, stdClass $studentquiz = null,
-        $cm = null, $context = null): studentquiz_question {
+    public static function get_studentquiz_question_from_question(
+        question_definition $question,
+        ?stdClass $studentquiz = null,
+        mixed $cm = null,
+        mixed $context = null
+    ): studentquiz_question {
         global $DB;
         $params = [
             'questionid1' => $question->id,
@@ -247,7 +255,7 @@ class studentquiz_question {
                  WHERE sqq.id = :studentquizquestionid2";
         $params = [
             'studentquizquestionid1' => $this->id,
-            'studentquizquestionid2' => $this->id
+            'studentquizquestionid2' => $this->id,
         ];
         $record = $DB->get_record_sql($sql, $params, MUST_EXIST);
         $this->data = $record;
@@ -284,8 +292,12 @@ class studentquiz_question {
      */
     public function change_delete_state(): void {
         global $DB;
-        $DB->set_field('question_versions', 'status', question_version_status::QUESTION_STATUS_HIDDEN,
-            ['questionid' => $this->get_question()->id]);
+        $DB->set_field(
+            'question_versions',
+            'status',
+            question_version_status::QUESTION_STATUS_HIDDEN,
+            ['questionid' => $this->get_question()->id]
+        );
     }
 
     /**
@@ -314,11 +326,11 @@ class studentquiz_question {
      * Saving the action change state.
      *
      * @param int $state The state of the question in the StudentQuiz.
-     * @param int $userid
-     * @param int $timecreated The time do action.
+     * @param int|null $userid
+     * @param int|null $timecreated The time do action.
      * @return bool|int True or new id
      */
-    public function save_action(int $state, ?int $userid, int $timecreated = null) {
+    public function save_action(int $state, ?int $userid, ?int $timecreated = null) {
         global $DB;
 
         $data = new \stdClass();

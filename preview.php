@@ -21,8 +21,8 @@
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-use mod_studentquiz\utils;
 
+use mod_studentquiz\utils;
 use mod_studentquiz\local\studentquiz_question;
 
 require_once(__DIR__ . '/../../config.php');
@@ -105,7 +105,9 @@ if ($question) {
         // Prepare Question for preview.
         // Keep core_question_preview so core question module cares about cleaning them up.
         $quba = question_engine::make_questions_usage_by_activity(
-            'core_question_preview', context_user::instance($USER->id));
+            'core_question_preview',
+            context_user::instance($USER->id)
+        );
         $quba->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
         $slot = $quba->add_question($question);
         $quba->start_question($slot);
@@ -139,16 +141,16 @@ $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'initialise');
 echo $OUTPUT->header();
 if ($question) {
     echo html_writer::start_tag('form', ['method' => 'post', 'action' => $actionurl,
-        'enctype' => 'multipart/form-data', 'id' => 'responseform']);
+        'enctype' => 'multipart/form-data', 'id' => 'responseform', ]);
     echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'cmid', 'value' => $cmid, 'class' => 'cmid_field']);
     echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'sesskey', 'value' => sesskey()]);
 
     echo $quba->render_question($slot, $options, 'i');
 
     $PAGE->requires->js_module('core_question_engine');
-    $PAGE->requires->strings_for_js(array(
+    $PAGE->requires->strings_for_js([
         'closepreview',
-    ), 'question');
+    ], 'question');
     echo $output->render_state_choice($studentquizquestion);
 
     echo html_writer::end_tag('form');

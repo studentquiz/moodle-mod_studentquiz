@@ -27,7 +27,6 @@ use moodle_url;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class send_digest_notification_task extends \core\task\scheduled_task {
-
     /**
      * Get a descriptive name for this task (shown to admins).
      *
@@ -58,9 +57,11 @@ class send_digest_notification_task extends \core\task\scheduled_task {
         $recordids = [];
         $messagetotal = 0;
         foreach ($studentquizids as $studentquizid => $notused) {
-            $notificationqueues = $DB->get_recordset_select('studentquiz_notification',
-                    'timetosend <= :timetosend AND status = :status AND studentquizid = :studentquizid',
-                    ['timetosend' => strtotime(date('Y-m-d')), 'status' => 0, 'studentquizid' => $studentquizid]);
+            $notificationqueues = $DB->get_recordset_select(
+                'studentquiz_notification',
+                'timetosend <= :timetosend AND status = :status AND studentquizid = :studentquizid',
+                ['timetosend' => strtotime(date('Y-m-d')), 'status' => 0, 'studentquizid' => $studentquizid]
+            );
             $studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $studentquizid]);
 
             $recipients = [];
@@ -78,9 +79,11 @@ class send_digest_notification_task extends \core\task\scheduled_task {
                         'recipientname' => $datas[0]->messagedata->recepientname,
                         'digesttype' => $studentquiz->digesttype == 1 ? $dailystring : $weeklystring,
                         'modulename' => $studentquiz->name,
-                        'activityurl' => (new moodle_url('/mod/studentquiz/view.php',
-                                ['cmid' => $studentquiz->coursemodule]))->out(),
-                        'notifications' => []
+                        'activityurl' => (new moodle_url(
+                            '/mod/studentquiz/view.php',
+                            ['cmid' => $studentquiz->coursemodule]
+                        ))->out(),
+                        'notifications' => [],
                 ];
                 $total = 0;
                 foreach ($datas as $data) {
@@ -116,7 +119,7 @@ class send_digest_notification_task extends \core\task\scheduled_task {
         }
 
         if (!empty($recordids)) {
-            list($insql, $inparams) = $DB->get_in_or_equal($recordids, SQL_PARAMS_NAMED);
+            [$insql, $inparams] = $DB->get_in_or_equal($recordids, SQL_PARAMS_NAMED);
             $insql = ' id ' . $insql;
             $DB->set_field_select('studentquiz_notification', 'status', 1, $insql, $inparams);
         }

@@ -27,7 +27,6 @@ use core_question\local\bank\edit_menu_column;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_edit_menu_column extends edit_menu_column {
-
     /** @var int */
     protected $currentuserid;
 

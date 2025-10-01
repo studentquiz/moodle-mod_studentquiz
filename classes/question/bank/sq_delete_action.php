@@ -29,7 +29,6 @@ if (!class_exists('\qbank_deletequestion\delete_action')) {
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class sq_delete_action extends \qbank_deletequestion\delete_action {
-
     /**
      * Override method to get url and label for delete action of the studentquiz.
      *
@@ -41,13 +40,14 @@ class sq_delete_action extends \qbank_deletequestion\delete_action {
      */
     protected function get_url_icon_and_label(\stdClass $question): array {
 
-        if ($question->state == studentquiz_helper::STATE_APPROVED &&
-                !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())) {
+        if (
+            $question->state == studentquiz_helper::STATE_APPROVED &&
+            !has_capability('mod/studentquiz:previewothers', $this->qbank->get_most_specific_context())
+        ) {
             // Do not render delete icon if the question is in approved state for the student.
             return [null, null, null];
         }
 
         return parent::get_url_icon_and_label($question);
     }
-
 }

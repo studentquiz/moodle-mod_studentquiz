@@ -26,14 +26,14 @@ require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 
 $id = required_param('id', PARAM_INT);
-if (!$course = $DB->get_record('course', array('id' => $id))) {
+if (!$course = $DB->get_record('course', ['id' => $id])) {
     throw new moodle_exception("invalidcourseid");
 }
 $coursecontext = context_course::instance($id);
 require_login($course);
 
 $strname = get_string('modulenameplural', 'mod_studentquiz');
-$PAGE->set_url('/mod/studentquiz/index.php', array('id' => $id));
+$PAGE->set_url('/mod/studentquiz/index.php', ['id' => $id]);
 $PAGE->navbar->add($strname);
 $PAGE->set_title("$course->shortname: $strname");
 $PAGE->set_heading($course->fullname);
@@ -49,11 +49,11 @@ if (!$studentquizzes = get_all_instances_in_course("studentquiz", $course)) {
 }
 
 // Configure table for displaying the list of instances.
-$headings = array(get_string('name'));
-$align = array('left');
+$headings = [get_string('name')];
+$align = ['left'];
 
 if (course_format_uses_sections($course->format)) {
-    array_unshift($headings, get_string('sectionname', 'format_'.$course->format));
+    array_unshift($headings, get_string('sectionname', 'format_' . $course->format));
 } else {
     array_unshift($headings, '');
 }
@@ -70,7 +70,7 @@ $currentsection = '';
 foreach ($studentquizzes as $studentquiz) {
     $cm = get_coursemodule_from_instance('studentquiz', $studentquiz->id);
     $context = context_module::instance($cm->id);
-    $data = array();
+    $data = [];
 
     // Section number if necessary.
     $strsection = '';
@@ -91,8 +91,8 @@ foreach ($studentquizzes as $studentquiz) {
     if (!$studentquiz->visible) {
         $class = 'dimmed';
     }
-    $data[] = html_writer::tag('a', format_string($studentquiz->name, true), array(
-        'href' => "view.php?id=" . $studentquiz->coursemodule, 'class' => $class));
+    $data[] = html_writer::tag('a', format_string($studentquiz->name, true), [
+        'href' => "view.php?id=" . $studentquiz->coursemodule, 'class' => $class, ]);
 
     $table->data[] = $data;
 } // End of loop over studentquiz instances.

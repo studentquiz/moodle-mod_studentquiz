@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class studentquiz_column_base extends \core_question\local\bank\column_base {
-
     /** @var array Extra class names to this column. */
     protected $extraclasses = [];
 
@@ -48,7 +47,7 @@ abstract class studentquiz_column_base extends \core_question\local\bank\column_
      *
      * @return array Extra class names.
      */
-    public function get_extra_classes():array {
+    public function get_extra_classes(): array {
         return $this->extraclasses;
     }
 

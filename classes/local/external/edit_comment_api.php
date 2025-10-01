@@ -46,7 +46,6 @@ require_once($CFG->libdir . '/externallib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class edit_comment_api extends external_api {
-
     /**
      * Gets function parameter metadata.
      *
@@ -59,9 +58,9 @@ class edit_comment_api extends external_api {
                 'commentid' => new external_value(PARAM_INT, 'Comment ID to edit.'),
                 'message' => new external_function_parameters([
                         'text' => new external_value(PARAM_RAW, 'Message of the post'),
-                        'format' => new external_value(PARAM_TEXT, 'Format of the message')
+                        'format' => new external_value(PARAM_TEXT, 'Format of the message'),
                 ]),
-                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC)
+                'type' => new external_value(PARAM_INT, 'Comment type', VALUE_DEFAULT, utils::COMMENT_TYPE_PUBLIC),
         ]);
     }
 
@@ -92,7 +91,7 @@ class edit_comment_api extends external_api {
                 'cmid' => $cmid,
                 'commentid' => $commentid,
                 'message' => $message,
-                'type' => $type
+                'type' => $type,
         ]);
 
         $studentquizquestion = utils::get_data_for_comment_area($params['studentquizquestionid'], $params['cmid']);
@@ -115,7 +114,7 @@ class edit_comment_api extends external_api {
         // Assign data to edit post form, this will also check for session key.
         $formdata = [
                 'message' => $message,
-                '_qf__mod_studentquiz_commentarea_form_validate_comment_form' => 1
+                '_qf__mod_studentquiz_commentarea_form_validate_comment_form' => 1,
         ];
 
         $mform = new validate_comment_form('', [
@@ -124,8 +123,8 @@ class edit_comment_api extends external_api {
                         'cmid' => $params['cmid'],
                         'commentid' => $params['commentid'],
                         'editmode' => true,
-                        'type' => $params['type']
-                ]
+                        'type' => $params['type'],
+                ],
         ], 'post', '', null, true, $formdata);
 
         // Validate form data.

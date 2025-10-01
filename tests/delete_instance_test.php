@@ -25,8 +25,7 @@ use mod_studentquiz\local\studentquiz_question;
  * @copyright 2022 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class delete_instance_test extends \advanced_testcase {
-
+final class delete_instance_test extends \advanced_testcase {
     /**
      * Test delete instance.
      * @covers \studentquiz_delete_instance
@@ -39,17 +38,20 @@ class delete_instance_test extends \advanced_testcase {
         $questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $course = $this->getDataGenerator()->create_course();
 
-        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+        $activity = $this->getDataGenerator()->create_module('studentquiz', [
                 'course' => $course->id,
                 'anonymrank' => true,
                 'forcecommenting' => 1,
-        ));
+        ]);
         $context = \context_module::instance($activity->cmid);
 
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
 
-        $q = $questiongenerator->create_question('truefalse', null,
-                ['name' => 'TF1', 'category' => $studentquiz->categoryid]);
+        $q = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'TF1', 'category' => $studentquiz->categoryid]
+        );
         $question = \question_bank::load_question($q->id);
 
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question);
@@ -58,12 +60,12 @@ class delete_instance_test extends \advanced_testcase {
         $commentd = [
                 'message' => [
                         'text' => 'Root message',
-                        'format' => 1
+                        'format' => 1,
                 ],
                 'studentquizquestionid' => $sqq->get_id(),
                 'cmid' => $activity->cmid,
                 'replyto' => 0,
-                'type' => utils::COMMENT_TYPE_PUBLIC
+                'type' => utils::COMMENT_TYPE_PUBLIC,
         ];
         $commentid = $commentarea->create_comment((object)$commentd);
 
@@ -72,7 +74,7 @@ class delete_instance_test extends \advanced_testcase {
                 'content' => 'Sample comment ' . rand(1, 1000),
                 'userid' => $user->id,
                 'action' => utils::COMMENT_HISTORY_CREATE,
-                'timemodified' => rand(1000000000, 2000000000)
+                'timemodified' => rand(1000000000, 2000000000),
         ];
 
         $DB->insert_record('studentquiz_comment_history', $data);
@@ -90,7 +92,7 @@ class delete_instance_test extends \advanced_testcase {
                 'id' => 0,
                 'rate' => rand(1, 5),
                 'studentquizquestionid' => $sqq->get_id(),
-                'userid' => $user->id
+                'userid' => $user->id,
         ];
         $DB->insert_record('studentquiz_rate', $rate);
 
@@ -102,7 +104,7 @@ class delete_instance_test extends \advanced_testcase {
                 'attempts' => rand(1, 1000),
                 'correctattempts' => rand(1, 1000),
                 'lastreadprivatecomment' => rand(1, 10000),
-                'lastreadpubliccomment' => rand(1, 10000)
+                'lastreadpubliccomment' => rand(1, 10000),
         ];
         $DB->insert_record('studentquiz_progress', $progress, false);
 
@@ -118,7 +120,6 @@ class delete_instance_test extends \advanced_testcase {
         studentquiz_delete_instance($studentquiz->id);
         // After deletion.
         self::check_sq_instance_data($sqq->get_id(), $studentquiz->id, $commentid, 0);
-
     }
 
     /**
@@ -132,17 +133,17 @@ class delete_instance_test extends \advanced_testcase {
     private function check_sq_instance_data($studentquizquestionid, $studenquizid, $commentid, $expected): void {
         global $DB;
         $reference = $DB->count_records('question_references', ['itemid' => $studentquizquestionid,
-                'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']);
+                'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question', ]);
         $comment = $DB->count_records('studentquiz_comment', ['studentquizquestionid' => $studentquizquestionid]);
         $commenthistory = $DB->count_records('studentquiz_comment_history', ['commentid' => $commentid]);
         $statehistory = $DB->count_records('studentquiz_state_history', ['studentquizquestionid' => $studentquizquestionid]);
         $rate = $DB->count_records('studentquiz_rate', ['studentquizquestionid' => $studentquizquestionid]);
         $progress = $DB->count_records('studentquiz_progress', ['studentquizquestionid' => $studentquizquestionid,
-                'studentquizid' => $studenquizid]);
+                'studentquizid' => $studenquizid, ]);
         $attempt = $DB->count_records('studentquiz_attempt', ['studentquizid' => $studenquizid]);
         $notification = $DB->count_records('studentquiz_notification', ['studentquizid' => $studenquizid]);
         $studentquizquestion = $DB->count_records('studentquiz_question', ['studentquizid' => $studenquizid]);
-        $studentquizcount = $DB->count_records('studentquiz', array('id' => $studenquizid));
+        $studentquizcount = $DB->count_records('studentquiz', ['id' => $studenquizid]);
 
         $this->assertEquals($expected, $reference);
         $this->assertEquals($expected, $comment);

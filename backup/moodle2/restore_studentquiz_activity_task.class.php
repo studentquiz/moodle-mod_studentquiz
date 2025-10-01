@@ -38,7 +38,6 @@ require_once($CFG->dirroot . '/mod/studentquiz/backup/moodle2/restore_studentqui
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_studentquiz_activity_task extends restore_activity_task {
-
     /**
      * Define (add) particular settings this activity can have
      */
@@ -59,9 +58,9 @@ class restore_studentquiz_activity_task extends restore_activity_task {
      * processed by the link decoder
      */
     public static function define_decode_contents() {
-        $contents = array();
+        $contents = [];
 
-        $contents[] = new restore_decode_content('studentquiz', array('intro'), 'studentquiz');
+        $contents[] = new restore_decode_content('studentquiz', ['intro'], 'studentquiz');
 
         return $contents;
     }
@@ -71,7 +70,7 @@ class restore_studentquiz_activity_task extends restore_activity_task {
      * to the activity to be executed by the link decoder
      */
     public static function define_decode_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_decode_rule('STUDENTQUIZVIEWBYID', '/mod/studentquiz/view.php?id=$1', 'course_module');
         $rules[] = new restore_decode_rule('STUDENTQUIZINDEX', '/mod/studentquiz/index.php?id=$1', 'course');
@@ -86,7 +85,7 @@ class restore_studentquiz_activity_task extends restore_activity_task {
      * of {@see restore_log_rule} objects
      */
     public static function define_restore_log_rules() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('studentquiz', 'add', 'view.php?id={course_module}', '{studentquiz}');
         $rules[] = new restore_log_rule('studentquiz', 'update', 'view.php?id={course_module}', '{studentquiz}');
@@ -106,7 +105,7 @@ class restore_studentquiz_activity_task extends restore_activity_task {
      * activity level. All them are rules not linked to any module instance (cmid = 0)
      */
     public static function define_restore_log_rules_for_course() {
-        $rules = array();
+        $rules = [];
 
         $rules[] = new restore_log_rule('studentquiz', 'view all', 'index.php?id={course}', null);
 

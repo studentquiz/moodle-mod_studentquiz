@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 namespace mod_studentquiz\question\bank;
 
 if (!class_exists('\core_question\local\bank\question_action_base')) {
@@ -34,6 +33,7 @@ class sq_pin_action extends \core_question\local\bank\question_action_base {
     /** @var mod_studentquiz Renderer of student quiz. */
     protected $renderer;
 
+    /** @var int Current user id. */
     protected $currentuserid;
 
     /**
@@ -60,7 +60,7 @@ class sq_pin_action extends \core_question\local\bank\question_action_base {
      * @return array Fields required.
      */
     public function get_required_fields(): array {
-        return array('sqq.pinned AS pinned');
+        return ['sqq.pinned AS pinned'];
     }
 
 
@@ -79,21 +79,26 @@ class sq_pin_action extends \core_question\local\bank\question_action_base {
         $cmid = $this->qbank->cm->id;
         if (has_capability('mod/studentquiz:pinquestion', $this->qbank->get_most_specific_context())) {
             if ($question->pinned) {
-                $url = new moodle_url('/mod/studentquiz/pinaction.php',
-                        ['studentquizquestionid' => $question->studentquizquestionid,
+                $url = new moodle_url(
+                    '/mod/studentquiz/pinaction.php',
+                    ['studentquizquestionid' => $question->studentquizquestionid,
                                 'pin' => 0, 'sesskey' => sesskey(), 'cmid' => $cmid,
-                                'returnurl' => $this->qbank->base_url(), 'courseid' => $courseid]);
+                    'returnurl' => $this->qbank->base_url(),
+                    'courseid' => $courseid, ]
+                );
                 return [$url, 'i/star', get_string('unpin', 'studentquiz'), 'courseid' => $courseid];
             } else {
-                $url = new moodle_url('/mod/studentquiz/pinaction.php',
-                        ['studentquizquestionid' => $question->studentquizquestionid,
+                $url = new moodle_url(
+                    '/mod/studentquiz/pinaction.php',
+                    ['studentquizquestionid' => $question->studentquizquestionid,
                                 'pin' => 1, 'sesskey' => sesskey(), 'cmid' => $cmid,
-                                'returnurl' => $this->qbank->base_url(), 'courseid' => $courseid]);
+                    'returnurl' => $this->qbank->base_url(),
+                    'courseid' => $courseid, ]
+                );
                 return [$url, 't/emptystar', get_string('pin', 'studentquiz')];
             }
         }
 
         return [null, null, null];
     }
-
 }

@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class anonym_creator_name_column extends \qbank_viewcreator\creator_name_column {
-
     /**
      * The current user
      * @var int
@@ -70,7 +69,12 @@ class anonym_creator_name_column extends \qbank_viewcreator\creator_name_column 
     protected function display_content($question, $rowclasses): void {
         $this->anonymize = $this->qbank->is_anonymized();
         $output = $this->renderer->render_anonym_creator_name_column(
-                $this->anonymize, $question, $this->currentuserid, $this->anonymousname, $rowclasses);
+            $this->anonymize,
+            $question,
+            $this->currentuserid,
+            $this->anonymousname,
+            $rowclasses
+        );
         echo $output;
     }
 
@@ -93,7 +97,7 @@ class anonym_creator_name_column extends \qbank_viewcreator\creator_name_column 
      *
      * @return array
      */
-    public function get_extra_classes():array {
+    public function get_extra_classes(): array {
         return $this->extraclasses;
     }
 }

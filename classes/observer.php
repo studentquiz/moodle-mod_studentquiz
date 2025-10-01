@@ -26,7 +26,6 @@ use mod_studentquiz\access\context_override;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_studentquiz_observer {
-
     /**
      * Observer for the event question_created - Create new record for studentquiz_questions table.
      *
@@ -107,14 +106,17 @@ class mod_studentquiz_observer {
                 $digestfirstday = $event->other['olddigestfirstday'];
                 $timetosend = utils::calculcate_notification_time_to_send($digestfirstday);
             }
-            $DB->execute('UPDATE {studentquiz_notification}
+            $DB->execute(
+                'UPDATE {studentquiz_notification}
                               SET timetosend = :newtimetosend
                             WHERE studentquizid = :studentquizid
                                   AND timetosend = :oldtimetosend
                                   AND status = :status',
-                    ['newtimetosend' => strtotime('-1 day', mktime(0, 0, 0)),
+                ['newtimetosend' => strtotime('-1 day', mktime(0, 0, 0)),
                             'studentquizid' => $event->objectid,
-                            'oldtimetosend' => $timetosend, 'status' => 0]);
+                'oldtimetosend' => $timetosend,
+                'status' => 0, ]
+            );
         }
     }
 
@@ -152,6 +154,7 @@ class mod_studentquiz_observer {
         return ((strpos($capability, "mod/studentquiz:") === 0));
     }
 
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO we could add an extra check here, to see if the context of the event is a parent
     // context of any StudenQuiz activities. That would take one DB query. Not sure if that is a good trade-off.
 }

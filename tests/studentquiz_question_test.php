@@ -27,8 +27,7 @@ use core_question\local\bank\question_version_status;
  * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_question_test extends \advanced_testcase {
-
+final class studentquiz_question_test extends \advanced_testcase {
     /**
      * @var \question_definition $question
      */
@@ -43,6 +42,7 @@ class studentquiz_question_test extends \advanced_testcase {
      * Setup testing data
      */
     protected function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
         $this->setAdminUser();
         // Setup data.
@@ -56,12 +56,14 @@ class studentquiz_question_test extends \advanced_testcase {
 
         $context = \context_module::instance($activity->cmid);
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
-        $questioncreated = $questiongenerator->create_question('description', null,
-            ['category' => $studentquiz->categoryid]);
+        $questioncreated = $questiongenerator->create_question(
+            'description',
+            null,
+            ['category' => $studentquiz->categoryid]
+        );
 
         $this->question = \question_bank::load_question($questioncreated->id);
         $this->studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($this->question);
-
     }
 
     /**
@@ -76,16 +78,22 @@ class studentquiz_question_test extends \advanced_testcase {
         $this->studentquizquestion->change_state_visibility(studentquiz_helper::STATE_APPROVED);
 
         // Verify question status.
-        $this->assertEquals(question_version_status::QUESTION_STATUS_READY,
-            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id]));
+        $this->assertEquals(
+            question_version_status::QUESTION_STATUS_READY,
+            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id])
+        );
 
         // Verify state on studentquiz_question db.
-        $this->assertEquals(studentquiz_helper::STATE_APPROVED,
-            $DB->get_field('studentquiz_question', 'state', ['id' => $this->studentquizquestion->get_id()]));
+        $this->assertEquals(
+            studentquiz_helper::STATE_APPROVED,
+            $DB->get_field('studentquiz_question', 'state', ['id' => $this->studentquizquestion->get_id()])
+        );
 
         // Verify on state history.
-        $this->assertEquals(true, $DB->record_exists('studentquiz_state_history',
-            ['studentquizquestionid' => $this->studentquizquestion->get_id(), 'state' => studentquiz_helper::STATE_SHOW]));
+        $this->assertEquals(true, $DB->record_exists(
+            'studentquiz_state_history',
+            ['studentquizquestionid' => $this->studentquizquestion->get_id(), 'state' => studentquiz_helper::STATE_SHOW]
+        ));
 
         // Verify on SQQ object.
         $sqqdata = self::get_data_properties_on_studentquiz_question();
@@ -104,8 +112,10 @@ class studentquiz_question_test extends \advanced_testcase {
         $this->studentquizquestion->change_delete_state();
 
         // Verify question status.
-        $this->assertEquals(question_version_status::QUESTION_STATUS_HIDDEN,
-            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id]));
+        $this->assertEquals(
+            question_version_status::QUESTION_STATUS_HIDDEN,
+            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id])
+        );
     }
 
     /**
@@ -139,6 +149,8 @@ class studentquiz_question_test extends \advanced_testcase {
 
     /**
      * Test move question in studentquiz to another studentquiz.
+     *
+     * @covers \mod_studentquiz\local\studentquiz_question::move_studentquiz_question
      */
     public function test_move_studentquiz_question(): void {
         global $DB;
@@ -168,8 +180,11 @@ class studentquiz_question_test extends \advanced_testcase {
             mod_studentquiz_load_studentquiz($cmid2, $context2->id),
         ];
 
-        $question1 = $questiongenerator->create_question('truefalse', null,
-            ['name' => 'Student quiz 1 Question', 'category' => $studentquiz[0]->categoryid]);
+        $question1 = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'Student quiz 1 Question', 'category' => $studentquiz[0]->categoryid]
+        );
 
         // Move question to Studentquiz 2 category.
         question_move_questions_to_category([$question1->id], $studentquiz[1]->categoryid);

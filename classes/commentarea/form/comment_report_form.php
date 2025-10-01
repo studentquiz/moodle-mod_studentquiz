@@ -35,7 +35,6 @@ require_once($CFG->libdir . '/formslib.php');
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class comment_report_form extends \moodleform {
-
     /** @var int - Number of report conditions. */
     private $numconditions = 6;
 
@@ -148,5 +147,4 @@ class comment_report_form extends \moodleform {
         $conditions = $this->conditions;
         return compact('numconditions', 'conditions');
     }
-
 }

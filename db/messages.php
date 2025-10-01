@@ -24,25 +24,25 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$messageproviders = array(
+$messageproviders = [
     // Notify student that someone has approved, disapproved, hide, unhide, or changed his question. (Info to question author).
-    'questionchanged' => array(
-        'capability' => 'mod/studentquiz:emailnotifyquestion'
-    ),
+    'questionchanged' => [
+        'capability' => 'mod/studentquiz:emailnotifyquestion',
+    ],
     // Notify student that someone has commented to his question. (Info to question author).
-    'commentadded' => array(
-        'capability' => 'mod/studentquiz:emailnotifycommentadded'
-    ),
+    'commentadded' => [
+        'capability' => 'mod/studentquiz:emailnotifycommentadded',
+    ],
     // Notify student that someone has deleted their comment to his question. (Info to question author).
-    'commentdeleted' => array(
-        'capability' => 'mod/studentquiz:emailnotifycommentdeleted'
-    ),
+    'commentdeleted' => [
+        'capability' => 'mod/studentquiz:emailnotifycommentdeleted',
+    ],
     // Notify administrators that a scheduled task which deletes orphaned questions has run. (Also provides detailed information).
-    'deleteorphanedquestions' => array(
-        'capability' => 'mod/studentquiz:systemnotifytaskdeleteorphanedquestions'
-    ),
+    'deleteorphanedquestions' => [
+        'capability' => 'mod/studentquiz:systemnotifytaskdeleteorphanedquestions',
+    ],
     // Notify student that someone has deleted his comment to someone's question. (Info to comment author).
-    'minecommentdeleted' => array(
-        'capability' => 'mod/studentquiz:emailnotifycommentdeleted'
-    ),
-);
+    'minecommentdeleted' => [
+        'capability' => 'mod/studentquiz:emailnotifycommentdeleted',
+    ],
+];

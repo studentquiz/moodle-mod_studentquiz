@@ -58,8 +58,10 @@ $PAGE->set_secondary_active_tab("studentquiz");
 
 $rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
 // If user has already confirmed the action.
-if ($approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM))
-        && confirm_sesskey()) {
+if (
+    $approveselected && ($confirm = optional_param('confirm', '', PARAM_ALPHANUM))
+    && confirm_sesskey()
+) {
     // If teacher has already confirmed the action.
     $approveselected = required_param('approveselected', PARAM_RAW);
     $state = required_param('state', PARAM_INT);
@@ -98,7 +100,7 @@ if ($approveselected) {
     foreach ($rawquestions as $key => $value) {    // Parse input for question ids.
         if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
             $key = $matches[1];
-            $questionlist .= $key.',';
+            $questionlist .= $key . ',';
             $question = new stdClass();
             $question->name = '';
             if (questions_in_use([$key])) {
@@ -119,7 +121,7 @@ if ($approveselected) {
     // Add an explanation about questions in use.
     $approveurl = new \moodle_url($url, ['approveselected' => $questionlist, 'state' => -1,
         'confirm' => md5($questionlist), 'sesskey' => sesskey(), 'returnurl' => $returnurl,
-        'cmid' => $cmid, 'courseid' => $courseid]);
+        'cmid' => $cmid, 'courseid' => $courseid, ]);
 
     $continue = new \single_button($approveurl, get_string('state_toggle', 'studentquiz'), 'get');
     $renderer = $PAGE->get_renderer('mod_studentquiz', 'overview');

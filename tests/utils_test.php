@@ -24,21 +24,20 @@ use core_question\local\bank\question_version_status;
  * @copyright 2022 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class utils_test extends \advanced_testcase {
-
+final class utils_test extends \advanced_testcase {
     /**
      * Test send report function
      *
      * @covers \mod_studentquiz\utils::send_report
      */
-    public function test_send_report() {
+    public function test_send_report(): void {
         global $CFG;
         $this->resetAfterTest();
         $normal = [
             'formdata' => [
                 'condition1' => 1,
                 'condition2' => 1,
-                'conditionmore' => 'Test report comment'
+                'conditionmore' => 'Test report comment',
             ],
             'recipients' => ['recipient@samplemail.com'],
             'customdata' => [
@@ -51,19 +50,19 @@ class utils_test extends \advanced_testcase {
                 'previewurl' => ' http://sample.com',
                 'coursename' => 'Test course',
                 'fullname' => 'Test username Student',
-                'ip' => '192.0.0.1'
+                'ip' => '192.0.0.1',
             ],
             'options' => [
                 'numconditions' => 2,
-                'conditions' => [1 => 'Con 1', 2 => 'Con 2']
-            ]
+                'conditions' => [1 => 'Con 1', 2 => 'Con 2'],
+            ],
         ];
         $error = [
             'formdata' => [
                 'condition1' => 1,
                 'condition2' => 1,
                 'condition3' => 1,
-                'conditionmore' => 'Test report comment'
+                'conditionmore' => 'Test report comment',
             ],
             'recipients' => ['dsadasda.com'],
             'customdata' => [
@@ -73,12 +72,12 @@ class utils_test extends \advanced_testcase {
                 'previewurl' => ' http://sample.com',
                 'coursename' => 'Test course',
                 'fullname' => 'Test username Student',
-                'ip' => '192.0.0.1'
+                'ip' => '192.0.0.1',
             ],
             'options' => [
                 'numconditions' => 2,
-                'conditions' => [1 => 'Con 1', 2 => 'Con 2']
-            ]
+                'conditions' => [1 => 'Con 1', 2 => 'Con 2'],
+            ],
         ];
         // Normal case.
         $formdata = (object)$normal['formdata'];
@@ -114,13 +113,13 @@ class utils_test extends \advanced_testcase {
     public static function ensure_question_version_status_is_correct_testcases(): array {
         return [
             'ready' => [
-                'ready', false
+                'ready', false,
             ],
             'draft' => [
-                'draft', true
+                'draft', true,
             ],
             'hidden' => [
-                'hidden', true
+                'hidden', true,
             ],
         ];
     }
@@ -149,8 +148,11 @@ class utils_test extends \advanced_testcase {
         ]);
         $context = \context_module::instance($activity->cmid);
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
-        $question = $questiongenerator->create_question('truefalse', null,
-            ['name' => 'TF1', 'category' => $studentquiz->categoryid]);
+        $question = $questiongenerator->create_question(
+            'truefalse',
+            null,
+            ['name' => 'TF1', 'category' => $studentquiz->categoryid]
+        );
         // We can't change the question status due to core hardcode without change the get_question_form_data function.
         // See question/tests/generator/lib.php line 93.
         // So we need to update again.
@@ -171,5 +173,4 @@ class utils_test extends \advanced_testcase {
         $this->assertEquals($expected, $result);
         $this->assertEquals(question_version_status::QUESTION_STATUS_READY, $newquestionversion->status);
     }
-
 }

@@ -50,14 +50,14 @@ const STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR = 'immediatefeedback';
  */
 function mod_studentquiz_load_studentquiz($cmid, $contextid) {
     global $DB;
-    if ($studentquiz = $DB->get_record('studentquiz', array('coursemodule' => $cmid))) {
+    if ($studentquiz = $DB->get_record('studentquiz', ['coursemodule' => $cmid])) {
         if ($contextid !== false) {
             // It seems there are studentquiz instances missing the default category, we've not expected that case
             // so far. The question bank page calls the function question_make_default_categories() through
             // question_build_edit_resources() on every page view so we'd honor that behavior here as well now.
             // The function question_make_default_categories() will return the existing category if it exists.
             $context = \context::instance_by_id($contextid);
-            $studentquiz->category = question_make_default_categories(array($context));
+            $studentquiz->category = question_make_default_categories([$context]);
             $studentquiz->categoryid = $studentquiz->category->id;
 
             return $studentquiz;
@@ -82,8 +82,17 @@ function mod_studentquiz_load_studentquiz($cmid, $contextid) {
  * @param int $lastreadpubliccomment
  * @return stdClass
  */
-function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $studentquizid, $sqqid, $lastanswercorrect = 0,
-    $attempts = 0, $correctattempts = 0, $lastreadprivatecomment = 0, $lastreadpubliccomment = 0) {
+function mod_studentquiz_get_studenquiz_progress_class(
+    $questionid,
+    $userid,
+    $studentquizid,
+    $sqqid,
+    $lastanswercorrect = 0,
+    $attempts = 0,
+    $correctattempts = 0,
+    $lastreadprivatecomment = 0,
+    $lastreadpubliccomment = 0
+) {
     $studentquizprogress = new stdClass();
     $studentquizprogress->questionid = $questionid;
     $studentquizprogress->userid = $userid;
@@ -107,10 +116,10 @@ function mod_studentquiz_get_studenquiz_progress_class($questionid, $userid, $st
  *
  * @param int|null $courseorigid
  */
-function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($courseorigid=null) {
+function mod_studentquiz_migrate_all_studentquiz_instances_to_aggregated_state($courseorigid = null) {
     global $DB;
 
-    $params = array('aggregated' => '0');
+    $params = ['aggregated' => '0'];
     if (!empty($courseorigid)) {
         $params['course'] = $courseorigid;
     }
@@ -193,19 +202,28 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
                    AND qr.questionarea = 'studentquiz_question'
               JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
               ";
-    $records = $DB->get_recordset_sql($sql, array(
+    $records = $DB->get_recordset_sql($sql, [
             'rightstate2' => (string) question_state::$gradedright, 'rightstate3' => (string) question_state::$gradedright,
             'contextid1' => $context->id, 'contextid2' => $context->id,
             'rightstate' => (string) question_state::$gradedright, 'partialstate' => (string) question_state::$gradedpartial,
             'wrongstate' => (string) question_state::$gradedwrong, 'rightstate1' => (string) question_state::$gradedright,
             'partialstate1' => (string) question_state::$gradedpartial, 'wrongstate1' => (string) question_state::$gradedwrong,
-            ));
+            ]);
     $studentquizprogresses = [];
 
     foreach ($records as $r) {
         $time = time();
-        $studentquizprogress = new studentquiz_progress($r->questionid, $r->userid, $studentquizid, $r->studentquizquestionid,
-            $r->lastanswercorrect, $r->attempts, $r->correctattempts, $time, $time);
+        $studentquizprogress = new studentquiz_progress(
+            $r->questionid,
+            $r->userid,
+            $studentquizid,
+            $r->studentquizquestionid,
+            $r->lastanswercorrect,
+            $r->attempts,
+            $r->correctattempts,
+            $time,
+            $time
+        );
         array_push($studentquizprogresses, $studentquizprogress);
     }
 
@@ -218,7 +236,7 @@ function mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps($
  */
 function mod_studentquiz_get_quiz_module_id() {
     global $DB;
-    return $DB->get_field('modules', 'id', array('name' => 'quiz'));
+    return $DB->get_field('modules', 'id', ['name' => 'quiz']);
 }
 
 /**
@@ -263,10 +281,11 @@ function mod_studentquiz_prepare_notify_data($studentquizquestion, $recepient, $
     // Question info.
     $data->questionname = $question->name;
     $questionurl = new moodle_url('/mod/studentquiz/preview.php', ['cmid' => $module->id,
-            'studentquizquestionid' => $studentquizquestion->get_id()]);
+            'studentquizquestionid' => $studentquizquestion->get_id(), ]);
     $data->questionurl = $questionurl->out(false);
 
     // Notification timestamp.
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO: Note: userdate will format for the actor, not for the recepient.
     $data->timestamp = userdate($time->getTimestamp(), get_string('strftimedatetime', 'langconfig'));
 
@@ -332,12 +351,24 @@ function mod_studentquiz_notify_reviewable_question($studentquizquestion, stdCla
     global $USER;
     $context = \context_course::instance($course->id);
     $actor = \core_user::get_user($USER->id);
-    $recipients = get_enrolled_users($context, 'mod/studentquiz:emailnotifyreviewablequestion',
-        $studentquizquestion->get_groupid(), 'u.*', null, 0, 0, true);
+    $recipients = get_enrolled_users(
+        $context,
+        'mod/studentquiz:emailnotifyreviewablequestion',
+        $studentquizquestion->get_groupid(),
+        'u.*',
+        null,
+        0,
+        0,
+        true
+    );
     foreach ($recipients as $recipient) {
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
-        mod_studentquiz_send_notification(studentquiz_helper::$statename[studentquiz_helper::STATE_REVIEWABLE],
-            $recipient, $actor, $data);
+        mod_studentquiz_send_notification(
+            studentquiz_helper::$statename[studentquiz_helper::STATE_REVIEWABLE],
+            $recipient,
+            $actor,
+            $data
+        );
     }
 }
 
@@ -356,7 +387,7 @@ function mod_studentquiz_event_notification_question($event, $studentquizquestio
 
     // Creator and Actor must be different.
     if ($question->createdby != $USER->id) {
-        $users = user_get_users_by_id(array($question->createdby, $USER->id));
+        $users = user_get_users_by_id([$question->createdby, $USER->id]);
         $recipient = $users[$question->createdby];
         $actor = $users[$USER->id];
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
@@ -382,7 +413,7 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
     // Creator and Actor must be different.
     // If the comment and question is the same recipient, only send the minecomment notification (see function below).
     if ($question->createdby != $USER->id && $comment->userid != $question->createdby) {
-        $users = user_get_users_by_id(array($question->createdby, $USER->id));
+        $users = user_get_users_by_id([$question->createdby, $USER->id]);
         $recipient = $users[$question->createdby];
         $actor = $users[$USER->id];
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
@@ -411,7 +442,7 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
     $question = $studentquizquestion->get_question();
     // Creator and Actor must be different.
     if ($comment->userid != $USER->id) {
-        $users = user_get_users_by_id(array($comment->userid, $USER->id));
+        $users = user_get_users_by_id([$comment->userid, $USER->id]);
         $recipient = $users[$comment->userid];
         $actor = $users[$USER->id];
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
@@ -469,7 +500,8 @@ function mod_studentquiz_send_notification($event, $recipient, $submitter, $data
 /**
  * Send notification for comment
  *
- * @todo Support this feature in {@see mod_studentquiz_send_notification} for the next release.
+ * // phpcs:ignore moodle.Commenting.TodoComment
+ * TODO Support this feature in {@see mod_studentquiz_send_notification} for the next release.
  *
  * @param string $event message event string
  * @param stdClass $recipient user object of the intended recipient
@@ -506,7 +538,7 @@ function mod_studentquiz_send_comment_notification($event, $recipient, $submitte
  * @param stdClass $studentquiz generating this attempt
  * @param int $userid attempting this StudentQuiz
  * @return stdClass attempt from generate quiz or false on error
- * TODO: Remove dependency on persistence from factory!
+ * TODO: Remove dependency on persistence from factory! // phpcs:ignore moodle.Commenting.TodoComment
  */
 function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
 
@@ -520,12 +552,15 @@ function mod_studentquiz_generate_attempt($ids, $studentquiz, $userid) {
     $attempt = new stdClass();
 
     // Add further attempt default values here.
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO: Check if get category id always points to lowest context level category of our studentquiz activity.
     $attempt->categoryid = $studentquiz->categoryid;
     $attempt->userid = $userid;
 
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO: Configurable on Activity Level.
     $questionusage->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO: Check if this is instance id from studentquiz table.
     $attempt->studentquizid = $studentquiz->id;
 
@@ -593,10 +628,10 @@ function mod_studentquiz_completion($course, $cm) {
  * @param stdClass $context    context object
  */
 function mod_studentquiz_overview_viewed($cmid, $context) {
-    $params = array(
+    $params = [
         'objectid' => $cmid,
-        'context' => $context
-    );
+        'context' => $context,
+    ];
     $event = \mod_studentquiz\event\course_module_viewed::create($params);
     $event->trigger();
 }
@@ -607,9 +642,9 @@ function mod_studentquiz_overview_viewed($cmid, $context) {
  * @param stdClass $context    context object
  */
 function mod_studentquiz_instancelist_viewed($context) {
-    $params = array(
-        'context' => $context
-    );
+    $params = [
+        'context' => $context,
+    ];
     $event = \mod_studentquiz\event\course_module_instance_list_viewed::create($params);
     $event->trigger();
 }
@@ -621,11 +656,12 @@ function mod_studentquiz_instancelist_viewed($context) {
  * @param stdClass $context    context object
  */
 function mod_studentquiz_report_viewed($cmid, $context) {
+    // phpcs:ignore moodle.Commenting.TodoComment
     // TODO: How about $cmid from $context?
-    $params = array(
+    $params = [
         'objectid' => $cmid,
-        'context' => $context
-    );
+        'context' => $context,
+    ];
     $event = \mod_studentquiz\event\studentquiz_report_quiz_viewed::create($params);
     $event->trigger();
 }
@@ -637,10 +673,10 @@ function mod_studentquiz_report_viewed($cmid, $context) {
  * @param stdClass $context    context object
  */
 function mod_studentquiz_reportrank_viewed($cmid, $context) {
-    $params = array(
+    $params = [
         'objectid' => $cmid,
-        'context' => $context
-    );
+        'context' => $context,
+    ];
     $event = \mod_studentquiz\event\studentquiz_report_rank_viewed::create($params);
     $event->trigger();
 }
@@ -652,10 +688,10 @@ function mod_studentquiz_reportrank_viewed($cmid, $context) {
  * @return array
  */
 function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
-    if (!isset($rawdata)&& empty($rawdata)) {
+    if (!isset($rawdata) && empty($rawdata)) {
         return false;
     }
-    $ids = array();
+    $ids = [];
     foreach ($rawdata as $key => $value) {
         if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
             $ids[] = $matches[1];
@@ -669,7 +705,7 @@ function mod_studentquiz_helper_get_ids_by_raw_submit($rawdata) {
  * @return array question types with identifier as key and name as value
  */
 function mod_studentquiz_get_question_types() {
-    $returntypes = array();
+    $returntypes = [];
     $types = question_bank::get_creatable_qtypes();
 
     // Filter out question types which can't be graded automatically.
@@ -705,7 +741,7 @@ function mod_studentquiz_get_question_types_keys() {
  */
 function mod_studentquiz_get_roles() {
     $roles = role_get_names();
-    $return = array();
+    $return = [];
     foreach ($roles as $role) {
         $return[$role->id] = $role->localname;
     }
@@ -748,7 +784,7 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
         $params = [
                 'studentquizid' => $studentquiz->id,
                 'state' => studentquiz_helper::STATE_NEW,
-                'groupid' => $groupid
+                'groupid' => $groupid,
         ];
         if ($honorpublish) {
             if (isset($studentquiz->publishnewquestion) && !$studentquiz->publishnewquestion) {
@@ -771,10 +807,9 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
                 'component' => 'mod_studentquiz',
                 'questionarea' => 'studentquiz_question',
                 'questionbankentryid' => $question->questionbankentryid,
-                'version' => null
+                'version' => null,
         ];
         $DB->insert_record('question_references', (object) $referenceparams);
-
     } else {
         $existedqr = $DB->get_record_sql($sql, $params);
         $existedqrrecord = $DB->get_record('question_references', [
@@ -786,8 +821,12 @@ function mod_studentquiz_ensure_studentquiz_question_record($id, $cmid, $honorpu
             'version' => null,
         ]);
 
-        $newsqq = studentquiz_question::get_studentquiz_question_from_question($question, null,
-            $cm, context_module::instance($cmid));
+        $newsqq = studentquiz_question::get_studentquiz_question_from_question(
+            $question,
+            null,
+            $cm,
+            context_module::instance($cmid)
+        );
         $newsqqrecord = $DB->get_record('studentquiz_question', ['id' => $newsqq->get_id()]);
 
         if ($newsqqrecord) {
@@ -847,16 +886,25 @@ function mod_studentquiz_check_availability($openform, $closefrom, $type) {
 
     if (time() < $openform) {
         $availabilityallow = false;
-        $message = get_string('before_' . $type . '_start_date', 'studentquiz',
-                userdate($openform, get_string('strftimedatetimeshort', 'langconfig')));
+        $message = get_string(
+            'before_' . $type . '_start_date',
+            'studentquiz',
+            userdate($openform, get_string('strftimedatetimeshort', 'langconfig'))
+        );
     } else if (time() < $closefrom) {
-        $message = get_string('before_' . $type . '_end_date', 'studentquiz',
-                userdate($closefrom, get_string('strftimedatetimeshort', 'langconfig')));
+        $message = get_string(
+            'before_' . $type . '_end_date',
+            'studentquiz',
+            userdate($closefrom, get_string('strftimedatetimeshort', 'langconfig'))
+        );
     }
     if ($closefrom && time() >= $closefrom) {
         $availabilityallow = false;
-        $message = get_string('after_' . $type . '_end_date', 'studentquiz',
-                userdate($closefrom, get_string('strftimedatetimeshort', 'langconfig')));
+        $message = get_string(
+            'after_' . $type . '_end_date',
+            'studentquiz',
+            userdate($closefrom, get_string('strftimedatetimeshort', 'langconfig'))
+        );
     }
 
     return [$message, $availabilityallow];
@@ -892,14 +940,17 @@ function mod_studentquiz_compare_questions_data($studentquiz, $honorpublish = tr
 
     $params = [
         'coursemodule' => $studentquiz->coursemodule,
-        'categoryid' => $studentquiz->categoryid
+        'categoryid' => $studentquiz->categoryid,
     ];
 
     $missingquestions = $DB->get_records_sql($sql, $params);
     if ($missingquestions) {
         foreach ($missingquestions as $missingquestion) {
             mod_studentquiz_ensure_studentquiz_question_record(
-                $missingquestion->id, $studentquiz->coursemodule, $honorpublish, $hidden
+                $missingquestion->id,
+                $studentquiz->coursemodule,
+                $honorpublish,
+                $hidden
             );
         }
     }
@@ -914,10 +965,10 @@ function mod_studentquiz_compare_questions_data($studentquiz, $honorpublish = tr
  *
  * @param int|null $courseorigid
  */
-function mod_studentquiz_fix_all_missing_question_state_after_restore($courseorigid=null) {
+function mod_studentquiz_fix_all_missing_question_state_after_restore($courseorigid = null) {
     global $DB;
 
-    $params = array();
+    $params = [];
     if (!empty($courseorigid)) {
         $params['course'] = $courseorigid;
     }
@@ -949,8 +1000,13 @@ function mod_studentquiz_init_single_action_page($module, $studentquizquestionid
     $context = context_module::instance($module->id);
     try {
         $studentquiz = mod_studentquiz_load_studentquiz($module->id, $context->id);
-        $studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid,
-                null, $studentquiz, $module, $context);
+        $studentquizquestion = new \mod_studentquiz\local\studentquiz_question(
+            $studentquizquestionid,
+            null,
+            $studentquiz,
+            $module,
+            $context
+        );
     } catch (moodle_exception $e) {
         throw new moodle_exception("invalidconfirmdata', 'error");
     }

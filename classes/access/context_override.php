@@ -26,7 +26,6 @@ use context;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class context_override {
-
     /**
      * @var array This stores, for each StudentQuiz capability, the core question capabilities required to make it work.
      */

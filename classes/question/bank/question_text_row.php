@@ -57,7 +57,6 @@ class question_text_row extends \core_question\local\bank\row_base {
      * @param string $rowclasses CSS class names that should be applied to this row of output.
      */
     public function display($question, $rowclasses): void {
-
     }
 
     /**
@@ -65,7 +64,7 @@ class question_text_row extends \core_question\local\bank\row_base {
      * @return array join text
      */
     public function get_extra_joins(): array {
-        return array();
+        return [];
     }
 
     /**
@@ -73,6 +72,6 @@ class question_text_row extends \core_question\local\bank\row_base {
      * @return array get all required fields
      */
     public function get_required_fields(): array {
-        return array('q.id', 'q.questiontext', 'q.questiontextformat', 'qc.contextid');
+        return ['q.id', 'q.questiontext', 'q.questiontextformat', 'qc.contextid'];
     }
 }

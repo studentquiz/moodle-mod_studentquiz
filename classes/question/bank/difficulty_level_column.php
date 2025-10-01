@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class difficulty_level_column extends studentquiz_column_base {
-
     /**
      * Renderer
      * @var stdClass
@@ -47,11 +46,14 @@ class difficulty_level_column extends studentquiz_column_base {
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+        $sq = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
         $this->studentquizid = $sq->id;
         $this->studentquiz = $sq;
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Sanitize!
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -77,14 +79,14 @@ class difficulty_level_column extends studentquiz_column_base {
      * @return array sql query join additional
      */
     public function get_extra_joins(): array {
-            return array('dl' => "LEFT JOIN (
+            return ['dl' => "LEFT JOIN (
                                               SELECT ROUND(1 - AVG(CAST(correctattempts AS DECIMAL) /
                                                        CAST(attempts AS DECIMAL)), 2) AS difficultylevel,
                                                      studentquizquestionid
                                                 FROM {studentquiz_progress}
                                                WHERE studentquizid = {$this->studentquizid} AND attempts > 0
                                             GROUP BY studentquizquestionid
-                                            ) dl ON dl.studentquizquestionid = sqq.id");
+                                            ) dl ON dl.studentquizquestionid = sqq.id", ];
     }
 
     /**
@@ -98,7 +100,7 @@ class difficulty_level_column extends studentquiz_column_base {
                             ELSE 0
                        END) AS mydifficulty
                 ',
-            'sp.correctattempts AS mycorrectattempts'];
+            'sp.correctattempts AS mycorrectattempts', ];
     }
 
     /**

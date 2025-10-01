@@ -29,7 +29,6 @@ use mod_studentquiz\local\studentquiz_progress;
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class container {
-
     /** @var int - Number of comments to show by default. */
     const NUMBER_COMMENT_TO_SHOW_BY_DEFAULT = 5;
 
@@ -139,13 +138,13 @@ class container {
 
     /** @var array - Default sort. */
     const SORT_FIELDS = [
-            self::SORT_DATE
+            self::SORT_DATE,
     ];
 
     /** @var array - Special fields. */
     const USER_SORT_FIELDS = [
             self::SORT_FIRSTNAME,
-            self::SORT_LASTNAME
+            self::SORT_LASTNAME,
     ];
 
     /** @var string - Define sort by date ascending. */
@@ -165,7 +164,7 @@ class container {
     const SORT_FEATURES = [
             self::SORT_DATE => [
                     self::SORT_DATE_ASC,
-                    self::SORT_DATE_DESC
+                    self::SORT_DATE_DESC,
             ],
             self::SORT_FIRSTNAME => [
                     self::SORT_FIRSTNAME_ASC,
@@ -174,7 +173,7 @@ class container {
             self::SORT_LASTNAME => [
                     self::SORT_LASTNAME_ASC,
                     self::SORT_LASTNAME_DESC,
-            ]
+            ],
     ];
 
     /** @var string - Define name for user preference sort. */
@@ -377,7 +376,7 @@ class container {
         $params = [
             'studentquizquestionid' => $this->get_studentquiz_question()->get_id(),
             'status' => utils::COMMENT_HISTORY_DELETE,
-            'type' => $this->type
+            'type' => $this->type,
         ];
 
         $params += $groupjoingsql->params;
@@ -440,7 +439,7 @@ class container {
 
         $data = [];
         if (!empty($roots)) {
-            list($ids, $listids) = $DB->get_in_or_equal(array_column($roots, 'id'));
+            [$ids, $listids] = $DB->get_in_or_equal(array_column($roots, 'id'));
             $query = "SELECT *
                         FROM {studentquiz_comment}
                        WHERE parentid $ids
@@ -559,7 +558,7 @@ class container {
         }
         // Retrieve users from db.
         if (!empty($userids)) {
-            list($idsql, $params) = $DB->get_in_or_equal($userids);
+            [$idsql, $params] = $DB->get_in_or_equal($userids);
             $fields = "";
             if (utils::moodle_version_is(">=", "311")) {
                 $fields = implode(',', \core_user\fields::get_name_fields());
@@ -648,13 +647,16 @@ class container {
      */
     public static function has_comment(int $studentquizquestionid, $userid, $type = utils::COMMENT_TYPE_PUBLIC) {
         global $DB;
-        return $DB->record_exists_select('studentquiz_comment',
-                'studentquizquestionid = :studentquizquestionid AND userid = :userid AND status <> :status and type = :type', [
+        return $DB->record_exists_select(
+            'studentquiz_comment',
+            'studentquizquestionid = :studentquizquestionid AND userid = :userid AND status <> :status and type = :type',
+            [
                         'studentquizquestionid' => $studentquizquestionid,
                         'userid' => $userid,
                         'status' => utils::COMMENT_HISTORY_DELETE,
-                        'type' => $type
-                ]);
+                        'type' => $type,
+            ]
+        );
     }
 
     /**
@@ -667,8 +669,11 @@ class container {
         if (!$this->get_studentquiz()->forcecommenting) {
             $this->checkhascomment = true;
         } else {
-            $this->checkhascomment = self::has_comment($this->get_studentquiz_question()->get_id(),
-                    $this->get_user()->id, $this->type);
+            $this->checkhascomment = self::has_comment(
+                $this->get_studentquiz_question()->get_id(),
+                $this->get_user()->id,
+                $this->type
+            );
         }
         return $this;
     }
@@ -814,7 +819,7 @@ class container {
      * @return string
      */
     public function get_sort() {
-        list($dbsort, $sortfield, $sortby) = $this->extract_user_preference_sort();
+        [$dbsort, $sortfield, $sortby] = $this->extract_user_preference_sort();
         $this->sortfield = $sortfield;
         $this->sortby = $sortby;
         return $dbsort;
@@ -867,11 +872,11 @@ class container {
             $typename = \get_string("filter_comment_label_$field", 'studentquiz');
             $sortbydesc = \get_string('filter_comment_label_sort_toggle', 'studentquiz', [
                     'field' => $typename,
-                    'type' => $desc
+                    'type' => $desc,
             ]);
             $sortbyasc = \get_string('filter_comment_label_sort_toggle', 'studentquiz', [
                     'field' => $typename,
-                    'type' => $asc
+                    'type' => $asc,
             ]);
             $data[] = [
                     'sortkey' => $field,
@@ -881,7 +886,7 @@ class container {
                     'ordertype' => $type,
                     'iconsortname' => ${$type},
                     'ascstring' => $sortbyasc,
-                    'descstring' => $sortbydesc
+                    'descstring' => $sortbydesc,
             ];
         }
         return $data;
@@ -896,9 +901,13 @@ class container {
     public function get_history($commentid): array {
         global $DB;
 
-        list($insql, $inparams) = $DB->get_in_or_equal([utils::COMMENT_HISTORY_EDIT, utils::COMMENT_HISTORY_CREATE]);
-        return $DB->get_records_select('studentquiz_comment_history', "commentid = $commentid AND action $insql", $inparams,
-                'timemodified DESC');
+        [$insql, $inparams] = $DB->get_in_or_equal([utils::COMMENT_HISTORY_EDIT, utils::COMMENT_HISTORY_CREATE]);
+        return $DB->get_records_select(
+            'studentquiz_comment_history',
+            "commentid = $commentid AND action $insql",
+            $inparams,
+            'timemodified DESC'
+        );
     }
 
     /**

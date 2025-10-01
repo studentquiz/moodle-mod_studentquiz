@@ -39,6 +39,11 @@ use mod_studentquiz\commentarea\container;
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\utils;
 
+// phpcs:disable PSR1.Classes.ClassDeclaration.MultipleClasses
+
+/**
+ * Privacy subsytem user list interface for mod_studentquiz.
+ */
 interface studentquiz_userlist extends \core_privacy\local\request\core_userlist_provider {
 }
 
@@ -50,11 +55,10 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements
-        \core_privacy\local\metadata\provider,
-        \core_privacy\local\request\plugin\provider,
-        \core_privacy\local\request\user_preference_provider,
-        studentquiz_userlist {
-
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\plugin\provider,
+    studentquiz_userlist,
+    \core_privacy\local\request\user_preference_provider {
     /**
      * Returns meta data about this system.
      *
@@ -65,7 +69,7 @@ class provider implements
         $collection->add_database_table('studentquiz_rate', [
             'rate' => 'privacy:metadata:studentquiz_rate:rate',
             'questionid' => 'privacy:metadata:studentquiz_rate:studentquizquestionid',
-            'userid' => 'privacy:metadata:studentquiz_rate:userid'
+            'userid' => 'privacy:metadata:studentquiz_rate:userid',
         ], 'privacy:metadata:studentquiz_rate');
         $collection->add_database_table('studentquiz_progress', [
             'questionid' => 'privacy:metadata:studentquiz_progress:studentquizquestionid',
@@ -75,7 +79,7 @@ class provider implements
             'attempts' => 'privacy:metadata:studentquiz_progress:attempts',
             'correctattempts' => 'privacy:metadata:studentquiz_progress:correctattempts',
             'lastreadprivatecomment' => 'privacy:metadata:studentquiz_progress:lastreadprivatecomment',
-            'lastreadpubliccomment' => 'privacy:metadata:studentquiz_progress:lastreadpubliccomment'
+            'lastreadpubliccomment' => 'privacy:metadata:studentquiz_progress:lastreadpubliccomment',
         ], 'privacy:metadata:studentquiz_progress');
 
         $collection->add_database_table('studentquiz_comment', [
@@ -87,7 +91,7 @@ class provider implements
             'status' => 'privacy:metadata:studentquiz_comment:status',
             'type' => 'privacy:metadata:studentquiz_comment:type',
             'timemodified' => 'privacy:metadata:studentquiz_comment:timemodified',
-            'usermodified' => 'privacy:metadata:studentquiz_comment:usermodified'
+            'usermodified' => 'privacy:metadata:studentquiz_comment:usermodified',
 
         ], 'privacy:metadata:studentquiz_comment');
 
@@ -104,14 +108,14 @@ class provider implements
             'state' => 'privacy:metadata:studentquiz_question:state',
             'hidden' => 'privacy:metadata:studentquiz_question:hidden',
             'pinned' => 'privacy:metadata:studentquiz_question:pinned',
-            'groupid' => 'privacy:metadata:studentquiz_question:groupid'
+            'groupid' => 'privacy:metadata:studentquiz_question:groupid',
         ], 'privacy:metadata:studentquiz_question');
 
         $collection->add_database_table('studentquiz_attempt', [
             'studentquizid' => 'privacy:metadata:studentquiz_attempt:studentquizid',
             'userid' => 'privacy:metadata:studentquiz_attempt:userid',
             'questionusageid' => 'privacy:metadata:studentquiz_attempt:questionusageid',
-            'categoryid' => 'privacy:metadata:studentquiz_attempt:categoryid'
+            'categoryid' => 'privacy:metadata:studentquiz_attempt:categoryid',
         ], 'privacy:metadata:studentquiz_attempt');
 
         $collection->add_database_table('studentquiz_notification', [
@@ -119,19 +123,21 @@ class provider implements
             'content' => 'privacy:metadata:studentquiz_notification:content',
             'recipientid' => 'privacy:metadata:studentquiz_notification:recipientid',
             'status' => 'privacy:metadata:studentquiz_notification:status',
-            'timetosend' => 'privacy:metadata:studentquiz_notification:timetosend'
+            'timetosend' => 'privacy:metadata:studentquiz_notification:timetosend',
         ], 'privacy:metadata:studentquiz_attempt');
 
         $collection->add_database_table('studentquiz_state_history', [
             'questionid' => 'privacy:metadata:studentquiz_state_history:studentquizquestionid',
             'userid' => 'privacy:metadata:studentquiz_state_history:userid',
             'state' => 'privacy:metadata:studentquiz_state_history:state',
-            'timecreated' => 'privacy:metadata:studentquiz_state_history:timecreated'
+            'timecreated' => 'privacy:metadata:studentquiz_state_history:timecreated',
         ], 'privacy:metadata:studentquiz_attempt');
 
         $collection->add_user_preference(container::USER_PREFERENCE_SORT, 'privacy:metadata:' . container::USER_PREFERENCE_SORT);
-        $collection->add_user_preference(utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB,
-            'privacy:metadata:' . utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB);
+        $collection->add_user_preference(
+            utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB,
+            'privacy:metadata:' . utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB
+        );
 
         return $collection;
     }
@@ -230,7 +236,7 @@ class provider implements
         $user = $contextlist->get_user();
         $userid = $user->id;
 
-        list($contextsql, $contextparam) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        [$contextsql, $contextparam] = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
 
         $sql = "SELECT DISTINCT ctx.id AS contextid,
                        q.id AS questionid, q.name AS questionname,
@@ -360,7 +366,7 @@ class provider implements
                         'name' => $record->questionname,
                         'approved' => transform::yesno($record->questionapproved),
                         'groupid' => $record->questiongroupid,
-                        'pinned' => transform::yesno($record->questionpinned)
+                        'pinned' => transform::yesno($record->questionpinned),
                 ];
             }
 
@@ -369,7 +375,7 @@ class provider implements
                 $contextdata->rates[$record->rateid] = (object) [
                         'rate' => $record->raterate,
                         'studentquizquestionid' => $record->ratestudentquizquestionid,
-                        'userid' => transform::user($record->rateuserid)
+                        'userid' => transform::user($record->rateuserid),
                 ];
             }
 
@@ -385,7 +391,7 @@ class provider implements
                         'type' => $record->commenttype,
                         'timemodified' => !is_null($record->commenttimemodified) ?
                                 transform::datetime($record->commenttimemodified) : null,
-                        'usermodified' => $record->commentusermodified
+                        'usermodified' => $record->commentusermodified,
                 ];
             }
 
@@ -397,7 +403,7 @@ class provider implements
                         'userid' => transform::user($record->commenthistoryuserid),
                         'action' => $record->commenthistoryaction,
                         'timemodified' => !is_null($record->commenthistorytimemodified) ?
-                                transform::datetime($record->commenthistorytimemodified) : null
+                                transform::datetime($record->commenthistorytimemodified) : null,
                 ];
             }
 
@@ -410,7 +416,7 @@ class provider implements
                         'attempts' => $record->progressattempts,
                         'correctattempts' => $record->progresscorrectattempts,
                         'lastreadprivatecomment' => transform::datetime($record->progresslastreadprivatecomment),
-                        'lastreadpubliccomment' => transform::datetime($record->progresslastreadpubliccomment)
+                        'lastreadpubliccomment' => transform::datetime($record->progresslastreadpubliccomment),
                 ];
             }
 
@@ -420,7 +426,7 @@ class provider implements
                         'studentquizid' => $record->attempstudentquizid,
                         'userid' => transform::user($record->attemptuserid),
                         'questionusageid' => $record->attemptquestionusageid,
-                        'categoryid' => $record->attemptcategoryid
+                        'categoryid' => $record->attemptcategoryid,
                 ];
             }
 
@@ -432,7 +438,7 @@ class provider implements
                         'recipientid' => transform::user($record->notificationrecipientid),
                         'status' => $record->notificationstatus,
                         'timetosend' => !is_null($record->notificationtimetosend) ?
-                                transform::datetime($record->notificationtimetosend) : null
+                                transform::datetime($record->notificationtimetosend) : null,
                 ];
             }
 
@@ -444,7 +450,7 @@ class provider implements
                         'userid' => transform::user($record->statehistoryuserid),
                         'state' => $states[$record->statehistorystate],
                         'timecreated' => !is_null($record->statehistorytimecreated) ?
-                                transform::datetime($record->statehistorytimecreated) : null
+                                transform::datetime($record->statehistorytimecreated) : null,
                 ];
             }
         }
@@ -497,8 +503,8 @@ class provider implements
         }
 
         $adminuserid = get_admin()->id;
-        list($questionsql, $questionparams) = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
-        list($studentquizquestionsql, $studentquizquestionparams) = $DB->get_in_or_equal($studentquizquestionids, SQL_PARAMS_NAMED);
+        [$questionsql, $questionparams] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+        [$studentquizquestionsql, $studentquizquestionparams] = $DB->get_in_or_equal($studentquizquestionids, SQL_PARAMS_NAMED);
 
         // Delete the question base on question ID.
         foreach ($questionids as $questionid) {
@@ -511,7 +517,7 @@ class provider implements
                          SET createdby = :adminuserid1, modifiedby = :adminuserid2
                        WHERE id {$questionsql}", [
                         'adminuserid1' => $adminuserid,
-                        'adminuserid2' => $adminuserid
+                        'adminuserid2' => $adminuserid,
                 ] + $questionparams);
 
         // If question deleted of hidden, we'll need to remove from studentquiz_question as well.
@@ -532,10 +538,12 @@ class provider implements
                        WHERE studentquizquestionid {$studentquizquestionsql}", $studentquizquestionparams);
 
         // Delete comment history belong to this context.
-        $DB->execute("DELETE FROM {studentquiz_comment_history}
+        $DB->execute(
+            "DELETE FROM {studentquiz_comment_history}
                                  WHERE commentid IN (SELECT id FROM {studentquiz_comment}
                                                               WHERE studentquizquestionid {$studentquizquestionsql})",
-                $studentquizquestionparams);
+            $studentquizquestionparams
+        );
 
         // Delete progress belong to this context.
         $DB->execute("DELETE FROM {studentquiz_progress}
@@ -548,7 +556,7 @@ class provider implements
                                                   FROM {studentquiz}
                                                  WHERE coursemodule = :coursemodule
                                               )", [
-                'coursemodule' => $context->instanceid
+                'coursemodule' => $context->instanceid,
         ]);
 
         // Delete notifications belong to this context.
@@ -558,12 +566,14 @@ class provider implements
                                                   FROM {studentquiz}
                                                  WHERE coursemodule = :coursemodule
                                               )", [
-                'coursemodule' => $context->instanceid
+                'coursemodule' => $context->instanceid,
         ]);
 
         // Delete state histories belong to this context.
-        $DB->execute("DELETE FROM {studentquiz_state_history} WHERE studentquizquestionid {$studentquizquestionsql}",
-                $studentquizquestionparams);
+        $DB->execute(
+            "DELETE FROM {studentquiz_state_history} WHERE studentquizquestionid {$studentquizquestionsql}",
+            $studentquizquestionparams
+        );
     }
 
     /**
@@ -583,7 +593,7 @@ class provider implements
         $guestuserid = guest_user()->id;
         $adminid = get_admin()->id;
 
-        list($contextsql, $contextparam) = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
+        [$contextsql, $contextparam] = $DB->get_in_or_equal($contextlist->get_contextids(), SQL_PARAMS_NAMED);
         // Query to get all question ID belong to the course modules.
         $sql = "SELECT q.id, sqq.id as studentquizquestionid
                   FROM {question} q
@@ -613,9 +623,9 @@ class provider implements
             return;
         }
 
-        list($questionsql, $questionparams) = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
-        list($studentquizsql, $studentquizparams) = $DB->get_in_or_equal($instanceids, SQL_PARAMS_NAMED);
-        list($studentquizquestionsql, $studentquizquestionparams) = $DB->get_in_or_equal($studentquizquestionids, SQL_PARAMS_NAMED);
+        [$questionsql, $questionparams] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+        [$studentquizsql, $studentquizparams] = $DB->get_in_or_equal($instanceids, SQL_PARAMS_NAMED);
+        [$studentquizquestionsql, $studentquizquestionparams] = $DB->get_in_or_equal($studentquizquestionids, SQL_PARAMS_NAMED);
 
         // If user created questions, change the owner to guest by set the field User ID to 0.
         $DB->execute("UPDATE {question}
@@ -623,7 +633,7 @@ class provider implements
                             WHERE id {$questionsql}
                                   AND (createdby = :createuser OR createdby = 0)", [
                         'guestid' => $guestuserid,
-                        'createuser' => $userid
+                        'createuser' => $userid,
                 ] + $questionparams);
 
         // If user modified questions, Update this field to guest user.
@@ -632,7 +642,7 @@ class provider implements
                             WHERE id {$questionsql}
                                   AND (modifiedby = :modifyuser OR modifiedby = 0)", [
                 'guestid' => $guestuserid,
-                'modifyuser' => $userid
+                'modifyuser' => $userid,
             ] + $questionparams);
 
         // Delete rates belong to user within approved context.
@@ -656,7 +666,7 @@ class provider implements
                                                       FROM {studentquiz}
                                                      WHERE coursemodule {$studentquizsql}
                                                   )", [
-                        'userid' => $userid
+                        'userid' => $userid,
                 ] + $studentquizparams);
 
         // Delete comment history of user.
@@ -670,7 +680,7 @@ class provider implements
                          SET userid = :guestuserid
                        WHERE userid = :userid
                              AND state = :questionstate", ['guestuserid' => $guestuserid,
-                             'questionstate' => studentquiz_helper::STATE_NEW, 'userid' => $userid]);
+                             'questionstate' => studentquiz_helper::STATE_NEW, 'userid' => $userid, ]);
         // If user changes state of questions, change the question state owner to admin by set the field userid admin user.
         $DB->execute("UPDATE {studentquiz_state_history}
                          SET userid = :adminid
@@ -829,7 +839,7 @@ class provider implements
         $context = $userlist->get_context();
         $cm = $DB->get_record('course_modules', ['id' => $context->instanceid]);
 
-        list($userinsql, $userinparams) = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
+        [$userinsql, $userinparams] = $DB->get_in_or_equal($userlist->get_userids(), SQL_PARAMS_NAMED);
 
         // Query to get all question ID belong to the course modules.
         $sql = "SELECT q.id, sqq.id as studentquizquestionid
@@ -855,8 +865,8 @@ class provider implements
         $guestuserid = guest_user()->id;
         $adminid = get_admin()->id;
 
-        list($questionsql, $questionparams) = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
-        list($studentquizquestionsql, $studentquizquestionparams) = $DB->get_in_or_equal($studentquizquestionids, SQL_PARAMS_NAMED);
+        [$questionsql, $questionparams] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+        [$studentquizquestionsql, $studentquizquestionparams] = $DB->get_in_or_equal($studentquizquestionids, SQL_PARAMS_NAMED);
         // If user created questions, change the owner to guest by set the field User ID guest user.
         $DB->execute("UPDATE {question}
                          SET createdby = :guestid
@@ -890,7 +900,7 @@ class provider implements
         $DB->execute("DELETE FROM {studentquiz_attempt}
                                  WHERE userid {$userinsql}
                                        AND studentquizid = :studentquizid", [
-                        'studentquizid' => $cm->instance
+                        'studentquizid' => $cm->instance,
                 ] + $userinparams);
 
         // Delete notifications belong to users.
@@ -903,13 +913,15 @@ class provider implements
                             WHERE studentquizquestionid {$studentquizquestionsql}
                                   AND (userid {$userinsql})
                                   AND state = :questionstate", ['guestuserid' => $guestuserid,
-                             'questionstate' => studentquiz_helper::STATE_NEW] + $studentquizquestionparams + $userinparams);
+                             'questionstate' => studentquiz_helper::STATE_NEW, ] + $studentquizquestionparams + $userinparams);
         // If user changes state of questions, change the question state owner to admin by set the field userid admin user.
-        $DB->execute("UPDATE {studentquiz_state_history}
+        $DB->execute(
+            "UPDATE {studentquiz_state_history}
                               SET userid = :adminid
                             WHERE studentquizquestionid {$studentquizquestionsql}
                                   AND (userid {$userinsql})",
-                ['adminid' => $adminid] + $studentquizquestionparams + $userinparams);
+            ['adminid' => $adminid] + $studentquizquestionparams + $userinparams
+        );
     }
 
     /**
@@ -920,8 +932,12 @@ class provider implements
      * @param string $userinsql
      * @param array $userinparams
      */
-    private static function delete_comment_for_users($studentquizquestionsql, $studentquizquestionparams,
-            $userinsql, $userinparams) {
+    private static function delete_comment_for_users(
+        $studentquizquestionsql,
+        $studentquizquestionparams,
+        $userinsql,
+        $userinparams
+    ) {
         global $DB;
         $params = $studentquizquestionparams + $userinparams + ['parentid' => container::PARENTID];
         $blankcomment = utils::get_blank_comment();
@@ -976,13 +992,15 @@ class provider implements
     public static function export_user_preferences(int $userid) {
         $context = \context_system::instance();
         $preferences = [
-                container::USER_PREFERENCE_SORT => ['string' => get_string('privacy:metadata:' . container::USER_PREFERENCE_SORT,
-                        'mod_studentquiz'),
-                        'bool' => false],
+                container::USER_PREFERENCE_SORT => ['string' => get_string(
+                    'privacy:metadata:' . container::USER_PREFERENCE_SORT,
+                    'mod_studentquiz'
+                ),
+                        'bool' => false, ],
                 utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB => [
                     'string' => get_string('privacy:metadata:' . utils::USER_PREFERENCE_QUESTION_ACTIVE_TAB, 'mod_studentquiz'),
-                    'bool' => false
-                ]
+                    'bool' => false,
+                ],
         ];
         foreach ($preferences as $key => $preference) {
             $value = get_user_preferences($key, null, $userid);

@@ -49,7 +49,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // The first view upgrade processes were not precicely documented.
     if ($oldversion < 2007040100) {
-
         // Define field course to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'id');
@@ -70,8 +69,16 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Define field introformat to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, '4', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'intro');
+        $field = new xmldb_field(
+            'introformat',
+            XMLDB_TYPE_INTEGER,
+            '4',
+            XMLDB_UNSIGNED,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'intro'
+        );
 
         // Add field introformat.
         if (!$dbman->field_exists($table, $field)) {
@@ -82,11 +89,18 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2007040101) {
-
         // Define field timecreated to be added to studentquiz.
         $table = new xmldb_table('studentquiz_question');
-        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'introformat');
+        $field = new xmldb_field(
+            'timecreated',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            XMLDB_UNSIGNED,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'introformat'
+        );
 
         // Add field timecreated.
         if (!$dbman->field_exists($table, $field)) {
@@ -95,8 +109,16 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Define field timemodified to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('timemodified', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0',
-            'timecreated');
+        $field = new xmldb_field(
+            'timemodified',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            XMLDB_UNSIGNED,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'timecreated'
+        );
 
         // Add field timemodified.
         if (!$dbman->field_exists($table, $field)) {
@@ -105,7 +127,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
         // Define index course (not unique) to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
-        $index = new xmldb_index('courseindex', XMLDB_INDEX_NOTUNIQUE, array('course'));
+        $index = new xmldb_index('courseindex', XMLDB_INDEX_NOTUNIQUE, ['course']);
 
         // Add index to course field.
         if (!$dbman->index_exists($table, $index)) {
@@ -118,7 +140,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Third example, the next day, 2007/04/02 (with the trailing 00),
     // some actions were performed to install.php related with the module.
     if ($oldversion < 2007040200) {
-
         // Insert code here to perform some actions (same as in install.php).
 
         upgrade_mod_savepoint(true, 2007040200, 'studentquiz');
@@ -126,7 +147,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // For version ???.
     if ($oldversion < 2017021601) {
-
         // Define table studentquiz_question to be created.
         $table = new xmldb_table('studentquiz_question');
 
@@ -136,8 +156,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table->add_field('approved', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table studentquiz_question.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
 
         // Conditionally launch create table for studentquiz_question.
         if (!$dbman->table_exists($table)) {
@@ -150,7 +170,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Introduce field `hiddensection` to studentquiz table not needed any more.
     // For future reference.
     if ($oldversion < 2017110600) {
-
         // Define field hiddensection.
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('hiddensection', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'name');
@@ -161,14 +180,13 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         // Add key.
-        $table->add_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
+        $table->add_key('hiddensectionid', XMLDB_KEY_FOREIGN, ['hiddensection'], 'course_sections', ['id']);
 
         upgrade_mod_savepoint(true, 2017110600, 'studentquiz');
     }
 
     // Introduce table studentquiz_progress.
     if ($oldversion < 2017110701) {
-
         // Setup a new table.
         $table = new xmldb_table('studentquiz_progress');
 
@@ -181,10 +199,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table->add_field('correctattempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
 
         // Add key.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('questionid', 'userid'));
-        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, array('studentquizid'), 'studentquiz', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['questionid', 'userid']);
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
 
         // Conditionally launch create table for studentquiz_progress.
         if (!$dbman->table_exists($table)) {
@@ -196,7 +214,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // Introduce table studentquiz_attempt.
     if ($oldversion < 2017111001) {
-
         // Setup a new table.
         $table = new xmldb_table('studentquiz_attempt');
 
@@ -208,11 +225,11 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table->add_field('categoryid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Add key.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, array('studentquizid'), 'studentquiz', array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-        $table->add_key('questionusageid', XMLDB_KEY_FOREIGN, array('questionusageid'), 'question_usages', array('id'));
-        $table->add_key('categoryid', XMLDB_KEY_FOREIGN, array('categoryid'), 'question_categories', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('questionusageid', XMLDB_KEY_FOREIGN, ['questionusageid'], 'question_usages', ['id']);
+        $table->add_key('categoryid', XMLDB_KEY_FOREIGN, ['categoryid'], 'question_categories', ['id']);
 
         // Conditionally launch create table for studentquiz_attempt.
         if (!$dbman->table_exists($table)) {
@@ -227,7 +244,7 @@ function xmldb_studentquiz_upgrade($oldversion) {
         // Define field hiddensection.
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('hiddensection', XMLDB_TYPE_INTEGER, '10', XMLDB_UNSIGNED, XMLDB_NOTNULL, null, '0', 'name');
-        $key = new xmldb_key('hiddensectionid', XMLDB_KEY_FOREIGN, array('hiddensection'), 'course_sections', array('id'));
+        $key = new xmldb_key('hiddensectionid', XMLDB_KEY_FOREIGN, ['hiddensection'], 'course_sections', ['id']);
 
         // Remove field and key hiddensection if exists.
         if ($dbman->field_exists($table, $field)) {
@@ -242,34 +259,42 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017111800) {
         $table = new xmldb_table('studentquiz');
 
-        $definitions = array(
-            array(
+        $definitions = [
+            [
                 'name' => 'questionquantifier',
                 'previous' => 'quizpracticebehaviour',
                 'default' => '10',
-            ), array(
+            ], [
                 'name' => 'approvedquantifier',
                 'previous' => 'questionquantifier',
                 'default' => '5',
-            ), array(
+            ], [
                 'name' => 'votequantifier',
                 'previous' => 'approvedquantifier',
                 'default' => '3',
-            ), array(
+            ], [
                 'name' => 'correctanswerquantifier',
                 'previous' => 'votequantifier',
                 'default' => '2',
-            ), array(
+            ], [
                 'name' => 'incorrectanswerquantifier',
                 'previous' => 'correctanswerquantifier',
                 'default' => '-1',
-            ),
-        );
+            ],
+        ];
 
         // Add column and set useful default values during creation.
         foreach ($definitions as $definition) {
-            $field = new xmldb_field($definition['name'], XMLDB_TYPE_INTEGER, '10', null,
-                XMLDB_NOTNULL, null, '0', $definition['previous']);
+            $field = new xmldb_field(
+                $definition['name'],
+                XMLDB_TYPE_INTEGER,
+                '10',
+                null,
+                XMLDB_NOTNULL,
+                null,
+                '0',
+                $definition['previous']
+            );
             if (!$dbman->field_exists($table, $field)) {
                 $dbman->add_field($table, $field);
             }
@@ -286,9 +311,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Cleanup deprecated questionbehavior studentquiz.
     if ($oldversion < 2017111903) {
         if (array_key_exists('studentquiz', core_component::get_plugin_list('qbehaviour'))) {
-            $DB->set_field('question_attempts', 'behaviour', 'immediatefeedback', array(
-                'behaviour' => 'studentquiz'
-            ));
+            $DB->set_field('question_attempts', 'behaviour', 'immediatefeedback', [
+                'behaviour' => 'studentquiz',
+            ]);
             uninstall_plugin('qbehaviour', 'studentquiz');
         }
         upgrade_mod_savepoint(true, 2017111903, 'studentquiz');
@@ -297,8 +322,16 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Add allowed qtypes field for the activity.
     if ($oldversion < 2017111904) {
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('allowedqtypes', XMLDB_TYPE_TEXT, 'medium', null,
-            null, null, null, 'incorrectanswerquantifier');  // Text fields cannot have default.
+        $field = new xmldb_field(
+            'allowedqtypes',
+            XMLDB_TYPE_TEXT,
+            'medium',
+            null,
+            null,
+            null,
+            null,
+            'incorrectanswerquantifier'
+        );  // Text fields cannot have default.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -369,8 +402,8 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2017120202) {
         $table = new xmldb_table('studentquiz');
 
-        $fieldnames = array('questionquantifier', 'approvedquantifier', 'ratequantifier',
-            'correctanswerquantifier', 'incorrectanswerquantifier');
+        $fieldnames = ['questionquantifier', 'approvedquantifier', 'ratequantifier',
+            'correctanswerquantifier', 'incorrectanswerquantifier', ];
         foreach ($fieldnames as $fieldname) {
             $field = new xmldb_field($fieldname, XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
             if ($dbman->field_exists($table, $field)) {
@@ -402,10 +435,10 @@ function xmldb_studentquiz_upgrade($oldversion) {
         $table->add_field('correctattempts', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0);
 
         // Add key.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('questionid', XMLDB_KEY_FOREIGN, array('questionid'), 'question', array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, array('studentquizid'), 'studentquiz', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('studentquizid', XMLDB_KEY_FOREIGN, ['studentquizid'], 'studentquiz', ['id']);
 
         if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
@@ -441,9 +474,9 @@ function xmldb_studentquiz_upgrade($oldversion) {
     if ($oldversion < 2018121800) {
         $table = new xmldb_table('studentquiz_progress');
 
-        $dbman->add_key($table, new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, array(
-            'questionid', 'userid', 'studentquizid'
-        )));
+        $dbman->add_key($table, new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, [
+            'questionid', 'userid', 'studentquizid',
+        ]));
 
         upgrade_mod_savepoint(true, 2018121800, 'studentquiz');
     }
@@ -485,7 +518,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // XMLDB "Check defaults" issues.
     if ($oldversion < 2019051700) {
-
         $table = new xmldb_table('studentquiz_progress');
 
         // Changing the default of field lastanswercorrect on table studentquiz_progress to drop it.
@@ -543,7 +575,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020011601) {
-
         $table = new xmldb_table('studentquiz_comment');
         $field = new xmldb_field('parentid', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'created');
         $index = new xmldb_index('parentidindex', XMLDB_INDEX_NOTUNIQUE, ['parentid']);
@@ -567,8 +598,16 @@ function xmldb_studentquiz_upgrade($oldversion) {
         }
 
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('commentdeletionperiod', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '10',
-            'publishnewquestion');
+        $field = new xmldb_field(
+            'commentdeletionperiod',
+            XMLDB_TYPE_INTEGER,
+            '10',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '10',
+            'publishnewquestion'
+        );
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
@@ -577,7 +616,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020011602) {
-
         $table = new xmldb_table('studentquiz');
         $field = new xmldb_field('reportingemail', XMLDB_TYPE_CHAR, '255', null, null, null, null, 'commentdeletionperiod');
         if (!$dbman->field_exists($table, $field)) {
@@ -589,7 +627,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // Remove unused practice database tables and old quiz practice columns.
     if ($oldversion < 2020043000) {
-
         $table = new xmldb_table('studentquiz_practice');
         if ($dbman->table_exists($table)) {
             $dbman->drop_table($table);
@@ -605,7 +642,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020050400) {
-
         $table = new xmldb_table('studentquiz');
         // Define field digesttype to be added to studentquiz.
         $field = new xmldb_field('digesttype', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'reportingemail');
@@ -628,7 +664,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020050404) {
-
         // Define table studentquiz_notification to be created.
         $table = new xmldb_table('studentquiz_notification');
 
@@ -656,7 +691,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
 
     // Hotfix reapply this upgrade step for upgrading to v4.3.1 (v4.3.0 broken because of this). See #233.
     if ($oldversion < 2020051199) { // Was 2020021300.
-
         $table = new xmldb_table('studentquiz_comment');
         $field = new xmldb_field('edited', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'deleteuserid');
         if (!$dbman->field_exists($table, $field)) {
@@ -672,7 +706,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2020051200) {
-
         // Define table studentquiz_comment_history to be created.
         $table = new xmldb_table('studentquiz_comment_history');
 
@@ -808,7 +841,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021072000) {
-
         // Define field pinned to be added to studentquiz_question.
         $table = new xmldb_table('studentquiz_question');
         $field = new xmldb_field('pinned', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'hidden');
@@ -843,7 +875,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021102100) {
-
         // Define field type to be added to studentquiz_comment.
         $table = new xmldb_table('studentquiz_comment');
         $field = new xmldb_field('type', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'status');
@@ -857,7 +888,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2021102501) {
-
         // Define field lastreadprivatecomment to be added to studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $field = new xmldb_field('lastreadprivatecomment', XMLDB_TYPE_INTEGER, '10', null, true, null, 0, 'correctattempts');
@@ -919,8 +949,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
                 $i = 1;
                 foreach ($sqquestions as $sqquestion) {
                     // Create action new question by onwer.
-                    utils::question_save_action($sqquestion->questionid, $sqquestion->createdby,
-                        studentquiz_helper::STATE_NEW, $sqquestion->timecreated);
+                    utils::question_save_action(
+                        $sqquestion->questionid,
+                        $sqquestion->createdby,
+                        studentquiz_helper::STATE_NEW,
+                        $sqquestion->timecreated
+                    );
 
                     if (!($sqquestion->state == studentquiz_helper::STATE_NEW)) {
                         utils::question_save_action($sqquestion->questionid, get_admin()->id, $sqquestion->state, null);
@@ -956,7 +990,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022052300.01) {
-
         // Changing nullability of field userid on table studentquiz_state_history to null.
         $table = new xmldb_table('studentquiz_state_history');
         $field = new xmldb_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'questionid');
@@ -1445,7 +1478,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     // Upgrade from 3.x to 4.0 - dropping old columns starts here.
 
     if ($oldversion < 2022080329) {
-
         // Define index questionid (not unique) to be dropped form studentquiz_rate.
         $table = new xmldb_table('studentquiz_rate');
         $index = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
@@ -1460,7 +1492,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080330) {
-
         // Define key questionid (foreign) to be dropped form studentquiz_rate.
         $table = new xmldb_table('studentquiz_rate');
         $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
@@ -1473,7 +1504,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080331) {
-
         // Define field questionid to be dropped from studentquiz_rate.
         $table = new xmldb_table('studentquiz_rate');
         $field = new xmldb_field('questionid');
@@ -1488,7 +1518,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080332) {
-
         // Define index questionid (not unique) to be dropped form studentquiz_comment.
         $table = new xmldb_table('studentquiz_comment');
         $index = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
@@ -1503,7 +1532,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080333) {
-
         // Define key questionid (foreign) to be dropped form studentquiz_comment.
         $table = new xmldb_table('studentquiz_comment');
         $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
@@ -1516,7 +1544,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080334) {
-
         // Define field questionid to be dropped from studentquiz_comment.
         $table = new xmldb_table('studentquiz_comment');
         $field = new xmldb_field('questionid');
@@ -1531,7 +1558,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080335) {
-
         // Define index questionid (not unique) to be dropped form studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $index = new xmldb_index('questionid', XMLDB_INDEX_NOTUNIQUE, ['questionid']);
@@ -1546,7 +1572,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080336) {
-
         // Define key questionid (foreign) to be dropped form studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
@@ -1559,7 +1584,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080337) {
-
         // Define key questioniduseridstudentquizid (unique) to be dropped form studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $key = new xmldb_key('questioniduseridstudentquizid', XMLDB_KEY_UNIQUE, ['questionid', 'userid', 'studentquizid']);
@@ -1572,11 +1596,13 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080338) {
-
         // Define key studentquizid-studentquizquestionid-userid (unique) to be added to studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
-        $key = new xmldb_key('studentquizid-studentquizquestionid-userid', XMLDB_KEY_UNIQUE,
-            ['studentquizid', 'studentquizquestionid', 'userid']);
+        $key = new xmldb_key(
+            'studentquizid-studentquizquestionid-userid',
+            XMLDB_KEY_UNIQUE,
+            ['studentquizid', 'studentquizquestionid', 'userid']
+        );
 
         // Launch add key studentquizid-studentquizquestionid-userid.
         $dbman->add_key($table, $key);
@@ -1586,7 +1612,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080339) {
-
         // Define field questionid to be dropped from studentquiz_progress.
         $table = new xmldb_table('studentquiz_progress');
         $field = new xmldb_field('questionid');
@@ -1601,7 +1626,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080340) {
-
         // Define key questionid (foreign) to be dropped form studentquiz_state_history.
         $table = new xmldb_table('studentquiz_state_history');
         $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
@@ -1614,7 +1638,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080341) {
-
         // Define field questionid to be dropped from studentquiz_state_history.
         $table = new xmldb_table('studentquiz_state_history');
         $field = new xmldb_field('questionid');
@@ -1629,7 +1652,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080342) {
-
         // Define key questionid (foreign) to be dropped form studentquiz_question.
         $table = new xmldb_table('studentquiz_question');
         $key = new xmldb_key('questionid', XMLDB_KEY_FOREIGN, ['questionid'], 'question', ['id']);
@@ -1642,7 +1664,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2022080343) {
-
         // Define field questionid to be dropped from studentquiz_question.
         $table = new xmldb_table('studentquiz_question');
         $field = new xmldb_field('questionid');
@@ -1676,11 +1697,18 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023081700) {
-
         // Define field completionpoint to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('completionpoint', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
-            '0', 'privatecommenting');
+        $field = new xmldb_field(
+            'completionpoint',
+            XMLDB_TYPE_INTEGER,
+            '9',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'privatecommenting'
+        );
 
         // Conditionally launch add field completionpoint.
         if (!$dbman->field_exists($table, $field)) {
@@ -1692,11 +1720,18 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023081701) {
-
         // Define field completionquestionpublished to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('completionquestionpublished', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
-            '0', 'completionpoint');
+        $field = new xmldb_field(
+            'completionquestionpublished',
+            XMLDB_TYPE_INTEGER,
+            '9',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'completionpoint'
+        );
 
         // Conditionally launch add field completionquestionpublished.
         if (!$dbman->field_exists($table, $field)) {
@@ -1708,11 +1743,18 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2023081702) {
-
         // Define field completionquestionapproved to be added to studentquiz.
         $table = new xmldb_table('studentquiz');
-        $field = new xmldb_field('completionquestionapproved', XMLDB_TYPE_INTEGER, '9', null, XMLDB_NOTNULL, null,
-            '0', 'completionquestionpublished');
+        $field = new xmldb_field(
+            'completionquestionapproved',
+            XMLDB_TYPE_INTEGER,
+            '9',
+            null,
+            XMLDB_NOTNULL,
+            null,
+            '0',
+            'completionquestionpublished'
+        );
 
         // Conditionally launch add field completionquestionapproved.
         if (!$dbman->field_exists($table, $field)) {
@@ -1724,7 +1766,6 @@ function xmldb_studentquiz_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024080100) {
-
         // Change the format of data in studentquiz_notification.content.
         $total = $DB->count_records('studentquiz_notification');
 
@@ -1738,9 +1779,12 @@ function xmldb_studentquiz_upgrade($oldversion) {
                 $progressbar->update($count, $total, "Update the state for question - {$count}/{$total} - id = $notification->id.");
                 $count++;
 
-                $DB->set_field('studentquiz_notification',
-                    'content', json_encode(unserialize_object($notification->content)),
-                    ['id' => $notification->id]);
+                $DB->set_field(
+                    'studentquiz_notification',
+                    'content',
+                    json_encode(unserialize_object($notification->content)),
+                    ['id' => $notification->id]
+                );
             }
             $progressbar->update($count, $total, "Update the state for question - {$count}/{$total} - DONE!");
             $notifications->close();

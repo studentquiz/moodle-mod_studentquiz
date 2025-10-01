@@ -27,8 +27,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
  * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class locallib_test extends \advanced_testcase {
-
+final class locallib_test extends \advanced_testcase {
     /**
      * List of tutors in group will receive email when student change question to "Reviewable" state.
      *
@@ -59,35 +58,35 @@ class locallib_test extends \advanced_testcase {
         // Group 3 : Student 2, Teacher 1,2,3.
         $this->getDataGenerator()->create_group_member([
             'userid' => $student1->id,
-            'groupid' => $group1->id
+            'groupid' => $group1->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $teacher1->id,
-            'groupid' => $group1->id
+            'groupid' => $group1->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $teacher2->id,
-            'groupid' => $group2->id
+            'groupid' => $group2->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $student2->id,
-            'groupid' => $group3->id
+            'groupid' => $group3->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $student2->id,
-            'groupid' => $group3->id
+            'groupid' => $group3->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $teacher1->id,
-            'groupid' => $group3->id
+            'groupid' => $group3->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $teacher2->id,
-            'groupid' => $group3->id
+            'groupid' => $group3->id,
         ]);
         $this->getDataGenerator()->create_group_member([
             'userid' => $teacher3->id,
-            'groupid' => $group3->id
+            'groupid' => $group3->id,
         ]);
         $sq = $this->getDataGenerator()->create_module('studentquiz', [
             'course' => $course->id, 'completion' => 1,
@@ -103,7 +102,7 @@ class locallib_test extends \advanced_testcase {
         $this->setUser($student1->id);
         $question = $questiongenerator->create_question('truefalse', null, [
             'name' => 'Test question',
-            'category' => $studentquiz->categoryid
+            'category' => $studentquiz->categoryid,
         ]);
         $question = \question_bank::load_question($question->id);
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question, $studentquiz);
@@ -113,7 +112,7 @@ class locallib_test extends \advanced_testcase {
         $this->setUser($student2->id);
         $question2 = $questiongenerator->create_question('truefalse', null, [
             'name' => 'Test question 2',
-            'category' => $studentquiz->categoryid
+            'category' => $studentquiz->categoryid,
         ]);
         $question2 = \question_bank::load_question($question2->id);
         $sqq = studentquiz_question::get_studentquiz_question_from_question($question2, $studentquiz);

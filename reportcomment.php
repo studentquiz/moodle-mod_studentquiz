@@ -38,7 +38,7 @@ $pageparams = [
         'cmid' => $cmid,
         'studentquizquestionid' => $studentquizquestionid,
         'commentid' => $commentid,
-        'type' => $type
+        'type' => $type,
 ];
 
 $studentquizquestion = new \mod_studentquiz\local\studentquiz_question($studentquizquestionid);
@@ -59,7 +59,7 @@ $previewurl = (new moodle_url('/mod/studentquiz/preview.php', [
         'cmid' => $cm->id,
         'studentquizquestionid' => $studentquizquestionid,
         'highlight' => $comment->get_id(),
-        'type' => $type
+        'type' => $type,
 ]))->out(false);
 
 if (!$referer) {
@@ -96,7 +96,7 @@ $customdata = [
         'fullname' => fullname($USER, true),
         'coursename' => $COURSE->shortname,
         'studentquizname' => $studentquiz->name,
-        'previewurl' => $previewurl
+        'previewurl' => $previewurl,
 ];
 
 $form = new comment_report_form($action, (object) $customdata);

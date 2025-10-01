@@ -24,7 +24,6 @@ namespace mod_studentquiz\question\bank;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rate_column extends studentquiz_column_base {
-
     /**
      * Renderer
      * @var stdClass
@@ -44,10 +43,13 @@ class rate_column extends studentquiz_column_base {
         global $DB, $USER, $PAGE;
         $this->currentuserid = $USER->id;
         $cmid = $this->qbank->get_most_specific_context()->instanceid;
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Get StudentQuiz id from infrastructure instead of DB!
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Exception handling lookup fails somehow.
-        $sq = $DB->get_record('studentquiz', array('coursemodule' => $cmid));
+        $sq = $DB->get_record('studentquiz', ['coursemodule' => $cmid]);
         $this->studentquizid = $sq->id;
+        // phpcs:ignore moodle.Commenting.TodoComment
         // TODO: Sanitize!
         $this->renderer = $PAGE->get_renderer('mod_studentquiz');
     }
@@ -84,7 +86,7 @@ class rate_column extends studentquiz_column_base {
      * @return array modified select left join
      */
     public function get_extra_joins(): array {
-        return array('vo' => "LEFT JOIN (
+        return ['vo' => "LEFT JOIN (
                                           SELECT ROUND(avg(rate), 2) AS rate, studentquizquestionid
                                             FROM {studentquiz_rate}
                                         GROUP BY studentquizquestionid
@@ -93,7 +95,7 @@ class rate_column extends studentquiz_column_base {
                                           SELECT rate AS myrate, studentquizquestionid
                                             FROM {studentquiz_rate} rate
                                            WHERE rate.userid = " . $this->currentuserid . "
-                                        ) myrate ON myrate.studentquizquestionid = sqq.id");
+                                        ) myrate ON myrate.studentquizquestionid = sqq.id", ];
     }
 
     /**
@@ -101,7 +103,7 @@ class rate_column extends studentquiz_column_base {
      * @return array sql query join additional
      */
     public function get_required_fields(): array {
-        return array('vo.rate', 'myrate.myrate');
+        return ['vo.rate', 'myrate.myrate'];
     }
 
     /**

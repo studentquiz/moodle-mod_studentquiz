@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/question/editlib.php');
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bank_performance_test extends \advanced_testcase {
+final class bank_performance_test extends \advanced_testcase {
     /**
      * @var question generator
      */
@@ -62,6 +62,7 @@ class bank_performance_test extends \advanced_testcase {
      * Setup testing scenario
      */
     protected function setUp(): void {
+        parent::setUp();
         $this->questiongenerator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $this->studentquizgenerator = $this->getDataGenerator()->get_plugin_generator('mod_studentquiz');
     }
@@ -74,27 +75,37 @@ class bank_performance_test extends \advanced_testcase {
      */
     public function run_questionbank($result) {
         global $PAGE;
-        $PAGE->set_url(new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)));
+        $PAGE->set_url(new moodle_url('/mod/studentquiz/view.php', ['cmid' => $result['cm']->id]));
         $PAGE->set_context($result['ctx']);
         // Hard coded.
-        $pagevars = array(
+        $pagevars = [
             'recurse' => true,
             'cat' => $result['cat']->id . ',' . $result['ctx']->id,
             'showall' => 1,
             'showallprinted' => 0,
-        );
+        ];
 
         $report = new mod_studentquiz_report($result['course'], $result['cm']);
         if (utils::moodle_version_is("<=", "42")) {
             $questionbank = new studentquiz_bank_view_pre_43(
                 new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),
-                new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
-                $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
+                new moodle_url('/mod/studentquiz/view.php', ['cmid' => $result['cm']->id]),
+                $result['course'],
+                $result['cm'],
+                $result['studentquiz'],
+                $pagevars,
+                $report
+            );
         } else {
             $questionbank = new studentquiz_bank_view(
                 new \core_question\local\bank\question_edit_contexts(\context_module::instance($result['cm']->id)),
-                new moodle_url('/mod/studentquiz/view.php', array('cmid' => $result['cm']->id)),
-                $result['course'], $result['cm'], $result['studentquiz'], $pagevars, $report);
+                new moodle_url('/mod/studentquiz/view.php', ['cmid' => $result['cm']->id]),
+                $result['course'],
+                $result['cm'],
+                $result['studentquiz'],
+                $pagevars,
+                $report
+            );
         }
         return $questionbank;
     }
@@ -107,17 +118,19 @@ class bank_performance_test extends \advanced_testcase {
      */
     protected function create_instances_testset($count) {
         global $DB;
-        $result = array();
+        $result = [];
 
         // Create a course.
         $course = $this->getDataGenerator()->create_course();
         $result['course'] = $course;
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
 
         // In that course create $count studentquiz instances.
         for ($i = 0; $i < $count; $i++) {
-            $studentquiz = $this->getDataGenerator()->create_module('studentquiz',
-                array('course' => $course->id), array('anonymrank' => true)
+            $studentquiz = $this->getDataGenerator()->create_module(
+                'studentquiz',
+                ['course' => $course->id],
+                ['anonymrank' => true]
             );
             $result['studentquiz'] = $studentquiz;
 
@@ -130,7 +143,7 @@ class bank_performance_test extends \advanced_testcase {
             $result['cat'] = $cat;
 
             // Each instance has 20 students which are enrolled to the course.
-            $students = array();
+            $students = [];
             for ($s = 0; $s < 20; $s++) {
                 $user = $this->getDataGenerator()->create_user();
                 $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
@@ -138,11 +151,13 @@ class bank_performance_test extends \advanced_testcase {
             }
 
             // Each student makes 20 questions.
-            $questions = array();
+            $questions = [];
             foreach ($students as $student) {
                 for ($q = 1; $q <= 20; $q++) {
-                    $questions[] = $this->questiongenerator->create_question('description', null,
-                        array('name' => 'perf'.$q, 'category' => $cat->id, 'createdby' => $student->id)
+                    $questions[] = $this->questiongenerator->create_question(
+                        'description',
+                        null,
+                        ['name' => 'perf' . $q, 'category' => $cat->id, 'createdby' => $student->id]
                     );
                 }
             }
@@ -150,21 +165,21 @@ class bank_performance_test extends \advanced_testcase {
             // The first 5 students contribute a comment to all questions.
             for ($s = 0; $s < 5; $s++) {
                 foreach ($questions as $question) {
-                    $this->studentquizgenerator->create_comment(array(
+                    $this->studentquizgenerator->create_comment([
                         'questionid' => $question->id,
                         'userid' => $students[$s]->id,
-                    ));
+                    ]);
                 }
             }
 
             // All students rate each question.
             foreach ($students as $student) {
                 foreach ($questions as $question) {
-                    $this->studentquizgenerator->create_rate(array(
+                    $this->studentquizgenerator->create_rate([
                         'questionid' => $question->id,
                         'userid' => $students[$s]->id,
                         'rate' => 5,
-                    ));
+                    ]);
                 }
             }
         }
@@ -176,7 +191,7 @@ class bank_performance_test extends \advanced_testcase {
      * Test questionbank empty filter
      * @coversNothing
      */
-    public function test_questionbank_empty_filter() {
+    public function test_questionbank_empty_filter(): void {
         $this->resetAfterTest(true);
 
         // If we don't activate the lower two, it doesn't make sense to enable the first one either.
@@ -223,11 +238,24 @@ class bank_performance_test extends \advanced_testcase {
      * @param int $qbshowtext
      * @return string
      */
-    protected function displayqb($questionbank, $result, $qpage = 0, $qperpage = 20, $recurse = 1, $showhidden = 0,
-        $qbshowtext = 0) {
+    protected function displayqb(
+        $questionbank,
+        $result,
+        $qpage = 0,
+        $qperpage = 20,
+        $recurse = 1,
+        $showhidden = 0,
+        $qbshowtext = 0
+    ) {
         $cat = $result['cat']->id . "," . $result['ctx']->id;
-        $questionbank->display('questions', $qpage, $qperpage,
-            $cat, $recurse, $showhidden,
-            $qbshowtext);
+        $questionbank->display(
+            'questions',
+            $qpage,
+            $qperpage,
+            $cat,
+            $recurse,
+            $showhidden,
+            $qbshowtext
+        );
     }
 }
