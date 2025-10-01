@@ -240,7 +240,8 @@ class comment_test extends \advanced_testcase {
     /**
      *
      * Test shortcontent of comment in convert_to_object.
-     * @dataProvider test_shorten_comment_provider
+     *
+     * @dataProvider shorten_comment_provider
      * @covers \mod_studentquiz\commentarea\comment::convert_to_object
      * @param string $content Content before convert to shorten content.
      * @param string $expected Expected result.
@@ -259,7 +260,7 @@ class comment_test extends \advanced_testcase {
      * @coversNothing
      * @return array
      */
-    public static function test_shorten_comment_provider(): array {
+    public static function shorten_comment_provider(): array {
 
         return [
             'Root comment with newline html content' => [

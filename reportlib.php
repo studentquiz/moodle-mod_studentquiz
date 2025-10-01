@@ -171,7 +171,7 @@ class mod_studentquiz_report {
     /**
      * Constructor assuming we already have the necessary data loaded.
      *
-     * @param object $course
+     * @param stdClass $course
      * @param cm_info|object $cm course_module object
      * @param int|null $userid user id.
      */

@@ -93,10 +93,10 @@ function studentquiz_after_require_login() {
  * of the new instance.
  *
  * @param stdClass $studentquiz Submitted data from the form in mod_form.php
- * @param mod_studentquiz_mod_form $mform The form instance itself (if needed)
+ * @param mod_studentquiz_mod_form|null $mform The form instance itself (if needed)
  * @return int The id of the newly inserted studentquiz record
  */
-function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
+function studentquiz_add_instance(stdClass $studentquiz, ?mod_studentquiz_mod_form $mform = null) {
     global $DB;
 
     $studentquiz->timecreated = time();
@@ -164,10 +164,10 @@ function studentquiz_add_instance(stdClass $studentquiz, mod_studentquiz_mod_for
  * will update an existing instance with new data.
  *
  * @param stdClass $studentquiz An object from the form in mod_form.php
- * @param mod_studentquiz_mod_form $mform The form instance itself (if needed)
+ * @param mod_studentquiz_mod_form|null $mform The form instance itself (if needed)
  * @return boolean Success/Fail
  */
-function studentquiz_update_instance(stdClass $studentquiz, mod_studentquiz_mod_form $mform = null) {
+function studentquiz_update_instance(stdClass $studentquiz, ?mod_studentquiz_mod_form $mform = null) {
     global $DB;
 
     // For checkboxes, when deselected, $1 still contains the data from the database, because browser doesn't

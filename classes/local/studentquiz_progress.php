@@ -53,16 +53,16 @@ class studentquiz_progress {
      * @param int $userid
      * @param int $studentquizid
      * @param int $sqqid
-     * @param int $lastanswercorrect
-     * @param int $attempts
-     * @param int $correctattempts
-     * @param int $lastreadprivatecomment
-     * @param int $lastreadpubliccomment
+     * @param int|null $lastanswercorrect
+     * @param int|null $attempts
+     * @param int|null $correctattempts
+     * @param int|null $lastreadprivatecomment
+     * @param int|null $lastreadpubliccomment
      * @param int|null $id
      */
-    public function __construct(int $questionid, int $userid, int $studentquizid, int $sqqid, int $lastanswercorrect = 0,
-        int $attempts = 0, int $correctattempts = 0, int $lastreadprivatecomment = 0, int $lastreadpubliccomment = 0,
-        int $id = null) {
+    public function __construct(int $questionid, int $userid, int $studentquizid, int $sqqid, ?int $lastanswercorrect = 0,
+        ?int $attempts = 0, ?int $correctattempts = 0, ?int $lastreadprivatecomment = 0, ?int $lastreadpubliccomment = 0,
+        ?int $id = null) {
         $this->questionid = $questionid;
         $this->userid = $userid;
         $this->studentquizid = $studentquizid;

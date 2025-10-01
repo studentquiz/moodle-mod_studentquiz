@@ -53,10 +53,10 @@ class mod_studentquiz_generator extends testing_module_generator {
     /**
      * Create StudentQuiz instance
      * @param stdClass $record
-     * @param array $options
+     * @param array|null $options
      * @return stdClass
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         $record = (object)(array)$record;
 
         // TODO for behats I think this is the reason for studentquiz 0!
