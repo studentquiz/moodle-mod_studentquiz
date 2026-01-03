@@ -2105,7 +2105,7 @@ class mod_studentquiz_report_renderer extends mod_studentquiz_renderer {
             )
         );
         $data = $this->render_table_data($celldata);
-        return $this->render_table($data, $size, $align, $head, null);
+        return $this->render_table($data, $size, $align, $head, null, 'table table-striped table-hover table-reboot');
     }
 }
 
@@ -2158,7 +2158,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                 'value' => get_string('settings_lastincorrectanswerquantifier_help', 'studentquiz'))
         );
         $data = $this->render_table_data($celldata);
-        return $this->render_table($data, $size, $align, $head, $caption);
+        return $this->render_table($data, $size, $align, $head, $caption, 'table table-striped table-hover table-reboot');
     }
 
     /**
@@ -2262,7 +2262,7 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
         }
         $rankingresultset->close();
         $data = $this->render_table_data($celldata, $rowstyle);
-        return $this->render_table($data, $size, $align, $head, $caption, 'generaltable rankingtable');
+        return $this->render_table($data, $size, $align, $head, $caption, 'generaltable rankingtable table table-striped table-hover table-reboot');
     }
 }
 
