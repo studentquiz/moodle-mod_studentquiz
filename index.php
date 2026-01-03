@@ -25,10 +25,17 @@
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/lib.php');
 
+global $CFG;
+
 $id = required_param('id', PARAM_INT);
 if (!$course = $DB->get_record('course', array('id' => $id))) {
     throw new moodle_exception("invalidcourseid");
 }
+
+if ($CFG->version > 2025041400) {
+    \core_courseformat\activityoverviewbase::redirect_to_overview_page($id, 'studentquiz');
+}
+
 $coursecontext = context_course::instance($id);
 require_login($course);
 
