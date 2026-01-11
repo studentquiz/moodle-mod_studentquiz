@@ -229,8 +229,22 @@ $string['mine_column_name'] = 'Mine';
 $string['missingparam'] = 'A required parameter is missing or wrong';
 $string['moderator'] = 'Moderator';
 $string['modulename'] = 'StudentQuiz';
-$string['modulename_help'] = 'The StudentQuiz activity allows students to add questions for the crowd. In the StudentQuiz overview the students can filter questions. They also can use the filtered questions in the crowd to practice. The teacher has an option to anonymize the created by column.<br><br>The StudentQuiz activity awards the students with points to motivate them to add and practice. The Points are listed in a ranking table.';
+$string['modulename_help'] = '
+###### Key features
+- Allows students to collaboratively create question pools within Moodle
+- Enables filtering, rating, and commenting on questions
+- Lets students build personalized quizzes from the shared pool
+- Tracks individual contributions and learning progress with ranking points
+- Adds created questions to the Moodle question bank for reuse
+
+###### Ways to use it
+- Motivate students to actively contribute and practice through gamification
+- Prepare for exams by building a large, diverse question pool together
+- Encourage peer feedback and discussion through ratings and comments
+- Provide teachers with control over question approval and anonymity settings
+- Support personalized learning by letting students create custom quizzes';
 $string['modulename_link'] = 'mod/studentquiz/view';
+$string['modulename_summary'] = 'Enables students to collaboratively create question pools and build personalized quizzes from them, while earning gamified points for motivation.';
 $string['modulenameplural'] = 'StudentQuizzes';
 $string['more'] = 'More';
 $string['myattempts_column_name'] = 'My Attempts';
