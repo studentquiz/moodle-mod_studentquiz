@@ -128,6 +128,16 @@ $PAGE->requires->js_init_code($renderer->render_bar_javascript_snippet(), true);
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'setFocus');
 $PAGE->requires->js_call_amd('mod_studentquiz/studentquiz', 'selectAllQuestions');
 $PAGE->requires->js_call_amd('mod_studentquiz/toggle_filter_checkbox', 'init');
+if (utils::moodle_version_is('>=', '50')) {
+    $PAGE->requires->js_call_amd(
+        'mod_studentquiz/bulkmove',
+        'init',
+        [
+            $context->id,
+            $view->get_category_id(),
+        ]
+    );
+}
 
 echo $OUTPUT->footer();
 

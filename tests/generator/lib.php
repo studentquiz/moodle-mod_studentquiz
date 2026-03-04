@@ -69,10 +69,10 @@ class mod_studentquiz_generator extends testing_module_generator {
 
     /**
      * Create StudentQuiz comment on question
-     * @param null $record
+     * @param array|null $record
      * @return object
      */
-    public function create_comment($record = null) {
+    public function create_comment(?array $record = null) {
         global $DB;
 
         $this->commentcount++;
@@ -89,10 +89,10 @@ class mod_studentquiz_generator extends testing_module_generator {
 
     /**
      * Create StudentQuiz rate on question
-     * @param null $record
+     * @param array|null $record
      * @return object
      */
-    public function create_rate($record = null) {
+    public function create_rate(?array $record = null) {
         global $DB;
 
         $this->ratecount++;

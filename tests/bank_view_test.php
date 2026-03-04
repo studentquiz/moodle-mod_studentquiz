@@ -253,7 +253,7 @@ class bank_view_test extends \advanced_testcase {
         $commentrecord->studentquizquestionid = $sqq->get_id();
         $commentrecord->userid = $userid;
 
-        $this->studentquizgenerator->create_comment($commentrecord);
+        $this->studentquizgenerator->create_comment((array)$commentrecord);
     }
 
     /**
