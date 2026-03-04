@@ -78,7 +78,7 @@ class generator_test extends \advanced_testcase {
         $commentrecord->studentquizquestionid = $this->studentquizquestion->get_id();
         $commentrecord->userid = $user->id;
 
-        $this->studentquizgenerator->create_comment($commentrecord);
+        $this->studentquizgenerator->create_comment((array)$commentrecord);
         $this->assertEquals($count + 1, $DB->count_records('studentquiz_comment'));
     }
 

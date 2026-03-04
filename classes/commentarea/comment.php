@@ -66,7 +66,7 @@ class comment {
      * @param \stdClass $data - Data of comment.
      * @param comment|null $parent - Parent data, null if dont have parent.
      */
-    public function __construct(container $container, $data, $parent = null) {
+    public function __construct(container $container, $data, ?comment $parent = null) {
         // Get user data from users list.
         $data->user = $container->get_user_from_user_list($data->userid);
         $data->deleteuser = $data->status == utils::COMMENT_HISTORY_DELETE ? null :
