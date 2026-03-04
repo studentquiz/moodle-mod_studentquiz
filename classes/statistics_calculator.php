@@ -307,7 +307,7 @@ class statistics_calculator {
      * @param null|int $userid
      * @return array
      */
-    private static function get_attempt_stat_joins_params($cmid, $quantifiers = null, $userid = null): array {
+    private static function get_attempt_stat_joins_params($cmid, ?\stdClass $quantifiers = null, ?int $userid = null): array {
         $contextid = \context_module::instance($cmid)->id;
         $params = [
             'cmid1' => $cmid,

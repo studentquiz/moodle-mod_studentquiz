@@ -478,7 +478,8 @@ class container {
         if ($record->parentid != self::PARENTID) {
             $parentdata = $DB->get_record('studentquiz_comment', ['parentid' => $id]);
             $this->set_user_list([$record]);
-            return $this->build_comment($record, $parentdata);
+            $parentcomment = $parentdata ? new comment($this, $parentdata, null) : null;
+            return $this->build_comment($record, $parentcomment);
         }
 
         // It's a comment.
@@ -493,10 +494,10 @@ class container {
      * Build data comment into comment class.
      *
      * @param stdClass $commentdata - Comment data.
-     * @param null $parentdata - Parent comment data, null if top level comment.
+     * @param comment|null $parentdata - Parent comment object, null if top level comment.
      * @return comment
      */
-    private function build_comment($commentdata, $parentdata = null) {
+    private function build_comment($commentdata, ?comment $parentdata = null) {
         return new comment($this, $commentdata, $parentdata);
     }
 
@@ -944,7 +945,7 @@ class container {
      * @param int|null $time Time to update.
      * @return void
      */
-    public function update_comment_last_read($time = null): void {
+    public function update_comment_last_read(?int $time = null): void {
         $questionprogress = studentquiz_progress::get_studentquiz_progress($this->get_studentquiz_question(), $this->user->id);
         if ($this->type == utils::COMMENT_TYPE_PRIVATE) {
             $questionprogress->lastreadprivatecomment = $time ?? time();

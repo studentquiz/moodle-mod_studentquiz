@@ -24,9 +24,9 @@
 /**
  * @module mod_studentquiz/comment_element
  */
-define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates', 'core/fragment', 'core/modal_events',
-        'tiny_autosave/repository'],
-    function($, str, ajax, ModalFactory, Templates, fragment, ModalEvents, TinyRepository) {
+define(['jquery', 'core/str', 'core/ajax', 'core/modal', 'core/templates', 'core/fragment', 'core/modal_events',
+        'tiny_autosave/repository', 'core/modal_cancel', 'core/notification'],
+    function($, str, ajax, Modal, Templates, fragment, ModalEvents, TinyRepository, ModalCancel, Notification) {
         var t = {
             EMPTY_CONTENT: ['<br><p><br></p>', '<p><br></p>', '<br>', ''],
             ROOT_COMMENT_VALUE: 0,
@@ -271,8 +271,8 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         var interval = setInterval(function() {
                             // Check whether TinyMCE is being used and wait for the editor to fully load.
                             var editor = self.isusingtinymce ?
-                                    window?.tinyMCE?.get(
-                                        self.formSelector?.find(t.SELECTOR.TEXTAREA)?.attr('id') ?? '') : null;
+                                window?.tinyMCE?.get(
+                                    self.formSelector?.find(t.SELECTOR.TEXTAREA)?.attr('id') ?? '') : null;
                             if (!self.isusingtinymce || (editor && editor?.getBody())) {
                                 // Binding events to the editor.
                                 self.bindEditorEvent(self.formSelector);
@@ -583,18 +583,17 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             dialogue.show();
                             return;
                         }
-                        ModalFactory.create({
-                            type: ModalFactory.types.CANCEL,
+                        ModalCancel.create({
                             title: title,
                             body: body
-                        }).done(function(modal) {
+                        }).then((modal) => {
                             dialogue = modal;
                             // Display the dialogue.
                             dialogue.show();
-                            dialogue.getRoot().on(ModalEvents.hidden, {}, function() {
+                            return dialogue.getRoot().on(ModalEvents.hidden, () => {
                                 location.reload();
                             });
-                        });
+                        }).catch(Notification.exception);
                     },
 
                     /**
@@ -1235,8 +1234,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                             // Disabled button to prevent user from double click on button while loading for template
                             // for the first time.
                             self.changeWorkingState(true);
-                            ModalFactory.create({
-                                type: ModalFactory.types.DEFAULT,
+                            Modal.create({
                                 title: self.string.deletecomment,
                                 body: self.string.confirmdeletecomment,
                                 footer: '<button class="btn btn-primary" type="button" data-action="yes" title="' +
@@ -1244,109 +1242,133 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                                     '<button class="btn btn-secondary" type="button" data-action="no" title="' +
                                     self.string.cancel + '">' +
                                     self.string.cancel + '</button>'
-                            }).done(function(modal) {
-                                // Save modal for later.
-                                self.deleteDialog = modal;
-
-                                // Bind event for cancel button.
-                                modal.getFooter().find('button[data-action="no"]').click(function(e) {
-                                    e.preventDefault();
-                                    modal.hide();
-                                });
-
-                                // Bind event for delete button.
-                                modal.getFooter().find('button[data-action="yes"]').click(function(e) {
-                                    e.preventDefault();
-                                    M.util.js_pending(t.ACTION_DELETE);
-                                    self.changeWorkingState(true);
-                                    // Call web service to delete post.
-                                    self.deleteComment(self.deleteTarget.id).then(function(response) {
-                                        if (!response.success) {
-                                            self.showError(response.message);
-                                            return true;
-                                        }
-
-                                        var convertedCommentData = self.convertForTemplate(response.data,
-                                            self.deleteTarget.expanded);
-
-                                        // Delete success, begin to call template and render the page again.
-                                        var commentSelector = self.elementSelector.find(t.SELECTOR.COMMENT_ID +
-                                            convertedCommentData.id);
-
-                                        var deletedComments = 1;
-
-                                        // Update global comment count.
-                                        self.updateCommentCount(
-                                            self.lastCurrentCount - deletedComments,
-                                            self.lastTotal - deletedComments
-                                        );
-
-                                        // Reply will always be expanded.
-                                        // Root comment deleted all replies => collapsed.
-                                        if (!convertedCommentData.root) {
-                                            convertedCommentData.expanded = true;
-                                        }
-
-                                        // Call template to render.
-                                        Templates.render(t.TEMPLATE_COMMENT, convertedCommentData).done(function(html) {
-                                            var el = $(html);
-
-                                            // Update the parent comment count if we delete reply before replace.
-                                            if (!convertedCommentData.root) {
-                                                var parentSelector = commentSelector.parent();
-                                                var parentCountSelector = parentSelector.closest(t.SELECTOR.COMMENT_ITEM)
-                                                    .find(t.SELECTOR.TOTAL_REPLY);
-                                                var countSelector = parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_NUMBER);
-                                                var newCount = parseInt(countSelector.text()) - 1;
-                                                parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_NUMBER).text(newCount);
-                                                parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_TEXT).html(
-                                                    newCount === 1 ? self.string.reply : self.string.replies
-                                                );
-                                            }
-
-                                            // Clone replies and append because the replies will be replaced by template.
-                                            var oldReplies = commentSelector.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER)
-                                                .clone(true);
-                                            commentSelector.replaceWith(el);
-                                            el.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER).replaceWith(oldReplies);
-                                            if (self.deleteTarget.root) {
-                                                self.bindCommentEvent(response.data);
-                                            } else {
-                                                self.bindReplyEvent(response.data, el.parent());
-                                            }
-                                            self.changeWorkingState(false);
-                                            M.util.js_complete(t.ACTION_DELETE);
-                                        });
-                                        modal.hide();
-                                        return true;
-                                    }).fail(function(err) {
-                                        self.showError(err.message);
-                                        return false;
-                                    });
-                                });
-
-                                // Focus back to delete button when user hide modal.
-                                modal.getRoot().on(ModalEvents.hidden, function() {
-                                    var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + self.deleteTarget.id);
-                                    // Focus on different element base on comment or reply.
-                                    if (self.deleteTarget.root) {
-                                        el.find(t.SELECTOR.BTN_DELETE).first().focus();
-                                    } else {
-                                        el.find(t.SELECTOR.BTN_DELETE_REPLY).first().focus();
-                                    }
-                                });
-
-                                // Enable button when modal is shown.
-                                modal.getRoot().on(ModalEvents.shown, function() {
-                                    self.changeWorkingState(false);
-                                });
-
-                                // Display the dialogue.
-                                modal.show();
-
-                                self.changeWorkingState(false);
-                            });
+                            }).then(self.registerDeleteModalEvents.bind(self))
+                                .catch(Notification.exception);
                         }
+                    },
+
+                    /**
+                     * Register delete modal events.
+                     *
+                     * @param {Object} modal
+                     * @return {Object}
+                     */
+                    registerDeleteModalEvents: function(modal) {
+                        var self = this;
+                        // Save modal for later.
+                        self.deleteDialog = modal;
+
+                        // Bind event for cancel button.
+                        modal.getFooter().find('button[data-action="no"]').click(function(e) {
+                            e.preventDefault();
+                            modal.hide();
+                        });
+
+                        // Bind event for delete button.
+                        modal.getFooter().find('button[data-action="yes"]').click(function(e) {
+                            e.preventDefault();
+                            M.util.js_pending(t.ACTION_DELETE);
+                            self.changeWorkingState(true);
+                            // Call web service to delete post.
+                            self.deleteComment(self.deleteTarget.id)
+                                .then(function(response) {
+                                    if (!response.success) {
+                                        self.showError(response.message);
+                                        throw new Error(response.message);
+                                    }
+
+                                    var convertedCommentData = self.convertForTemplate(response.data,
+                                        self.deleteTarget.expanded);
+
+                                    // Delete success, begin to call template and render the page again.
+                                    var commentSelector = self.elementSelector.find(t.SELECTOR.COMMENT_ID +
+                                        convertedCommentData.id);
+
+                                    var deletedComments = 1;
+
+                                    // Update global comment count.
+                                    self.updateCommentCount(
+                                        self.lastCurrentCount - deletedComments,
+                                        self.lastTotal - deletedComments
+                                    );
+
+                                    // Reply will always be expanded.
+                                    // Root comment deleted all replies => collapsed.
+                                    if (!convertedCommentData.root) {
+                                        convertedCommentData.expanded = true;
+                                    }
+
+                                    self.deleteData = {
+                                        convertedCommentData: convertedCommentData,
+                                        commentSelector: commentSelector,
+                                        response: response,
+                                    };
+
+                                    // Call template to render.
+                                    return Templates.render(t.TEMPLATE_COMMENT, convertedCommentData);
+                                })
+                                .then(function(html) {
+                                    var el = $(html);
+                                    var convertedCommentData = self.deleteData.convertedCommentData;
+                                    var commentSelector = self.deleteData.commentSelector;
+
+                                    // Update the parent comment count if we delete reply before replace.
+                                    if (!convertedCommentData.root) {
+                                        var parentSelector = commentSelector.parent();
+                                        var parentCountSelector = parentSelector.closest(t.SELECTOR.COMMENT_ITEM)
+                                            .find(t.SELECTOR.TOTAL_REPLY);
+                                        var countSelector = parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_NUMBER);
+                                        var newCount = parseInt(countSelector.text()) - 1;
+                                        parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_NUMBER).text(newCount);
+                                        parentCountSelector.find(t.SELECTOR.COMMENT_COUNT_TEXT).html(
+                                            newCount === 1 ? self.string.reply : self.string.replies
+                                        );
+                                    }
+
+                                    // Clone replies and append because the replies will be replaced by template.
+                                    var oldReplies = commentSelector.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER)
+                                        .clone(true);
+                                    commentSelector.replaceWith(el);
+                                    el.find(t.SELECTOR.COMMENT_REPLIES_CONTAINER).replaceWith(oldReplies);
+                                    if (self.deleteTarget.root) {
+                                        self.bindCommentEvent(self.deleteData.response.data);
+                                    } else {
+                                        self.bindReplyEvent(self.deleteData.response.data, el.parent());
+                                    }
+                                    self.changeWorkingState(false);
+                                    M.util.js_complete(t.ACTION_DELETE);
+                                    modal.hide();
+                                    return true;
+                                })
+                                .catch(function(err) {
+                                    self.showError(err.message);
+                                    self.changeWorkingState(false);
+                                    M.util.js_complete(t.ACTION_DELETE);
+                                });
+                        });
+
+                        // Focus back to delete button when user hide modal.
+                        modal.getRoot().on(ModalEvents.hidden, function() {
+                            var el = self.elementSelector.find(t.SELECTOR.COMMENT_ID + self.deleteTarget.id);
+                            // Focus on different element base on comment or reply.
+                            if (self.deleteTarget.root) {
+                                el.find(t.SELECTOR.BTN_DELETE).first().focus();
+                            } else {
+                                el.find(t.SELECTOR.BTN_DELETE_REPLY).first().focus();
+                            }
+                        });
+
+                        // Enable button when modal is shown.
+                        modal.getRoot().on(ModalEvents.shown, function() {
+                            self.changeWorkingState(false);
+                        });
+
+                        // Display the dialogue.
+                        modal.show();
+
+                        self.changeWorkingState(false);
+
+                        return modal;
                     },
 
                     /**
@@ -1482,7 +1504,7 @@ define(['jquery', 'core/str', 'core/ajax', 'core/modal_factory', 'core/templates
                         } else if (self.formSelector.find(t.SELECTOR.ATTO.CONTENT).length !== 0) {
                             self.bindHandleAttoEditor(formSelector);
                         } else {
-                           self.bindHandleTextareaEditor(formSelector);
+                            self.bindHandleTextareaEditor(formSelector);
                         }
                     },
 

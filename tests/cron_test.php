@@ -109,7 +109,7 @@ class cron_test extends \advanced_testcase {
         $commentrecord = new \stdClass();
         $commentrecord->studentquizquestionid = $this->studentquizquestions[0]->get_id();
         $commentrecord->userid = $this->student1->id;
-        $this->getDataGenerator()->get_plugin_generator('mod_studentquiz')->create_comment($commentrecord);
+        $this->getDataGenerator()->get_plugin_generator('mod_studentquiz')->create_comment((array)$commentrecord);
 
         // Prepare rate.
         $raterecord = new \stdClass();

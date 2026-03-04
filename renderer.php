@@ -1051,9 +1051,9 @@ class mod_studentquiz_overview_renderer extends mod_studentquiz_renderer {
      * Add Stat block and Ranking block to page.
      *
      * @param mod_studentquiz_report $report
-     * @param string $region
+     * @param string|null $region
      */
-    public function add_fake_block(mod_studentquiz_report $report, $region = null) {
+    public function add_fake_block(mod_studentquiz_report $report, ?string $region = null) {
         if (empty($region)) {
             $regions = $this->page->blocks->get_regions();
             $region = reset($regions);
@@ -1308,24 +1308,38 @@ EOT;
         }
 
         if ($canmoveall) {
-            $output .= html_writer::empty_tag('input', [
+            $attributes = [
                 'class' => 'btn btn-secondary',
                 'type' => 'submit',
                 'name' => 'move',
-                'formaction' => $movetourl,
-                'form' => 'questionsubmit',
                 'value' => get_string('moveto', 'question'),
                 'data-action' => 'toggle',
                 'data-togglegroup' => 'qbank',
                 'data-toggle' => 'action',
                 'disabled' => true,
-                'formmethod' => 'post',
-            ]);
-            ob_start();
-            \qbank_managecategories\helper::question_category_select_menu($addcontexts, false, 0,
+            ];
+
+            $ismoodle50plus = utils::moodle_version_is('>=', '50');
+
+            if ($ismoodle50plus) {
+                $attributes['class'] .= ' moveto-button';
+            } else {
+                $attributes += [
+                    'formaction' => $movetourl,
+                    'form' => 'questionsubmit',
+                    'formmethod' => 'post',
+                ];
+            }
+
+            $output .= html_writer::empty_tag('input', $attributes);
+
+            if (!$ismoodle50plus) {
+                ob_start();
+                \qbank_managecategories\helper::question_category_select_menu($addcontexts, false, 0,
                     "{$category->id},{$category->contextid}");
-            $output .= ob_get_contents();
-            ob_end_clean();
+                $output .= ob_get_contents();
+                ob_end_clean();
+            }
         }
 
         if (!empty($message)) {

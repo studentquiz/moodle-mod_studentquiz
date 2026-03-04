@@ -145,7 +145,6 @@ if ($question) {
 
     echo $quba->render_question($slot, $options, 'i');
 
-    $PAGE->requires->js_module('core_question_engine');
     $PAGE->requires->strings_for_js(array(
         'closepreview',
     ), 'question');
