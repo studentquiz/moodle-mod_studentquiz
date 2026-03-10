@@ -26,7 +26,7 @@ use mod_studentquiz\local\studentquiz_helper;
  * @copyright  2020 Huong Nguyen <huongnv13@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cron_test extends \advanced_testcase {
+final class cron_test extends \advanced_testcase {
 
     /** @var \stdClass */
     protected $course;

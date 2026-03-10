@@ -1,6 +1,14 @@
 # Change log for the StudentQuiz activity
 
 
+## Version 5.5.0 
+
+* This release is compatible with Moodle 5.2
+* Implement “Move to” feature
+* Fix coding style issues and automated tests for PHP 8.4
+* Support course overview page
+* Update module description and icon, tables to match Moodle 5.x style.
+
 ## Version 5.4.0
 
 * This release is compatible with Moodle 5.0.

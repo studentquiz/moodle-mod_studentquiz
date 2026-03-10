@@ -25,7 +25,7 @@ use mod_studentquiz\access\context_override;
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class permissions_test extends \advanced_testcase {
+final class permissions_test extends \advanced_testcase {
 
     /**
      * Test cases for the ensure_permissions_are_right tests.

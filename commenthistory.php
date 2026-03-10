@@ -56,8 +56,14 @@ if (!$container->can_view_username() && !$USER->id == $comment->userid) {
     throw new moodle_exception("invalidcommenthistorypermission");
 }
 
-$actionurl = new moodle_url('/mod/studentquiz/commenthistory.php',
-        ['cmid' => $cmid, 'studentquizquestionid' => $studentquizquestionid, 'commentid' => $commentid]);
+$actionurl = new moodle_url(
+    '/mod/studentquiz/commenthistory.php',
+    [
+        'cmid' => $cmid,
+        'studentquizquestionid' => $studentquizquestionid,
+        'commentid' => $commentid,
+    ]
+);
 
 $renderer = $PAGE->get_renderer('mod_studentquiz', 'comment_history');
 $title = get_string('commenthistory', 'mod_studentquiz');

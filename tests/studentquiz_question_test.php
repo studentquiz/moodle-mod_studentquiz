@@ -27,8 +27,7 @@ use core_question\local\bank\question_version_status;
  * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class studentquiz_question_test extends \advanced_testcase {
-
+final class studentquiz_question_test extends \advanced_testcase {
     /**
      * @var \question_definition $question
      */
@@ -56,12 +55,15 @@ class studentquiz_question_test extends \advanced_testcase {
 
         $context = \context_module::instance($activity->cmid);
         $studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $context->id);
-        $questioncreated = $questiongenerator->create_question('description', null,
-            ['category' => $studentquiz->categoryid]);
+        $questioncreated = $questiongenerator->create_question(
+            'description',
+            null,
+            ['category' => $studentquiz->categoryid]
+        );
 
         $this->question = \question_bank::load_question($questioncreated->id);
         $this->studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($this->question);
-
+        parent::setUp();
     }
 
     /**
@@ -76,8 +78,10 @@ class studentquiz_question_test extends \advanced_testcase {
         $this->studentquizquestion->change_state_visibility(studentquiz_helper::STATE_APPROVED);
 
         // Verify question status.
-        $this->assertEquals(question_version_status::QUESTION_STATUS_READY,
-            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id]));
+        $this->assertEquals(
+            question_version_status::QUESTION_STATUS_READY,
+            $DB->get_field('question_versions', 'status', ['questionid' => $this->studentquizquestion->get_question()->id])
+        );
 
         // Verify state on studentquiz_question db.
         $this->assertEquals(studentquiz_helper::STATE_APPROVED,

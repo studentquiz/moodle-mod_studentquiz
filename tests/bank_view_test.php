@@ -61,7 +61,7 @@ const QUESTION_DEFAULT_NAME = 'Question';
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bank_view_test extends \advanced_testcase {
+final class bank_view_test extends \advanced_testcase {
     /**
      * @var course module
      */

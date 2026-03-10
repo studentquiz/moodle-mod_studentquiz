@@ -25,7 +25,7 @@ use mod_studentquiz\local\studentquiz_question;
  * @copyright 2022 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class delete_instance_test extends \advanced_testcase {
+final class delete_instance_test extends \advanced_testcase {
 
     /**
      * Test delete instance.

@@ -27,7 +27,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
  * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class locallib_test extends \advanced_testcase {
+final class locallib_test extends \advanced_testcase {
 
     /**
      * List of tutors in group will receive email when student change question to "Reviewable" state.
