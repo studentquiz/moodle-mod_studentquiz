@@ -24,7 +24,7 @@ use core_question\local\bank\question_version_status;
  * @copyright 2022 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class utils_test extends \advanced_testcase {
+final class utils_test extends \advanced_testcase {
 
     /**
      * Test send report function

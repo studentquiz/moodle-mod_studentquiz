@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/mod/studentquiz/reportlib.php');
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class viewlib_test extends \advanced_testcase {
+final class viewlib_test extends \advanced_testcase {
     /**
      * @var studentquiz_view
      */
@@ -47,11 +47,11 @@ class viewlib_test extends \advanced_testcase {
         // Login as this user.
         $this->setUser($user);
         $course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
         $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
 
         $studentquiz = $this->getDataGenerator()->create_module('studentquiz'
-            , array('course' => $course->id),  array('anonymrank' => true));
+            , ['course' => $course->id],  ['anonymrank' => true]);
 
         $this->cm = get_coursemodule_from_id('studentquiz', $studentquiz->cmid);
         $context = \context_module::instance($this->cm->id);
@@ -63,6 +63,7 @@ class viewlib_test extends \advanced_testcase {
         $report = new \mod_studentquiz_report($course, $this->cm);
         $this->viewlib = new \mod_studentquiz_view($course, $context, $this->cm,
             $studentquiz, $user->id, $report);
+        parent::setUp();
     }
 
     /**
@@ -90,7 +91,7 @@ class viewlib_test extends \advanced_testcase {
      */
     public function test_get_viewurl() {
         $viewurl = $this->viewlib->get_viewurl();
-        $expectedurl = new \moodle_url('/mod/studentquiz/view.php', array('cmid' => $this->cm->id));
+        $expectedurl = new \moodle_url('/mod/studentquiz/view.php', ['cmid' => $this->cm->id]);
         $this->assertEquals('/moodle/mod/studentquiz/view.php', $viewurl->get_path());
         $this->assertTrue($expectedurl->compare($viewurl, URL_MATCH_EXACT));
     }

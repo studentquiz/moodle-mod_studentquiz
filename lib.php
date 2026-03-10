@@ -49,7 +49,7 @@ require_once(__DIR__ . '/locallib.php');
  */
 function studentquiz_supports($feature) {
 
-    switch($feature) {
+    switch ($feature) {
         case FEATURE_MOD_INTRO:
             return true;
         case FEATURE_SHOW_DESCRIPTION:
@@ -147,10 +147,10 @@ function studentquiz_add_instance(stdClass $studentquiz, ?mod_studentquiz_mod_fo
     $context = context_module::instance($studentquiz->coursemodule);
 
     // Early update context in database so default categories know where the instance can be found.
-    $DB->set_field('course_modules', 'instance', $studentquiz->id, array('id' => $context->instanceid));
+    $DB->set_field('course_modules', 'instance', $studentquiz->id, ['id' => $context->instanceid]);
 
     // Add default module context question category.
-    question_make_default_categories(array($context));
+    question_make_default_categories([$context]);
     studentquiz_process_event($studentquiz);
 
     return $studentquiz->id;
@@ -212,8 +212,8 @@ function studentquiz_update_instance(stdClass $studentquiz, ?mod_studentquiz_mod
                 'context' => context_module::instance($currentdata->coursemodule),
                 'other' => [
                         'olddigesttype' => $currentdata->digesttype,
-                        'newdigesttype' => $studentquiz->digesttype
-                ]
+                        'newdigesttype' => $studentquiz->digesttype,
+                ],
         ];
         if ($currentdata->digesttype == 2) {
             $params['other']['olddigestfirstday'] = $currentdata->digestfirstday;
@@ -252,27 +252,34 @@ function studentquiz_delete_instance($id) {
 
     $DB->delete_records_select('studentquiz_rate', $sql, $params);
     $DB->delete_records_select('studentquiz_progress', $sql, $params);
-    $comments = $DB->get_records_select('studentquiz_comment',
-        $sql, $params, '', 'id');
+    $comments = $DB->get_records_select(
+        'studentquiz_comment',
+        $sql,
+        $params,
+        '',
+        'id'
+    );
     if ($comments) {
         $commentids = array_column($comments, 'id');
-        list($commentsql, $commentparams) = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
+        [$commentsql, $commentparams] = $DB->get_in_or_equal($commentids, SQL_PARAMS_NAMED);
         $DB->delete_records_select('studentquiz_comment_history', "commentid $commentsql", $commentparams);
     }
     $DB->delete_records_select('studentquiz_comment', $sql, $params);
     $DB->delete_records_select('studentquiz_state_history', $sql, $params);
-    $DB->delete_records_select('question_references', 'itemid IN (SELECT id FROM {studentquiz_question}
+    $DB->delete_records_select(
+        'question_references', 'itemid IN (SELECT id FROM {studentquiz_question}
          WHERE studentquizid = :studentquizid) AND component = :component AND questionarea = :questionarea',
-        ['studentquizid' => $id, 'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']);
+        ['studentquizid' => $id, 'component' => 'mod_studentquiz', 'questionarea' => 'studentquiz_question']
+    );
     $DB->delete_records('studentquiz_attempt', $params);
     $DB->delete_records('studentquiz_notification', $params);
     $DB->delete_records('studentquiz_question', $params);
 
-    $role = $DB->get_record('role', array('shortname' => 'student'));
+    $role = $DB->get_record('role', ['shortname' => 'student']);
     $context = context_module::instance($studentquiz->coursemodule);
-    $DB->delete_records('role_capabilities', array('roleid' => $role->id, 'contextid' => $context->id));
+    $DB->delete_records('role_capabilities', ['roleid' => $role->id, 'contextid' => $context->id]);
 
-    $DB->delete_records('studentquiz', array('id' => $studentquiz->id));
+    $DB->delete_records('studentquiz', ['id' => $studentquiz->id]);
 
     return true;
 }
@@ -284,8 +291,12 @@ function studentquiz_delete_instance($id) {
  */
 function studentquiz_process_event(object $studentquiz): void {
     $completiontimeexpected = !empty($studentquiz->completionexpected) ? $studentquiz->completionexpected : null;
-    \core_completion\api::update_completion_date_event($studentquiz->coursemodule,
-        'studentquiz', $studentquiz->id, $completiontimeexpected);
+    \core_completion\api::update_completion_date_event(
+        $studentquiz->coursemodule,
+        'studentquiz',
+        $studentquiz->id,
+        $completiontimeexpected
+    );
 }
 
 /**
@@ -353,7 +364,7 @@ function studentquiz_print_recent_activity($course, $viewfullnames, $timestart) 
  * @param int $userid check for a particular user's activity only, defaults to 0 (all users)
  * @param int $groupid check for a particular group's activity only, defaults to 0 (all groups)
  */
-function studentquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid=0, $groupid=0) {
+function studentquiz_get_recent_mod_activity(&$activities, &$index, $timestart, $courseid, $cmid, $userid = 0, $groupid = 0) {
 }
 
 /**

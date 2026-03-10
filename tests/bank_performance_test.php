@@ -48,7 +48,7 @@ require_once($CFG->dirroot . '/question/editlib.php');
  * @copyright  2020 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class bank_performance_test extends \advanced_testcase {
+final class bank_performance_test extends \advanced_testcase {
     /**
      * @var question generator
      */

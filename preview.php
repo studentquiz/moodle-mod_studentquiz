@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use mod_studentquiz\utils;
-
 use mod_studentquiz\local\studentquiz_question;
 
 require_once(__DIR__ . '/../../config.php');
@@ -105,7 +104,9 @@ if ($question) {
         // Prepare Question for preview.
         // Keep core_question_preview so core question module cares about cleaning them up.
         $quba = question_engine::make_questions_usage_by_activity(
-            'core_question_preview', context_user::instance($USER->id));
+            'core_question_preview',
+            context_user::instance($USER->id)
+        );
         $quba->set_preferred_behaviour(STUDENTQUIZ_DEFAULT_QUIZ_BEHAVIOUR);
         $slot = $quba->add_question($question);
         $quba->start_question($slot);

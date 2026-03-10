@@ -27,7 +27,7 @@ require_once($CFG->libdir . "/phpunit/classes/restore_date_testcase.php");
  * @copyright 2023 The Open University
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class backup_test extends \restore_date_testcase {
+final class backup_test extends \restore_date_testcase {
 
     /**
      * Load required libraries

@@ -32,8 +32,7 @@ use mod_studentquiz\statistics_calculator;
  * @copyright  2017 HSR (http://www.hsr.ch)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class report_test extends \advanced_testcase {
-
+final class report_test extends \advanced_testcase {
     /**
      * @var \stdClass the StudentQuiz activity created in setUp.
      */
@@ -73,8 +72,8 @@ class report_test extends \advanced_testcase {
 
         // Setup activity.
         $course = $this->getDataGenerator()->create_course();
-        $studentrole = $DB->get_record('role', array('shortname' => 'student'));
-        $activity = $this->getDataGenerator()->create_module('studentquiz', array(
+        $studentrole = $DB->get_record('role', ['shortname' => 'student']);
+        $activity = $this->getDataGenerator()->create_module('studentquiz', [
             'course' => $course->id,
             'anonymrank' => true,
             'questionquantifier' => 10,
@@ -83,17 +82,17 @@ class report_test extends \advanced_testcase {
             'correctanswerquantifier' => 2,
             'incorrectanswerquantifier' => -1,
             'excluderoles' => [3 => 3, 5 => 5],
-        ));
+        ]);
         $this->context = \context_module::instance($activity->cmid);
         $this->studentquiz = mod_studentquiz_load_studentquiz($activity->cmid, $this->context->id);
         $this->cm = get_coursemodule_from_id('studentquiz', $activity->cmid);
         $this->report = new \mod_studentquiz_report($course, $this->cm);
 
         // Create users.
-        $usernames = array('Peter', 'Lisa', 'Sandra', 'Tobias', 'Gabi', 'Sepp');
-        $users = array();
+        $usernames = ['Peter', 'Lisa', 'Sandra', 'Tobias', 'Gabi', 'Sepp'];
+        $users = [];
         foreach ($usernames as $username) {
-            $user = $this->getDataGenerator()->create_user(array('firstname' => $username));
+            $user = $this->getDataGenerator()->create_user(['firstname' => $username]);
             $this->getDataGenerator()->enrol_user($user->id, $course->id, $studentrole->id);
             $users[] = $user;
         }
@@ -130,13 +129,14 @@ class report_test extends \advanced_testcase {
 
         \question_engine::save_questions_usage_by_activity($questionusage);
         $this->setAdminUser();
+        parent::setUp();
     }
 
     /**
      * Test the get_roles_to_exclude function.
      * @covers \mod_studentquiz_report::get_roles_to_exclude
      */
-    public function test_mod_studentquiz_get_roles_to_exclude() {
+    public function test_mod_studentquiz_get_roles_to_exclude(): void {
         set_config('excluderoles', '1,2,3,4', 'studentquiz');
         set_config('allowedrolestoshow', '3,4,5,6', 'studentquiz');
 
@@ -161,7 +161,7 @@ class report_test extends \advanced_testcase {
      * Test the get_roles_which_can_be_exculded function.
      * @covers \mod_studentquiz_report::get_roles_which_can_be_exculded
      */
-    public function test_mod_studentquiz_get_roles_which_can_be_exculded() {
+    public function test_mod_studentquiz_get_roles_which_can_be_exculded(): void {
         set_config('excluderoles', '1,2,3,4', 'studentquiz');
         set_config('allowedrolestoshow', '3,4,5,6', 'studentquiz');
 
@@ -205,7 +205,7 @@ class report_test extends \advanced_testcase {
      * Nothing
      * @coversNothing
      */
-    public function test_mod_studentquiz_community_stats() {
+    public function test_mod_studentquiz_community_stats(): void {
         $this->assertTrue(true);
     }
 
@@ -213,7 +213,7 @@ class report_test extends \advanced_testcase {
      * Test get_user_stats
      * @covers \mod_studentquiz\statistics_calculator::get_user_stats
      */
-    public function test_mod_studentquiz_user_stats() {
+    public function test_mod_studentquiz_user_stats(): void {
         $userstats = statistics_calculator::get_user_stats($this->cm->id, 0, $this->report->get_quantifiers(), $this->users[0]->id);
         $this->assertEquals(0, $userstats->questions_created);
     }
@@ -222,9 +222,11 @@ class report_test extends \advanced_testcase {
      * test mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps
      * @covers \mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps
      */
-    public function test_mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps() {
+    public function test_mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps(): void {
         $studentquizprogresses = mod_studentquiz_get_studentquiz_progress_from_question_attempts_steps(
-                $this->studentquiz->id, $this->context);
+            $this->studentquiz->id,
+            $this->context
+        );
 
         // Only data for the two completed questions.
         $this->assertCount(2, $studentquizprogresses);
@@ -249,22 +251,5 @@ class report_test extends \advanced_testcase {
         $this->assertEquals(0, $q2stats->lastanswercorrect);
         $this->assertEquals(1, $q2stats->attempts);
         $this->assertEquals(0, $q2stats->correctattempts);
-    }
-
-    /**
-     * Debug output db contents
-     *
-     * @param array $user
-     * @return array
-     */
-    private function debugdb($user=array()) {
-        global $DB;
-        $tables = array('studentquiz', 'studentquiz_attempt', 'question_usages', 'question_attempts',
-            'question_attempt_steps', 'question_attempt_step_data');
-        $result = array();
-        $result['user'] = $this->users[0];
-        foreach ($tables as $table) {
-            $result[$table] = $DB->get_records($table);
-        }
     }
 }

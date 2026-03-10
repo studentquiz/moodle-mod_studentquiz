@@ -27,7 +27,7 @@ use mod_studentquiz\local\studentquiz_progress;
  * @copyright  2020 The Open University
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class comment_test extends \advanced_testcase {
+final class comment_test extends \advanced_testcase {
 
     /**
      * @var \stdClass the StudentQuiz activity created in setUp.
