@@ -589,7 +589,8 @@ Feature: Create comment as an user
     And I switch to "questionpreview" window
     And I set the field "statetype" to "Approved"
     And I click on "Change state" "button"
-    And I press "Close"
+    And I click on "OK" "button" in the ".modal-dialog" "css_element"
+    And I press "Close preview"
     And I am on the "StudentQuiz 3" "mod_studentquiz > View" page logged in as "student1"
     And I choose "Preview" action for "Question of Student 1" in the question bank
     And I switch to "questionpreview" window
