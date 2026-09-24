@@ -356,7 +356,11 @@ function mod_studentquiz_event_notification_question($event, $studentquizquestio
 
     // Creator and Actor must be different.
     if ($question->createdby != $USER->id) {
-        $users = user_get_users_by_id(array($question->createdby, $USER->id));
+        if (method_exists(\core\user::class, 'get_users_by_id')) {
+            $users = \core\user::get_users_by_id([$question->createdby, $USER->id]);
+        } else {
+            $users = user_get_users_by_id([$question->createdby, $USER->id]);
+        }
         $recipient = $users[$question->createdby];
         $actor = $users[$USER->id];
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
@@ -382,7 +386,11 @@ function mod_studentquiz_event_notification_comment($event, $comment, $course, $
     // Creator and Actor must be different.
     // If the comment and question is the same recipient, only send the minecomment notification (see function below).
     if ($question->createdby != $USER->id && $comment->userid != $question->createdby) {
-        $users = user_get_users_by_id(array($question->createdby, $USER->id));
+        if (method_exists(\core\user::class, 'get_users_by_id')) {
+            $users = \core\user::get_users_by_id([$question->createdby, $USER->id]);
+        } else {
+            $users = user_get_users_by_id([$question->createdby, $USER->id]);
+        }
         $recipient = $users[$question->createdby];
         $actor = $users[$USER->id];
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
@@ -411,7 +419,11 @@ function mod_studentquiz_event_notification_minecomment($event, $comment, $cours
     $question = $studentquizquestion->get_question();
     // Creator and Actor must be different.
     if ($comment->userid != $USER->id) {
-        $users = user_get_users_by_id(array($comment->userid, $USER->id));
+        if (method_exists(\core\user::class, 'get_users_by_id')) {
+            $users = \core\user::get_users_by_id([$comment->userid, $USER->id]);
+        } else {
+            $users = user_get_users_by_id([$comment->userid, $USER->id]);
+        }
         $recipient = $users[$comment->userid];
         $actor = $users[$USER->id];
         $data = mod_studentquiz_prepare_notify_data($studentquizquestion, $recipient, $actor, $course, $module);
