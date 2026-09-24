@@ -8,7 +8,7 @@ jobs:
 
     services:
       postgres:
-        image: postgres:16
+        image: postgres:17
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
@@ -16,13 +16,13 @@ jobs:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
       mariadb:
-        image: mariadb:10.11
+        image: mariadb:11.4
         env:
           MYSQL_USER: 'root'
           MYSQL_ALLOW_EMPTY_PASSWORD: "true"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd="healthcheck.sh --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
 
     # PHP Compatibility Matrix Moodle             End of life
     # Moodle 4.0: php7.3, php7.4, php8.0 (exp)      Nov 2023
@@ -36,9 +36,9 @@ jobs:
         # - each moodle version at least once
         # - each database at least once
         include:
-          - {php: '8.2', moodle-branch: MOODLE_405_STABLE, database: mariadb}
-          - {php: '8.3', moodle-branch: MOODLE_500_STABLE, database: mariadb}
-          - {php: '8.4', moodle-branch: MOODLE_501_STABLE, database: pgsql}
+          - {php: '8.2', moodle-branch: MOODLE_500_STABLE, database: mariadb}
+          - {php: '8.3', moodle-branch: MOODLE_501_STABLE, database: mariadb}
+          - {php: '8.4', moodle-branch: MOODLE_502_STABLE, database: pgsql}
           - {php: '8.4', moodle-branch: main, database: pgsql}
     steps:
       - name: Check out repository code
