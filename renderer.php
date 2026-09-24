@@ -1281,7 +1281,7 @@ EOT;
 
         if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
             $output .= html_writer::empty_tag('input', [
-                'class' => 'btn btn-secondary',
+                'class' => 'btn btn-secondary me-1 mb-1',
                 'type' => 'submit',
                 'name' => 'approveselected',
                 'formaction' => $changestateurl,
@@ -1313,7 +1313,7 @@ EOT;
 
         if ($canmoveall) {
             $attributes = [
-                'class' => 'btn btn-secondary',
+                'class' => 'btn btn-secondary me-1 mb-1',
                 'type' => 'submit',
                 'name' => 'move',
                 'value' => get_string('moveto', 'question'),
