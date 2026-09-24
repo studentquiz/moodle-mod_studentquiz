@@ -193,7 +193,11 @@ class mod_studentquiz_renderer extends plugin_renderer_base {
         $rank = 1;
         foreach ($ranking as $row) {
             if ($currentuserid == $row->userid || !$anonymise) {
-                $author = user_get_users_by_id(array($row->userid))[$row->userid];
+                if (method_exists(\core\user::class, 'get_users_by_id')) {
+                    $author = \core\user::get_users_by_id([$row->userid])[$row->userid];
+                } else {
+                    $author = user_get_users_by_id([$row->userid])[$row->userid];
+                }
                 $name = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             } else {
                 $name = $anonymname;
@@ -2247,7 +2251,11 @@ class mod_studentquiz_ranking_renderer extends mod_studentquiz_renderer {
                     }
                 }
             }
-            $author = user_get_users_by_id(array($ur->userid))[$ur->userid];
+            if (method_exists(\core\user::class, 'get_users_by_id')) {
+                $author = \core\user::get_users_by_id([$ur->userid])[$ur->userid];
+            } else {
+                $author = user_get_users_by_id([$ur->userid])[$ur->userid];
+            }
             $username = html_writer::link(utils::get_user_profile_url($author->id, $this->page->course->id), fullname($author));
             if ($report->is_anonymized() && $ur->userid != $userid) {
                 $username = get_string('creator_anonym_fullname', 'studentquiz');
