@@ -66,6 +66,38 @@ class studentquiz_helper {
      */
     const STATE_REVIEWABLE = 7;
 
+    /** @var int[] States available to question authors. */
+    public const AUTHOR_STATES = [
+        self::STATE_CHANGED,
+        self::STATE_REVIEWABLE,
+        self::STATE_DELETE,
+    ];
+
+    /** @var int[] States available to users with mod/studentquiz:changestate. */
+    public const MANAGER_STATES = [
+        self::STATE_DISAPPROVED,
+        self::STATE_APPROVED,
+        self::STATE_CHANGED,
+        self::STATE_REVIEWABLE,
+        self::STATE_HIDE,
+        self::STATE_DELETE,
+    ];
+
+    /**
+     * Get the state choices in display order.
+     *
+     * @param bool $canmanage Whether the user can change other authors' questions.
+     * @return array State codes mapped to their descriptions.
+     */
+    public static function get_state_choices(bool $canmanage): array {
+        $descriptions = self::get_state_descriptions();
+        $choices = [];
+        foreach ($canmanage ? self::MANAGER_STATES : self::AUTHOR_STATES as $state) {
+            $choices[$state] = $descriptions[$state];
+        }
+        return $choices;
+    }
+
     /**
      * State name offers string representation for state codes. Probably only use for translation hints.
      * State code is mapped for question status in question_version_status.

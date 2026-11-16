@@ -131,6 +131,51 @@ final class studentquiz_question_test extends \advanced_testcase {
     }
 
     /**
+     * Bulk selection normalises ids and reuses the already loaded activity context.
+     *
+     * @covers \mod_studentquiz\local\studentquiz_question::get_studentquiz_questions_from_question_ids
+     */
+    public function test_load_selected_questions(): void {
+        $cm = $this->studentquizquestion->get_cm();
+        $context = \context_module::instance($cm->id);
+        $questions = studentquiz_question::get_studentquiz_questions_from_question_ids(
+            ['00' . $this->question->id, $this->question->id],
+            $cm->id,
+            $cm,
+            $context
+        );
+        $this->assertCount(1, $questions);
+        $this->assertEquals($this->studentquizquestion->get_id(), $questions[$this->question->id]->get_id());
+        $this->assertEquals($this->question->createdby, $questions[$this->question->id]->get_createdby());
+        $this->assertSame($cm, $questions[$this->question->id]->get_cm());
+        $this->assertSame($context, $questions[$this->question->id]->get_context());
+    }
+
+    /**
+     * A mixed selection is rejected before any question details are displayed or updated.
+     *
+     * @covers \mod_studentquiz\local\studentquiz_question::get_studentquiz_questions_from_question_ids
+     */
+    public function test_load_selected_questions_rejects_another_activity(): void {
+        $otheractivity = $this->getDataGenerator()->create_module('studentquiz', [
+            'course' => $this->studentquizquestion->get_cm()->course,
+        ]);
+        $context = \context_module::instance($otheractivity->cmid);
+        $studentquiz = mod_studentquiz_load_studentquiz($otheractivity->cmid, $context->id);
+        $otherquestion = $this->getDataGenerator()->get_plugin_generator('core_question')->create_question(
+            'truefalse',
+            null,
+            ['category' => $studentquiz->categoryid]
+        );
+
+        $this->expectException(\invalid_parameter_exception::class);
+        studentquiz_question::get_studentquiz_questions_from_question_ids(
+            [$this->question->id, $otherquestion->id],
+            $this->studentquizquestion->get_cm()->id
+        );
+    }
+
+    /**
      * Get the private properties on data object in studentquiz_question.
      *
      * @return object

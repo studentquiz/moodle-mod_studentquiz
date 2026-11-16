@@ -1587,14 +1587,7 @@ EOT;
                 'aria-describedby' => 'modal-body',
                 'aria-modal' => 'true'
         ];
-        $states = [
-                studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
-                studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
-                studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-                studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
-                studentquiz_helper::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
-                studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
-        ];
+        $states = studentquiz_helper::get_state_choices(true);
         $output = $this->box_start('generalbox modal modal-dialog modal-in-page show', 'notice', $attributes);
         $output .= $this->box_start('modal-content', 'modal-content');
         $output .= $this->box_start('modal-header p-x-1', 'modal-header');
@@ -1795,25 +1788,11 @@ class mod_studentquiz_attempt_renderer extends mod_studentquiz_renderer {
 
         $question = $studentquizquestion->get_question();
         $output = '';
-        if ($USER->id != $question->createdby && !has_capability('mod/studentquiz:changestate', $this->page->context)) {
+        $canmanage = has_capability('mod/studentquiz:changestate', $this->page->context);
+        if ($USER->id != $question->createdby && !$canmanage) {
             return;
         }
-        $states = [
-            studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-            studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
-            studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
-        ];
-
-        if (has_capability('mod/studentquiz:changestate', $this->page->context)) {
-            $states = [
-                studentquiz_helper::STATE_DISAPPROVED => get_string('state_disapproved', 'studentquiz'),
-                studentquiz_helper::STATE_APPROVED => get_string('state_approved', 'studentquiz'),
-                studentquiz_helper::STATE_CHANGED => get_string('state_changed', 'studentquiz'),
-                studentquiz_helper::STATE_REVIEWABLE => get_string('state_reviewable', 'studentquiz'),
-                studentquiz_helper::STATE_HIDE => get_string('state_hidden', 'studentquiz'),
-                studentquiz_helper::STATE_DELETE => get_string('state_deleted', 'studentquiz'),
-            ];
-        }
+        $states = studentquiz_helper::get_state_choices($canmanage);
 
         $currentstate = $studentquizquestion->get_state();
         $statenames = studentquiz_helper::get_state_descriptions();
