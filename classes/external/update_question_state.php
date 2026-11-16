@@ -27,15 +27,13 @@ namespace mod_studentquiz\external;
 
 defined('MOODLE_INTERNAL') || die();
 
-use external_api;
-use external_function_parameters;
-use external_single_structure;
-use external_value;
-use mod_studentquiz\local\studentquiz_helper;
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 use mod_studentquiz\local\studentquiz_question;
 
 require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
-require_once($CFG->libdir . '/externallib.php');
 
 /**
  * Create update question state services implementation.
@@ -68,54 +66,30 @@ class update_question_state extends external_api {
      * @param int $studentquizquestionid StudentQuiz-Question id,
      * @param int $state State value
      * @return array Response
+     * @throws \invalid_parameter_exception When the question does not belong to the given activity or the state is not allowed.
+     * @throws \required_capability_exception When a user without changestate acts on a question they did not author.
      */
     public static function execute($courseid, $cmid, $studentquizquestionid, $state) {
-        global $PAGE, $USER;
-
-        // Student can not delete the question when the question is in approved state.
-        $context = \context_course::instance($courseid);
-        $canmanage = has_capability('mod/studentquiz:manage', $context);
-        $contextmodule = \context_module::instance($cmid);
-        $cm = get_coursemodule_from_id('studentquiz', $cmid);
-        $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
-        $studentquizquestion = new studentquiz_question($studentquizquestionid, null, $studentquiz);
-
-        if (!$canmanage && $state == studentquiz_helper::STATE_DELETE) {
-            if ($studentquizquestion->get_state() == studentquiz_helper::STATE_APPROVED) {
-                $result = [];
-                $result['status'] = get_string('api_state_change_error_title', 'studentquiz');
-                $result['message'] = get_string('api_state_change_error_content', 'studentquiz');
-                return $result;
-            }
-        }
-        if ($state === studentquiz_helper::STATE_HIDE) {
-            $studentquizquestion->change_hidden_status(1);
-        } else if ($state === studentquiz_helper::STATE_DELETE) {
-            $studentquizquestion->change_delete_state();
-        } else {
-            $studentquizquestion->change_state_visibility($state);
-        }
-        $studentquizquestion->save_action($state, $USER->id);
-
-        $course = get_course($courseid);
-        $PAGE->set_context($contextmodule);
-        if (!$canmanage) {
-            if ($state == studentquiz_helper::STATE_REVIEWABLE) {
-                mod_studentquiz_notify_reviewable_question($studentquizquestion, $course, $cm);
-            }
-        } else {
-            $statename = studentquiz_helper::$statename[$state];
-            mod_studentquiz_event_notification_question($statename, $studentquizquestion, $course, $cm);
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'courseid' => $courseid,
+            'cmid' => $cmid,
+            'studentquizquestionid' => $studentquizquestionid,
+            'state' => $state,
+        ]);
+        $contextmodule = \context_module::instance($params['cmid']);
+        self::validate_context($contextmodule);
+        $cm = get_coursemodule_from_id('studentquiz', $params['cmid'], 0, false, MUST_EXIST);
+        if ((int) $cm->course !== $params['courseid']) {
+            throw new \invalid_parameter_exception('The course module does not belong to the given course.');
         }
 
-        // Update completion state.
-        \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($course, $cm,
-            $studentquizquestion->get_question()->createdby);
+        $studentquizquestion = new studentquiz_question($params['studentquizquestionid']);
+        $questioncm = $studentquizquestion->get_cm();
+        if (!$questioncm || (int) $questioncm->id !== $params['cmid']) {
+            throw new \invalid_parameter_exception('The question does not belong to the given course module.');
+        }
 
-        $result = [];
-        $result['status'] = get_string('api_state_change_success_title', 'studentquiz');
-        $result['message'] = get_string('api_state_change_success_content', 'studentquiz');
-        return $result;
+        return $studentquizquestion->change_state($params['state']);
     }
 
     /**

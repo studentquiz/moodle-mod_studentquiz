@@ -131,6 +131,15 @@ class studentquiz_question {
     }
 
     /**
+     * Get the question author's user id without loading the question definition.
+     *
+     * @return int
+     */
+    public function get_createdby(): int {
+        return (int) $this->data->createdby;
+    }
+
+    /**
      * Get the id of the group that was selected when this question was attempted, if any.
      *
      * @return int groupid, or 0.
@@ -205,6 +214,107 @@ class studentquiz_question {
         $record = $DB->get_record_sql($sql, $params, MUST_EXIST);
 
         return new studentquiz_question($record->id, $question, $studentquiz, $cm, $context);
+    }
+
+    /**
+     * Load selected questions only if they all belong to the given activity.
+     *
+     * @param int[] $questionids Question ids, not StudentQuiz question ids.
+     * @param int $cmid Course module id.
+     * @param stdClass|\cm_info|null $cm Course module for the given activity, if already loaded.
+     * @param \context_module|null $context Context for the given activity, if already loaded.
+     * @return studentquiz_question[] Questions keyed by question id.
+     * @throws \invalid_parameter_exception
+     */
+    public static function get_studentquiz_questions_from_question_ids(
+        array $questionids,
+        int $cmid,
+        stdClass|\cm_info|null $cm = null,
+        ?\context_module $context = null
+    ): array {
+        global $DB;
+
+        if (!$questionids) {
+            return [];
+        }
+        $questionids = array_unique(array_map('intval', $questionids));
+        [$insql, $params] = $DB->get_in_or_equal($questionids, SQL_PARAMS_NAMED);
+        $params['cmid'] = $cmid;
+        $sql = "SELECT DISTINCT qv.questionid, sqq.id
+                  FROM {question_versions} qv
+                  JOIN {question_references} qr ON qr.questionbankentryid = qv.questionbankentryid
+                       AND qr.component = 'mod_studentquiz'
+                       AND qr.questionarea = 'studentquiz_question'
+                  JOIN {studentquiz_question} sqq ON sqq.id = qr.itemid
+                  JOIN {studentquiz} sq ON sq.id = sqq.studentquizid
+                 WHERE qv.questionid $insql AND sq.coursemodule = :cmid";
+        $records = $DB->get_records_sql($sql, $params);
+        if (count($records) !== count($questionids)) {
+            throw new \invalid_parameter_exception('The question does not belong to the given course module.');
+        }
+        $questions = [];
+        foreach ($questionids as $questionid) {
+            $questions[$questionid] = new self($records[$questionid]->id, null, null, $cm, $context);
+        }
+        return $questions;
+    }
+
+    /**
+     * Apply an authorised state change, including history, notifications and completion.
+     *
+     * The caller must first require access to the activity context.
+     *
+     * @param int $state Requested state.
+     * @return array Status and message for the user.
+     * @throws \required_capability_exception
+     * @throws \invalid_parameter_exception
+     */
+    public function change_state(int $state): array {
+        global $CFG, $USER;
+
+        require_once($CFG->dirroot . '/mod/studentquiz/locallib.php');
+
+        $context = $this->get_context();
+        $canmanage = has_capability('mod/studentquiz:changestate', $context);
+        if (!$canmanage && $this->get_createdby() !== (int) $USER->id) {
+            throw new \required_capability_exception($context, 'mod/studentquiz:changestate', 'nopermissions', '');
+        }
+        if (!in_array($state, $canmanage ? studentquiz_helper::MANAGER_STATES : studentquiz_helper::AUTHOR_STATES, true)) {
+            throw new \invalid_parameter_exception('Invalid or forbidden question state.');
+        }
+        if (
+            !$canmanage && $state === studentquiz_helper::STATE_DELETE
+                && $this->get_state() === studentquiz_helper::STATE_APPROVED
+        ) {
+            return [
+                'status' => get_string('api_state_change_error_title', 'studentquiz'),
+                'message' => get_string('api_state_change_error_content', 'studentquiz'),
+            ];
+        }
+        if ($state === studentquiz_helper::STATE_HIDE) {
+            $this->change_hidden_status(1);
+        } else if ($state === studentquiz_helper::STATE_DELETE) {
+            $this->change_delete_state();
+        } else {
+            $this->change_state_visibility($state);
+        }
+        $this->save_action($state, $USER->id);
+
+        $cm = $this->get_cm();
+        $course = get_course($cm->course);
+        if (!$canmanage) {
+            if ($state === studentquiz_helper::STATE_REVIEWABLE) {
+                mod_studentquiz_notify_reviewable_question($this, $course, $cm);
+            }
+        } else {
+            mod_studentquiz_event_notification_question(studentquiz_helper::$statename[$state], $this, $course, $cm);
+        }
+        \mod_studentquiz\completion\custom_completion::trigger_completion_state_update($course, $cm, $this->get_createdby());
+
+        return [
+            'status' => get_string('api_state_change_success_title', 'studentquiz'),
+            'message' => get_string('api_state_change_success_content', 'studentquiz'),
+        ];
     }
 
     /**

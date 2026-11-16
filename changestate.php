@@ -27,7 +27,6 @@
 use mod_studentquiz\local\studentquiz_helper;
 use mod_studentquiz\local\studentquiz_question;
 use mod_studentquiz\utils;
-use mod_studentquiz\external\update_question_state;
 
 require_once(__DIR__ . '/../../config.php');
 require_once(__DIR__ . '/locallib.php');
@@ -56,7 +55,6 @@ $PAGE->set_heading($course->fullname);
 $PAGE->activityheader->disable();
 $PAGE->set_secondary_active_tab("studentquiz");
 
-$rawquestionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
 // If user has already confirmed the action.
 if (
     $approveselected &&
@@ -69,13 +67,14 @@ if (
     if ($confirm == md5($approveselected)) {
         // We should not change the state if state is not being changed.
         if ($state !== -1) {
-            if ($questionlist = explode(',', $approveselected)) {
-                foreach ($questionlist as $questionid) {
-                    $questionid = (int) $questionid;
-                    $question = question_bank::load_question($questionid);
-                    $studentquizquestion = studentquiz_question::get_studentquiz_question_from_question($question);
-                    update_question_state::execute($course->id, $cmid, $studentquizquestion->get_id(), $state);
-                }
+            $selectedquestions = studentquiz_question::get_studentquiz_questions_from_question_ids(
+                explode(',', $approveselected),
+                $cmid,
+                $cm,
+                $context
+            );
+            foreach ($selectedquestions as $studentquizquestion) {
+                $studentquizquestion->change_state($state);
             }
         }
         redirect($returnurl);
@@ -84,34 +83,36 @@ if (
     }
 }
 
+$questionids = mod_studentquiz_helper_get_ids_by_raw_submit($_REQUEST);
+if ($approveselected) {
+    $selectedquestions = studentquiz_question::get_studentquiz_questions_from_question_ids($questionids, $cmid, $cm, $context);
+    if (!$selectedquestions) {
+        redirect($returnurl);
+    }
+}
+
 echo $OUTPUT->header();
 
 if ($approveselected) {
     // Make a list of all the questions that are selected.
-    $rawquestions = $_REQUEST; // This code is called by both POST forms and GET links, so cannot use data_submitted.
     $questionlist = '';  // Comma separated list of ids of questions to be deleted.
     $questionnames = ''; // String with names of questions separated by <br/> with an asterix in front of those that are in use.
     $inuse = false;      // Set to true if at least one of the questions is in use.
-    $questionids = mod_studentquiz_helper_get_ids_by_raw_submit($rawquestions);
-    $states = utils::get_states($questionids);
     $statedesc = studentquiz_helper::get_state_descriptions();
     $questionnames = utils::get_question_names($questionids);
     $questions = [];
 
-    foreach ($rawquestions as $key => $value) {    // Parse input for question ids.
-        if (preg_match('!^q([0-9]+)$!', $key, $matches)) {
-            $key = $matches[1];
-            $questionlist .= $key . ',';
-            $question = new stdClass();
-            $question->name = '';
-            if (questions_in_use([$key])) {
-                $question->name .= '* ';
-                $inuse = true;
-            }
-            $question->name .= $questionnames[$key]->name;
-            $question->state = $statedesc[$states[$key]->state];
-            $questions[] = $question;
+    foreach ($selectedquestions as $key => $sqq) {
+        $questionlist .= $key . ',';
+        $question = new stdClass();
+        $question->name = '';
+        if (questions_in_use([$key])) {
+            $question->name .= '* ';
+            $inuse = true;
         }
+        $question->name .= $questionnames[$key]->name;
+        $question->state = $statedesc[$sqq->get_state()];
+        $questions[] = $question;
     }
     if (!$questionlist) {
         // No questions were selected.
