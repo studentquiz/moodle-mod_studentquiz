@@ -48,6 +48,31 @@ require_once($CFG->libdir . '/externallib.php');
 class update_question_state extends external_api {
 
     /**
+     * States the question author may set without mod/studentquiz:changestate.
+     *
+     * Mirrors the choices offered by renderer::render_state_choice() to authors.
+     */
+    private const AUTHOR_STATES = [
+        studentquiz_helper::STATE_CHANGED,
+        studentquiz_helper::STATE_REVIEWABLE,
+        studentquiz_helper::STATE_DELETE,
+    ];
+
+    /**
+     * States a user holding mod/studentquiz:changestate may set.
+     *
+     * Mirrors the choices offered by renderer::render_state_choice() and the bulk change state dialog.
+     */
+    private const MANAGER_STATES = [
+        studentquiz_helper::STATE_DISAPPROVED,
+        studentquiz_helper::STATE_APPROVED,
+        studentquiz_helper::STATE_CHANGED,
+        studentquiz_helper::STATE_REVIEWABLE,
+        studentquiz_helper::STATE_HIDE,
+        studentquiz_helper::STATE_DELETE,
+    ];
+
+    /**
      * Get the required question state parameters.
      * @return external_function_parameters
      */
@@ -68,25 +93,44 @@ class update_question_state extends external_api {
      * @param int $studentquizquestionid StudentQuiz-Question id,
      * @param int $state State value
      * @return array Response
+     * @throws \invalid_parameter_exception When the question does not belong to the given activity or the state is not allowed.
+     * @throws \required_capability_exception When a user without changestate acts on a question they did not author.
      */
     public static function execute($courseid, $cmid, $studentquizquestionid, $state) {
-        global $PAGE, $USER;
+        global $USER;
+
+        $params = self::validate_parameters(self::execute_parameters(), [
+            'courseid' => $courseid,
+            'cmid' => $cmid,
+            'studentquizquestionid' => $studentquizquestionid,
+            'state' => $state,
+        ]);
+        $state = $params['state'];
+
+        // Derive the activity from the question itself: caller-supplied course and module ids are never trusted.
+        $studentquizquestion = new studentquiz_question($params['studentquizquestionid']);
+        $cm = $studentquizquestion->get_cm();
+        if (!$cm || (int) $cm->id !== $params['cmid'] || (int) $cm->course !== $params['courseid']) {
+            throw new \invalid_parameter_exception('The question does not belong to the given course module.');
+        }
+        $contextmodule = $studentquizquestion->get_context();
+        self::validate_context($contextmodule);
+
+        $canmanage = has_capability('mod/studentquiz:changestate', $contextmodule);
+        if (!$canmanage && (int) $studentquizquestion->get_question()->createdby !== (int) $USER->id) {
+            throw new \required_capability_exception($contextmodule, 'mod/studentquiz:changestate', 'nopermissions', '');
+        }
+        if (!in_array($state, $canmanage ? self::MANAGER_STATES : self::AUTHOR_STATES, true)) {
+            throw new \invalid_parameter_exception('Invalid or forbidden question state.');
+        }
 
         // Student can not delete the question when the question is in approved state.
-        $context = \context_course::instance($courseid);
-        $canmanage = has_capability('mod/studentquiz:manage', $context);
-        $contextmodule = \context_module::instance($cmid);
-        $cm = get_coursemodule_from_id('studentquiz', $cmid);
-        $studentquiz = mod_studentquiz_load_studentquiz($cmid, $contextmodule->id);
-        $studentquizquestion = new studentquiz_question($studentquizquestionid, null, $studentquiz);
-
-        if (!$canmanage && $state == studentquiz_helper::STATE_DELETE) {
-            if ($studentquizquestion->get_state() == studentquiz_helper::STATE_APPROVED) {
-                $result = [];
-                $result['status'] = get_string('api_state_change_error_title', 'studentquiz');
-                $result['message'] = get_string('api_state_change_error_content', 'studentquiz');
-                return $result;
-            }
+        if (!$canmanage && $state === studentquiz_helper::STATE_DELETE
+                && (int) $studentquizquestion->get_state() === studentquiz_helper::STATE_APPROVED) {
+            return [
+                'status' => get_string('api_state_change_error_title', 'studentquiz'),
+                'message' => get_string('api_state_change_error_content', 'studentquiz'),
+            ];
         }
         if ($state === studentquiz_helper::STATE_HIDE) {
             $studentquizquestion->change_hidden_status(1);
@@ -97,8 +141,7 @@ class update_question_state extends external_api {
         }
         $studentquizquestion->save_action($state, $USER->id);
 
-        $course = get_course($courseid);
-        $PAGE->set_context($contextmodule);
+        $course = get_course($cm->course);
         if (!$canmanage) {
             if ($state == studentquiz_helper::STATE_REVIEWABLE) {
                 mod_studentquiz_notify_reviewable_question($studentquizquestion, $course, $cm);
